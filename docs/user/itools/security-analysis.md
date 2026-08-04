@@ -305,6 +305,9 @@ itools security-analysis \
   }]
 }
 ```
+```{warning}
+The "type" and "version" fields of a JSON contingency list must be located at the top of the file.
+```
 </details>
 
 <details>
@@ -326,6 +329,9 @@ itools security-analysis \
     } ]
   } ]
 }
+```
+```{warning}
+The "version" field of a JSON operator strategy list must be located at the top of the object.
 ```
 </details> 
 
@@ -351,6 +357,9 @@ itools security-analysis \
     }
   ]
 }
+```
+```{warning}
+The "version" field of a JSON action list must be located at the top of the object.
 ```
 </details>
 

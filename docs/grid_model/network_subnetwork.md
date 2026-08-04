@@ -40,6 +40,11 @@ In the PowSyBl grid model, the Network contains [substations](#substation), whic
 The `SourceFormat` attribute is a required attribute that indicates the origin of the network model automatically set by the [importers](../grid_exchange_formats/index.md). If the case date and the forecast distance cannot be found in the case file, the network is considered as a snapshot: the case date is set to the current date, and the forecast distance is set to `0`.
 
 **Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
+- [Line Couplings](extensions.md#line-couplings)
+- [Reference Terminals](extensions.md#reference-terminals)
+- [Secondary Voltage Control](extensions.md#secondary-voltage-control)
+
 
 (substation)=
 ## Substation
@@ -58,7 +63,10 @@ A substation represents a specific geographical location with equipment grouped 
 All three attributes are optional.
 
 **Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [ENTSO-E Area](extensions.md#entso-e-area)
+- [Substation position](extensions.md#substation-position)
+
 
 (voltage-level)=
 ## Voltage level
@@ -97,8 +105,11 @@ When defining the model, the user has to specify how the different pieces of equ
 **Available extensions**
 
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
+- [Observability Area](extensions.md#observability-area)
 - [Slack Terminal](extensions.md#slack-terminal)
+
 
 (area)=
 ## Area
@@ -149,6 +160,9 @@ which are then separated for AC and DC parts.
 | $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)   |
 | $Ac$       |      | True if AreaBoundary is to be considered AC, false otherwise                |
 
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
+
 (generator)=
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
@@ -190,13 +204,17 @@ The optional `EquivalentLocalTargetV` value can be used by simulators that deact
 **Available extensions**
 
 - [Active Power Control](extensions.md#active-power-control)
+- [Connectable Position](extensions.md#connectable-position)
 - [Coordinated Reactive Control](extensions.md#coordinated-reactive-control)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Generator ENTSO-E Category](extensions.md#generator-entso-e-category)
+- [Generator Fortescue](extensions.md#generator-fortescue)
 - [Generator Short-Circuit](extensions.md#generator-short-circuit)
 - [Generator Startup](extensions.md#generator-startup)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
+- [Reference Priorities](extensions.md#reference-priorities)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
 - [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
@@ -248,11 +266,13 @@ In the grid model, loads comprise the following metadata:
 
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Load Asymmetrical](extensions.md#load-asymmetrical)
 - [Load Detail](extensions.md#load-detail)
 - [Measurements](extensions.md#measurements)
+- [Reference Priorities](extensions.md#reference-priorities)
 
 (battery)=
 ## Battery
@@ -289,8 +309,10 @@ a [reactive capability curve](./additional.md#reactive-capability-curve).
 **Available extensions**
 
 - [Active Power Control](extensions.md#active-power-control)
+- [Battery Short-Circuit](extensions.md#battery-short-circuit)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
@@ -356,7 +378,7 @@ as a [TieLine](#tie-line), for both UCTE or CIM-CGMES formats.
 A boundary line has a `Boundary` object that emulates a terminal located at boundary side. A boundary line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
-are automatically computed using information from the terminal of the boundary line.  
+are automatically computed using information from the terminal of the boundary line.
 
 
 **Available extensions**
@@ -364,9 +386,11 @@ are automatically computed using information from the terminal of the boundary l
 - [CGMES Boundary Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-boundary-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
+- [Operating Status](extensions.md#operating-status)
 
 (shunt-compensator)=
 ## Shunt compensator
@@ -440,6 +464,7 @@ $B$ and $G$ attributes can be equal zero, but the disconnected status of the non
 
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
@@ -489,10 +514,12 @@ In IIDM the static VAR compensator also comprises some metadata:
 
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [VoltagePerReactivePowerControl](extensions.md#voltage-per-reactive-power-control)
+- [StandByAutomaton](extensions.md#standby-automaton)
 
 (line)=
 ## Line
@@ -547,10 +574,13 @@ $$
 
 - [Connectable position](extensions.md#connectable-position)
 - [Branch Observability](extensions.md#branch-observability)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Operating Status](extensions.md#operating-status)
 - [CGMES Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-line-boundary-node)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
+- [Line Fortescue](extensions.md#line-fortescue)
+- [Line Position](extensions.md#line-position)
 - [Measurements](extensions.md#measurements)
 
 (tie-line)=
@@ -575,6 +605,11 @@ $G2$ (resp. $B2$) is equal to the second boundary line's $G2$ (resp. $B2$).
 | $B2$      | S        | The second side shunt susceptance |
 
 A tie line is not a connectable. It is just a container of two underlying boundary lines with the same pairing key. When connected together, each boundary line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free boundary lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
+
+**Available extensions**
+- [Branch Observability](extensions.md#branch-observability)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
+- [Operating Status](extensions.md#operating-status)
 
 ## Transformers
 
@@ -643,10 +678,12 @@ $$
 - [Operating Status](extensions.md#operating-status)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
-- [Two-windings Transformer Phase Angle Clock](extensions.md#two-winding-transformer-phase-angle-clock)
-- [Two-windings Transformer To Be Estimated](extensions.md#two-winding-transformer-to-be-estimated)
+- [Two-winding Transformer Fortescue](extensions.md#two-winding-transformer-fortescue)
+- [Two-winding Transformer Phase Angle Clock](extensions.md#two-winding-transformer-phase-angle-clock)
+- [Two-winding Transformer To Be Estimated](extensions.md#two-winding-transformer-to-be-estimated)
 
 (three-winding-transformer)=
 ### Three-winding transformer
@@ -680,10 +717,12 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 - [Operating Status](extensions.md#operating-status)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
-- [Three-windings Transformer Phase Angle Clock](extensions.md#three-winding-transformer-phase-angle-clock)
-- [Three-windings Transformer To Be Estimated](extensions.md#three-winding-transformer-to-be-estimated)
+- [Three-winding Transformer Fortescue](extensions.md#three-winding-transformer-fortescue)
+- [Three-winding Transformer Phase Angle Clock](extensions.md#three-winding-transformer-phase-angle-clock)
+- [Three-winding Transformer To Be Estimated](extensions.md#three-winding-transformer-to-be-estimated)
 
 #### Three-winding transformer leg
 
@@ -765,9 +804,10 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 - The active power setpoint and the maximum active power should always be positive values.
 
 **Available extensions**
-
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [HVDC Angle Droop Active Power Control](extensions.md#hvdc-angle-droop-active-power-control)
 - [HVDC Operator Active Power Range](extensions.md#hvdc-operator-active-power-range)
+- [Operating Status](extensions.md#operating-status)
 
 (hvdc-converter-station)=
 #### HVDC converter station
@@ -820,6 +860,9 @@ An LCC converter station is made with electronic switches that can only be turne
 **Available extensions**
 
 - [Connectable position](extensions.md#connectable-position)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
+- [Injection observability](extensions.md#injection-observability)
+
 
 (vsc-converter-station)=
 ##### VSC converter station
@@ -852,6 +895,8 @@ A VSC converter station is made with switching devices that can be turned both o
 **Available extensions**
 
 - [Connectable position](extensions.md#connectable-position)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
+- [Injection observability](extensions.md#injection-observability)
 
 ### Detailed DC model
 
@@ -878,6 +923,9 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
 
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
+
 (dc-line)=
 #### DC Line
 
@@ -892,6 +940,8 @@ A DC Line has two DC Terminals.
 |-----------|----------|----------------------------------------|
 | $R$       | $\Omega$ | The series resistance, always positive |
 
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 
 (dc-switch)=
 #### DC Switch
@@ -905,6 +955,10 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 |------------|----------------|-------------------------------------------------------------------|
 | $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
 | $Open$     |                | True if the switch is opened                                      |
+| $R$        | $\Omega$       | The series resistance, non-negative                               |
+
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 
 (dc-ground)=
 #### DC Ground
@@ -920,6 +974,8 @@ A DC Ground has a single DC Terminal.
 |-----------|----------|-------------------------------------------|
 | $R$       | $\Omega$ | The grounding resistance, always positive |
 
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 
 (acdc-converter)=
 #### AC/DC Converter
@@ -941,9 +997,11 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or V_DC_DROOP               |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or P_PCC_DROOP              |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
+| $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention |
+| $MaxP$          | MW       | Maximum active power at point of common coupling, load sign convention |
 | $DroopCurve$    |          | Droop curve for droop control mode                                    |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
@@ -1003,7 +1061,15 @@ Each droop segment in the `DroopCurve` is defined with minimal and maximal volta
 droop segment should be the one which verifies:
 $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 
+`MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
+same load sign convention as `TargetP`.
 
+`MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
+
+`MinP` and `MaxP` are not serializable as of today. Trying to serialize AC-DC converters with non-default values of `MinP` or `MaxP` will raise an error.
+
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 
 (line-commutated-converter)=
 ##### Line Commutated Converter
@@ -1020,6 +1086,9 @@ $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's 
 Line Commutated Converters always consume reactive power, the `PowerFactor` attribute specifies how much
 is consumed when the reactive model is set to `FIXED_POWER_FACTOR`. Typical characteristic for LCCs is $Q = 0.5 P$
 hence a PowerFactor of 0.89443.
+
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 
 (voltage-source-converter)=
 ##### Voltage Source Converter
@@ -1041,6 +1110,9 @@ hence a PowerFactor of 0.89443.
 - The reactive power setpoint (in MVar) is required if the voltage regulator is off for the converter. The setpoint is in passive sign convention: a positive value of $ReactivePowerSetpoint$ means withdrawal from the bus.
 - A set of reactive limits can be associated to a VSC converter. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
 
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
+
 #### DC Topology Processing
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcTerminal.html) DcTerminal<br>
@@ -1054,11 +1126,11 @@ DC equipment connectivity may be modified in two ways:
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
 - A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
-- DC Nodes linked by a closed DC switch are considered part of the same DC Bus.
+- DC Nodes linked by a closed DC switch are considered part of the same DC Bus when the resistance of the DcSwitch is zero, otherwise they are in distinct buses.
 - A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
 - DC Nodes without any connected DC Terminal do not form a DC Bus. A DC Bus is guaranteed to contain at least one connected DC Terminal.
 
-DC Buses linked together via DC Lines and/or AC/DC Converters are part of the same *DC Component* (also called *DC Island*).
+DC Buses linked together via DC Lines, AC/DC Converters and/or closed DC switches are part of the same *DC Component* (also called *DC Island*).
 *Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a
 *Connected Component*.
 
@@ -1100,9 +1172,12 @@ A busbar section is a non impedant element used in a node/breaker substation top
 
 - [Busbar Section Position](extensions.md#busbar-section-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
+- [Operating Status](extensions.md#operating-status)
+- [Reference Priorities](extensions.md#reference-priorities)
 
 (switch)=
 ## Breaker/switch
@@ -1118,6 +1193,7 @@ A switch has an attribute to say if it is open or closed.
 **Available extensions**
 
 - [Discrete Measurements](extensions.md#discrete-measurements)
+- [Dynamic Model Info](extensions.md#dynamic-model-info)
 
 (internal-connection)=
 ## Internal connection
@@ -1140,18 +1216,18 @@ or an association of a three-windings transformer ID and a side.
 
 **Overload management system Characteristics**
 
-| Attribute | Unit | Description                                             |
-| --------- | ---- |---------------------------------------------------------|
-| $Substation$ | | The substation associated where the system is installed |
-| $MonitoredElementId$ | | The network element on which the limit will be monitored |
-| $MonitoredSide$ | | The side of the element that is monitored               |
+| Attribute            | Unit | Description                                              |
+|----------------------|------|----------------------------------------------------------|
+| $Substation$         |      | The substation associated where the system is installed  |
+| $MonitoredElementId$ |      | The network element on which the limit will be monitored |
+| $MonitoredSide$      |      | The side of the element that is monitored                |
 
 **Tripping Characteristics**
 
 The supported trippings are:
 - Branch tripping,
 - Switch tripping,
-- and three-windings transformer tripping.
+- And three-winding transformer tripping.
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
@@ -1159,3 +1235,6 @@ The supported trippings are:
 | $CurrentLimit$ | A | The current limit for which the action will be triggered |
 | $Key$ | | The tripping key |
 | $OpenAction$ | bool | Whether the tripping should be opened or closed |
+
+**Available extensions**
+- [Dynamic Model Info](extensions.md#dynamic-model-info)

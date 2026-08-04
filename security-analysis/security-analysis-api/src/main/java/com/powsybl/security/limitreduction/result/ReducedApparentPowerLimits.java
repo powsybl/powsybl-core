@@ -15,8 +15,18 @@ import com.powsybl.iidm.network.ApparentPowerLimits;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class ReducedApparentPowerLimits extends AbstractReducedLoadingLimits implements ApparentPowerLimits {
+
+    /**
+     * Create a {@link ReducedApparentPowerLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
+     */
     public ReducedApparentPowerLimits(double permanentLimit, double originalPermanentLimit,
                                       double permanentLimitReduction) {
         super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+    }
+
+    /**
+     * Create a {@link ReducedApparentPowerLimits} with no permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
+     */
+    public ReducedApparentPowerLimits() {
     }
 }

@@ -6,10 +6,10 @@
                 <iidm:busbarSection id="voltageLevel1BusbarSection1" node="0"/>
                 <iidm:busbarSection id="voltageLevel1BusbarSection2" node="1"/>
                 <iidm:switch id="voltageLevel1Breaker1" kind="BREAKER" retained="true" open="false" node1="0" node2="1"/>
-                <iidm:switch id="load1Disconnector1" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="3"/>
-                <iidm:switch id="load1Breaker1" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="0"/>
-                <iidm:switch id="generator1Disconnector1" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="6"/>
-                <iidm:switch id="generator1Breaker1" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="1"/>
+                <iidm:switch id="load1Disconnector1" kind="DISCONNECTOR" open="false" node1="2" node2="3"/>
+                <iidm:switch id="load1Breaker1" kind="DISCONNECTOR" open="false" node1="3" node2="0"/>
+                <iidm:switch id="generator1Disconnector1" kind="DISCONNECTOR" open="false" node1="5" node2="6"/>
+                <iidm:switch id="generator1Breaker1" kind="DISCONNECTOR" open="false" node1="6" node2="1"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="generator1" energySource="NUCLEAR" minP="200.0" maxP="900.0" voltageRegulatorOn="true" targetP="900.0" targetV="380.0" node="5">
                 <iidm:reactiveCapabilityCurve>

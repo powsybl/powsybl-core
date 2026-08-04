@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -39,24 +41,40 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r1", twt.getLeg1().getR());
         context.getWriter().writeDoubleAttribute("x1", twt.getLeg1().getX());
-        context.getWriter().writeDoubleAttribute("g1", twt.getLeg1().getG());
-        context.getWriter().writeDoubleAttribute("b1", twt.getLeg1().getB());
+        writeFormerlyMandatoryDoubleAttribute("g1", twt.getLeg1().getG(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b1", twt.getLeg1().getB(), IidmVersion.V_1_17, context);
         context.getWriter().writeDoubleAttribute("ratedU1", twt.getLeg1().getRatedU());
         writeRatedS("ratedS1", twt.getLeg1().getRatedS(), context);
         context.getWriter().writeDoubleAttribute("r2", twt.getLeg2().getR());
         context.getWriter().writeDoubleAttribute("x2", twt.getLeg2().getX());
-        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g2", twt.getLeg2().getG(), 0,
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
-        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b2", twt.getLeg2().getB(), 0,
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
+
+        double g2 = twt.getLeg2().getG();
+        double b2 = twt.getLeg2().getB();
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_0, context, () -> {
+            IidmSerDeUtil.assertMinimumVersionIfNotDefault(g2 != 0, ROOT_ELEMENT_NAME,
+                    "g2", IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
+            IidmSerDeUtil.assertMinimumVersionIfNotDefault(b2 != 0, ROOT_ELEMENT_NAME,
+                    "b2", IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
+        });
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g2", g2, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b2", b2, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
+
         context.getWriter().writeDoubleAttribute("ratedU2", twt.getLeg2().getRatedU());
         writeRatedS("ratedS2", twt.getLeg2().getRatedS(), context);
         context.getWriter().writeDoubleAttribute("r3", twt.getLeg3().getR());
         context.getWriter().writeDoubleAttribute("x3", twt.getLeg3().getX());
-        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g3", twt.getLeg3().getG(), 0,
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
-        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b3", twt.getLeg3().getB(), 0,
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
+
+        double g3 = twt.getLeg3().getG();
+        double b3 = twt.getLeg3().getB();
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_0, context, () -> {
+            IidmSerDeUtil.assertMinimumVersionIfNotDefault(g3 != 0, ROOT_ELEMENT_NAME,
+                    "g3", IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
+            IidmSerDeUtil.assertMinimumVersionIfNotDefault(b3 != 0, ROOT_ELEMENT_NAME,
+                    "b3", IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
+        });
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g3", g3, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b3", b3, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
+
         context.getWriter().writeDoubleAttribute("ratedU3", twt.getLeg3().getRatedU());
         writeRatedS("ratedS3", twt.getLeg3().getRatedS(), context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "ratedU0", twt.getRatedU0(), twt.getLeg1().getRatedU(),
@@ -93,8 +111,10 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
                 IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_1, context, () -> writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context));
         int[] i = new int[1];
         i[0] = 1;
+        boolean onlySelectedOperationalLimitsGroups = context.getOptions().isOnlySelectedOperationalLimitsGroups();
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getSelectedOperationalLimitsGroup().orElse(null), leg.getOperationalLimitsGroups());
+            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getSelectedOperationalLimitsGroup().orElse(null),
+                onlySelectedOperationalLimitsGroups ? leg.getAllSelectedOperationalLimitsGroups() : leg.getOperationalLimitsGroups());
             i[0]++;
         }
     }
@@ -124,17 +144,22 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
 
         double r1 = context.getReader().readDoubleAttribute("r1");
         double x1 = context.getReader().readDoubleAttribute("x1");
-        double g1 = context.getReader().readDoubleAttribute("g1");
-        double b1 = context.getReader().readDoubleAttribute("b1");
+        double g1 = readFormerlyMandatoryDoubleAttribute("g1", IidmVersion.V_1_17, context);
+        double b1 = readFormerlyMandatoryDoubleAttribute("b1", IidmVersion.V_1_17, context);
         double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
         legAdder1.setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> readRatedS("ratedS1", context, legAdder1::setRatedS));
 
         double r2 = context.getReader().readDoubleAttribute("r2");
         double x2 = context.getReader().readDoubleAttribute("x2");
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_1, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_1, IidmVersion.V_1_16, context, () -> {
             double g2 = context.getReader().readDoubleAttribute("g2");
             double b2 = context.getReader().readDoubleAttribute("b2");
+            legAdder2.setG(g2).setB(b2);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            double g2 = context.getReader().readDoubleAttribute("g2", 0);
+            double b2 = context.getReader().readDoubleAttribute("b2", 0);
             legAdder2.setG(g2).setB(b2);
         });
         double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
@@ -143,9 +168,14 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
 
         double r3 = context.getReader().readDoubleAttribute("r3");
         double x3 = context.getReader().readDoubleAttribute("x3");
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_1, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_1, IidmVersion.V_1_16, context, () -> {
             double g3 = context.getReader().readDoubleAttribute("g3");
             double b3 = context.getReader().readDoubleAttribute("b3");
+            legAdder3.setG(g3).setB(b3);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            double g3 = context.getReader().readDoubleAttribute("g3", 0);
+            double b3 = context.getReader().readDoubleAttribute("b3", 0);
             legAdder3.setG(g3).setB(b3);
         });
         double ratedU3 = context.getReader().readDoubleAttribute("ratedU3");
@@ -182,67 +212,77 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
 
     @Override
     protected void readSubElements(ThreeWindingsTransformer tx, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case LIMITS_GROUP_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tx.getLeg1(), LIMITS_GROUP_1, context));
-                }
-                case ACTIVE_POWER_LIMITS_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
-                }
-                case APPARENT_POWER_LIMITS_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
-                }
-                case "currentLimits1" -> readCurrentLimits(tx.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
-                case LIMITS_GROUP_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tx.getLeg2(), LIMITS_GROUP_2, context));
-                }
-                case ACTIVE_POWER_LIMITS_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
-                }
-                case APPARENT_POWER_LIMITS_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
-                }
-                case "currentLimits2" -> readCurrentLimits(tx.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
-                case LIMITS_GROUP_3 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tx.getLeg3(), LIMITS_GROUP_3, context));
-                }
-                case ACTIVE_POWER_LIMITS_3 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tx.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
-                }
-                case APPARENT_POWER_LIMITS_3 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tx.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
-                }
-                case "currentLimits3" -> readCurrentLimits(tx.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
-                case RATIO_TAP_CHANGER_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                    readRatioTapChanger(1, tx.getLeg1(), context);
-                }
-                case PHASE_TAP_CHANGER_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                    readPhaseTapChanger(1, tx.getLeg1(), context);
-                }
-                case RATIO_TAP_CHANGER_2 -> readRatioTapChanger(2, tx.getLeg2(), context);
-                case PHASE_TAP_CHANGER_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                    readPhaseTapChanger(2, tx.getLeg2(), context);
-                }
-                case RATIO_TAP_CHANGER_3 -> readRatioTapChanger(3, tx.getLeg3(), context);
-                case PHASE_TAP_CHANGER_3 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                    readPhaseTapChanger(3, tx.getLeg3(), context);
-                }
-                default -> readSubElement(elementName, tx, context);
+        context.getReader().readChildNodes(elementName -> readChildNode(tx, context, elementName));
+    }
+
+    private void readChildNode(ThreeWindingsTransformer tx, NetworkDeserializerContext context, String elementName) {
+        switch (elementName) {
+            case LIMITS_GROUP_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tx.getLeg1(), tx.getId(), ThreeSides.ONE, LIMITS_GROUP_1, context));
             }
-        });
+            case ACTIVE_POWER_LIMITS_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readActivePowerLimits(tx.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readApparentPowerLimits(tx.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+            }
+            case "currentLimits1" -> readCurrentLimits(tx.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+            case LIMITS_GROUP_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context,
+                    () -> readLoadingLimitsGroups(tx.getLeg2(), tx.getId(), ThreeSides.TWO, LIMITS_GROUP_2, context));
+            }
+            case ACTIVE_POWER_LIMITS_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readActivePowerLimits(tx.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readApparentPowerLimits(tx.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+            }
+            case "currentLimits2" -> readCurrentLimits(tx.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+            case LIMITS_GROUP_3 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context,
+                    () -> readLoadingLimitsGroups(tx.getLeg3(), tx.getId(), ThreeSides.THREE, LIMITS_GROUP_3, context));
+            }
+            case ACTIVE_POWER_LIMITS_3 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readActivePowerLimits(tx.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS_3 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readApparentPowerLimits(tx.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+            }
+            case "currentLimits3" -> readCurrentLimits(tx.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+            case RATIO_TAP_CHANGER_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
+                readRatioTapChanger(1, tx.getLeg1(), context);
+            }
+            case PHASE_TAP_CHANGER_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
+                readPhaseTapChanger(1, tx.getLeg1(), context);
+            }
+            case RATIO_TAP_CHANGER_2 -> readRatioTapChanger(2, tx.getLeg2(), context);
+            case PHASE_TAP_CHANGER_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
+                readPhaseTapChanger(2, tx.getLeg2(), context);
+            }
+            case RATIO_TAP_CHANGER_3 -> readRatioTapChanger(3, tx.getLeg3(), context);
+            case PHASE_TAP_CHANGER_3 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_3, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
+                readPhaseTapChanger(3, tx.getLeg3(), context);
+            }
+            default -> readSubElement(elementName, tx, context);
+        }
     }
 }

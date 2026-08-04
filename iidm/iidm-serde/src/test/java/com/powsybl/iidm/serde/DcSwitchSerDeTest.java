@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcSwitchKind;
@@ -14,9 +15,12 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -46,6 +50,20 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         testWriteVersionedXml(network, options, "dcSwitchNotSupported.xml", IidmVersion.V_1_14);
     }
 
+    @Test
+    void testNonZeroRNotSupportedBeforeIidm117() {
+        Network network = createBaseNetwork(); // contains a DcSwitch with r = 0.9
+
+        // r is only supported from IIDM 1.17; versions 1.15 and 1.16 support DcSwitch but not r
+        // An Exception should be thrown when r != 0 in this case.
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_16, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
+            assertEquals("dcSwitch.r is not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.17", e.getMessage());
+        });
+    }
+
     private static Network createBaseNetwork() {
         Network network = Network.create("dcSwitchTest", "code");
         network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
@@ -65,10 +83,11 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
                 .setDcNode2(dcNode2.getId())
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setOpen(true)
+                .setR(0.9)
                 .add();
         dcSwitch1.setProperty("prop name", "prop value");
         dcSwitch1.addAlias("someAlias");
-        network.newDcSwitch()
+        network.newDcSwitch() // default r = 0.0
                 .setId("dcSwitchClosed")
                 .setName("A closed DC Switch")
                 .setDcNode1(dcNode1.getId())

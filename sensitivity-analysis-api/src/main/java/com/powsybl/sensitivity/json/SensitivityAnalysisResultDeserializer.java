@@ -86,8 +86,8 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             }
         }
 
-        if (version == null || !version.equals("1.0") && !version.equals("1.1")) {
-            throw new IllegalStateException("Only version 1.0 and 1.1 are supported.");
+        if (!"1.0".equals(version) && !"1.1".equals(version) && !"1.2".equals(version)) {
+            throw new IllegalStateException("Only version 1.0, 1.1 and 1.2 are supported.");
         }
         if ("1.0".equals(version)) {
             // In 1.0 the contingency IDs and the mapping contingency index -> ID were directly taken from 'contingencyStatus' list.
