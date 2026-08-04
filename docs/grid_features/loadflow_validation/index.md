@@ -24,8 +24,6 @@ See the documentation [here](configuration.md) to configure correctly this featu
 (loadflow-validation-buses)=
 ## Buses
 
-If all values are present, or if only one value is missing, the result is considered to be consistent.
-
 Note that if the result contains only the voltages (phase and angle), the PowSyBl validation provides a load-flow results completion feature.
 It can be used to compute the flows from the voltages to ensure the result consistency, with the run-computation option of the PowSyBl validation.
 
