@@ -98,35 +98,6 @@ The parameters may also be overridden with a JSON file, in which case the config
 ```{warning}
 The "version" field of a JSON parameters file must be located at the top of the file.
 ```
-### DC
-
-(param-lf-dc-power-factor)=
-#### dcPowerFactor
-The `dcPowerFactor` property is an optional property that defines the power factor used to convert current limits into active power limits in DC calculations.
-
-The default value is `1.0`.
-
-(param-lf-dc-use-transformer-ratio)=
-#### dcUseTransformerRatio
-The `dcUseTransformerRatio` property is an optional property that defines if the ratio of transformers should be used in
-the flow equations in a DC power flow.
-
-The default value of this parameter is `true`.
-
-### Debug
-
-(param-lf-debug-dir)=
-#### debugDir
-This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
-
-The default value is `null`.
-
-### HVDC
-(param-lf-hvdc-ac-emulation)=
-#### hvdcAcEmulation
-The `hvdcAcEmulation` property is an optional property that defines whether AC emulation for HVDC should be simulated in the load flow or not (HVDC that are in AC emulation mode should have the hvdc-angle-droop-active-power-control extension).
-
-The default value is `true`.
 
 ### Model
 
@@ -142,16 +113,55 @@ The `twtSplitShuntAdmittance` property is an optional property that defines whet
 
 The default value is `false`.
 
-### Performance
+### Voltage initialization
 
-(param-lf-component-mode)=
-#### componentMode
-The `componentMode` property is an optional property that defines 3 possibles modes to run power flow. These modes can be :
-- `ALL_CONNECTED`: the power flow is computed over all synchronous components of all connected components
-- `MAIN_CONNECTED` : the power flow is computed over all synchronous components of the main (largest) connected component
-- `MAIN_SYNCHRONOUS` : the power flow is computed on the main (largest) synchronous component
+(param-lf-voltage-init-mode)=
+#### voltageInitMode
+The `voltageInitMode` property is an optional property that defines the policy used by the load flow to initialize the
+voltage values. The available values are:
+- `UNIFORM_VALUES`: $v = 1 pu$ , $\theta = 0$
+- `PREVIOUS_VALUES`: use previous computed value from the network
+- `DC_VALUES`: $v = 1 pu$, $\theta$ initialized using a DC load flow
 
-The default value is `MAIN_CONNECTED`.
+The default value is `UNIFORM_VALUES`.
+
+### DC
+
+(param-lf-dc-power-factor)=
+#### dcPowerFactor
+The `dcPowerFactor` property is an optional property that defines the power factor used to convert current limits into active power limits in DC calculations.
+
+The default value is `1.0`.
+
+(param-lf-dc-use-transformer-ratio)=
+#### dcUseTransformerRatio
+The `dcUseTransformerRatio` property is an optional property that defines if the ratio of transformers should be used in
+the flow equations in a DC power flow.
+
+The default value of this parameter is `true`.
+
+### HVDC
+(param-lf-hvdc-ac-emulation)=
+#### hvdcAcEmulation
+The `hvdcAcEmulation` property is an optional property that defines whether AC emulation for HVDC should be simulated in the load flow or not (HVDC that are in AC emulation mode should have the hvdc-angle-droop-active-power-control extension).
+
+The default value is `true`.
+
+### Voltage control
+
+(param-lf-use-reactive-limits)=
+#### useReactiveLimits
+The `useReactiveLimits` property is an optional property that defines whether the load flow should take into account equipment's reactive limits. Applies to generators, batteries, static VAR compensators, boundary lines, and HVDC VSCs.
+
+The default value is `true`.
+
+### Shunt voltage control
+
+(param-lf-shunt-compensator-voltage-control-on)=
+#### shuntCompensatorVoltageControlOn
+The `shuntCompensatorVoltageControlOn` property is an optional property that defines whether shunt compensator voltage regulating controls should be simulated in the load flow.
+
+The default value is `false`.
 
 ### Phase control
 
@@ -161,11 +171,11 @@ The `phaseShifterRegulationOn` property is an optional property that defines whe
 
 The default value is `false`.
 
-### Shunt voltage control
+### Transformer voltage control
 
-(param-lf-shunt-compensator-voltage-control-on)=
-#### shuntCompensatorVoltageControlOn
-The `shuntCompensatorVoltageControlOn` property is an optional property that defines whether shunt compensator voltage regulating controls should be simulated in the load flow.
+(param-lf-transformer-voltage-control-on)=
+#### transformerVoltageControlOn
+The `transformerVoltageControlOn` property is an optional property that defines whether transformer voltage regulating controls should be simulated in the load flow.
 
 The default value is `false`.
 
@@ -209,33 +219,24 @@ The `writeSlackBus` is an optional property that says if the slack bus has to be
 
 The default value is `true`.
 
-### Transformer voltage control
+### Performance
 
-(param-lf-transformer-voltage-control-on)=
-#### transformerVoltageControlOn
-The `transformerVoltageControlOn` property is an optional property that defines whether transformer voltage regulating controls should be simulated in the load flow.
+(param-lf-component-mode)=
+#### componentMode
+The `componentMode` property is an optional property that defines 3 possibles modes to run power flow. These modes can be :
+- `ALL_CONNECTED`: the power flow is computed over all synchronous components of all connected components
+- `MAIN_CONNECTED` : the power flow is computed over all synchronous components of the main (largest) connected component
+- `MAIN_SYNCHRONOUS` : the power flow is computed on the main (largest) synchronous component
 
-The default value is `false`.
+The default value is `MAIN_CONNECTED`.
 
-### Voltage control
+### Debug
 
-(param-lf-use-reactive-limits)=
-#### useReactiveLimits
-The `useReactiveLimits` property is an optional property that defines whether the load flow should take into account equipment's reactive limits. Applies to generators, batteries, static VAR compensators, boundary lines, and HVDC VSCs.
+(param-lf-debug-dir)=
+#### debugDir
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
-The default value is `true`.
-
-### Voltage initialization
-
-(param-lf-voltage-init-mode)=
-#### voltageInitMode
-The `voltageInitMode` property is an optional property that defines the policy used by the load flow to initialize the
-voltage values. The available values are:
-- `UNIFORM_VALUES`: $v = 1 pu$ , $\theta = 0$
-- `PREVIOUS_VALUES`: use previous computed value from the network
-- `DC_VALUES`: $v = 1 pu$, $\theta$ initialized using a DC load flow
-
-The default value is `UNIFORM_VALUES`.
+The default value is `null`.
 
 ## Implementation specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
