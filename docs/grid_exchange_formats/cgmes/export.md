@@ -153,6 +153,83 @@ And the file `manualExampleBasename_SV.xml` will contain:
 
 Remember that, in addition to setting the info for metadata models in the IIDM extensions, you could also rely on parameters passed to the export methods.
 
+(cgmes-partial-ssh-export)=
+## Partial SSH export from recorded changes
+
+The exports described above always write the complete state of the network. When two processes already share the
+same base model and only need to exchange the outcome of a business process, writing and reading a full grid model
+is unnecessary. `NetworkEventRecorderSshExport` writes a *partial* SSH instance file, containing only the objects
+affected by a list of changes recorded on the network:
+
+```java
+NetworkEventRecorder recorder = new NetworkEventRecorder();
+network.addListener(recorder);
+
+network.getGenerator("GEN").setTargetP(120.0);
+network.getSwitch("BREAKER").setOpen(true);
+
+// to a file
+NetworkEventRecorderSshExport.write(network, recorder.getEvents(), Path.of("update_SSH.xml"));
+// or to a string, for an in-memory exchange
+String ssh = NetworkEventRecorderSshExport.toString(network, recorder.getEvents());
+```
+
+The result is a regular SSH instance file that the receiving side applies through the usual update workflow:
+
+```java
+Properties parameters = new Properties();
+parameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+receiver.update(new GenericReadOnlyDataSource(directory, "update"), parameters);
+```
+
+Setting `iidm.import.cgmes.use-previous-values-during-update` is required: it tells the import to keep its current
+value for everything the partial file does not mention.
+
+### Supported changes
+
+| Equipment | Change |
+| --- | --- |
+| `Switch` | open or closed state |
+| `DcSwitch` | open or closed state, written as the connection status of its DC terminals |
+| `Load` | active and reactive setpoint |
+| `Generator` | active, reactive and voltage target, voltage regulation on or off |
+| `TwoWindingsTransformer`, `ThreeWindingsTransformer` | phase and ratio tap changer position |
+| `ShuntCompensator` | section count, voltage target, voltage regulation on or off |
+| `StaticVarCompensator` | voltage and reactive power setpoint |
+| `HvdcLine` | active power setpoint |
+| `VscConverterStation` | voltage setpoint |
+
+Anything else, in particular the creation or the removal of equipment and changes of terminal connection status,
+has no representation in the SSH profile. By default the export fails on such a change, so that it is never
+silently lost. Pass `UnsupportedChangeBehavior.IGNORE` to log a warning and leave it out instead:
+
+```java
+NetworkEventRecorderSshExport.toString(network, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
+```
+
+Two changes are deliberately rejected because the CGMES import cannot read them back, so exporting them would lose
+them silently: the reactive power setpoint of a VSC converter, and the setpoints of a load modelled as an
+`AsynchronousMachine`.
+
+### Header and repeated changes
+
+The header of the exported model is derived from the SSH the network was imported from: the version is incremented
+by one, the new model supersedes the source SSH and keeps its dependencies, so it stays attached to the equipment
+model both sides share. All of it can be overridden through `ExportOptions`:
+
+```java
+NetworkEventRecorderSshExport.write(network, recorder.getEvents(), path,
+        new NetworkEventRecorderSshExport.ExportOptions()
+                .setModelId("urn:uuid:...")
+                .setVersion(4)
+                .setModelingAuthoritySet("http://www.example.eu/OperationalPlanning")
+                .setUnsupportedChangeBehavior(UnsupportedChangeBehavior.IGNORE));
+```
+
+If the same attribute was changed several times only the last value is exported, and every CGMES object is
+described exactly once however many changes affected it. A partial SSH describes a single individual grid model,
+so it has to be exported from each subnetwork of a merged network separately.
+
 ## Topology kind
 
 The elements written in the exported files depend on the topology kind of the export and on the CIM version.
