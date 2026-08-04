@@ -5,7 +5,25 @@ Networks can be exported in three IIDM formats:
 - JSON: "JIIDM"
 - binary: "BIIDM"
 
-### Exporting with default values
+## Omitted attributes at export
+
+For performance reasons, in IIDM versions > 1.16, the export reduces the size of the serialized file by omitting attributes equal to their default value.
+
+Older IIDM versions exports remain unchanged: all attributes continue to be written unconditionally, preserving full backward compatibility.
+
+Here is the full list of attributes now omitted when equal to their default :
+
+| Attribute               | Type                             | Changed to              |
+|-------------------------|----------------------------------|-------------------------|
+| retained	               | Switch                           | optional default false  |
+| r, x, g, b              | RatioTapChangerStep              | optional default 0      |
+| r, x, g, b              | PhaseTapChangerStep              | optional default 0      |
+| lowTapPosition          | RatioTapChanger, PhaseTapChanger | optional default 0      |
+| g1, g2, b1, b2          | Line                             | optional default 0      |
+| g, b                    | TwoWindingsTransformer           | optional default 0      |
+| g1, g2, g3, b1, b2, b3  | ThreeWindingsTransformer         | optional default 0      |
+
+## Standard export
 
 To export a network using the default parameters, use:
 ```java
@@ -14,10 +32,10 @@ String FORMAT = "XIIDM"; // or "BIIDM" or "JIIDM"
 n.write(FORMAT, new Properties(), Path.of("/path/to/output.format"));
 ```
 
-### Exporting with custom properties
+## Custom export
 You can configure your export either with `ExportOptions` or with `Properties`.
 
-#### From ExportOptions
+### From ExportOptions
 
 ```java
 Network n = ...;
@@ -27,7 +45,7 @@ options.setFormat(TreeDataFormat.BIN); // or XML or JSON
 NetworkSerDe.write(n, options, Path.of("/tmp/test.biidm"));
 ```
 
-#### From config file
+### From config file
 
 ```java
 Network n = ...;
