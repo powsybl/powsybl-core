@@ -229,7 +229,7 @@
         </foreignObject>
         <foreignObject id="18" y="1258.12" x="684.97" height="1" width="1">
             <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl180to300 nad-label-box">
-                <div>line1_VL</div>
+                <div>VL_TEE_POINT</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-0 nad-legend-square"></span> kV / °</div>
             </div>

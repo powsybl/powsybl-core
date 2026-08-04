@@ -166,8 +166,21 @@ parallel busbar section. To know which busbar sections are parallel, the [`Busba
 is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the injection with the given data, unless there are no extensions yet in the voltage level.
 
-For instance, adding a `Load` to a beforehand empty `NODE_BREAKER` voltage level will result in:
-![Node/breaker network with new load](img/networkNodeBreakerWithLoad.svg){width="50%" align=center}
+For instance, adding a `Load` to a beforehand empty `NODE_BREAKER` voltage level can be done with:
+```java
+LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+        .setId("newLoad")
+        .setP0(100.0)
+        .setQ0(50.0);
+new CreateFeederBayBuilder()
+        .withInjectionAdder(loadAdder)
+        .withBusOrBusbarSectionId("bbs")
+        .withInjectionPositionOrder(1)
+        .build()
+        .apply(network);
+```
+It will result in:
+![Node/breaker network with new load](img/networkNodeBreakerWithLoad.svg){width="30%" align=center}
 
 Class: `CreateFeederBay`
 
@@ -215,7 +228,26 @@ created for the branch with the given data, unless no extensions are already ava
 
 For instance, here is a `Substation`:
 ![Node/breaker network substation](img/networkNodeBreakerBeforeAddingTwoWindingTransformer.svg){width="100%" align=center}
-Adding a `TwoWindingsTransformer`  between both voltage levels of this substation will result in:
+Adding a `TwoWindingsTransformer` between both voltage levels of this substation can be done with:
+```java
+TwoWindingsTransformerAdder twtAdder = substation.newTwoWindingsTransformer()
+        .setId("twt")
+        .setR(1.0)
+        .setX(10.0)
+        .setG(0.0)
+        .setB(0.0)
+        .setRatedU1(225.0)
+        .setRatedU2(400.0);
+new CreateBranchFeederBaysBuilder()
+        .withBranchAdder(twtAdder)
+        .withBusOrBusbarSectionId1("bbs")
+        .withPositionOrder1(1)
+        .withBusOrBusbarSectionId2("bbs_1_1")
+        .withPositionOrder2(1)
+        .build()
+        .apply(network);
+```
+It will result in:
 ![Node/breaker network with new two-winding transformer](img/networkNodeBreakerWithTwoWindingTransformer.svg){width="100%" align=center}
 
 Class: `CreateBranchFeederBays`
@@ -239,8 +271,35 @@ An open disconnector will be created on every parallel busbar section. To find t
 The coupling device can be created between busbar sections that are parallel or not. If the two busbar sections are
 parallel and there are exactly two parallel busbar sections, then no open disconnectors are created.
 
-In the following single-line diagram, we can see three coupling devices added for each section and one coupling device 
-between sections:  
+In the following single-line diagram, we can see three coupling devices added for each section created using:
+```java
+new CreateCouplingDeviceBuilder()
+        .withBusOrBusbarSectionId1("bbs_1_1")
+        .withBusOrBusbarSectionId2("bbs_2_1")
+        .build()
+        .apply(network);
+
+new CreateCouplingDeviceBuilder()
+        .withBusOrBusbarSectionId1("bbs_1_2")
+        .withBusOrBusbarSectionId2("bbs_2_2")
+        .build()
+        .apply(network);
+
+new CreateCouplingDeviceBuilder()
+        .withBusOrBusbarSectionId1("bbs_1_3")
+        .withBusOrBusbarSectionId2("bbs_2_3")
+        .build()
+        .apply(network);
+```
+
+The coupling device between the sections was created using:
+```java
+new CreateCouplingDeviceBuilder()
+        .withBusOrBusbarSectionId1("bbs_1_1")
+        .withBusOrBusbarSectionId2("bbs_1_2")
+        .build()
+        .apply(network);
+```
 ![Emtpy node/breaker network with coupling devices](img/networkNodeBreakerEmptyWithCouplingDevice.svg){width="100%" align=center}
 
 Class: `CreateCouplingDevice`
@@ -283,7 +342,17 @@ For instance, this single-line diagram shows the result of calling this modifica
 - two aligned busbar sections
 - three sections
 - `Breakers` between the first and the second sections and `Disconnector` between the second and the third sections.
-![Node/breaker network with busbar sections created with the network modification](img/networkNodeBreakerWithBusbarSections.svg){width="100%" align=center}
+It can be done with:
+```java
+new CreateVoltageLevelTopologyBuilder()
+        .withVoltageLevelId("VL")
+        .withAlignedBusesOrBusbarCount(2)
+        .withSectionCount(3)
+        .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR)
+        .build()
+        .apply(network);
+```
+![Node/breaker network with busbar sections created with the network modification](img/networkNodeBreakerWithBusbarSections.svg){width="80%" align=center}
 
 
 Class: `CreateVoltageLevelTopology`
@@ -313,14 +382,48 @@ It takes as input:
 - The busbar section prefix ID, used as a prefix for the IDs of the newly created busbar sections. This prefix
   is followed by the busbar index and the section index if the default naming strategy is used.
 
-For instance, it is possible to add new busbar sections on the left of the voltage level:
-![Voltage level with new busbar sections before first section](img/networkNodeBreakerCreateVlSectionsBeforeFirstSection.svg){width="100%" align=center}
+For instance, it is possible to add new busbar sections on the left of the voltage level with the following code:
+```java
+new CreateVoltageLevelSectionsBuilder()
+    .withReferenceBusbarSectionId("bbs_1_1")
+    .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(false)
+    .withCreateNewBusbarSectionOnAllBusbars(true)
+    .withSwitchKindLeft(SwitchKind.BREAKER)
+    .withLeftSwitchOpen(true)
+    .build()
+    .apply(network);
+```
+It will result in three new busbar sections:
+![Voltage level with new busbar sections before first section](img/networkNodeBreakerCreateVlSectionsBeforeFirstSection.svg){width="80%" align=center}
 
 It is also possible to add new busbar sections on the right of the voltage level:
-![Voltage level with new busbar sections after last section](img/networkNodeBreakerCreateVlSectionsAfterLastSection.svg){width="100%" align=center}
+```java
+new CreateVoltageLevelSectionsBuilder()
+    .withReferenceBusbarSectionId("bbs_1_3")
+    .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+    .withCreateNewBusbarSectionOnAllBusbars(true)
+    .withSwitchKindRight(SwitchKind.DISCONNECTOR)
+    .withRightSwitchOpen(true)
+    .build()
+    .apply(network);
+```
+It will result in three new busbar sections:
+![Voltage level with new busbar sections after last section](img/networkNodeBreakerCreateVlSectionsAfterLastSection.svg){width="80%" align=center}
 
 Or also between existing sections:
-![Voltage level with new busbar sections between sections](img/networkNodeBreakerCreateVlSectionsBetweenSections.svg){width="100%" align=center}
+```java
+new CreateVoltageLevelSectionsBuilder()
+    .withReferenceBusbarSectionId("bbs_1_1")
+    .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+    .withCreateNewBusbarSectionOnAllBusbars(true)
+    .withSwitchKindLeft(SwitchKind.DISCONNECTOR)
+    .withSwitchKindRight(SwitchKind.BREAKER)
+    .withLeftSwitchOpen(true)
+    .withRightSwitchOpen(false)
+    .build()
+    .apply(network);
+```
+![Voltage level with new busbar sections between sections](img/networkNodeBreakerCreateVlSectionsBetweenSections.svg){width="80%" align=center}
 
 In all of these single-line diagrams, the busbar sections that are added are the ones that are not connected to any feeders.
 
@@ -346,10 +449,42 @@ then the network modification will do nothing.
 Let's take an example. This is the voltage level before applying the modification:
 ![Node/breaker network with coupling devices](img/networkNodeBreakerWithCouplingDevices.svg){width="100%" align=center}
 
-If we apply the modification with both busbar sections, all the connectables and coupling devices, we will get:
+If we apply the modification with both busbar sections, all the connectables and coupling devices:
+```java
+List<Connectable> connectables = network.getVoltageLevel("vl1")
+        .getConnectableStream()
+        .filter(c -> !(c instanceof BusbarSection))
+        .toList();
+List<BusbarSection> busbarSections = network.getVoltageLevel("vl1")
+        .getConnectableStream()
+        .filter(BusbarSection.class::isInstance)
+        .map(BusbarSection.class::cast)
+        .toList();
+new ConnectFeedersToBusbarSectionsBuilder()
+        .withConnectablesToConnect(connectables)
+        .withBusbarSectionsToConnect(busbarSections)
+        .withConnectCouplingDevices(true)
+        .build()
+        .apply(network);
+```
+We will get:
 ![Node/breaker network with coupling devices and connected feeder](img/networkNodeBreakerWithFeedersConnected.svg){width="100%" align=center}
 
-If we want to only connect the two-winding transformers on busbar section bbs3, we can specify the right lists as input and we will get:
+If we want to only connect the two-winding transformers on busbar section bbs3:
+```java
+List<Connectable> transformers = network.getVoltageLevel("vl1")
+        .getConnectableStream()
+        .filter(TwoWindingsTransformer.class::isInstance)
+        .toList();
+BusbarSection bbs3 = network.getBusbarSection("bbs3");
+new ConnectFeedersToBusbarSectionsBuilder()
+        .withConnectablesToConnect(transformers)
+        .withBusbarSectionsToConnect(List.of(bbs3))
+        .withConnectCouplingDevices(false)
+        .build()
+        .apply(network);
+```
+We will get:
 ![Node/breaker network with connected transformers on bbs3](img/networkNodeBreakerWithTwtConnected.svg){width="100%" align=center}
 
 Class: `ConnectFeedersToBusbarSections`
@@ -367,6 +502,14 @@ as input.
 When applied to the network, the connectable will be removed, as well as all the switches connecting it to busbar sections.
 Note: Busbar sections are not allowed to be removed with this class.
 
+For instance, removing a load can be done with:
+```java
+new RemoveFeederBayBuilder()
+        .withConnectableId("loadId")
+        .build()
+        .apply(network);
+```
+
 Class: `RemoveFeederBay`
 
 #### Remove HVDC line
@@ -378,6 +521,15 @@ The input arguments are:
   switches connecting them to their voltage levels. If the list of shunt compensators is not empty, then they will also be
   removed along with their switches.
 
+For instance, removing an HVDC line and its associated shunt compensators can be done with:
+```java
+new RemoveHvdcLineBuilder()
+        .withHvdcLineId("hvdcLineId")
+        .withShuntCompensatorIds(List.of("shunt1", "shunt2"))
+        .build()
+        .apply(network);
+```
+
 Class: `RemoveHvdcLine`
 
 #### Remove voltage level
@@ -386,6 +538,14 @@ are removed. The lines, two-winding transformers and three-winding transformers 
 switches in other voltage levels.
 The builder to be used to initialize this class takes only the ID of the voltage level to be removed.
 
+For instance, removing a voltage level can be done with:
+```java
+new RemoveVoltageLevelBuilder()
+        .withVoltageLevelId("voltageLevelId")
+        .build()
+        .apply(network);
+```
+
 Class: `RemoveVoltageLevel`
 
 #### Remove substation
@@ -393,6 +553,14 @@ This class should be used to remove an entire substation. All the voltage levels
 connectables are removed. The branches and three-winding transformers are also removed with their switches in the other
 substations.
 The builder takes the ID of the substation as input.
+
+For instance, removing a substation can be done with:
+```java
+new RemoveSubstationBuilder()
+        .withSubstationId("substationId")
+        .build()
+        .apply(network);
+```
 
 Class: `RemoveSubstation`
 
@@ -420,7 +588,15 @@ This modification ensures that the connectivity of the network is preserved whil
 
 For instance, this is a voltage level: 
 ![Load1 in VL1.svg](img/networkNodeBreakerLoad1InVl1.svg)
-With this modification, we can easily move load1 to another voltage level, like vl2:
+With this modification, we can easily move load1 from bbs1 to bbs5, which is in another voltage level:
+```java
+new MoveFeederBayBuilder()
+        .withConnectableId("load1")
+        .withTargetBusOrBusBarSectionId("bbs5")
+        .withTargetVoltageLevelId("vl2")
+        .build()
+        .apply(network);
+```
 ![Load1 in VL2.svg](img/networkNodeBreakerLoad1InVl2.svg)
 Class: `MoveFeederBay`
 
@@ -445,7 +621,15 @@ switching voltage level to connect the new lines to the specified bus or busbar 
 For instance, let's look at this network area diagram of a network with three voltage levels:
 ![Network area diagram](img/networkNodeBreakerAreaDiagram.svg)
 
-We can connect a fictitious voltage level `VL_TEST` on the line between `VL3` and `VL2` and the associated network area diagram is:
+We can connect a fictitious voltage level `VL_TEST` on the line between `VL3` and `VL2`:
+```java
+new ConnectVoltageLevelOnLineBuilder()
+        .withLine(network.getLine("VL2_VL3_Line"))
+        .withBusbarSectionOrBusId("bbs")
+        .build()
+        .apply(network);
+```
+The associated network area diagram is:
 ![Network area diagram connect voltage level on line](img/networkNodeBreakerAreaDiagramConnectVlOnLine.svg)
 The line between `VL3` and `VL2` is now connected to the fictitious voltage level `VL_TEST` and cut in two lines.
 
@@ -463,9 +647,19 @@ It takes as input:
 When applied, the two lines are removed and replaced by a single line connecting the two outer voltage levels. 
 The common switching voltage level is removed if it no longer contains any equipment (except for buses or busbar sections).
 
+For instance, merging two lines back into one can be done with:
+```java
+new RevertConnectVoltageLevelOnLineBuilder()
+        .withLine1Id("line1Id")
+        .withLine2Id("line2Id")
+        .withLineId("newLineId")
+        .build()
+        .apply(network);
+```
+
 Class: `RevertConnectVoltageLevelOnLine`
 
-#### Create line tee point
+#### Create a line tee point
 This class connects an existing voltage level to an existing line through a tee point.
 It cuts the existing line in two, creating a fictitious voltage level (the tee point) between them, and then connects the 
 existing voltage level to this tee point with a new line.
@@ -485,8 +679,25 @@ It takes as input:
 For instance, let's look at this network area diagram of a network with three voltage levels:
 ![Network area diagram](img/networkNodeBreakerAreaDiagram.svg)
 
-We can connect a fictitious voltage level `VL_TEST` on the line between `VL3` and `VL2` through a tee point, and the associated network area diagram is:
-![Network area tee point](img/networkNodeBreakerAreaDiagramTeePoint.svg)![Network area diagram connect voltage level on line](img/networkNodeBreakerAreaDiagramConnectVlOnLine.svg)
+We can connect a fictitious voltage level `VL_TEST` on the line between `VL3` and `VL2` through a tee point:
+```java
+Line line = network.getLine("VL2_VL3_Line");
+LineAdder adder = network.newLine()
+        .setId("newLine")
+        .setR(1.0)
+        .setX(10.0)
+        .setG1(0.0).setG2(0.0).setB1(0.0).setB2(0.0);
+
+new CreateLineOnLineBuilder()
+        .withLine(line)
+        .withLineAdder(adder)
+        .withBusbarSectionOrBusId("bbs")
+        .withFictitiousVoltageLevelId("VL_TEE_POINT")
+        .build()
+        .apply(network);
+```
+The associated network area diagram is:
+![Network area tee point](img/networkNodeBreakerAreaDiagramTeePoint.svg)!
 The line between `VL3` and `VL2` is now connected to the fictitious voltage level `VL_TEST` via a new line. 
 A fictitious voltage level has been created to represent the tee point.
 
@@ -504,6 +715,17 @@ It takes as input:
 When applied, the three lines are removed and replaced by a single line. The tee point voltage level and the tapped voltage level 
 are removed if they become empty (except for buses or busbar sections).
 
+For instance, removing a tee point and merging the path can be done with:
+```java
+new RevertCreateLineOnLineBuilder()
+        .withLineToBeMerged1Id("line1Id")
+        .withLineToBeMerged2Id("line2Id")
+        .withLineToBeDeletedId("lineToBeDeletedId")
+        .withMergedLineId("mergedLineId")
+        .build()
+        .apply(network);
+```
+
 Class: `RevertCreateLineOnLine`
 
 #### Replace tee point by voltage level
@@ -517,6 +739,19 @@ It takes as input:
 - Optionally, names for the two new lines.
 
 When applied, the three lines and the tee point are removed, and two new lines are created connecting the two original ends to the formerly tapped voltage level.
+
+For instance, replacing a tee point configuration can be done with:
+```java
+new ReplaceTeePointByVoltageLevelOnLineBuilder()
+        .withTeePointLine1("line1Id")
+        .withTeePointLine2("line2Id")
+        .withTeePointLineToRemove("lineToRemoveId")
+        .withBbsOrBusId("bbsId")
+        .withNewLine1Id("newLine1Id")
+        .withNewLine2Id("newLine2Id")
+        .build()
+        .apply(network);
+```
 
 Class: `ReplaceTeePointByVoltageLevelOnLine`
 
