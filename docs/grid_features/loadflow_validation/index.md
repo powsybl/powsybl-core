@@ -234,8 +234,8 @@ A leg is valid:
 
 $$
 \begin{aligned}
-|P_{side\;measured} - P_{side\;computed}| > threshold \\
-|Q_{side\;measured} - Q_{side\;computed}| > threshold
+|P_{side\;measured} - P_{side\;computed}| <= threshold \\
+|Q_{side\;measured} - Q_{side\;computed}| <= threshold
 \end{aligned}
 $$
 
