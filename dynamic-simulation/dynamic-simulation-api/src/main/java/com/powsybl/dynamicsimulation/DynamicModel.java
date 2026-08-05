@@ -12,4 +12,8 @@ package com.powsybl.dynamicsimulation;
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public interface DynamicModel {
+
+    default StabilizationPhase getStabilizationPhase() {
+        return StabilizationPhase.BOTH;
+    }
 }
