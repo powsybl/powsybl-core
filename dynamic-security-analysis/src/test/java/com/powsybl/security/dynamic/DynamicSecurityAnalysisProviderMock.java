@@ -34,7 +34,8 @@ import static org.mockito.Mockito.when;
 public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnalysisProvider {
 
     @Override
-    public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
+    public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier,
+                                                         ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
         CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
         SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
         when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));

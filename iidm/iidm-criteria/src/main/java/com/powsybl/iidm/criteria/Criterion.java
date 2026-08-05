@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.criteria;
 
+import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.ThreeSides;
 
 /**

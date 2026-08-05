@@ -274,7 +274,7 @@ public final class Util {
     }
 
     private static String manageNumericalNullValues(String value) {
-        return value == null || value.isEmpty() || value.equalsIgnoreCase("null") ? null : value;
+        return value == null || value.isEmpty() || "null".equalsIgnoreCase(value) ? null : value;
     }
 
     private static void throwIfHeaderNotFound(List<String> rec, String header) {

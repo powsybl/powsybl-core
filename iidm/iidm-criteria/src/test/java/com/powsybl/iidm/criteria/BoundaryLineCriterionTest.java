@@ -107,5 +107,3 @@ class BoundaryLineCriterionTest {
         return new DefaultNetworkElementAdapter(boundaryLine);
     }
 }
-
-

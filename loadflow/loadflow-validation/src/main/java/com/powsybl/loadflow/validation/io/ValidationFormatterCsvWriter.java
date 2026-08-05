@@ -7,21 +7,20 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Objects;
-
-import com.powsybl.iidm.network.ThreeSides;
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Objects;
 
 /**
  *
@@ -671,9 +670,11 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             formatter = found ?
                         write(found, svcData.p, svcData.q, svcData.vControlled, svcData.vController, svcData.nominalVcontroller, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
                               svcData.connected, svcData.regulationMode, svcData.regulating, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                            false, null, false, Double.NaN, Double.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint,
+            voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,

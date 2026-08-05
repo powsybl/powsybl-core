@@ -51,12 +51,11 @@ class DefaultNamingStrategyTest {
 
     @Test
     void testBreaker() {
-//        // Full Id
+        // Full Id
         assertEquals("test_BREAKER", namingStrategy.getBreakerId("test"));
-//        assertEquals("test_BREAKER_5", namingStrategy.getBreakerId("test", 5));
         assertEquals("test_BREAKER_5_6", namingStrategy.getBreakerId("test", 5, 6));
 
-//        // Full Name
+        // Full Name
         assertNull(namingStrategy.getBreakerName("test"));
         assertNull(namingStrategy.getBreakerName("test", 5, 6));
     }

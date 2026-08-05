@@ -32,7 +32,10 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
         if (group == null) {
             throw new PowsyblException(String.format("Error adding ActivePowerLimits on %s: error getting or creating the group", getOwnerId()));
         }
-        ActivePowerLimits limits = new ActivePowerLimitsImpl(group, permanentLimit, temporaryLimits);
+        ActivePowerLimits limits = detectionKind == DetectionKind.HIGH ?
+            new ActivePowerLimitsImpl(group, permanentLimit, permanentLimitName, temporaryLimits)
+            : new ActivePowerLimitsImpl(group, temporaryLimits);
+
         group.setActivePowerLimits(limits);
         this.copyPropertiesTo(limits);
         return limits;

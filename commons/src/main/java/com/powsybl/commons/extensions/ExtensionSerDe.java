@@ -33,6 +33,14 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     InputStream getXsdAsStream();
 
     /**
+     * Return the XSD schema describing the extension to serialize in a given version of its XML serialization.
+     */
+    default InputStream getXsdAsStream(String extensionVersion) {
+        checkExtensionVersionSupported(extensionVersion);
+        return getXsdAsStream();
+    }
+
+    /**
      * Return the list of all XSD schemas describing the extension to serialize. <br>
      * There is a distinct XSD schema for each version of its XML serialization.
      */

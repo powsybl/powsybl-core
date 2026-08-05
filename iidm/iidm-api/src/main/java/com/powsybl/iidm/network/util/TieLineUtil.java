@@ -9,10 +9,12 @@ package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.complex.Complex;
-
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLineFilter;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +94,8 @@ public final class TieLineUtil {
                 NetworkReports.propertyOnlyOnOneSide(reportNode, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line",
+                    prop, dl1.getProperty(prop), dl2.getProperty(prop));
                 NetworkReports.inconsistentPropertyValues(reportNode, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
             }
         });

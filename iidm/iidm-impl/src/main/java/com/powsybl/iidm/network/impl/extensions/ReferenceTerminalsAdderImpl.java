@@ -22,7 +22,7 @@ class ReferenceTerminalsAdderImpl extends AbstractExtensionAdder<Network, Refere
 
     Set<Terminal> terminals;
 
-    public ReferenceTerminalsAdderImpl(Network network) {
+    ReferenceTerminalsAdderImpl(Network network) {
         super(network);
     }
 

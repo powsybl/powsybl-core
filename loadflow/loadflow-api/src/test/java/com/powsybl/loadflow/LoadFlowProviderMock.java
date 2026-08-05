@@ -36,12 +36,13 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     public static final String NULLABLE_STRING_PARAMETER_NAME = "parameterNullableString";
     public static final String STRING_LIST_PARAMETER_NAME = "parameterStringList";
 
-    public static final List<Parameter> PARAMETERS = List.of(new Parameter(DOUBLE_PARAMETER_NAME, ParameterType.DOUBLE, "a double parameter", DummyExtension.PARAMETER_DOUBLE_DEFAULT_VALUE),
-                                                             new Parameter(INTEGER_PARAMETER_NAME, ParameterType.INTEGER, "an integer parameter", DummyExtension.PARAMETER_INTEGER_DEFAULT_VALUE),
-                                                             new Parameter(BOOLEAN_PARAMETER_NAME, ParameterType.BOOLEAN, "a boolean parameter", DummyExtension.PARAMETER_BOOLEAN_DEFAULT_VALUE),
-                                                             new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", DummyExtension.PARAMETER_STRING_DEFAULT_VALUE, List.of("yes", "no")),
-                                                             new Parameter(NULLABLE_STRING_PARAMETER_NAME, ParameterType.STRING, "a nullable string parameter", DummyExtension.PARAMETER_NULLABLE_STRING_DEFAULT_VALUE),
-                                                             new Parameter(STRING_LIST_PARAMETER_NAME, ParameterType.STRING_LIST, " a string list paramter", DummyExtension.PARAMETER_STRING_LIST_DEFAULT_VALUE));
+    public static final List<Parameter> PARAMETERS = List.of(
+        new Parameter(DOUBLE_PARAMETER_NAME, ParameterType.DOUBLE, "a double parameter", DummyExtension.PARAMETER_DOUBLE_DEFAULT_VALUE),
+        new Parameter(INTEGER_PARAMETER_NAME, ParameterType.INTEGER, "an integer parameter", DummyExtension.PARAMETER_INTEGER_DEFAULT_VALUE),
+        new Parameter(BOOLEAN_PARAMETER_NAME, ParameterType.BOOLEAN, "a boolean parameter", DummyExtension.PARAMETER_BOOLEAN_DEFAULT_VALUE),
+        new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", DummyExtension.PARAMETER_STRING_DEFAULT_VALUE, List.of("yes", "no")),
+        new Parameter(NULLABLE_STRING_PARAMETER_NAME, ParameterType.STRING, "a nullable string parameter", DummyExtension.PARAMETER_NULLABLE_STRING_DEFAULT_VALUE),
+        new Parameter(STRING_LIST_PARAMETER_NAME, ParameterType.STRING_LIST, " a string list paramter", DummyExtension.PARAMETER_STRING_LIST_DEFAULT_VALUE));
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
@@ -57,6 +58,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
         ReportNode reportNode = runParameters.getReportNode();
         if (reportNode != null) {
             reportNode.newReportNode()
+                .withStrictMode(false)
                 .withMessageTemplate("testLoadflow")
                 .withUntypedValue("variantId", workingStateId)
                 .add();
@@ -173,7 +175,8 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
         LoadFlowParameters parameters = runParameters.getLoadFlowParameters();
         if (!parameters.isUseReactiveLimits()) {
             runParameters.getReportNode().newReportNode()
-                    .withMessageTemplate("testParameters")
+                    .withStrictMode(false)
+                    .withMessageTemplate("testParametersNotSupported")
                     .withUntypedValue("parameterName", "UseReactiveLimits")
                     .withUntypedValue("parameterValue", "False")
                     .add();
@@ -181,7 +184,8 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
         }
         if (parameters.getBalanceType() == LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX) {
             runParameters.getReportNode().newReportNode()
-                    .withMessageTemplate("testParameters")
+                    .withStrictMode(false)
+                    .withMessageTemplate("testParametersNotSupported")
                     .withUntypedValue("parameterName", "BalanceType")
                     .withUntypedValue("parameterValue", parameters.getBalanceType().toString())
                     .add();

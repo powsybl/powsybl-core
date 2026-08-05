@@ -15,6 +15,8 @@ import java.util.Collection;
  */
 public interface LoadingLimits extends OperationalLimits {
 
+    String DEFAULT_PERMANENT_LIMIT_NAME = "permanent";
+
     /**
      * Temporary current limit.
      */
@@ -48,8 +50,20 @@ public interface LoadingLimits extends OperationalLimits {
     }
 
     /**
-     * Get the permanent limit.
+     * Indicates if the duration of the violation that is acceptable at a given value should be taken from
+     * the limit above the value (HIGH) or below the value (LOW).<br>
+     * If this is {@link DetectionKind#HIGH}, {@link #getPermanentLimit()} should return a valid value.<br>
+     * If this is {@link DetectionKind#LOW}, {@link #getPermanentLimit()} will throw as there is no valid permanent limit.
+     * @return the detection kind associated to this loading limit
+     */
+    DetectionKind getDetectionKind();
+
+    /**
+     * Get the permanent limit.<br>
+     * When the detection kind is {@link DetectionKind#LOW},
+     * this method throws, as this kind of limit does not have a permanent limit.
      * @return the permanent limit.
+     * @see #getDetectionKind()
      */
     double getPermanentLimit();
 
@@ -59,6 +73,19 @@ public interface LoadingLimits extends OperationalLimits {
      * @return itself for method chaining
      */
     LoadingLimits setPermanentLimit(double permanentLimit);
+
+    /**
+     * Get the name of the permanent limit.
+     * @return the permanent limit name
+     */
+    String getPermanentLimitName();
+
+    /**
+     * Set the name of the permanent limit
+     * @param name the new name of the permanent limit
+     * @return itself for method chaining
+     */
+    LoadingLimits setPermanentLimitName(String name);
 
     /**
      * Get a list of temporary limits ordered by descending duration.

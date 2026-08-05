@@ -7,9 +7,9 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LoadingLimitType;
 import com.powsybl.iidm.network.*;
-import com.powsybl.contingency.violations.LimitViolation;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.function.Consumer;
 
-import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
+import static com.powsybl.iidm.network.LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -94,7 +94,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
                       assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                      assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                      assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
 
@@ -109,7 +109,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
                       assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                      assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                      assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                       assertEquals(1.0f, l.getLimitReduction());
                   });
     }
@@ -125,7 +125,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
                       assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                      assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                      assertNotEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
         // No violation detected
         assertTrue(detector.checkTemporary(line1, TwoSides.TWO, 1.0f, 100., violationsCollector::add, LimitType.ACTIVE_POWER));
@@ -143,7 +143,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
                       assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                      assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                      assertNotEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
 
@@ -158,7 +158,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 
@@ -173,7 +173,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(1.0f, l.getLimitReduction());
                 });
     }
@@ -189,7 +189,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                    assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertNotEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 
@@ -205,7 +205,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
-                    assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertNotEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 
@@ -238,7 +238,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(ThreeSides.TWO, l.getSide());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(1.0f, l.getLimitReduction());
                 });
     }
@@ -254,7 +254,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1000, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(ThreeSides.ONE, l.getSide());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 }

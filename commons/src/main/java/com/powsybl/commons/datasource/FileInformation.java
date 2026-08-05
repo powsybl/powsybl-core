@@ -36,7 +36,7 @@ public class FileInformation {
 
     private void computeInformation(String fileName, boolean dataSourceInitialization) {
         // Check if filename is empty or only a dot
-        if (fileName.isEmpty() || fileName.equals(".")) {
+        if (fileName.isEmpty() || ".".equals(fileName)) {
             throw new PowsyblException("File name cannot be empty nor just a dot");
         }
 
