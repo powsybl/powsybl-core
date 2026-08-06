@@ -39,6 +39,12 @@ final class PsseNodeContainerMapping {
         addTransformerAdjacency(psseModel, busNumToPsseBus, adjacency);
         addSourceSubstationAdjacency(nodeBreakerValidation, adjacency);
 
+        // PSS/E node identifiers are scoped by source substation and are imported unchanged as IIDM node identifiers,
+        // which are scoped by voltage level. A transformer may connect buses from different PSS/E substations; these
+        // source substations must then be merged into one IIDM substation because an IIDM transformer connects voltage
+        // levels belonging to the same substation. Using the source substation ID (isub) as an additional voltage-level
+        // grouping key prevents buses from different source substations that have the same nominal voltage and area
+        // from sharing an IIDM voltage level, where their unchanged node identifiers could collide.
         return ContainersMapping.create(psseModel.getBuses(), adjacency,
                 PsseBus::getI,
                 Edge::bus1,
