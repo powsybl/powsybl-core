@@ -36,6 +36,9 @@ public interface DynamicSimulationProvider extends Versionable, PlatformConfigNa
         return Lists.newArrayList(ServiceLoader.load(DynamicSimulationProvider.class, DynamicSimulationProvider.class.getClassLoader()));
     }
 
+    /**
+     * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
     @Deprecated(since = "7.4.0", forRemoval = true)
     default CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
                                                    OutputVariablesSupplier outputVariablesSupplier, String workingVariantId,
