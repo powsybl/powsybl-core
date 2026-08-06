@@ -143,12 +143,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                     .withRegulating(regulationCapability && isValidTargetV(targetV))
                     .build();
             } else {
-                voltageRegulation.setRegulating(true);
+                voltageRegulation.setRegulating(regulationCapability && isValidTargetV(targetV));
             }
-        } else {
-            if (voltageRegulation != null) {
-                voltageRegulation.setRegulating(false);
-            }
+        } else if (voltageRegulation != null) {
+            voltageRegulation.setRegulating(false);
         }
     }
 

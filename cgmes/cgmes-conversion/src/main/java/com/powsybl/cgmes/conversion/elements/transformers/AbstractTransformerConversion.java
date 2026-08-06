@@ -251,16 +251,12 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
             voltageRegulation.setTargetDeadband(targetDeadband);
             voltageRegulation.setRegulating(regulatingOn);
         } else {
-            VoltageRegulationBuilder builder = rtc.newVoltageRegulation()
+            rtc.newVoltageRegulation()
                 .withTargetValue(targetV)
                 .withTargetDeadband(targetDeadband)
-                .withRegulating(regulatingOn);
-            if (regulatingOn) {
-                builder.withMode(RegulationMode.VOLTAGE);
-            } else {
-                builder.withMode(RegulationMode.REACTIVE_POWER);
-            }
-            builder.build();
+                .withRegulating(regulatingOn)
+                .withMode(regulatingOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER)
+                .build();
         }
     }
 
@@ -437,8 +433,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         double previousTargetDeadband = Double.NaN;
         if (tapChanger instanceof PhaseTapChanger phaseTapChanger) {
             previousTargetDeadband = phaseTapChanger.getTargetDeadband();
-        } else if (tapChanger instanceof RatioTapChanger ratioTapChanger) {
-            previousTargetDeadband = ratioTapChanger.getVoltageRegulation() != null ? ratioTapChanger.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+        } else if (tapChanger instanceof RatioTapChanger ratioTapChanger && ratioTapChanger.getVoltageRegulation() != null) {
+            previousTargetDeadband = ratioTapChanger.getVoltageRegulation().getTargetDeadband();
         }
         return getDefaultValue(0.0, previousTargetDeadband, 0.0, 0.0, context);
     }
