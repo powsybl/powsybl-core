@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
@@ -49,6 +51,11 @@ public class DynamicSimulationProviderMock implements DynamicSimulationProvider 
     @Override
     public CompletableFuture<DynamicSimulationResult> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier,
                                                           DynamicSimulationRunParameters runParameters) {
+        assertNotNull(runParameters.getEventModelsSupplier());
+        assertNotNull(runParameters.getOutputVariablesSupplier());
+        assertNotNull(runParameters.getComputationManager());
+        assertNotNull(runParameters.getDynamicSimulationParameters());
+        assertNotNull(runParameters.getReportNode());
         return CompletableFuture.completedFuture(DynamicSimulationResultImpl.createSuccessResult(Collections.emptyMap(), DynamicSimulationResult.emptyTimeLine()));
     }
 
