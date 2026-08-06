@@ -71,7 +71,7 @@ public final class DynamicSimulation {
                                                                    EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, String workingVariantId,
                                                                    DynamicSimulationParameters parameters) {
             return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId,
-                LocalComputationManager.getDefault(), parameters, ReportNode.NO_OP);
+                LocalComputationManager.getDefault(), parameters);
         }
 
         /**
@@ -163,7 +163,7 @@ public final class DynamicSimulation {
                                            OutputVariablesSupplier outputVariablesSupplier, String workingVariantId, ComputationManager computationManager,
                                            DynamicSimulationParameters parameters) {
             return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId,
-                computationManager, parameters, ReportNode.NO_OP).join();
+                computationManager, parameters).join();
         }
 
         /**

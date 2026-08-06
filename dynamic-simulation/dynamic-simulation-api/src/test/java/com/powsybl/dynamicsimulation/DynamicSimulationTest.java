@@ -60,6 +60,16 @@ class DynamicSimulationTest {
     }
 
     @Test
+    void testDeprecatedRunProvider() {
+
+        DynamicSimulationResult result = new DynamicSimulationProviderMock()
+                .run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(),
+                        OutputVariablesSupplier.empty(), network.getVariantManager().getWorkingVariantId(),
+                        computationManager, new DynamicSimulationParameters(), ReportNode.NO_OP).join();
+        assertNotNull(result);
+    }
+
+    @Test
     void testProviderRunCombinations() {
         DynamicSimulationRunParameters runParameters = DynamicSimulationRunParameters.getDefault();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
@@ -80,6 +90,7 @@ class DynamicSimulationTest {
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), OutputVariablesSupplier.empty(), parameters));
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(),
             OutputVariablesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), parameters));
+
         assertNotNull(DynamicSimulation.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(),
             OutputVariablesSupplier.empty(), network.getVariantManager().getWorkingVariantId(), computationManager, parameters, ReportNode.NO_OP));
     }
