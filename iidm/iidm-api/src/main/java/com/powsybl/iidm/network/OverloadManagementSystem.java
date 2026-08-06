@@ -119,7 +119,6 @@ public interface OverloadManagementSystem extends AutomationSystem<OverloadManag
      */
     String getMonitoredElementId();
 
-    
     /**
      * Get the monitored side of the element.
      * @return the side
