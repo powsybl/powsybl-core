@@ -85,7 +85,7 @@ class SecurityTest {
             new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
             NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
-        List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>(Collections.emptyList());
+        List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
         OperatorStrategyResult opStrategyResult1 = new OperatorStrategyResult(
             new OperatorStrategy("strategy1", ContingencyContext.specificContingency(contingency1.getId()),
                 List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),

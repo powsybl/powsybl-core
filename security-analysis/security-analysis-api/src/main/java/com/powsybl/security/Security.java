@@ -288,16 +288,7 @@ public final class Security {
                     .setNumberFormat(percentageFormat))) {
             for (String action : result.getPreContingencyLimitViolationsResult().getActionsTaken()) {
                 formatter.writeCell(action)
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell();
+                        .writeEmptyCells(10);
             }
             filteredLimitViolations.stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
@@ -495,30 +486,12 @@ public final class Security {
                     .writeCell(postContingencyResult.getStatus().name())
                     .writeEmptyCell()
                     .writeCell(EQUIPMENT + " (" + limitViolationsByContingency.get(postContingencyResult.getContingency()).size() + ")")
-                    .writeEmptyCell()
-                    .writeEmptyCell()
-                    .writeEmptyCell()
-                    .writeEmptyCell()
-                    .writeEmptyCell()
-                    .writeEmptyCell()
-                    .writeEmptyCell()
-                    .writeEmptyCell()
-                    .writeEmptyCell();
+                    .writeEmptyCells(9);
 
                 for (String action : postContingencyResult.getLimitViolationsResult().getActionsTaken()) {
-                    formatter.writeEmptyCell()
-                        .writeEmptyCell()
+                    formatter.writeEmptyCells(2)
                         .writeCell(action)
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell();
+                        .writeEmptyCells(10);
                 }
 
                 limitViolationsByContingency.get(postContingencyResult.getContingency()).stream()
@@ -611,30 +584,12 @@ public final class Security {
                         .writeCell(operatorStrategyResult.getStatus().name())
                         .writeCell(operatorStrategyResult.getOperatorStrategy().getContingencyContext().getContingencyId())
                         .writeCell(EQUIPMENT + " (" + limitViolationsByOperatorStrategy.get(operatorStrategyResult.getOperatorStrategy()).size() + ")")
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell();
+                        .writeEmptyCells(9);
 
                 for (String action : operatorStrategyResult.getLimitViolationsResult().getActionsTaken()) {
-                    formatter.writeEmptyCell()
-                            .writeEmptyCell()
+                    formatter.writeEmptyCells(2)
                             .writeCell(action)
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell()
-                            .writeEmptyCell();
+                            .writeEmptyCells(10);
                 }
 
                 limitViolationsByOperatorStrategy.get(operatorStrategyResult.getOperatorStrategy()).stream()
