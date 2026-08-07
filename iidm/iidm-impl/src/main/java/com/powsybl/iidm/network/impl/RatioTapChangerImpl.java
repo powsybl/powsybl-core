@@ -121,7 +121,8 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
             RegulationMode.VOLTAGE, targetV, n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         if (voltageRegulation != null) {
             if (!Double.isNaN(targetV) && !isWithMode(RegulationMode.VOLTAGE)) {
-                RegulationMode oldMode = voltageRegulation.setMode(RegulationMode.VOLTAGE);
+                RegulationMode oldMode = voltageRegulation.getMode();
+                voltageRegulation.setMode(RegulationMode.VOLTAGE);
                 n.invalidateValidationLevel();
                 notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", variantId, oldMode, RegulationMode.VOLTAGE);
             }
@@ -153,7 +154,8 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     public RatioTapChangerImpl setRegulationMode(RegulationMode newRegulationMode) {
         RegulationMode oldValue = null;
         if (voltageRegulation != null) {
-            oldValue = voltageRegulation.setMode(newRegulationMode);
+            oldValue = voltageRegulation.getMode();
+            voltageRegulation.setMode(newRegulationMode);
         } else {
             newVoltageRegulation()
                 .withMode(newRegulationMode)

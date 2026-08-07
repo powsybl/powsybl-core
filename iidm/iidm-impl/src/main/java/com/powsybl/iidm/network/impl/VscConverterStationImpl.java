@@ -68,7 +68,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         boolean oldValue = isRegulating();
         if (voltageRegulation != null) {
             voltageRegulation.setMode(RegulationMode.VOLTAGE);
-            oldValue = voltageRegulation.setRegulating(voltageRegulatorOn);
+            voltageRegulation.setRegulating(voltageRegulatorOn);
         } else {
             newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
         }

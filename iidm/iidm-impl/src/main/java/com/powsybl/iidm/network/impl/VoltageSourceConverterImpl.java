@@ -74,7 +74,8 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         getOptionalVoltageRegulation().ifPresent(regulation -> {
-            boolean oldValue = regulation.setRegulating(voltageRegulatorOn);
+            boolean oldValue = regulation.isRegulating();
+            regulation.setRegulating(voltageRegulatorOn);
             String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             notifyUpdate(VOLTAGE_REGULATOR_ON_ATTRIBUTE, variantId, oldValue, voltageRegulatorOn);

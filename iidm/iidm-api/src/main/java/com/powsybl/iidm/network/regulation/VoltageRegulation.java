@@ -32,7 +32,7 @@ public interface VoltageRegulation {
      * @see #getTargetValue()
      * @see VariantManager
      */
-    double setTargetValue(double targetValue);
+    VoltageRegulation setTargetValue(double targetValue);
 
     /**
      * <p>
@@ -55,7 +55,7 @@ public interface VoltageRegulation {
      * @see #getTargetDeadband()
      * @see VariantManager
      */
-    double setTargetDeadband(double targetDeadband);
+    VoltageRegulation setTargetDeadband(double targetDeadband);
 
     /**
      * The slope attribute is relevant for:
@@ -73,7 +73,7 @@ public interface VoltageRegulation {
      * @see #getSlope()
      * @see VariantManager
      */
-    double setSlope(double slope);
+    VoltageRegulation setSlope(double slope);
 
     /**
      * The Terminal used for regulation. Can be local or remote but must be in the network
@@ -85,7 +85,7 @@ public interface VoltageRegulation {
      *
      * @see #getTerminal()
      */
-    void setTerminal(Terminal terminal, double targetValue);
+    VoltageRegulation setTerminal(Terminal terminal, double targetValue);
 
     /**
      * To remove the terminal. Do the same as setTerminal(null)
@@ -122,8 +122,7 @@ public interface VoltageRegulation {
      *
      * @see VariantManager
      */
-    @Nullable
-    RegulationMode setMode(RegulationMode mode);
+    VoltageRegulation setMode(RegulationMode mode);
 
     /**
      * To know if the object is regulating or not.
@@ -139,7 +138,7 @@ public interface VoltageRegulation {
      * @return the previous Value
      * @see VariantManager
      */
-    boolean setRegulating(boolean regulating);
+    VoltageRegulation setRegulating(boolean regulating);
 
     default AttributesWithTerminal getAttributes() {
         return new AttributesWithTerminal(
