@@ -181,7 +181,7 @@ A generator is a piece of equipment that injects or consumes active power, and i
 | $ReactiveLimits$    | MVar | Operational limits of the generator (P/Q/V diagram)          |
 | $RatedS$            | MVA  | The rated nominal power                                      |
 | $TargetP$           | MW   | The active power target                                      |
-| $LocalTargetQ$      | MVAr | The reactive power target at local terminal                  |
+| $LocalTargetQ$      | MVar | The reactive power target at local terminal                  |
 | $LocalTargetV$      | kV   | The voltage target at local terminal                         |
 | $EnergySource$      |      | The energy source harnessed to turn the generator            |
 | $IsCondenser$       |      | True if the generator may behave as a condenser              |
@@ -194,8 +194,8 @@ A generator is a piece of equipment that injects or consumes active power, and i
 - `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 - Target values for generators (`TargetP` and `LocalTargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `LocalTargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The diagram above shows the sign convention of these quantities with an example.
 - The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
-- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VolatgeRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
-- The `LocalTargetQ`is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
+- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+- The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 
 **Available extensions**
 
@@ -302,9 +302,9 @@ The minimum active power output `MinP` cannot be greater than the maximum active
 
 [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the battery is considered as not able to regulate voltage.
 
-The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VolatgeRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
 
-The `LocalTargetQ`is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
+The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 
 The [reactive limits](./additional.md#reactive-limits) of the battery are optional, if they are not given the battery
 is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as
@@ -355,7 +355,7 @@ Optional:
 | $MaxP$               | MW   | Maximum generation part active power output               |
 | $ReactiveLimits$     | MVar | Operational limits of the generation part (P/Q/V diagram) |
 | $TargetP$            | MW   | The active power target                                   |
-| $TargetQ$            | MVAr | The reactive power target                                 |
+| $TargetQ$            | MVar | The reactive power target                                 |
 | $TargetV$            | kV   | The voltage target                                        |
 | $VoltageRegulatorOn$ |      | True if the generation part regulates voltage             |
 
@@ -461,7 +461,7 @@ $B$ and $G$ attributes can be equal zero, but the disconnected status of the non
   calculation or not, depending on what is wanted to be shown.
 - In the case of a capacitor, the value for its Q will be negative.
 - In the case of a reactor, the value for its Q will be positive.
-- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VolatgeRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
 - [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
 
 **Available extensions**
@@ -488,7 +488,7 @@ Static VAR compensators follow a passive-sign convention:
 |---------------------|------|--------------------------------------------------------------|
 | $Bmin$              | S    | The minimum susceptance                                      |
 | $Bmax$              | S    | The maximum susceptance                                      |
-| $LocalTargetQ$      | MVAr | The reactive power target at local terminal                  |
+| $LocalTargetQ$      | MVar | The reactive power target at local terminal                  |
 | $LocalTargetV$      | kV   | The voltage target at local terminal                         |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
@@ -501,8 +501,8 @@ Static VAR compensators follow a passive-sign convention:
   $$Qmax = -Bmax \times V^2$$
 
   where $V$ is the voltage of the bus that connects the static VAR compensator to the network. Even if the regulating terminal is remote, only the local voltage has to be considered to retrieve the minimum and the maximum amount of reactive power. Reactive limits can be handled in an approximate way using the nominal voltage of the connected bus.
-- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VolatgeRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
-- The `LocalTargetQ`is required when the regulation mode is set to `REACTIVE_POWER`, `VolatgeRegulation.Terminal` is not set and the regualtion si enabled (`regulating` = true).
+- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+- The `LocalTargetQ` is required when the regulation mode is set to `REACTIVE_POWER`, `VoltageRegulation.Terminal` is not set and the regulation si enabled (`regulating` = true).
 - [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
 
 **Available extensions**
@@ -875,14 +875,14 @@ A VSC converter station is made with switching devices that can be turned both o
 
 | Attribute            | Unit | Description                                                  |
 |----------------------|------|--------------------------------------------------------------|
-| $LocalTargetQ$       | MVAr | The reactive power target at local terminal                  |
+| $LocalTargetQ$       | MVar | The reactive power target at local terminal                  |
 | $LocalTargetV$       | kV   | The voltage target at local terminal                         |
 | $VoltageRegulation$  |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
 **Specifications**
 
-- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VolatgeRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
-- The `LocalTargetQ`is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
+- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+- The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 - A positive value of `LocalTargetQ` means an injection into the bus, thus a negative value at the corresponding terminal (which is in passive-sign convention).
 - A set of reactive limits can be associated to a VSC converter station. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
 - [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
@@ -1097,15 +1097,15 @@ hence a PowerFactor of 0.89443.
 
 | Attribute           | Unit | Description                                                  |
 |---------------------|------|--------------------------------------------------------------|
-| $LocalTargetQ$      | MVAr | The reactive power target at local terminal                  |
+| $LocalTargetQ$      | MVar | The reactive power target at local terminal                  |
 | $LocalTargetV$      | kV   | The voltage target at local terminal                         |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
 **Specifications**
 
 - The terminal used for regulation is the Point of Common Coupling terminal, for both voltage and reactive power control modes.
-- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VolatgeRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
-- The `LocalTargetQ`is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
+- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+- The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 - The `LocalTargetQ` (in MVar) is in passive sign convention: a positive value of `LocalTargetQ` means withdrawal from the bus.
 - A set of reactive limits can be associated to a VSC converter. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
 - [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.

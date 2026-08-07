@@ -41,7 +41,7 @@ class ConnectGeneratorTest {
     }
 
     @Test
-    void testConnectVoltageRegulatorReactif() {
+    void testConnectVoltageRegulatorReactivePower() {
         g2.getVoltageRegulation().setRegulating(false);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());

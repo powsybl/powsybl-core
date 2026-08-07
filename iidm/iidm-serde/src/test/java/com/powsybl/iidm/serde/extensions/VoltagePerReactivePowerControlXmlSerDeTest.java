@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmVersion;
@@ -33,7 +34,9 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
 
-        svc.getVoltageRegulation().setSlope(0.5);
+        svc.getVoltageRegulation()
+            .setSlope(0.5)
+            .setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
 
         Network network2 = allFormatsRoundTripTest(network, "/voltagePerReactivePowerControl.xml", CURRENT_IIDM_VERSION);
 
