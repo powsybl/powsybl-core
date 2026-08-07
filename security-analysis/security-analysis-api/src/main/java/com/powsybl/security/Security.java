@@ -9,6 +9,8 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.io.table.*;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -412,33 +414,20 @@ public final class Security {
         Objects.requireNonNull(formatterFactory);
         Objects.requireNonNull(writeConfig);
         if (!result.getPostContingencyResults().isEmpty()) {
-            Set<LimitViolationKey> preContingencyViolations = writeConfig.isFilterPreContingencyViolations()
-                    ? result.getPreContingencyLimitViolationsResult().getLimitViolations()
-                            .stream()
-                            .map(Security::toKey)
-                            .collect(Collectors.toSet())
-                    : Collections.emptySet();
-
             NumberFormat numberFormat = getFormatter(writeConfig.getFormatterConfig().getLocale(), 4, 4);
             NumberFormat percentageFormat = getFormatter(writeConfig.getFormatterConfig().getLocale(), 2, 2);
 
-            int sumFilter = result.getPostContingencyResults()
-                .stream()
-                .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
-                .mapToInt(postContingencyResult -> {
-                    // configured filtering
-                    List<LimitViolation> filteredLimitViolations = writeConfig.getFilter() != null
-                            ? writeConfig.getFilter().apply(postContingencyResult.getLimitViolationsResult().getLimitViolations(), network)
-                            : postContingencyResult.getLimitViolationsResult().getLimitViolations();
+            Map<Contingency, List<LimitViolation>> filteredLimitViolationsByPostContingency = new HashMap<>();
+            result.getPostContingencyResults()
+                    .stream()
+                    .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
+                    .forEach(postContingencyResult -> {
+                        filteredLimitViolationsByPostContingency.put(postContingencyResult.getContingency(),
+                                filterViolations(network, writeConfig, postContingencyResult.getLimitViolationsResult(), getLimitViolationKeySet(writeConfig, result.getPreContingencyLimitViolationsResult()))
+                        );
+                    });
 
-                    // pre-contingency violations filtering
-                    List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
-                            .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                            .toList();
-
-                    return filteredLimitViolations2.size();
-                }
-               ).sum();
+            int sumFilter = filteredLimitViolationsByPostContingency.values().stream().mapToInt(List::size).sum();
 
             try (TableFormatter formatter = formatterFactory.create(writer,
                 "Post-contingency limit violations",
@@ -469,32 +458,43 @@ public final class Security {
                     .stream()
                     .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
                     .forEach(postContingencyResult ->
-                        writePostContingencyResult(postContingencyResult, writeConfig.getFilter(), network, preContingencyViolations, formatter, writeConfig.isWriteName()));
+                        writePostContingencyResult(postContingencyResult, filteredLimitViolationsByPostContingency, network, formatter, writeConfig.isWriteName()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
     }
 
-    private static void writePostContingencyResult(PostContingencyResult postContingencyResult,
-                                                   LimitViolationFilter limitViolationFilter, Network network,
-                                                   Set<LimitViolationKey> preContingencyViolations, TableFormatter formatter, boolean writeName) {
-        try {
-            // configured filtering
-            List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
-                ? limitViolationFilter.apply(postContingencyResult.getLimitViolationsResult().getLimitViolations(), network)
-                : postContingencyResult.getLimitViolationsResult().getLimitViolations();
+    private static Set<LimitViolationKey> getLimitViolationKeySet(PostContingencyLimitViolationWriteConfig writeConfig, LimitViolationsResult limitViolationsResult) {
+        return writeConfig.isFilterPreContingencyViolations()
+                ? limitViolationsResult.getLimitViolations()
+                  .stream()
+                  .map(Security::toKey)
+                  .collect(Collectors.toSet())
+                : Collections.emptySet();
+    }
 
-            // pre-contingency violations filtering
-            List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
+    private static List<LimitViolation> filterViolations(Network network, PostContingencyLimitViolationWriteConfig writeConfig, LimitViolationsResult limitViolationsResult, Set<LimitViolationKey> preContingencyViolations) {
+        // configured filtering
+        List<LimitViolation> filteredLimitViolations = writeConfig.getFilter() != null
+                ? writeConfig.getFilter().apply(limitViolationsResult.getLimitViolations(), network)
+                : limitViolationsResult.getLimitViolations();
+
+        // pre-contingency violations filtering
+        return filteredLimitViolations.stream()
                 .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
                 .toList();
+    }
 
-            if (!filteredLimitViolations2.isEmpty() || postContingencyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
+    private static void writePostContingencyResult(PostContingencyResult postContingencyResult,
+                                                   Map<Contingency, List<LimitViolation>> limitViolationsByContingency,
+                                                   Network network, TableFormatter formatter, boolean writeName) {
+        try {
+            if (!limitViolationsByContingency.get(postContingencyResult.getContingency()).isEmpty() || postContingencyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
                 formatter.writeCell(postContingencyResult.getContingency().getId())
                     .writeCell(postContingencyResult.getStatus().name())
                     .writeEmptyCell()
-                    .writeCell(EQUIPMENT + " (" + filteredLimitViolations2.size() + ")")
+                    .writeCell(EQUIPMENT + " (" + limitViolationsByContingency.get(postContingencyResult.getContingency()).size() + ")")
                     .writeEmptyCell()
                     .writeEmptyCell()
                     .writeEmptyCell()
@@ -521,7 +521,7 @@ public final class Security {
                         .writeEmptyCell();
                 }
 
-                filteredLimitViolations2.stream()
+                limitViolationsByContingency.get(postContingencyResult.getContingency()).stream()
                     .sorted(Comparator.comparing(LimitViolation::getSubjectId))
                     .forEach(writeLimitViolation(network, formatter, writeName));
             }
@@ -551,33 +551,20 @@ public final class Security {
         Objects.requireNonNull(formatterFactory);
         Objects.requireNonNull(writeConfig);
         if (!result.getOperatorStrategyResults().isEmpty()) {
-            Set<LimitViolationKey> preContingencyViolations = writeConfig.isFilterPreContingencyViolations()
-                    ? result.getPreContingencyLimitViolationsResult().getLimitViolations()
-                      .stream()
-                      .map(Security::toKey)
-                      .collect(Collectors.toSet())
-                    : Collections.emptySet();
-
             NumberFormat numberFormat = getFormatter(writeConfig.getFormatterConfig().getLocale(), 4, 4);
             NumberFormat percentageFormat = getFormatter(writeConfig.getFormatterConfig().getLocale(), 2, 2);
 
-            int sumFilter = result.getOperatorStrategyResults()
+            Map<OperatorStrategy, List<LimitViolation>> filteredLimitViolationsByOperatorStrategy = new HashMap<>();
+            result.getOperatorStrategyResults()
                     .stream()
                     .sorted(Comparator.comparing(osr -> osr.getOperatorStrategy().getId()))
-                    .mapToInt(operatorStrategyResult -> {
-                                // configured filtering
-                                List<LimitViolation> filteredLimitViolations = writeConfig.getFilter() != null
-                                        ? writeConfig.getFilter().apply(operatorStrategyResult.getLimitViolationsResult().getLimitViolations(), network)
-                                        : operatorStrategyResult.getLimitViolationsResult().getLimitViolations();
+                    .forEach(operatorStrategyResult -> {
+                        filteredLimitViolationsByOperatorStrategy.put(operatorStrategyResult.getOperatorStrategy(),
+                                filterViolations(network, writeConfig, operatorStrategyResult.getLimitViolationsResult(), getLimitViolationKeySet(writeConfig, result.getPreContingencyLimitViolationsResult()))
+                        );
+                    });
 
-                                // pre-contingency violations filtering
-                                List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
-                                        .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                                        .toList();
-
-                                return filteredLimitViolations2.size();
-                            }
-                    ).sum();
+            int sumFilter = filteredLimitViolationsByOperatorStrategy.values().stream().mapToInt(List::size).sum();
 
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Operator strategy limit violations",
@@ -608,32 +595,22 @@ public final class Security {
                         .stream()
                         .sorted(Comparator.comparing(osr -> osr.getOperatorStrategy().getId()))
                         .forEach(operatorStrategyResult ->
-                            writeOperatorStrategyViolations(operatorStrategyResult, writeConfig.getFilter(), network, preContingencyViolations, formatter, writeConfig.isWriteName()));
+                            writeOperatorStrategyViolations(operatorStrategyResult, network, filteredLimitViolationsByOperatorStrategy, formatter, writeConfig.isWriteName()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
     }
 
-    private static void writeOperatorStrategyViolations(OperatorStrategyResult operatorStrategyResult,
-                                                   LimitViolationFilter limitViolationFilter, Network network,
-                                                   Set<LimitViolationKey> preContingencyViolations, TableFormatter formatter, boolean writeName) {
+    private static void writeOperatorStrategyViolations(OperatorStrategyResult operatorStrategyResult, Network network,
+                                                        Map<OperatorStrategy, List<LimitViolation>> limitViolationsByOperatorStrategy,
+                                                        TableFormatter formatter, boolean writeName) {
         try {
-            // configured filtering
-            List<LimitViolation> filteredLimitViolations = limitViolationFilter != null
-                    ? limitViolationFilter.apply(operatorStrategyResult.getLimitViolationsResult().getLimitViolations(), network)
-                    : operatorStrategyResult.getLimitViolationsResult().getLimitViolations();
-
-            // pre-contingency violations filtering
-            List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
-                    .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                    .toList();
-
-            if (!filteredLimitViolations2.isEmpty() || operatorStrategyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
+            if (!limitViolationsByOperatorStrategy.get(operatorStrategyResult.getOperatorStrategy()).isEmpty() || operatorStrategyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
                 formatter.writeCell(operatorStrategyResult.getOperatorStrategy().getId())
                         .writeCell(operatorStrategyResult.getStatus().name())
                         .writeCell(operatorStrategyResult.getOperatorStrategy().getContingencyContext().getContingencyId())
-                        .writeCell(EQUIPMENT + " (" + filteredLimitViolations2.size() + ")")
+                        .writeCell(EQUIPMENT + " (" + limitViolationsByOperatorStrategy.get(operatorStrategyResult.getOperatorStrategy()).size() + ")")
                         .writeEmptyCell()
                         .writeEmptyCell()
                         .writeEmptyCell()
@@ -660,7 +637,7 @@ public final class Security {
                             .writeEmptyCell();
                 }
 
-                filteredLimitViolations2.stream()
+                limitViolationsByOperatorStrategy.get(operatorStrategyResult.getOperatorStrategy()).stream()
                         .sorted(Comparator.comparing(LimitViolation::getSubjectId))
                         .forEach(writeLimitViolation(network, formatter, writeName));
             }
