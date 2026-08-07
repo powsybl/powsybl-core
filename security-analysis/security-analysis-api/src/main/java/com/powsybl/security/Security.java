@@ -412,11 +412,11 @@ public final class Security {
             result.getPostContingencyResults()
                     .stream()
                     .sorted(Comparator.comparing(o2 -> o2.getContingency().getId()))
-                    .forEach(postContingencyResult -> {
-                        filteredLimitViolationsByPostContingency.put(postContingencyResult.getContingency(),
-                                filterViolations(network, writeConfig, postContingencyResult.getLimitViolationsResult(), getLimitViolationKeySet(writeConfig, result.getPreContingencyLimitViolationsResult()))
-                        );
-                    });
+                    .forEach(postContingencyResult -> filteredLimitViolationsByPostContingency.put(postContingencyResult.getContingency(),
+                            filterViolations(network, writeConfig, postContingencyResult.getLimitViolationsResult(),
+                                    getLimitViolationKeySet(writeConfig, result.getPreContingencyLimitViolationsResult())
+                            )
+                    ));
 
             int sumFilter = filteredLimitViolationsByPostContingency.values().stream().mapToInt(List::size).sum();
 
@@ -465,7 +465,8 @@ public final class Security {
                 : Collections.emptySet();
     }
 
-    private static List<LimitViolation> filterViolations(Network network, PostContingencyLimitViolationWriteConfig writeConfig, LimitViolationsResult limitViolationsResult, Set<LimitViolationKey> preContingencyViolations) {
+    private static List<LimitViolation> filterViolations(Network network, PostContingencyLimitViolationWriteConfig writeConfig,
+                                                         LimitViolationsResult limitViolationsResult, Set<LimitViolationKey> preContingencyViolations) {
         // configured filtering
         List<LimitViolation> filteredLimitViolations = writeConfig.getFilter() != null
                 ? writeConfig.getFilter().apply(limitViolationsResult.getLimitViolations(), network)
@@ -531,11 +532,11 @@ public final class Security {
             result.getOperatorStrategyResults()
                     .stream()
                     .sorted(Comparator.comparing(osr -> osr.getOperatorStrategy().getId()))
-                    .forEach(operatorStrategyResult -> {
-                        filteredLimitViolationsByOperatorStrategy.put(operatorStrategyResult.getOperatorStrategy(),
-                                filterViolations(network, writeConfig, operatorStrategyResult.getLimitViolationsResult(), getLimitViolationKeySet(writeConfig, result.getPreContingencyLimitViolationsResult()))
-                        );
-                    });
+                    .forEach(operatorStrategyResult -> filteredLimitViolationsByOperatorStrategy.put(operatorStrategyResult.getOperatorStrategy(),
+                            filterViolations(network, writeConfig, operatorStrategyResult.getLimitViolationsResult(),
+                                    getLimitViolationKeySet(writeConfig, result.getPreContingencyLimitViolationsResult())
+                            )
+                    ));
 
             int sumFilter = filteredLimitViolationsByOperatorStrategy.values().stream().mapToInt(List::size).sum();
 
