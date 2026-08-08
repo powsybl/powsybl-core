@@ -222,6 +222,49 @@ class LocalComputationManagerTest {
     }
 
     @Test
+    void archiveUnzipDoesNotEscapeWorkingDir() throws Exception {
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+            }
+
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) {
+                return 0;
+            }
+        };
+        Path[] capturedWorkingDir = new Path[1];
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of(), PREFIX, false),
+                    new AbstractExecutionHandler<Object>() {
+                        @Override
+                        public List<CommandExecution> before(Path workingDir) throws IOException {
+                            capturedWorkingDir[0] = workingDir;
+                            // craft an archive whose entry name traverses out of the working directory
+                            try (ZipOutputStream os = new ZipOutputStream(Files.newOutputStream(workingDir.resolve("evil.zip")))) {
+                                os.putNextEntry(new ZipEntry("../evil.txt"));
+                                os.write("owned".getBytes());
+                                os.closeEntry();
+                            }
+                            Command command = new SimpleCommandBuilder()
+                                    .id("unzip_cmd")
+                                    .program("unzip")
+                                    .inputFiles(new InputFile("evil.zip", FilePreProcessor.ARCHIVE_UNZIP))
+                                    .build();
+                            return Collections.singletonList(new CommandExecution(command, 1));
+                        }
+
+                        @Override
+                        public Object after(Path workingDir, ExecutionReport report) {
+                            return null;
+                        }
+                    }).join();
+        }
+        // the traversal target sits in the parent of the working directory and must not have been written
+        assertFalse(Files.exists(capturedWorkingDir[0].getParent().resolve("evil.txt")));
+    }
+
+    @Test
     void hangingIssue() throws Exception {
         LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
             @Override

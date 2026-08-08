@@ -275,8 +275,13 @@ public class LocalComputationManager implements ComputationManager {
                         try (ZipFile zipFile = ZipFile.builder()
                             .setSeekableByteChannel(Files.newByteChannel(path))
                             .get()) {
+                            Path root = workingDir.normalize();
                             for (ZipArchiveEntry ze : Collections.list(zipFile.getEntries())) {
-                                Files.copy(zipFile.getInputStream(zipFile.getEntry(ze.getName())), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
+                                Path target = workingDir.resolve(ze.getName()).normalize();
+                                if (!target.startsWith(root)) {
+                                    throw new IOException("Zip entry '" + ze.getName() + "' is outside of the working directory");
+                                }
+                                Files.copy(zipFile.getInputStream(zipFile.getEntry(ze.getName())), target, REPLACE_EXISTING);
                             }
                         }
                         break;
