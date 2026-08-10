@@ -109,6 +109,22 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     }
 
+    /**
+     * Merges two instances of {@code VoltageRegulationExt} by applying the attributes of the new instance
+     * to the current instance. If the current instance is null, the new instance is returned.
+     *
+     * @param currentVoltageRegulation The current {@code VoltageRegulationExt} instance, may be null.
+     * @param newVoltageRegulation The new {@code VoltageRegulationExt} instance to merge into the current instance, must not be null.
+     * @return A {@code VoltageRegulationExt} instance representing the merged result. If the current instance is null, the new instance is returned.
+     */
+    static VoltageRegulationExt mergeVoltageRegulation(VoltageRegulationExt currentVoltageRegulation,
+                                                       @NonNull VoltageRegulationExt newVoltageRegulation) {
+        if (currentVoltageRegulation == null) {
+            return newVoltageRegulation;
+        }
+        return currentVoltageRegulation.setAttributesOnCurrentVariant(newVoltageRegulation);
+    }
+
     private void initVariantAttributes(double targetValue, double targetDeadband, double slope, boolean regulating, RegulationMode mode, int variantArraySize) {
         Integer regulationModeIndex = RegulationMode.getIndexFromMode(mode);
         for (int i = 0; i < variantArraySize; i++) {
@@ -219,7 +235,13 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (!isWithTerminal) {
             return removeTerminal();
         }
-        ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationTerminal(validable,
+            terminal,
+            isRegulating(),
+            network.get(),
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
+
         ValidationUtil.checkVoltageRegulationTargetValue(validable,
             targetValue,
             getMode(),
@@ -483,7 +505,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     @Override
-    public void setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation) {
+    public VoltageRegulationExt setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation) {
         setAttributesOnCurrentVariant(new AttributesWithTerminal(
             voltageRegulation.getTargetValue(),
             voltageRegulation.getTargetDeadband(),
@@ -491,6 +513,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             voltageRegulation.getMode(),
             voltageRegulation.isRegulating(),
             voltageRegulation.getTerminal()));
+        return this;
     }
 
     private int getCurrentVariantIndex() {

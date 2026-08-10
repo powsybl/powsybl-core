@@ -20,5 +20,5 @@ public interface VoltageRegulationExt extends VoltageRegulation, MultiVariantObj
      */
     void onRemove();
 
-    void setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation);
+    VoltageRegulationExt setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation);
 }

@@ -290,7 +290,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl(RatioTapChanger.class, parent, this, getNetwork().getRef(), this::setVoltageRegulation);
+        return new VoltageRegulationBuilderImpl(RatioTapChanger.class, parent, this, getNetwork().getRef(), this::setOrMergeVoltageRegulation);
     }
 
     @Override
@@ -320,25 +320,21 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     /**
-     * Creates or updates the voltage regulation associated with this battery.
      * <p>
-     * If a voltage regulation already exists, only the current variant attributes are updated from the
-     * provided voltage regulation, while keeping the existing instance.
+     * Updates the voltage regulation by merging the current configuration
+     * with the provided one and returns the updated voltage regulation object.
      * </p>
      * <p>
      * This method must remain private to ensure voltage regulation lifecycle operations are done through
      * the public API and to avoid sharing a voltage regulation instance between equipments.
      * </p>
      *
-     * @param voltageRegulation the voltage regulation to attach or use as source attributes
-     * @return the voltage regulation associated with this equipment
+     * @param newVoltageRegulation The new voltage regulation to merge with the current one.
+     *                          Must not be null.
+     * @return The updated voltageRegulation after merging.
      */
-    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
-        if (this.voltageRegulation == null) {
-            this.voltageRegulation = voltageRegulation;
-        } else {
-            this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
-        }
+    private VoltageRegulationExt setOrMergeVoltageRegulation(@NonNull VoltageRegulationExt newVoltageRegulation) {
+        this.voltageRegulation = VoltageRegulationImpl.mergeVoltageRegulation(this.voltageRegulation, newVoltageRegulation);
         return this.voltageRegulation;
     }
 }
