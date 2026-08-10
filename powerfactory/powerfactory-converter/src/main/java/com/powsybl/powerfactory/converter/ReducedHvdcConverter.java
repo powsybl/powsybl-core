@@ -265,13 +265,13 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
         boolean voltageRegulatorOn = vscModelR.voltageRegulatorOn;
         double targetV = vscModelR.voltageSetpoint;
         double targetQ = vscModelR.reactivePowerSetpoint;
+        adderR.setLocalTargetQ(targetQ)
+            .setLocalTargetV(targetV);
         if (voltageRegulatorOn) {
             adderR.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add();
         }
-        adderR.setLocalTargetQ(targetQ)
-            .setLocalTargetV(targetV);
     }
 
     private static final class DcLineModel {
