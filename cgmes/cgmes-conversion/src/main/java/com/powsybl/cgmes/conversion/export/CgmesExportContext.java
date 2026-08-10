@@ -24,6 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -287,7 +288,7 @@ public class CgmesExportContext {
     }
 
     private void computeBaseVoltageMapping(Network network) {
-        DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##");
+        DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##", new DecimalFormatSymbols(Locale.US));
 
         // Retrieve reference BaseVoltage mapping stored in the dedicated extension.
         // This may not match exactly the base voltages used in the network.
