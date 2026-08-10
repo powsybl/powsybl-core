@@ -521,7 +521,7 @@ The optional `TargetDeadband` is only pertinent for objects with discrete (as op
 This example shows how to add a voltage regulation to a generator with remote regulation:
  - when we create a new generator:
 ```java
-generator.newVoltageRegulation()
+generatorAdder.newVoltageRegulation()
     .withTargetValue(120)
     .withMode(RegulationMode.REACTIVE_POWER)
     .withRegulating(true)
