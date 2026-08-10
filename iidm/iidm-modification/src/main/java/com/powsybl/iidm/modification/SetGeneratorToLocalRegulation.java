@@ -75,7 +75,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
                 targetV = calculateTargetVoltage(generator);
             }
             generator.setLocalTargetV(targetV);
-            generator.getVoltageRegulation().removeTerminal();
+            generator.getVoltageRegulation().setTerminal(null, Double.NaN);
 
             // Notify the change
             LOG.info("Changed regulation for generator: {} to local instead of remote", generator.getId());

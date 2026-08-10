@@ -51,6 +51,8 @@ public abstract class AbstractVoltageRegulationTest {
         remoteTerminal = network.getBattery("BAT").getTerminal();
     }
 
+    // TODO MSA add two removeGenerator tests one with voltageRegulation another one without
+
     // Cases generator regulating
     @ParameterizedTest(name = "{argumentSetName}")
     @MethodSource("provideGeneratorRegulating")
@@ -311,7 +313,7 @@ public abstract class AbstractVoltageRegulationTest {
         network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant2);
         network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant3);
         // WHEN
-        voltageRegulation.removeTerminal();
+        voltageRegulation.setTerminal(null, Double.NaN);
         // THEN
         network.getVariantManager().getVariantIds().forEach(variantId -> {
             network.getVariantManager().setWorkingVariant(variantId);
@@ -346,7 +348,7 @@ public abstract class AbstractVoltageRegulationTest {
         network.getVariantManager().cloneVariant(variant1, variant3);
         network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulation::removeTerminal);
+        ValidationException validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setTerminal(null, Double.NaN));
         // THEN
         String expectedMessage = "Generator 'Error_removeTerminal_multiVariant_Missing_LocalTargetV': " +
             "Trying to remove the regulating terminal from the voltageRegulation of Error_removeTerminal_multiVariant_Missing_LocalTargetV " +

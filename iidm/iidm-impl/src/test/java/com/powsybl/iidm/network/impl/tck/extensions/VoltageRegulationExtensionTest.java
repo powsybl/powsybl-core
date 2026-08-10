@@ -169,7 +169,7 @@ class VoltageRegulationExtensionTest {
         battery3.remove();
         assertRegulatingTerminal(battery.getTerminal(), voltageRegulation, battery3.getTerminal());
         // Switch to local regulation (this was already the case)
-        voltageRegulation.removeTerminal();
+        voltageRegulation.setTerminal(null, Double.NaN);
         assertRegulatingTerminal(null, voltageRegulation);
     }
 

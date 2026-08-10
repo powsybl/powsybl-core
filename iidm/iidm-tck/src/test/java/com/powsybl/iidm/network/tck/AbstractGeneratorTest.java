@@ -86,7 +86,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(generator.getLocalTargetV(), generator.getRegulatingTargetV());
 
         // Terminal
-        generator.getVoltageRegulation().removeTerminal();
+        generator.getVoltageRegulation().setTerminal(null, Double.NaN);
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
         Terminal remoteTerminal = network.getGenerator("CC").getTerminal();
         generator.getVoltageRegulation().setTerminal(remoteTerminal, 150);

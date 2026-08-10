@@ -140,7 +140,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc.getVoltageRegulation().setTerminal(loadTerminal, 200);
         assertEquals(loadTerminal, svc.getRegulatingTerminal());
 
-        svc.getVoltageRegulation().removeTerminal();
+        svc.getVoltageRegulation().setTerminal(null, Double.NaN);
         assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());
 
         StaticVarCompensator svc3 = createSvc("SVC3", null, RegulationMode.VOLTAGE);

@@ -462,7 +462,7 @@ $B$ and $G$ attributes can be equal zero, but the disconnected status of the non
 - In the case of a capacitor, the value for its Q will be negative.
 - In the case of a reactor, the value for its Q will be positive.
 - The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
-- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
+- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the Shunt Compensator is considered as not able to regulate voltage.
 
 **Available extensions**
 
@@ -503,7 +503,7 @@ Static VAR compensators follow a passive-sign convention:
   where $V$ is the voltage of the bus that connects the static VAR compensator to the network. Even if the regulating terminal is remote, only the local voltage has to be considered to retrieve the minimum and the maximum amount of reactive power. Reactive limits can be handled in an approximate way using the nominal voltage of the connected bus.
 - The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
 - The `LocalTargetQ` is required when the regulation mode is set to `REACTIVE_POWER`, `VoltageRegulation.Terminal` is not set and the regulation si enabled (`regulating` = true).
-- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
+- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the Static VAR Compensator is considered as not able to regulate voltage.
 
 **Available extensions**
 
@@ -885,7 +885,7 @@ A VSC converter station is made with switching devices that can be turned both o
 - The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 - A positive value of `LocalTargetQ` means an injection into the bus, thus a negative value at the corresponding terminal (which is in passive-sign convention).
 - A set of reactive limits can be associated to a VSC converter station. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
-- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
+- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the VSC converter station is considered as not able to regulate voltage.
 
 **Metadata**
 - The participation in regulation (through a boolean)
@@ -1108,7 +1108,7 @@ hence a PowerFactor of 0.89443.
 - The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 - The `LocalTargetQ` (in MVar) is in passive sign convention: a positive value of `LocalTargetQ` means withdrawal from the bus.
 - A set of reactive limits can be associated to a VSC converter. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
-- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
+- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the Voltage Source Converter is considered as not able to regulate voltage.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)

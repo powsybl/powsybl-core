@@ -370,7 +370,7 @@ public abstract class AbstractShuntCompensatorTest {
             assertEquals("Shunt compensator 'shunt': voltageRegulation.terminal is not part of the network", exception.getMessage());
         }
         shuntCompensator.setLocalTargetV(120.0);
-        voltageRegulation.removeTerminal();
+        voltageRegulation.setTerminal(null, Double.NaN);
         assertSame(shuntCompensator.getTerminal(), shuntCompensator.getRegulatingTerminal());
 
         // voltageRegulatorOn

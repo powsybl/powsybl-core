@@ -176,7 +176,7 @@ public abstract class AbstractVscTest {
         assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
         cs1.getVoltageRegulation().setTerminal(cs2Terminal, 350);
         assertEquals(cs2Terminal, cs1.getRegulatingTerminal());
-        cs1.getVoltageRegulation().removeTerminal();
+        cs1.getVoltageRegulation().setTerminal(null, Double.NaN);
         assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
     }
 

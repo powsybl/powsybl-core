@@ -215,8 +215,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public VoltageRegulation setTerminal(Terminal terminal, double targetValue) {
-        ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         boolean isWithTerminal = terminal != null;
+        if (!isWithTerminal) {
+            return removeTerminal();
+        }
+        ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         ValidationUtil.checkVoltageRegulationTargetValue(validable,
             targetValue,
             getMode(),
@@ -318,8 +321,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return this;
     }
 
-    @Override
-    public void removeTerminal() {
+    private VoltageRegulation removeTerminal() {
         // We check all variants because we will set targetValue to NaN for all variants because the terminal is not a variant attribute
         VariantManagerImpl variantManager = network.get().getVariantManager();
         String currentVariantId = variantManager.getWorkingVariantId();
@@ -360,6 +362,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             throw new ValidationException(validable, errorMessage);
         }
         variantManager.setWorkingVariant(currentVariantId);
+        return this;
     }
 
     @Override
@@ -482,11 +485,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     @Override
     public void setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation) {
         setAttributesOnCurrentVariant(new AttributesWithTerminal(
-            new Attributes(voltageRegulation.getTargetValue(),
-                voltageRegulation.getTargetDeadband(),
-                voltageRegulation.getSlope(),
-                voltageRegulation.getMode(),
-                voltageRegulation.isRegulating()),
+            voltageRegulation.getTargetValue(),
+            voltageRegulation.getTargetDeadband(),
+            voltageRegulation.getSlope(),
+            voltageRegulation.getMode(),
+            voltageRegulation.isRegulating(),
             voltageRegulation.getTerminal()));
     }
 

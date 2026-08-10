@@ -87,11 +87,6 @@ public interface VoltageRegulation {
      */
     VoltageRegulation setTerminal(Terminal terminal, double targetValue);
 
-    /**
-     * To remove the terminal. Do the same as setTerminal(null)
-     */
-    void removeTerminal();
-
     boolean isWithTerminal();
 
     /**
@@ -142,13 +137,11 @@ public interface VoltageRegulation {
 
     default AttributesWithTerminal getAttributes() {
         return new AttributesWithTerminal(
-            new Attributes(
-                getTargetValue(),
-                getTargetDeadband(),
-                getSlope(),
-                getMode(),
-                isRegulating()
-            ),
+            getTargetValue(),
+            getTargetDeadband(),
+            getSlope(),
+            getMode(),
+            isRegulating(),
             getTerminal()
         );
     }
@@ -172,6 +165,16 @@ public interface VoltageRegulation {
         Attributes attributes,
         Terminal terminal
     ) {
+        public AttributesWithTerminal(
+            double targetValue,
+            double targetDeadband,
+            double slope,
+            RegulationMode mode,
+            boolean isRegulating,
+            Terminal terminal) {
+            this(new Attributes(targetValue, targetDeadband, slope, mode, isRegulating), terminal);
+        }
+
         public double targetValue() {
             return attributes.targetValue();
         }
@@ -194,26 +197,22 @@ public interface VoltageRegulation {
 
         public AttributesWithTerminal withMode(RegulationMode newMode) {
             return new VoltageRegulation.AttributesWithTerminal(
-                new Attributes(
-                    targetValue(),
-                    targetDeadband(),
-                    slope(),
-                    newMode,
-                    isRegulating()
-                ),
+                targetValue(),
+                targetDeadband(),
+                slope(),
+                newMode,
+                isRegulating(),
                 terminal()
             );
         }
 
         public AttributesWithTerminal withRegulating(boolean regulating) {
             return new VoltageRegulation.AttributesWithTerminal(
-                new Attributes(
-                    targetValue(),
-                    targetDeadband(),
-                    slope(),
-                    mode(),
-                    regulating
-                ),
+                targetValue(),
+                targetDeadband(),
+                slope(),
+                mode(),
+                regulating,
                 terminal()
             );
         }
