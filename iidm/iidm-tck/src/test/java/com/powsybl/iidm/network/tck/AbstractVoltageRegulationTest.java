@@ -51,7 +51,32 @@ public abstract class AbstractVoltageRegulationTest {
         remoteTerminal = network.getBattery("BAT").getTerminal();
     }
 
-    // TODO MSA add two removeGenerator tests one with voltageRegulation another one without
+    @Test
+    void shouldUnregisterTerminalOnRemoveGeneratorWithRemoteVoltageRegulation() {
+        String generatorId = "removedGenerator";
+        DataGeneratorCreator dataGeneratorCreator = new DataGeneratorCreator(generatorId,
+            RegulationMode.VOLTAGE,
+            true,
+            220,
+            24.5,
+            Double.NaN,
+            true);
+        Generator generator = createGenerator(dataGeneratorCreator);
+        assertEquals(1, remoteTerminal.getReferrers().size());
+        generator.remove();
+        assertNull(network.getGenerator(generatorId));
+        assertEquals(0, remoteTerminal.getReferrers().size());
+    }
+
+    @Test
+    void shouldRemoveGeneratorOnRemoveGeneratorWithoutVoltageRegulation() {
+        String generatorId = "removedGenerator";
+        Generator generator = newGeneratorAdder(generatorId).setLocalTargetQ(10).add();
+        assertEquals(0, remoteTerminal.getReferrers().size());
+        generator.remove();
+        assertNull(network.getGenerator(generatorId));
+        assertEquals(0, remoteTerminal.getReferrers().size());
+    }
 
     // Cases generator regulating
     @ParameterizedTest(name = "{argumentSetName}")
@@ -157,8 +182,8 @@ public abstract class AbstractVoltageRegulationTest {
         VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent")
             .setLocalTargetV(24)
             .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(240);
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(240);
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
@@ -175,8 +200,8 @@ public abstract class AbstractVoltageRegulationTest {
         VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-                .withTerminal(remoteTerminal)
-                .withTargetValue(240);
+            .withTerminal(remoteTerminal)
+            .withTargetValue(240);
         // WHEN
         Generator generator = voltageRegulationAdder.add()
             .add();
@@ -197,8 +222,8 @@ public abstract class AbstractVoltageRegulationTest {
         // GIVEN
         VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue")
             .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTerminal(remoteTerminal);
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(remoteTerminal);
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
@@ -237,9 +262,9 @@ public abstract class AbstractVoltageRegulationTest {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("Error_Local_Voltage_OFF_Missing_TargetQ");
         generatorAdder.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(false)
-                .add();
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .add();
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
@@ -380,7 +405,8 @@ public abstract class AbstractVoltageRegulationTest {
         double localTargetV,
         double localTargetQ,
         boolean regulating
-    ) { }
+    ) {
+    }
 
     private Generator createGenerator(DataGeneratorCreator dataGeneratorCreator) {
         GeneratorAdder generatorAdder = newGeneratorAdder(dataGeneratorCreator.id())
