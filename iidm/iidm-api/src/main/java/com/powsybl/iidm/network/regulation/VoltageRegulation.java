@@ -28,7 +28,7 @@ public interface VoltageRegulation {
     /**
      * To set the targetValue. {@link #getTargetValue()}
      *
-     * @return the previous Value
+     * @return the current instance for method chaining
      * @see #getTargetValue()
      * @see VariantManager
      */
@@ -51,7 +51,7 @@ public interface VoltageRegulation {
     /**
      * To set the targetDeadBand. {@link #getTargetDeadband()}
      *
-     * @return the previous Value
+     * @return the current instance for method chaining
      * @see #getTargetDeadband()
      * @see VariantManager
      */
@@ -69,7 +69,7 @@ public interface VoltageRegulation {
     /**
      * To set the slope. {@link #getSlope()}
      *
-     * @return the previous Value
+     * @return the current instance for method chaining
      * @see #getSlope()
      * @see VariantManager
      */
@@ -83,6 +83,7 @@ public interface VoltageRegulation {
     /**
      * To set the Terminal with the expected targetValue. {@link #getTerminal()}
      *
+     * @return the current instance for method chaining
      * @see #getTerminal()
      */
     VoltageRegulation setTerminal(Terminal terminal, double targetValue);
@@ -115,6 +116,7 @@ public interface VoltageRegulation {
      *     <li>REACTIVE_POWER_PER_ACTIVE_POWER</li>
      * </ul>
      *
+     * @return the current instance for method chaining
      * @see VariantManager
      */
     VoltageRegulation setMode(RegulationMode mode);
@@ -130,7 +132,7 @@ public interface VoltageRegulation {
     /**
      * To set the regulating boolean
      *
-     * @return the previous Value
+     * @return the current instance for method chaining
      * @see VariantManager
      */
     VoltageRegulation setRegulating(boolean regulating);

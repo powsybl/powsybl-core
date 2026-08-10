@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.regulation;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VariantManager;
 
 /**
  * This interface defines methods for managing voltageRegulation
@@ -39,12 +40,18 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     Terminal getTerminal();
 
     /**
-     * TODO MSA JAVADOC
+     * <p>
+     *  Sets the local target voltage value in kV at the equipment's terminal.
+     * </p>
+     * <p>Depends on the working variant.</p>
+     * @param targetV the target voltage value to set
+     * @return the current instance for method chaining
+     * @see VariantManager
      */
     T setLocalTargetV(double targetV);
 
     /**
-     * Gets the local target voltage value at the equipment's terminal
+     * Gets the local target voltage value.
      *
      * @return the target voltage value, or Double.NaN if not applicable
      */
@@ -53,7 +60,13 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     }
 
     /**
-     * TODO MSA JAVADOC
+     * <p>
+     *  Sets the local target reactive power value in MVAR.
+     * </p>
+     * <p>Depends on the working variant.</p>
+     * @param localTargetQ the target reactive power value to set
+     * @return the current instance for method chaining
+     * @see VariantManager
      */
     default T setLocalTargetQ(double localTargetQ) {
         throw new UnsupportedOperationException();
