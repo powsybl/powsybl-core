@@ -537,10 +537,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         // WARNING There is a different sign convention between PowerFactory and PowSyBl:
         // In PowerFactory, power flows from the DC network to the AC network,
         // while in PowSyBl power flows towards the converter
-        double targetQ = pfParams.qsetp;
-        if (!Double.isFinite(targetQ) && !acVoltageRegulation) {
+        if (!Double.isFinite(pfParams.qsetp) && !acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has Q control but undefined Q.");
         }
+        double targetQ = -pfParams.qsetp;
         if (!Double.isFinite(pfParams.psetp) && controlMode == ControlMode.P_PCC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has P control but undefined P.");
         }
@@ -552,7 +552,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     private static void addVoltageRegulation(VoltageSourceConverterAdder converterAdder, boolean acVoltageRegulation, double voltageSetPointAc, double targetQ) {
         converterAdder.setLocalTargetV(voltageSetPointAc)
-            .setLocalTargetQ(-targetQ);
+            .setLocalTargetQ(targetQ);
         if (acVoltageRegulation) {
             converterAdder.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
