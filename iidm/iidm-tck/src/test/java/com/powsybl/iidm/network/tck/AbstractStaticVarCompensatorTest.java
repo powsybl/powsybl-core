@@ -47,8 +47,8 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertSame(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         assertEquals(390.0, svc.getRegulatingTargetV(), 0.0);
         assertEquals(390.0, svc.getLocalTargetV(), 0.0);
-        assertEquals(Double.NaN, svc.getLocalTargetQ());
-        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(svc.getLocalTargetQ()));
+        assertTrue(Double.isNaN(svc.getVoltageRegulation().getTargetValue()));
     }
 
     @Test
@@ -94,7 +94,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         svc.setLocalTargetQ(200.0);
         svc.getVoltageRegulation().setRegulating(false);
-        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
+        assertTrue(Double.isNaN(svc.getVoltageRegulation().getTargetValue()));
         assertEquals(200.0, svc.getRegulatingTargetQ(), 0.0);
         assertSame(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         assertFalse(svc.isRegulating());
@@ -106,7 +106,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc.setLocalTargetV(391.0);
         assertEquals(391.0, svc.getRegulatingTargetV(), 0.0);
         assertEquals(391.0, svc.getLocalTargetV(), 0.0);
-        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
+        assertTrue(Double.isNaN(svc.getVoltageRegulation().getTargetValue()));
     }
 
     @Test
@@ -191,7 +191,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(3.0, svc.getLocalTargetQ(), 0.0);
         assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         assertFalse(svc.isRegulating());
-        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
+        assertTrue(Double.isNaN(svc.getVoltageRegulation().getTargetValue()));
         assertEquals(3.0, svc.getRegulatingTargetQ(), 0.0);
         assertEquals(3.0, svc.getLocalTargetQ(), 0.0);
         assertEquals(44.0, svc.getLocalTargetV(), 0.0);
@@ -203,7 +203,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(1.0, svc.getLocalTargetQ(), 0.0);
         assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         assertTrue(svc.isRegulating());
-        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
+        assertTrue(Double.isNaN(svc.getVoltageRegulation().getTargetValue()));
         assertEquals(390.0, svc.getLocalTargetV(), 0.0);
 
         // remove working variant s4
@@ -237,8 +237,8 @@ public abstract class AbstractStaticVarCompensatorTest {
         // Variant1
         assertNull(voltageRegulation.getMode());
         assertNull(voltageRegulation.getTerminal());
-        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
-        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertTrue(Double.isNaN(voltageRegulation.getTargetValue()));
+        assertTrue(Double.isNaN(voltageRegulation.getTargetDeadband()));
         assertEquals(1, voltageRegulation.getSlope());
         assertFalse(voltageRegulation.isRegulating());
 
@@ -247,8 +247,8 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertNull(voltageRegulation.getTerminal());
         assertEquals(123, voltageRegulation.getTargetValue());
-        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
-        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertTrue(Double.isNaN(voltageRegulation.getTargetDeadband()));
+        assertTrue(Double.isNaN(voltageRegulation.getSlope()));
         assertFalse(voltageRegulation.isRegulating());
     }
 

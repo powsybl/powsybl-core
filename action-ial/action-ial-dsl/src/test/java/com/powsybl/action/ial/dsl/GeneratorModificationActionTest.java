@@ -148,11 +148,11 @@ class GeneratorModificationActionTest {
         assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
         assertEquals(24.5, g.getRegulatingTargetV(), 0.01);
         assertEquals(24.5, g.getLocalTargetV());
-        assertEquals(Double.NaN, g.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(g.getVoltageRegulation().getTargetValue()));
         action = actionDb.getAction("connect with targetV change");
         action.run(network);
         assertTrue(g.getTerminal().isConnected());
-        assertEquals(Double.NaN, g.getVoltageRegulation().getTargetValue(), 0.01);
+        assertTrue(Double.isNaN(g.getVoltageRegulation().getTargetValue()));
         assertEquals(1234.56, g.getRegulatingTargetV(), 0.01);
         assertEquals(1234.56, g.getLocalTargetV(), 0.01);
     }

@@ -48,7 +48,7 @@ class DetailedHvdcConverterTest {
         assertEquals(-600.0, vsc1.getTargetP());
         assertEquals(-0.0, vsc2.getTargetP());
         assertEquals(300.0, vsc1.getRegulatingTargetV());
-        assertEquals(Double.NaN, vsc2.getRegulatingTargetV());
+        assertTrue(Double.isNaN(vsc2.getRegulatingTargetV()));
         assertEquals(-0.0, vsc1.getRegulatingTargetQ());
         assertEquals(-100.0, vsc2.getRegulatingTargetQ());
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
@@ -88,7 +88,7 @@ class DetailedHvdcConverterTest {
         assertEquals(-0.0, vsc2.getTargetP());
         assertEquals(300, vsc1.getRegulatingTargetV());
         assertEquals(-0.0, vsc1.getRegulatingTargetQ());
-        assertEquals(Double.NaN, vsc2.getRegulatingTargetV());
+        assertTrue(Double.isNaN(vsc2.getRegulatingTargetV()));
         assertEquals(-100.0, vsc2.getRegulatingTargetQ());
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
         final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;

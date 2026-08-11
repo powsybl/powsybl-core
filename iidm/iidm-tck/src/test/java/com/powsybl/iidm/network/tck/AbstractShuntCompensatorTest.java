@@ -587,8 +587,8 @@ public abstract class AbstractShuntCompensatorTest {
         // Variant1
         assertNull(voltageRegulation.getMode());
         assertNull(voltageRegulation.getTerminal());
-        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
-        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertTrue(Double.isNaN(voltageRegulation.getTargetValue()));
+        assertTrue(Double.isNaN(voltageRegulation.getTargetDeadband()));
         assertEquals(1, voltageRegulation.getSlope());
         assertFalse(voltageRegulation.isRegulating());
 
@@ -597,8 +597,8 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertNull(voltageRegulation.getTerminal());
         assertEquals(123, voltageRegulation.getTargetValue());
-        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
-        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertTrue(Double.isNaN(voltageRegulation.getTargetDeadband()));
+        assertTrue(Double.isNaN(voltageRegulation.getSlope()));
         assertFalse(voltageRegulation.isRegulating());
     }
 

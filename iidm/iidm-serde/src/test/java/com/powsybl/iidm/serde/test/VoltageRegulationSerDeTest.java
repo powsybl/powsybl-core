@@ -64,7 +64,7 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
         assertNull(voltageRegulationExtensionXml);
         VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         assertNotNull(voltageRegulation);
-        assertEquals(Double.NaN, voltageRegulation.getTargetValue(), 0);
+        assertTrue(Double.isNaN(voltageRegulation.getTargetValue()));
         assertEquals(100.0, battery.getLocalTargetV(), 0);
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertTrue(battery.isRegulating());

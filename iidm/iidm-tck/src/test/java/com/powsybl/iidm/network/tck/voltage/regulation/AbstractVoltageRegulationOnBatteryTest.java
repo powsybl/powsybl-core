@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.tck;
+package com.powsybl.iidm.network.tck.voltage.regulation;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public abstract class AbstractVoltageRegulationTest {
+public abstract class AbstractVoltageRegulationOnBatteryTest {
 
     private VoltageLevel voltageLevel;
     private Terminal remoteTerminal;
@@ -52,45 +52,45 @@ public abstract class AbstractVoltageRegulationTest {
     }
 
     @Test
-    void shouldUnregisterTerminalOnRemoveGeneratorWithRemoteVoltageRegulation() {
-        String generatorId = "removedGenerator";
-        DataGeneratorCreator dataGeneratorCreator = new DataGeneratorCreator(generatorId,
+    void shouldUnregisterTerminalOnRemoveBatteryWithRemoteVoltageRegulation() {
+        String batteryId = "removedBattery";
+        DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(batteryId,
             RegulationMode.VOLTAGE,
             true,
             220,
             24.5,
             Double.NaN,
             true);
-        Generator generator = createGenerator(dataGeneratorCreator);
+        Battery battery = createBattery(dataVoltageRegulationHolderCreator);
         assertEquals(1, remoteTerminal.getReferrers().size());
-        generator.remove();
-        assertNull(network.getGenerator(generatorId));
+        battery.remove();
+        assertNull(network.getBattery(batteryId));
         assertEquals(0, remoteTerminal.getReferrers().size());
     }
 
     @Test
-    void shouldRemoveGeneratorOnRemoveGeneratorWithoutVoltageRegulation() {
-        String generatorId = "removedGenerator";
-        Generator generator = newGeneratorAdder(generatorId).setLocalTargetQ(10).add();
+    void shouldRemoveBatteryOnRemoveBatteryWithoutVoltageRegulation() {
+        String batteryId = "removedBattery";
+        Battery battery = newBatteryAdder(batteryId).setLocalTargetQ(10).add();
         assertEquals(0, remoteTerminal.getReferrers().size());
-        generator.remove();
-        assertNull(network.getGenerator(generatorId));
+        battery.remove();
+        assertNull(network.getBattery(batteryId));
         assertEquals(0, remoteTerminal.getReferrers().size());
     }
 
-    // Cases generator regulating
+    // Cases battery regulating
     @ParameterizedTest(name = "{argumentSetName}")
-    @MethodSource("provideGeneratorRegulating")
-    void testGeneratorRegulating(DataGeneratorCreator dataGeneratorCreator, String validationErrorOnRegulatingFalse) {
-        Generator generator = createGenerator(dataGeneratorCreator);
-        assertTrue(generator.isRegulating());
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+    @MethodSource("provideBatteryRegulating")
+    void testBatteryRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
+        Battery battery = createBattery(dataVoltageRegulationHolderCreator);
+        assertTrue(battery.isRegulating());
+        VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         if (validationErrorOnRegulatingFalse != null) {
             ValidationException validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setRegulating(false));
             assertEquals(validationErrorOnRegulatingFalse, validationException.getMessage());
         } else {
             voltageRegulation.setRegulating(false);
-            assertFalse(generator.isRegulating());
+            assertFalse(battery.isRegulating());
         }
     }
 
@@ -98,88 +98,88 @@ public abstract class AbstractVoltageRegulationTest {
     @Test
     void testMissingVoltageRegulationOk() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("missingVoltageRegulation")
+        BatteryAdder batteryAdder = newBatteryAdder("missingVoltageRegulation")
             .setLocalTargetQ(10);
         // WHEN
-        Generator generator = generatorAdder.add();
+        Battery battery = batteryAdder.add();
         // THEN
-        assertEquals(10, generator.getLocalTargetQ());
-        assertFalse(generator.isRegulating());
+        assertEquals(10, battery.getLocalTargetQ());
+        assertFalse(battery.isRegulating());
     }
 
     @Test
     void testMissingVoltageRegulationWithMissingTargetQ() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("missingVoltageRegulation");
+        BatteryAdder batteryAdder = newBatteryAdder("missingVoltageRegulation");
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, batteryAdder::add);
         // THEN
-        assertEquals("Generator 'missingVoltageRegulation': invalid value (NaN) for localTargetQ (voltageRegulation is not set)", validationException.getMessage());
+        assertEquals("Battery 'missingVoltageRegulation': invalid value (NaN) for localTargetQ (voltageRegulation is not set)", validationException.getMessage());
     }
 
     // Cases Regulating True, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testGeneratorOk() {
+    void testBatteryOk() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent");
-        generatorAdder
+        BatteryAdder batteryAdder = newBatteryAdder("ErrorTargetValuePresent_when_terminal_absent");
+        batteryAdder
             .setLocalTargetV(24)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .add();
         // WHEN
-        Generator generator = generatorAdder.add();
+        Battery battery = batteryAdder.add();
         // THEN
-        assertEquals(24, generator.getLocalTargetV());
-        assertTrue(generator.isRegulating());
+        assertEquals(24, battery.getLocalTargetV());
+        assertTrue(battery.isRegulating());
     }
 
     @Test
-    void testGeneratorErrorLocalTargetVMissing() {
+    void testBatteryErrorLocalTargetVMissing() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing");
-        generatorAdder.newVoltageRegulation()
+        BatteryAdder batteryAdder = newBatteryAdder("LocalVoltageTargetV_missing");
+        batteryAdder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .add();
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, batteryAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+        assertEquals("Battery 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
             validationException.getMessage());
     }
 
     @Test
-    void testGeneratorErrorLocalTargetVMissingTargetQPresent() {
+    void testBatteryErrorLocalTargetVMissingTargetQPresent() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing");
-        generatorAdder.newVoltageRegulation()
+        BatteryAdder batteryAdder = newBatteryAdder("LocalVoltageTargetV_missing");
+        batteryAdder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .add()
             .setLocalTargetQ(10);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, batteryAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+        assertEquals("Battery 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
             validationException.getMessage());
     }
 
     @Test
-    void testGeneratorErrorLocalTargetVMissingTargetValuePresent() {
+    void testBatteryErrorLocalTargetVMissingTargetValuePresent() {
         // GIVEN
-        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
+        VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(240);
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
+        assertEquals("Battery 'LocalVoltageTargetV_missing': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
     }
 
     @Test
-    void testGeneratorErrorTargetValuePresent() {
+    void testBatteryErrorTargetValuePresent() {
         // GIVEN
-        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent")
+        VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("ErrorTargetValuePresent_when_terminal_absent")
             .setLocalTargetV(24)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
@@ -187,97 +187,97 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("Generator 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set",
+        assertEquals("Battery 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set",
             validationException.getMessage());
     }
 
     // Cases Regulating True, Terminal present, Mode VOLTAGE
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingOk() {
+    void testBatteryRemoteVoltageRegulatingOk() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("OK_Remote_Voltage");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
+        BatteryAdder batteryAdder = newBatteryAdder("OK_Remote_Voltage");
+        VoltageRegulationAdder<BatteryAdder> voltageRegulationAdder = batteryAdder
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(remoteTerminal)
             .withTargetValue(240);
         // WHEN
-        Generator generator = voltageRegulationAdder.add()
+        Battery battery = voltageRegulationAdder.add()
             .add();
         // THEN
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         assertNotNull(voltageRegulation);
         assertEquals(240, voltageRegulation.getTargetValue());
-        assertEquals(240, generator.getRegulatingTargetV());
+        assertEquals(240, battery.getRegulatingTargetV());
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertEquals(remoteTerminal, voltageRegulation.getTerminal());
         assertTrue(voltageRegulation.isWithTerminal());
-        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(generator.isRemoteRegulating());
+        assertTrue(battery.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(battery.isRemoteRegulating());
     }
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingErrorMissingTargetValue() {
+    void testBatteryRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
-        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue")
+        VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("Error_Remote_Voltage_Missing_targetValue")
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(remoteTerminal);
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("Generator 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set",
+        assertEquals("Battery 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set",
             validationException.getMessage());
     }
 
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testGeneratorLocalVoltageRegulatingOffOk() {
+    void testBatteryLocalVoltageRegulatingOffOk() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("OK_Local_Voltage_OFF");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
+        BatteryAdder batteryAdder = newBatteryAdder("OK_Local_Voltage_OFF");
+        VoltageRegulationAdder<BatteryAdder> voltageRegulationAdder = batteryAdder
             .setLocalTargetQ(10)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false);
         // WHEN
-        Generator generator = voltageRegulationAdder.add()
+        Battery battery = voltageRegulationAdder.add()
             .add();
         // THEN
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         assertNotNull(voltageRegulation);
-        assertEquals(10, generator.getLocalTargetQ());
-        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
+        assertEquals(10, battery.getLocalTargetQ());
+        assertTrue(Double.isNaN(voltageRegulation.getTargetValue()));
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertFalse(voltageRegulation.isWithTerminal());
-        assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(generator.isWithMode(RegulationMode.VOLTAGE));
-        assertFalse(generator.isRemoteRegulating());
+        assertFalse(battery.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(battery.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(battery.isRemoteRegulating());
     }
 
     @Test
-    void testGeneratorLocalVoltageRegulatingOffErrorMissingTargetQ() {
+    void testBatteryLocalVoltageRegulatingOffErrorMissingTargetQ() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("Error_Local_Voltage_OFF_Missing_TargetQ");
-        generatorAdder.newVoltageRegulation()
+        BatteryAdder batteryAdder = newBatteryAdder("Error_Local_Voltage_OFF_Missing_TargetQ");
+        batteryAdder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false)
             .add();
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, batteryAdder::add);
         // THEN
-        assertEquals("Generator 'Error_Local_Voltage_OFF_Missing_TargetQ': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)", validationException.getMessage());
+        assertEquals("Battery 'Error_Local_Voltage_OFF_Missing_TargetQ': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)", validationException.getMessage());
     }
 
     // Cases Regulating false, Terminal present, Mode VOLTAGE
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingOffOk() {
+    void testBatteryRemoteVoltageRegulatingOffOk() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("OK_Remote_Voltage_OFF");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
+        BatteryAdder batteryAdder = newBatteryAdder("OK_Remote_Voltage_OFF");
+        VoltageRegulationAdder<BatteryAdder> voltageRegulationAdder = batteryAdder
             .setLocalTargetQ(10)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
@@ -285,43 +285,43 @@ public abstract class AbstractVoltageRegulationTest {
             .withTerminal(remoteTerminal)
             .withRegulating(false);
         // WHEN
-        Generator generator = voltageRegulationAdder.add()
+        Battery battery = voltageRegulationAdder.add()
             .add();
         // THEN
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         assertNotNull(voltageRegulation);
-        assertEquals(10, generator.getLocalTargetQ());
+        assertEquals(10, battery.getLocalTargetQ());
         assertEquals(220, voltageRegulation.getTargetValue());
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertTrue(voltageRegulation.isWithTerminal());
-        assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(generator.isWithMode(RegulationMode.VOLTAGE));
-        assertTrue(generator.isRemoteRegulating());
+        assertFalse(battery.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(battery.isWithMode(RegulationMode.VOLTAGE));
+        assertTrue(battery.isRemoteRegulating());
     }
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingOffErrorMissingTargetQ() {
+    void testBatteryRemoteVoltageRegulatingOffErrorMissingTargetQ() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("Error_Remote_Voltage_OFF_Missing_TargetQ");
-        generatorAdder.newVoltageRegulation()
+        BatteryAdder batteryAdder = newBatteryAdder("Error_Remote_Voltage_OFF_Missing_TargetQ");
+        batteryAdder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(220)
             .withTerminal(remoteTerminal)
             .withRegulating(false)
             .add();
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, batteryAdder::add);
         // THEN
-        assertEquals("Generator 'Error_Remote_Voltage_OFF_Missing_TargetQ': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)", validationException.getMessage());
+        assertEquals("Battery 'Error_Remote_Voltage_OFF_Missing_TargetQ': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)", validationException.getMessage());
     }
 
     // RemoveTerminal
     @Test
     void testRemoveTerminalOnMultiVariantWithLocalTargetV() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("OK_removeTerminal_multiVariant_With_LocalTargetV");
+        BatteryAdder batteryAdder = newBatteryAdder("OK_removeTerminal_multiVariant_With_LocalTargetV");
         int localTargetV = 25;
-        Generator generator = generatorAdder
+        Battery battery = batteryAdder
             .setLocalTargetV(localTargetV)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
@@ -330,7 +330,7 @@ public abstract class AbstractVoltageRegulationTest {
             .withRegulating(true)
             .add()
             .add();
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         String variant1 = "variant1";
         String variant2 = "variant2";
         String variant3 = "variant3";
@@ -342,18 +342,18 @@ public abstract class AbstractVoltageRegulationTest {
         // THEN
         network.getVariantManager().getVariantIds().forEach(variantId -> {
             network.getVariantManager().setWorkingVariant(variantId);
-            assertNull(generator.getVoltageRegulation().getTerminal());
-            assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
-            assertEquals(localTargetV, generator.getRegulatingTargetV());
+            assertNull(battery.getVoltageRegulation().getTerminal());
+            assertTrue(Double.isNaN(battery.getVoltageRegulation().getTargetValue()));
+            assertEquals(localTargetV, battery.getRegulatingTargetV());
         });
     }
 
     @Test
     void testRemoveTerminalOnMultiVariantMissingLocalTargetV() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
+        BatteryAdder batteryAdder = newBatteryAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
         int targetValue = 220;
-        Generator generator = generatorAdder
+        Battery battery = batteryAdder
             .setLocalTargetV(25)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
@@ -362,33 +362,33 @@ public abstract class AbstractVoltageRegulationTest {
             .withRegulating(true)
             .add()
             .add();
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         String variant1 = "variant1";
         String variant2 = "variant2";
         String variant3 = "variant3";
         network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant1);
         network.getVariantManager().setWorkingVariant(variant1);
-        generator.setLocalTargetV(Double.NaN);
+        battery.setLocalTargetV(Double.NaN);
         network.getVariantManager().cloneVariant(variant1, variant2);
         network.getVariantManager().cloneVariant(variant1, variant3);
         network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setTerminal(null, Double.NaN));
         // THEN
-        String expectedMessage = "Generator 'Error_removeTerminal_multiVariant_Missing_LocalTargetV': " +
+        String expectedMessage = "Battery 'Error_removeTerminal_multiVariant_Missing_LocalTargetV': " +
             "Trying to remove the regulating terminal from the voltageRegulation of Error_removeTerminal_multiVariant_Missing_LocalTargetV " +
             "but the next variants are missing local target values [variant2, variant1, variant3]";
         assertEquals(expectedMessage, validationException.getMessage());
         network.getVariantManager().getVariantIds().forEach(variantId -> {
             network.getVariantManager().setWorkingVariant(variantId);
-            assertEquals(remoteTerminal, generator.getVoltageRegulation().getTerminal());
-            assertEquals(targetValue, generator.getVoltageRegulation().getTargetValue());
-            assertEquals(targetValue, generator.getRegulatingTargetV());
+            assertEquals(remoteTerminal, battery.getVoltageRegulation().getTerminal());
+            assertEquals(targetValue, battery.getVoltageRegulation().getTargetValue());
+            assertEquals(targetValue, battery.getRegulatingTargetV());
         });
     }
 
-    private GeneratorAdder newGeneratorAdder(String id) {
-        return voltageLevel.newGenerator()
+    private BatteryAdder newBatteryAdder(String id) {
+        return voltageLevel.newBattery()
             .setId(id)
             .setBus("NGEN")
             .setConnectableBus("NGEN")
@@ -397,97 +397,86 @@ public abstract class AbstractVoltageRegulationTest {
             .setTargetP(100.0);
     }
 
-    record DataGeneratorCreator(
-        String id,
-        RegulationMode mode,
-        boolean remoteTerminal,
-        double targetValue,
-        double localTargetV,
-        double localTargetQ,
-        boolean regulating
-    ) {
-    }
-
-    private Generator createGenerator(DataGeneratorCreator dataGeneratorCreator) {
-        GeneratorAdder generatorAdder = newGeneratorAdder(dataGeneratorCreator.id())
-            .setLocalTargetV(dataGeneratorCreator.localTargetV())
-            .setLocalTargetQ(dataGeneratorCreator.localTargetQ());
-        if (dataGeneratorCreator.mode() != null) {
-            generatorAdder.newVoltageRegulation()
-                .withRegulating(dataGeneratorCreator.regulating())
-                .withMode(dataGeneratorCreator.mode())
-                .withTargetValue(dataGeneratorCreator.targetValue())
-                .withTerminal(dataGeneratorCreator.remoteTerminal() ? remoteTerminal : null)
+    private Battery createBattery(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator) {
+        BatteryAdder batteryAdder = newBatteryAdder(dataVoltageRegulationHolderCreator.id())
+            .setLocalTargetV(dataVoltageRegulationHolderCreator.localTargetV())
+            .setLocalTargetQ(dataVoltageRegulationHolderCreator.localTargetQ());
+        if (dataVoltageRegulationHolderCreator.mode() != null) {
+            batteryAdder.newVoltageRegulation()
+                .withRegulating(dataVoltageRegulationHolderCreator.regulating())
+                .withMode(dataVoltageRegulationHolderCreator.mode())
+                .withTargetValue(dataVoltageRegulationHolderCreator.targetValue())
+                .withTerminal(dataVoltageRegulationHolderCreator.remoteTerminal() ? remoteTerminal : null)
                 .add();
         }
-        return generatorAdder.add();
+        return batteryAdder.add();
     }
 
-    private static Stream<Arguments> provideGeneratorRegulating() {
-        DataGeneratorCreator regulatingLocalVoltage = new DataGeneratorCreator("regulatingLocalVoltage",
+    private static Stream<Arguments> provideBatteryRegulating() {
+        DataVoltageRegulationHolderCreator regulatingLocalVoltage = new DataVoltageRegulationHolderCreator("regulatingLocalVoltage",
             RegulationMode.VOLTAGE,
             false,
             Double.NaN,
             24.5,
             Double.NaN,
             true);
-        DataGeneratorCreator regulatingLocalVoltageWithTargetQ = new DataGeneratorCreator("regulatingLocalVoltageWithTargetQ",
+        DataVoltageRegulationHolderCreator regulatingLocalVoltageWithTargetQ = new DataVoltageRegulationHolderCreator("regulatingLocalVoltageWithTargetQ",
             RegulationMode.VOLTAGE,
             false,
             Double.NaN,
             24.5,
             10,
             true);
-        DataGeneratorCreator regulatingRemoteVoltage = new DataGeneratorCreator("regulatingRemoteVoltage",
+        DataVoltageRegulationHolderCreator regulatingRemoteVoltage = new DataVoltageRegulationHolderCreator("regulatingRemoteVoltage",
             RegulationMode.VOLTAGE,
             true,
             400,
             Double.NaN,
             Double.NaN,
             true);
-        DataGeneratorCreator regulatingRemoteVoltageWithLocalTargetV = new DataGeneratorCreator("regulatingRemoteVoltageWithLocalTargetV",
+        DataVoltageRegulationHolderCreator regulatingRemoteVoltageWithLocalTargetV = new DataVoltageRegulationHolderCreator("regulatingRemoteVoltageWithLocalTargetV",
             RegulationMode.VOLTAGE,
             true,
             400,
             24.5,
             Double.NaN,
             true);
-        DataGeneratorCreator regulatingRemoteVoltageWithLocalTargetVAndTargetQ = new DataGeneratorCreator("regulatingRemoteVoltageWithLocalTargetVAndTargetQ",
+        DataVoltageRegulationHolderCreator regulatingRemoteVoltageWithLocalTargetVAndTargetQ = new DataVoltageRegulationHolderCreator("regulatingRemoteVoltageWithLocalTargetVAndTargetQ",
             RegulationMode.VOLTAGE,
             true,
             400,
             24.5,
             10,
             true);
-        DataGeneratorCreator regulatingRemoteVoltageWithTargetQ = new DataGeneratorCreator("regulatingRemoteVoltageWithTargetQ",
+        DataVoltageRegulationHolderCreator regulatingRemoteVoltageWithTargetQ = new DataVoltageRegulationHolderCreator("regulatingRemoteVoltageWithTargetQ",
             RegulationMode.VOLTAGE,
             true,
             400,
             Double.NaN,
             10,
             true);
-        DataGeneratorCreator regulatingRemoteReactiveP = new DataGeneratorCreator("regulatingRemoteReactiveP",
+        DataVoltageRegulationHolderCreator regulatingRemoteReactiveP = new DataVoltageRegulationHolderCreator("regulatingRemoteReactiveP",
             RegulationMode.REACTIVE_POWER,
             true,
             100,
             Double.NaN,
             Double.NaN,
             true);
-        DataGeneratorCreator regulatingRemoteReactivePWithLocalTargetV = new DataGeneratorCreator("regulatingRemoteReactivePWithLocalTargetV",
+        DataVoltageRegulationHolderCreator regulatingRemoteReactivePWithLocalTargetV = new DataVoltageRegulationHolderCreator("regulatingRemoteReactivePWithLocalTargetV",
             RegulationMode.REACTIVE_POWER,
             true,
             100,
             24.5,
             Double.NaN,
             true);
-        DataGeneratorCreator regulatingRemoteReactivePWithLocalTargetVAndTargetQ = new DataGeneratorCreator("regulatingRemoteReactivePWithLocalTargetVAndTargetQ",
+        DataVoltageRegulationHolderCreator regulatingRemoteReactivePWithLocalTargetVAndTargetQ = new DataVoltageRegulationHolderCreator("regulatingRemoteReactivePWithLocalTargetVAndTargetQ",
             RegulationMode.REACTIVE_POWER,
             true,
             100,
             24.5,
             10,
             true);
-        DataGeneratorCreator regulatingRemoteReactivePWithTargetQ = new DataGeneratorCreator("regulatingRemoteReactivePWithTargetQ",
+        DataVoltageRegulationHolderCreator regulatingRemoteReactivePWithTargetQ = new DataVoltageRegulationHolderCreator("regulatingRemoteReactivePWithTargetQ",
             RegulationMode.REACTIVE_POWER,
             true,
             100,
@@ -508,8 +497,8 @@ public abstract class AbstractVoltageRegulationTest {
         );
     }
 
-    private static Arguments.@NonNull ArgumentSet addArgumentSet(DataGeneratorCreator regulatingLocalVoltage, boolean withValidationError) {
-        String validationError = "Generator '%s': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)";
+    private static Arguments.@NonNull ArgumentSet addArgumentSet(DataVoltageRegulationHolderCreator regulatingLocalVoltage, boolean withValidationError) {
+        String validationError = "Battery '%s': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)";
         return argumentSet(regulatingLocalVoltage.id(),
             regulatingLocalVoltage,
             withValidationError ? String.format(validationError, regulatingLocalVoltage.id()) : null);

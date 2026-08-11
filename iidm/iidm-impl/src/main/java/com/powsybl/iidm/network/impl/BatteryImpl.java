@@ -115,7 +115,16 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public Battery setLocalTargetQ(double targetQ) {
         NetworkImpl network = getNetwork();
-        ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            this.getLocalTargetV(),
+            targetQ,
+            true,
+            false,
+            false,
+            null,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
         int variantIndex = network.getVariantIndex();
         double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = network.getVariantManager().getVariantId(variantIndex);

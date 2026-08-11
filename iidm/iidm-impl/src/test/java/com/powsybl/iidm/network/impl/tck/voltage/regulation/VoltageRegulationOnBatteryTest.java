@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.tck;
+package com.powsybl.iidm.network.impl.tck.voltage.regulation;
 
-import com.powsybl.iidm.network.tck.AbstractVoltageRegulationBackwardCompatibilityTest;
+import com.powsybl.iidm.network.tck.voltage.regulation.AbstractVoltageRegulationOnBatteryTest;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationBackwardCompatibilityTest extends AbstractVoltageRegulationBackwardCompatibilityTest {
+public class VoltageRegulationOnBatteryTest extends AbstractVoltageRegulationOnBatteryTest {
 }

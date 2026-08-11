@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.tck;
+package com.powsybl.iidm.network.tck.voltage.regulation;
 
 import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.Battery;
@@ -87,8 +87,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertEquals(battery.getTerminal(), battery.getRegulatingTerminal());
         assertNull(battery.getVoltageRegulation());
 
-        assertEquals(Double.NaN, battery.getLocalTargetV());
-        assertEquals(Double.NaN, battery.getRegulatingTargetV());
+        assertTrue(Double.isNaN(battery.getLocalTargetV()));
+        assertTrue(Double.isNaN(battery.getRegulatingTargetV()));
 
         assertEquals(targetQ, battery.getLocalTargetQ());
         assertEquals(targetQ, battery.getTargetQ());
@@ -183,10 +183,10 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertNull(generator.getVoltageRegulation().getTerminal());
 
         assertEquals(targetV, generator.getLocalTargetV());
-        assertEquals(Double.NaN, generator.getEquivalentLocalTargetV());
+        assertTrue(Double.isNaN(generator.getEquivalentLocalTargetV()));
         assertEquals(targetV, generator.getTargetV());
         assertEquals(targetV, generator.getRegulatingTargetV());
-        assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(generator.getVoltageRegulation().getTargetValue()));
 
         assertEquals(targetQ, generator.getLocalTargetQ());
         assertEquals(targetQ, generator.getTargetQ());
@@ -242,13 +242,13 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertNull(ratioTapChanger.getTerminal());
         assertEquals(terminalLeg1, ratioTapChanger.getRegulatingTerminal());
 
-        assertEquals(Double.NaN, ratioTapChanger.getLocalTargetV());
+        assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetV()));
         assertEquals(targetValue, ratioTapChanger.getTargetV());
         assertEquals(targetValue, ratioTapChanger.getRegulatingTargetV());
         assertEquals(targetValue, ratioTapChanger.getVoltageRegulation().getTargetValue());
 
-        assertEquals(Double.NaN, ratioTapChanger.getLocalTargetQ());
-        assertEquals(Double.NaN, ratioTapChanger.getRegulatingTargetQ());
+        assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetQ()));
+        assertTrue(Double.isNaN(ratioTapChanger.getRegulatingTargetQ()));
 
         assertTrue(ratioTapChanger.isRegulating());
     }
@@ -289,7 +289,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertEquals(remoteTerminal, shuntCompensator.getRegulatingTerminal());
         assertEquals(remoteTerminal, shuntCompensator.getVoltageRegulation().getTerminal());
 
-        assertEquals(Double.NaN, shuntCompensator.getLocalTargetV());
+        assertTrue(Double.isNaN(shuntCompensator.getLocalTargetV()));
         assertEquals(targetV, shuntCompensator.getTargetV());
         assertEquals(targetV, shuntCompensator.getRegulatingTargetV());
         assertEquals(targetV, shuntCompensator.getVoltageRegulation().getTargetValue());
@@ -336,7 +336,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertEquals(remoteTerminal, staticVarCompensator.getRegulatingTerminal());
         assertEquals(remoteTerminal, staticVarCompensator.getVoltageRegulation().getTerminal());
 
-        assertEquals(Double.NaN, staticVarCompensator.getLocalTargetV());
+        assertTrue(Double.isNaN(staticVarCompensator.getLocalTargetV()));
         assertEquals(targetV, staticVarCompensator.getVoltageSetpoint());
         assertEquals(targetV, staticVarCompensator.getRegulatingTargetV());
         assertEquals(targetV, staticVarCompensator.getVoltageRegulation().getTargetValue());
@@ -381,7 +381,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertEquals(remoteTerminal, vscConverterStation.getRegulatingTerminal());
         assertEquals(remoteTerminal, vscConverterStation.getVoltageRegulation().getTerminal());
 
-        assertEquals(Double.NaN, vscConverterStation.getLocalTargetV());
+        assertTrue(Double.isNaN(vscConverterStation.getLocalTargetV()));
         assertEquals(targetV, vscConverterStation.getVoltageSetpoint());
         assertEquals(targetV, vscConverterStation.getRegulatingTargetV());
         assertEquals(targetV, vscConverterStation.getVoltageRegulation().getTargetValue());
@@ -438,7 +438,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertEquals(targetV, voltageSourceConverter.getLocalTargetV());
         assertEquals(targetV, voltageSourceConverter.getVoltageSetpoint());
         assertEquals(targetV, voltageSourceConverter.getRegulatingTargetV());
-        assertEquals(Double.NaN, voltageSourceConverter.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(voltageSourceConverter.getVoltageRegulation().getTargetValue()));
 
         assertEquals(targetQ, voltageSourceConverter.getLocalTargetQ());
         assertEquals(targetQ, voltageSourceConverter.getReactivePowerSetpoint());

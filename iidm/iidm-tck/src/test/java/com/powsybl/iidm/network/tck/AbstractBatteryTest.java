@@ -71,12 +71,6 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    public void invalidQ0() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createBattery(INVALID, 11, Double.NaN, 10.0, 20.0));
-        assertTrue(e.getMessage().contains("q0 is invalid"));
-    }
-
-    @Test
     public void invalidMinP() {
         ValidationException e = assertThrows(ValidationException.class, () -> createBattery(INVALID, 11, 12, Double.NaN, 20.0));
         assertTrue(e.getMessage().contains("for minimum P"));
@@ -330,8 +324,8 @@ public abstract class AbstractBatteryTest {
         // Variant1
         assertNull(voltageRegulation.getMode());
         assertNull(voltageRegulation.getTerminal());
-        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
-        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertTrue(Double.isNaN(voltageRegulation.getTargetValue()));
+        assertTrue(Double.isNaN(voltageRegulation.getTargetDeadband()));
         assertEquals(1, voltageRegulation.getSlope());
         assertFalse(voltageRegulation.isRegulating());
 
@@ -340,8 +334,8 @@ public abstract class AbstractBatteryTest {
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertNull(voltageRegulation.getTerminal());
         assertEquals(123, voltageRegulation.getTargetValue());
-        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
-        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertTrue(Double.isNaN(voltageRegulation.getTargetDeadband()));
+        assertTrue(Double.isNaN(voltageRegulation.getSlope()));
         assertFalse(voltageRegulation.isRegulating());
     }
 

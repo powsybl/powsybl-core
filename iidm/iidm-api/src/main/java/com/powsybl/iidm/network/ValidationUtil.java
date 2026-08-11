@@ -266,6 +266,7 @@ public final class ValidationUtil {
         boolean ignoreLocalTargetQ = classHolder == StaticVarCompensator.class
             || classHolder == ShuntCompensator.class
             || classHolder == RatioTapChanger.class;
+        boolean ignoreLocalTargetV = classHolder == RatioTapChanger.class;
 
         String localTargetVName = "localTargetV";
         String localTargetQName = "localTargetQ";
@@ -283,7 +284,7 @@ public final class ValidationUtil {
                 return ValidationLevel.EQUIPMENT;
             }
         } else if (!withTerminal) {
-            if (RegulationMode.VOLTAGE.equals(regulationMode)) {
+            if (RegulationMode.VOLTAGE.equals(regulationMode) && !ignoreLocalTargetV) {
                 if (Double.isNaN(localTargetV)) {
                     throwExceptionOrLogErrorForInvalidValue(validable,
                         localTargetV,
