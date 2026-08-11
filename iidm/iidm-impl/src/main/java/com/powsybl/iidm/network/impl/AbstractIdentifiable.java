@@ -32,7 +32,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     protected final PropertiesContainer properties = new PropertiesContainer();
 
     private Set<String> aliasesWithoutType = null;
-    private final Map<String, String> aliasesByType = new HashMap<>();
+    private Map<String, String> aliasesByType = null;
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -89,14 +89,16 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         if (aliasesWithoutType != null) {
             aliases.addAll(aliasesWithoutType);
         }
-        aliases.addAll(aliasesByType.values());
+        if (aliasesByType != null) {
+            aliases.addAll(aliasesByType.values());
+        }
         return Collections.unmodifiableSet(aliases);
     }
 
     @Override
     public Optional<String> getAliasType(String alias) {
         Objects.requireNonNull(alias);
-        if (aliasesWithoutType != null && aliasesWithoutType.contains(alias)) {
+        if (aliasesWithoutType != null && aliasesWithoutType.contains(alias) || aliasesByType == null) {
             return Optional.empty();
         }
         return aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
@@ -107,7 +109,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         if (Strings.isNullOrEmpty(aliasType)) {
             throw new PowsyblException("Alias type must not be null or empty");
         }
-        return Optional.ofNullable(aliasesByType.get(aliasType));
+        return aliasesByType != null ? Optional.ofNullable(aliasesByType.get(aliasType)) : Optional.empty();
     }
 
     @Override
@@ -132,7 +134,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         if (ensureAliasUnicity) {
             uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
         }
-        if (!Strings.isNullOrEmpty(aliasType) && aliasesByType.containsKey(aliasType)) {
+        if (!Strings.isNullOrEmpty(aliasType) && aliasesByType != null && aliasesByType.containsKey(aliasType)) {
             throw new PowsyblException(id + " already has an alias of type " + aliasType);
         }
         if (getNetwork().getIndex().addAlias(this, uniqueAlias)) {
@@ -142,6 +144,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
                 }
                 aliasesWithoutType.add(uniqueAlias);
             } else {
+                if (aliasesByType == null) {
+                    aliasesByType = new HashMap<>();
+                }
                 aliasesByType.put(aliasType, uniqueAlias);
             }
         }
@@ -151,19 +156,23 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
-        String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
+        String type = aliasesByType != null
+                ? aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null)
+                : null;
         if (Strings.isNullOrEmpty(type)) {
             if (aliasesWithoutType != null) {
                 aliasesWithoutType.remove(alias);
             }
         } else {
-            aliasesByType.remove(type);
+            if (aliasesByType != null) {
+                aliasesByType.remove(type);
+            }
         }
     }
 
     @Override
     public boolean hasAliases() {
-        return aliasesWithoutType != null && !aliasesWithoutType.isEmpty() || !aliasesByType.isEmpty();
+        return aliasesWithoutType != null && !aliasesWithoutType.isEmpty() || aliasesByType != null && !aliasesByType.isEmpty();
     }
 
     @Override
