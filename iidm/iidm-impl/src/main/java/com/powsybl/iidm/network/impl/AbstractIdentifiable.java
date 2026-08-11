@@ -31,7 +31,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected final PropertiesContainer properties = new PropertiesContainer();
 
-    private final Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType = null;
     private final Map<String, String> aliasesByType = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
@@ -86,7 +86,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public Set<String> getAliases() {
         Set<String> aliases = new HashSet<>();
-        aliases.addAll(aliasesWithoutType);
+        if (aliasesWithoutType != null) {
+            aliases.addAll(aliasesWithoutType);
+        }
         aliases.addAll(aliasesByType.values());
         return Collections.unmodifiableSet(aliases);
     }
@@ -94,7 +96,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public Optional<String> getAliasType(String alias) {
         Objects.requireNonNull(alias);
-        if (aliasesWithoutType.contains(alias)) {
+        if (aliasesWithoutType != null && aliasesWithoutType.contains(alias)) {
             return Optional.empty();
         }
         return aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
@@ -135,6 +137,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         }
         if (getNetwork().getIndex().addAlias(this, uniqueAlias)) {
             if (Strings.isNullOrEmpty(aliasType)) {
+                if (aliasesWithoutType == null) {
+                    aliasesWithoutType = new HashSet<>();
+                }
                 aliasesWithoutType.add(uniqueAlias);
             } else {
                 aliasesByType.put(aliasType, uniqueAlias);
@@ -148,7 +153,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         getNetwork().getIndex().removeAlias(this, alias);
         String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
         if (Strings.isNullOrEmpty(type)) {
-            aliasesWithoutType.remove(alias);
+            if (aliasesWithoutType != null) {
+                aliasesWithoutType.remove(alias);
+            }
         } else {
             aliasesByType.remove(type);
         }
@@ -156,7 +163,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public boolean hasAliases() {
-        return !aliasesWithoutType.isEmpty() || !aliasesByType.isEmpty();
+        return aliasesWithoutType != null && !aliasesWithoutType.isEmpty() || !aliasesByType.isEmpty();
     }
 
     @Override
