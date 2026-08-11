@@ -39,6 +39,8 @@ class LocalCommandExecutorSecurityTest {
     Path pwndFileNewline;
     Path pwndFilePercentExpansion;
     Path pwndFileUnixNewline;
+    Path pwndFileUnixEnvVarName;
+    Path pwndFileUnixProgramName;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -53,6 +55,8 @@ class LocalCommandExecutorSecurityTest {
         pwndFileNewline = tempDir.resolve("pwned6.txt");
         pwndFilePercentExpansion = tempDir.resolve("pwned7.txt");
         pwndFileUnixNewline = tempDir.resolve("pwned8.txt");
+        pwndFileUnixEnvVarName = tempDir.resolve("pwned9.txt");
+        pwndFileUnixProgramName = tempDir.resolve("pwned10.txt");
     }
 
     @AfterEach
@@ -67,6 +71,8 @@ class LocalCommandExecutorSecurityTest {
         Files.deleteIfExists(pwndFileNewline);
         Files.deleteIfExists(pwndFilePercentExpansion);
         Files.deleteIfExists(pwndFileUnixNewline);
+        Files.deleteIfExists(pwndFileUnixEnvVarName);
+        Files.deleteIfExists(pwndFileUnixProgramName);
         Files.deleteIfExists(tempDir);
     }
 
@@ -193,6 +199,42 @@ class LocalCommandExecutorSecurityTest {
         );
         assertEquals("Program name must not contain spaces", exception2.getMessage());
         assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
+    }
+
+    // Injection via environment variable name: a name sits before the '=' assignment
+    // (and after '$' for PATH-like names) so it cannot be single-quoted like the value.
+    // The Unix executor must reject invalid names outright, as the Windows one does.
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void testCommandInjectionViaEnvVarNameOnUnix() {
+        Map<String, String> maliciousEnv = new HashMap<>();
+        maliciousEnv.put(
+            String.format("FOO=1; touch %s; BAR", pwndFileUnixEnvVarName),
+            "value"
+        );
+        List<String> cmdArgs = List.of("test");
+
+        UnixLocalCommandExecutor executor = new UnixLocalCommandExecutor();
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> executor.execute("echo", cmdArgs, outFile, errFile, tempDir, maliciousEnv)
+        );
+        assertEquals("Invalid environment variable name", exception.getMessage());
+        assertFalse(Files.exists(pwndFileUnixEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileUnixEnvVarName));
+    }
+
+    // Injection via program name: the program word must be quoted like the other tokens
+    // so a command substitution or chaining in it stays inert.
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void testCommandInjectionViaProgramNameOnUnix() {
+        String maliciousProgram = String.format("echo $(touch %s)", pwndFileUnixProgramName);
+        Map<String, String> env = Map.of();
+        List<String> cmdArgs = List.of();
+
+        UnixLocalCommandExecutor executor = new UnixLocalCommandExecutor();
+        assertDoesNotThrow(() -> executor.execute(maliciousProgram, cmdArgs, outFile, errFile, tempDir, env));
+        assertFalse(Files.exists(pwndFileUnixProgramName), String.format("[!] Command injection confirmed: %s created", pwndFileUnixProgramName));
     }
 
     @Test
