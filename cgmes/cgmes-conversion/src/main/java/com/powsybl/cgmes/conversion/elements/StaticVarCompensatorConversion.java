@@ -16,20 +16,15 @@ import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorConversion.class);
 
     public StaticVarCompensatorConversion(PropertyBag svc, Context context) {
         super(CgmesNames.STATIC_VAR_COMPENSATOR, svc, context);
@@ -85,15 +80,15 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, double defaultQ, Boolean controlEnabled, Context context) {
-        if (logMissingVoltageRegulation(staticVarCompensator, LOGGER, "static var compensator", "regulating control won't be updated")) {
-            return;
-        }
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(staticVarCompensator, context);
 
         boolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator, context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
+        if (staticVarCompensator.getVoltageRegulation() == null) {
+            staticVarCompensator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).build();
+        }
         VoltageRegulation voltageRegulation = staticVarCompensator.getVoltageRegulation();
         if (staticVarCompensator.isWithMode(RegulationMode.VOLTAGE)) {
             double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);

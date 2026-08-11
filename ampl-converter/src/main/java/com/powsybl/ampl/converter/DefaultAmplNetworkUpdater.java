@@ -10,12 +10,12 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * This class implements the default behavior of applying changes to the network. <br>
@@ -27,7 +27,6 @@ import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVol
 public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAmplNetworkUpdater.class);
-    public static final String REGULATION_WON_T_BE_UPDATED = "Regulation won't be updated";
 
     private final StringToIntMapper<AmplSubset> networkMapper;
 
@@ -38,52 +37,32 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
 
     public void updateNetworkGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
                                         double targetQ, double p, double q) {
-        if (logMissingVoltageRegulation(g, LOGGER, "generator", REGULATION_WON_T_BE_UPDATED)) {
-            return;
-        }
-        g.getVoltageRegulation().setRegulating(vregul);
-
+        Terminal t = updateTerminalPQ(g.getTerminal(), p, q);
         g.setTargetP(targetP);
-        g.setLocalTargetQ(targetQ);
-
-        Terminal t = g.getTerminal();
-        t.setP(p).setQ(q);
-
-        double nominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        double targetValue = targetV * nominalV;
-        if (g.isRemoteRegulating()) {
-            g.getVoltageRegulation().setTargetValue(targetValue);
-        } else {
-            g.setLocalTargetV(targetValue);
-        }
+        updateVoltageRegulation(g, "Generator", g.getId(), vregul, targetV, targetQ);
         busConnection(t, busNum, networkMapper);
     }
 
     public void updateNetworkVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ,
                                  double p, double q) {
-        Terminal t = vsc.getTerminal();
-        t.setP(p).setQ(q);
+        Terminal t = updateTerminalPQ(vsc.getTerminal(), p, q);
 
-        if (!logMissingVoltageRegulation(vsc, LOGGER, "converter station", REGULATION_WON_T_BE_UPDATED)) {
-            vsc.setLocalTargetQ(targetQ);
-            vsc.getVoltageRegulation().setRegulating(vregul);
+        updateVoltageRegulation(vsc, "VSC converter station", vsc.getId(), vregul, targetV, targetQ);
 
-            double nominalV = vsc.getRegulatingTerminal().getVoltageLevel().getNominalV();
-            vsc.setLocalTargetV(targetV * nominalV);
-        }
         busConnection(t, busNum, networkMapper);
     }
 
     public void updateNetworkBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
+        Terminal t = updateTerminalPQ(b.getTerminal(), p, q);
+
         b.setTargetP(targetP);
         b.setLocalTargetQ(targetQ);
 
-        Terminal t = b.getTerminal();
-        t.setP(p).setQ(q);
         busConnection(t, busNum, networkMapper);
     }
 
     public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
+        createVoltageRegulationIfMissing(svc);
         if (vregul) {
             svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
             svc.getVoltageRegulation().setRegulating(true);
@@ -101,8 +80,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
                 svc.getVoltageRegulation().setRegulating(true);
             }
         }
-        Terminal t = svc.getTerminal();
-        t.setQ(q);
+        Terminal t = updateTerminalQ(svc.getTerminal(), q);
         double nominalV = svc.getRegulatingTerminal().getVoltageLevel().getNominalV();
         double targetValue = targetV * nominalV;
         if (svc.isRemoteRegulating()) {
@@ -210,13 +188,57 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         busConnection(lcc.getTerminal(), busNum, networkMapper);
     }
 
+    private static <T extends VoltageRegulationHolder<T>> void updateVoltageRegulation(T holder, String className, String id, boolean vregul, double targetV, double targetQ) {
+        createVoltageRegulationIfMissing(holder);
+
+        holder.setLocalTargetQ(targetQ);
+
+        double nominalV = holder.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        double targetValue = targetV * nominalV;
+        if (holder.isRemoteRegulating()) {
+            holder.getVoltageRegulation().setTargetValue(targetValue);
+        } else {
+            holder.setLocalTargetV(targetValue);
+        }
+
+        if (holder.isWithMode(RegulationMode.VOLTAGE)) {
+            holder.getVoltageRegulation().setRegulating(vregul);
+        } else if (holder.isWithMode(RegulationMode.REACTIVE_POWER)) {
+            if (vregul) {
+                holder.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+                holder.getVoltageRegulation().setRegulating(true);
+            }
+        } else {
+            LOGGER.warn("{} {} has a regulation mode that is not supported by the AMPL converter: {}. "
+                + "The regulation mode will not be updated.", className, id, holder.getVoltageRegulation().getMode());
+        }
+    }
+
+    private static @NonNull Terminal updateTerminalPQ(Terminal t, double p, double q) {
+        return t.setP(p).setQ(q);
+    }
+
+    private static @NonNull Terminal updateTerminalQ(Terminal t, double q) {
+        return t.setQ(q);
+    }
+
+    private static <T extends VoltageRegulationHolder<T>> void createVoltageRegulationIfMissing(T holder) {
+        // Add voltage regulation if it doesn't exist yet
+        // By default, the holder is not regulating and is in voltage mode
+        if (holder.getVoltageRegulation() == null) {
+            holder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        }
+    }
+
     private boolean readThreeWindingsTransformerBranch(Network network, String id, double p, double q, int busNum,
                                                        StringToIntMapper<AmplSubset> mapper) {
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(
                 AmplConstants.LEG3_SUFFIX)) {
             ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
-            Terminal terminal = getThreeWindingsTransformerLeg(twt, id).getTerminal();
-            terminal.setP(p).setQ(q);
+            Terminal terminal = updateTerminalPQ(getThreeWindingsTransformerLeg(twt, id).getTerminal(), p, q);
             busConnection(terminal, busNum, mapper);
             return true;
         }

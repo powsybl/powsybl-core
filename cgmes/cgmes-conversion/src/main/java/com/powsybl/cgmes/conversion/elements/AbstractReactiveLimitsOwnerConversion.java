@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,13 +26,11 @@ import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CL
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractConductingEquipmentConversion {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractReactiveLimitsOwnerConversion.class);
     private static final String GENERATOR = "generator";
 
     public AbstractReactiveLimitsOwnerConversion(
@@ -195,8 +191,8 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
     private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
-        if (logMissingVoltageRegulation(generator, LOGGER, GENERATOR, "regulation won't be updated")) {
-            return;
+        if (generator.getVoltageRegulation() == null) {
+            generator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).build();
         }
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
         if (generator.isRemoteRegulating()) {
@@ -208,9 +204,6 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
-        if (logMissingVoltageRegulation(generator, LOGGER, GENERATOR, "regulating control won't be updated")) {
-            return;
-        }
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
         if (voltageRegulation == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
             return;

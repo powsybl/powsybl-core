@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,14 +135,6 @@ public final class VoltageRegulationUtils {
         } else { // targets.size() == 1
             return OptionalDouble.of(targets.getFirst());
         }
-    }
-
-    public static <A extends VoltageRegulationHolder<?> & Identifiable<?>> boolean logMissingVoltageRegulation(A holder, Logger logger, String type, String message) {
-        if (holder != null && holder.getVoltageRegulation() == null) {
-            logger.warn("Missing VoltageRegulation in {} '{}': {}", type, holder.getId(), message);
-            return true;
-        }
-        return false;
     }
 
     public static boolean haveSameConnectableBus(Terminal regulatingTerminal, Terminal terminal) {

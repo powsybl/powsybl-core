@@ -59,6 +59,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
+    // TODO MSA add synchronisation with the terminal of the voltageregulation
     public VoltageSourceConverter setPccTerminal(Terminal pccTerminal) {
         super.setPccTerminal(pccTerminal);
         return this;
