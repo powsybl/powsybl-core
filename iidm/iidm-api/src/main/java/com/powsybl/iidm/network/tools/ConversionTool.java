@@ -15,6 +15,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -98,9 +99,10 @@ public class ConversionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        String inputFile = line.getOptionValue(INPUT_FILE);
-        String outputFormat = line.getOptionValue(OUTPUT_FORMAT);
-        String outputFile = line.getOptionValue(OUTPUT_FILE);
+        ToolOptions options = new ToolOptions(line, context);
+        String inputFile = options.getValue(INPUT_FILE).orElseThrow(IllegalStateException::new);
+        String outputFormat = options.getValue(OUTPUT_FORMAT).orElseThrow(IllegalStateException::new);
+        String outputFile = options.getValue(OUTPUT_FILE).orElseThrow(IllegalStateException::new);
 
         Exporter exporter = Exporter.find(outputFormat);
         if (exporter == null) {

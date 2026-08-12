@@ -20,6 +20,7 @@ import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.loadflow.json.LoadFlowResultSerializer;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -131,23 +132,24 @@ public class RunLoadFlowTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
+        ToolOptions options = new ToolOptions(line, context);
+        Path caseFile = options.getPath(CASE_FILE).orElseThrow(IllegalStateException::new);
         Path outputFile = null;
         Format format = null;
         Path outputCaseFile = null;
 
         // process a single network: output-file/output-format options available
-        if (line.hasOption(OUTPUT_FILE)) {
-            outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
-            if (!line.hasOption(OUTPUT_FORMAT)) {
+        if (options.hasOption(OUTPUT_FILE)) {
+            outputFile = options.getPath(OUTPUT_FILE).orElseThrow(IllegalStateException::new);
+            if (!options.hasOption(OUTPUT_FORMAT)) {
                 throw new ParseException("Missing required option: " + OUTPUT_FORMAT);
             }
-            format = Format.valueOf(line.getOptionValue(OUTPUT_FORMAT));
+            format = options.getEnum(OUTPUT_FORMAT, Format.class).orElseThrow(IllegalStateException::new);
         }
 
-        if (line.hasOption(OUTPUT_CASE_FILE)) {
-            outputCaseFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FILE));
-            if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
+        if (options.hasOption(OUTPUT_CASE_FILE)) {
+            outputCaseFile = options.getPath(OUTPUT_CASE_FILE).orElseThrow(IllegalStateException::new);
+            if (!options.hasOption(OUTPUT_CASE_FORMAT)) {
                 throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
             }
         }
@@ -160,8 +162,8 @@ public class RunLoadFlowTool implements Tool {
         }
 
         LoadFlowParameters params = LoadFlowParameters.load();
-        if (line.hasOption(PARAMETERS_FILE)) {
-            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+        if (options.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = options.getPath(PARAMETERS_FILE).orElseThrow(IllegalStateException::new);
             JsonLoadFlowParameters.update(params, parametersFile);
         }
 
@@ -176,7 +178,7 @@ public class RunLoadFlowTool implements Tool {
         if (runner.checkParameters(runParameters)) {
             LoadFlowResult result = runner.run(network, runParameters);
 
-            writeLog(line, context, reportNode);
+            writeLog(options, context, reportNode);
             if (outputFile != null) {
                 exportResult(result, context, outputFile, format);
             } else {
@@ -185,18 +187,18 @@ public class RunLoadFlowTool implements Tool {
 
             // exports the modified network to the filesystem, if requested
             if (outputCaseFile != null) {
-                String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
+                String outputCaseFormat = options.getValue(OUTPUT_CASE_FORMAT).orElseThrow(IllegalStateException::new);
                 Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
                 network.write(outputCaseFormat, outputParams, outputCaseFile);
             }
         } else {
-            writeLog(line, context, reportNode);
+            writeLog(options, context, reportNode);
             context.getOutputStream().printf("Unsupported parameters found, %s cannot launch the loadflow%n", runner.getName());
         }
     }
 
-    private void writeLog(CommandLine line, ToolRunningContext context, ReportNode reportNode) throws IOException {
-        Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
+    private void writeLog(ToolOptions options, ToolRunningContext context, ReportNode reportNode) throws IOException {
+        Path outputLogFile = options.getPath(OUTPUT_LOG_FILE).orElse(null);
         if (outputLogFile != null) {
             exportLog(reportNode, context, outputLogFile);
         } else {

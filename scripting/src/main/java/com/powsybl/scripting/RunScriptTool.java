@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.scripting.groovy.GroovyScripts;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import groovy.lang.Binding;
 import org.apache.commons.cli.CommandLine;
@@ -71,7 +72,8 @@ public class RunScriptTool implements Tool {
     @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
-        Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
+        ToolOptions options = new ToolOptions(line, context);
+        Path file = options.getPath(FILE).orElseThrow(IllegalStateException::new);
         if (file.getFileName().toString().endsWith(".groovy")) {
             try {
                 Binding binding = new Binding();
