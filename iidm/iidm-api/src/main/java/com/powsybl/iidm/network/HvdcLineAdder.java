@@ -15,6 +15,12 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcLineAdder extends IdentifiableAdder<HvdcLine, HvdcLineAdder> {
 
+    /**
+     * Set the resistance of the HVDC line in &#937. Since this can be an equivalent model, calculations can lead to the value being negative.
+     * Therefore, a negative value is allowed.
+     * @param r the value of the resistance of the HVDC line in &#937
+     * @return this adder, for chaining
+     */
     HvdcLineAdder setR(double r);
 
     HvdcLineAdder setConvertersMode(HvdcLine.ConvertersMode convertersMode);
