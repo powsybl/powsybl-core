@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public abstract class AbstractExtendable<T> implements Extendable<T> {
 
-    private final Map<Class<?>, Extension<T>> extensions = new HashMap<>();
+    private Map<Class<?>, Extension<T>> extensions = null;
 
     private final Map<String, Extension<T>> extensionsByName = new HashMap<>();
 
@@ -28,6 +28,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         // remove any existing, which will trigger extension own cleanup if any
         this.removeExtension((Class<E>) type);
         extension.setExtendable((T) this);
+        if (extensions == null) {
+            extensions = new HashMap<>();
+        }
         extensions.put(type, extension);
         extensionsByName.put(extension.getName(), extension);
     }
@@ -35,6 +38,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     @Override
     public <E extends Extension<T>> E getExtension(Class<? super E> type) {
         Objects.requireNonNull(type);
+        if (extensions == null) {
+            return null;
+        }
         return (E) extensions.get(type);
     }
 
@@ -45,7 +51,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     }
 
     protected <E extends Extension<T>> void removeExtension(Class<E> type, E extension) {
-        extensions.remove(type);
+        if (extensions != null) {
+            extensions.remove(type);
+        }
         extensionsByName.remove(extension.getName());
         extension.setExtendable(null);
     }
