@@ -7,10 +7,7 @@
  */
 package com.powsybl.commons.extensions;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -19,7 +16,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
 
     private Map<Class<?>, Extension<T>> extensions = null;
 
-    private final Map<String, Extension<T>> extensionsByName = new HashMap<>();
+    private Map<String, Extension<T>> extensionsByName = null;
 
     @Override
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
@@ -32,6 +29,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
             extensions = new HashMap<>();
         }
         extensions.put(type, extension);
+        if (extensionsByName == null) {
+            extensionsByName = new HashMap<>();
+        }
         extensionsByName.put(extension.getName(), extension);
     }
 
@@ -47,6 +47,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     @Override
     public <E extends Extension<T>> E getExtensionByName(String name) {
         Objects.requireNonNull(name);
+        if (extensionsByName == null) {
+            return null;
+        }
         return (E) extensionsByName.get(name);
     }
 
@@ -54,7 +57,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         if (extensions != null) {
             extensions.remove(type);
         }
-        extensionsByName.remove(extension.getName());
+        if (extensionsByName != null) {
+            extensionsByName.remove(extension.getName());
+        }
         extension.setExtendable(null);
     }
 
@@ -73,6 +78,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
 
     @Override
     public Collection<Extension<T>> getExtensions() {
+        if (extensions == null) {
+            return Collections.emptyList();
+        }
         return extensionsByName.values();
     }
 
