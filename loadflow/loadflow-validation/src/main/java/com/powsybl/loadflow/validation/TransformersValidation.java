@@ -7,19 +7,16 @@
  */
 package com.powsybl.loadflow.validation;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.io.Writer;
-
-import java.util.Comparator;
-import java.util.Objects;
-
 import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.loadflow.validation.io.ValidationWriter;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * Tries to validate that transformers regulating voltage have been correclty simulated.

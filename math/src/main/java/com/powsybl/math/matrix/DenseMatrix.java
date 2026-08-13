@@ -367,7 +367,8 @@ public class DenseMatrix extends AbstractMatrix {
                 }
             }
         } else {
-            throw new MatrixException("Incompatible matrix dimensions when copying values. Received (" + originalMatrix.getRowCount() + ", " + originalMatrix.getColumnCount() + ") but expected (" + getRowCount() + ", " + getColumnCount() + ")");
+            throw new MatrixException("Incompatible matrix dimensions when copying values. Received (" + originalMatrix.getRowCount()
+                + ", " + originalMatrix.getColumnCount() + ") but expected (" + getRowCount() + ", " + getColumnCount() + ")");
         }
     }
 

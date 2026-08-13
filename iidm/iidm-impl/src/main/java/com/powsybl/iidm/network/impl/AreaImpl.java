@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.ref.Ref;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 

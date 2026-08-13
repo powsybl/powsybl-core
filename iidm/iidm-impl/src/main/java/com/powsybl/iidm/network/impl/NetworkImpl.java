@@ -13,13 +13,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.ref.RefChain;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractDcComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
-import com.powsybl.commons.ref.RefChain;
-import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
@@ -1298,8 +1298,9 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             Class<? extends Identifiable> clazz = entry.getKey();
             Collection<String> objs = entry.getValue();
             if (!objs.isEmpty()) {
-                throw new PowsyblException("The following object(s) of type "
-                        + clazz.getSimpleName() + " exist(s) in both networks: "
+                String otherNetworkId = otherNetwork.getId();
+                throw new PowsyblException("The following object(s) of type " + clazz.getSimpleName()
+                        + " already exist in merged network when trying to merge network '" + otherNetworkId + "': "
                         + objs);
             }
         }
@@ -1349,8 +1350,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             boundaryLinePairs.add(l);
 
             if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename boundary lines
-                ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                dl1.setId(l.dl1Id + "_1");
+                dl2.setId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
             } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
@@ -1481,7 +1482,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
         ReportNode readReportNode = NetworkReports.runIidmNetworkValidationCHecks(reportNode, id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+            true,
+            throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR,
+            validationLevel != null ? validationLevel : minValidationLevel,
+            readReportNode);
         return validationLevel;
     }
 
