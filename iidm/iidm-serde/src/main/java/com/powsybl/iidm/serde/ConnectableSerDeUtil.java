@@ -275,20 +275,16 @@ public final class ConnectableSerDeUtil {
         String type, A adder, NetworkDeserializerContext context,
         TreeDataReader reader, IidmVersion iidmVersion, ValidationLevel minimalValidationLevel
     ) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+            adder.setPermanentLimitName(permanentLimitName);
+        });
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-                String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
-                adder.setPermanentLimitName(permanentLimitName);
-            });
             double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
             if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
                 throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
             }
             adder.setPermanentLimit(permanentLimit);
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
-            adder.setPermanentLimitName(permanentLimitName);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             DetectionKind kind = DetectionKind.valueOf(reader.readStringAttribute(DETECTION_KIND));
