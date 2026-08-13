@@ -27,7 +27,7 @@ public class ReportTapChangers {
     public ReportTapChangers(CgmesModel cgmes, Consumer<String> output) {
         this.cgmes = cgmes;
         this.output = output;
-        Path p = (Path) cgmes.getProperties().get("dataSource");
+        Path p = cgmes.getProperties() != null ? (Path) cgmes.getProperties().get("dataSource") : null;
         String ps = "";
         if (p != null) {
             ps = p.toString().replaceAll("../data", "");

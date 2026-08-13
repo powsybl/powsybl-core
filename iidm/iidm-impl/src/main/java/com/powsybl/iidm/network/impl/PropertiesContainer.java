@@ -21,7 +21,7 @@ public class PropertiesContainer {
 
     public Properties getProperties() {
         if (properties == null) {
-            properties = new Properties();
+            return null;
         }
         return properties;
     }
