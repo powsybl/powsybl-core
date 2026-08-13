@@ -7,19 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.extensions.CgmesMetadataModels;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.events.NetworkEvent;
-import com.powsybl.iidm.network.events.UpdateNetworkEvent;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,26 +24,45 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.events.NetworkEvent;
+import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+
 /**
- * Exports the changes recorded on a network as a partial CGMES Steady State Hypothesis file.
+ * Exports the changes recorded on a network as a partial CGMES .ssh file.
  *
  * <p>Where the regular {@link SteadyStateHypothesisExport} writes the complete steady state of a network, this
  * exporter writes only the objects affected by a list of {@link NetworkEvent}s, typically collected with a
  * {@code NetworkEventRecorder}. The result is a valid SSH instance file that a receiver holding the same base
- * model can apply through the usual network update workflow, which makes it suitable for exchanging a business
- * process result between processes without serializing the whole grid model.</p>
+ * model can apply through the network update workflow.</p>
  *
  * <p>Typical usage:</p>
  * <pre>{@code
  * NetworkEventRecorder recorder = new NetworkEventRecorder();
  * network.addListener(recorder);
  * network.getGenerator("G").setTargetP(120.0);
- * String ssh = NetworkEventRecorderSshExport.toString(network, recorder.getEvents());
+ * String ssh = NetworkEventRecorderSshExport.toString(network, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
  * }</pre>
  *
- * <p>Changes that have no representation in the SSH profile, such as the creation or removal of equipment, are
- * either reported as an error or skipped with a warning, depending on the {@link UnsupportedChangeBehavior}. The
- * exporter fails by default, so that a change is never silently lost.</p>
+ * <p>Changes that have no representation in the SSH profile or whose import/export is not implemented, such as the
+ * creation or removal of equipment, are either reported as an error or skipped with a warning:
+ * {@link UnsupportedChangeBehavior#FAIL} makes sure a change is never silently lost, while
+ * {@link UnsupportedChangeBehavior#IGNORE} means only the supported changes are written to file. Skipped elements are
+ * logged and the write method returns a list of written events for cross-reference.</p>
+ *
+ * <p>A partial SSH describes a single individual grid model, because its header has to reference the SSH it
+ * replaces and the equipment model it applies to. A merged network has one of each per subnetwork, so it cannot be
+ * exported as a whole, subnetworks have to be passed in one at a time.</p>
  *
  * @author Nico Westerbeck {@literal <nico.westerbeck at 50hertz.com>}
  */
@@ -66,7 +72,7 @@ public final class NetworkEventRecorderSshExport {
      * What to do with a recorded change that cannot be written to a Steady State Hypothesis file.
      */
     public enum UnsupportedChangeBehavior {
-        /** Throw a {@link PowsyblException} describing the change. This is the default. */
+        /** Throw a {@link PowsyblException} describing the change. This is what {@link ExportOptions} defaults to. */
         FAIL,
         /** Log a warning and continue, leaving the change out of the exported file. */
         IGNORE
@@ -156,47 +162,75 @@ public final class NetworkEventRecorderSshExport {
     private NetworkEventRecorderSshExport() {
     }
 
-    /** Export the given changes and return the resulting file as a string. */
-    public static String toString(Network network, Collection<NetworkEvent> events) {
-        return toString(network, events, new ExportOptions());
-    }
-
+    /**
+     * Export the given changes as a partial .ssh file and return it as an in-memory string.
+     *
+     * <p>Shorthand for {@link #write(Network, Collection, OutputStream, ExportOptions)} that collects the file in
+     * memory.</p>
+     *
+     * @param network                   the network the changes were recorded on. It has to be an individual grid
+     *                                  model, a merged network has to be exported one subnetwork at a time
+     * @param events                    the recorded changes to write
+     * @param unsupportedChangeBehavior what to do with a change that can not be written
+     * @return the partial SSH instance file as an XML document
+     * @throws PowsyblException            if the network is a merged model, or if one of the changes has no
+     *                                     representation in the SSH profile and the behavior is
+     *                                     {@link UnsupportedChangeBehavior#FAIL}
+     * @throws UncheckedXmlStreamException if the XML document cannot be written
+     */
     public static String toString(Network network, Collection<NetworkEvent> events, UnsupportedChangeBehavior unsupportedChangeBehavior) {
-        return toString(network, events, new ExportOptions().setUnsupportedChangeBehavior(unsupportedChangeBehavior));
-    }
-
-    public static String toString(Network network, Collection<NetworkEvent> events, ExportOptions exportOptions) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        write(network, events, outputStream, exportOptions);
+        write(network, events, outputStream, new ExportOptions().setUnsupportedChangeBehavior(unsupportedChangeBehavior));
         return outputStream.toString(StandardCharsets.UTF_8);
     }
 
-    /** Export the given changes to a file. */
-    public static void write(Network network, Collection<NetworkEvent> events, Path filePath) throws IOException {
-        write(network, events, filePath, new ExportOptions());
-    }
-
-    public static void write(Network network, Collection<NetworkEvent> events, Path filePath, UnsupportedChangeBehavior unsupportedChangeBehavior) throws IOException {
-        write(network, events, filePath, new ExportOptions().setUnsupportedChangeBehavior(unsupportedChangeBehavior));
-    }
-
-    public static void write(Network network, Collection<NetworkEvent> events, Path filePath, ExportOptions exportOptions) throws IOException {
+    /**
+     * Export the given changes as a partial .ssh file on disk
+     *
+     * <p>Shorthand for {@link #write(Network, Collection, OutputStream, ExportOptions)} that opens a file and writes
+     * it
+     * </p>
+     *
+     * @param network                   the network the changes were recorded on. It has to be an individual grid
+     *                                  model, a merged network has to be exported one subnetwork at a time
+     * @param events                    the recorded changes to write
+     * @param filePath                  the file to write the instance file to
+     * @param unsupportedChangeBehavior what to do with a change that has no representation in the SSH profile
+     * @return the changes that reached the file, as described by
+     *         {@link #write(Network, Collection, OutputStream, ExportOptions)}
+     * @throws IOException                 if the file cannot be opened or written
+     * @throws PowsyblException            if the network is a merged model, or if one of the changes has no
+     *                                     representation in the SSH profile and the behavior is
+     *                                     {@link UnsupportedChangeBehavior#FAIL}
+     * @throws UncheckedXmlStreamException if the XML document cannot be written
+     */
+    public static List<NetworkEvent> write(Network network, Collection<NetworkEvent> events, Path filePath, UnsupportedChangeBehavior unsupportedChangeBehavior) throws IOException {
         Objects.requireNonNull(filePath);
         try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(filePath))) {
-            write(network, events, outputStream, exportOptions);
+            return write(network, events, outputStream, new ExportOptions().setUnsupportedChangeBehavior(unsupportedChangeBehavior));
         }
     }
 
-    /** Export the given changes to an output stream. The stream is neither flushed nor closed by this method. */
-    public static void write(Network network, Collection<NetworkEvent> events, OutputStream outputStream) {
-        write(network, events, outputStream, new ExportOptions());
-    }
-
-    public static void write(Network network, Collection<NetworkEvent> events, OutputStream outputStream, UnsupportedChangeBehavior unsupportedChangeBehavior) {
-        write(network, events, outputStream, new ExportOptions().setUnsupportedChangeBehavior(unsupportedChangeBehavior));
-    }
-
-    public static void write(Network network, Collection<NetworkEvent> events, OutputStream outputStream, ExportOptions exportOptions) {
+    /**
+     * Export the given changes as a partial .ssh file and write it to an output stream.
+     *
+     * <p>The events are first compacted as described in {@link #compactEvents(Collection)} before they are
+     * written.</p>
+     *
+     * @param network       the network the changes were recorded on. It has to be an individual grid model, a
+     *                      merged network has to be exported one subnetwork at a time. It also provides the
+     *                      metadata of the source SSH, from which the header of the exported model is derived
+     * @param events        the recorded changes to write, typically those collected by a {@code NetworkEventRecorder}
+     * @param outputStream  the stream to write the instance file to. It is neither flushed nor closed by this
+     *                      method
+     * @param exportOptions the header values and the unsupported change behavior of the export
+     * @return the changes that reached the file, in the order in which they were written. With 
+     *         {@link UnsupportedChangeBehavior#FAIL} the result is exactly {@link #compactEvents(Collection)}.
+     *         With {@link UnsupportedChangeBehavior#IGNORE} it is a subset of that.
+     * @throws PowsyblException            if the network is a merged model, or something could not be exported.
+     * @throws UncheckedXmlStreamException if the XML document cannot be written
+     */
+    public static List<NetworkEvent> write(Network network, Collection<NetworkEvent> events, OutputStream outputStream, ExportOptions exportOptions) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(events);
         Objects.requireNonNull(outputStream);
@@ -204,8 +238,9 @@ public final class NetworkEventRecorderSshExport {
         checkSingleGridModel(network);
 
         CgmesExportContext context = new CgmesExportContext(network);
-        CgmesMetadataModel model = initializePartialSshModel(network, context, exportOptions);
-        PartialSshUpdates updates = new PartialSshEventCollector(network, context, exportOptions.unsupportedChangeBehavior).collect(events);
+        CgmesMetadataModel model = initializeExportMetadata(network, context, exportOptions);
+        PartialSshEventCollector collector = new PartialSshEventCollector(network, context, exportOptions.unsupportedChangeBehavior);
+        PartialSshUpdates updates = collector.collect(events);
 
         try {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", outputStream);
@@ -213,6 +248,7 @@ public final class NetworkEventRecorderSshExport {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+        return List.copyOf(collector.exportedEvents());
     }
 
     /**
@@ -254,7 +290,7 @@ public final class NetworkEventRecorderSshExport {
         }
     }
 
-    private static CgmesMetadataModel initializePartialSshModel(Network network, CgmesExportContext context, ExportOptions exportOptions) {
+    private static CgmesMetadataModel initializeExportMetadata(Network network, CgmesExportContext context, ExportOptions exportOptions) {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, false);
         Optional<CgmesMetadataModel> sourceSshModel = getSourceSshModel(network);
 

@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport;
+import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport.UnsupportedChangeBehavior;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
@@ -23,6 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Loads the same base model twice, applies changes to one of the two copies, exports them as a partial SSH file
@@ -68,7 +70,12 @@ final class NetworkEventRecorderSshRoundTripTestSupport {
         String baseName = "network-event-recorder-partial-roundtrip";
         Path exportDir = tmpDir.toAbsolutePath();
         Path sshFile = exportDir.resolve(baseName + "_SSH.xml");
-        NetworkEventRecorderSshExport.write(sender, recorder.getEvents(), sshFile);
+        List<NetworkEvent> exportedEvents =
+                NetworkEventRecorderSshExport.write(sender, recorder.getEvents(), sshFile, UnsupportedChangeBehavior.FAIL);
+
+        // Nothing can be dropped when unsupported changes are rejected, so every compacted change has to be
+        // reported as exported. This catches a mapping that silently writes nothing without rejecting.
+        assertEquals(NetworkEventRecorderSshExport.compactEvents(recorder.getEvents()), exportedEvents);
 
         Properties updateParameters = new Properties();
         updateParameters.putAll(importParameters);

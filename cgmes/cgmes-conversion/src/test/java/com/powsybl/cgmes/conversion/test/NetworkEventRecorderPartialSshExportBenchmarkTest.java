@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport;
+import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport.UnsupportedChangeBehavior;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkEventRecorder;
@@ -78,13 +79,13 @@ class NetworkEventRecorderPartialSshExportBenchmarkTest {
         List<NetworkEvent> events = List.copyOf(recorder.getEvents());
 
         for (int run = 0; run < WARMUP_RUNS; run++) {
-            NetworkEventRecorderSshExport.toString(network, events);
+            NetworkEventRecorderSshExport.toString(network, events, UnsupportedChangeBehavior.FAIL);
         }
 
         long bestNanos = Long.MAX_VALUE;
         for (int run = 0; run < MEASURED_RUNS; run++) {
             long startNanos = System.nanoTime();
-            NetworkEventRecorderSshExport.toString(network, events);
+            NetworkEventRecorderSshExport.toString(network, events, UnsupportedChangeBehavior.FAIL);
             bestNanos = Math.min(bestNanos, System.nanoTime() - startNanos);
         }
 

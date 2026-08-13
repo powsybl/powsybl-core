@@ -50,6 +50,20 @@ class PartialSshUpdates {
         return updatesByMasterResourceId.isEmpty();
     }
 
+    /**
+     * Copy every property of the given buffer into this one, as if its objects had been updated here.
+     *
+     * <p>This is how a change is committed once it is known to be entirely exportable: it is collected into a
+     * buffer of its own and merged here only then, so that a change which turns out to be unsupported halfway
+     * through leaves nothing behind. Objects and properties this buffer already holds keep their position, and a
+     * property set on both sides takes the merged value, exactly as a second direct update would have done, so
+     * merging change by change writes the same file as updating this buffer directly would have.</p>
+     */
+    void mergeFrom(PartialSshUpdates other) {
+        other.updatesByMasterResourceId.forEach((masterResourceId, objectUpdate) ->
+                object(objectUpdate.className, masterResourceId).properties.putAll(objectUpdate.properties));
+    }
+
     void write(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ObjectUpdate objectUpdate : updatesByMasterResourceId.values()) {
             objectUpdate.write(cimNamespace, writer, context);

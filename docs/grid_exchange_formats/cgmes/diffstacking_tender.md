@@ -67,20 +67,29 @@ The following items are explicitly out of scope.
 
 # WP2 - NetworkEventRecorder to CGMES Diff
 
-The cgmes difference format is a richer format, allowing additions/removals/changes and is in full too powerful for the scope of work intended here. However, it provides two some advantages over .ssh diffs that are relevant for this project:
+The cgmes difference format is a richer format, allowing additions/removals/changes and is in full too powerful for the scope of work intended here. However, it provides some advantages over .ssh diffs that are relevant for this project:
 
 - Forward and backward differences
 - Support for operational limit changes as .eq profile can be diff target
+- Attribute diffs: In the .ssh export, all attributes of an element (e.g. a load p + q must both be exported, even if only p changed), in the cgmes diff export attribute diffs can be recovered by either comparing forward/backwarad on full-object dumps or even only serialize changed attributes. The prior might be the superior option as attribute consistency can be ensured easier (e.g. voltageRegulation on + V setpoint present)
 
 This work package aims to mirror the export functionality that exists to .ssh, but to cgmes diff. Explicitely, this work package shall not 
 - include any new element exports in comparison to the .ssh exporter
-- build an importer for cgmes diffs 
-- validate correctness through roundtrip tests.
-
-Instead, correctness of the generated cgmes difference model shall be only checked syntactically in unit test and with some manual regression tests against an established cgmes difference model importer such as powerfactory or OpenCGMES.
+- build an importer for cgmes diffs (done in WP3)
+- validate correctness through roundtrip tests. (done in WP3)
 
 
-# WP3 - pypowsybl integration
+# WP3 - CGMES Diff importer
+
+Implement a CGMES Difference Model importer to powsybl. This one should have two routes:
+
+- A fast import route that uses in-place network updates if the cgmes diff consists entirely of changes to features implemented in the current .ssh importer.
+- A slow import route that rebuilds the triple store, applies the cgmes diff to the triple store and then reloads the file.
+
+TODO write a bit more?
+Given these, establish roundtrip correctness tests for WP2.
+
+# WP4 - pypowsybl integration
 
 - The feature shall be exposed through the pypowsybl Python API.
 - The preferred user workflow is a recorder context manager attached to a Python `Network` object.
