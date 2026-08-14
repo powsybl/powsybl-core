@@ -767,6 +767,8 @@ public class Comparison {
             compare("ratioTapChanger.voltageRegulation.regulating", expectedVoltageRegulation.isRegulating(), actualVoltageRegulation.isRegulating());
             compare("ratioTapChanger.voltageRegulation.slope", expectedVoltageRegulation.getSlope(), actualVoltageRegulation.getSlope());
             compare("ratioTapChanger.voltageRegulation.targetDeadband", expectedVoltageRegulation.getTargetDeadband(), actualVoltageRegulation.getTargetDeadband());
+        } else {
+            compare("ratioTapChanger.voltageRegulation", null, actual.getVoltageRegulation());
         }
     }
 

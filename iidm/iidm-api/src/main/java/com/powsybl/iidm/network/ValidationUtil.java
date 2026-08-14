@@ -1293,9 +1293,7 @@ public final class ValidationUtil {
     private static ValidationLevel checkVoltageRegulationTerminal(@NonNull Validable owner, Terminal terminal, Network network, ActionOnError actionOnError, ReportNode reportNode) {
         if (terminal != null) {
             if (terminal.getVoltageLevel().getNetwork() != network) {
-                throwExceptionOrLogError(owner, "voltageRegulation.terminal is not part of the network", actionOnError,
-                    id -> NetworkReports.invalidVoltageRegulationTerminal(reportNode, id));
-                return ValidationLevel.EQUIPMENT;
+                throw new ValidationException(owner, "voltageRegulation.terminal is not part of the network");
             }
             // TODO MSA In the case of reactive power regulation, the regulated terminal should be the terminal of a branch or 3-winding transformer leg.
         }
@@ -1327,7 +1325,7 @@ public final class ValidationUtil {
             return ValidationLevel.EQUIPMENT;
         } else {
             // CHECK ALLOWED MODE
-            Set<RegulationMode> allowedModes = VoltageRegulationUtils.getAllowedRegulationModes(classHolder, isRemote);
+            Set<RegulationMode> allowedModes = VoltageRegulationUtils.getSettableRegulationModes(classHolder, isRemote);
             if (!allowedModes.contains(mode)) {
                 String allowedModesString = allowedModes.stream().map(RegulationMode::name).collect(Collectors.joining(", "));
                 String message = String.format("The current regulationMode is %s but allowed modes are [%s] when isRemote = %s",

@@ -40,7 +40,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount);
 
     /**
-     * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
+     * @deprecated use {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {

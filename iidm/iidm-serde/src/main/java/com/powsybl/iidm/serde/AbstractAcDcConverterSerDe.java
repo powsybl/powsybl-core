@@ -29,7 +29,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         double q1 = context.getReader().readDoubleAttribute("q1");
         toApply.add(converter -> converter.getTerminal1().setP(p1).setQ(q1));
 
-        if (adder.withTerminal2()) {
+        if (adder.hasTwoAcTerminals()) {
             double p2 = context.getReader().readDoubleAttribute("p2");
             double q2 = context.getReader().readDoubleAttribute("q2");
             toApply.add(converter -> converter.getTerminal2().ifPresent(terminal -> terminal.setP(p2).setQ(q2)));

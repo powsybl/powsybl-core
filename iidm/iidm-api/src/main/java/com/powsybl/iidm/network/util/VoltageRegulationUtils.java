@@ -29,11 +29,11 @@ public final class VoltageRegulationUtils {
         /* This utility class should not be instantiated */
     }
 
-    public static Set<RegulationMode> getAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder, boolean isTerminalSet) {
-        return isTerminalSet ? getRemoteAllowedRegulationModes(voltageRegulationHolder) : getLocalAllowedRegulationModes(voltageRegulationHolder);
+    public static Set<RegulationMode> getSettableRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder, boolean isTerminalSet) {
+        return isTerminalSet ? getRemoteSettableRegulationModes(voltageRegulationHolder) : getLocalSettableRegulationModes(voltageRegulationHolder);
     }
 
-    private static Set<RegulationMode> getRemoteAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+    private static Set<RegulationMode> getRemoteSettableRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
@@ -46,7 +46,7 @@ public final class VoltageRegulationUtils {
         };
     }
 
-    private static Set<RegulationMode> getLocalAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+    private static Set<RegulationMode> getLocalSettableRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE);
             case Class<?> c when c == Generator.class -> Set.of(VOLTAGE); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported

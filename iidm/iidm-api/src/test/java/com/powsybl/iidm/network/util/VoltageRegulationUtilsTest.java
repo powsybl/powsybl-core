@@ -74,14 +74,14 @@ class VoltageRegulationUtilsTest {
     @ParameterizedTest
     @MethodSource("provideParametersForGetAllowedRegulationModes")
     void testGetAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolderClass, boolean isRemoteRegulating, Set<RegulationMode> expectedModes) {
-        Set<RegulationMode> allowedModes = VoltageRegulationUtils.getAllowedRegulationModes(voltageRegulationHolderClass, isRemoteRegulating);
+        Set<RegulationMode> allowedModes = VoltageRegulationUtils.getSettableRegulationModes(voltageRegulationHolderClass, isRemoteRegulating);
         assertEquals(expectedModes, allowedModes, "Allowed regulation modes do not match for class " + voltageRegulationHolderClass.getSimpleName() + " with isRemoteRegulating=" + isRemoteRegulating);
     }
 
     @Test
     void testGetAllowedRegulationModesForUnsupportedClass() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> VoltageRegulationUtils.getAllowedRegulationModes(VoltageRegulationUtilsTest.UnsupportedHolder.class, true));
+            () -> VoltageRegulationUtils.getSettableRegulationModes(VoltageRegulationUtilsTest.UnsupportedHolder.class, true));
         assertEquals("UnsupportedHolder class cannot be used with VoltageRegulation", exception.getMessage());
     }
 

@@ -169,10 +169,6 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         return self();
     }
 
-    public boolean withTerminal2() {
-        return hasTwoAcTerminals();
-    }
-
     protected void preCheck() {
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,
@@ -183,7 +179,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
     }
 
-    private boolean hasTwoAcTerminals() {
+    public boolean hasTwoAcTerminals() {
         return bus2 != null || connectableBus2 != null || node2 != null;
     }
 
