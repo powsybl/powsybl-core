@@ -14,7 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER;
+import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
+import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE_PER_REACTIVE_POWER;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
@@ -22,6 +27,40 @@ import java.util.stream.Stream;
 public final class VoltageRegulationUtils {
     private VoltageRegulationUtils() {
         /* This utility class should not be instantiated */
+    }
+
+    public static Set<RegulationMode> getAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder, boolean isTerminalSet) {
+        return isTerminalSet ? getRemoteAllowedRegulationModes(voltageRegulationHolder) : getLocalAllowedRegulationModes(voltageRegulationHolder);
+    }
+
+    private static Set<RegulationMode> getRemoteAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+        return switch (voltageRegulationHolder) {
+            case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+            case Class<?> c when c == RatioTapChanger.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
+            case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            default -> throwError(voltageRegulationHolder);
+        };
+    }
+
+    private static Set<RegulationMode> getLocalAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+        return switch (voltageRegulationHolder) {
+            case Class<?> c when c == Battery.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+            case Class<?> c when c == RatioTapChanger.class -> Set.of();
+            case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
+            case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE);
+            default -> throwError(voltageRegulationHolder);
+        };
+    }
+
+    private static Set<RegulationMode> throwError(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+        throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
     }
 
     private static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,

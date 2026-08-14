@@ -16,11 +16,11 @@ import java.util.function.Consumer;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationAdderImpl<T extends VoltageRegulationHolderAdder<T>> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
+class VoltageRegulationAdderImpl<T extends VoltageRegulationHolderAdder<T>> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
     private final T equipmentAdder;
     private final Consumer<VoltageRegulation.AttributesWithTerminal> voltageRegulationAttributesConsumer;
 
-    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
+    VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                       Validable validable,
                                       T equipmentAdder,
                                       Ref<NetworkImpl> network,

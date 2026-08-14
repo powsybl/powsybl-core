@@ -90,8 +90,12 @@ public final class StaticVarCompensatorsValidation {
         Bus bus = svc.getTerminal().getBusView().getBus();
         double reactivePowerSetpoint = svc.getRegulatingTargetQ();
         double voltageSetpoint = svc.getRegulatingTargetV();
-        RegulationMode regulationMode = svc.getVoltageRegulation().getMode();
-        boolean regulating = svc.getVoltageRegulation().isRegulating();
+        RegulationMode regulationMode = RegulationMode.REACTIVE_POWER;
+        boolean regulating = false;
+        if (svc.getVoltageRegulation() != null) {
+            regulationMode = svc.getVoltageRegulation().getMode();
+            regulating = svc.getVoltageRegulation().isRegulating();
+        }
         double bMin = svc.getBmin();
         double bMax = svc.getBmax();
         double nominalVcontroller = svc.getTerminal().getVoltageLevel().getNominalV();

@@ -22,6 +22,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -535,17 +536,18 @@ public final class CgmesExportUtil {
     }
 
     public static String getGeneratorRegulatingControlMode(Generator generator) {
-        if (generator.getVoltageRegulation() != null && generator.getVoltageRegulation().getMode() != null) {
-            RegulationMode regulationMode = generator.getVoltageRegulation().getMode();
-            return switch (regulationMode) {
-                case REACTIVE_POWER ->
-                    RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-                case VOLTAGE ->
-                    RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-                default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
-            };
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
         }
-        return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        RegulationMode regulationMode = voltageRegulation.getMode();
+        return switch (regulationMode) {
+            case REACTIVE_POWER ->
+                RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            case VOLTAGE ->
+                RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+            case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
+        };
     }
 
     public static String getSvcMode(StaticVarCompensator svc) {

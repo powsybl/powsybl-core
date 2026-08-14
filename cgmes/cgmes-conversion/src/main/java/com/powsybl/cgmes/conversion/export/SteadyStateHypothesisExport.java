@@ -312,7 +312,7 @@ public final class SteadyStateHypothesisExport {
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, PROPERTY_REGULATING_CONTROL);
             double targetDeadband = s.getVoltageRegulation() != null ? s.getVoltageRegulation().getTargetDeadband() : Double.NaN;
-            double targetValue = s.getVoltageRegulation() != null ? s.getVoltageRegulation().getTargetValue() : Double.NaN;
+            double targetValue = s.getRegulatingTargetV();
             RegulatingControlView rcv = new RegulatingControlView(rcid,
                 RegulatingControlType.REGULATING_CONTROL,
                 true,

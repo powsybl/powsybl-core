@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck.voltage.regulation;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
@@ -332,40 +333,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest {
 
     // RemoveTerminal
     @Test
-    void testRemoveTerminalOnMultiVariantWithLocalTargetV() {
-        // GIVEN
-        ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("OK_removeTerminal_multiVariant_With_LocalTargetV");
-        int localTargetV = 25;
-        ShuntCompensator shuntCompensator = shuntCompensatorAdder
-            .setLocalTargetV(localTargetV)
-            .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(220)
-                .withTerminal(remoteTerminal)
-                .withRegulating(true)
-                .withTargetDeadband(10)
-                .add()
-            .add();
-        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
-        String variant1 = "variant1";
-        String variant2 = "variant2";
-        String variant3 = "variant3";
-        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant1);
-        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant2);
-        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant3);
-        // WHEN
-        voltageRegulation.setTerminal(null, Double.NaN);
-        // THEN
-        network.getVariantManager().getVariantIds().forEach(variantId -> {
-            network.getVariantManager().setWorkingVariant(variantId);
-            assertNull(shuntCompensator.getVoltageRegulation().getTerminal());
-            assertTrue(Double.isNaN(shuntCompensator.getVoltageRegulation().getTargetValue()));
-            assertEquals(localTargetV, shuntCompensator.getRegulatingTargetV());
-        });
-    }
-
-    @Test
-    void testRemoveTerminalOnMultiVariantMissingLocalTargetV() {
+    void testRemoveTerminalOnMultiVariantThrowException() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
         int targetValue = 220;
@@ -390,12 +358,11 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest {
         network.getVariantManager().cloneVariant(variant1, variant3);
         network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setTerminal(null, Double.NaN));
+        PowsyblException powsyblException = assertThrows(PowsyblException.class, () -> voltageRegulation.setTerminal(null, Double.NaN));
         // THEN
         String expectedMessage = "Shunt compensator 'Error_removeTerminal_multiVariant_Missing_LocalTargetV': " +
-            "Trying to remove the regulating terminal from the voltageRegulation of Error_removeTerminal_multiVariant_Missing_LocalTargetV " +
-            "but the next variants are missing local target values [variant2, variant1, variant3]";
-        assertEquals(expectedMessage, validationException.getMessage());
+            "Cannot set terminal when there are multiple variants";
+        assertEquals(expectedMessage, powsyblException.getMessage());
         network.getVariantManager().getVariantIds().forEach(variantId -> {
             network.getVariantManager().setWorkingVariant(variantId);
             assertEquals(remoteTerminal, shuntCompensator.getVoltageRegulation().getTerminal());

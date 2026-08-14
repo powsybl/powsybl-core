@@ -18,11 +18,11 @@ import java.util.function.UnaryOperator;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
+class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
 
     private final Function<VoltageRegulationExt, VoltageRegulationExt> voltageRegulationSetter;
 
-    public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
+    VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                         Validable validable,
                                         VoltageRegulationHolder<?> holder,
                                         Ref<NetworkImpl> network,

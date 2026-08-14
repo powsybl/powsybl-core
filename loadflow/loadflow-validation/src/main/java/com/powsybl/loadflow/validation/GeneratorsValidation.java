@@ -91,8 +91,8 @@ public final class GeneratorsValidation {
         double q = gen.getTerminal().getQ();
         Bus bus = gen.getTerminal().getBusView().getBus();
         double targetP = gen.getTargetP();
-        double targetQ = gen.getLocalTargetQ();
-        double targetV = gen.getLocalTargetV();
+        double targetQ = gen.getRegulatingTargetQ();
+        double targetV = gen.getRegulatingTargetV();
         String regulationMode = gen.getVoltageRegulation() != null ? gen.getVoltageRegulation().getMode().toString() : null;
         boolean regulating = gen.getVoltageRegulation() != null && gen.getVoltageRegulation().isRegulating();
         double minP = gen.getMinP();
@@ -187,9 +187,8 @@ public final class GeneratorsValidation {
             LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
             validated = false;
         }
-        // if regulating="true" and mode="REACTIVE_POWER" then reactive power should be equal to setpoint
-        if (RegulationMode.REACTIVE_POWER.name().equals(regulationMode)
-            && regulating
+        // if voltageRegulation is absent or disabled or regulationMode="REACTIVE_POWER" then reactive power should be equal to setpoint
+        if ((regulationMode == null || !regulating || RegulationMode.REACTIVE_POWER.name().equals(regulationMode))
             && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > config.getThreshold())) {
             LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} targetQ={}", regulationMode, ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;

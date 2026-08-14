@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -17,6 +19,8 @@ import java.util.List;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChangerAdderImpl, RatioTapChangerParent, RatioTapChanger, RatioTapChangerStepImpl> implements RatioTapChangerAdder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
     private Boolean regulating = null;
     private double regulationValue = Double.NaN;
@@ -131,12 +135,14 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
     @Override
     public RatioTapChangerAdder setLocalTargetQ(double localTargetQ) {
-        return null;
+        LOGGER.warn("Ignored operation, the local target reactive power is not supported for ratio tap changer");
+        return this;
     }
 
     @Override
     public RatioTapChangerAdder setLocalTargetV(double localTargetV) {
-        return null;
+        LOGGER.warn("Ignored operation, the local target voltage is not supported for ratio tap changer");
+        return this;
     }
 
     private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {

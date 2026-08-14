@@ -71,7 +71,7 @@ abstract class AbstractValidationFormatterWriterTest {
     protected final double targetQ = -3.72344;
     protected final double targetV = 380;
     protected final boolean connected = true;
-    protected final String generatorRegulationMode = com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE.name();
+    protected final String generatorRegulationMode = RegulationMode.VOLTAGE.name();
     protected final boolean generatorRegulating = true;
     protected final double minP = 25;
     protected final double maxP = 45;

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Bus;
@@ -15,7 +16,6 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -27,9 +27,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
@@ -231,10 +229,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public VoltageRegulation setTerminal(Terminal terminal, double targetValue) {
-        boolean isWithTerminal = terminal != null;
-        if (!isWithTerminal) {
-            return removeTerminal();
+        if (this.network.get().getVariantManager().getVariantCount() > 1) {
+            throw new PowsyblException(this.validable.getMessageHeader() + "Cannot set terminal when there are multiple variants");
         }
+        boolean isWithTerminal = terminal != null;
         ValidationUtil.checkVoltageRegulationTerminal(validable,
             terminal,
             isRegulating(),
@@ -340,50 +338,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
         notifyUpdate(NotifyUpdateKey.REGULATING, variantId, oldRegulating, newRegulating);
         this.regulating.set(getCurrentVariantIndex(), newRegulating);
-        return this;
-    }
-
-    private VoltageRegulation removeTerminal() {
-        // We check all variants because we will set targetValue to NaN for all variants because the terminal is not a variant attribute
-        VariantManagerImpl variantManager = network.get().getVariantManager();
-        String currentVariantId = variantManager.getWorkingVariantId();
-        Collection<String> allVariantId = variantManager.getVariantIds();
-        Set<String> variantMissingLocalValue = new HashSet<>();
-
-        for (String variantId : allVariantId) {
-            variantManager.setWorkingVariant(variantId);
-            try {
-                ValidationUtil.checkLocalTargetQandV(validable,
-                    classHolder,
-                    this.holder.getLocalTargetV(),
-                    this.holder.getLocalTargetQ(),
-                    false,
-                    isRegulating(),
-                    false,
-                    getMode(),
-                    network.get().getMinValidationLevel(),
-                    network.get().getReportNodeContext().getReportNode());
-            } catch (ValidationException validationException) {
-                variantMissingLocalValue.add(variantId);
-            }
-        }
-        if (variantMissingLocalValue.isEmpty()) {
-            // LocalTargetV or LocalTargetQ is present for each variant,
-            // we can remove the terminal and set targetValue to NaN for all variants
-            this.updateTerminal(null);
-            for (String variantId : allVariantId) {
-                variantManager.setWorkingVariant(variantId);
-                this.setTargetValue(Double.NaN);
-            }
-        } else {
-            String errorMessage = String.format(
-                "Trying to remove the regulating terminal from the voltageRegulation of %s but the next variants are missing local target values %s",
-                validable.getMessageHeader().id(),
-                variantMissingLocalValue);
-            LOGGER.error(errorMessage);
-            throw new ValidationException(validable, errorMessage);
-        }
-        variantManager.setWorkingVariant(currentVariantId);
         return this;
     }
 
@@ -537,29 +491,24 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         TerminalExt oldRegulatingTerminal = terminal;
         Terminal localTerminal = holder.getTerminal();
         String regulatedEquipmentId = getRegulatedEquipmentId(localTerminal);
-        boolean updateTerminal = StaticVarCompensator.class != classHolder || holder.isWithMode(RegulationMode.VOLTAGE);
+        boolean updateTerminal = StaticVarCompensator.class != classHolder || holder.isWithMode(VOLTAGE);
         // if local voltage regulation, we keep the regulating status and re-locate the regulation at the regulated equipment
         if (localTerminal != null && updateTerminal) {
-            Bus bus = terminal.getBusView().getBus();
+            Bus bus = oldRegulatingTerminal.getBusView().getBus();
             Bus localBus = localTerminal.getBusView().getBus();
             if (bus != null && bus == localBus) {
-                LOGGER.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", terminal.getConnectable().getId(),
+                LOGGER.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", oldRegulatingTerminal.getConnectable().getId(),
                     regulatedEquipmentId, regulatedEquipmentId);
                 updateTerminal(localTerminal);
                 return;
-            } else {
-                updateTerminal(null);
             }
-        } else {
-            updateTerminal(null);
         }
-        LOGGER.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
         if (regulating != null) {
             regulating.fill(0, regulating.size(), false);
         }
-        if (getMode() != null) {
-            setMode(RegulationMode.VOLTAGE);
-        }
+        setTerminal(null, Double.NaN);
+        LOGGER.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
+        regulationMode.fill(0, regulationMode.size(), VOLTAGE.getIndex());
     }
 
     private String getRegulatedEquipmentId(Terminal localTerminal) {

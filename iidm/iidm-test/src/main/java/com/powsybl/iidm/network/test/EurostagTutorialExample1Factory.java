@@ -38,6 +38,11 @@ public final class EurostagTutorialExample1Factory {
     public static final String NHV1 = "NHV1";
     public static final String NHV2 = "NHV2";
 
+    public static final double GENERATOR_LOCAL_TARGET_V = 24.5;
+    public static final double GENERATOR_LOCAL_TARGET_Q = 200d;
+    public static final double GENERATOR_REMOTE_TARGET_VALUE = 399d;
+    public static final String GENERATOR_ID = "GEN";
+
     private EurostagTutorialExample1Factory() {
     }
 
@@ -193,7 +198,7 @@ public final class EurostagTutorialExample1Factory {
                 .setQ0(200.0)
             .add();
         Generator generator = vlgen.newGenerator()
-                .setId("GEN")
+                .setId(GENERATOR_ID)
                 .setBus(ngen.getId())
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
@@ -310,7 +315,7 @@ public final class EurostagTutorialExample1Factory {
                 .setV(147.57861328125)
                 .setAngle(-9.614486694335938);
 
-        network.getGenerator("GEN").getTerminal()
+        network.getGenerator(GENERATOR_ID).getTerminal()
                 .setP(-605.558349609375)
                 .setQ(-225.2825164794922);
         network.getTwoWindingsTransformer(NGEN_NHV1).getTerminal1()
@@ -663,7 +668,7 @@ public final class EurostagTutorialExample1Factory {
      * </pre>
      */
     public static Network createWithHighAndLowCurrentLimits() {
-        Network network = create(NetworkFactory.findDefault());
+        Network network = create();
         Line line = network.getLine(NHV1_NHV2_1);
 
         line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
@@ -1171,7 +1176,7 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithVoltageAngleLimit() {
-        Network network = create(NetworkFactory.findDefault());
+        Network network = create();
         network.setCaseDate(ZonedDateTime.parse("2023-06-28T23:11:51.614+02:00"));
 
         network.newVoltageAngleLimit()
@@ -1190,7 +1195,7 @@ public final class EurostagTutorialExample1Factory {
 
         network.newVoltageAngleLimit()
             .setId("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
-            .from(network.getGenerator("GEN").getTerminal())
+            .from(network.getGenerator(GENERATOR_ID).getTerminal())
             .to(network.getTwoWindingsTransformer(NGEN_NHV1).getTerminal2())
             .setLowLimit(-0.20)
             .setHighLimit(0.35)
@@ -1266,7 +1271,7 @@ public final class EurostagTutorialExample1Factory {
     private static Network createRemoteTcc(Network network) {
         network.getTwoWindingsTransformer(NHV2_NLOAD)
                 .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
+                .setRegulationTerminal(network.getGenerator(GENERATOR_ID).getTerminal());
 
         return network;
     }
@@ -1435,7 +1440,7 @@ public final class EurostagTutorialExample1Factory {
     private static Network create3wRemoteTcc(Network network) {
         network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
                 .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
+                .setRegulationTerminal(network.getGenerator(GENERATOR_ID).getTerminal());
         return network;
     }
 
@@ -1448,23 +1453,66 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithRemoteVoltageGenerator() {
-        return addRemoteVoltageGenerator(create());
+        return createWithRemoteVoltageGenerator(create());
+    }
+
+    public static Network createWithRemoteVoltageGenerator(Network network) {
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(GENERATOR_LOCAL_TARGET_V);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE)
+            .withRegulating(true)
+            .build();
+        return network;
     }
 
     public static Network createWithRemoteReactiveGenerator() {
-        return addRemoteReactiveGenerator(create());
+        Network network = create();
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(Double.NaN);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE)
+            .withRegulating(true)
+            .build();
+        return network;
     }
 
     public static Network createWithLocalReactiveGenerator() {
-        return addLocalReactiveGenerator(create());
+        Network network = create();
+        Generator gen = network.getGenerator(GENERATOR_ID);
+        gen.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        gen.setLocalTargetV(Double.NaN);
+        gen.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(gen.getTerminal())
+            .withTargetValue(GENERATOR_LOCAL_TARGET_Q)
+            .withRegulating(true)
+            .build();
+        return network;
     }
 
+    /**
+     *
+     * @deprecated the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     public static Network createWithRemoteReactiveAndVoltageGenerators() {
-        return addRemoteVoltageGenerator(addRemoteReactiveGenerator(create()));
+        throw new UnsupportedOperationException("UnsupportedOperationException the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed");
     }
 
+    /**
+     *
+     * @deprecated the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     public static Network createWithLocalReactiveAndVoltageGenerator() {
-        return addLocalReactiveGenerator(create());
+        throw new UnsupportedOperationException("UnsupportedOperationException the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed");
     }
 
     public static Network createWithoutControl() {
@@ -1475,36 +1523,28 @@ public final class EurostagTutorialExample1Factory {
         return removeVoltageControlForGenerator(createWithRemoteVoltageGenerator());
     }
 
-    private static Network addLocalReactiveGenerator(Network network) {
-        return addReactiveGenerator(network, network.getGenerator("GEN").getTerminal());
-    }
-
-    private static Network addRemoteReactiveGenerator(Network network) {
-        return addReactiveGenerator(network, network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
-    }
-
-    private static Network addReactiveGenerator(Network network, Terminal terminal) {
-        Generator gen = network.getGenerator("GEN");
-        gen.newVoltageRegulation()
-            .withTargetValue(200d)
-            .withTerminal(terminal)
-            .withMode(RegulationMode.REACTIVE_POWER)
-            .build();
-        return network;
-    }
-
-    private static Network addRemoteVoltageGenerator(Network network) {
-        network.getGenerator("GEN").newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
-            .withTargetValue(399d)
-            .build();
-        return network;
-    }
-
     private static Network removeVoltageControlForGenerator(Network network) {
-        Generator gen = network.getGenerator("GEN");
+        Generator gen = network.getGenerator(GENERATOR_ID);
         gen.removeVoltageRegulation();
         return network;
+    }
+
+    public static Network createWithLocalVoltageGenerator() {
+        return createWithLocalVoltageGenerator(create());
+    }
+
+    public static Network createWithLocalVoltageGenerator(Network network) {
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(GENERATOR_LOCAL_TARGET_V);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .build();
+        return network;
+    }
+
+    private static Terminal getRemoteTerminal(Network network) {
+        return network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1();
     }
 }

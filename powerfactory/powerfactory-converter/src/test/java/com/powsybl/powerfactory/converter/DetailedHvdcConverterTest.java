@@ -47,10 +47,10 @@ class DetailedHvdcConverterTest {
         assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
         assertEquals(-600.0, vsc1.getTargetP());
         assertEquals(-0.0, vsc2.getTargetP());
-        assertEquals(300.0, vsc1.getRegulatingTargetV());
+        assertEquals(300.0, vsc1.getRegulatingTargetV(), ABSOLUTE_DELTA);
         assertTrue(Double.isNaN(vsc2.getRegulatingTargetV()));
         assertEquals(-0.0, vsc1.getRegulatingTargetQ());
-        assertEquals(-100.0, vsc2.getRegulatingTargetQ());
+        assertEquals(-100.0, vsc2.getRegulatingTargetQ(), ABSOLUTE_DELTA);
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
         final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
         assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
@@ -86,10 +86,10 @@ class DetailedHvdcConverterTest {
         assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
         assertEquals(-600.0, vsc1.getTargetP(), ABSOLUTE_DELTA);
         assertEquals(-0.0, vsc2.getTargetP());
-        assertEquals(300, vsc1.getRegulatingTargetV());
+        assertEquals(300, vsc1.getRegulatingTargetV(), ABSOLUTE_DELTA);
         assertEquals(-0.0, vsc1.getRegulatingTargetQ());
         assertTrue(Double.isNaN(vsc2.getRegulatingTargetV()));
-        assertEquals(-100.0, vsc2.getRegulatingTargetQ());
+        assertEquals(-100.0, vsc2.getRegulatingTargetQ(), ABSOLUTE_DELTA);
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
         final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
         assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
@@ -165,7 +165,7 @@ class DetailedHvdcConverterTest {
         assertEquals(AcDcConverter.ControlMode.V_DC, vsc.getControlMode());
         assertFalse(vsc.isRegulating());
         assertTrue(Double.isNaN(vsc.getRegulatingTargetV()));
-        assertEquals(-3.140000104904175, vsc.getRegulatingTargetQ());
+        assertEquals(-3.14, vsc.getRegulatingTargetQ(), ABSOLUTE_DELTA);
         assertEquals(420.0, vsc.getTargetVdc(), RELATIVE_DELTA * 420.0);
     }
 

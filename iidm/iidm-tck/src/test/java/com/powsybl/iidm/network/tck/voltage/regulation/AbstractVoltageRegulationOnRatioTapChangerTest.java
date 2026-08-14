@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck.voltage.regulation;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
@@ -244,14 +245,14 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
 
     // RemoveTerminal
     @Test
-    void testRemoveTerminalOnMultiVariantWithLocalTargetV() {
+    void shouldThrowExceptionOnRemoveTerminalOnMultiVariant() {
         // GIVEN
         RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(true);
-        int localTargetV = 25;
+        int targetValue = 220;
         RatioTapChanger ratioTapChanger = ratioTapChangerAdder
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(220)
+            .withTargetValue(targetValue)
             .withTerminal(remoteTerminal)
             .withRegulating(true)
             .withTargetDeadband(2)
@@ -265,14 +266,19 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant2);
         network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant3);
         // WHEN
-        voltageRegulation.setTerminal(null, Double.NaN);
+        PowsyblException powsyblException = assertThrows(PowsyblException.class, () -> voltageRegulation.setTerminal(null, Double.NaN));
         // THEN
+        String expectedMessage = "2 windings transformer 'T1': " +
+            "Cannot set terminal when there are multiple variants";
+        assertEquals(expectedMessage, powsyblException.getMessage());
         network.getVariantManager().getVariantIds().forEach(variantId -> {
             network.getVariantManager().setWorkingVariant(variantId);
-            assertNull(ratioTapChanger.getVoltageRegulation().getTerminal());
-            assertTrue(Double.isNaN(ratioTapChanger.getVoltageRegulation().getTargetValue()));
+            assertEquals(remoteTerminal, ratioTapChanger.getVoltageRegulation().getTerminal());
+            assertEquals(targetValue, ratioTapChanger.getVoltageRegulation().getTargetValue());
+            assertEquals(targetValue, ratioTapChanger.getRegulatingTargetV());
             assertTrue(Double.isNaN(ratioTapChanger.getRegulatingTargetQ()));
-            assertTrue(Double.isNaN(ratioTapChanger.getRegulatingTargetV()));
+            assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetV()));
+            assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetQ()));
         });
     }
 

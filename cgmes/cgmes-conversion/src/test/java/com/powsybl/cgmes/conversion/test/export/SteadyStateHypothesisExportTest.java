@@ -42,15 +42,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getAttribute;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getResource;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
-import static com.powsybl.iidm.network.test.SvcTestCaseFactory.LOCAL_TARGET_Q;
-import static com.powsybl.iidm.network.test.SvcTestCaseFactory.LOCAL_TARGET_V;
-import static com.powsybl.iidm.network.test.SvcTestCaseFactory.REMOTE_TARGET_VALUE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -536,9 +534,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         String baseName = "testSvcRc";
         Network network;
         String ssh;
-        String localTargetV = String.valueOf(LOCAL_TARGET_V);
-        String localTargetQ = String.valueOf(LOCAL_TARGET_Q);
-        String remoteTargetValue = String.valueOf(REMOTE_TARGET_VALUE);
+        String localTargetV = getFormattedDouble(SvcTestCaseFactory.LOCAL_TARGET_V);
+        String localTargetQ = getFormattedDouble(SvcTestCaseFactory.LOCAL_TARGET_Q);
+        String remoteTargetValue = getFormattedDouble(SvcTestCaseFactory.REMOTE_TARGET_VALUE);
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             Properties exportParams = new Properties();
@@ -564,7 +562,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteReactiveControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetQ, "M");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", remoteTargetValue, "M");
 
             // SVC OFF
             // Local
@@ -573,7 +571,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRCWithoutAttribute(ssh, "SVC2_RC");
             network = SvcTestCaseFactory.createLocalOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetQ, "M");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", localTargetQ, "M");
             network = SvcTestCaseFactory.createLocalOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", localTargetV, "k");
@@ -587,10 +585,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", "0", "k");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetQ, "M");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", remoteTargetValue, "M");
             network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", localTargetV, "k");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", remoteTargetValue, "k");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", remoteTargetValue, "k");
@@ -603,6 +601,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         String baseName = "testScRc";
         Network network;
         String ssh;
+        String targetDeadband = getFormattedDouble(ShuntTestCaseFactory.TARGET_DEADBAND);
+        String localTargetV = getFormattedDouble(ShuntTestCaseFactory.LOCAL_TARGET_V);
+        String remoteTargetValue = getFormattedDouble(ShuntTestCaseFactory.REMOTE_TARGET_VALUE);
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             Properties exportParams = new Properties();
@@ -611,51 +612,51 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // SC linear
             network = ShuntTestCaseFactory.create();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", targetDeadband, remoteTargetValue, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
             network = ShuntTestCaseFactory.createLocalLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", targetDeadband, localTargetV, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
             network = ShuntTestCaseFactory.createDisabledRemoteLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", targetDeadband, remoteTargetValue, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
             network = ShuntTestCaseFactory.createDisabledLocalLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", targetDeadband, localTargetV, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
-            network = ShuntTestCaseFactory.createLocalLinearNoTarget();
+            network = ShuntTestCaseFactory.createDisabledLocalLinearNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithoutAttribute(ssh, "SHUNT_RC", "", "", "", "", "");
 
-            network = ShuntTestCaseFactory.createRemoteLinearNoTarget();
+            network = ShuntTestCaseFactory.createDisabledRemoteLinearNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", "5", "0", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", targetDeadband, "0", "k");
 
             // SC nonlinear
             network = ShuntTestCaseFactory.createNonLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", targetDeadband, remoteTargetValue, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
             network = ShuntTestCaseFactory.createLocalNonLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "true", targetDeadband, localTargetV, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
             network = ShuntTestCaseFactory.createDisabledRemoteNonLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", targetDeadband, remoteTargetValue, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
             network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", "5", "200", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", targetDeadband, localTargetV, "k");
             testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
 
             network = ShuntTestCaseFactory.createLocalNonLinearNoTarget();
@@ -664,14 +665,23 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", "5", "0", "k");
+            testRcEqRcWithAttribute(ssh, "SHUNT_RC", "true", "false", targetDeadband, "0", "k");
         }
+    }
+
+    private static String getFormattedDouble(double value) {
+        return new DecimalFormat("0.##").format(value);
     }
 
     @Test
     void generatorRegulatingControlSSHTest() throws IOException {
         String exportFolder = "/test-gen-rc";
         String baseName = "testGenRc";
+        String localTargetV = getFormattedDouble(EurostagTutorialExample1Factory.GENERATOR_LOCAL_TARGET_V);
+        String localTargetQ = getFormattedDouble(EurostagTutorialExample1Factory.GENERATOR_LOCAL_TARGET_Q);
+        String remoteTargetValue = getFormattedDouble(EurostagTutorialExample1Factory.GENERATOR_REMOTE_TARGET_VALUE);
+        String genRcId = "GEN_RC";
+        String deadband = "0";
         Network network;
         String ssh;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
@@ -682,18 +692,18 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator local voltage
             network = EurostagTutorialExample1Factory.create();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "24.5", "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, localTargetV, "k");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "false", "0", "24.5", "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, localTargetV, "k");
 
             // Generator remote voltage
             network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "399", "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, remoteTargetValue, "k");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "false", "0", "399", "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, remoteTargetValue, "k");
 
             // Generator with remote voltage regulation exported in local regulation mode
             Properties exportInLocalRegulationModeParams = new Properties();
@@ -701,40 +711,39 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             exportInLocalRegulationModeParams.put(CgmesExport.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE, true);
             network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportInLocalRegulationModeParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "25.2", "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, "25.2", "k");
 
             // Generator with local reactive
-            // TODO MSA fix me (in the 1.16 version localReactiveGenerator was used with remoteReactivePowerExtension)
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, localTargetQ, "M");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "false", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, localTargetQ, "M");
 
             // Generator with remote reactive
             network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, remoteTargetValue, "M");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "false", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, remoteTargetValue, "M");
 
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "GEN_RC");
+            testRcEqRCWithoutAttribute(ssh, genRcId);
 
             // Generator with remote terminal without control
             network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "GEN_RC");
+            testRcEqRCWithoutAttribute(ssh, genRcId);
 
             // Generator without control capability
             network = EurostagTutorialExample1Factory.create();
             network.getGenerator("GEN").newMinMaxReactiveLimits().setMaxQ(0).setMinQ(0).add();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "GEN_RC");
+            testRcEqRCWithoutAttribute(ssh, genRcId);
         }
     }
 

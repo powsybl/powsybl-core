@@ -263,7 +263,6 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, VscConverterStation station) {
         double maxP = hvdcLine.getMaxP();
-        station.isRemoteRegulating();
         GeneratorAdder genAdder = vl.newGenerator()
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))

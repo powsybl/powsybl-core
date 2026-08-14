@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Terminal;
@@ -21,22 +20,22 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
+abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
 
     // Context
-    protected final Class<? extends VoltageRegulationHolder<?>> classHolder;
-    protected final Validable validable;
-    protected final VoltageRegulationHolder<?> holder;
-    protected final Ref<NetworkImpl> network;
+    final Class<? extends VoltageRegulationHolder<?>> classHolder;
+    final Validable validable;
+    final VoltageRegulationHolder<?> holder;
+    final Ref<NetworkImpl> network;
     // VoltageRegulation attributes
-    protected RegulationMode mode = null;
-    protected boolean regulating = true;
-    protected Terminal terminal = null;
-    protected double targetValue = Double.NaN;
-    protected double targetDeadband = Double.NaN;
-    protected double slope = Double.NaN;
+    RegulationMode mode = null;
+    boolean regulating = true;
+    Terminal terminal = null;
+    double targetValue = Double.NaN;
+    double targetDeadband = Double.NaN;
+    double slope = Double.NaN;
 
-    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder<?>> classHolder,
+    AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                       Validable validable,
                                                       VoltageRegulationHolder<?> holder,
                                                       Ref<NetworkImpl> network) {
@@ -82,16 +81,10 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
         return self();
     }
 
-    protected VoltageRegulation.AttributesWithTerminal checkAndGetVoltageRegulationAttributes() {
+    VoltageRegulation.AttributesWithTerminal checkAndGetVoltageRegulationAttributes() {
         // VALIDATION
-        if (validable != null) {
-            checkVoltageRegulationAttributes();
-            return new VoltageRegulation.AttributesWithTerminal(
-                new VoltageRegulation.Attributes(targetValue, targetDeadband, slope, mode, regulating),
-                terminal
-            );
-        }
-        throw new PowsyblException("VoltageRegulation cannot be validated because its parent is not a Validable class");
+        checkVoltageRegulationAttributes();
+        return new VoltageRegulation.AttributesWithTerminal(targetValue, targetDeadband, slope, mode, regulating, terminal);
     }
 
     private void checkVoltageRegulationAttributes() {
