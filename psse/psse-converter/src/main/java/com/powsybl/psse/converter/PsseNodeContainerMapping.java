@@ -26,6 +26,8 @@ import static com.powsybl.psse.converter.AbstractConverter.getSubstationIdFromPs
  * As in the CGMES node container mapping, source substations connected by transformers are merged into one IIDM
  * substation because all transformer ends must belong to it. Source voltage levels remain distinct: for RAWX
  * node-breaker data the source voltage-level discriminator is the {@code isub} containing the bus.
+ *
+ * @author Roman Vykuka {@literal <vykuka at gmail.com>}
  */
 final class PsseNodeContainerMapping {
 
