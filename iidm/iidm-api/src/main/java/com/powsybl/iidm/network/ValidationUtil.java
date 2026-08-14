@@ -244,12 +244,6 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkNotNanValue(Validable validable, double value, String valueName, String reason) {
-        if (Double.isNaN(value)) {
-            throw createInvalidValueException(validable, value, valueName, reason);
-        }
-    }
-
     private static ValidationLevel checkLocalTargetQandV(Validable validable,
                                                          Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                          double localTargetV,
@@ -1146,23 +1140,6 @@ public final class ValidationUtil {
                                               ReportNode reportNode) {
         if (newRegulating) {
             checkVoltageRegulation(owner, voltageRegulationAttributes, network, classHolder, checkValidationActionOnError(validationLevel), reportNode);
-        }
-    }
-
-    public static void checkVoltageRegulation(@NonNull Validable owner,
-                                              VoltageRegulation voltageRegulation,
-                                              boolean newRegulating,
-                                              Network network,
-                                              Class<? extends VoltageRegulationHolder<?>> classHolder,
-                                              ValidationLevel validationLevel,
-                                              ReportNode reportNode) {
-        if (newRegulating) {
-            checkVoltageRegulation(owner,
-                voltageRegulation.getAttributes(),
-                network,
-                classHolder,
-                checkValidationActionOnError(validationLevel),
-                reportNode);
         }
     }
 

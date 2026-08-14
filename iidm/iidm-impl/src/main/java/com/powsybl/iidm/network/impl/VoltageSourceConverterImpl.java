@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.VoltageSourceConverter;
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
@@ -240,7 +241,13 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public VoltageSourceConverter setLocalTargetV(double targetV) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkDoublePositive(this, targetV, "localTargetV");
+        ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            this.getLocalTargetV(),
+            targetV,
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetV.set(variantIndex, targetV);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -250,14 +257,20 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
-    public VoltageSourceConverter setLocalTargetQ(double targetV) {
+    public VoltageSourceConverter setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkDoublePositive(this, targetV, "localTargetQ");
+        ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.localTargetQ.set(variantIndex, targetV);
+        double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("localTargetQ", variantId, oldValue, targetV);
+        notifyUpdate("localTargetQ", variantId, oldValue, targetQ);
         return this;
     }
 

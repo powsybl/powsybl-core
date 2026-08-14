@@ -1324,9 +1324,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, rcID, localTerminalId, "reactivePower");
-            network.getGenerator("GEN").getVoltageRegulation().setTerminal(null, Double.NaN);
-            eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, rcID, localTerminalId, "reactivePower");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, rcID, localTerminalId, "reactivePower");

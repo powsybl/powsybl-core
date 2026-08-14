@@ -198,25 +198,27 @@ public interface VoltageRegulation {
         }
 
         public AttributesWithTerminal withMode(RegulationMode newMode) {
-            return new VoltageRegulation.AttributesWithTerminal(
-                targetValue(),
-                targetDeadband(),
-                slope(),
-                newMode,
-                isRegulating(),
-                terminal()
-            );
+            return new AttributesWithTerminal(targetValue(), targetDeadband(), slope(), newMode, isRegulating(), terminal());
         }
 
-        public AttributesWithTerminal withRegulating(boolean regulating) {
-            return new VoltageRegulation.AttributesWithTerminal(
-                targetValue(),
-                targetDeadband(),
-                slope(),
-                mode(),
-                regulating,
-                terminal()
-            );
+        public AttributesWithTerminal withRegulating(boolean newRegulating) {
+            return new AttributesWithTerminal(targetValue(), targetDeadband(), slope(), mode(), newRegulating, terminal());
+        }
+
+        public AttributesWithTerminal withTerminal(Terminal newTerminal) {
+            return new AttributesWithTerminal(targetValue(), targetDeadband(), slope(), mode(), isRegulating(), newTerminal);
+        }
+
+        public AttributesWithTerminal withTargetValue(double newTargetValue) {
+            return new AttributesWithTerminal(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), terminal());
+        }
+
+        public AttributesWithTerminal withTargetDeadband(double newTargetDeadband) {
+            return new AttributesWithTerminal(targetValue(), newTargetDeadband, slope(), mode(), isRegulating(), terminal());
+        }
+
+        public AttributesWithTerminal withSlope(double newSlope) {
+            return new AttributesWithTerminal(targetValue(), targetDeadband(), newSlope, mode(), isRegulating(), terminal());
         }
     }
 }
