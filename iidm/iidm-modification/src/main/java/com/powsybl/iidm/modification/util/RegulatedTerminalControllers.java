@@ -122,7 +122,6 @@ public class RegulatedTerminalControllers {
         return controllers.containsKey(newTerminalRef(regulatedTerminal));
     }
 
-    // TODO MSA Breaking change
     public void replaceRegulatedTerminal(Terminal currentRegulatedTerminal, Terminal newRegulatedTerminal) {
         replaceRegulatedTerminal(currentRegulatedTerminal, newRegulatedTerminal, null);
     }
@@ -203,7 +202,7 @@ public class RegulatedTerminalControllers {
         if (voltageRegulation != null) {
             Terminal currentTerminal = voltageRegulation.getTerminal() != null ? voltageRegulation.getTerminal() : voltageRegulationHolder.getTerminal();
             if (currentRegulatedTerminal.equals(newTerminalRef(currentTerminal))) {
-                // TODO MSA We use the same targetValue of the previous terminal (best to add targetValue parameter?)
+                // If no new target value is specified, we use the same targetValue as for the previous terminal
                 double targetValue = newTargetValue != null ? newTargetValue : voltageRegulation.getTargetValue();
                 voltageRegulation.setTerminal(newRegulatedTerminal, targetValue);
             }

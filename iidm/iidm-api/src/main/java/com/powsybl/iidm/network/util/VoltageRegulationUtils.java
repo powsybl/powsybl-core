@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
+import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalDouble;
@@ -64,8 +64,8 @@ public final class VoltageRegulationUtils {
     }
 
     private static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
-                                                                                                          boolean withTargetValue,
-                                                                                                          double targetValue,
+                                                                                                          boolean withLocalTargetValue,
+                                                                                                          double targetV,
                                                                                                           double localTargetV,
                                                                                                           double targetQ,
                                                                                                           Boolean voltageRegulatorOn,
@@ -75,21 +75,18 @@ public final class VoltageRegulationUtils {
             VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE);
             if (terminal != null) {
-                vrAdder.withTargetValue(targetValue)
+                vrAdder.withTargetValue(targetV)
                     .withTerminal(terminal);
-            }
-            if (terminal == null) {
-                adder.setLocalTargetV(targetValue);
-            } else if (withTargetValue) {
-                adder.setLocalTargetV(localTargetV);
-
+                if (withLocalTargetValue) {
+                    adder.setLocalTargetV(localTargetV);
+                }
+            } else {
+                adder.setLocalTargetV(targetV);
             }
             vrAdder.add();
             adder.setLocalTargetQ(targetQ);
             // REACTIVE Power case
-        } else if (Boolean.FALSE.equals(voltageRegulatorOn)
-            && !Double.isNaN(targetQ)
-            && terminal != null) {
+        } else if (Boolean.FALSE.equals(voltageRegulatorOn) && !Double.isNaN(targetQ) && terminal != null) {
             adder.newVoltageRegulation()
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(targetQ)
@@ -99,16 +96,15 @@ public final class VoltageRegulationUtils {
             adder.setLocalTargetV(localTargetV);
             adder.setLocalTargetQ(targetQ);
         }
-
     }
 
     public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
-                                                                                                                double targetValue,
+                                                                                                                double targetV,
                                                                                                                 double localTargetV,
                                                                                                                 double targetQ,
                                                                                                                 Boolean voltageRegulatorOn,
                                                                                                                 Terminal terminal) {
-        createVoltageRegulationBackwardCompatibility(adder, true, targetValue, localTargetV, targetQ, voltageRegulatorOn, terminal);
+        createVoltageRegulationBackwardCompatibility(adder, true, targetV, localTargetV, targetQ, voltageRegulatorOn, terminal);
     }
 
     public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
@@ -123,25 +119,22 @@ public final class VoltageRegulationUtils {
      * Get the stream of all generators of the network controlling voltage at controlled bus.
      */
     public static Stream<Generator> getRegulatingGenerators(Network network, Bus controlledBus) {
-        if (controlledBus != null) {
-            return network.getGeneratorStream()
-                .filter(g -> g.isRegulatingWithMode(RegulationMode.VOLTAGE))
-                .filter(g -> g.getRegulatingTerminal().getBusView().getBus() != null)
-                .filter(g -> controlledBus.equals(g.getRegulatingTerminal().getBusView().getBus()));
-        } else {
-            return Stream.empty();
-        }
+        return getRegulating(network.getGeneratorStream(), controlledBus);
     }
 
     /**
      * Get the stream of all shunt compensators of the network controlling voltage at controlled bus.
      */
     public static Stream<ShuntCompensator> getRegulatingShuntCompensators(Network network, Bus controlledBus) {
+        return getRegulating(network.getShuntCompensatorStream(), controlledBus);
+    }
+
+    private static @NonNull <T extends VoltageRegulationHolder<?>> Stream<T> getRegulating(Stream<T> voltageRegulationHolderStream, Bus controlledBus) {
         if (controlledBus != null) {
-            return network.getShuntCompensatorStream()
-                    .filter(shuntCompensator -> shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE))
-                    .filter(sh -> sh.getRegulatingTerminal().getBusView().getBus() != null)
-                    .filter(sh -> controlledBus.equals(sh.getRegulatingTerminal().getBusView().getBus()));
+            return voltageRegulationHolderStream
+                    .filter(holder -> holder.isRegulatingWithMode(RegulationMode.VOLTAGE))
+                    .filter(holder -> holder.getRegulatingTerminal().getBusView().getBus() != null)
+                    .filter(holder -> controlledBus.equals(holder.getRegulatingTerminal().getBusView().getBus()));
         } else {
             return Stream.empty();
         }
@@ -157,16 +150,19 @@ public final class VoltageRegulationUtils {
      */
     public static OptionalDouble getTargetVForRegulatingElement(Network network, Bus controlledBus, String regulatingElementId,
                                                                 IdentifiableType identifiableType) {
-        List<Double> targets = switch (identifiableType) {
-            case GENERATOR -> getRegulatingGenerators(network, controlledBus)
-                .filter(g -> !g.getId().equals(regulatingElementId))
-                .map(Generator::getRegulatingTargetV)
-                .distinct().toList();
-            case SHUNT_COMPENSATOR -> getRegulatingShuntCompensators(network, controlledBus)
-                .filter(g -> !g.getId().equals(regulatingElementId))
-                .map(ShuntCompensator::getRegulatingTargetV).distinct().toList();
-            default -> new ArrayList<>();
+        List<Double> targets = List.of();
+        Stream<? extends VoltageRegulationHolder<?>> holderStream = switch (identifiableType) {
+            case GENERATOR -> network.getGeneratorStream();
+            case SHUNT_COMPENSATOR -> network.getShuntCompensatorStream();
+            default -> null;
         };
+        if (holderStream != null) {
+            targets = getRegulating(holderStream, controlledBus)
+                    .filter(h -> !((Identifiable<?>) h).getId().equals(regulatingElementId))
+                    .map(VoltageRegulationHolder::getRegulatingTargetV)
+                    .distinct().toList();
+        }
+
         if (targets.size() != 1) {
             // it means that the network cannot give valuable information about targetV, this field has to be given in
             // the network modification.
@@ -177,9 +173,9 @@ public final class VoltageRegulationUtils {
     }
 
     public static boolean haveSameConnectableBus(Terminal regulatingTerminal, Terminal terminal) {
-        return regulatingTerminal == null || regulatingTerminal.getVoltageLevel() == null
-            || terminal == null || terminal.getVoltageLevel() == null
-            || Objects.equals(regulatingTerminal.getBusBreakerView().getConnectableBus(), terminal.getBusBreakerView().getConnectableBus());
+        return regulatingTerminal != null && regulatingTerminal.getVoltageLevel() != null
+            && terminal != null && terminal.getVoltageLevel() != null
+            && Objects.equals(regulatingTerminal.getBusBreakerView().getConnectableBus(), terminal.getBusBreakerView().getConnectableBus());
     }
 
     public static boolean isRegulating(VoltageRegulation voltageRegulation, Terminal terminal) {
@@ -195,18 +191,18 @@ public final class VoltageRegulationUtils {
     public static void buildVoltageRegulation(VoltageRegulationHolder<?> holder, boolean isLocalTerminal, double targetV, Terminal regulatingTerminal, boolean isRegulatingOn) {
         if (isLocalTerminal) {
             holder.setLocalTargetV(targetV);
-        }
-        if (!isLocalTerminal) {
+            if (isRegulatingOn) {
+                holder.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .build();
+            }
+        } else {
             holder.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .withTargetValue(targetV)
                 .withTerminal(regulatingTerminal)
                 .withTargetValue(targetV)
                 .withRegulating(isRegulatingOn)
-                .build();
-        } else if (isRegulatingOn) {
-            holder.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
                 .build();
         }
     }
@@ -224,8 +220,7 @@ public final class VoltageRegulationUtils {
         } else {
             regulationMode = voltageRegulatorOn ? RegulationMode.VOLTAGE : null;
         }
-        double targetValue = Double.NaN;
-        return new VoltageRegulationData(regulationMode, voltageSetpoint, reactivePowerSetpoint, targetValue);
+        return new VoltageRegulationData(regulationMode, voltageSetpoint, reactivePowerSetpoint, Double.NaN);
     }
 
     public record VoltageRegulationData(RegulationMode regulationMode, double targetV, double targetQ, double targetValue) { }

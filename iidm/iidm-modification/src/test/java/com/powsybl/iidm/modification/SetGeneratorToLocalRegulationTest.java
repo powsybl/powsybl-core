@@ -214,8 +214,8 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setLocalTargetV(20.1) // Very close to 20.0 but as we are with the REACTIVE mode we don't use
-                .setLocalTargetQ(111) // Very close to 20.0 but as we are with the REACTIVE mode we don't use
+                .setLocalTargetV(20.1) // Very close to 20.0, but as we are with the REACTIVE mode we don't use it
+                .setLocalTargetQ(111)
                 // No regulatingTerminal set == use its own terminal for regulation
                 .add();
 
