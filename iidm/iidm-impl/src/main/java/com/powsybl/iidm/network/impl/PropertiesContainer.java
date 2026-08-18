@@ -8,7 +8,7 @@
 
 package com.powsybl.iidm.network.impl;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,7 +67,7 @@ public class PropertiesContainer {
 
     public Set<String> getPropertyNames() {
         if (properties == null) {
-            return Collections.emptySet();
+            return new HashSet<>();
         }
         return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
     }

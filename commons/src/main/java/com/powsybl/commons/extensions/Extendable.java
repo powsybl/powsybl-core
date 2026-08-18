@@ -8,6 +8,7 @@
 package com.powsybl.commons.extensions;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -55,6 +56,18 @@ public interface Extendable<O> {
      * @return all extensions associated to this extendable object.
      */
     <E extends Extension<O>> Collection<E> getExtensions();
+
+    /**
+     * Get all extensions associated with this extendable object as a stream.
+     * @return
+     */
+    Stream<Extension<O>> getExtensionsStream();
+
+    /**
+     * Returns whether this extendable has at least an extension.
+     * @return
+     */
+    boolean hasExtensions();
 
     /**
      * Returns a name that is used to find matching {@link ExtensionAdderProvider}s

@@ -164,9 +164,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
                 aliasesWithoutType.remove(alias);
             }
         } else {
-            if (aliasesByType != null) {
-                aliasesByType.remove(type);
-            }
+            aliasesByType.remove(type);
         }
     }
 
@@ -254,7 +252,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        getExtensions().stream()
+        getExtensionsStream()
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
@@ -262,7 +260,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void reduceVariantArraySize(int number) {
-        getExtensions().stream()
+        getExtensionsStream()
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.reduceVariantArraySize(number));
@@ -270,7 +268,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        getExtensions().stream()
+        getExtensionsStream()
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.deleteVariantArrayElement(index));
@@ -278,10 +276,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
-        getExtensions().stream()
-                .filter(e -> e instanceof MultiVariantObject)
-                .map(e -> (MultiVariantObject) e)
-                .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
+        getExtensionsStream()
+            .filter(e -> e instanceof MultiVariantObject)
+            .map(e -> (MultiVariantObject) e)
+            .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override

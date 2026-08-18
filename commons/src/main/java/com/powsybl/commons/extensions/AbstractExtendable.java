@@ -8,6 +8,7 @@
 package com.powsybl.commons.extensions;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -25,13 +26,8 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         // remove any existing, which will trigger extension own cleanup if any
         this.removeExtension((Class<E>) type);
         extension.setExtendable((T) this);
-        if (extensions == null) {
-            extensions = new HashMap<>();
-        }
+        initiateExtensions();
         extensions.put(type, extension);
-        if (extensionsByName == null) {
-            extensionsByName = new HashMap<>();
-        }
         extensionsByName.put(extension.getName(), extension);
     }
 
@@ -78,10 +74,32 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
 
     @Override
     public Collection<Extension<T>> getExtensions() {
-        if (extensions == null) {
-            return Collections.emptyList();
-        }
+        //if (extensionsByName == null) {
+        //    return Collections.emptyList();
+        //}
+        initiateExtensions();
         return extensionsByName.values();
+    }
+
+    public Stream<Extension<T>> getExtensionsStream() {
+        if (extensionsByName == null) {
+            return Stream.empty();
+        }
+        return extensionsByName.values().stream();
+    }
+
+    private void initiateExtensions() {
+        if (extensions == null) {
+            extensions = new HashMap<>();
+        }
+        if (extensionsByName == null) {
+            extensionsByName = new HashMap<>();
+        }
+    }
+
+    @Override
+    public boolean hasExtensions() {
+        return !(extensions == null || extensions.isEmpty());
     }
 
     @Override
