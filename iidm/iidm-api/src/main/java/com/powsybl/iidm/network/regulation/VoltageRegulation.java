@@ -205,8 +205,8 @@ public interface VoltageRegulation {
             return new AttributesWithTerminal(targetValue(), targetDeadband(), slope(), mode(), newRegulating, terminal());
         }
 
-        public AttributesWithTerminal withTerminal(Terminal newTerminal) {
-            return new AttributesWithTerminal(targetValue(), targetDeadband(), slope(), mode(), isRegulating(), newTerminal);
+        public AttributesWithTerminal withTerminalAndTargetValue(Terminal newTerminal, double newTargetValue) {
+            return new AttributesWithTerminal(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), newTerminal);
         }
 
         public AttributesWithTerminal withTargetValue(double newTargetValue) {

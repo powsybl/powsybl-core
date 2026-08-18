@@ -1121,12 +1121,11 @@ public final class ValidationUtil {
 
     public static void checkVoltageRegulation(@NonNull Validable owner,
                                               VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
-                                              boolean newRegulating,
                                               Network network,
                                               Class<? extends VoltageRegulationHolder<?>> classHolder,
                                               ValidationLevel validationLevel,
                                               ReportNode reportNode) {
-        if (newRegulating) {
+        if (voltageRegulationAttributes != null && voltageRegulationAttributes.isRegulating()) {
             checkVoltageRegulation(owner, voltageRegulationAttributes, network, classHolder, checkValidationActionOnError(validationLevel), reportNode);
         }
     }

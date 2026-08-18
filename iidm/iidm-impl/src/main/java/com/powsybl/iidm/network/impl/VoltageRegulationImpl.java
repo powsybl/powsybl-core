@@ -37,7 +37,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     private static final String VOLTAGE_REGULATION_PREFIX = "VoltageRegulation.";
 
-    public enum NotifyUpdateKey {
+    protected enum NotifyUpdateKey {
         REGULATION_MODE(VOLTAGE_REGULATION_PREFIX + "RegulationMode"),
         REGULATING(VOLTAGE_REGULATION_PREFIX + "isRegulating"),
         TERMINAL(VOLTAGE_REGULATION_PREFIX + "Terminal"),
@@ -102,9 +102,8 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             attributes.mode(),
             variantArraySize);
         if (attributes.terminal() != null) {
-            this.setTerminal(attributes.terminal(), getTargetValue());
+            this.setTerminal(attributes.terminal(), attributes.targetValue());
         }
-
     }
 
     /**
@@ -126,7 +125,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     private void initVariantAttributes(double targetValue, double targetDeadband, double slope, boolean regulating, RegulationMode mode, int variantArraySize) {
         Integer regulationModeIndex = RegulationMode.getIndexFromMode(mode);
         for (int i = 0; i < variantArraySize; i++) {
-            // When the VoltageRegulation object is created and there's already other variants,
+            // When the VoltageRegulation object is created and there are already other variants,
             // it is created with "empty" values and defined as not regulating for the other variants.
             this.targetValue.add(Double.NaN);
             this.targetDeadband.add(Double.NaN);
@@ -142,6 +141,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         this.regulationMode.set(currentVariantIndex, regulationModeIndex != null ? regulationModeIndex : UNDEFINED_REGULATION_MODE);
     }
 
+    private void checkAttributes(AttributesWithTerminal newAttributes) {
+        NetworkImpl n = network.get();
+        ValidationUtil.checkVoltageRegulation(validable, newAttributes, n, classHolder,
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+    }
+
     @Override
     public double getTargetValue() {
         return targetValue.get(getCurrentVariantIndex());
@@ -149,27 +154,22 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     /**
      * {@inheritDoc}
-     * If regulating is true then we validate the new value before to setting it
+     * If regulating is true, then we validate the new value before setting it
      */
     @Override
     public VoltageRegulation setTargetValue(double newTargetValue) {
         AttributesWithTerminal newAttributes = this.getAttributes().withTargetValue(newTargetValue);
-        ValidationUtil.checkVoltageRegulation(validable,
-            newAttributes,
-            isRegulating(),
-            network.get(),
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        return setTargetValueOnCurrentVariant(newTargetValue);
+        checkAttributes(newAttributes);
+        setTargetValueOnCurrentVariant(newTargetValue);
+        return this;
     }
 
-    private VoltageRegulation setTargetValueOnCurrentVariant(double newTargetValue) {
-        double oldTargetValue = this.targetValue.set(getCurrentVariantIndex(), newTargetValue);
+    private void setTargetValueOnCurrentVariant(double newTargetValue) {
         int currentVariantIndex = getCurrentVariantIndex();
+        double oldTargetValue = this.targetValue.set(currentVariantIndex, newTargetValue);
+        network.get().invalidateValidationLevel();
         String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
         notifyUpdate(NotifyUpdateKey.TARGET_VALUE, variantId, oldTargetValue, newTargetValue);
-        return this;
     }
 
     @Override
@@ -179,27 +179,22 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     /**
      * {@inheritDoc}
-     * If regulating is true then we validate the new value before to setting it
+     * If regulating is true, then we validate the new value before setting it
      */
     @Override
     public VoltageRegulation setTargetDeadband(double newTargetDeadband) {
         AttributesWithTerminal newAttributes = this.getAttributes().withTargetDeadband(newTargetDeadband);
-        ValidationUtil.checkVoltageRegulation(validable,
-            newAttributes,
-            isRegulating(),
-            network.get(),
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        return setTargetDeadbandOnCurrentVariant(newTargetDeadband);
+        checkAttributes(newAttributes);
+        setTargetDeadbandOnCurrentVariant(newTargetDeadband);
+        return this;
     }
 
-    private VoltageRegulation setTargetDeadbandOnCurrentVariant(double newTargetDeadband) {
-        double oldTargetDeadband = this.targetDeadband.set(getCurrentVariantIndex(), newTargetDeadband);
+    private void setTargetDeadbandOnCurrentVariant(double newTargetDeadband) {
         int currentVariantIndex = getCurrentVariantIndex();
+        double oldTargetDeadband = this.targetDeadband.set(currentVariantIndex, newTargetDeadband);
+        network.get().invalidateValidationLevel();
         String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
         notifyUpdate(NotifyUpdateKey.TARGET_DEADBAND, variantId, oldTargetDeadband, newTargetDeadband);
-        return this;
     }
 
     @Override
@@ -209,27 +204,22 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     /**
      * {@inheritDoc}
-     * If regulating is true then we validate the new value before to setting it
+     * If regulating is true, then we validate the new value before setting it
      */
     @Override
     public VoltageRegulation setSlope(double newSlope) {
         AttributesWithTerminal newAttributes = this.getAttributes().withSlope(newSlope);
-        ValidationUtil.checkVoltageRegulation(validable,
-            newAttributes,
-            isRegulating(),
-            network.get(),
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        return setSlopeOnCurrentVariant(newSlope);
+        checkAttributes(newAttributes);
+        setSlopeOnCurrentVariant(newSlope);
+        return this;
     }
 
-    private VoltageRegulation setSlopeOnCurrentVariant(double newSlope) {
-        double oldSlope = this.slope.set(getCurrentVariantIndex(), newSlope);
+    private void setSlopeOnCurrentVariant(double newSlope) {
         int currentVariantIndex = getCurrentVariantIndex();
+        double oldSlope = this.slope.set(currentVariantIndex, newSlope);
+        network.get().invalidateValidationLevel();
         String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
         notifyUpdate(NotifyUpdateKey.SLOPE, variantId, oldSlope, newSlope);
-        return this;
     }
 
     @Override
@@ -242,14 +232,8 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (this.network.get().getVariantManager().getVariantCount() > 1) {
             throw new PowsyblException(this.validable.getMessageHeader() + "Cannot set terminal when there are multiple variants");
         }
-        AttributesWithTerminal newAttributes = this.getAttributes().withTerminal(newTerminal).withTargetValue(newTargetValue);
-        ValidationUtil.checkVoltageRegulation(validable,
-            newAttributes,
-            isRegulating(),
-            network.get(),
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
+        AttributesWithTerminal newAttributes = this.getAttributes().withTerminalAndTargetValue(newTerminal, newTargetValue);
+        checkAttributes(newAttributes);
         if (newTerminal == null) {
             ValidationUtil.checkLocalTargetQandV(validable,
                 classHolder,
@@ -276,13 +260,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     @Override
     public VoltageRegulation setMode(RegulationMode newMode) {
         AttributesWithTerminal newAttributes = getAttributes().withMode(newMode);
-        ValidationUtil.checkVoltageRegulation(validable,
-            newAttributes,
-            isRegulating(),
-            network.get(),
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
+        checkAttributes(newAttributes);
         ValidationUtil.checkLocalTargetQandV(validable,
             classHolder,
             this.holder.getLocalTargetV(),
@@ -293,20 +271,17 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             getMode(),
             network.get().getMinValidationLevel(),
             network.get().getReportNodeContext().getReportNode());
-        return setModeOnCurrentVariant(newMode);
+        setModeOnCurrentVariant(newMode);
+        return this;
     }
 
-    private VoltageRegulation setModeOnCurrentVariant(RegulationMode newMode) {
+    private void setModeOnCurrentVariant(RegulationMode newMode) {
         RegulationMode oldMode = getMode();
         int currentVariantIndex = getCurrentVariantIndex();
+        regulationMode.set(currentVariantIndex, newMode != null ? newMode.getIndex() : UNDEFINED_REGULATION_MODE);
+        network.get().invalidateValidationLevel();
         String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
-        if (newMode == null) {
-            regulationMode.set(currentVariantIndex, UNDEFINED_REGULATION_MODE);
-        } else {
-            regulationMode.set(currentVariantIndex, newMode.getIndex());
-        }
         notifyUpdate(NotifyUpdateKey.REGULATION_MODE, variantId, oldMode, newMode);
-        return this;
     }
 
     @Override
@@ -316,7 +291,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     /**
      * {@inheritDoc}
-     * If regulating is true then we validate all the attributes before setting regulating to true
+     * If regulating is true, then we validate all the attributes before setting regulating to true
      */
     @Override
     public VoltageRegulation setRegulating(boolean newRegulating) {
@@ -331,13 +306,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             network.get().getMinValidationLevel(),
             network.get().getReportNodeContext().getReportNode());
         AttributesWithTerminal newAttributes = this.getAttributes().withRegulating(newRegulating);
-        ValidationUtil.checkVoltageRegulation(validable,
-            newAttributes,
-            newRegulating,
-            network.get(),
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
+        checkAttributes(newAttributes);
         if (holder instanceof RatioTapChanger ratioTapChanger) {
             ValidationUtil.checkRTCLoadTapChangingCapabilities(validable,
                 ratioTapChanger.hasLoadTapChangingCapabilities(),
@@ -345,16 +314,17 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                 network.get().getMinValidationLevel(),
                 network.get().getReportNodeContext().getReportNode());
         }
-        return setRegulatingOnCurrentVariant(newRegulating);
+        setRegulatingOnCurrentVariant(newRegulating);
+        return this;
     }
 
-    private VoltageRegulation setRegulatingOnCurrentVariant(boolean newRegulating) {
+    private void setRegulatingOnCurrentVariant(boolean newRegulating) {
         boolean oldRegulating = isRegulating();
         int currentVariantIndex = getCurrentVariantIndex();
+        this.regulating.set(currentVariantIndex, newRegulating);
+        network.get().invalidateValidationLevel();
         String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
         notifyUpdate(NotifyUpdateKey.REGULATING, variantId, oldRegulating, newRegulating);
-        this.regulating.set(getCurrentVariantIndex(), newRegulating);
-        return this;
     }
 
     @Override
@@ -500,6 +470,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             this.terminal = (TerminalExt) newTerminal;
             this.terminal.getReferrerManager().register(this);
         }
+        network.get().invalidateValidationLevel();
         notifyUpdate(NotifyUpdateKey.TERMINAL, oldTerminal, newTerminal);
     }
 
@@ -528,13 +499,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     private String getRegulatedEquipmentId(Terminal localTerminal) {
-        String regulatedEquipmentId;
-        if (localTerminal != null) {
-            regulatedEquipmentId = localTerminal.getConnectable().getId();
-        } else {
-            regulatedEquipmentId = getIdentifiable().getId();
-        }
-        return regulatedEquipmentId;
+        return localTerminal != null ? localTerminal.getConnectable().getId() : getIdentifiable().getId();
     }
 
     protected void notifyUpdate(@NonNull NotifyUpdateKey attribute, Object oldValue, Object newValue) {
