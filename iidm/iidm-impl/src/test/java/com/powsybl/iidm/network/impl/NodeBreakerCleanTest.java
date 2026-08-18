@@ -65,8 +65,10 @@ class NodeBreakerCleanTest {
         vl.newLoad().setNode(4).setId("LD2").setP0(100).setQ0(100).add();
         vl.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(3).add();
         vl.getNodeBreakerView().newInternalConnection().setNode1(1).setNode2(4).add();
-        assertTrue(vl.getBusView().getBusStream().toList().stream().map(Bus::getId).toList().containsAll(List.of("VL1_0")));
+        assertTrue(vl.getBusView().getBusStream().toList().stream().map(Bus::getId).toList().contains("VL1_0"));
+        assertEquals(1, vl.getBusView().getBusStream().toList().size());
         vl.getNodeBreakerView().removeSwitch("SW1");
         assertTrue(vl.getBusView().getBusStream().toList().stream().map(Bus::getId).toList().containsAll(List.of("VL1_0", "VL1_1")));
+        assertEquals(2, vl.getBusView().getBusStream().toList().size());
     }
 }
