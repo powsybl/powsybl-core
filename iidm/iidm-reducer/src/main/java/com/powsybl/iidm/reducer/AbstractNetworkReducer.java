@@ -29,6 +29,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
         this.predicate = Objects.requireNonNull(predicate);
     }
 
+    @Override
     public final void reduce(Network network) {
         buildVoltageLevelIdSet(network);
 

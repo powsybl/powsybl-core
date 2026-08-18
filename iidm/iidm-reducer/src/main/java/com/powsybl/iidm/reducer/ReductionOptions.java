@@ -10,7 +10,7 @@ package com.powsybl.iidm.reducer;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ReductionOptions {
+public class ReductionOptions implements ReductionParameters {
 
     private boolean withBoundaryLines = false;
 
