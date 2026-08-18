@@ -318,16 +318,6 @@ public final class ValidationUtil {
                                                         Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                         double localTargetV,
                                                         double localTargetQ,
-                                                        VoltageRegulation voltageRegulation,
-                                                        ValidationLevel validationLevel,
-                                                        ReportNode reportNode) {
-        return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, voltageRegulation, checkValidationActionOnError(validationLevel), reportNode);
-    }
-
-    public static ValidationLevel checkLocalTargetQandV(Validable validable,
-                                                        Class<? extends VoltageRegulationHolder<?>> classHolder,
-                                                        double localTargetV,
-                                                        double localTargetQ,
                                                         boolean voltageRegulationMissing,
                                                         boolean regulating,
                                                         boolean withTerminal,
@@ -355,23 +345,27 @@ public final class ValidationUtil {
                                                         double localTargetV,
                                                         double localTargetQ,
                                                         VoltageRegulation voltageRegulation,
-                                                        ActionOnError actionOnError,
+                                                        ValidationLevel validationLevel,
                                                         ReportNode reportNode) {
-        if (voltageRegulation == null) {
-            return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, true, false, false, null, actionOnError, reportNode);
-        } else if (!voltageRegulation.isWithTerminal() || !voltageRegulation.isRegulating()) {
-            return checkLocalTargetQandV(validable,
+        boolean regulating = false;
+        boolean withTerminal = false;
+        RegulationMode mode = null;
+
+        if (voltageRegulation != null) {
+            regulating = voltageRegulation.isRegulating();
+            withTerminal = voltageRegulation.isWithTerminal();
+            mode = voltageRegulation.getMode();
+        }
+        return checkLocalTargetQandV(validable,
                 classHolder,
                 localTargetV,
                 localTargetQ,
-                false,
-                voltageRegulation.isRegulating(),
-                voltageRegulation.isWithTerminal(),
-                voltageRegulation.getMode(),
-                actionOnError,
+                voltageRegulation == null,
+                regulating,
+                withTerminal,
+                mode,
+                validationLevel,
                 reportNode);
-        }
-        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     public static ValidationLevel checkLocalTargetQandV(Validable validable,
@@ -381,31 +375,25 @@ public final class ValidationUtil {
                                                         VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
                                                         ValidationLevel validationLevel,
                                                         ReportNode reportNode) {
-        return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, voltageRegulationAttributes, checkValidationActionOnError(validationLevel), reportNode);
-    }
+        boolean regulating = false;
+        boolean withTerminal = false;
+        RegulationMode mode = null;
 
-    private static ValidationLevel checkLocalTargetQandV(Validable validable,
-                                                        Class<? extends VoltageRegulationHolder<?>> classHolder,
-                                                        double localTargetV,
-                                                        double localTargetQ,
-                                                        VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
-                                                        ActionOnError actionOnError,
-                                                        ReportNode reportNode) {
-        if (voltageRegulationAttributes == null) {
-            return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, true, false, false, null, actionOnError, reportNode);
-        } else if (voltageRegulationAttributes.terminal() == null || !voltageRegulationAttributes.isRegulating()) {
-            return checkLocalTargetQandV(validable,
-                classHolder,
-                localTargetV,
-                localTargetQ,
-                false,
-                voltageRegulationAttributes.isRegulating(),
-                voltageRegulationAttributes.terminal() != null,
-                voltageRegulationAttributes.mode(),
-                actionOnError,
-                reportNode);
+        if (voltageRegulationAttributes != null) {
+            regulating = voltageRegulationAttributes.isRegulating();
+            withTerminal = voltageRegulationAttributes.terminal() != null;
+            mode = voltageRegulationAttributes.mode();
         }
-        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        return checkLocalTargetQandV(validable,
+            classHolder,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes == null,
+            regulating,
+            withTerminal,
+            mode,
+            validationLevel,
+            reportNode);
     }
 
     public static void checkRatedS(Validable validable, double ratedS) {
