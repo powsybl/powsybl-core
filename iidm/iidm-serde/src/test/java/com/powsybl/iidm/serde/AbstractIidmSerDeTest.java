@@ -222,15 +222,25 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
             .toArray(IidmVersion[]::new));
     }
 
+    /**
+     * Get a list of all versions that are strictly inferior to the <code>maxVersionExcluded</code>
+     * @param maxVersionExcluded the maximum version (excluded)
+     * @return an array containing all versions that are less than the <code>maxVersionExcluded</code> (strictly inferior)
+     */
     private static IidmVersion[] allPreviousVersions(IidmVersion maxVersionExcluded) {
         return Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(maxVersionExcluded) < 0)
                 .toArray(IidmVersion[]::new);
     }
 
-    private static IidmVersion[] allFollowingVersions(IidmVersion minVersion) {
+    /**
+     * Get all versions that are equal or more recent than the <code>minVersionIncluded</code>
+     * @param minVersionIncluded the minimum version (included)
+     * @return an array containing all versions more recent than <code>minVersionIncluded</code> (equal or more recent)
+     */
+    private static IidmVersion[] allFollowingVersions(IidmVersion minVersionIncluded) {
         return Stream.of(IidmVersion.values())
-            .filter(v -> v.compareTo(minVersion) >= 0)
+            .filter(v -> v.compareTo(minVersionIncluded) >= 0)
             .toArray(IidmVersion[]::new);
     }
 
@@ -275,8 +285,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         return allFormatsRoundTripTest(network, filename, version, new ExportOptions());
     }
 
-    public void allFormatsRoundTripFromMinVersionTest(Network network, String filename, IidmVersion minVersion) throws IOException {
-        for (IidmVersion version : allFollowingVersions(minVersion)) {
+    /**
+     * Serialize and deserialize the given network in all serialized IIDM formats (see {@link #allFormatsRoundTripTest(Network, String)}, for all versions
+     * that are more recent than the given <code>minVersionIncluded</code> (included)
+     * @param network the network to serialize
+     * @param filename the filename of the reference versioned file resource (to compare the serialized network with)
+     * @param minVersionIncluded the minimum version (included)
+     * @throws IOException if the network file cannot be read or written (or the same for the reference file)
+     */
+    public void allFormatsRoundTripFromMinVersionTest(Network network, String filename, IidmVersion minVersionIncluded) throws IOException {
+        for (IidmVersion version : allFollowingVersions(minVersionIncluded)) {
             allFormatsRoundTripTest(network, filename, version);
         }
     }

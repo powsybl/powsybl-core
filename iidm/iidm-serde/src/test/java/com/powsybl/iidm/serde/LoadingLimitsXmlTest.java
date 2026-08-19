@@ -303,7 +303,8 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     void checkInvalidLimitKind() {
         testForAllVersionsSince(IidmVersion.V_1_18, version -> {
             InputStream networkStream = getVersionedNetworkAsStream("invalidLimitKind.xml", version);
-            assertThrows(IllegalArgumentException.class, () -> NetworkSerDe.read(networkStream));
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> NetworkSerDe.read(networkStream));
+            assertTrue(e.getMessage().contains("DetectionKind.INVALID"));
         });
     }
 

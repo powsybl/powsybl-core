@@ -275,7 +275,7 @@ public final class ConnectableSerDeUtil {
         String type, A adder, NetworkDeserializerContext context,
         TreeDataReader reader, IidmVersion iidmVersion, ValidationLevel minimalValidationLevel
     ) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, context, () -> {
             String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
             adder.setPermanentLimitName(permanentLimitName);
         });
