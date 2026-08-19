@@ -275,43 +275,41 @@ public final class ConnectableSerDeUtil {
         String type, A adder, NetworkDeserializerContext context,
         TreeDataReader reader, IidmVersion iidmVersion, ValidationLevel minimalValidationLevel
     ) {
+        String detectionKind = reader.readStringAttribute(DETECTION_KIND);
+        String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
+        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, context, () -> {
-            String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
-            adder.setPermanentLimitName(permanentLimitName);
+            adder.setPermanentLimitName(Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
         });
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
-            double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
             if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
                 throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
             }
             adder.setPermanentLimit(permanentLimit);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            String detectionKind = reader.readStringAttribute(DETECTION_KIND);
             if (detectionKind == null) {
                 throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
             }
             DetectionKind kind = DetectionKind.valueOf(detectionKind);
             switch (kind) {
-                case HIGH -> readHighLimit(type, adder, reader, minimalValidationLevel);
-                case LOW -> checkNoPermanentLimitWithLowLimit(reader);
+                case HIGH -> checkAndSetHighLimit(type, adder, minimalValidationLevel, permanentLimitName, permanentLimit);
+                case LOW -> checkNoPermanentLimitWithLowLimit(permanentLimitName, permanentLimit);
             }
             adder.setDetectionKind(kind);
         });
     }
 
-    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readHighLimit(String type, A adder, TreeDataReader reader, ValidationLevel minimalValidationLevel) {
-        String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
-        adder.setPermanentLimitName(permanentLimitName);
-        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void checkAndSetHighLimit(String type, A adder, ValidationLevel minimalValidationLevel,
+                                                                                                           String permanentLimitName, double permanentLimit) {
+        adder.setPermanentLimitName(Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
         if (Double.isNaN(permanentLimit) && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
             throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
         }
         adder.setPermanentLimit(permanentLimit);
     }
 
-    private static void checkNoPermanentLimitWithLowLimit(TreeDataReader reader) {
-        String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
+    private static void checkNoPermanentLimitWithLowLimit(String permanentLimitName, double permanentLimit) {
         if (permanentLimitName != null) {
             throw new PowsyblException(
                 String.format(
@@ -319,7 +317,6 @@ public final class ConnectableSerDeUtil {
                     permanentLimitName
                 ));
         }
-        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
         if (!Double.isNaN(permanentLimit)) {
             throw new PowsyblException(
                 String.format(
@@ -435,7 +432,7 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits> boolean writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
         Boolean[] canContinueWriting = {true};
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
-            if (limits.getDetectionKind() == DetectionKind.HIGH && !Double.isNaN(limits.getPermanentLimit())) {
+            if (limits.getDetectionKind() == DetectionKind.HIGH && (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty())) {
                 writer.writeStartNode(nsUri, type + indexToString(index));
                 IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
                     () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
