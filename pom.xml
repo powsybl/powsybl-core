@@ -102,6 +102,7 @@
         <autoservice.version>1.1.1</autoservice.version>
         <awaitility.version>4.3.0</awaitility.version>
         <commonscli.version>1.11.0</commonscli.version>
+        <commonscodec.version>1.20.0</commonscodec.version>
         <commonscompress.version>1.28.0</commonscompress.version>
         <commons-configuration2.version>2.15.1</commons-configuration2.version>
         <commons-csv.version>1.14.1</commons-csv.version>
@@ -765,6 +766,11 @@
                 <groupId>org.tukaani</groupId>
                 <artifactId>xz</artifactId>
                 <version>${xz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commonscodec.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
