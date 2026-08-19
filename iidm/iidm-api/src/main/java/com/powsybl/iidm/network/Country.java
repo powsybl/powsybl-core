@@ -270,8 +270,16 @@ public enum Country {
         this.name = name;
     }
 
+    /**
+     * @deprecated This method is deprecated because not explicit enough as function name() exists.
+     * Use {@link #getFullName()} instead.
+     */
+    @Deprecated
     public String getName() {
         return name;
     }
 
+    public String getFullName() {
+        return name;
+    }
 }
