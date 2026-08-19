@@ -286,7 +286,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         testForAllVersionsSince(IidmVersion.V_1_18, version -> {
             InputStream networkStream = getVersionedNetworkAsStream("invalidLowLimitWithPermanentLimitName.xml", version);
             Exception e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(networkStream));
-            assertEquals("The permanent limit name 'invalidPermanent' is specified, but the detection kind is LOW. There is no permanent limit for such a kind", e.getMessage());
+            assertEquals("The permanent limit name 'invalidPermanent' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.", e.getMessage());
         });
     }
 
@@ -295,7 +295,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         testForAllVersionsSince(IidmVersion.V_1_18, version -> {
             InputStream networkStream = getVersionedNetworkAsStream("invalidLowLimitWithPermanentLimitValue.xml", version);
             Exception e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(networkStream));
-            assertEquals("A permanent limit of value '557.34' is specified, but the detection kind is LOW. There is no permanent limit for such a kind", e.getMessage());
+            assertEquals("A permanent limit of value '557.34' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.", e.getMessage());
         });
     }
 
