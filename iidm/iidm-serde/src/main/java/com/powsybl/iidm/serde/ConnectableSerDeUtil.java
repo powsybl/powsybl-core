@@ -278,9 +278,8 @@ public final class ConnectableSerDeUtil {
         String detectionKind = reader.readStringAttribute(DETECTION_KIND);
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
-        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, context, () -> {
-            adder.setPermanentLimitName(Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
-        });
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, context,
+            () -> adder.setPermanentLimitName(Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)));
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
                 throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
@@ -430,39 +429,35 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits> boolean writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
-        Boolean[] canContinueWriting = {true};
+        boolean canContinueWriting = exportOptions.getVersion().compareTo(IidmVersion.V_1_17) <= 0
+                                        && limits.getDetectionKind() == DetectionKind.HIGH //don't export low limits
+                                        && (!limits.getTemporaryLimits().isEmpty() || !Double.isNaN(limits.getPermanentLimit()))
+                                    || exportOptions.getVersion().compareTo(IidmVersion.V_1_18) >= 0
+                                        && (!limits.getTemporaryLimits().isEmpty() //this allows low limits export if there are temporary limits
+                                            || limits.getDetectionKind() == DetectionKind.HIGH && !Double.isNaN(limits.getPermanentLimit()));
+        if (!canContinueWriting) {
+            return false;
+        }
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
-            if (limits.getDetectionKind() == DetectionKind.HIGH && (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty())) {
-                writer.writeStartNode(nsUri, type + indexToString(index));
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
-                    () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
-                );
-                writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
-            } else {
-                canContinueWriting[0] = false;
-            }
+            writer.writeStartNode(nsUri, type + indexToString(index));
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+                () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
+            );
+            writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
             DetectionKind kind = limits.getDetectionKind();
             if (kind == DetectionKind.HIGH) {
-                if (!Double.isNaN(limits.getPermanentLimit())) {
-                    writer.writeStartNode(nsUri, type + indexToString(index));
-                    writer.writeStringAttribute(DETECTION_KIND, kind.name());
-                    writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
-                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
-                } else {
-                    canContinueWriting[0] = false;
-                }
+                writer.writeStartNode(nsUri, type + indexToString(index));
+                writer.writeStringAttribute(DETECTION_KIND, kind.name());
+                writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+                writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             } else {
-                if (!limits.getTemporaryLimits().isEmpty()) {
-                    writer.writeStartNode(nsUri, type + indexToString(index));
-                    writer.writeStringAttribute(DETECTION_KIND, kind.name());
-                } else {
-                    canContinueWriting[0] = false;
-                }
+                writer.writeStartNode(nsUri, type + indexToString(index));
+                writer.writeStringAttribute(DETECTION_KIND, kind.name());
             }
         });
-        return canContinueWriting[0];
+        return true;
     }
 
     private static <L extends LoadingLimits> void throwBetaLowLimit(L limits, ExportOptions exportOptions) {
