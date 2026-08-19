@@ -287,8 +287,11 @@ public final class ConnectableSerDeUtil {
             adder.setPermanentLimit(permanentLimit);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            DetectionKind kind = DetectionKind.valueOf(reader.readStringAttribute(DETECTION_KIND));
-            //no need to handle null case, valueOf would throw if the kind is unknown
+            String detectionKind = reader.readStringAttribute(DETECTION_KIND);
+            if (detectionKind == null) {
+                throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
+            }
+            DetectionKind kind = DetectionKind.valueOf(detectionKind);
             switch (kind) {
                 case HIGH -> readHighLimit(type, adder, reader, minimalValidationLevel);
                 case LOW -> checkNoPermanentLimitWithLowLimit(reader);
@@ -312,7 +315,7 @@ public final class ConnectableSerDeUtil {
         if (permanentLimitName != null) {
             throw new PowsyblException(
                 String.format(
-                    "The permanent limit name '%s' is specified, but the detection kind is LOW. There is no permanent limit for such a kind",
+                    "The permanent limit name '%s' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
                     permanentLimitName
                 ));
         }
@@ -320,7 +323,7 @@ public final class ConnectableSerDeUtil {
         if (!Double.isNaN(permanentLimit)) {
             throw new PowsyblException(
                 String.format(
-                    "A permanent limit of value '%.2f' is specified, but the detection kind is LOW. There is no permanent limit for such a kind",
+                    "A permanent limit of value '%.2f' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
                     permanentLimit
                 ));
         }
@@ -466,16 +469,15 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits> void throwBetaLowLimit(L limits, ExportOptions exportOptions) {
-        final String errorMessage = """
-                    The network contains low limits, export of this kind of limit is not supported in IIDM 1.17.
-                    Use IIDM 1.18 or later to export low limits, or force the export of the network in 1.17 and ignore those limits by:
-                    - using the config parameter iidm.export.xml.force-export-network-with-beta-features
-                    - using ExportOptions.setForceExportNetworkWithBetaFeatures""";
-        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
-            if (limits.getDetectionKind() == DetectionKind.LOW && !exportOptions.isForceExportNetworkWithBetaFeatures()) {
-                throw new NotImplementedException(errorMessage);
-            }
-        });
+        if (exportOptions.getVersion() == IidmVersion.V_1_17
+                && limits.getDetectionKind() == DetectionKind.LOW
+                && !exportOptions.isForceExportNetworkWithBetaFeatures()) {
+            throw new NotImplementedException("""
+                        The network contains low limits, export of this kind of limit is not supported in IIDM 1.17.
+                        Use IIDM 1.18 or later to export low limits, or force the export of the network in 1.17 and ignore those limits by:
+                        - using the config parameter iidm.export.xml.force-export-network-with-beta-features
+                        - using ExportOptions.setForceExportNetworkWithBetaFeatures""");
+        }
     }
 
     static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {
