@@ -1045,13 +1045,7 @@ public final class ValidationUtil {
         if (identifiable instanceof Validable validable) {
             if (identifiable instanceof Battery battery) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getTargetP(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getRegulatingTargetQ(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable,
-                    battery.getVoltageRegulation(),
-                    battery.getNetwork(),
-                    Generator.class,
-                    actionOnError,
-                    reportNode));
+                validationLevel = checkVoltageRegulationHolder(validationLevel, validable, battery, battery.getNetwork(), Battery.class, actionOnError, reportNode);
             } else if (identifiable instanceof BoundaryLine boundaryLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, boundaryLine.getP0(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, boundaryLine.getQ0(), actionOnError, reportNode));
@@ -1059,8 +1053,7 @@ public final class ValidationUtil {
                 validationLevel = checkOperationalLimitsGroups(validable, boundaryLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel,
-                    checkVoltageRegulationIfRegulating(validable, generator.getVoltageRegulation(), generator.getNetwork(), Generator.class, actionOnError, reportNode));
+                validationLevel = checkVoltageRegulationHolder(validationLevel, validable, generator, generator.getNetwork(), Generator.class, actionOnError, reportNode);
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkConvertersMode(validable, hvdcLine.getConvertersMode(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), actionOnError, reportNode));
@@ -1068,27 +1061,35 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, load.getP0(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, load.getQ0(), actionOnError, reportNode));
             } else if (identifiable instanceof ShuntCompensator shunt) {
-                validationLevel = ValidationLevel.min(validationLevel,
-                    checkVoltageRegulationIfRegulating(validable, shunt.getVoltageRegulation(), shunt.getNetwork(), ShuntCompensator.class,
-                        actionOnError, reportNode));
+                validationLevel = checkVoltageRegulationHolder(validationLevel, validable, shunt, shunt.getNetwork(), ShuntCompensator.class, actionOnError, reportNode);
                 validationLevel = ValidationLevel.min(validationLevel,
                     checkSections(validable, getSectionCount(shunt), shunt.getMaximumSectionCount(), actionOnError, reportNode));
             } else if (identifiable instanceof StaticVarCompensator svc) {
-                validationLevel = ValidationLevel.min(validationLevel,
-                    checkVoltageRegulationIfRegulating(validable, svc.getVoltageRegulation(), svc.getNetwork(), StaticVarCompensator.class,
-                        actionOnError, reportNode));
+                validationLevel = checkVoltageRegulationHolder(validationLevel, validable, svc, svc.getNetwork(), StaticVarCompensator.class, actionOnError, reportNode);
             } else if (identifiable instanceof ThreeWindingsTransformer twt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, twt, actionOnError, reportNode));
             } else if (identifiable instanceof TwoWindingsTransformer twt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, twt, actionOnError, reportNode));
             } else if (identifiable instanceof VscConverterStation converterStation) {
-                validationLevel = ValidationLevel.min(validationLevel,
-                    checkVoltageRegulationIfRegulating(validable, converterStation.getVoltageRegulation(), converterStation.getNetwork(), VscConverterStation.class, actionOnError, reportNode));
+                validationLevel = checkVoltageRegulationHolder(validationLevel, validable, converterStation, converterStation.getNetwork(), VscConverterStation.class, actionOnError, reportNode);
             } else if (identifiable instanceof Branch<?> branch) {
                 validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups1(), validationLevel, actionOnError, reportNode);
                 validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups2(), validationLevel, actionOnError, reportNode);
             }
         }
+        return validationLevel;
+    }
+
+    private static <T extends VoltageRegulationHolder<T>> ValidationLevel checkVoltageRegulationHolder(ValidationLevel previous, Validable validable,
+                                                                                                       T holder, Network network, Class<T> holderClass,
+                                                                                                       ActionOnError actionOnError, ReportNode reportNode) {
+        ValidationLevel validationLevel = previous;
+        validationLevel = ValidationLevel.min(validationLevel,
+                checkLocalTargetQandV(validable,
+                    holderClass, holder.getLocalTargetV(), holder.getLocalTargetQ(), holder.getVoltageRegulation(), validationLevel, reportNode));
+        validationLevel = ValidationLevel.min(validationLevel,
+                checkVoltageRegulationIfRegulating(validable,
+                    holder.getVoltageRegulation(), network, holderClass, actionOnError, reportNode));
         return validationLevel;
     }
 
