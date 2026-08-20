@@ -131,24 +131,24 @@ class IdentifiableExtensionGroovyTest {
     @Test
     void testCreateExtensionJavaSyntax() {
         s.newExtension(FooAdder.class)
-                .setValue(5f)
-                .add()
+            .setValue(5f)
+            .add()
         assertEquals(5f, s.foo.value, 0f)
     }
 
     @Test
     void testCreateExtensionGroovySyntax() {
         s.newFoo()
-                .setValue(5f)
-                .add()
+            .setValue(5f)
+            .add()
         assertEquals(5f, s.foo.value, 0f)
     }
 
     @Test
     void testCreateExtensionOtherGroovySyntax() {
         s.fooAdder()
-                .setValue(5f)
-                .add()
+            .setValue(5f)
+            .add()
         assertEquals(5f, s.foo.value, 0f)
     }
 
@@ -160,3 +160,4 @@ class IdentifiableExtensionGroovyTest {
         assertEquals(5f, s.foo.value, 0f)
     }
 }
+
