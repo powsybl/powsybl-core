@@ -27,6 +27,7 @@ import static java.util.Objects.requireNonNull;
  *
  * Provides instances of {@link SecurityAnalysisPreprocessor}s or factories.
  *
+ * @Deprecated(forRemoval=true) This class will be removed on later versions, avoid new usages of it.
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public final class SecurityAnalysisPreprocessors {
