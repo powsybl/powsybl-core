@@ -429,17 +429,16 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits> boolean writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
-        boolean canContinueWriting = exportOptions.getVersion().compareTo(IidmVersion.V_1_17) <= 0
-                                        && limits.getDetectionKind() == DetectionKind.HIGH //don't export low limits
-                                        && (!limits.getTemporaryLimits().isEmpty() || !Double.isNaN(limits.getPermanentLimit()))
-                                    || exportOptions.getVersion().compareTo(IidmVersion.V_1_18) >= 0
-                                        && (!limits.getTemporaryLimits().isEmpty() //this allows low limits export if there are temporary limits
-                                            || limits.getDetectionKind() == DetectionKind.HIGH && !Double.isNaN(limits.getPermanentLimit()));
+        boolean canContinueWriting = limits.getDetectionKind() == DetectionKind.HIGH && !Double.isNaN(limits.getPermanentLimit())
+                                    || !limits.getTemporaryLimits().isEmpty()
+                                        && (limits.getDetectionKind() == DetectionKind.HIGH
+                                            //for >= 1.18, low limits have only temporary limits
+                                            || exportOptions.getVersion().compareTo(IidmVersion.V_1_18) >= 0);
         if (!canContinueWriting) {
             return false;
         }
+        writer.writeStartNode(nsUri, type + indexToString(index));
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
-            writer.writeStartNode(nsUri, type + indexToString(index));
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
                 () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
             );
@@ -447,14 +446,10 @@ public final class ConnectableSerDeUtil {
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
             DetectionKind kind = limits.getDetectionKind();
+            writer.writeStringAttribute(DETECTION_KIND, kind.name());
             if (kind == DetectionKind.HIGH) {
-                writer.writeStartNode(nsUri, type + indexToString(index));
-                writer.writeStringAttribute(DETECTION_KIND, kind.name());
                 writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
-            } else {
-                writer.writeStartNode(nsUri, type + indexToString(index));
-                writer.writeStringAttribute(DETECTION_KIND, kind.name());
             }
         });
         return true;
