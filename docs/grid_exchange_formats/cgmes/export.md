@@ -371,9 +371,29 @@ The attribute `ConductingEquipment.BaseVoltage` is written from the `nominalV` o
 (cgmes-load-export)=
 ### Load
 
-PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad` or `EnergyConsumer` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
+PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad`, `EnergyConsumer`, `EnergySource`.
 
-<span style="color: red">TODO details</span>
+The CGMES class used for the export is determined as follows:
+- If the `Load` has a [`LoadDetail`](../../grid_model/extensions.md#load-detail) extension:
+  - it is exported as `ConformLoad` if the fixed part is zero and the variable part is non-zero,
+  - it is exported as `NonConformLoad` if the variable part is zero and the fixed part is non-zero,
+- If the `Load` has no [`LoadDetail`](../../grid_model/extensions.md#load-detail) extension, it is exported as `EnergyConsumer`.
+- If the active power `P0` is negative, the load is exported as `EnergySource` regardless of the extension.
+
+If the `Load` had a CGMES original class stored as a property (i.e., it comes from a CGMES import), it is preserved at export as long as it remains consistent with the sign of `P0` and the [`LoadDetail extension`](../../grid_model/extensions.md#load-detail).
+
+In the EQ profile, the exported element references the `EquipmentContainer` of the voltage level and a `LoadGroup` (`ConformLoadGroup` or `NonConformLoadGroup` depending on the class). 
+A single `LoadArea` and `SubLoadArea` are created for the whole network.
+
+If the `Load` has a load model (see [load model](../../grid_model/network_subnetwork.md#load)), a `LoadResponseCharacteristic` is exported in EQ and referenced by the load:
+- For an exponential load model, the `exponentModel` attribute is set to `true`, and `pVoltageExponent` and `qVoltageExponent` are set from the model's `np` and `nq`.
+- For a ZIP load model, the `exponentModel` attribute is set to `false`, and the constant power, current, and impedance parts are set accordingly.
+
+In the SSH profile:
+- For `ConformLoad`, `NonConformLoad` and `EnergyConsumer`, the attributes `EnergyConsumer.p` and `EnergyConsumer.q` are written from the IIDM `P0` and `Q0`.
+- For `EnergySource`, the attributes `EnergySource.activePower` and `EnergySource.reactivePower` are written from the IIDM `P0` and `Q0`.
+
+In the SV profile, a `SvPowerFlow` is written for the terminal of the load with the terminal `P` and `Q` values.
 
 (cgmes-fictitious-injections-export)=
 ### Fictitious injections (fictitiousP0/fictitiousQ0)
