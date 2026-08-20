@@ -35,11 +35,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public boolean hasProperties() {
-        return this.properties != null;
-    }
-
-    @Override
     public Collection<CgmesTerminal> computedTerminals() {
         if (cachedTerminals == null) {
             cachedTerminals = computeTerminals();

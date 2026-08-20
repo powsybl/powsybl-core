@@ -594,11 +594,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public boolean hasProperties() {
-        return this.properties != null;
-    }
-
-    @Override
     public Collection<CgmesTerminal> computedTerminals() {
         // FakeCgmesModel does not provide info on terminals
         return Collections.emptyList();
