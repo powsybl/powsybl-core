@@ -797,7 +797,7 @@ public final class SteadyStateHypothesisExport {
         } else if (converterStation instanceof VscConverterStation vscConverterStation) {
             p = vscConverterStation.getRegulatingTerminal().getP();
             q = vscConverterStation.getRegulatingTerminal().getQ();
-            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
+            double targetQpcc = -vscConverterStation.getReactivePowerSetpoint(); // To be consistent with the import
             double targetUpcc = vscConverterStation.getVoltageSetpoint();
             String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
             String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
@@ -968,7 +968,7 @@ public final class SteadyStateHypothesisExport {
             String pPccControl = converter.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "activePower" : "dcVoltage";
             writeCsConverter(converterId, targetPpcc, targetUdc, p, q, operatingMode, pPccControl, cimNamespace, writer, context);
         } else if (converter instanceof VoltageSourceConverter vsc) {
-            double targetQpcc = vsc.getReactivePowerSetpoint();
+            double targetQpcc = -vsc.getReactivePowerSetpoint(); // To be consistent with the import
             double targetUpcc = vsc.getVoltageSetpoint();
             String pPccControl = vsc.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "pPcc" : "udc";
             String qPccControl = vsc.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
