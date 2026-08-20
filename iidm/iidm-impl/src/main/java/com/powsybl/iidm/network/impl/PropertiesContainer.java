@@ -19,9 +19,14 @@ import java.util.stream.Collectors;
 public class PropertiesContainer {
     private Properties properties = null;
 
+    /**
+     * <p>Returns the properties.</p>
+     * <p>To limit memory usage, it is recommended to use {@link #hasProperty()} before calling this method.</p>
+     * @return the properties
+     */
     public Properties getProperties() {
         if (properties == null) {
-            return null;
+            properties = new Properties();
         }
         return properties;
     }

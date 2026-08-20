@@ -102,8 +102,8 @@ class IdentifiableExtensionGroovyTest {
     @Test
     void testStringProperty() {
         assertFalse(s.hasProperty())
-        assertThrows(NullPointerException.class, () -> s.greeting)
-        s.setProperty("greeting", "hello")
+        assertNull(s.greeting)
+        s.greeting = "hello"
         assertEquals("hello", s.getProperty("greeting"))
         assertEquals("hello", s.greeting)
     }
@@ -111,17 +111,17 @@ class IdentifiableExtensionGroovyTest {
     @Test
     void testBooleanProperty() {
         assertFalse(s.hasProperty())
-        assertThrows(NullPointerException.class, () -> s.ok)
-        s.setProperty("ok", "true");
+        assertNull(s.ok)
+        s.ok = true
         assertEquals("true", s.getProperty("ok"))
-        assertEquals("true", s.ok)
+        assertEquals(true, s.ok)
         s.ok = null
         assertNull(s.ok)
     }
 
     @Test
     void testExtension() {
-        assertThrows(NullPointerException.class, () -> s.foo)
+        assertNull(s.foo)
         s.addExtension(Foo.class, new Foo(1f))
         assertNotNull(s.foo)
         s.foo.value = 3f
@@ -131,24 +131,24 @@ class IdentifiableExtensionGroovyTest {
     @Test
     void testCreateExtensionJavaSyntax() {
         s.newExtension(FooAdder.class)
-            .setValue(5f)
-            .add()
+                .setValue(5f)
+                .add()
         assertEquals(5f, s.foo.value, 0f)
     }
 
     @Test
     void testCreateExtensionGroovySyntax() {
         s.newFoo()
-            .setValue(5f)
-            .add()
+                .setValue(5f)
+                .add()
         assertEquals(5f, s.foo.value, 0f)
     }
 
     @Test
     void testCreateExtensionOtherGroovySyntax() {
         s.fooAdder()
-            .setValue(5f)
-            .add()
+                .setValue(5f)
+                .add()
         assertEquals(5f, s.foo.value, 0f)
     }
 

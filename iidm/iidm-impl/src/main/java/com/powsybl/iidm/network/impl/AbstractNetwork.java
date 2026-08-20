@@ -148,7 +148,7 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * @param ignoreAlreadyPresent should a property to transfer be ignored if already present in {@code toNetwork}?
      */
     protected static void transferProperties(AbstractNetwork fromNetwork, AbstractNetwork toNetwork, boolean ignoreAlreadyPresent) {
-        if (fromNetwork.getProperties() != null) {
+        if (fromNetwork.hasProperty()) {
             fromNetwork.getProperties().forEach((key, value) -> {
                 if (ignoreAlreadyPresent && toNetwork.hasProperty(key.toString())) {
                     LOGGER.warn("Property \"{}\" was not transferred from \"{}\" to \"{}\": it already exists in the destination network.",

@@ -72,11 +72,14 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return removed;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>To limit memory usage, it is recommended to use {@link #hasExtensions()} before calling this method.
+     * (or to call {@link #getExtensionsStream()} instead).</p>
+     * @return the properties
+     */
     @Override
     public Collection<Extension<T>> getExtensions() {
-        //if (extensionsByName == null) {
-        //    return Collections.emptyList();
-        //}
         initiateExtensions();
         return extensionsByName.values();
     }
@@ -99,7 +102,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
 
     @Override
     public boolean hasExtensions() {
-        return !(extensions == null || extensions.isEmpty());
+        return extensions != null && !extensions.isEmpty();
     }
 
     @Override

@@ -30,6 +30,8 @@ public interface CgmesModel {
 
     Properties getProperties();
 
+    boolean hasProperties();
+
     default PropertyBags fullModels() {
         return new PropertyBags();
     }

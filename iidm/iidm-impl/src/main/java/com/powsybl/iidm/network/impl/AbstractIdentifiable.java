@@ -195,6 +195,11 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return new DefaultMessageHeader(getTypeDescription(), id);
     }
 
+    /**
+     * <p>Returns the properties.</p>
+     * <p>To limit memory usage, it is recommended to use {@link #hasProperty()} before calling this method.</p>
+     * @return the properties
+     */
     public Properties getProperties() {
         return properties.getProperties();
     }
