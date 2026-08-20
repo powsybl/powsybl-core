@@ -722,16 +722,13 @@ public final class ValidationUtil {
      * @param permanentLimitName the name of the permanent limit (can be null)
      */
     public static void checkPermanentLimitName(Validable validable, DetectionKind detectionKind, String permanentLimitName) {
-        if (detectionKind == DetectionKind.LOW) {
-            if (permanentLimitName != null) {
-                throw new ValidationException(
-                    validable,
-                    String.format(
-                        "The permanent limit name '%s' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
-                        permanentLimitName
-                    ));
-            }
-
+        if (detectionKind == DetectionKind.LOW && permanentLimitName != null) {
+            throw new ValidationException(
+                validable,
+                String.format(
+                    "The permanent limit name '%s' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
+                    permanentLimitName
+                ));
         }
     }
 
