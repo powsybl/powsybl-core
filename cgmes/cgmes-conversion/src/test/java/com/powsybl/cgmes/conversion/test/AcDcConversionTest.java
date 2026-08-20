@@ -429,7 +429,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("0", getAttribute(vsc1, "VsConverter.droop"));
         assertEquals("0", getAttribute(vsc1, "VsConverter.droopCompensation"));
         assertEquals("0", getAttribute(vsc1, "VsConverter.qShare"));
-        assertEquals("1", getAttribute(vsc1, "VsConverter.targetQpcc"));
+        assertEquals("-1", getAttribute(vsc1, "VsConverter.targetQpcc"));
         assertEquals("0", getAttribute(vsc1, "VsConverter.targetUpcc"));
         assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.pPcc", getResource(vsc1, "VsConverter.pPccControl"));
         assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.reactivePcc", getResource(vsc1, "VsConverter.qPccControl"));
