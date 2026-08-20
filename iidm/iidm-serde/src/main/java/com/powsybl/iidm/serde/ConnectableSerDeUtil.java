@@ -275,7 +275,7 @@ public final class ConnectableSerDeUtil {
         String type, A adder, NetworkDeserializerContext context,
         TreeDataReader reader, IidmVersion iidmVersion, ValidationLevel minimalValidationLevel
     ) {
-        String detectionKind = reader.readStringAttribute(DETECTION_KIND);
+        String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, context,
@@ -287,41 +287,23 @@ public final class ConnectableSerDeUtil {
             adder.setPermanentLimit(permanentLimit);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            if (detectionKind == null) {
+            if (detectionKindString == null) {
                 throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
             }
-            DetectionKind kind = DetectionKind.valueOf(detectionKind);
-            switch (kind) {
-                case HIGH -> checkAndSetHighLimit(type, adder, minimalValidationLevel, permanentLimitName, permanentLimit);
-                case LOW -> checkNoPermanentLimitWithLowLimit(permanentLimitName, permanentLimit);
+            DetectionKind kind = DetectionKind.valueOf(detectionKindString);
+            String permanentName = kind == DetectionKind.HIGH ? Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME) : permanentLimitName;
+            adder.setPermanentLimitName(permanentName);
+            if (kind == DetectionKind.HIGH) {
+                checkHighLimit(type, minimalValidationLevel, permanentLimit);
             }
+            adder.setPermanentLimit(permanentLimit);
             adder.setDetectionKind(kind);
         });
     }
 
-    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void checkAndSetHighLimit(String type, A adder, ValidationLevel minimalValidationLevel,
-                                                                                                           String permanentLimitName, double permanentLimit) {
-        adder.setPermanentLimitName(Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
+    private static void checkHighLimit(String type, ValidationLevel minimalValidationLevel, double permanentLimit) {
         if (Double.isNaN(permanentLimit) && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
             throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
-        }
-        adder.setPermanentLimit(permanentLimit);
-    }
-
-    private static void checkNoPermanentLimitWithLowLimit(String permanentLimitName, double permanentLimit) {
-        if (permanentLimitName != null) {
-            throw new PowsyblException(
-                String.format(
-                    "The permanent limit name '%s' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
-                    permanentLimitName
-                ));
-        }
-        if (!Double.isNaN(permanentLimit)) {
-            throw new PowsyblException(
-                String.format(
-                    "A permanent limit of value '%.2f' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
-                    permanentLimit
-                ));
         }
     }
 

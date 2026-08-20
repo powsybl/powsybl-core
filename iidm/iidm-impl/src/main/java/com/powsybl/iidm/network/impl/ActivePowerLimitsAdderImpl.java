@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.function.Supplier;
@@ -16,29 +15,25 @@ import java.util.function.Supplier;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerLimits, ActivePowerLimitsAdder> implements ActivePowerLimitsAdder {
-    Supplier<OperationalLimitsGroupImpl> groupSupplier;
-    private final NetworkImpl network;
 
-    public ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalLimitGroupId, NetworkImpl network) {
-        super(validable, ownerId, operationalLimitGroupId);
-        this.groupSupplier = groupSupplier;
-        this.network = network;
+    ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalGroupId, NetworkImpl network) {
+        super(groupSupplier, validable, ownerId, operationalGroupId, network);
     }
 
     @Override
-    public ActivePowerLimits add() {
-        checkAndUpdateValidationLevel(network);
-        OperationalLimitsGroupImpl group = groupSupplier.get();
-        if (group == null) {
-            throw new PowsyblException(String.format("Error adding ActivePowerLimits on %s: error getting or creating the group", getOwnerId()));
-        }
-        ActivePowerLimits limits = detectionKind == DetectionKind.HIGH ?
+    protected ActivePowerLimits buildLimit(OperationalLimitsGroupImpl group) {
+        return detectionKind == DetectionKind.HIGH ?
             new ActivePowerLimitsImpl(group, permanentLimit, permanentLimitName, temporaryLimits)
             : new ActivePowerLimitsImpl(group, temporaryLimits);
-
-        group.setActivePowerLimits(limits);
-        this.copyPropertiesTo(limits);
-        return limits;
     }
 
+    @Override
+    protected void setLimitToGroup(ActivePowerLimits limits, OperationalLimitsGroupImpl group) {
+        group.setActivePowerLimits(limits);
+    }
+
+    @Override
+    protected String getLimitTypeName() {
+        return "ActivePowerLimits";
+    }
 }
