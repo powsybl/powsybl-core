@@ -230,8 +230,8 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         busbarSection.getTerminal().traverse(switchKindsBetweenBusbarSectionsTraverser);
         leftSwitchesBetweenBusbar.addAll(switchKindsBetweenBusbarSectionsTraverser.getLeftSwitchesBetweenBusbar());
         List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser = switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar();
-        // need to remove the first switch because it will be replaced by rightSwitchKind
-        if (!rightSwitchesBetweenBusbarFromTraverser.isEmpty()) {
+        // need to remove the first switch because it will be replaced by rightSwitchKind only if there is a left busbar
+        if (!rightSwitchesBetweenBusbarFromTraverser.isEmpty() && leftSwitchKind != null) {
             rightSwitchesBetweenBusbarFromTraverser.removeFirst();
         }
         rightSwitchesBetweenBusbar.addAll(rightSwitchesBetweenBusbarFromTraverser);
