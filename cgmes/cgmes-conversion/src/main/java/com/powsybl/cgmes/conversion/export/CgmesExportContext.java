@@ -288,7 +288,9 @@ public class CgmesExportContext {
     }
 
     private void computeBaseVoltageMapping(Network network) {
-        DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##", new DecimalFormatSymbols(Locale.US));
+        DecimalFormatSymbols customSymbols = new DecimalFormatSymbols();
+        customSymbols.setDecimalSeparator('.');
+        DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##", customSymbols);
 
         // Retrieve reference BaseVoltage mapping stored in the dedicated extension.
         // This may not match exactly the base voltages used in the network.
