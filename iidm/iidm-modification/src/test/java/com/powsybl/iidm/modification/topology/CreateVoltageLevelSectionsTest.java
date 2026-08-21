@@ -467,7 +467,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
                 .map(BusbarSection::getId)
                 .toList();
         assertEquals(3, busbarSectionIds.size());
-        // the Breaker was removed so new busbar is called with DISCONNECTOR
+        // the Breaker was removed so new busbar is called with DISCONNECTOR and not with BREAKER
         assertTrue(busbarSectionIds.containsAll(List.of("VL2_BBS11", "VL2_BBS12", "VL2_1_DISCONNECTOR_2")));
     }
 }
