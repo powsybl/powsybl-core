@@ -7,9 +7,15 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -95,6 +101,29 @@ class HvdcUpdateTest {
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    @Test
+    void hvdcZeroActivePowerSetpointTest() throws IOException {
+        Network network = readCgmesResources("/update/hvdc/", "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        assertEquals(300.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
+
+        // we export 0.0
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(0.0);
+        Path dir = Files.createTempDirectory("hvdc-zero");
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+        network.write("CGMES", exportParameters, dir.resolve("rt"));
+
+        // we restore the initial active power setpoint before the update
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(300.0);
+
+        Properties importParameters = new Properties();
+        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        network.update(new GenericReadOnlyDataSource(dir, "rt"), importParameters);
+
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {

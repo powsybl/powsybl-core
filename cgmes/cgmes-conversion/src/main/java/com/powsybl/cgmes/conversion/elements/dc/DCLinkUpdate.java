@@ -54,9 +54,9 @@ public class DCLinkUpdate {
             mode = SIDE_1_RECTIFIER_SIDE_2_INVERTER;
         } else if (isInverter(mode1) && isRectifier(mode2)) {
             mode = SIDE_1_INVERTER_SIDE_2_RECTIFIER;
-        } else if (targetPpcc1() > 0.0 || targetPpcc2() < 0.0) {
+        } else if (isTargetPpccDefined(targetPpcc1()) && targetPpcc1() > 0.0 || isTargetPpccDefined(targetPpcc2()) && targetPpcc2() < 0.0) {
             mode = SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-        } else if (targetPpcc1() < 0.0 || targetPpcc2() > 0.0) {
+        } else if (isTargetPpccDefined(targetPpcc1()) && targetPpcc1() < 0.0 || isTargetPpccDefined(targetPpcc2()) && targetPpcc2() > 0.0) {
             mode = SIDE_1_INVERTER_SIDE_2_RECTIFIER;
         } else {
             mode = defaultData.mode();
@@ -74,13 +74,15 @@ public class DCLinkUpdate {
     }
 
     private double targetPpcc1() {
-        double targetPpcc = converter1.asDouble(TARGET_PPCC);
-        return Double.isNaN(targetPpcc) ? 0.0 : targetPpcc;
+        return converter1.asDouble(TARGET_PPCC);
     }
 
     private double targetPpcc2() {
-        double targetPpcc = converter2.asDouble(TARGET_PPCC);
-        return Double.isNaN(targetPpcc) ? 0.0 : targetPpcc;
+        return converter2.asDouble(TARGET_PPCC);
+    }
+
+    private boolean isTargetPpccDefined(double targetPpcc) {
+        return Double.isFinite(targetPpcc);
     }
 
     private PoleLosses pole1Losses() {
@@ -133,12 +135,20 @@ public class DCLinkUpdate {
 
     private void computeActivePowers() {
         // targetP is AC active power on rectifier side.
-        if (getTargetPpccRectifier() != 0.0) {
-            targetP = getTargetPpccRectifier();
-        } else if (getTargetPpccInverter() != 0.0) {
-            double pDcInverter = -1 * (Math.abs(getTargetPpccInverter()) + getPoleLossesInverter().value());
+
+        double targetPpccRectifier = getTargetPpccRectifier();
+        boolean isTargetPpccRectifierDefined = isTargetPpccDefined(targetPpccRectifier);
+        double targetPpccInverter = getTargetPpccInverter();
+        boolean isTargetPpccInverterDefined = isTargetPpccDefined(targetPpccInverter);
+
+        if (isTargetPpccRectifierDefined && targetPpccRectifier != 0.0) {
+            targetP = targetPpccRectifier;
+        } else if (isTargetPpccInverterDefined && targetPpccInverter != 0.0) {
+            double pDcInverter = -1 * (Math.abs(targetPpccInverter) + getPoleLossesInverter().value());
             double pDcRectifier = Math.abs(pDcInverter) + resistiveLossesFromPdcInverter(pDcInverter);
             targetP = pDcRectifier + getPoleLossesRectifier().value();
+        } else if (isTargetPpccRectifierDefined || isTargetPpccInverterDefined) {
+            targetP = 0.0;
         } else {
             targetP = defaultData.targetP();
         }
