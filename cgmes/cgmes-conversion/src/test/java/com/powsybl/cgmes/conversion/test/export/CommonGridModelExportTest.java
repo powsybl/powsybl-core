@@ -24,6 +24,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamConstants;
@@ -38,8 +39,7 @@ import java.util.*;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Summary from CGM Building Process Implementation Guide:
@@ -706,6 +706,94 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .addProfile("http://entsoe.eu/CIM/TopologyBoundary/3/1")
                 .add()
                 .add();
+    }
+
+    @Test
+    void testCgmExportLoadGroupsAndOperationalLimitTypesHaveDifferentIds() throws IOException {
+        // Create a network with two subnetworks, each with a NonConformLoad and a line with current limits
+        Network network = networkWithLoadsAndLimits2Subnetworks();
+
+        // Export each subnetwork EQ independently (as IGM)
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.CGM_EXPORT, false);
+        exportParams.put(CgmesExport.PROFILES, List.of("EQ"));
+
+        String basenameBeEq = "test_loads_limits_be";
+        String basenameNlEq = "test_loads_limits_nl";
+        network.getSubnetwork("Network_BE").write("CGMES", exportParams, tmpDir.resolve(basenameBeEq));
+        network.getSubnetwork("Network_NL").write("CGMES", exportParams, tmpDir.resolve(basenameNlEq));
+
+        String beEqXml = Files.readString(tmpDir.resolve(basenameBeEq + "_EQ.xml"));
+        String nlEqXml = Files.readString(tmpDir.resolve(basenameNlEq + "_EQ.xml"));
+
+        // Each EQ file must contain exactly one NonConformLoadGroup
+        Pattern regexNonConformLoadGroup = Pattern.compile("cim:NonConformLoadGroup rdf:ID=\"(_[^\"]*)\"");
+        Set<String> beLoadGroupIds = getUniqueMatches(beEqXml, regexNonConformLoadGroup);
+        Set<String> nlLoadGroupIds = getUniqueMatches(nlEqXml, regexNonConformLoadGroup);
+        assertEquals(1, beLoadGroupIds.size());
+        assertEquals(1, nlLoadGroupIds.size());
+
+        // Each EQ file must contain one OperationalLimitType
+        Pattern regexOperationalLimitType = Pattern.compile("cim:OperationalLimitType rdf:ID=\"(_[^\"]*)\"");
+        Set<String> beOpLimitTypeIds = getUniqueMatches(beEqXml, regexOperationalLimitType);
+        Set<String> nlOpLimitTypeIds = getUniqueMatches(nlEqXml, regexOperationalLimitType);
+        assertFalse(beOpLimitTypeIds.isEmpty());
+        assertFalse(nlOpLimitTypeIds.isEmpty());
+
+        // The LoadGroup IDs and OperationalLimitType IDs must be different between the two IGMs
+        assertNotEquals(beLoadGroupIds, nlLoadGroupIds);
+        assertNotEquals(beOpLimitTypeIds, nlOpLimitTypeIds);
+    }
+
+    private Network networkWithLoadsAndLimits2Subnetworks() {
+        // Create two subnetworks each with a NonConformLoad and a line with current limits
+        Network network1 = Network.create("Network_BE", "test");
+        network1.setCaseDate(ZonedDateTime.parse("2021-02-03T04:30:00.000+00:00"));
+        Substation s1 = network1.newSubstation().setId("Substation_BE").setCountry(Country.BE).add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL_BE").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1.getBusBreakerView().newBus().setId("Bus_BE").add();
+        Load load1 = vl1.newLoad().setId("Load_BE").setConnectableBus("Bus_BE").setBus("Bus_BE").setP0(100.0).setQ0(50.0).add();
+        // Make the load a NonConformLoad by setting the LoadDetail extension with fixed part only
+        load1.newExtension(LoadDetailAdder.class)
+                .withFixedActivePower(100.0)
+                .withFixedReactivePower(50.0)
+                .withVariableActivePower(0.0)
+                .withVariableReactivePower(0.0)
+                .add();
+        // Add a line with current limits within the subnetwork
+        Substation s1b = network1.newSubstation().setId("Substation_BE2").setCountry(Country.BE).add();
+        VoltageLevel vl1b = s1b.newVoltageLevel().setId("VL_BE2").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1b.getBusBreakerView().newBus().setId("Bus_BE2").add();
+        network1.newLine().setId("Line_BE")
+                .setVoltageLevel1("VL_BE").setBus1("Bus_BE")
+                .setVoltageLevel2("VL_BE2").setBus2("Bus_BE2")
+                .setR(1.0).setX(10.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add()
+                .newCurrentLimits1().setPermanentLimit(1000.0).add();
+
+        Network network2 = Network.create("Network_NL", "test");
+        network2.setCaseDate(ZonedDateTime.parse("2021-02-03T04:30:00.000+00:00"));
+        Substation s2 = network2.newSubstation().setId("Substation_NL").setCountry(Country.NL).add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("VL_NL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl2.getBusBreakerView().newBus().setId("Bus_NL").add();
+        Load load2 = vl2.newLoad().setId("Load_NL").setConnectableBus("Bus_NL").setBus("Bus_NL").setP0(100.0).setQ0(50.0).add();
+        // Make the load a NonConformLoad by setting the LoadDetail extension with fixed part only
+        load2.newExtension(LoadDetailAdder.class)
+                .withFixedActivePower(100.0)
+                .withFixedReactivePower(50.0)
+                .withVariableActivePower(0.0)
+                .withVariableReactivePower(0.0)
+                .add();
+        // Add a line with current limits within the subnetwork
+        Substation s2b = network2.newSubstation().setId("Substation_NL2").setCountry(Country.NL).add();
+        VoltageLevel vl2b = s2b.newVoltageLevel().setId("VL_NL2").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl2b.getBusBreakerView().newBus().setId("Bus_NL2").add();
+        network2.newLine().setId("Line_NL")
+                .setVoltageLevel1("VL_NL").setBus1("Bus_NL")
+                .setVoltageLevel2("VL_NL2").setBus2("Bus_NL2")
+                .setR(1.0).setX(10.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add()
+                .newCurrentLimits1().setPermanentLimit(1000.0).add();
+
+        return Network.merge(network1, network2);
     }
 
     private void addModelForNetwork(Network network, int version) {
