@@ -7,7 +7,9 @@ There are two main use-cases supported:
 In both cases, the metadata model information in the exported files is built from metadata information read from the input files and stored in IIDM or received through parameters.
 Information received through parameters takes precedence over information available from original metadata models.
 
-For a quick CGM export, the user may rely on the parameter **iidm.export.cgmes.cgm_export** to write in a single export multiple updated SSH files (one for each IGM) and a single SV for the whole common grid model. Specifics about this option are explained in the section [below](#cgm-common-grid-model-quick-export).
+For a quick CGM export, the user may rely on the parameter **iidm.export.cgmes.cgm_export** to write in a single export multiple updated SSH files (one for each IGM) and a single SV for the whole common grid model. 
+It is also possible to export a TP (Topology) profile file for each IGM during a CGM quick export. This is controlled by the parameter **iidm.export.cgmes.cgm-export-with-tp**. 
+Specifics about these options are explained in the section [below](#cgm-common-grid-model-quick-export).
 If you need complete control over the exported files in a CGM scenario, you may prefer to iterate through the subnetworks and make multiple calls to the export function. This is described in detail in the section [below](#cgm-common-grid-model-manual-export).
 
 Please note that when exporting equipment, PowSyBl always uses the CGMES node/breaker level of detail, without considering the topology
@@ -29,8 +31,10 @@ The output filenames will follow the pattern `<baseName>_<profile>.xml`. The bas
 ## CGM (Common Grid Model) quick export
 
 When exporting a CGM, we need an IIDM network (CGM) that contains multiple subnetworks (one for each IGM).
-Only the CGMES instance files corresponding to SSH and SV profiles are exported:
+By default, only the CGMES instance files corresponding to SSH and SV profiles are exported:
 an updated SSH file for every subnetwork (for every IGM) and a single SV file for the main network that represents the CGM.
+Optionally, a TP file can also be exported for each IGM by setting the parameter **iidm.export.cgmes.cgm-export-with-tp** to `true`. This can be useful when the voltage levels of the CGM 
+have a `NODE_BREAKER` topology as the TP profiles are an output of the topology processing.
 
 When exporting, it is verified that the main network and all subnetworks have the same scenario time (network case date). If they are different, an error is logged.
 
@@ -39,12 +43,14 @@ If a version number is given as a parameter, it is used for the exported files. 
 The quick CGM export will always write updated SSH files for IGMs and a single SV for the CGM. The parameter for selecting which profiles to export is ignored in this kind of export.
 
 If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
-* Updated SSH for IGMs supersede the original ones, and depend on the original EQ from IGMs.
+* Updated SSH for IGMs supersedes the original ones and depends on the original EQ from IGMs.
+* Updated TP for IGMs supersedes the original ones and depends on the original EQ from IGMs and TP_BD.
 * Updated SV for the CGM depends on the updated SSH from IGMs and on the original TP and TP_BD from IGMs.
 
 The filenames of the exported instance files will follow the pattern:
 * For the CGM SV: `<basename>_SV.xml`.
 * For the IGM SSHs: `<basename>_<IGM name>_SSH.xml`. The IGM name is built from the country code of the first substation or the IIDM name if no country is present.
+* For the IGM TPs: `<basename>_<IGM name>_TP.xml`. The IGM name is built from the country code of the first substation or the IIDM name if no country is present.
 
 The basename is determined from the parameters, or the basename of the export data source or the main network name.
 
@@ -629,6 +635,12 @@ Its default value is `1D`.
 **iidm.export.cgmes.cgm_export**<br>
 Optional property to specify the export use-case: IGM (Individual Grid Model) or CGM (Common Grid Model).
 To export instance files of a CGM, set the value to `True`. The default value is `False` to export network as an IGM.
+
+**iidm.export.cgmes.cgm-export-with-tp**<br>
+Optional property that defines whether a TP (Topology) profile file should be exported for each IGM during a CGM quick export (see **iidm.export.cgmes.cgm_export**).
+This property is only taken into account during a CGM quick export. The default value is `False`, meaning no TP file is written during the CGM export.
+When set to `True`, a TP file is exported for each subnetwork (IGM), following the filename pattern `<basename>_<IGM name>_TP.xml`.
+
 
 **iidm.export.cgmes.update-dependencies**<br>
 Optional property to determine if dependencies in the exported instance files should be managed automatically. The default value is `True`.
