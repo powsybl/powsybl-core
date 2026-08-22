@@ -326,6 +326,18 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertTxtEquals(file1, file3);
     }
 
+    @ParameterizedTest
+    @EnumSource(TreeDataFormat.class)
+    void testCopyAllFormats(TreeDataFormat format) {
+        Network network = createEurostagTutorialExample1();
+        Path file1 = tmpDir.resolve("n.xml");
+        NetworkSerDe.write(network, file1);
+        Network copiedNetwork = NetworkSerDe.copy(network, format);
+        Path file2 = tmpDir.resolve("n-" + format + ".xml");
+        NetworkSerDe.write(copiedNetwork, file2);
+        assertTxtEquals(file1, file2);
+    }
+
     static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkSerDe.write(network, options, os);

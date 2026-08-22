@@ -1303,9 +1303,7 @@ public final class NetworkSerDe {
                     LOGGER.error(t.toString(), t);
                 }
             });
-            try (InputStream tmp = Channels.newInputStream(pipe.source());
-                 //using buffered stream for read has little impact, but it mimics the write behavior
-                 InputStream is = format == TreeDataFormat.BIN ? tmp : new BufferedInputStream(tmp)) {
+            try (InputStream is = Channels.newInputStream(pipe.source())) {
                 return read(is,
                         new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
             }
