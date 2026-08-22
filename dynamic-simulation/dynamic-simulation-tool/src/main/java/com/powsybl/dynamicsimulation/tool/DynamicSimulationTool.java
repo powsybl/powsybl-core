@@ -27,6 +27,7 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -124,7 +125,7 @@ public class DynamicSimulationTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path caseFile = options.getPath(CASE_FILE).orElseThrow(IllegalStateException::new);
+        Path caseFile = options.getPath(CASE_FILE).orElseThrow(() -> new ParseException("Missing required option: " + CASE_FILE));
         // process a single network: output-file/output-format options available
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
@@ -136,7 +137,7 @@ public class DynamicSimulationTool implements Tool {
 
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
-        Path dydFile = options.getPath(DYNAMIC_MODELS_FILE).orElseThrow(IllegalStateException::new);
+        Path dydFile = options.getPath(DYNAMIC_MODELS_FILE).orElseThrow(() -> new ParseException("Missing required option: " + DYNAMIC_MODELS_FILE));
         DynamicModelsSupplier dynamicModelsSupplier = DynamicSimulationSupplierFactory.createDynamicModelsSupplier(dydFile, runner.getName());
 
         EventModelsSupplier eventSupplier = EventModelsSupplier.empty();

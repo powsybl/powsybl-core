@@ -233,8 +233,8 @@ public class ActionSimulatorTool implements Tool {
     @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path caseFile = options.getPath(CASE_FILE).orElseThrow(IllegalStateException::new);
-        Path dslFile = options.getPath(DSL_FILE).orElseThrow(IllegalStateException::new);
+        Path caseFile = options.getPath(CASE_FILE).orElseThrow(() -> new ParseException("Missing required option: " + CASE_FILE));
+        Path dslFile = options.getPath(DSL_FILE).orElseThrow(() -> new ParseException("Missing required option: " + DSL_FILE));
         List<String> contingencies = options.getValues(CONTINGENCIES).orElse(Collections.emptyList());
         boolean verbose = options.hasOption(VERBOSE);
         boolean applyIfSolved = options.hasOption(APPLY_IF_SOLVED_VIOLATIONS);

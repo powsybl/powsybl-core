@@ -25,6 +25,7 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -143,8 +144,8 @@ public class ValidationTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path caseFile = options.getPath(CASE_FILE).orElseThrow(IllegalStateException::new);
-        Path outputFolder = options.getPath(OUTPUT_FOLDER).orElseThrow(IllegalStateException::new);
+        Path caseFile = options.getPath(CASE_FILE).orElseThrow(() -> new ParseException("Missing required option: " + CASE_FILE));
+        Path outputFolder = options.getPath(OUTPUT_FOLDER).orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FOLDER));
         if (!Files.exists(outputFolder)) {
             Files.createDirectories(outputFolder);
         }

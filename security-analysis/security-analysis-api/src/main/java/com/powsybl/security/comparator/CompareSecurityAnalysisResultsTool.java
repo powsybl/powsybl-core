@@ -17,6 +17,7 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.Writer;
 import java.nio.file.Files;
@@ -95,9 +96,9 @@ public class CompareSecurityAnalysisResultsTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path results1File = options.getPath(RESULT1_FILE_OPTION).orElseThrow(IllegalStateException::new);
-        Path results2File = options.getPath(RESULT2_FILE_OPTION).orElseThrow(IllegalStateException::new);
-        Path outputFile = options.getPath(OUTPUT_FILE_OPTION).orElseThrow(IllegalStateException::new);
+        Path results1File = options.getPath(RESULT1_FILE_OPTION).orElseThrow(() -> new ParseException("Missing required option: " + RESULT1_FILE_OPTION));
+        Path results2File = options.getPath(RESULT2_FILE_OPTION).orElseThrow(() -> new ParseException("Missing required option: " + RESULT2_FILE_OPTION));
+        Path outputFile = options.getPath(OUTPUT_FILE_OPTION).orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FILE_OPTION));
         double threshold = options.getDouble(THRESHOLD_OPTION).orElse(THRESHOLD_DEFAULT);
         try (Writer outputWriter = Files.newBufferedWriter(outputFile)) {
             SecurityAnalysisResult result1 = SecurityAnalysisResultDeserializer.read(results1File);

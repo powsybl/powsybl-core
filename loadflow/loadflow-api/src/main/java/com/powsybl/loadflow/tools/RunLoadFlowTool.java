@@ -133,7 +133,7 @@ public class RunLoadFlowTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path caseFile = options.getPath(CASE_FILE).orElseThrow(IllegalStateException::new);
+        Path caseFile = options.getPath(CASE_FILE).orElseThrow(() -> new ParseException("Missing required option: " + CASE_FILE));
         Path outputFile = null;
         Format format = null;
         Path outputCaseFile = null;

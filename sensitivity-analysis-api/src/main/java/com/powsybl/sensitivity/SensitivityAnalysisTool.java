@@ -38,6 +38,7 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -172,8 +173,8 @@ public class SensitivityAnalysisTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path caseFile = options.getPath(CASE_FILE_OPTION).orElseThrow(IllegalStateException::new);
-        String outputFileValue = options.getValue(OUTPUT_FILE_OPTION).orElseThrow(IllegalStateException::new);
+        Path caseFile = options.getPath(CASE_FILE_OPTION).orElseThrow(() -> new ParseException("Missing required option: " + CASE_FILE_OPTION));
+        String outputFileValue = options.getValue(OUTPUT_FILE_OPTION).orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(outputFileValue);
         boolean csv = isCsv(outputFile);
         Path outputFileStatus = null;
@@ -194,7 +195,7 @@ public class SensitivityAnalysisTool implements Tool {
             }
         }
 
-        Path factorsFile = options.getPath(FACTORS_FILE_OPTION).orElseThrow(IllegalStateException::new);
+        Path factorsFile = options.getPath(FACTORS_FILE_OPTION).orElseThrow(() -> new ParseException("Missing required option: " + FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
