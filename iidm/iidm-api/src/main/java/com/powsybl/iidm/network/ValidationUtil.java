@@ -491,7 +491,7 @@ public final class ValidationUtil {
 
     public static void checkDoubleParamPositive(Validable validable, double param, String paramName) {
         if (Double.isNaN(param) || param < 0) {
-            throw new ValidationException(validable, paramName + " is invalid");
+            throw new ValidationException(validable, paramName + " is invalid (should be positive); given: " + param);
         }
     }
 
