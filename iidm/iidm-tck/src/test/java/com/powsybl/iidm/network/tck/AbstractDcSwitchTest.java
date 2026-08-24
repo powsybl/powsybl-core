@@ -120,10 +120,10 @@ public abstract class AbstractDcSwitchTest {
         assertEquals(0.0, dcSwitch.getR());
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcSwitch.setR(Double.NaN));
-        assertEquals("DC Switch 'dcSwitch': r is invalid (should be positive); given: NaN", e1.getMessage());
+        assertEquals("DC Switch 'dcSwitch': r is invalid (must be positive); given: NaN", e1.getMessage());
 
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> dcSwitch.setR(-1.0));
-        assertEquals("DC Switch 'dcSwitch': r is invalid (should be positive); given: -1.0", e2.getMessage());
+        assertEquals("DC Switch 'dcSwitch': r is invalid (must be positive); given: -1.0", e2.getMessage());
     }
 
     @Test
@@ -223,11 +223,11 @@ public abstract class AbstractDcSwitchTest {
 
         adder.setR(Double.NaN);
         PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': r is invalid (should be positive); given: NaN", e8.getMessage());
+        assertEquals("DC Switch 'dcSwitch': r is invalid (must be positive); given: NaN", e8.getMessage());
 
         adder.setR(-1.1);
         PowsyblException e9 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Switch 'dcSwitch': r is invalid (should be positive); given: -1.1", e9.getMessage());
+        assertEquals("DC Switch 'dcSwitch': r is invalid (must be positive); given: -1.1", e9.getMessage());
     }
 
     @Test

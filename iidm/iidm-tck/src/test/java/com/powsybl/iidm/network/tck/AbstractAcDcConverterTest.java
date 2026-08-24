@@ -382,22 +382,22 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(0., acDcConverterA.getResistiveLoss());
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> acDcConverterA.setIdleLoss(Double.NaN));
-        assertEquals("AC/DC Line Commutated Converter 'converterA': idleLoss is invalid (should be positive); given: NaN", e1.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': idleLoss is invalid (must be positive); given: NaN", e1.getMessage());
 
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> acDcConverterA.setIdleLoss(-1.0));
-        assertEquals("AC/DC Line Commutated Converter 'converterA': idleLoss is invalid (should be positive); given: -1.0", e2.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': idleLoss is invalid (must be positive); given: -1.0", e2.getMessage());
 
         PowsyblException e3 = assertThrows(PowsyblException.class, () -> acDcConverterA.setSwitchingLoss(Double.NaN));
-        assertEquals("AC/DC Line Commutated Converter 'converterA': switchingLoss is invalid (should be positive); given: NaN", e3.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': switchingLoss is invalid (must be positive); given: NaN", e3.getMessage());
 
         PowsyblException e4 = assertThrows(PowsyblException.class, () -> acDcConverterA.setSwitchingLoss(-1.0));
-        assertEquals("AC/DC Line Commutated Converter 'converterA': switchingLoss is invalid (should be positive); given: -1.0", e4.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': switchingLoss is invalid (must be positive); given: -1.0", e4.getMessage());
 
         PowsyblException e5 = assertThrows(PowsyblException.class, () -> acDcConverterA.setResistiveLoss(Double.NaN));
-        assertEquals("AC/DC Line Commutated Converter 'converterA': resistiveLoss is invalid (should be positive); given: NaN", e5.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': resistiveLoss is invalid (must be positive); given: NaN", e5.getMessage());
 
         PowsyblException e6 = assertThrows(PowsyblException.class, () -> acDcConverterA.setResistiveLoss(-1.0));
-        assertEquals("AC/DC Line Commutated Converter 'converterA': resistiveLoss is invalid (should be positive); given: -1.0", e6.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': resistiveLoss is invalid (must be positive); given: -1.0", e6.getMessage());
     }
 
     @Test

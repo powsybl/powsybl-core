@@ -90,10 +90,10 @@ public abstract class AbstractDcGroundTest {
         assertEquals(0.0, dcGround.getR());
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcGround.setR(Double.NaN));
-        assertEquals("DC Ground 'dcGround': r is invalid (should be positive); given: NaN", e1.getMessage());
+        assertEquals("DC Ground 'dcGround': r is invalid (must be positive); given: NaN", e1.getMessage());
 
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> dcGround.setR(-1.0));
-        assertEquals("DC Ground 'dcGround': r is invalid (should be positive); given: -1.0", e2.getMessage());
+        assertEquals("DC Ground 'dcGround': r is invalid (must be positive); given: -1.0", e2.getMessage());
     }
 
     @Test
@@ -167,11 +167,11 @@ public abstract class AbstractDcGroundTest {
         adder.setDcNode(dcNode.getId());
         adder.setR(Double.NaN);
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Ground 'dcGround': r is invalid (should be positive); given: NaN", e4.getMessage());
+        assertEquals("DC Ground 'dcGround': r is invalid (must be positive); given: NaN", e4.getMessage());
 
         adder.setR(-1.0);
         PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Ground 'dcGround': r is invalid (should be positive); given: -1.0", e5.getMessage());
+        assertEquals("DC Ground 'dcGround': r is invalid (must be positive); given: -1.0", e5.getMessage());
     }
 
     @Test
