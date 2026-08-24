@@ -809,8 +809,6 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
   The flow sign is thus given by the type of the converter station: the power always flows from the rectifier converter station to the inverter converter station.
   At a terminal on the AC side, `P` and `Q` follow the passive sign convention. `P` is positive on the rectifier side. `P` is negative at the inverter side.
 - The active power setpoint and the maximum active power should always be positive values.
-- Contrary to the [DC Line of the detailed DC model](#dc-line), this is an equivalent model. Calculations can lead to the resistance being negative,
-therefore a negative value is allowed for $R$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
