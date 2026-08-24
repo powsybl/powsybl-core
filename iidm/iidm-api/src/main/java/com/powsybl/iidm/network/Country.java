@@ -274,7 +274,7 @@ public enum Country {
      * @deprecated This method is deprecated because not explicit enough as function name() exists.
      * Use {@link #getFullName()} instead.
      */
-    @Deprecated
+    @Deprecated(forRemoval=false)
     public String getName() {
         return name;
     }
