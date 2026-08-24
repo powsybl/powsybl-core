@@ -239,10 +239,11 @@ A load is a passive equipment representing a delivery point that consumes or pro
 
 **Metadata**
 In the grid model, the following metadata is included for loads:
-- The load type, which is required and by default `UNDEFINED`. It can be:
+- The load type, which can be:
     - `UNDEFINED`
     - `AUXILIARY`
     - `FICTITIOUS`
+By default, it is `UNDEFINED`.
 - The load model, which can be:
     - `ZIP` (or polynomial), following equations:
 

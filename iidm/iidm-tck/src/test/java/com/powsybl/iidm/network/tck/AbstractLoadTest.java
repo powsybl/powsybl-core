@@ -372,16 +372,4 @@ public abstract class AbstractLoadTest {
         ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setNp(-2));
         assertEquals("Load 'newZipLoad': Invalid load model exponential value: -2.0", e.getMessage());
     }
-
-    @Test
-    void invalidLoadType() {
-        LoadAdder loadAdder = voltageLevel.newLoad()
-                .setId("newLoad")
-                .setP0(2.0)
-                .setQ0(1.0)
-                .setNode(1)
-                .setLoadType(null);
-        ValidationException exception = assertThrows(ValidationException.class, loadAdder::add);
-        assertEquals("Load 'newLoad': load type is null", exception.getMessage());
-    }
 }
