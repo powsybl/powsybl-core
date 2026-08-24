@@ -15,6 +15,12 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcLineAdder extends IdentifiableAdder<HvdcLine, HvdcLineAdder> {
 
+    //TODO explain why negative values are not allowed ?
+    /**
+     * Set the resistance of the HVDC line in &#937. The resistance value should be positive.
+     * @param r the resistance value of the HVDC line in &#937, should be positive
+     * @return this adder, for chaining
+     */
     HvdcLineAdder setR(double r);
 
     HvdcLineAdder setConvertersMode(HvdcLine.ConvertersMode convertersMode);
