@@ -416,7 +416,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
         PowsyblException exception = assertThrows(PowsyblException.class,
                 () -> NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
-        assertTrue(exception.getMessage().contains("sign convention"));
+        assertTrue(exception.getMessage().contains("reactive power setpoint of VSC converter"));
     }
 
     /**

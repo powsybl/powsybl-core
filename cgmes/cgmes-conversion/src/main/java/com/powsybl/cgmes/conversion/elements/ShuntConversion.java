@@ -38,7 +38,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(0);
 
         String shuntType = p.getId("type");
-        if ("LinearShuntCompensator".equals(shuntType)) {
+        if (CgmesNames.LINEAR_SHUNT_COMPENSATOR.equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
             double gPerSection = p.asDouble("gPerSection", Double.NaN);
             adder.newLinearModel()
@@ -46,7 +46,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                     .setGPerSection(gPerSection)
                     .setMaximumSectionCount(maximumSections)
                     .add();
-        } else if ("NonlinearShuntCompensator".equals(shuntType)) {
+        } else if (CgmesNames.NONLINEAR_SHUNT_COMPENSATOR.equals(shuntType)) {
             ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
             PropertyBags ss = context.nonlinearShuntCompensatorPoints(id);
             ss.stream()

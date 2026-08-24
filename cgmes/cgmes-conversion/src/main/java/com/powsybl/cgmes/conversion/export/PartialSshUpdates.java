@@ -43,7 +43,28 @@ class PartialSshUpdates {
      * @param masterResourceId the CGMES master resource identifier (mRID) of the object
      */
     ObjectUpdate object(String className, String masterResourceId) {
-        return updatesByMasterResourceId.computeIfAbsent(masterResourceId, id -> new ObjectUpdate(className, id));
+        return updatesByMasterResourceId.computeIfAbsent(masterResourceId, id -> new ObjectUpdate(this, className, id));
+    }
+
+    /**
+     * Start describing a single CGMES object in a buffer of its own, for instance
+     * {@code update(CgmesNames.TERMINAL, terminalId).value("ACDCTerminal.connected", true).updates()}.
+     *
+     * <p>This is the entry point of the buffers built per change: a mapping describes the objects a change
+     * affects and returns the buffer, which the caller merges, or drops if the change turns out to be
+     * unsupported.</p>
+     */
+    static ObjectUpdate update(String className, String masterResourceId) {
+        return new PartialSshUpdates().object(className, masterResourceId);
+    }
+
+    /** Return a new buffer holding every property of the given buffers, merged in the order they are given. */
+    static PartialSshUpdates merge(PartialSshUpdates... parts) {
+        PartialSshUpdates merged = new PartialSshUpdates();
+        for (PartialSshUpdates part : parts) {
+            merged.mergeFrom(part);
+        }
+        return merged;
     }
 
     boolean isEmpty() {
@@ -76,13 +97,25 @@ class PartialSshUpdates {
      */
     static final class ObjectUpdate {
 
+        private final PartialSshUpdates buffer;
         private final String className;
         private final String masterResourceId;
         private final Map<String, Property> properties = new LinkedHashMap<>();
 
-        private ObjectUpdate(String className, String masterResourceId) {
+        private ObjectUpdate(PartialSshUpdates buffer, String className, String masterResourceId) {
+            this.buffer = buffer;
             this.className = className;
             this.masterResourceId = masterResourceId;
+        }
+
+        /** Move on to another object of the same buffer, so that a change affecting several objects reads as one chain. */
+        ObjectUpdate object(String className, String masterResourceId) {
+            return buffer.object(className, masterResourceId);
+        }
+
+        /** The buffer this object belongs to, which is what a mapping returns once it has described everything. */
+        PartialSshUpdates updates() {
+            return buffer;
         }
 
         ObjectUpdate value(String property, boolean value) {

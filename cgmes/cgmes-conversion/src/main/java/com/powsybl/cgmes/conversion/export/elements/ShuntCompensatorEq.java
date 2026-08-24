@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 
 import javax.xml.stream.XMLStreamException;
@@ -85,11 +86,11 @@ public final class ShuntCompensatorEq {
 
     private static String shuntCompensatorModelClassName(ShuntCompensatorModelType modelType) {
         if (ShuntCompensatorModelType.LINEAR.equals(modelType)) {
-            return "LinearShuntCompensator";
+            return CgmesNames.LINEAR_SHUNT_COMPENSATOR;
         } else if (ShuntCompensatorModelType.NON_LINEAR.equals(modelType)) {
-            return "NonlinearShuntCompensator";
+            return CgmesNames.NONLINEAR_SHUNT_COMPENSATOR;
         }
-        return "LinearShuntCompensator";
+        return CgmesNames.LINEAR_SHUNT_COMPENSATOR;
     }
 
     private ShuntCompensatorEq() {

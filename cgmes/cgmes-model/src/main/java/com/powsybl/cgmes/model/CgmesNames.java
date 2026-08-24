@@ -127,6 +127,8 @@ public final class CgmesNames {
     public static final String BUSBAR_SECTION = "BusbarSection";
     public static final String GROUND = "Ground";
     public static final String SHUNT_COMPENSATOR = "ShuntCompensator";
+    public static final String LINEAR_SHUNT_COMPENSATOR = "LinearShuntCompensator";
+    public static final String NONLINEAR_SHUNT_COMPENSATOR = "NonlinearShuntCompensator";
     public static final String EQUIVALENT_SHUNT = "EquivalentShunt";
     public static final String EQUIVALENT_BRANCH = "EquivalentBranch";
     public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
@@ -199,6 +201,14 @@ public final class CgmesNames {
 
     public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
     public static final String P_TOLERANCE = "pTolerance";
+
+    public static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq.controlEnabled";
+    public static final String ROTATING_MACHINE_P = "RotatingMachine.p";
+    public static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
+    public static final String ACDC_TERMINAL_CONNECTED = "ACDCTerminal.connected";
+    public static final String UNIT_MULTIPLIER = "UnitMultiplier";
+    public static final String UNIT_MULTIPLIER_KILO = "k";
+    public static final String UNIT_MULTIPLIER_MEGA = "M";
 
     private CgmesNames() {
     }

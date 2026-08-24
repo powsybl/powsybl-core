@@ -239,8 +239,8 @@ public final class NetworkEventRecorderSshExport {
 
         CgmesExportContext context = new CgmesExportContext(network);
         CgmesMetadataModel model = initializeExportMetadata(network, context, exportOptions);
-        PartialSshEventCollector collector = new PartialSshEventCollector(network, context, exportOptions.unsupportedChangeBehavior);
-        PartialSshUpdates updates = collector.collect(events);
+        PartialSshEventTranslator translator = new PartialSshEventTranslator(network, context, exportOptions.unsupportedChangeBehavior);
+        PartialSshUpdates updates = translator.collect(events);
 
         try {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", outputStream);
@@ -248,7 +248,7 @@ public final class NetworkEventRecorderSshExport {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-        return List.copyOf(collector.exportedEvents());
+        return List.copyOf(translator.exportedEvents());
     }
 
     /**
