@@ -91,7 +91,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
      * @param temporaryLimits the temporary limits
      */
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        this(owner, DetectionKind.LOW, Double.NaN, "", temporaryLimits);
+        this(owner, DetectionKind.LOW, Double.NaN, null, temporaryLimits);
     }
 
     private AbstractLoadingLimits(OperationalLimitsGroupImpl owner, DetectionKind detectionKind, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
@@ -101,7 +101,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
             LOGGER.warn("BETA feature, there is no guarantee that a LoadingLimit with DetectionKind.LOW will still exist in the model in the next releases");
         }
         this.permanentLimit = permanentLimit;
-        this.permanentLimitName = Objects.requireNonNull(permanentLimitName);
+        this.permanentLimitName = permanentLimitName;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
     }

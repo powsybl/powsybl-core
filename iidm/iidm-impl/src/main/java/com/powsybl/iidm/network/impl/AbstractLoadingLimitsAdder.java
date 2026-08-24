@@ -138,6 +138,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         this.groupSupplier = groupSupplier;
     }
 
+    protected abstract L buildLimit(OperationalLimitsGroupImpl group);
+
+    protected abstract void setLimitToGroup(L limits, OperationalLimitsGroupImpl group);
+
+    protected abstract String getLimitTypeName();
+
     @Override
     public A setPermanentLimitName(String limitName) {
         this.permanentLimitName = limitName;
@@ -223,12 +229,6 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     public String getOwnerId() {
         return ownerId;
     }
-
-    protected abstract L buildLimit(OperationalLimitsGroupImpl group);
-
-    protected abstract void setLimitToGroup(L limits, OperationalLimitsGroupImpl group);
-
-    protected abstract String getLimitTypeName();
 
     @Override
     public L add() {
