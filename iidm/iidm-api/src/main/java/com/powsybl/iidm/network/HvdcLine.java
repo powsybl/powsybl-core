@@ -138,7 +138,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     double getR();
 
     /**
-     * Set the resistance (in &#937;) of the line. Should be positive.
+     * Set the resistance (in &#937;) of the line; must be positive.
      * @param r the resistance of the line
      * @return the HVDC line itself to allow method chaining
      */
