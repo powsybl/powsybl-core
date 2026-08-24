@@ -495,13 +495,11 @@ abstract class AbstractMatrixTest {
     @Test
     void printWhenDecimalPlacesPropertyDefined() throws IOException {
         Matrix matrix = getMatrixFactory().create(1, 4, 1);
-        // (1/3)  (PI)  (2)
         matrix.set(0, 0, 1.0 / 3.0);
         matrix.set(0, 1, Math.PI);
         matrix.set(0, 2, 2);
         matrix.set(0, 3, 1.23456);
         String result = print(matrix);
-        assertThat(result).contains("0.33", "3.14", "2.0");
         assertThat(result).contains("0.33")
                 .doesNotContain(Double.toString(1.0 / 3.0));
         assertThat(result).contains("3.14")

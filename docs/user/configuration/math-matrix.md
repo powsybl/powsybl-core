@@ -15,5 +15,3 @@ The `math-matrix` module is used to configure the matrix print formatting.
 math-matrix:
   print-decimal-places: 3
 ```
-
-
