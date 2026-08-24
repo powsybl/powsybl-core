@@ -34,7 +34,9 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
      * Optional standard deviation for active power in MW.
      * @return optional
      */
-    Optional<ObservabilityQuality<I>> getQualityP();
+    default Optional<ObservabilityQuality<I>> getQualityP() {
+        return Optional.ofNullable(getNullableQualityP());
+    }
 
     InjectionObservability<I> setQualityP(double standardDeviation, Boolean redundant);
 
@@ -50,7 +52,9 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
      * StandardDeviation for reactive power in MVar.
      * @return optional
      */
-    Optional<ObservabilityQuality<I>> getQualityQ();
+    default Optional<ObservabilityQuality<I>> getQualityQ() {
+        return Optional.ofNullable(getNullableQualityQ());
+    }
 
     InjectionObservability<I> setQualityQ(double standardDeviation, Boolean redundant);
 
@@ -66,7 +70,9 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
      * StandardDeviation for voltage amplitude in kV.
      * @return optional
      */
-    Optional<ObservabilityQuality<I>> getQualityV();
+    default Optional<ObservabilityQuality<I>> getQualityV() {
+        return Optional.ofNullable(getNullableQualityV());
+    }
 
     InjectionObservability<I> setQualityV(double standardDeviation, Boolean redundant);
 

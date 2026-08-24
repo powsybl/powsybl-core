@@ -48,6 +48,10 @@ public abstract class AbstractInjectionObservabilityTest {
         assertTrue(injectionObservability.getQualityQ().isPresent());
         assertTrue(injectionObservability.getQualityV().isPresent());
 
+        assertEquals(injectionObservability.getNullableQualityP(), injectionObservability.getQualityP().orElse(null));
+        assertEquals(injectionObservability.getNullableQualityQ(), injectionObservability.getQualityQ().orElse(null));
+        assertEquals(injectionObservability.getNullableQualityV(), injectionObservability.getQualityV().orElse(null));
+
         assertEquals(0.02d, injectionObservability.getNullableQualityP().getStandardDeviation(), 0d);
         injectionObservability.getNullableQualityP().setStandardDeviation(0.03d);
         assertEquals(0.03d, injectionObservability.getNullableQualityP().getStandardDeviation(), 0d);

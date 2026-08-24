@@ -48,7 +48,9 @@ public abstract class AbstractBranchObservabilityTest {
 
         // P
         assertTrue(branchObservability.getQualityP1().isPresent());
+        assertEquals(branchObservability.getNullableQualityP1(), branchObservability.getQualityP1().orElse(null));
         assertTrue(branchObservability.getQualityP2().isPresent());
+        assertEquals(branchObservability.getNullableQualityP2(), branchObservability.getQualityP2().orElse(null));
         assertEquals(0.02d, branchObservability.getNullableQualityP1().getStandardDeviation(), 0d);
         branchObservability.getNullableQualityP1().setStandardDeviation(0.03d);
         assertEquals(0.03d, branchObservability.getNullableQualityP1().getStandardDeviation(), 0d);
@@ -70,6 +72,8 @@ public abstract class AbstractBranchObservabilityTest {
         // Q
         assertTrue(branchObservability.getQualityQ1().isPresent());
         assertTrue(branchObservability.getQualityQ2().isPresent());
+        assertEquals(branchObservability.getNullableQualityQ1(), branchObservability.getQualityQ1().orElse(null));
+        assertEquals(branchObservability.getNullableQualityQ2(), branchObservability.getQualityQ2().orElse(null));
         assertEquals(0.5d, branchObservability.getNullableQualityQ1().getStandardDeviation(), 0d);
         branchObservability.getNullableQualityQ1().setStandardDeviation(0.6d);
         assertEquals(0.6d, branchObservability.getNullableQualityQ1().getStandardDeviation(), 0d);
