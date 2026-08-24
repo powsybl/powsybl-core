@@ -8,21 +8,10 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.PropertiesModuleConfigRepository;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -183,52 +172,4 @@ class DenseMatrixTest extends AbstractMatrixTest {
         assertEquals("Argument epsilonValue should be positive but received -1.0", e.getMessage());
     }
 
-    @Test
-    void printWhenDecimalPlacesPropertyDefined() throws IOException {
-        DenseMatrix matrix = (DenseMatrix) matrixFactory.create(1, 3, 2);
-        matrix.set(0, 0, 1.0 / 3.0);
-        matrix.set(0, 1, Math.PI);
-        matrix.set(0, 2, 2);
-        assertEquals(" 0.33 3.14 2.0" + System.lineSeparator(), print(matrix));
-    }
-
-    @Test
-    void printWhenDecimalPlacesPropertyNotDefined() throws IOException {
-        DenseMatrix matrix = (DenseMatrix) matrixFactory.create(1, 3, 2);
-        matrix.set(0, 0, 1.0 / 3.0);
-        matrix.set(0, 1, Math.PI);
-        matrix.set(0, 2, 2);
-        PlatformConfig platformConfig = new PlatformConfig(name -> Optional.empty(), null);
-        String result = print(matrix, null, null, MatrixConfig.load(platformConfig));
-        assertEquals(" 0.3333333333333333 3.141592653589793 2.0" + System.lineSeparator(), result);
-    }
-
-    @Test
-    void printWhenNoConfig() throws IOException {
-        DenseMatrix matrix = (DenseMatrix) matrixFactory.create(1, 3, 2);
-        matrix.set(0, 0, 1.0 / 3.0);
-        matrix.set(0, 1, Math.PI);
-        matrix.set(0, 2, 2);
-        String result = print(matrix, null, null, null);
-        assertEquals(" 0.3333333333333333 3.141592653589793 2.0" + System.lineSeparator(), result);
-    }
-
-    @Test
-    void printUseDefaultFormattingWhenPropertyIsNegative() throws IOException {
-        DenseMatrix matrix = (DenseMatrix) matrixFactory.create(1, 3, 2);
-        matrix.set(0, 0, 1.0 / 3.0);
-        matrix.set(0, 1, Math.PI);
-        matrix.set(0, 2, 2);
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
-            Properties prop1 = new Properties();
-            prop1.setProperty("print-decimal-places", "-1");
-            try (Writer w = Files.newBufferedWriter(cfgDir.resolve("matrix.properties"), StandardCharsets.UTF_8)) {
-                prop1.store(w, null);
-            }
-            PlatformConfig platformConfig = new PlatformConfig(new PropertiesModuleConfigRepository(cfgDir), cfgDir);
-            String result = print(matrix, null, null, MatrixConfig.load(platformConfig));
-            assertEquals(" 0.3333333333333333 3.141592653589793 2.0" + System.lineSeparator(), result);
-        }
-    }
 }

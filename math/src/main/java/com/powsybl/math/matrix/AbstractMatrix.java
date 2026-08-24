@@ -9,6 +9,7 @@ package com.powsybl.math.matrix;
 
 import com.powsybl.math.AbstractMathNative;
 
+import java.text.DecimalFormat;
 import java.util.Objects;
 
 /**
@@ -59,5 +60,17 @@ public abstract class AbstractMatrix extends AbstractMathNative implements Matri
     @Override
     public Matrix times(Matrix other) {
         return times(other, 1d);
+    }
+
+    protected static DecimalFormat createFormatter(PrintConfig matrixConfig) {
+        if (matrixConfig != null && matrixConfig.getPrintDecimalPlaces() != null) {
+            return createFormatter(matrixConfig.getPrintDecimalPlaces());
+        }
+        return null;
+    }
+
+    protected static DecimalFormat createFormatter(int maxDecimals) {
+        String pattern = "0.0" + "#".repeat(Math.max(0, maxDecimals - 1));
+        return new DecimalFormat(pattern);
     }
 }

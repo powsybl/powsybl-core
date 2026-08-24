@@ -8,16 +8,27 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PropertiesModuleConfigRepository;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -195,7 +206,7 @@ abstract class AbstractMatrixTest {
         return bos.toString(StandardCharsets.UTF_8);
     }
 
-    protected String print(DenseMatrix matrix, List<String> rowNames, List<String> columnNames, MatrixConfig config) throws IOException {
+    protected String print(Matrix matrix, List<String> rowNames, List<String> columnNames, PrintConfig config) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (bos) {
             matrix.print(new PrintStream(bos), rowNames, columnNames, config);
@@ -479,5 +490,63 @@ abstract class AbstractMatrixTest {
         assertEquals(0d, at.get(1, 0), 0d);
         assertEquals(3d, at.get(1, 1), 0d);
         assertEquals(0d, at.get(1, 2), 0d);
+    }
+
+    @Test
+    void printWhenDecimalPlacesPropertyDefined() throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 4, 1);
+        // (1/3)  (PI)  (2)
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        matrix.set(0, 3, 1.23456);
+        String result = print(matrix);
+        assertThat(result).contains("0.33", "3.14", "2.0");
+        assertThat(result).contains("0.33")
+                .doesNotContain(Double.toString(1.0 / 3.0));
+        assertThat(result).contains("3.14")
+                .doesNotContain(Double.toString(Math.PI));
+        assertThat(result).contains("2.0");
+        assertThat(result).contains("1.235");
+    }
+
+    @Test
+    void printWhenDecimalPlacesPropertyNotDefined() throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 3, 1);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        PlatformConfig platformConfig = new PlatformConfig(name -> Optional.empty(), null);
+        String result = print(matrix, null, null, PrintConfig.load(platformConfig));
+        assertThat(result).contains("0.3333333333333333", "3.141592653589793", "2.0");
+    }
+
+    @Test
+    void printWhenNoConfig() throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 3, 1);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        String result = print(matrix, null, null, null);
+        assertThat(result).contains("0.3333333333333333", "3.141592653589793", "2.0");
+    }
+
+    @Test
+    void printUseDefaultFormattingWhenPropertyIsNegative() throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 3, 1);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
+            Properties prop1 = new Properties();
+            prop1.setProperty("print-decimal-places", "-1");
+            try (Writer w = Files.newBufferedWriter(cfgDir.resolve("math-matrix.properties"), StandardCharsets.UTF_8)) {
+                prop1.store(w, null);
+            }
+            PlatformConfig platformConfig = new PlatformConfig(new PropertiesModuleConfigRepository(cfgDir), cfgDir);
+            String result = print(matrix, null, null, PrintConfig.load(platformConfig));
+            assertThat(result).contains("0.3333333333333333", "3.141592653589793", "2.0");
+        }
     }
 }

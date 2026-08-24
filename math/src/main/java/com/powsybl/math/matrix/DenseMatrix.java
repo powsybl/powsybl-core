@@ -409,15 +409,21 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public void print(PrintStream out) {
-        print(out, null, null, MatrixConfig.load());
+        print(out, null, null, PrintConfig.load());
     }
 
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
-        print(out, rowNames, columnNames, MatrixConfig.load());
+        print(out, rowNames, columnNames, PrintConfig.load());
     }
 
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, MatrixConfig config) {
+    @Override
+    public void print(PrintStream out, PrintConfig config) {
+        print(out, null, null, config);
+    }
+
+    @Override
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
         DecimalFormat fmt = createFormatter(config);
         int[] width = (fmt == null)
                 ? getMaxWidthPerColumn(columnNames)
@@ -447,18 +453,6 @@ public class DenseMatrix extends AbstractMatrix {
             }
             out.println();
         }
-    }
-
-    private static DecimalFormat createFormatter(MatrixConfig matrixConfig) {
-        if (matrixConfig != null && matrixConfig.getPrintDecimalPlaces() != null) {
-            return createFormatter(matrixConfig.getPrintDecimalPlaces());
-        }
-        return null;
-    }
-
-    private static DecimalFormat createFormatter(int maxDecimals) {
-        String pattern = "0.0" + "#".repeat(Math.max(0, maxDecimals - 1));
-        return new DecimalFormat(pattern);
     }
 
     private int getMaxWidthAmongRowNames(List<String> rowNames) {

@@ -16,6 +16,7 @@ import gnu.trove.list.array.TIntArrayList;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -449,17 +450,31 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
 
     @Override
     public void print(PrintStream out) {
-        print(out, null, null);
+        print(out, null, null, PrintConfig.load());
     }
 
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+        print(out, rowNames, columnNames, PrintConfig.load());
+    }
+
+    @Override
+    public void print(PrintStream out, PrintConfig config) {
+        print(out, null, null, config);
+    }
+
+    @Override
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
-        out.println("values=" + values);
+        if (createFormatter(config) != null) {
+            out.println("values=" + formatValues(createFormatter(config)));
+        } else {
+            out.println("values=" + values);
+        }
     }
 
     @Override
@@ -521,5 +536,12 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private TDoubleArrayListHack formatValues(DecimalFormat decimalFormat) {
+        for (int i = 0; i < values.size(); i++) {
+            values.set(i, Double.parseDouble(decimalFormat.format(values.get(i))));
+        }
+        return values;
     }
 }
