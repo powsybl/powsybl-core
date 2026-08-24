@@ -86,6 +86,6 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
                 () -> NetworkSerDe.read(inputStream, options, null));
 
         assertTrue(e.getMessage().contains(
-                "maximum reactive power is expected to be greater than or equal to minimum reactive power"));
+                "Generator 'G1': maximum reactive power is expected to be greater than or equal to minimum reactive power"));
     }
 }
