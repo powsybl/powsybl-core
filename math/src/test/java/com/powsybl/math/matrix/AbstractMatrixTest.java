@@ -181,22 +181,26 @@ abstract class AbstractMatrixTest {
 
     protected String print(Matrix matrix, List<String> rowNames, List<String> columnNames) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
+        try (bos) {
             matrix.print(new PrintStream(bos), rowNames, columnNames);
-        } finally {
-            bos.close();
         }
-        return bos.toString(StandardCharsets.UTF_8.name());
+        return bos.toString(StandardCharsets.UTF_8);
     }
 
     protected String print(Matrix matrix) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
+        try (bos) {
             matrix.print(new PrintStream(bos));
-        } finally {
-            bos.close();
         }
-        return bos.toString(StandardCharsets.UTF_8.name());
+        return bos.toString(StandardCharsets.UTF_8);
+    }
+
+    protected String print(DenseMatrix matrix, List<String> rowNames, List<String> columnNames, MatrixConfig config) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (bos) {
+            matrix.print(new PrintStream(bos), rowNames, columnNames, config);
+        }
+        return bos.toString(StandardCharsets.UTF_8);
     }
 
     @Test

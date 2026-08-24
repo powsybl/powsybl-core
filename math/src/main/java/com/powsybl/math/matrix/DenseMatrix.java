@@ -17,7 +17,6 @@ import java.nio.ByteOrder;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
@@ -32,19 +31,6 @@ public class DenseMatrix extends AbstractMatrix {
     public static final int MAX_ELEMENT_COUNT = Integer.MAX_VALUE / Double.BYTES;
 
     public static final DenseMatrix EMPTY = new DenseMatrix(0, 0);
-
-    private MatrixConfig matrixConfig;
-
-    protected void setConfig(MatrixConfig matrixConfig) {
-        this.matrixConfig = matrixConfig;
-    }
-
-    protected MatrixConfig getConfig() {
-        if (matrixConfig == null) {
-            matrixConfig = MatrixConfig.load();
-        }
-        return matrixConfig;
-    }
 
     /**
      * Dense element implementation.
@@ -423,21 +409,22 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public void print(PrintStream out) {
-        print(out, null, null);
+        print(out, null, null, MatrixConfig.load());
     }
 
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+        print(out, rowNames, columnNames, MatrixConfig.load());
+    }
+
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, MatrixConfig config) {
+        DecimalFormat fmt = createFormatter(config);
+        int[] width = (fmt == null)
+                ? getMaxWidthPerColumn(columnNames)
+                : getMaxWidthPerColumn(columnNames, fmt);
+
         int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
 
-        int[] width = getMaxWidthPerColumn(columnNames);
-
-        DecimalFormat decimalFormat = null;
-        OptionalInt defaultDecimalDigits = getConfig().getDecimalDigits();
-        if (defaultDecimalDigits.isPresent()) {
-            decimalFormat = createFormatter(defaultDecimalDigits.getAsInt());
-            width = getMaxWidthPerColumn(columnNames, decimalFormat);
-        }
         if (columnNames != null) {
             if (rowNames != null) {
                 out.print(Strings.repeat(" ", rowNamesWidth + 1));
@@ -453,13 +440,20 @@ public class DenseMatrix extends AbstractMatrix {
             }
             for (int j = 0; j < getColumnCount(); j++) {
                 out.print(Strings.padStart(
-                        defaultDecimalDigits.isPresent() ? decimalFormat.format(get(i, j)) : Double.toString(get(i, j)),
+                        fmt != null ? fmt.format(get(i, j)) : Double.toString(get(i, j)),
                         width[j] + 1,
                         ' '
                 ));
             }
             out.println();
         }
+    }
+
+    private static DecimalFormat createFormatter(MatrixConfig matrixConfig) {
+        if (matrixConfig != null && matrixConfig.getPrintDecimalPlaces() != null) {
+            return createFormatter(matrixConfig.getPrintDecimalPlaces());
+        }
+        return null;
     }
 
     private static DecimalFormat createFormatter(int maxDecimals) {
