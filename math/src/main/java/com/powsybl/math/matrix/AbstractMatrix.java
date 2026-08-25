@@ -10,7 +10,6 @@ package com.powsybl.math.matrix;
 import com.powsybl.math.AbstractMathNative;
 
 import java.io.PrintStream;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,10 +76,6 @@ public abstract class AbstractMatrix extends AbstractMathNative implements Matri
     @Override
     public void print(PrintStream out, PrintConfig config) {
         print(out, null, null, config);
-    }
-
-    public DecimalFormat getFormatter(PrintConfig config) {
-        return config != null ? config.createFormatter() : null;
     }
 
 }

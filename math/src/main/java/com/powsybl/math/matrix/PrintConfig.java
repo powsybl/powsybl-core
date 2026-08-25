@@ -22,20 +22,22 @@ public final class PrintConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrintConfig.class);
     private static final String MATH_MATRIX_MODULE = "math-matrix";
     private static final String PRINT_DECIMAL_PLACES_PROPERTY = "print-decimal-places";
+
     private final Integer printDecimalPlaces;
 
-    private PrintConfig(Integer decimalDigits) {
-        this.printDecimalPlaces = decimalDigits;
+    public PrintConfig(Integer decimalPlaces) {
+        if (decimalPlaces != null && decimalPlaces < 0) {
+            LOGGER.warn("Invalid {}.{}={} (must be >= 0). Falling back to default formatting.", MATH_MATRIX_MODULE, PRINT_DECIMAL_PLACES_PROPERTY, decimalPlaces);
+            this.printDecimalPlaces = null;
+        } else {
+            this.printDecimalPlaces = decimalPlaces;
+        }
     }
 
     public static PrintConfig load(PlatformConfig platformConfig) {
         Integer printDecimalPlaces = platformConfig.getOptionalModuleConfig(MATH_MATRIX_MODULE)
                 .flatMap(m -> m.getOptionalIntProperty(PRINT_DECIMAL_PLACES_PROPERTY).stream().boxed().findFirst())
                 .orElse(null);
-        if (printDecimalPlaces != null && printDecimalPlaces < 0) {
-            LOGGER.warn("Invalid {}.{}={} (must be >= 0). Falling back to default formatting.", MATH_MATRIX_MODULE, PRINT_DECIMAL_PLACES_PROPERTY, printDecimalPlaces);
-            return new PrintConfig(null);
-        }
         return new PrintConfig(printDecimalPlaces);
     }
 
@@ -43,9 +45,13 @@ public final class PrintConfig {
         return load(PlatformConfig.defaultConfig());
     }
 
-    public DecimalFormat createFormatter() {
-        if (printDecimalPlaces != null) {
-            return createFormatter(printDecimalPlaces);
+    public Integer getPrintDecimalPlaces() {
+        return printDecimalPlaces;
+    }
+
+    public static DecimalFormat getFormatter(PrintConfig config) {
+        if (config != null && config.getPrintDecimalPlaces() != null) {
+            return config.createFormatter(config.getPrintDecimalPlaces());
         }
         return null;
     }

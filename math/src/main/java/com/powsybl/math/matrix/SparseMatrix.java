@@ -18,6 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
 
 /**
  * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a> format.
@@ -520,11 +523,10 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         }
     }
 
-    private TDoubleArrayListHack formatValues(DecimalFormat decimalFormat) {
-        TDoubleArrayListHack tDoubleArrayListHack = new TDoubleArrayListHack(values.size());
-        for (int i = 0; i < values.size(); i++) {
-            tDoubleArrayListHack.add(Double.parseDouble(decimalFormat.format(values.get(i))));
-        }
-        return tDoubleArrayListHack;
+    public String formatValues(DecimalFormat decimalFormat) {
+        return Arrays.stream(getValues())
+                .mapToObj(decimalFormat::format)
+                .collect(Collectors.joining(", ", "{", "}"));
     }
+
 }

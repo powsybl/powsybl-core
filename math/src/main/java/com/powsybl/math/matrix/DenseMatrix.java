@@ -20,6 +20,8 @@ import java.util.Objects;
 import java.util.function.DoubleFunction;
 import java.util.function.Supplier;
 
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
+
 /**
  * Dense matrix implementation based on an array of {@code rowCount} * {@code columnCount} double values.
  *

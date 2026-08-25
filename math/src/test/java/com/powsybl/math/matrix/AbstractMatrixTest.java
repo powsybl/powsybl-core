@@ -14,6 +14,10 @@ import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PropertiesModuleConfigRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -507,25 +512,23 @@ abstract class AbstractMatrixTest {
                 .contains("1.235").doesNotContain("1.2345");
     }
 
-    @Test
-    void printWhenDecimalPlacesPropertyNotDefined() throws IOException {
+    @ParameterizedTest
+    @NullSource
+    @MethodSource("providePrintConfigs")
+    void printWhenDecimalPlacesPropertyNotDefined(PrintConfig config) throws IOException {
         Matrix matrix = getMatrixFactory().create(1, 3, 1);
         matrix.set(0, 0, 1.0 / 3.0);
         matrix.set(0, 1, Math.PI);
         matrix.set(0, 2, 2);
-        PlatformConfig platformConfig = new PlatformConfig(name -> Optional.empty(), null);
-        String result = print(matrix, null, null, PrintConfig.load(platformConfig));
+        String result = print(matrix, null, null, config);
         assertThat(result).contains("0.3333333333333333", "3.141592653589793", "2.0");
     }
 
-    @Test
-    void printWhenNoConfig() throws IOException {
-        Matrix matrix = getMatrixFactory().create(1, 3, 1);
-        matrix.set(0, 0, 1.0 / 3.0);
-        matrix.set(0, 1, Math.PI);
-        matrix.set(0, 2, 2);
-        String result = print(matrix, null, null, null);
-        assertThat(result).contains("0.3333333333333333", "3.141592653589793", "2.0");
+    private static Stream<Arguments> providePrintConfigs() {
+        return Stream.of(
+                Arguments.of(new PrintConfig(null)), // printPlaces (null)
+                Arguments.of(PrintConfig.load(new PlatformConfig(name -> Optional.empty(), null))) //printPlaces empty (from config file)
+        );
     }
 
     @Test
