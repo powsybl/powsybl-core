@@ -207,7 +207,6 @@ public final class VoltageRegulationUtils {
         } else {
             holder.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(targetV)
                 .withTerminal(regulatingTerminal)
                 .withTargetValue(targetV)
                 .withRegulating(isRegulatingOn)

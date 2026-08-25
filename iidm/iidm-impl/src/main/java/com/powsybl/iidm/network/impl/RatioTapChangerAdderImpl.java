@@ -171,16 +171,11 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
         if (voltageRegulationAttributes != null) {
             network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent,
-                voltageRegulationAttributes.isRegulating(),
+                voltageRegulationAttributes,
                 loadTapChangingCapabilities,
-                voltageRegulationAttributes.terminal(),
-                voltageRegulationAttributes.mode(),
-                voltageRegulationAttributes.targetValue(),
                 getNetwork(),
                 getNetwork().getMinValidationLevel(),
                 getNetwork().getReportNodeContext().getReportNode()));
-            network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), voltageRegulationAttributes.isRegulating(),
-                voltageRegulationAttributes.targetDeadband(), network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         }
 
         RatioTapChangerImpl tapChanger = new RatioTapChangerImpl(parent, lowTapPosition, steps, loadTapChangingCapabilities,

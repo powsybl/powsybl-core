@@ -767,6 +767,7 @@ public abstract class AbstractTapChangerTest {
                 .withMode(RegulationMode.VOLTAGE)
                 .withTargetValue(220.0)
                 .withTerminal(twt.getTerminal1())
+                .withTargetDeadband(1.0)
                 .add()
             .add());
         assertTrue(e.getMessage().contains("ratio tap changer should have at least one step"));
@@ -787,18 +788,18 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void undefinedRegulationValue() {
         ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal));
-        assertEquals("2 windings transformer 'twt': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", e.getMessage());
+        assertEquals("2 windings transformer 'twt': a regulation value has to be set for a regulating ratio tap changer", e.getMessage());
 
         ValidationException e2 = assertThrows(ValidationException.class,
             () -> createRatioTapChangerWith3Steps(0, 1, true, true, RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
-        assertEquals("2 windings transformer 'twt': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", e2.getMessage());
+        assertEquals("2 windings transformer 'twt': a regulation value has to be set for a regulating ratio tap changer", e2.getMessage());
     }
 
     @Test
     public void invalidNullModeRatio() {
         ValidationException e = assertThrows(ValidationException.class,
             () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
-        assertEquals("2 windings transformer 'twt': Undefined value for voltageRegulation.regulationMode", e.getMessage());
+        assertEquals("2 windings transformer 'twt': regulation mode of regulating ratio tap changer must be given", e.getMessage());
     }
 
     @Test

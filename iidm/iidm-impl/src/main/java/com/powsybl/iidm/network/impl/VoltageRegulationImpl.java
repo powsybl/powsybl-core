@@ -434,6 +434,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             currentVariantMode,
             currentVariantRegulating,
             currentVariantWithTerminal,
+            classHolder,
             network.get().getMinValidationLevel(),
             network.get().getReportNodeContext().getReportNode());
 

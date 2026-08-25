@@ -185,14 +185,6 @@ public final class NetworkReports {
             .add();
     }
 
-    public static void invalidVoltageRegulationDeadband(ReportNode reportNode, String id) {
-        reportNode.newReportNode()
-            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationDeadband")
-            .withTypedValue("id", id, TypedValue.ID)
-            .withSeverity(TypedValue.ERROR_SEVERITY)
-            .add();
-    }
-
     public static void invalidVoltageRegulationSlope(ReportNode reportNode, String id) {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.invalidVoltageRegulationSlope")

@@ -32,8 +32,9 @@ public interface RatioTapChangerHolder {
         RatioTapChangerAdder adder = this.newRatioTapChanger()
                 .setLoadTapChangingCapabilities(ratioTapChanger.hasLoadTapChangingCapabilities())
                 .setLowTapPosition(ratioTapChanger.getLowTapPosition())
-                .setTapPosition(ratioTapChanger.getTapPosition())
-                .newVoltageRegulation()
+                .setTapPosition(ratioTapChanger.getTapPosition());
+        if (voltageRegulation != null) {
+            adder.newVoltageRegulation()
                     .withMode(voltageRegulation.getMode())
                     .withTargetValue(voltageRegulation.getTargetValue())
                     .withTerminal(voltageRegulation.getTerminal())
@@ -41,6 +42,7 @@ public interface RatioTapChangerHolder {
                     .withTargetDeadband(voltageRegulation.getTargetDeadband())
                     .withSlope(voltageRegulation.getSlope())
                     .add();
+        }
         for (int tapPosition = ratioTapChanger.getLowTapPosition(); tapPosition <= ratioTapChanger.getHighTapPosition(); tapPosition++) {
             RatioTapChangerStep step = ratioTapChanger.getStep(tapPosition);
             adder.beginStep()

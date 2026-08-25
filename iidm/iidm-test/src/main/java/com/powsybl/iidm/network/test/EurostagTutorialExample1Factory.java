@@ -1256,6 +1256,7 @@ public final class EurostagTutorialExample1Factory {
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTargetValue(100)
             .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .withTargetDeadband(10.)
             .build();
         return network;
     }
@@ -1433,6 +1434,7 @@ public final class EurostagTutorialExample1Factory {
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTargetValue(100)
             .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .withTargetDeadband(10.)
             .build();
         return network;
     }

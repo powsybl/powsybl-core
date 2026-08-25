@@ -186,7 +186,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("2 windings transformer 'T1': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set",
+        assertEquals("2 windings transformer 'T1': Undefined value for target deadband of regulating ratio tap changer",
             validationException.getMessage());
     }
 

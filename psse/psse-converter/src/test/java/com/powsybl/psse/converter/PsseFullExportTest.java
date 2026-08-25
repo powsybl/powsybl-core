@@ -242,6 +242,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                     .withMode(RegulationMode.VOLTAGE)
                     .withTargetValue(vl2S3.getNominalV() * 1.02)
                     .withTerminal(t2w.getTerminal2())
+                    .withTargetDeadband(10.)
                     .add();
         t2w.newOperationalLimitsGroup1("ApparentPowerLimits")
             .newApparentPowerLimits()

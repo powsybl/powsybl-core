@@ -114,7 +114,7 @@ abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulati
 
     private void checkTargetValue() {
         network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTargetValue(validable,
-            targetValue, mode, regulating, isWithTerminal(),
+            targetValue, mode, regulating, isWithTerminal(), classHolder,
             network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
     }
 
