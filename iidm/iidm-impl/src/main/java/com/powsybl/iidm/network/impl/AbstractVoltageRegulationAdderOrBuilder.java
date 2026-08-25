@@ -88,20 +88,20 @@ abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulati
     }
 
     private void checkVoltageRegulationAttributes() {
-        checkAttributesNotFromVoltageRegulation(validable);
+        checkAttributesNotFromVoltageRegulation();
         // MODE
-        checkRegulationMode(validable);
+        checkRegulationMode();
         // SLOPE
-        checkSlopeValue(validable);
+        checkSlopeValue();
         // DEADBAND
-        checkDeadbandValue(validable);
+        checkDeadbandValue();
         // TERMINAL
-        checkTerminal(validable);
+        checkTerminal();
         // TARGET VALUE (check after Terminal and mode)
-        checkTargetValue(validable);
+        checkTargetValue();
     }
 
-    private void checkAttributesNotFromVoltageRegulation(Validable validable) {
+    private void checkAttributesNotFromVoltageRegulation() {
         if (holder instanceof RatioTapChanger ratioTapChanger) {
             boolean loadTapChangingCapabilities = ratioTapChanger.hasLoadTapChangingCapabilities();
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkRTCLoadTapChangingCapabilities(validable,
@@ -112,34 +112,35 @@ abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulati
         }
     }
 
-    private void checkTargetValue(Validable validable) {
+    private void checkTargetValue() {
         network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTargetValue(validable,
             targetValue, mode, regulating, isWithTerminal(),
             network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
     }
 
-    private void checkTerminal(Validable validable) {
+    private void checkTerminal() {
         ValidationUtil.checkRegulatingTerminal(validable, terminal, network.get());
         network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTerminal(validable,
             terminal, regulating,
             network.get(),
+            classHolder,
             network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
     }
 
-    private void checkDeadbandValue(Validable validable) {
+    private void checkDeadbandValue() {
         network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationDeadband(validable,
             targetDeadband, regulating,
             classHolder,
             network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
     }
 
-    private void checkSlopeValue(Validable validable) {
+    private void checkSlopeValue() {
         network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationSlope(validable,
             slope, mode, regulating,
             network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
     }
 
-    private void checkRegulationMode(Validable validable) {
+    private void checkRegulationMode() {
         network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationMode(validable,
             mode, regulating, isWithTerminal(),
             classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));

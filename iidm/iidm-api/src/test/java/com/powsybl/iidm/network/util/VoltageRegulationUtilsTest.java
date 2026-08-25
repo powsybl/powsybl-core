@@ -47,41 +47,57 @@ class VoltageRegulationUtilsTest {
 
     static Stream<Arguments> provideParametersForGetAllowedRegulationModes() {
         return Stream.of(
-            Arguments.of(Battery.class, true, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(Battery.class, false, Set.of(VOLTAGE)),
+            Arguments.of(Battery.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(Battery.class, false, true, Set.of(VOLTAGE)),
+            Arguments.of(Battery.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(Battery.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER)),
 
-            Arguments.of(Generator.class, true, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(Generator.class, false, Set.of(VOLTAGE)),
+            Arguments.of(Generator.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(Generator.class, false, true, Set.of(VOLTAGE)),
+            Arguments.of(Generator.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(Generator.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER)),
 
-            Arguments.of(RatioTapChanger.class, true, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(RatioTapChanger.class, false, Set.of()),
+            Arguments.of(RatioTapChanger.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(RatioTapChanger.class, false, true, Set.of()),
+            Arguments.of(RatioTapChanger.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(RatioTapChanger.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER)),
 
-            Arguments.of(ShuntCompensator.class, true, Set.of(VOLTAGE)),
-            Arguments.of(ShuntCompensator.class, false, Set.of(VOLTAGE)),
+            Arguments.of(ShuntCompensator.class, true, true, Set.of(VOLTAGE)),
+            Arguments.of(ShuntCompensator.class, false, true, Set.of(VOLTAGE)),
+            Arguments.of(ShuntCompensator.class, true, false, Set.of(VOLTAGE)),
+            Arguments.of(ShuntCompensator.class, false, false, Set.of(VOLTAGE)),
 
-            Arguments.of(StaticVarCompensator.class, true, Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER)),
-            Arguments.of(StaticVarCompensator.class, false, Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER)),
+            Arguments.of(StaticVarCompensator.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER)),
+            Arguments.of(StaticVarCompensator.class, false, true, Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER)),
+            Arguments.of(StaticVarCompensator.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER)),
+            Arguments.of(StaticVarCompensator.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER)),
 
-            Arguments.of(VscConverterStation.class, true, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(VscConverterStation.class, false, Set.of(VOLTAGE)),
+            Arguments.of(VscConverterStation.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(VscConverterStation.class, false, true, Set.of(VOLTAGE)),
+            Arguments.of(VscConverterStation.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(VscConverterStation.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER)),
 
-            Arguments.of(VoltageSourceConverter.class, true, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(VoltageSourceConverter.class, false, Set.of(VOLTAGE))
+            Arguments.of(VoltageSourceConverter.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(VoltageSourceConverter.class, false, true, Set.of(VOLTAGE)),
+            Arguments.of(VoltageSourceConverter.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(VoltageSourceConverter.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER))
 
         );
     }
 
     @ParameterizedTest
     @MethodSource("provideParametersForGetAllowedRegulationModes")
-    void testGetAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolderClass, boolean isRemoteRegulating, Set<RegulationMode> expectedModes) {
-        Set<RegulationMode> allowedModes = VoltageRegulationUtils.getSettableRegulationModes(voltageRegulationHolderClass, isRemoteRegulating);
-        assertEquals(expectedModes, allowedModes, "Allowed regulation modes do not match for class " + voltageRegulationHolderClass.getSimpleName() + " with isRemoteRegulating=" + isRemoteRegulating);
+    void testGetAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolderClass,
+                                       boolean isRemoteRegulating, boolean isRegulating, Set<RegulationMode> expectedModes) {
+        Set<RegulationMode> allowedModes = VoltageRegulationUtils.getSettableRegulationModes(voltageRegulationHolderClass, isRemoteRegulating, isRegulating);
+        assertEquals(expectedModes, allowedModes, "Allowed regulation modes do not match for class " + voltageRegulationHolderClass.getSimpleName() +
+                " with isRemoteRegulating=" + isRemoteRegulating + " and isRegulating=" + isRegulating);
     }
 
     @Test
     void testGetAllowedRegulationModesForUnsupportedClass() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> VoltageRegulationUtils.getSettableRegulationModes(VoltageRegulationUtilsTest.UnsupportedHolder.class, true));
+            () -> VoltageRegulationUtils.getSettableRegulationModes(VoltageRegulationUtilsTest.UnsupportedHolder.class, true, true));
         assertEquals("UnsupportedHolder class cannot be used with VoltageRegulation", exception.getMessage());
     }
 

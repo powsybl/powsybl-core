@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER;
@@ -29,7 +30,14 @@ public final class VoltageRegulationUtils {
         /* This utility class should not be instantiated */
     }
 
-    public static Set<RegulationMode> getSettableRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder, boolean isTerminalSet) {
+    public static Set<RegulationMode> getSettableRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder, boolean isTerminalSet, boolean regulating) {
+        if (!regulating) {
+            // When the regulation is not set, we ignore the terminal and return all the settable modes
+            return Stream.concat(
+                    getRemoteSettableRegulationModes(voltageRegulationHolder).stream(),
+                    getLocalSettableRegulationModes(voltageRegulationHolder).stream())
+                    .collect(Collectors.toSet());
+        }
         return isTerminalSet ? getRemoteSettableRegulationModes(voltageRegulationHolder) : getLocalSettableRegulationModes(voltageRegulationHolder);
     }
 

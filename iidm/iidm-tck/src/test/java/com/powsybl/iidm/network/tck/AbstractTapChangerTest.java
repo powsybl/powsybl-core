@@ -597,11 +597,8 @@ public abstract class AbstractTapChangerTest {
         ratioTapChanger.setLoadTapChangingCapabilities(false);
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
 
-        voltageRegulation.setTargetDeadband(-1);
-        assertEquals(-1, voltageRegulation.getTargetDeadband());
         voltageRegulation.setTargetDeadband(1);
         ratioTapChanger.setLoadTapChangingCapabilities(true);
-        ratioTapChanger.setRegulating(true);
         ValidationException validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setTargetDeadband(-1));
         assertEquals("2 windings transformer 'twt': Unexpected value for target deadband of RatioTapChanger: -1.0 < 0", validationException.getMessage());
 
