@@ -270,7 +270,8 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 Collections.singletonList(
                         new PostContingencyResult(
                                 new Contingency(id), PostContingencyComputationStatus.CONVERGED,
-                                LimitViolationsResult.empty(), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN)
+                                LimitViolationsResult.empty(), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN,
+                                Collections.emptyMap())
                 )
         );
     }

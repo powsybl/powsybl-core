@@ -253,7 +253,7 @@ class SecurityAnalysisExecutionHandlersTest {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
                 Collections.singletonList(new PostContingencyResult(new Contingency(id),
                     PostContingencyComputationStatus.CONVERGED, LimitViolationsResult.empty(),
-                    NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN)));
+                    NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyMap())));
     }
 
     @Test

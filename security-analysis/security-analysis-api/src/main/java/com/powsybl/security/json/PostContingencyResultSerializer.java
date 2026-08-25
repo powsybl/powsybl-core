@@ -33,6 +33,18 @@ public class PostContingencyResultSerializer extends StdSerializer<PostContingen
         serializerProvider.defaultSerializeField("networkResult", postContingencyResult.getNetworkResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("connectivityResult", postContingencyResult.getConnectivityResult(), jsonGenerator);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "distributedActivePower", postContingencyResult.getDistributedActivePower());
+        if (!postContingencyResult.getPhaseShifterResults().isEmpty()) {
+            jsonGenerator.writeFieldName("phaseShifterResults");
+            jsonGenerator.writeStartArray();
+            for (var psr : postContingencyResult.getPhaseShifterResults().values()) {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("transformerId", psr.transformerId());
+                jsonGenerator.writeNumberField("initialTap", psr.initialTap());
+                jsonGenerator.writeNumberField("newTap", psr.newTap());
+                jsonGenerator.writeEndObject();
+            }
+            jsonGenerator.writeEndArray();
+        }
         jsonGenerator.writeEndObject();
     }
 }

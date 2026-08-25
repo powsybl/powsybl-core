@@ -64,13 +64,13 @@ class SecurityAnalysisResultMergerTest {
             .build();
         postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED,
             new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
-            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyMap());
 
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency2");
         postContingencyResult2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED,
             new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action3")),
-            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyMap());
 
         result1 = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
         result2 = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult2));

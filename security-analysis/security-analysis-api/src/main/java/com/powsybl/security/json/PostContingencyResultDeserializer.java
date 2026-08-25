@@ -12,9 +12,16 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.PostContingencyComputationStatus;
-import com.powsybl.security.results.*;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.MovedPhaseShifterResult;
+import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.results.PostContingencyResult;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
@@ -34,40 +41,47 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         Contingency contingency = null;
         PostContingencyComputationStatus status = null;
         ConnectivityResult connectivityResult = null;
+        Map<String, MovedPhaseShifterResult> phaseShifterResults = Collections.emptyMap();
     }
 
     @Override
     public PostContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
-        if (version == null) {  // assuming current version...
+        if (version == null) {
             version = SecurityAnalysisResultSerializer.VERSION;
         }
         final String finalVersion = version;
         ParsingContext parsingContext = new ParsingContext();
-        AbstractContingencyResultDeserializer.ParsingContext commonParsingContext = new AbstractContingencyResultDeserializer.ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> parsePostContingencyResult(parser, deserializationContext, parsingContext, finalVersion, commonParsingContext, name));
+        AbstractContingencyResultDeserializer.ParsingContext commonParsingContext =
+                new AbstractContingencyResultDeserializer.ParsingContext();
+        JsonUtil.parsePolymorphicObject(parser, name -> parsePostContingencyResult(
+                parser, deserializationContext, parsingContext, finalVersion, commonParsingContext, name));
 
         if (parsingContext.connectivityResult == null) {
             parsingContext.connectivityResult = ConnectivityResult.empty();
         }
-
-        if (version.compareTo("1.3") < 0) {
+        if (finalVersion.compareTo("1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
-            parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
+            parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk()
+                    ? PostContingencyComputationStatus.CONVERGED
+                    : PostContingencyComputationStatus.FAILED;
         }
         return new PostContingencyResult(
                 parsingContext.contingency, parsingContext.status,
                 commonParsingContext.limitViolationsResult,
                 Objects.requireNonNullElseGet(commonParsingContext.networkResult,
-                    () -> new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
-                parsingContext.connectivityResult, commonParsingContext.distributedActivePower);
+                        () -> new NetworkResult(commonParsingContext.branchResults,
+                                commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
+                parsingContext.connectivityResult, commonParsingContext.distributedActivePower,
+                parsingContext.phaseShifterResults);
     }
 
     private boolean parsePostContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
-                                               ParsingContext parsingContext, String finalVersion,
-                                               AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
-                                               String name) throws IOException {
-        boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext, finalVersion, CONTEXT_NAME);
+                                                ParsingContext parsingContext, String finalVersion,
+                                                AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
+                                                String name) throws IOException {
+        boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext,
+                finalVersion, CONTEXT_NAME);
         if (found) {
             return true;
         }
@@ -78,18 +92,36 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                 return true;
             case "status":
                 parser.nextToken();
-                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
-                    finalVersion, "1.3");
-                parsingContext.status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", finalVersion, "1.3");
+                parsingContext.status = JsonUtil.readValue(deserializationContext, parser,
+                        PostContingencyComputationStatus.class);
                 return true;
             case "connectivityResult":
                 parser.nextToken();
-                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: connectivityResult",
-                    finalVersion, "1.4");
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(
+                        CONTEXT_NAME, "Tag: connectivityResult", finalVersion, "1.4");
                 parsingContext.connectivityResult = JsonUtil.readValue(deserializationContext, parser, ConnectivityResult.class);
+                return true;
+            case "phaseShifterResults":
+                parser.nextToken();
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(
+                        CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "2.0");
+                parsingContext.phaseShifterResults = readPhaseShifterResults(parser, deserializationContext);
                 return true;
             default:
                 return false;
         }
+    }
+
+    private static Map<String, MovedPhaseShifterResult> readPhaseShifterResults(
+            JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        Map<String, MovedPhaseShifterResult> results = new LinkedHashMap<>();
+        List<?> list = JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
+        for (Object obj : list) {
+            if (obj instanceof MovedPhaseShifterResult result) {
+                results.put(result.transformerId(), result);
+            }
+        }
+        return results;
     }
 }
