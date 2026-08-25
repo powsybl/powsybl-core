@@ -80,6 +80,7 @@ public abstract class AbstractShuntCompensatorTest {
         ShuntCompensatorLinearModel shuntLinearModel = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
         assertEquals(5.0, shuntLinearModel.getBPerSection(), 0.0);
         assertEquals(4.0, shuntLinearModel.getGPerSection(), 0.0);
+        assertFalse(shuntCompensator.isEquivalent());
 
         // try get incorrect shunt model
         try {
@@ -544,6 +545,20 @@ public abstract class AbstractShuntCompensatorTest {
         assertTrue(shuntCompensator.findSolvedSectionCount().isEmpty());
         assertNull(shuntCompensator.getSolvedSectionCount());
 
+    }
+
+    @Test
+    public void testEquivalent() {
+        ShuntCompensator shunt = createShuntAdder(SHUNT, "shuntName", 1, terminal, true, 200, 10)
+                .setEquivalent(true)
+                    .newNonLinearModel()
+                    .beginSection()
+                    .setB(1)
+                    .setG(2)
+                    .endSection()
+                    .add()
+                .add();
+        assertTrue(shunt.isEquivalent());
     }
 
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection,

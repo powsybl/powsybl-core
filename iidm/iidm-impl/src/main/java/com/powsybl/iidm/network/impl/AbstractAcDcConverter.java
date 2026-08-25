@@ -48,11 +48,11 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     private final TDoubleArrayList targetVdc;
 
-    AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+    AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent,
                           double minP, double maxP,
                           double idleLoss, double switchingLoss, double resistiveLoss,
                           TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
-        super(ref, id, name, fictitious);
+        super(ref, id, name, fictitious, equivalent);
         this.minP = minP;
         this.maxP = maxP;
         this.idleLoss = idleLoss;

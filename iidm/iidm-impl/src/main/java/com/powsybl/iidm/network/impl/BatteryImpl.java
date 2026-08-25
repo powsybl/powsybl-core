@@ -28,8 +28,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double targetP, double targetQ, double minP, double maxP) {
-        super(ref, id, name, fictitious);
+    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent, double targetP, double targetQ, double minP, double maxP) {
+        super(ref, id, name, fictitious, equivalent);
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
