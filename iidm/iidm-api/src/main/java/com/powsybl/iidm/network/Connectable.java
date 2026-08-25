@@ -88,4 +88,9 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     default void unsetSolvedValues() {
         this.getTerminals().forEach(Terminal::unsetSolvedValues);
     }
+
+    /**
+     * Returns true is the connectable is an equivalent, from a network reduction for instance.
+     */
+    boolean isEquivalent();
 }

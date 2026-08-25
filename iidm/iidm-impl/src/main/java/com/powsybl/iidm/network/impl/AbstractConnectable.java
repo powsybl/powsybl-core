@@ -26,10 +26,12 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     protected final List<TerminalExt> terminals = new ArrayList<>();
     private final Ref<NetworkImpl> networkRef;
     protected boolean removed = false;
+    private boolean equivalent = false;
 
-    AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
+    AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
+        this.equivalent = equivalent;
     }
 
     void addTerminal(TerminalExt terminal) {
@@ -236,5 +238,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         } else {
             return terminals.stream().filter(terminal -> terminal.getSide().equals(side)).toList();
         }
+    }
+
+    @Override
+    public boolean isEquivalent() {
+        return equivalent;
     }
 }
