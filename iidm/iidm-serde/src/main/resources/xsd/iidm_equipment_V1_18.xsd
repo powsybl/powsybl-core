@@ -589,6 +589,8 @@
                 <xs:attribute name="controlMode" use="required" type="iidm:AcDcConverterControlMode"/>
                 <xs:attribute name="targetP" use="optional" type="xs:double"/>
                 <xs:attribute name="targetVdc" use="optional" type="xs:double"/>
+                <xs:attribute name="minP" use="optional" type="xs:double"/>
+                <xs:attribute name="maxP" use="optional" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>

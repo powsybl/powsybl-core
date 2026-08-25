@@ -1066,7 +1066,8 @@ same load sign convention as `TargetP`.
 
 `MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
 
-`MinP` and `MaxP` are not serializable as of today. Trying to serialize AC-DC converters with non-default values of `MinP` or `MaxP` will raise an error.
+`MinP` and `MaxP` are serialized from IIDM version 1.18 onwards, and are omitted from the serialized file when left unset.
+Exporting a converter with a non-default `MinP` or `MaxP` to an earlier IIDM version raises an error.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
