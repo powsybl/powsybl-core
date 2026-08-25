@@ -722,7 +722,7 @@ public final class ValidationUtil {
      * @param permanentLimitName the name of the permanent limit (can be null)
      */
     public static void checkPermanentLimitName(Validable validable, DetectionKind detectionKind, String permanentLimitName) {
-        if (detectionKind == DetectionKind.LOW && permanentLimitName != null) {
+        if (detectionKind == DetectionKind.LOW && permanentLimitName != null && !permanentLimitName.isEmpty()) {
             throw new ValidationException(
                 validable,
                 String.format(
