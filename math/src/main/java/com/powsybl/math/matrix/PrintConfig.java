@@ -12,6 +12,8 @@ import com.powsybl.commons.config.PlatformConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DecimalFormat;
+
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
@@ -41,7 +43,15 @@ public final class PrintConfig {
         return load(PlatformConfig.defaultConfig());
     }
 
-    public Integer getPrintDecimalPlaces() {
-        return printDecimalPlaces;
+    public DecimalFormat createFormatter() {
+        if (printDecimalPlaces != null) {
+            return createFormatter(printDecimalPlaces);
+        }
+        return null;
+    }
+
+    private DecimalFormat createFormatter(int maxDecimals) {
+        String pattern = "0.0" + "#".repeat(Math.max(0, maxDecimals - 1));
+        return new DecimalFormat(pattern);
     }
 }

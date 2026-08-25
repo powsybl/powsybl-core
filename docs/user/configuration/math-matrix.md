@@ -1,9 +1,12 @@
 # math-matrix
 The `math-matrix` module is used to configure the matrix print formatting.
 
-- `print-decimal-places` (optional integer, `>= 0`): maximum number of decimal places.
-- If missing: default `Double.toString` formatting is used.
-- If invalid (`< 0`): ignored, with a warning.
+## Optional properties
+
+**print-decimal-places**<br>
+The `print-decimal-places` property is an optional property that defines the maximum number of decimal places.
+
+If this property is missing or set to negative value, the default `Double.toString` formatting is used.
 
 ## Example
 

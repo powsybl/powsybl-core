@@ -449,32 +449,14 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
     }
 
     @Override
-    public void print(PrintStream out) {
-        print(out, null, null, PrintConfig.load());
-    }
-
-    @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
-        print(out, rowNames, columnNames, PrintConfig.load());
-    }
-
-    @Override
-    public void print(PrintStream out, PrintConfig config) {
-        print(out, null, null, config);
-    }
-
-    @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
-        if (createFormatter(config) != null) {
-            out.println("values=" + formatValues(createFormatter(config)));
-        } else {
-            out.println("values=" + values);
-        }
+        DecimalFormat decimalFormatter = getFormatter(config);
+        out.println("values=" + (decimalFormatter != null ? formatValues(decimalFormatter) : values));
     }
 
     @Override
@@ -539,9 +521,10 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
     }
 
     private TDoubleArrayListHack formatValues(DecimalFormat decimalFormat) {
+        TDoubleArrayListHack tDoubleArrayListHack = new TDoubleArrayListHack(values.size());
         for (int i = 0; i < values.size(); i++) {
-            values.set(i, Double.parseDouble(decimalFormat.format(values.get(i))));
+            tDoubleArrayListHack.add(Double.parseDouble(decimalFormat.format(values.get(i))));
         }
-        return values;
+        return tDoubleArrayListHack;
     }
 }

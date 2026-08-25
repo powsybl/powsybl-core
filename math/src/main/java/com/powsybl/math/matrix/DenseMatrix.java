@@ -17,6 +17,7 @@ import java.nio.ByteOrder;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.DoubleFunction;
 import java.util.function.Supplier;
 
 /**
@@ -408,26 +409,11 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
-    public void print(PrintStream out) {
-        print(out, null, null, PrintConfig.load());
-    }
-
-    @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
-        print(out, rowNames, columnNames, PrintConfig.load());
-    }
-
-    @Override
-    public void print(PrintStream out, PrintConfig config) {
-        print(out, null, null, config);
-    }
-
-    @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
-        DecimalFormat fmt = createFormatter(config);
-        int[] width = (fmt == null)
-                ? getMaxWidthPerColumn(columnNames)
-                : getMaxWidthPerColumn(columnNames, fmt);
+        DecimalFormat decimalFormatter = getFormatter(config);
+        int[] width = (decimalFormatter == null)
+                ? getMaxWidthPerColumn(columnNames, Double::toString)
+                : getMaxWidthPerColumn(columnNames, decimalFormatter::format);
 
         int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
 
@@ -446,7 +432,7 @@ public class DenseMatrix extends AbstractMatrix {
             }
             for (int j = 0; j < getColumnCount(); j++) {
                 out.print(Strings.padStart(
-                        fmt != null ? fmt.format(get(i, j)) : Double.toString(get(i, j)),
+                        decimalFormatter != null ? decimalFormatter.format(get(i, j)) : Double.toString(get(i, j)),
                         width[j] + 1,
                         ' '
                 ));
@@ -465,24 +451,11 @@ public class DenseMatrix extends AbstractMatrix {
         return rowNamesWidth;
     }
 
-    private int[] getMaxWidthPerColumn(List<String> columnNames) {
+    private int[] getMaxWidthPerColumn(List<String> columnNames, DoubleFunction<String> formatter) {
         int[] width = new int[getColumnCount()];
         for (int i = 0; i < getRowCount(); i++) {
             for (int j = 0; j < getColumnCount(); j++) {
-                width[j] = Math.max(width[j], Double.toString(get(i, j)).length());
-                if (columnNames != null) {
-                    width[j] = Math.max(width[j], columnNames.get(j).length());
-                }
-            }
-        }
-        return width;
-    }
-
-    private int[] getMaxWidthPerColumn(List<String> columnNames, DecimalFormat decimalFormat) {
-        int[] width = new int[getColumnCount()];
-        for (int i = 0; i < getRowCount(); i++) {
-            for (int j = 0; j < getColumnCount(); j++) {
-                width[j] = Math.max(width[j], decimalFormat.format(get(i, j)).length());
+                width[j] = Math.max(width[j], formatter.apply(get(i, j)).length());
                 if (columnNames != null) {
                     width[j] = Math.max(width[j], columnNames.get(j).length());
                 }

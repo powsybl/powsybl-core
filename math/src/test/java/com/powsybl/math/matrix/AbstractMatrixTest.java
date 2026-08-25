@@ -500,12 +500,11 @@ abstract class AbstractMatrixTest {
         matrix.set(0, 2, 2);
         matrix.set(0, 3, 1.23456);
         String result = print(matrix);
-        assertThat(result).contains("0.33")
-                .doesNotContain(Double.toString(1.0 / 3.0));
-        assertThat(result).contains("3.14")
-                .doesNotContain(Double.toString(Math.PI));
-        assertThat(result).contains("2.0");
-        assertThat(result).contains("1.235");
+        assertThat(result)
+                .contains("0.33").doesNotContain("0.3333")
+                .contains("3.14").doesNotContain("3.1415").doesNotContain("3.1416")
+                .contains("2.0").doesNotContain("2.00")
+                .contains("1.235").doesNotContain("1.2345");
     }
 
     @Test

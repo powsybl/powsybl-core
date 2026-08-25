@@ -297,7 +297,7 @@ public interface Matrix {
     void print(PrintStream out);
 
     /**
-     * Print the matrix to a stream including the row, the column and the print configuration
+     * Print the matrix to a stream including the row and the column, using the given print configuration
      *
      * @param out         the stream
      * @param rowNames    the row names
@@ -307,7 +307,7 @@ public interface Matrix {
     void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config);
 
     /**
-     * Print the matrix to a stream including the print configuration
+     * Print the matrix to a stream, using the given print configuration
      *
      * @param out       the stream
      * @param config    the print configuration
