@@ -7,34 +7,11 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER2;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER2;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL2;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_EQUIVALENT_SHUNT;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
-import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport.UnsupportedChangeBehavior;
-import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.merge;
-import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.newUpdates;
+import com.powsybl.cgmes.conversion.export.PartialSshExport.UnsupportedChangeBehavior;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Result;
-import static com.powsybl.commons.util.Result.failure;
-import static com.powsybl.commons.util.Result.success;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.Generator;
@@ -56,6 +33,29 @@ import com.powsybl.iidm.network.events.NetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL2;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_EQUIVALENT_SHUNT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
+import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.merge;
+import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.newUpdates;
+import static com.powsybl.commons.util.Result.failure;
+import static com.powsybl.commons.util.Result.success;
 
 /**
  * Translates the changes recorded on an IIDM network into the CGMES properties of a partial Steady State
@@ -118,7 +118,7 @@ class PartialSshEventTranslator {
     /**
      * Translate every recorded change into the CGMES properties that describe it, buffered per object.
      *
-     * <p>The changes are expected to have been compacted by {@link NetworkEventRecorderSshExport#compactEvents}
+     * <p>The changes are expected to have been compacted by {@link PartialSshExport#compactEvents}
      * already to avoid writing the same attribute twice.</p>
      *
      * <p>The values buffered are read from the network as it currently stands, not taken from the changes
@@ -151,7 +151,7 @@ class PartialSshEventTranslator {
 
     /**
      * Translate a single change into the CGMES properties describing it
-     * 
+     *
      * Note that one change may map to multiple properties, they will be merged upstream in `translateAll`.
      */
     private Result<PartialSshUpdates, String> translate(NetworkEvent event) {

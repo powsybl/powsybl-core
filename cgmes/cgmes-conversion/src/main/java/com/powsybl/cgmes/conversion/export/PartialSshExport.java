@@ -50,7 +50,7 @@ import java.util.Set;
  * NetworkEventRecorder recorder = new NetworkEventRecorder();
  * network.addListener(recorder);
  * network.getGenerator("G").setTargetP(120.0);
- * String ssh = NetworkEventRecorderSshExport.toString(network, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
+ * String ssh = PartialSshExport.toString(network, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
  * }</pre>
  *
  * <p>Changes that have no representation in the SSH profile or whose import/export is not implemented, such as the
@@ -65,7 +65,7 @@ import java.util.Set;
  *
  * @author Nico Westerbeck {@literal <nico.westerbeck at 50hertz.com>}
  */
-public final class NetworkEventRecorderSshExport {
+public final class PartialSshExport {
 
     /**
      * What to do with a recorded change that cannot be written to a Steady State Hypothesis file.
@@ -158,7 +158,7 @@ public final class NetworkEventRecorderSshExport {
         }
     }
 
-    private NetworkEventRecorderSshExport() {
+    private PartialSshExport() {
     }
 
     /**

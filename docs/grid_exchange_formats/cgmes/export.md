@@ -158,7 +158,7 @@ Remember that, in addition to setting the info for metadata models in the IIDM e
 
 The exports described above always write the complete state of the network. When two processes already share the
 same base model and only need to exchange the outcome of a business process, writing and reading a full grid model
-is unnecessary. `NetworkEventRecorderSshExport` writes a *partial* SSH instance file, containing only the objects
+is unnecessary. `PartialSshExport` writes a *partial* SSH instance file, containing only the objects
 affected by a list of changes recorded on the network:
 
 ```java
@@ -169,10 +169,10 @@ network.getGenerator("GEN").setTargetP(120.0);
 network.getSwitch("BREAKER").setOpen(true);
 
 // to a file
-NetworkEventRecorderSshExport.write(network, recorder.getEvents(), Path.of("update_SSH.xml"),
+PartialSshExport.write(network, recorder.getEvents(), Path.of("update_SSH.xml"),
         UnsupportedChangeBehavior.FAIL);
 // or to a string, for an in-memory exchange
-String ssh = NetworkEventRecorderSshExport.toString(network, recorder.getEvents(),
+String ssh = PartialSshExport.toString(network, recorder.getEvents(),
         UnsupportedChangeBehavior.FAIL);
 ```
 
@@ -218,8 +218,8 @@ by one, the new model supersedes the source SSH and keeps its dependencies, so i
 model both sides share. All of it can be overridden through `ExportOptions`:
 
 ```java
-NetworkEventRecorderSshExport.write(network, recorder.getEvents(), outputStream,
-        new NetworkEventRecorderSshExport.ExportOptions()
+PartialSshExport.write(network, recorder.getEvents(), outputStream,
+        new PartialSshExport.ExportOptions()
                 .setModelId("urn:uuid:...")
                 .setVersion(4)
                 .setModelingAuthoritySet("http://www.example.eu/OperationalPlanning")

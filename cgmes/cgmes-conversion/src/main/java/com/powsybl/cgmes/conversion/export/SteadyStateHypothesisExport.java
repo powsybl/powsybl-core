@@ -9,13 +9,46 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
+import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.AcDcConverter;
+import com.powsybl.iidm.network.Area;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLineFilter;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.DcConnectable;
+import com.powsybl.iidm.network.DcSwitch;
+import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.LineCommutatedConverter;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VoltageSourceConverter;
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
@@ -25,11 +58,45 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.*;
 
-import static com.powsybl.cgmes.conversion.Conversion.*;
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL2;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION_TERMINAL;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_GENERATING_UNIT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_EQUIVALENT_SHUNT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_PF;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getHiddenCombinedTapChanger;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getTapChangerControlId;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.hasRegulatingControlCapability;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCalculatedSynchronousMachineKind;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCurve;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.tapChangerControlIsDefined;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TERMINAL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.PHASE_TAP_CHANGER;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.RATIO_TAP_CHANGER;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
@@ -782,13 +849,12 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    /**
-     * The AC/DC converter quantities of the steady state hypothesis.
-     * Package private so that the partial SSH export writes the same values as the full export.
-     */
     record ConverterState(double targetPpcc, double targetUdc, double p, double q) {
     }
 
+    /**
+     * Compute the AC/DC converter quantities, reused in the partial .SSH export
+     * */
     static ConverterState computeConverterState(HvdcConverterStation<?> converterStation) {
         double targetPpcc;
         double targetUdc;

@@ -10,13 +10,14 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport;
-import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport.UnsupportedChangeBehavior;
-import com.powsybl.cgmes.conversion.test.NetworkEventRecorderSshRoundTripTestSupport.RoundTripResult;
+import com.powsybl.cgmes.conversion.export.PartialSshExport;
+import com.powsybl.cgmes.conversion.export.PartialSshExport.UnsupportedChangeBehavior;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.HvdcLine;
@@ -32,20 +33,24 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.events.NetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
-import static com.powsybl.cgmes.conversion.test.NetworkEventRecorderSshRoundTripTestSupport.roundTrip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -56,7 +61,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Nico Westerbeck {@literal <nico.westerbeck at 50hertz.com>}
  */
-class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
+class PartialSshExportTest extends AbstractSerDeTest {
 
     private static final double TOLERANCE = 1e-7;
 
@@ -73,17 +78,68 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
      * The transformer of the BE micro grid whose phase tap changer is a PhaseTapChangerAsymmetrical. Its
      * counterpart in the same model is a PhaseTapChangerSymmetrical, a class the CGMES update query does not
      * select, so a position written for it is silently dropped on import whatever the exporter does.
+     * (https://github.com/powsybl/powsybl-core/issues/4034)
      */
     private static final String ASYMMETRICAL_PHASE_TAP_CHANGER = "b94318f6-6d24-4f56-96b9-df2531ad6543";
 
     private static final Pattern FULL_MODEL_ID_PATTERN = Pattern.compile("FullModel rdf:about=\"(.*?)\"");
     private static final Pattern MODEL_VERSION_PATTERN = Pattern.compile("Model.version>(.*?)<");
 
+    private static final String USE_PREVIOUS_VALUES = "iidm.import.cgmes.use-previous-values-during-update";
+
+    // Helpers. A round trip loads the same base model twice, applies the changes to one of the two copies,
+    // exports them as a partial SSH file and applies that file to the other copy. This is the exchange the
+    // partial SSH export is meant to support, so every supported change is verified this way.
+
+    record RoundTripResult(Network sender, Network receiver, List<NetworkEvent> events, String sshXml) {
+    }
+
+    private RoundTripResult roundTrip(String dir, Consumer<Network> senderChanges, String... baselineFiles) throws IOException {
+        return roundTrip(new Properties(), dir, senderChanges, baselineFiles);
+    }
+
+    private RoundTripResult roundTrip(Properties importParameters, String dir, Consumer<Network> senderChanges,
+                                      String... baselineFiles) throws IOException {
+        return roundTrip(importParameters, () -> readCgmesResources(importParameters, dir, baselineFiles), senderChanges);
+    }
+
+    /** Round trip on a whole grid model, for instance one of the CGMES conformity models. */
+    private RoundTripResult roundTrip(ReadOnlyDataSource dataSource, Consumer<Network> senderChanges) throws IOException {
+        return roundTrip(new Properties(), () -> Network.read(dataSource, new Properties()), senderChanges);
+    }
+
+    private RoundTripResult roundTrip(Properties importParameters, Supplier<Network> load,
+                                      Consumer<Network> senderChanges) throws IOException {
+        Network sender = load.get();
+        Network receiver = load.get();
+
+        NetworkEventRecorder recorder = new NetworkEventRecorder();
+        sender.addListener(recorder);
+        senderChanges.accept(sender);
+
+        String baseName = "partial-ssh-roundtrip";
+        Path exportDir = tmpDir.toAbsolutePath();
+        Path sshFile = exportDir.resolve(baseName + "_SSH.xml");
+        List<NetworkEvent> exportedEvents =
+                PartialSshExport.write(sender, recorder.getEvents(), sshFile, UnsupportedChangeBehavior.FAIL);
+
+        // Nothing can be dropped when unsupported changes are rejected, so every compacted change has to be
+        // reported as exported. This catches a mapping that silently writes nothing without rejecting.
+        assertEquals(PartialSshExport.compactEvents(recorder.getEvents()), exportedEvents);
+
+        Properties updateParameters = new Properties();
+        updateParameters.putAll(importParameters);
+        updateParameters.put(USE_PREVIOUS_VALUES, "true");
+        receiver.update(new GenericReadOnlyDataSource(exportDir, baseName), updateParameters);
+
+        return new RoundTripResult(sender, receiver, List.copyOf(recorder.getEvents()), Files.readString(sshFile));
+    }
+
     // Round trips, one per supported change
 
     @Test
     void switchStateRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, SWITCH_DIR, sender -> {
+        RoundTripResult result = roundTrip(SWITCH_DIR, sender -> {
             sender.getSwitch("SeriesCompensator").setOpen(false);
             sender.getSwitch("Breaker").setOpen(true);
         }, "switch_EQ.xml", "switch_SSH.xml");
@@ -96,7 +152,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
     /** Closing again is the other half of the switch state: the baseline of this variant has the breaker open. */
     @Test
     void switchClosingRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, SWITCH_DIR,
+        RoundTripResult result = roundTrip(SWITCH_DIR,
                 sender -> sender.getSwitch("Breaker").setOpen(false), "switch_EQ.xml", "switch_SSH_1.xml");
 
         assertTrue(result.sshXml().contains("<cim:Switch.open>false</cim:Switch.open>"));
@@ -111,7 +167,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
      */
     @Test
     void branchModelledAsSwitchOpeningRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, SWITCH_DIR,
+        RoundTripResult result = roundTrip(SWITCH_DIR,
                 sender -> sender.getSwitch("SeriesCompensator").setOpen(true), "switch_EQ.xml", "switch_SSH_1.xml");
 
         assertFalse(result.sshXml().contains("Switch.open"));
@@ -125,7 +181,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         Properties importParameters = new Properties();
         importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
 
-        RoundTripResult result = roundTrip(tmpDir, importParameters, DC_DIR,
+        RoundTripResult result = roundTrip(importParameters, DC_DIR,
                 sender -> sender.getDcSwitch("DCSW_1_1").setOpen(true), "mixed_bipole_EQ.xml");
 
         assertTrue(result.sshXml().contains("<cim:DCTerminal rdf:about=\"#_T_DCSW_1_1_1\">"));
@@ -135,7 +191,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
     @Test
     void loadSetpointsRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, LOAD_DIR, sender -> {
+        RoundTripResult result = roundTrip(LOAD_DIR, sender -> {
             sender.getLoad("EnergyConsumer").setP0(10.5).setQ0(5.5);
             sender.getLoad("EnergySource").setP0(-200.5).setQ0(-90.5);
         }, "load_EQ.xml", "load_SSH.xml");
@@ -147,20 +203,18 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
     }
 
     /**
-     * The CGMES import cannot read the setpoints of an AsynchronousMachine back, so exporting them would silently
-     * lose the change. Rejecting is the honest behaviour until the import is fixed.
+     * A load exported as an AsynchronousMachine carries its setpoints like any other load. The exporter rejects
+     * the change for now, because the CGMES steady state hypothesis of an AsynchronousMachine is incomplete and
+     * the import cannot read the setpoints back, so exporting them would lose the change silently.
      */
+    @Disabled("Requires https://github.com/powsybl/powsybl-core/issues/4029")
     @Test
-    void asynchronousMachineChangeIsRejected() {
-        Network sender = readCgmesResources(LOAD_DIR, "load_EQ.xml", "load_SSH.xml");
-        NetworkEventRecorder recorder = new NetworkEventRecorder();
-        sender.addListener(recorder);
+    void asynchronousMachineSetpointsRoundTrip() throws IOException {
+        RoundTripResult result = roundTrip(LOAD_DIR,
+                sender -> sender.getLoad("AsynchronousMachine").setP0(200.5).setQ0(50.5),
+                "load_EQ.xml", "load_SSH.xml");
 
-        sender.getLoad("AsynchronousMachine").setP0(200.5).setQ0(50.5);
-
-        PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
-        assertTrue(exception.getMessage().contains("AsynchronousMachine"));
+        assertLoadSetpoints(result, "AsynchronousMachine");
     }
 
     /**
@@ -169,7 +223,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
      */
     @Test
     void activePowerOnlyLoadChangeRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, LOAD_DIR,
+        RoundTripResult result = roundTrip(LOAD_DIR,
                 sender -> sender.getLoad("EnergyConsumer").setP0(77.5), "load_EQ.xml", "load_SSH.xml");
 
         assertEquals(1, result.events().size());
@@ -180,7 +234,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
     @Test
     void generatorSetpointsRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, GENERATOR_DIR,
+        RoundTripResult result = roundTrip(GENERATOR_DIR,
                 sender -> sender.getGenerator("SynchronousMachine").setTargetP(165.0).setTargetQ(-5.0).setTargetV(410.0),
                 "generator_EQ.xml", "generator_SSH.xml");
 
@@ -189,7 +243,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
     @Test
     void generatorVoltageRegulationRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, GENERATOR_DIR,
+        RoundTripResult result = roundTrip(GENERATOR_DIR,
                 sender -> sender.getGenerator("SynchronousMachine").setVoltageRegulatorOn(false),
                 "generator_EQ.xml", "generator_SSH.xml");
 
@@ -201,7 +255,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
     /** A voltage setpoint lives on the RegulatingControl, it must not restate the machine active power. */
     @Test
     void voltageSetpointOnlyDoesNotExportActivePower() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, GENERATOR_DIR,
+        RoundTripResult result = roundTrip(GENERATOR_DIR,
                 sender -> sender.getGenerator("SynchronousMachine").setTargetV(410.0),
                 "generator_EQ.xml", "generator_SSH.xml");
 
@@ -212,7 +266,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
     @Test
     void tapPositionsRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, TRANSFORMER_DIR, sender -> {
+        RoundTripResult result = roundTrip(TRANSFORMER_DIR, sender -> {
             sender.getTwoWindingsTransformer("T2W").getPhaseTapChanger().setTapPosition(-1);
             sender.getThreeWindingsTransformer("T3W").getLeg2().getRatioTapChanger().setTapPosition(7);
         }, "transformer_EQ.xml", "transformer_SSH.xml");
@@ -227,9 +281,30 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
                 actual3w.getLeg2().getRatioTapChanger().getTapPosition());
     }
 
+    /**
+     * The phase tap changer left out of {@link #conformityModelMultiEquipmentRoundTrip}, whose position the CGMES
+     * update query does not select, so the receiving side keeps the position it had.
+     */
+    @Disabled("Requires https://github.com/powsybl/powsybl-core/issues/4034")
+    @Test
+    void symmetricalPhaseTapChangerPositionRoundTrip() throws IOException {
+        RoundTripResult result = roundTrip(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(),
+                sender -> moveUp(symmetricalPhaseTapChanger(sender).getPhaseTapChanger()));
+
+        assertEquals(symmetricalPhaseTapChanger(result.sender()).getPhaseTapChanger().getTapPosition(),
+                symmetricalPhaseTapChanger(result.receiver()).getPhaseTapChanger().getTapPosition());
+    }
+
+    /** The one phase tap changer of the BE micro grid that is not the asymmetrical one. */
+    private static TwoWindingsTransformer symmetricalPhaseTapChanger(Network network) {
+        return network.getTwoWindingsTransformerStream()
+                .filter(t -> t.hasPhaseTapChanger() && !t.getId().equals(ASYMMETRICAL_PHASE_TAP_CHANGER))
+                .findFirst().orElseThrow();
+    }
+
     @Test
     void shuntOperatingValuesRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, SHUNT_DIR, sender -> {
+        RoundTripResult result = roundTrip(SHUNT_DIR, sender -> {
             sender.getShuntCompensator("LinearShuntCompensator").setTargetV(407.0);
             sender.getShuntCompensator("NonLinearShuntCompensator").setSectionCount(2).setTargetV(406.0);
         }, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
@@ -240,7 +315,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
     @Test
     void staticVarCompensatorSetpointsRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, STATIC_VAR_COMPENSATOR_DIR, sender -> {
+        RoundTripResult result = roundTrip(STATIC_VAR_COMPENSATOR_DIR, sender -> {
             sender.getStaticVarCompensator("StaticVarCompensator-V").setVoltageSetpoint(400.0);
             sender.getStaticVarCompensator("StaticVarCompensator-Q").setReactivePowerSetpoint(215.0);
         }, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
@@ -251,7 +326,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
     @Test
     void hvdcAndVscVoltageSetpointsRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, HVDC_DIR, sender -> {
+        RoundTripResult result = roundTrip(HVDC_DIR, sender -> {
             sender.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(350.0);
             HvdcLine vscLine = sender.getHvdcLine("DCLineSegment-Vsc");
             vscLine.setActivePowerSetpoint(497.0);
@@ -266,6 +341,36 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
     }
 
     /**
+     * Zero is a setpoint like any other, and a line brought down to no power is exactly the change an operator
+     * expects to survive. The CGMES update currently reads a targetPpcc of zero as no value at all, so the
+     * receiving side keeps the power it had.
+     */
+    @Disabled("Requires https://github.com/powsybl/powsybl-core/issues/4028")
+    @Test
+    void hvdcActivePowerSetpointOfZeroRoundTrip() throws IOException {
+        RoundTripResult result = roundTrip(HVDC_DIR,
+                sender -> sender.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(0.0),
+                "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        assertEquals(0.0, result.receiver().getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint(), TOLERANCE);
+        assertHvdcSetpoint(result, "DCLineSegment-Lcc");
+    }
+
+    /**
+     * The reactive power setpoint of a voltage source converter, which the exporter rejects for now because the
+     * value does not survive a steady state hypothesis round trip with its sign intact.
+     */
+    @Disabled("Requires https://github.com/powsybl/powsybl-core/issues/4027")
+    @Test
+    void vscReactivePowerSetpointRoundTrip() throws IOException {
+        RoundTripResult result = roundTrip(HVDC_DIR,
+                sender -> converter(sender, 2).setReactivePowerSetpoint(30.0), "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        assertEquals(converter(result.sender(), 2).getReactivePowerSetpoint(),
+                converter(result.receiver(), 2).getReactivePowerSetpoint(), TOLERANCE);
+    }
+
+    /**
      * The tests above use small purpose-built models, one per equipment type. This one runs a single export over a
      * real CGMES conformity model, changing every element of every supported type at once, so that the exporter is
      * also exercised against the naming, the class variety and the regulating control layout of an actual grid
@@ -273,7 +378,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
      */
     @Test
     void conformityModelMultiEquipmentRoundTrip() throws IOException {
-        RoundTripResult result = roundTrip(tmpDir, CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), sender -> {
+        RoundTripResult result = roundTrip(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), sender -> {
             sender.getLoadStream().forEach(l -> l.setP0(l.getP0() + 1.0).setQ0(l.getQ0() + 1.0));
             sender.getGeneratorStream().forEach(g -> g.setTargetP(g.getTargetP() + 1.0).setTargetQ(g.getTargetQ() + 1.0));
             sender.getShuntCompensatorStream()
@@ -356,7 +461,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
         sender.getGenerator("SynchronousMachine").setTargetP(165.0).setTargetQ(-5.0).setTargetV(410.0);
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
+        String sshXml = PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
         assertEquals(1, countOccurrences(sshXml, "<cim:SynchronousMachine rdf:about="));
         assertEquals(1, countOccurrences(sshXml, "<cim:RegulatingControl rdf:about="));
     }
@@ -375,7 +480,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         svc.setVoltageSetpoint(400.0);
         svc.setReactivePowerSetpoint(50.0);
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
+        String sshXml = PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
         assertEquals(1, countOccurrences(sshXml, "<cim:RegulatingControl rdf:about="));
         // The compensator regulates voltage, so the exported target is the voltage setpoint, in kV
         assertTrue(sshXml.contains("<cim:RegulatingControl.targetValue>400</cim:RegulatingControl.targetValue>"));
@@ -402,21 +507,8 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         fictitiousSwitch.setOpen(!fictitiousSwitch.isOpen());
 
         PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
+                () -> PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
         assertTrue(exception.getMessage().contains("no counterpart in the CGMES equipment model"));
-    }
-
-    @Test
-    void vscReactivePowerChangeIsRejected() {
-        Network sender = readCgmesResources(HVDC_DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
-        NetworkEventRecorder recorder = new NetworkEventRecorder();
-        sender.addListener(recorder);
-
-        ((VscConverterStation) sender.getHvdcLine("DCLineSegment-Vsc").getConverterStation2()).setReactivePowerSetpoint(30.0);
-
-        PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
-        assertTrue(exception.getMessage().contains("reactive power setpoint of VSC converter"));
     }
 
     /**
@@ -435,7 +527,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         generator.setTargetV(410.0);
 
         PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
+                () -> PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
         assertTrue(exception.getMessage().contains("has no CGMES regulating control"));
     }
 
@@ -454,7 +546,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         sender.addListener(recorder);
         generator.setVoltageRegulatorOn(false);
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
+        String sshXml = PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
         assertFalse(sshXml.contains("RegulatingCondEq.controlEnabled"));
         assertFalse(sshXml.contains("<cim:SynchronousMachine rdf:about="));
         assertFalse(sshXml.contains("<cim:RegulatingControl rdf:about="));
@@ -475,7 +567,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         generator.setTargetP(120.0);
         generator.setVoltageRegulatorOn(false);
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
+        String sshXml = PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
         assertTrue(sshXml.contains("<cim:RotatingMachine.p>-120</cim:RotatingMachine.p>"));
         assertTrue(sshXml.contains("RegulatingCondEq.controlEnabled"));
         assertFalse(sshXml.contains("<cim:RegulatingControl rdf:about="));
@@ -490,7 +582,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         sender.getLoad("EnergyConsumer").remove();
 
         PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
+                () -> PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL));
         assertFalse(exception.getMessage().isEmpty());
     }
 
@@ -503,7 +595,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         sender.getLoad("EnergyConsumer").setP0(10.5).setQ0(5.5);
         sender.getLoad("EnergySource").remove();
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
+        String sshXml = PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
         assertTrue(sshXml.contains("<cim:EnergyConsumer rdf:about=\"#_EnergyConsumer\">"));
         assertFalse(sshXml.contains("EnergySource"));
     }
@@ -522,11 +614,11 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         sender.getLoad("EnergySource").remove();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        List<NetworkEvent> exportedEvents = NetworkEventRecorderSshExport.write(sender, recorder.getEvents(), outputStream,
-                new NetworkEventRecorderSshExport.ExportOptions()
+        List<NetworkEvent> exportedEvents = PartialSshExport.write(sender, recorder.getEvents(), outputStream,
+                new PartialSshExport.ExportOptions()
                         .setUnsupportedChangeBehavior(UnsupportedChangeBehavior.IGNORE));
 
-        List<NetworkEvent> compactedEvents = NetworkEventRecorderSshExport.compactEvents(recorder.getEvents());
+        List<NetworkEvent> compactedEvents = PartialSshExport.compactEvents(recorder.getEvents());
         assertTrue(compactedEvents.containsAll(exportedEvents));
         assertNotEquals(compactedEvents.size(), exportedEvents.size());
         assertTrue(exportedEvents.stream()
@@ -545,10 +637,10 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         generator.setTargetP(120.0);
         generator.setTargetV(410.0);
 
-        List<NetworkEvent> exportedEvents = NetworkEventRecorderSshExport.write(sender, recorder.getEvents(),
+        List<NetworkEvent> exportedEvents = PartialSshExport.write(sender, recorder.getEvents(),
                 tmpDir.resolve("manifest_SSH.xml"), UnsupportedChangeBehavior.FAIL);
 
-        assertEquals(NetworkEventRecorderSshExport.compactEvents(recorder.getEvents()), exportedEvents);
+        assertEquals(PartialSshExport.compactEvents(recorder.getEvents()), exportedEvents);
         assertNotEquals(recorder.getEvents().size(), exportedEvents.size());
     }
 
@@ -556,7 +648,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
     void emptyChangeListProducesAHeaderOnly() {
         Network sender = readCgmesResources(LOAD_DIR, "load_EQ.xml", "load_SSH.xml");
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, List.of(), UnsupportedChangeBehavior.FAIL);
+        String sshXml = PartialSshExport.toString(sender, List.of(), UnsupportedChangeBehavior.FAIL);
         assertTrue(sshXml.contains("</md:FullModel>"));
         assertFalse(sshXml.contains("rdf:about=\"#_"));
     }
@@ -570,7 +662,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         Network merged = Network.merge(Network.create("igm1", "test"), Network.create("igm2", "test"));
 
         PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> NetworkEventRecorderSshExport.toString(merged, List.of(), UnsupportedChangeBehavior.FAIL));
+                () -> PartialSshExport.toString(merged, List.of(), UnsupportedChangeBehavior.FAIL));
         assertTrue(exception.getMessage().contains("subnetworks"));
     }
 
@@ -584,15 +676,15 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
         sender.getLoad("EnergyConsumer").setP0(10.5).setQ0(5.5).setP0(12.5).setQ0(6.5);
 
-        List<NetworkEvent> compactedEvents = NetworkEventRecorderSshExport.compactEvents(recorder.getEvents());
+        List<NetworkEvent> compactedEvents = PartialSshExport.compactEvents(recorder.getEvents());
 
         assertEquals(2, compactedEvents.size());
         assertEquals(Set.of("p0", "q0"), compactedEvents.stream()
                 .map(UpdateNetworkEvent.class::cast)
                 .map(UpdateNetworkEvent::attribute)
                 .collect(Collectors.toSet()));
-        assertEquals(NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL),
-                NetworkEventRecorderSshExport.toString(sender, compactedEvents, UnsupportedChangeBehavior.FAIL));
+        assertEquals(PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL),
+                PartialSshExport.toString(sender, compactedEvents, UnsupportedChangeBehavior.FAIL));
     }
 
     // Header
@@ -606,7 +698,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
         sender.getSwitch("Breaker").setOpen(true);
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
+        String sshXml = PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
 
         assertNotEquals(sourceSshModel.getId(), extractFirstMatch(sshXml, FULL_MODEL_ID_PATTERN));
         assertEquals(Integer.toString(sourceSshModel.getVersion() + 1), extractFirstMatch(sshXml, MODEL_VERSION_PATTERN));
@@ -628,7 +720,7 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
 
         sender.getGenerator("SynchronousMachine").setTargetP(165.0);
 
-        String sshXml = NetworkEventRecorderSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
+        String sshXml = PartialSshExport.toString(sender, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
         for (String dependentOn : sourceSshModel.getDependentOn()) {
             assertTrue(sshXml.contains("Model.DependentOn rdf:resource=\"" + dependentOn + "\""),
                     "expected a dependency on " + dependentOn);
@@ -645,8 +737,8 @@ class NetworkEventRecorderPartialSshExportTest extends AbstractSerDeTest {
         sender.getSwitch("Breaker").setOpen(true);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        NetworkEventRecorderSshExport.write(sender, recorder.getEvents(), outputStream,
-                new NetworkEventRecorderSshExport.ExportOptions()
+        PartialSshExport.write(sender, recorder.getEvents(), outputStream,
+                new PartialSshExport.ExportOptions()
                         .setModelId("urn:uuid:partial-ssh-test")
                         .setDescription("partial ssh update")
                         .setVersion(99)

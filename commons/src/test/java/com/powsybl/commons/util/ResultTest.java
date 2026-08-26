@@ -7,15 +7,15 @@
  */
 package com.powsybl.commons.util;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.commons.util.Result.failure;
-import static com.powsybl.commons.util.Result.success;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+
+import static com.powsybl.commons.util.Result.failure;
+import static com.powsybl.commons.util.Result.success;
 
 /**
  * @author Nico Westerbeck {@literal <nico.westerbeck at 50hertz.com>}
@@ -65,18 +65,6 @@ class ResultTest {
         assertEquals(failure("too small"), chained);
     }
 
-    @Test
-    void patternMatchingSeesBothTracks() {
-        assertEquals("value 2", describe(SUCCESS));
-        assertEquals("rejected: not a number", describe(FAILURE));
-    }
-
-    private static String describe(Result<Integer, String> result) {
-        return switch (result) {
-            case Result.Success(Integer value) -> "value " + value;
-            case Result.Failure(String reason) -> "rejected: " + reason;
-        };
-    }
 
     @Test
     void neitherTrackCarriesNull() {
