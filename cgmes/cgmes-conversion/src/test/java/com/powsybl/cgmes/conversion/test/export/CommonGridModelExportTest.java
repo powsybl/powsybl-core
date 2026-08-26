@@ -805,7 +805,20 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .setVoltageLevel1("VL_NL").setBus1("Bus_NL")
                 .setVoltageLevel2("VL_NL2").setBus2("Bus_NL2")
                 .setR(1.0).setX(10.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add()
-                .newCurrentLimits1().setPermanentLimit(1000.0).add();
+                .newOperationalLimitsGroup1("OLG_NL_1")
+                .newCurrentLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("OLG_BE_T_1")
+                .setAcceptableDuration(10)
+                .setValue(1100.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("OLG_BE_T_2")
+                .setAcceptableDuration(5)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .add();
 
         return Network.merge(network1, network2);
     }
