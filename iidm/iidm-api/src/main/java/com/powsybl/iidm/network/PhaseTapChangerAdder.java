@@ -32,5 +32,7 @@ public interface PhaseTapChangerAdder extends TapChangerAdder<
 
     PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 
-    PhaseTapChangerAdder setTargetDeadband(double targetDeadband);
+    default PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -62,5 +62,7 @@ public interface RatioTapChangerAdder extends TapChangerAdder<
      * @deprecated use {@link #newVoltageRegulation()} with {@link com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder#withMode(RegulationMode)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
-    RatioTapChangerAdder setTargetDeadband(double targetDeadband);
+    default RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
 }

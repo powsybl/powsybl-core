@@ -71,25 +71,25 @@ public final class VoltageRegulationSerDe {
     }
 
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
-        List<Consumer<T>> toApply,
-        VoltageRegulationHolderAdder<A> holderAdder,
-        NetworkDeserializerContext context) {
+            List<Consumer<T>> toApply,
+            VoltageRegulationHolderAdder<A> holderAdder,
+            NetworkDeserializerContext context) {
         doReadVoltageRegulation(toApply, holderAdder, context, T::getNetwork);
     }
 
     public static <T extends VoltageRegulationHolder<?>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
-        List<Consumer<T>> toApply,
-        VoltageRegulationHolderAdder<A> holderAdder,
-        NetworkDeserializerContext context,
-        Network network) {
+            List<Consumer<T>> toApply,
+            VoltageRegulationHolderAdder<A> holderAdder,
+            NetworkDeserializerContext context,
+            Network network) {
         doReadVoltageRegulation(toApply, holderAdder, context, holder -> network);
     }
 
     private static <T extends VoltageRegulationHolder<?>, A extends VoltageRegulationHolderAdder<A>> void doReadVoltageRegulation(
-        List<Consumer<T>> toApply,
-        VoltageRegulationHolderAdder<A> holderAdder,
-        NetworkDeserializerContext context,
-        Function<T, Network> networkProvider) {
+            List<Consumer<T>> toApply,
+            VoltageRegulationHolderAdder<A> holderAdder,
+            NetworkDeserializerContext context,
+            Function<T, Network> networkProvider) {
 
         VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
         VoltageRegulation.Attributes attributes = getVoltageRegulationAttributes(context);
