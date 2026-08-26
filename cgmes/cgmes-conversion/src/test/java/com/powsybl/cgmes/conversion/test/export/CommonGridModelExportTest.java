@@ -741,8 +741,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertFalse(nlOpLimitTypeIds.isEmpty());
 
         // The LoadGroup IDs and OperationalLimitType IDs must be different between the two IGMs
-        assertNotEquals(beLoadGroupIds, nlLoadGroupIds);
-        assertNotEquals(beOpLimitTypeIds, nlOpLimitTypeIds);
+        assert(Collections.disjoint(beLoadGroupIds, nlLoadGroupIds));
+        assert(Collections.disjoint(beOpLimitTypeIds, nlOpLimitTypeIds));
     }
 
     private Network networkWithLoadsAndLimits2Subnetworks() {
@@ -768,7 +768,20 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .setVoltageLevel1("VL_BE").setBus1("Bus_BE")
                 .setVoltageLevel2("VL_BE2").setBus2("Bus_BE2")
                 .setR(1.0).setX(10.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add()
-                .newCurrentLimits1().setPermanentLimit(1000.0).add();
+                .newOperationalLimitsGroup1("OLG_BE_1")
+                .newCurrentLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("OLG_BE_T_1")
+                .setAcceptableDuration(10)
+                .setValue(1100.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("OLG_BE_T_2")
+                .setAcceptableDuration(5)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .add();
 
         Network network2 = Network.create("Network_NL", "test");
         network2.setCaseDate(ZonedDateTime.parse("2021-02-03T04:30:00.000+00:00"));
