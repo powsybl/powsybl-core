@@ -559,7 +559,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="P_PCC"/>
             <xs:enumeration value="V_DC"/>
-            <xs:enumeration value="P_PCC_DROOP"/>
+            <xs:enumeration value="DC_DROOP"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="DroopCurve">
