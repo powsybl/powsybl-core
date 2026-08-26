@@ -46,19 +46,9 @@ class CgmesExportContextTest {
     }
 
     @Test
-    void emptyConstructor() {
-        CgmesExportContext context = new CgmesExportContext();
-        assertEquals(16, context.getCimVersion());
-        assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context.getCim().getNamespace());
-        assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
-        assertTrue(Duration.between(ZonedDateTime.now(), context.getScenarioTime()).toMinutes() < 1);
-        assertTrue(context.exportBoundaryPowerFlows());
-        assertEquals("1D", context.getBusinessProcess());
-    }
-
-    @Test
     void getSet() {
-        CgmesExportContext context = new CgmesExportContext()
+        Network network = Network.create("dummy", "test");
+        CgmesExportContext context = new CgmesExportContext(network)
             .setCimVersion(100)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
