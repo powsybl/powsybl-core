@@ -48,13 +48,13 @@ class PartialSshUpdates {
 
     /**
      * Start describing a single CGMES object in a buffer of its own, for instance
-     * {@code update(CgmesNames.TERMINAL, terminalId).value("ACDCTerminal.connected", true).updates()}.
+     * {@code newUpdates(CgmesNames.TERMINAL, terminalId).value("ACDCTerminal.connected", true).updates()}.
      *
      * <p>This is the entry point of the buffers built per change: a mapping describes the objects a change
      * affects and returns the buffer, which the caller merges, or drops if the change turns out to be
      * unsupported.</p>
      */
-    static ObjectUpdate update(String className, String masterResourceId) {
+    static ObjectUpdate newUpdates(String className, String masterResourceId) {
         return new PartialSshUpdates().object(className, masterResourceId);
     }
 

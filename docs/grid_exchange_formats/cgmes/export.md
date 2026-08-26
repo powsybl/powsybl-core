@@ -201,40 +201,15 @@ value for everything the partial file does not mention.
 | `HvdcLine` | active power setpoint |
 | `VscConverterStation` | voltage setpoint |
 
-```{warning}
-Some of these changes are written correctly but are then dropped by the receiving `Network.update`, so they do not
-survive the exchange until the corresponding issue is fixed:
-
-- the tap position of a `PhaseTapChangerSymmetrical`, a class the SSH update query does not select
-  ([#4034](https://github.com/powsybl/powsybl-core/issues/4034));
-- an `HvdcLine` active power setpoint of exactly 0 MW, which the update cannot tell from an absent value
-  ([#4028](https://github.com/powsybl/powsybl-core/issues/4028)).
-
-A related issue does not affect this exporter: the open state of a zero impedance `ACLineSegment`,
-`EquivalentBranch` or `SeriesCompensator` imported as an IIDM `Switch` is lost by a full SSH round trip
-([#4032](https://github.com/powsybl/powsybl-core/issues/4032)). The partial export writes the connection status of
-the two terminals rather than `Switch.open`, which is the channel the import reads, so these changes do round trip
-here.
-```
-
 Anything else, in particular the creation or the removal of equipment and changes of terminal connection status,
 has no representation in the SSH profile. Every export method takes an `UnsupportedChangeBehavior` saying what to
 do with such a change: `FAIL` rejects it, so that it is never silently lost, and `IGNORE` logs a warning and leaves
-it out of the file:
+it out of the file. Using the `write` endpoints return value, you can obtain a log of changes that made it to the file.
 
-```java
-NetworkEventRecorderSshExport.toString(network, recorder.getEvents(), UnsupportedChangeBehavior.IGNORE);
-```
 
 Two changes are deliberately rejected because the CGMES import cannot read them back, so exporting them would lose
-them silently:
-
-- the reactive power setpoint of a VSC converter, whose sign the export and the import do not agree on
-  ([#4027](https://github.com/powsybl/powsybl-core/issues/4027));
-- the setpoints of a load modelled as an `AsynchronousMachine`, whose SSH export is missing two of the five
-  properties the update query requires ([#4029](https://github.com/powsybl/powsybl-core/issues/4029)).
-
-Both are rejected only until the underlying issue is fixed, at which point they become ordinary supported changes.
+them silently: the reactive power setpoint of a VSC converter, and the setpoints of a load modelled as an
+`AsynchronousMachine`.
 
 ### Header and repeated changes
 
@@ -255,27 +230,6 @@ If the same attribute was changed several times only the last value is exported,
 described exactly once however many changes affected it. A partial SSH describes a single individual grid model,
 so it has to be exported from each subnetwork of a merged network separately.
 
-### Knowing what was exported
-
-`write` returns the changes that reached the file, which is how a caller finds out what `IGNORE` left out:
-
-```java
-List<NetworkEvent> exported = NetworkEventRecorderSshExport.write(network, recorder.getEvents(), path,
-        UnsupportedChangeBehavior.IGNORE);
-
-List<NetworkEvent> ignored = new ArrayList<>(NetworkEventRecorderSshExport.compactEvents(recorder.getEvents()));
-ignored.removeAll(exported);
-```
-
-The result holds the very objects that were passed in, so it is always a subset of them. A change is absent either
-because a later change superseded it or because it could not be exported, which means that with
-`UnsupportedChangeBehavior.FAIL` the result is exactly `compactEvents` of the recorded changes: anything that
-cannot be exported throws instead of being dropped.
-
-Note that a change being absent does not mean that no property it would have written is in the file. Changes
-overlap: switching the voltage regulation of a generator off and changing its active power setpoint both write
-`RegulatingCondEq.controlEnabled`, so dropping the first still leaves that property in the file, with the value
-the network currently has. The result describes changes, not the content of the file.
 
 ## Topology kind
 
@@ -481,12 +435,6 @@ For VSC lines, the `qPccControl` is the same for both rectifier and inverter, an
 The corresponding targets are:
 - In case of voltage regulation, `targetUpcc` is set to `VscConverterStation.VoltageSetpoint`.
 - In case of reactive power regulation, `targetQpcc` is set to `VscConverterStation.ReactivePowerSetpoint`.
-
-```{warning}
-`targetQpcc` is written as is, while the import honours the sign of the terminal it is connected on, so a reactive
-power setpoint on a negative sign terminal does not survive an export followed by `Network.update`:
-[#4027](https://github.com/powsybl/powsybl-core/issues/4027).
-```
 
 (cgmes-line-export)=
 ### Line

@@ -7,6 +7,19 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.events.NetworkEvent;
+import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,20 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.extensions.CgmesMetadataModels;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.events.NetworkEvent;
-import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 
 /**
  * Exports the changes recorded on a network as a partial CGMES .ssh file.
@@ -224,7 +223,7 @@ public final class NetworkEventRecorderSshExport {
      * @param outputStream  the stream to write the instance file to. It is neither flushed nor closed by this
      *                      method
      * @param exportOptions the header values and the unsupported change behavior of the export
-     * @return the changes that reached the file, in the order in which they were written. With 
+     * @return the changes that reached the file, in the order in which they were written. With
      *         {@link UnsupportedChangeBehavior#FAIL} the result is exactly {@link #compactEvents(Collection)}.
      *         With {@link UnsupportedChangeBehavior#IGNORE} it is a subset of that.
      * @throws PowsyblException            if the network is a merged model, or something could not be exported.
@@ -240,7 +239,7 @@ public final class NetworkEventRecorderSshExport {
         CgmesExportContext context = new CgmesExportContext(network);
         CgmesMetadataModel model = initializeExportMetadata(network, context, exportOptions);
         PartialSshEventTranslator translator = new PartialSshEventTranslator(network, context, exportOptions.unsupportedChangeBehavior);
-        PartialSshUpdates updates = translator.collect(events);
+        PartialSshUpdates updates = translator.translateAll(compactEvents(events));
 
         try {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", outputStream);

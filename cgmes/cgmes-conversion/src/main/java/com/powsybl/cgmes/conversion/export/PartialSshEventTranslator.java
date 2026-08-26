@@ -7,11 +7,34 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER2;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL2;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_EQUIVALENT_SHUNT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 import com.powsybl.cgmes.conversion.export.NetworkEventRecorderSshExport.UnsupportedChangeBehavior;
+import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.merge;
+import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.newUpdates;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Result;
+import static com.powsybl.commons.util.Result.failure;
+import static com.powsybl.commons.util.Result.success;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.Generator;
@@ -33,29 +56,6 @@ import com.powsybl.iidm.network.events.NetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_PHASE_TAP_CHANGER2;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_RATIO_TAP_CHANGER2;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL2;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_EQUIVALENT_SHUNT;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
-import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.merge;
-import static com.powsybl.cgmes.conversion.export.PartialSshUpdates.update;
-import static com.powsybl.commons.util.Result.failure;
-import static com.powsybl.commons.util.Result.success;
 
 /**
  * Translates the changes recorded on an IIDM network into the CGMES properties of a partial Steady State
@@ -115,8 +115,22 @@ class PartialSshEventTranslator {
         this.unsupportedChangeBehavior = unsupportedChangeBehavior;
     }
 
-    PartialSshUpdates collect(Collection<NetworkEvent> events) {
-        for (NetworkEvent event : NetworkEventRecorderSshExport.compactEvents(events)) {
+    /**
+     * Translate every recorded change into the CGMES properties that describe it, buffered per object.
+     *
+     * <p>The changes are expected to have been compacted by {@link NetworkEventRecorderSshExport#compactEvents}
+     * already to avoid writing the same attribute twice.</p>
+     *
+     * <p>The values buffered are read from the network as it currently stands, not taken from the changes
+     * themselves, so the result describes a state the network really was in.</p>
+     *
+     * @param events the compacted changes to translate, in the order in which they are to be written
+     * @return the properties to write, buffered per CGMES object
+     * @throws PowsyblException under {@link UnsupportedChangeBehavior#FAIL}, on the first change that cannot be
+     *                          exported
+     */
+    PartialSshUpdates translateAll(Collection<NetworkEvent> events) {
+        for (NetworkEvent event : events) {
             switch (translate(event)) {
                 case Result.Success(PartialSshUpdates staged) -> {
                     updates.mergeFrom(staged);
@@ -129,30 +143,16 @@ class PartialSshEventTranslator {
     }
 
     /**
-     * The changes that reached the file, in the order in which they were written.
-     *
-     * <p>These are the compacted changes, so the list is a subset of what {@link #collect} was given: a change
-     * superseded by a later one on the same attribute is absent, exactly like a change that could not be
-     * exported. Under {@link UnsupportedChangeBehavior#FAIL} nothing can be dropped for the second reason, so the
-     * list is then the compacted changes in full.</p>
+     * The changes that reached the file so IGNORE users can track what they exported.
      */
     List<NetworkEvent> exportedEvents() {
         return exportedEvents;
     }
 
     /**
-     * Translate a single change into the CGMES properties describing it, or into the reason why the SSH profile
-     * cannot express it.
-     *
-     * <p>A change maps to several CGMES properties, spread over several objects, so a mapping that rejects it
-     * halfway through would otherwise leave the properties it had already written in the file. Every mapping below
-     * therefore builds a buffer of its own and returns it, and only {@link #collect} merges it: a change reaches
-     * the file whole or not at all, whatever order a mapping checks things in, and what an unsupported change
-     * produced before giving up stays on the failure track, where nothing reads it.</p>
-     *
-     * <p>Only the mappings that can actually reject a change return a {@link Result}; the others return their
-     * buffer directly and are lifted onto the success track where they are used. A mapping never formats the
-     * change into its reason either: {@link #reject} is the single place that knows how a rejection is reported.</p>
+     * Translate a single change into the CGMES properties describing it
+     * 
+     * Note that one change may map to multiple properties, they will be merged upstream in `translateAll`.
      */
     private Result<PartialSshUpdates, String> translate(NetworkEvent event) {
         if (event instanceof UpdateNetworkEvent updateEvent) {
@@ -189,7 +189,6 @@ class PartialSshEventTranslator {
     }
 
     // AC switches
-
     private Result<PartialSshUpdates, String> switchUpdates(Switch sw) {
         if (!context.isExportedEquipment(sw)) {
             return failure("switch " + sw.getId() + " has no counterpart in the CGMES equipment model"
@@ -203,7 +202,7 @@ class PartialSshEventTranslator {
             return success(switchTerminalUpdates(sw));
         }
         String className = originalClass != null ? originalClass : CgmesExportUtil.switchClassname(sw.getKind());
-        return success(update(className, cgmesId(sw))
+        return success(newUpdates(className, cgmesId(sw))
                 .value("Switch.open", sw.isOpen())
                 .updates());
     }
@@ -216,7 +215,7 @@ class PartialSshEventTranslator {
 
     private PartialSshUpdates switchTerminalUpdates(Switch sw) {
         boolean connected = !sw.isOpen();
-        return update(CgmesNames.TERMINAL, cgmesIdFromAlias(sw, ALIAS_TERMINAL1)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
+        return newUpdates(CgmesNames.TERMINAL, cgmesIdFromAlias(sw, ALIAS_TERMINAL1)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
                 .object(CgmesNames.TERMINAL, cgmesIdFromAlias(sw, ALIAS_TERMINAL2)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
                 .updates();
     }
@@ -226,7 +225,7 @@ class PartialSshEventTranslator {
     private Result<PartialSshUpdates, String> dcSwitchUpdates(DcSwitch dcSwitch) {
         // A DCSwitch has no open state in the SSH profile either, it is carried by its two DC terminals.
         boolean connected = !dcSwitch.isOpen();
-        return success(update(CgmesNames.DC_TERMINAL, cgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
+        return success(newUpdates(CgmesNames.DC_TERMINAL, cgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
                 .object(CgmesNames.DC_TERMINAL, cgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
                 .updates());
     }
@@ -241,12 +240,12 @@ class PartialSshEventTranslator {
         // so a change of either setpoint exports both.
         String className = loadClassName(load);
         return switch (className) {
-            case CgmesNames.ENERGY_SOURCE -> success(update(className, cgmesId(load))
+            case CgmesNames.ENERGY_SOURCE -> success(newUpdates(className, cgmesId(load))
                     .value("EnergySource.activePower", load.getP0())
                     .value("EnergySource.reactivePower", load.getQ0())
                     .updates());
             case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY ->
-                success(update(className, cgmesId(load))
+                success(newUpdates(className, cgmesId(load))
                         .value("EnergyConsumer.p", load.getP0())
                         .value("EnergyConsumer.q", load.getQ0())
                         .updates());
@@ -276,7 +275,7 @@ class PartialSshEventTranslator {
             case TARGET_V -> generatorRegulatingControlUpdates(generator);
             case VOLTAGE_REGULATOR_ON -> generatorRegulatingControlUpdates(generator)
                     .map(regulatingControl -> merge(
-                            update(CgmesNames.SYNCHRONOUS_MACHINE, cgmesId(generator))
+                            newUpdates(CgmesNames.SYNCHRONOUS_MACHINE, cgmesId(generator))
                                     .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, generator.isVoltageRegulatorOn())
                                     .updates(),
                             regulatingControl));
@@ -286,7 +285,7 @@ class PartialSshEventTranslator {
 
     private PartialSshUpdates synchronousMachineUpdates(Generator generator) {
         // Sign convention: CGMES uses the load convention for machines, IIDM the generator convention.
-        return update(CgmesNames.SYNCHRONOUS_MACHINE, cgmesId(generator))
+        return newUpdates(CgmesNames.SYNCHRONOUS_MACHINE, cgmesId(generator))
                 .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, generator.isVoltageRegulatorOn())
                 .value(CgmesNames.ROTATING_MACHINE_P, -generator.getTargetP())
                 .value(CgmesNames.ROTATING_MACHINE_Q, -generator.getTargetQ())
@@ -382,7 +381,7 @@ class PartialSshEventTranslator {
         if (tapChanger instanceof PhaseTapChanger && !context.isExportEquipment()) {
             className = CgmesExportUtil.getPhaseTapChangerType(transformer, transformer.getAliasFromType(aliasType).orElse(null));
         }
-        return update(className, cgmesIdFromAlias(transformer, aliasType))
+        return newUpdates(className, cgmesIdFromAlias(transformer, aliasType))
                 .value("TapChanger.controlEnabled", tapChanger.isRegulating())
                 .value("TapChanger.step", tapChanger.getTapPosition())
                 .updates();
@@ -396,14 +395,14 @@ class PartialSshEventTranslator {
                     + " is exported as an EquivalentShunt, which has no steady state properties");
         }
         return switch (attribute) {
-            case SECTION_COUNT -> success(update(shuntClassName(shunt), cgmesId(shunt))
+            case SECTION_COUNT -> success(newUpdates(shuntClassName(shunt), cgmesId(shunt))
                     .value("ShuntCompensator.sections", shunt.getSectionCount())
                     .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, shunt.isVoltageRegulatorOn())
                     .updates());
             case TARGET_V -> shuntRegulatingControlUpdates(shunt);
             case VOLTAGE_REGULATOR_ON -> shuntRegulatingControlUpdates(shunt)
                     .map(regulatingControl -> merge(
-                            update(shuntClassName(shunt), cgmesId(shunt))
+                            newUpdates(shuntClassName(shunt), cgmesId(shunt))
                                     .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, shunt.isVoltageRegulatorOn())
                                     .updates(),
                             regulatingControl));
@@ -460,7 +459,7 @@ class PartialSshEventTranslator {
 
     private PartialSshUpdates.ObjectUpdate converterStateUpdate(String className, HvdcConverterStation<?> converter,
                                                           SteadyStateHypothesisExport.ConverterState state) {
-        return update(className, cgmesId(converter))
+        return newUpdates(className, cgmesId(converter))
                 .value("ACDCConverter.targetPpcc", state.targetPpcc())
                 .value("ACDCConverter.targetUdc", state.targetUdc())
                 .value("ACDCConverter.p", state.p())
@@ -469,7 +468,7 @@ class PartialSshEventTranslator {
 
     private Result<PartialSshUpdates, String> vscVoltageSetpointUpdates(VscConverterStation converter) {
         return success(merge(vscControlModeUpdates(converter),
-                update(CgmesNames.VS_CONVERTER, cgmesId(converter))
+                newUpdates(CgmesNames.VS_CONVERTER, cgmesId(converter))
                         .value("VsConverter.targetUpcc", converter.getVoltageSetpoint())
                         .updates()));
     }
@@ -481,7 +480,7 @@ class PartialSshEventTranslator {
 
     /** The CGMES import only reads the targets of a voltage source converter when both control modes are present. */
     private PartialSshUpdates vscControlModeUpdates(VscConverterStation converter) {
-        return update(CgmesNames.VS_CONVERTER, cgmesId(converter))
+        return newUpdates(CgmesNames.VS_CONVERTER, cgmesId(converter))
                 .enumValue("VsConverter.pPccControl", "VsPpccControlKind",
                         CgmesExportUtil.isConverterStationRectifier(converter) ? "pPcc" : "udc")
                 .enumValue("VsConverter.qPccControl", "VsQpccControlKind",
@@ -495,7 +494,7 @@ class PartialSshEventTranslator {
                                                               double targetValue, String targetValueUnitMultiplier) {
         // The target deadband is deliberately left out: it is not part of the changes this exporter supports,
         // and omitting it keeps the value the receiving side already has.
-        return update(CgmesNames.REGULATING_CONTROL, regulatingControlId)
+        return newUpdates(CgmesNames.REGULATING_CONTROL, regulatingControlId)
                 .value("RegulatingControl.discrete", discrete)
                 .value("RegulatingControl.enabled", enabled)
                 .value("RegulatingControl.targetValue", targetValue)
@@ -505,12 +504,7 @@ class PartialSshEventTranslator {
 
     /**
      * The identifier of the RegulatingControl carrying the regulation of the given equipment, or a failure if it
-     * has none, which puts the change off the success track.
-     *
-     * <p>The presence of the control is decided on the property alone. A naming strategy answers with a generated
-     * identifier when the property is absent, which is what a full export wants, since it writes the equipment and
-     * its control together. A partial file references a control the receiver already has, so a generated
-     * identifier would resolve to nothing there.</p>
+     * has none.
      */
     private Result<String, String> regulatingControlId(Identifiable<?> identifiable) {
         if (!identifiable.hasProperty(PROPERTY_REGULATING_CONTROL)) {
@@ -535,16 +529,14 @@ class PartialSshEventTranslator {
      * changes must not be lost, and by logging and moving on to the next change otherwise.
      */
     private void reject(NetworkEvent event, String reason) {
-        String message = "Change cannot be exported to a partial SSH file: " + reason + ". Change: " + describe(event);
+        String change = event instanceof UpdateNetworkEvent updateEvent
+                ? updateEvent.id() + "." + updateEvent.attribute()
+                : String.valueOf(event);
+        String message = "Change cannot be exported to a partial SSH file: " + reason + ". Change: " + change;
         if (unsupportedChangeBehavior == UnsupportedChangeBehavior.FAIL) {
             throw new PowsyblException(message);
         }
         LOGGER.warn("{}", message);
     }
 
-    private static String describe(NetworkEvent event) {
-        return event instanceof UpdateNetworkEvent updateEvent
-                ? updateEvent.id() + "." + updateEvent.attribute()
-                : String.valueOf(event);
-    }
 }
