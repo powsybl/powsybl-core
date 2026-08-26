@@ -99,7 +99,14 @@ public class CgmesExportContext {
         fictitiousContainers.put(id.getId(), containerId);
     }
 
-    @Deprecated(since = "7.4.0")
+    /**
+     * Creates an export context that is not bound to any network.
+     *
+     * @deprecated Use {@link #CgmesExportContext(Network)} instead.
+     *             Building a context without parameters is no longer supported:
+     *             all constructors will require at least the network being exported.
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
     public CgmesExportContext() {
         referenceDataProvider = null;
         network = null;
