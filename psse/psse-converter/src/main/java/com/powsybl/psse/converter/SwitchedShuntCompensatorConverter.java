@@ -103,19 +103,19 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             targetDeadband = vHigh - vLow;
             regulating = psseVoltageRegulatorOn;
         }
-        if (regulatingTerminal.getConnectable().equals(shunt)) {
+        boolean isLocalTerminal = regulatingTerminal.getConnectable().equals(shunt);
+        if (isLocalTerminal) {
             shunt.setLocalTargetV(targetV);
         }
-        if (regulating) {
-            VoltageRegulationBuilder voltageRegulationBuilder = shunt.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetDeadband(targetDeadband);
-            if (!regulatingTerminal.getConnectable().equals(shunt)) {
-                voltageRegulationBuilder.withTerminal(regulatingTerminal)
-                    .withTargetValue(targetV);
-            }
-            voltageRegulationBuilder.build();
+        VoltageRegulationBuilder voltageRegulationBuilder = shunt.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(regulating)
+            .withTargetDeadband(targetDeadband);
+        if (!isLocalTerminal) {
+            voltageRegulationBuilder.withTerminal(regulatingTerminal)
+                .withTargetValue(targetV);
         }
+        voltageRegulationBuilder.build();
     }
 
     private static boolean isControllingVoltage(PsseSwitchedShunt psseSwitchedShunt) {

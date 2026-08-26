@@ -809,6 +809,7 @@ class TransformerConverter extends AbstractConverter {
         rtc.setLoadTapChangingCapabilities(regulating);
         rtc.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(regulating)
             .withTargetValue(targetV)
             .withTargetDeadband(targetDeadBand)
             .withTerminal(regulatingTerminal)

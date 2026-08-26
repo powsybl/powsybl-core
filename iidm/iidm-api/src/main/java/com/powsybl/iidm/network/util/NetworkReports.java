@@ -193,14 +193,6 @@ public final class NetworkReports {
             .add();
     }
 
-    public static void invalidVoltageRegulationTerminal(ReportNode reportNode, String id) {
-        reportNode.newReportNode()
-            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTerminal")
-            .withTypedValue("id", id, TypedValue.ID)
-            .withSeverity(TypedValue.ERROR_SEVERITY)
-            .add();
-    }
-
     public static void invalidVoltageRegulationMode(ReportNode reportNode, String id) {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.invalidVoltageRegulationMode")

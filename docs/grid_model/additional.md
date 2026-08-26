@@ -483,7 +483,7 @@ Here the list of objects capable of such regulation by authorized mode:
 | [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X (*)          |                            |                                 |
 | [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter) | X       | X (*)          |                            |                                 |
 
-(*) If the terminal is set
+(*) The terminal is required
 
 **Characteristics**
 

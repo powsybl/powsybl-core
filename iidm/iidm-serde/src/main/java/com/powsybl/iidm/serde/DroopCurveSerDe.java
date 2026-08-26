@@ -49,6 +49,7 @@ public class DroopCurveSerDe {
         context.getWriter().writeEndNode();
     }
 
+    @Deprecated(since = "7.4.0")
     public void read(AcDcConverter<?> converter, NetworkDeserializerContext context) {
         read(context).accept(converter);
     }
