@@ -380,7 +380,7 @@ The CGMES class used for the export is determined as follows:
 - If the `Load` has no [`LoadDetail`](../../grid_model/extensions.md#load-detail) extension, it is exported as `EnergyConsumer`.
 - If the active power `P0` is negative, the load is exported as `EnergySource` regardless of the extension.
 
-If the `Load` had a CGMES original class stored as a property (i.e., it comes from a CGMES import), it is preserved at export as long as it remains consistent with the sign of `P0` and the [`LoadDetail extension`](../../grid_model/extensions.md#load-detail).
+If the `Load` had a CGMES original class stored as a property (i.e., it comes from a CGMES import), it is preserved at export as long as it remains consistent with the sign of `P0` and the [`LoadDetail extension`](../../grid_model/extensions.md#load-detail). An IIDM `Load` can be created from the following CGMES classes: `AsynchronousMachine`, `EnergySource`, `EnergyConsumer`, `ConformLoad`, `NonConformLoad`, `StationSupply`.
 
 In the EQ profile, the exported element references the `EquipmentContainer` of the voltage level and a `LoadGroup` (`ConformLoadGroup` or `NonConformLoadGroup` depending on the class). 
 A single `LoadArea` and `SubLoadArea` are created for the whole network.
@@ -392,7 +392,8 @@ If the `Load` has a load model (see [load model](../../grid_model/network_subnet
 In the SSH profile:
 - For `ConformLoad`, `NonConformLoad` and `EnergyConsumer`, the attributes `EnergyConsumer.p` and `EnergyConsumer.q` are written from the IIDM `P0` and `Q0`.
 - For `EnergySource`, the attributes `EnergySource.activePower` and `EnergySource.reactivePower` are written from the IIDM `P0` and `Q0`.
-
+- For `AsynchronousMachine`, the attributes `RotatingMachine.p` and `RotatingMachine.q` are written from the IIDM `P0` and `Q0`. 
+NOTE: SSH attributes for active and reactive power of `EnergySource` and `AsynchronousMachine` in CGMES must be given with load sign convention, so no sign change has to be made from IIDM `P0, Q0` values.
 In the SV profile, a `SvPowerFlow` is written for the terminal of the load with the terminal `P` and `Q` values.
 
 (cgmes-fictitious-injections-export)=
