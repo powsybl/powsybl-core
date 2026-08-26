@@ -229,7 +229,7 @@ public class CgmesExport implements Exporter {
             updateDependenciesCGM(igmModels.values(), updatedCgmSvModel, context.getBoundaryTpId());
         }
 
-        // Export the SSH and TP for the IGMs and the SV for the CGM
+        // Export the SSH and optionally the TP for the IGMs and the SV for the CGM
         String baseName = getBaseName(context, dataSource, network);
         for (Network subnetwork : network.getSubnetworks()) {
             String country = getCountry(subnetwork);
@@ -348,14 +348,14 @@ public class CgmesExport implements Exporter {
         igmModels.forEach(m -> m.updatedSsh.clearSupersedes());
         igmModels.forEach(m -> m.updatedSsh.addSupersedes(m.originalSsh.getId()));
 
-        // Each TP model depends on the original EQ model and on the original TP_BP model
+        // Each TP model depends on the original EQ model and on the original TP_BD model
         igmModels.forEach(m -> m.originalOrUpdatedTp.addDependentOn(m.originalEq.getId()));
 
         // Each updated TP model supersedes the original one
         igmModels.forEach(m -> m.originalOrUpdatedTp.clearSupersedes());
         igmModels.forEach(m -> m.originalOrUpdatedTp.addSupersedes(m.originalOrUpdatedTp.getId()));
 
-        // Updated SV model depends on updated SSH models, original TP_BD models and origianl or updated TP models
+        // Updated SV model depends on updated SSH models, original TP_BD models and original or updated TP models
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.updatedSsh.getId()).collect(Collectors.toSet()));
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalOrUpdatedTp.getId()).collect(Collectors.toSet()));
         if (boundaryTpId != null) {
