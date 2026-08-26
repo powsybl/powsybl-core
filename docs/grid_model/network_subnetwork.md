@@ -997,7 +997,7 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or P_PCC_DROOP              |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or DC_DROOP                 |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
 | $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention |
@@ -1015,6 +1015,7 @@ The Point of Common Coupling (PCC) Terminal defines where the AC/DC converter in
 The control mode defines whether the converter:
 - controls active power at Point of Common Coupling
 - or, controls DC voltage at its DC terminals
+- or, controls the relation between DC voltage and active power through a droop curve
 
 When the `ControlMode` of the converter is set to `P_PCC`, the converter controls active power flow at the (AC) Point of common coupling terminal.
 `TargetP` is the desired active power flow at PCC, in passive sign convention, i.e.:
@@ -1046,20 +1047,21 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
 
-When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls active power as in the `P_PCC` control mode
-for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
-$P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
+When the `ControlMode` of the converter is set to `DC_DROOP`, the converter controls the relation between DC voltage and active
+power through a piecewise linear droop curve, anchored in the $(P_{AC}, V_{DC})$ plane at the point $(TargetP, TargetVdc)$:
+$V_{DC} - V_i = k_i \cdot (P_{AC} - P_i)$
 Where:
-- $k$ is the droop coefficient of the actual droop segment.
-- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint.
-It represents the operating point before the security analysis starts.
-- $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
-- $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
-- $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
+- $V_{DC} = V_1 - V_2$ is the DC voltage of the converter, between DC Node 1 and DC Node 2.
+- $P_{AC}$ is the active power of the converter, using the same load sign convention as `TargetP`.
+- $k_i$ is the droop coefficient of the segment containing the operating point, and $(P_i, V_i)$ is that segment's lower bound on the curve.
 
-Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual
-droop segment should be the one which verifies:
-$V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+Only the segment containing the anchor point has a directly known $(P_i, V_i)$, namely $(TargetP, TargetVdc)$. The $(P_i, V_i)$
+of every other segment is derived by walking the curve from the anchor, segment by segment: crossing a segment with droop
+coefficient $k$ between voltages $V_{min}$ and $V_{max}$ shifts $P$ by $(V_{max} - V_{min}) / k$.
+
+Each segment in the `DroopCurve` is defined with a minimal and maximal voltage, and a droop coefficient. The segment used
+at a given DC voltage is the one which verifies:
+$V_{DC} \in [V_{min}, V_{max})$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 
 `MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
 same load sign convention as `TargetP`.
