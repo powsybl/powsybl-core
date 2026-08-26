@@ -37,7 +37,8 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -741,8 +742,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertFalse(nlOpLimitTypeIds.isEmpty());
 
         // The LoadGroup IDs and OperationalLimitType IDs must be different between the two IGMs
-        assert(Collections.disjoint(beLoadGroupIds, nlLoadGroupIds));
-        assert(Collections.disjoint(beOpLimitTypeIds, nlOpLimitTypeIds));
+        assertTrue(Collections.disjoint(beLoadGroupIds, nlLoadGroupIds));
+        assertTrue(Collections.disjoint(beOpLimitTypeIds, nlOpLimitTypeIds));
     }
 
     private Network networkWithLoadsAndLimits2Subnetworks() {
