@@ -69,6 +69,70 @@ public abstract class AbstractDcNodeTest {
     }
 
     @Test
+    public void testVoltageLimits() {
+        Network network = Network.create("test", "test");
+
+        DcNode noLimits = network.newDcNode().setId("noLimits").setNominalV(500.).add();
+        assertTrue(Double.isNaN(noLimits.getLowVoltageLimit()));
+        assertTrue(Double.isNaN(noLimits.getHighVoltageLimit()));
+
+        DcNode positiveLimits = network.newDcNode().setId("positiveLimits").setNominalV(500.)
+                .setLowVoltageLimit(480.).setHighVoltageLimit(520.).add();
+        assertEquals(480., positiveLimits.getLowVoltageLimit());
+        assertEquals(520., positiveLimits.getHighVoltageLimit());
+
+        DcNode negativeLimits = network.newDcNode().setId("negativeLimits").setNominalV(500.)
+                .setLowVoltageLimit(-520.).setHighVoltageLimit(-480.).add();
+        assertEquals(-520., negativeLimits.getLowVoltageLimit());
+        assertEquals(-480., negativeLimits.getHighVoltageLimit());
+
+        DcNode spanningLimits = network.newDcNode().setId("spanningLimits").setNominalV(500.)
+                .setLowVoltageLimit(-520.).setHighVoltageLimit(520.).add();
+        assertEquals(-520., spanningLimits.getLowVoltageLimit());
+        assertEquals(520., spanningLimits.getHighVoltageLimit());
+
+        // an undefined bound leaves the other one unconstrained, since all comparisons with NaN are false
+        DcNode highLimitOnly = network.newDcNode().setId("highLimitOnly").setNominalV(500.)
+                .setHighVoltageLimit(520.).add();
+        assertTrue(Double.isNaN(highLimitOnly.getLowVoltageLimit()));
+        assertEquals(520., highLimitOnly.getHighVoltageLimit());
+
+        // the widest band, so that each new bound stays consistent with the stored value of the other one
+        assertSame(spanningLimits, spanningLimits.setLowVoltageLimit(-510.));
+        assertEquals(-510., spanningLimits.getLowVoltageLimit());
+        assertSame(spanningLimits, spanningLimits.setHighVoltageLimit(510.));
+        assertEquals(510., spanningLimits.getHighVoltageLimit());
+        spanningLimits.setLowVoltageLimit(Double.NaN);
+        assertTrue(Double.isNaN(spanningLimits.getLowVoltageLimit()));
+    }
+
+    @Test
+    public void testVoltageLimitsError() {
+        Network network = Network.create("test", "test");
+
+        DcNodeAdder adder = network.newDcNode().setId("dcNode").setNominalV(500.)
+                .setLowVoltageLimit(520.).setHighVoltageLimit(480.);
+        PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Node 'dcNode': Inconsistent voltage limit range [520.0, 480.0]", e1.getMessage());
+
+        // only the ordering is checked, so a negative pair is rejected on the same rule
+        DcNodeAdder negativeAdder = network.newDcNode().setId("negativeDcNode").setNominalV(500.)
+                .setLowVoltageLimit(-480.).setHighVoltageLimit(-520.);
+        PowsyblException e2 = assertThrows(PowsyblException.class, negativeAdder::add);
+        assertEquals("DC Node 'negativeDcNode': Inconsistent voltage limit range [-480.0, -520.0]", e2.getMessage());
+
+        DcNode dcNode = network.newDcNode().setId("dcNode").setNominalV(500.)
+                .setLowVoltageLimit(-520.).setHighVoltageLimit(-480.).add();
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> dcNode.setLowVoltageLimit(-470.));
+        assertEquals("DC Node 'dcNode': Inconsistent voltage limit range [-470.0, -480.0]", e3.getMessage());
+        PowsyblException e4 = assertThrows(PowsyblException.class, () -> dcNode.setHighVoltageLimit(-530.));
+        assertEquals("DC Node 'dcNode': Inconsistent voltage limit range [-520.0, -530.0]", e4.getMessage());
+
+        assertEquals(-520., dcNode.getLowVoltageLimit());
+        assertEquals(-480., dcNode.getHighVoltageLimit());
+    }
+
+    @Test
     public void testRemove() {
         Network network = Network.create("test", "test");
         String dcNode1Id = "dcNode1";
@@ -88,6 +152,18 @@ public abstract class AbstractDcNodeTest {
 
         PowsyblException e2 = assertThrows(PowsyblException.class, dcNode1::getNominalV);
         assertEquals("Cannot access nominalV of removed equipment dcNode1", e2.getMessage());
+
+        PowsyblException e3 = assertThrows(PowsyblException.class, () -> dcNode1.setLowVoltageLimit(480.));
+        assertEquals("Cannot modify lowVoltageLimit of removed equipment dcNode1", e3.getMessage());
+
+        PowsyblException e4 = assertThrows(PowsyblException.class, dcNode1::getLowVoltageLimit);
+        assertEquals("Cannot access lowVoltageLimit of removed equipment dcNode1", e4.getMessage());
+
+        PowsyblException e5 = assertThrows(PowsyblException.class, () -> dcNode1.setHighVoltageLimit(520.));
+        assertEquals("Cannot modify highVoltageLimit of removed equipment dcNode1", e5.getMessage());
+
+        PowsyblException e6 = assertThrows(PowsyblException.class, dcNode1::getHighVoltageLimit);
+        assertEquals("Cannot access highVoltageLimit of removed equipment dcNode1", e6.getMessage());
     }
 
     @Test
