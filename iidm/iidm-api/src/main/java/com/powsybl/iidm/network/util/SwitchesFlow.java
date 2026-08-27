@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
-
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
 import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
