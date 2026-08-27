@@ -916,12 +916,19 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 
 **Characteristics**
 
-| Attribute  | Unit | Description                          |
-|------------|------|--------------------------------------|
-| $NominalV$ | kV   | The nominal voltage, always positive |
+| Attribute           | Unit | Description                          |
+|---------------------|------|--------------------------------------|
+| $NominalV$          | kV   | The nominal voltage, always positive |
+| $LowVoltageLimit$   | kV   | The low voltage limit, optional      |
+| $HighVoltageLimit$  | kV   | The high voltage limit, optional     |
 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
+
+The voltage limits describe the operating band of the DC node. Like the solved voltage, they are signed: they bound
+the voltage itself and not its magnitude, so both limits are negative on a DC node operating at negative polarity,
+and a DC node that may operate at either polarity has a band spanning both signs. Only the ordering of the two
+limits is checked: $LowVoltageLimit$ must not be greater than $HighVoltageLimit$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)

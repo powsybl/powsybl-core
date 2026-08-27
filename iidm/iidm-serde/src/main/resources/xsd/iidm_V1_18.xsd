@@ -872,6 +872,8 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
+                <xs:attribute name="lowVoltageLimit" use="optional" type="xs:double"/>
+                <xs:attribute name="highVoltageLimit" use="optional" type="xs:double"/>
                 <xs:attribute name="v" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
