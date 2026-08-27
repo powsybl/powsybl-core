@@ -98,4 +98,44 @@ public abstract class AbstractDcConnectableTest {
         assertEquals(expectedDcStatus, vsc.getDcTerminal1().isConnected());
         assertEquals(expectedDcStatus, vsc.getDcTerminal2().isConnected());
     }
+
+    @Test
+    public void connectAndDisconnectDcSwitch() {
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        DcSwitch dcSwitch = network.getDcSwitch("dcSwitch");
+
+        // Check dcSwitch is fully connected
+        assertDcSwitchConnectionStatus(true, dcSwitch);
+
+        // Disconnect dcSwitch, which should return true
+        assertTrue(dcSwitch.disconnectDc());
+        assertDcSwitchConnectionStatus(false, dcSwitch);
+
+        // Disconnect dcSwitch again, which should return false
+        assertFalse(dcSwitch.disconnectDc());
+        assertDcSwitchConnectionStatus(false, dcSwitch);
+
+        // Connect dcSwitch, which should return true
+        assertTrue(dcSwitch.connectDc());
+        assertDcSwitchConnectionStatus(true, dcSwitch);
+
+        // Connect dcSwitch again, which should return false
+        assertFalse(dcSwitch.connectDc());
+        assertDcSwitchConnectionStatus(true, dcSwitch);
+
+        // Partially disconnect DC side, connectDc should return true
+        dcSwitch.getDcTerminal1().setConnected(false);
+        assertTrue(dcSwitch.connectDc());
+        assertDcSwitchConnectionStatus(true, dcSwitch);
+
+        // Partially disconnect DC side, disconnectDc should return true
+        dcSwitch.getDcTerminal1().setConnected(false);
+        assertTrue(dcSwitch.disconnectDc());
+        assertDcSwitchConnectionStatus(false, dcSwitch);
+    }
+
+    private void assertDcSwitchConnectionStatus(boolean expectedStatus, DcSwitch dcSwitch) {
+        assertEquals(expectedStatus, dcSwitch.getDcTerminal1().isConnected());
+        assertEquals(expectedStatus, dcSwitch.getDcTerminal2().isConnected());
+    }
 }

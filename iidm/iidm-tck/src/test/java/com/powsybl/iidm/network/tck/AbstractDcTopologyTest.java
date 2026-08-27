@@ -141,6 +141,56 @@ public abstract class AbstractDcTopologyTest {
     }
 
     @Test
+    public void testDcBusRespectsSwitchTerminalConnection() {
+        Network net1 = Network.create("n1", "test");
+        DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
+        DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
+        DcSwitch s1112 = net1.newDcSwitch().setId("s11-12")
+                .setKind(DcSwitchKind.BREAKER)
+                .setOpen(false)
+                .setDcNode1(n11.getId()).setDcNode2(n12.getId())
+                .add();
+        // switch closed, R=0, both terminals connected: n11 and n12 merge into a single bus
+        assertEquals(1, net1.getDcBusCount());
+
+        // disconnecting either terminal of the switch prevents the merge, just like an open switch would
+        s1112.getDcTerminal1().setConnected(false);
+        assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
+
+        s1112.getDcTerminal1().setConnected(true);
+        s1112.getDcTerminal2().setConnected(false);
+        assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
+
+        // reconnecting both terminals merges the buses again
+        s1112.getDcTerminal2().setConnected(true);
+        assertEquals(1, net1.getDcBusCount());
+    }
+
+    @Test
+    public void testSwitchAloneDoesNotValidateDcBus() {
+        Network net1 = Network.create("n1", "test");
+        DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcSwitch().setId("s11-12")
+                .setKind(DcSwitchKind.BREAKER)
+                .setOpen(false)
+                .setDcNode1(n11.getId()).setDcNode2(n12.getId())
+                .add();
+        // a closed, zero-resistance switch is a pure coupler: with no other equipment attached
+        // to either side, it does not validate a bus on its own
+        assertEquals(0, net1.getDcBusCount());
+
+        // attaching real equipment on either side validates a bus for the whole merged node set
+        DcGround n11g = net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
+        assertEquals(1, net1.getDcBusCount());
+
+        n11g.remove();
+        assertEquals(0, net1.getDcBusCount());
+    }
+
+    @Test
     public void testMultiVariantDcBusV() {
         Network net1 = Network.create("n1", "test");
         var variantManager = net1.getVariantManager();
