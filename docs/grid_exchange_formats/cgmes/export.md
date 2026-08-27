@@ -156,9 +156,7 @@ Remember that, in addition to setting the info for metadata models in the IIDM e
 (cgmes-partial-ssh-export)=
 ## Partial SSH export from recorded changes
 
-The exports described above always write the complete state of the network. When two processes already share the
-same base model and only need to exchange the outcome of a business process, writing and reading a full grid model
-is unnecessary. `PartialSshExport` writes a *partial* SSH instance file, containing only the objects
+The exports described above always write the complete state of the network. When two processes already share the same base model and only need to exchange small changes to that base model, writing and reading a full grid model is unnecessary. `PartialSshExport` writes a *partial* SSH instance file, containing only the objects
 affected by a list of changes recorded on the network:
 
 ```java
@@ -184,8 +182,7 @@ parameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
 receiver.update(new GenericReadOnlyDataSource(directory, "update"), parameters);
 ```
 
-Setting `iidm.import.cgmes.use-previous-values-during-update` is required: it tells the import to keep its current
-value for everything the partial file does not mention.
+Setting `iidm.import.cgmes.use-previous-values-during-update` is required: it tells the import to keep its current value for everything the partial file does not mention.
 
 ### Supported changes
 
@@ -201,35 +198,7 @@ value for everything the partial file does not mention.
 | `HvdcLine` | active power setpoint |
 | `VscConverterStation` | voltage setpoint |
 
-Anything else, in particular the creation or the removal of equipment and changes of terminal connection status,
-has no representation in the SSH profile. Every export method takes an `UnsupportedChangeBehavior` saying what to
-do with such a change: `FAIL` rejects it, so that it is never silently lost, and `IGNORE` logs a warning and leaves
-it out of the file. Using the `write` endpoints return value, you can obtain a log of changes that made it to the file.
-
-
-Two changes are deliberately rejected because the CGMES import cannot read them back, so exporting them would lose
-them silently: the reactive power setpoint of a VSC converter, and the setpoints of a load modelled as an
-`AsynchronousMachine`.
-
-### Header and repeated changes
-
-The header of the exported model is derived from the SSH the network was imported from: the version is incremented
-by one, the new model supersedes the source SSH and keeps its dependencies, so it stays attached to the equipment
-model both sides share. All of it can be overridden through `ExportOptions`:
-
-```java
-PartialSshExport.write(network, recorder.getEvents(), outputStream,
-        new PartialSshExport.ExportOptions()
-                .setModelId("urn:uuid:...")
-                .setVersion(4)
-                .setModelingAuthoritySet("http://www.example.eu/OperationalPlanning")
-                .setUnsupportedChangeBehavior(UnsupportedChangeBehavior.IGNORE));
-```
-
-If the same attribute was changed several times only the last value is exported, and every CGMES object is
-described exactly once however many changes affected it. A partial SSH describes a single individual grid model,
-so it has to be exported from each subnetwork of a merged network separately.
-
+Anything else, in particular the creation or the removal of equipment and changes of terminal connection status has no representation in the SSH profile. Every export method takes an `UnsupportedChangeBehavior` saying what to do with such a change: `FAIL` rejects it, so that it is never silently lost, and `IGNORE` logs a warning and leaves it out of the file. Using the `write` endpoints return value, you can obtain a log of changes that made it to the file for tracking the effect of `IGNORE`.
 
 ## Topology kind
 
