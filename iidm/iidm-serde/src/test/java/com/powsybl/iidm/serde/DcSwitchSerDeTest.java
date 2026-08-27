@@ -64,6 +64,38 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         });
     }
 
+    @Test
+    void testDisconnectedTerminalNotSupportedBeforeIidm118() {
+        Network network = Network.create("dcSwitchTest", "code");
+        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
+        DcNode dcNode1 = network.newDcNode()
+                .setId("dcNode1")
+                .setNominalV(500.)
+                .add();
+        DcNode dcNode2 = network.newDcNode()
+                .setId("dcNode2")
+                .setNominalV(500.)
+                .add();
+        network.newDcSwitch()
+                .setId("dcSwitch1")
+                .setDcNode1(dcNode1.getId())
+                .setConnected1(false)
+                .setDcNode2(dcNode2.getId())
+                .setKind(DcSwitchKind.BREAKER)
+                .setOpen(false)
+                .add();
+
+        // connected1/connected2 are only supported from IIDM 1.18; versions 1.15 to 1.17 support DcSwitch
+        // (and r from 1.17) but not connected1/connected2.
+        // An Exception should be thrown when a terminal is disconnected in this case.
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_17, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
+            assertEquals("dcSwitch.connected1 is not defined as default and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.18", e.getMessage());
+        });
+    }
+
     private static Network createBaseNetwork() {
         Network network = Network.create("dcSwitchTest", "code");
         network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));

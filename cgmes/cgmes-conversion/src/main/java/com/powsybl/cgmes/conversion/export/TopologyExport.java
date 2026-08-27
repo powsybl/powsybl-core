@@ -264,14 +264,6 @@ public final class TopologyExport {
                 writeDCBaseTerminal(className, dcTerminalId, dcTopologicalNodeId, cimNamespace, writer, context);
             }
         }
-        for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1);
-            String dcTopologicalNode1Id = context.getNamingStrategy().getCgmesId(dcSwitch.getDcNode1().getDcBus());
-            writeDCBaseTerminal(CgmesNames.DC_TERMINAL, dcTerminal1Id, dcTopologicalNode1Id, cimNamespace, writer, context);
-            String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2);
-            String dcTopologicalNode2Id = context.getNamingStrategy().getCgmesId(dcSwitch.getDcNode2().getDcBus());
-            writeDCBaseTerminal(CgmesNames.DC_TERMINAL, dcTerminal2Id, dcTopologicalNode2Id, cimNamespace, writer, context);
-        }
     }
 
     private static void writeDcTerminals(HvdcLine line, HvdcConverterStation<?> converter, int side, String cimNamespace,

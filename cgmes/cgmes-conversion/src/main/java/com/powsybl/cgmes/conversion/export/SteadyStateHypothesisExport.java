@@ -813,16 +813,13 @@ public final class SteadyStateHypothesisExport {
             for (DcTerminal dcTerminal : dcConnectable.getDcTerminals()) {
                 String dcTerminalId = CgmesExportUtil.getDcTerminalId(dcTerminal, context);
                 String className = dcConnectable instanceof AcDcConverter<?> ? ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
-                boolean connected = dcTerminal.isConnected();
+                // a DC switch terminal is exported as connected only if the switch itself is closed
+                // and the terminal is connected: the CIM DCTerminal has no separate "open" concept.
+                boolean connected = dcConnectable instanceof DcSwitch dcSwitch
+                        ? !dcSwitch.isOpen() && dcTerminal.isConnected()
+                        : dcTerminal.isConnected();
                 writeDCTerminal(dcTerminalId, className, connected, cimNamespace, writer, context);
             }
-        }
-        for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            boolean connected = !dcSwitch.isOpen();
-            String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1);
-            writeDCTerminal(dcTerminal1Id, CgmesNames.DC_TERMINAL, connected, cimNamespace, writer, context);
-            String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2);
-            writeDCTerminal(dcTerminal2Id, CgmesNames.DC_TERMINAL, connected, cimNamespace, writer, context);
         }
     }
 

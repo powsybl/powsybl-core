@@ -308,6 +308,8 @@ public final class CgmesExportUtil {
             return 1;
         } else if (c instanceof DcLine dcl) {
             return dcl.getSide(t).getNum();
+        } else if (c instanceof DcSwitch dcSwitch) {
+            return dcSwitch.getSide(t).getNum();
         } else if (c instanceof AcDcConverter<?> converter) {
             return converter.getTerminalNumber(t).getNum();
         } else {
