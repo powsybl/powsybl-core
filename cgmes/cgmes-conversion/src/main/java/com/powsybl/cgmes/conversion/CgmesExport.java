@@ -352,7 +352,7 @@ public class CgmesExport implements Exporter {
         // Each updated TP model depends on the original EQ model and on the original TP_BD model
         igmModels.forEach(m -> m.updatedTp.addDependentOn(m.originalEq.getId()));
         if (boundaryTpId != null) {
-            igmModels.forEach(m -> m.updatedTp.addDependentOn(m.originalEq.getId()));
+            igmModels.forEach(m -> m.updatedTp.addDependentOn(boundaryTpId));
         } else {
             igmModels.forEach(m -> m.updatedTp.addDependentOn(m.originalTpBd.getId()));
         }
