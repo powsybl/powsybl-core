@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
+import java.util.Optional;
 
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
@@ -49,11 +50,10 @@ public final class PrintConfig {
         return printDecimalPlaces;
     }
 
-    public static DecimalFormat getFormatter(PrintConfig config) {
-        if (config != null && config.getPrintDecimalPlaces() != null) {
-            return config.createFormatter(config.getPrintDecimalPlaces());
-        }
-        return null;
+    public static Optional<DecimalFormat> getFormatter(PrintConfig config) {
+        return Optional.ofNullable(config)
+                .flatMap(config1 -> Optional.ofNullable(config1.getPrintDecimalPlaces())
+                        .map(config::createFormatter));
     }
 
     private DecimalFormat createFormatter(int maxDecimals) {

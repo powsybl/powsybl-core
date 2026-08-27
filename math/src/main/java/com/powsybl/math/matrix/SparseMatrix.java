@@ -12,6 +12,8 @@ import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -458,8 +460,9 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
-        DecimalFormat decimalFormatter = getFormatter(config);
-        out.println("values=" + (decimalFormatter != null ? formatValues(decimalFormatter) : values));
+        getFormatter(config).ifPresentOrElse(
+                decimalFormat -> out.println("values=" + formatValues(decimalFormat)),
+                () -> out.println("values=" + values));
     }
 
     @Override

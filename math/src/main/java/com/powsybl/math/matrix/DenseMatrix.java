@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.DoubleFunction;
@@ -412,11 +411,10 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
-        DecimalFormat decimalFormatter = getFormatter(config);
-        int[] width = (decimalFormatter == null)
-                ? getMaxWidthPerColumn(columnNames, Double::toString)
-                : getMaxWidthPerColumn(columnNames, decimalFormatter::format);
-
+        DoubleFunction<String> formattingFunction = getFormatter(config)
+                .map(decimalFormat -> (DoubleFunction<String>) (decimalFormat::format))
+                .orElse(Double::toString);
+        int[] width = getMaxWidthPerColumn(columnNames, formattingFunction);
         int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
 
         if (columnNames != null) {
@@ -433,11 +431,7 @@ public class DenseMatrix extends AbstractMatrix {
                 out.print(Strings.padStart(rowNames.get(i), rowNamesWidth + 1, ' '));
             }
             for (int j = 0; j < getColumnCount(); j++) {
-                out.print(Strings.padStart(
-                        decimalFormatter != null ? decimalFormatter.format(get(i, j)) : Double.toString(get(i, j)),
-                        width[j] + 1,
-                        ' '
-                ));
+                out.print(Strings.padStart(formattingFunction.apply(get(i, j)), width[j] + 1, ' '));
             }
             out.println();
         }
