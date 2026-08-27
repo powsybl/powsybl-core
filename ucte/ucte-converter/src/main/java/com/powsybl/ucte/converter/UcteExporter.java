@@ -87,10 +87,10 @@ public class UcteExporter implements Exporter {
 
         String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
-        NamingStrategy.Context namingStrategyContext = namingStrategy.initialize(network);
+        namingStrategy.initializeNetwork(network);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, namingStrategyContext, combinePhaseAngleRegulation);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation);
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
@@ -131,7 +131,7 @@ public class UcteExporter implements Exporter {
      * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, NamingStrategy.Context namingStrategyContext, boolean combinePhaseAngleRegulation) {
+    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
 
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
@@ -144,7 +144,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(namingStrategy, namingStrategyContext, combinePhaseAngleRegulation);
+        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation);
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
@@ -186,7 +186,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("Too many loads connected to this bus");
         }
 
-        UcteNodeCode ucteNodeCode = context.getUcteNodeCode(bus);
+        UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
         // FIXME(mathbagu): how to initialize active/reactive load and generation: 0 vs NaN vs DEFAULT_MAX_POWER?
@@ -305,7 +305,7 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getUcteNodeCode(boundaryLine);
+        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(boundaryLine);
         String geographicalName = boundaryLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
         UcteNodeStatus ucteNodeStatus = getXnodeStatus(boundaryLine);
@@ -346,7 +346,7 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getUcteNodeCode(tieLine.getPairingKey());
+        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
         String geographicalName = mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
         UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
@@ -400,7 +400,7 @@ public class UcteExporter implements Exporter {
     private static void convertSwitch(UcteNetwork ucteNetwork, Switch sw, UcteExporterContext context) {
         LOGGER.trace("Converting switch {}", sw.getId());
 
-        UcteElementId ucteElementId = context.getUcteElementId(sw);
+        UcteElementId ucteElementId = context.getNamingStrategy().getUcteElementId(sw);
         UcteElementStatus status = getStatus(sw);
         String elementName = sw.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
 
@@ -420,7 +420,7 @@ public class UcteExporter implements Exporter {
     private static void convertLine(UcteNetwork ucteNetwork, Line line, UcteExporterContext context) {
         LOGGER.trace("Converting line {}", line.getId());
 
-        UcteElementId lineId = context.getUcteElementId(line);
+        UcteElementId lineId = context.getNamingStrategy().getUcteElementId(line);
         UcteElementStatus status = getStatus(line);
         String elementName = line.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
 
@@ -450,7 +450,7 @@ public class UcteExporter implements Exporter {
 
         // Create boundary line 1
         BoundaryLine boundaryLine1 = tieLine.getBoundaryLine1();
-        UcteElementId ucteElementId1 = context.getUcteElementId(boundaryLine1.getId());
+        UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(boundaryLine1.getId());
         String elementName1 = boundaryLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status1 = getStatusHalf(tieLine, TwoSides.ONE);
         UcteLine ucteLine1 = new UcteLine(
@@ -465,7 +465,7 @@ public class UcteExporter implements Exporter {
 
         // Create boundary line2
         BoundaryLine boundaryLine2 = tieLine.getBoundaryLine2();
-        UcteElementId ucteElementId2 = context.getUcteElementId(boundaryLine2.getId());
+        UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(boundaryLine2.getId());
         String elementName2 = boundaryLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status2 = getStatusHalf(tieLine, TwoSides.TWO);
         UcteLine ucteLine2 = new UcteLine(
@@ -501,7 +501,7 @@ public class UcteExporter implements Exporter {
         }
 
         // Create line
-        UcteElementId elementId = context.getUcteElementId(boundaryLine);
+        UcteElementId elementId = context.getNamingStrategy().getUcteElementId(boundaryLine);
         String elementName = boundaryLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus ucteElementStatus = getStatus(boundaryLine);
 
@@ -649,7 +649,7 @@ public class UcteExporter implements Exporter {
             // We can export it as a regular transformer
         }
 
-        UcteElementId elementId = context.getUcteElementId(twoWindingsTransformer);
+        UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         double nominalPower = Double.NaN;

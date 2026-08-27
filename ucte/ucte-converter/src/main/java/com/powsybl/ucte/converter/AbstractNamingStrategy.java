@@ -15,97 +15,70 @@ import com.powsybl.ucte.network.UcteNodeCode;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author Clément LECLERC {@literal <clement.leclerc@rte-france.com>}
  */
 public abstract class AbstractNamingStrategy implements NamingStrategy {
 
+    protected final Map<String, UcteNodeCode> ucteNodeIds = new HashMap<>();
+    protected final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
+
     @Override
-    public Context initialize(Network network) {
-        return new Context(network);
+    public void initializeNetwork(Network network) {
+        //Empty implementation by default
     }
 
     @Override
-    public UcteNodeCode getUcteNodeCode(NamingStrategy.Context context, String id) {
-        return ((Context) context).getUcteNodeIds().computeIfAbsent(id, k -> UcteNodeCode.parseUcteNodeCode(k)
+    public UcteNodeCode getUcteNodeCode(String id) {
+        return ucteNodeIds.computeIfAbsent(id, k -> UcteNodeCode.parseUcteNodeCode(k)
                 .orElseThrow(() -> new UcteException(UcteConverterConstants.NO_UCTE_CODE_ERROR + k)));
     }
 
     @Override
-    public UcteNodeCode getUcteNodeCode(NamingStrategy.Context context, Bus bus) {
+    public UcteNodeCode getUcteNodeCode(Bus bus) {
         if (bus == null) {
             throw new PowsyblException("the bus is null");
         }
-        return getUcteNodeCode(context, bus.getId());
+        return getUcteNodeCode(bus.getId());
     }
 
     @Override
-    public UcteNodeCode getUcteNodeCode(NamingStrategy.Context context, BoundaryLine boundaryLine) {
+    public UcteNodeCode getUcteNodeCode(BoundaryLine boundaryLine) {
         if (boundaryLine.getPairingKey() == null) {
-            return getUcteNodeCode(context, boundaryLine.getId());
+            return getUcteNodeCode(boundaryLine.getId());
         }
-        return getUcteNodeCode(context, boundaryLine.getPairingKey());
+        return getUcteNodeCode(boundaryLine.getPairingKey());
     }
 
     @Override
-    public UcteElementId getUcteElementId(NamingStrategy.Context context, String id) {
-        return ((Context) context).getUcteElementIds().computeIfAbsent(id, k -> UcteElementId.parseUcteElementId(k)
+    public UcteElementId getUcteElementId(String id) {
+        return ucteElementIds.computeIfAbsent(id, k -> UcteElementId.parseUcteElementId(k)
                 .orElseThrow(() -> new UcteException(UcteConverterConstants.NO_UCTE_CODE_ERROR + k)));
     }
 
     @Override
-    public UcteElementId getUcteElementId(NamingStrategy.Context context, Switch sw) {
+    public UcteElementId getUcteElementId(Switch sw) {
         if (sw == null) {
             throw new PowsyblException("the switch is null");
         }
-        return getUcteElementId(context, sw.getId());
+        return getUcteElementId(sw.getId());
     }
 
     @Override
-    public UcteElementId getUcteElementId(NamingStrategy.Context context, Branch branch) {
+    public UcteElementId getUcteElementId(Branch branch) {
         if (branch == null) {
             throw new PowsyblException("the branch is null");
         }
-        return getUcteElementId(context, branch.getId());
+        return getUcteElementId(branch.getId());
     }
 
     @Override
-    public UcteElementId getUcteElementId(NamingStrategy.Context context, BoundaryLine boundaryLine) {
+    public UcteElementId getUcteElementId(BoundaryLine boundaryLine) {
         if (boundaryLine == null) {
             throw new PowsyblException("the boundaryLine is null");
         }
-        return getUcteElementId(context, boundaryLine.getId());
-    }
-
-    /**
-     * Base {@link NamingStrategy.Context} implementation, holding the UCTE code assigned to each bus and
-     * element id encountered so far.
-     */
-    public static class Context implements NamingStrategy.Context {
-
-        private final Network network;
-
-        private final Map<String, UcteNodeCode> ucteNodeIds = new HashMap<>();
-
-        private final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
-
-        public Context(Network network) {
-            this.network = Objects.requireNonNull(network);
-        }
-
-        @Override
-        public Network getNetwork() {
-            return network;
-        }
-
-        public Map<String, UcteNodeCode> getUcteNodeIds() {
-            return ucteNodeIds;
-        }
-
-        public Map<String, UcteElementId> getUcteElementIds() {
-            return ucteElementIds;
-        }
+        return getUcteElementId(boundaryLine.getId());
     }
 }
+

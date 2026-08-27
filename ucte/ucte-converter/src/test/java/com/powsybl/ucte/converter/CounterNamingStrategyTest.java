@@ -25,7 +25,6 @@ class CounterNamingStrategyTest {
 
     private Network network;
     private CounterNamingStrategy strategy;
-    private NamingStrategy.Context context;
 
     @BeforeEach
     void setUp() {
@@ -41,23 +40,22 @@ class CounterNamingStrategyTest {
 
     @Test
     void testInitialNetwork() {
-        NamingStrategy.Context emptyContext = new CounterNamingStrategy.Context(network);
-        assertThrows(UcteException.class, () -> strategy.getUcteNodeCode(emptyContext, "NGEN"));
-        assertThrows(UcteException.class, () -> strategy.getUcteElementId(emptyContext, "NHV1_NHV2_1"));
+        assertThrows(UcteException.class, () -> strategy.getUcteNodeCode("NGEN"));
+        assertThrows(UcteException.class, () -> strategy.getUcteElementId("NHV1_NHV2_1"));
 
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
 
-        assertDoesNotThrow(() -> strategy.getUcteNodeCode(context, "NGEN"));
-        assertDoesNotThrow(() -> strategy.getUcteElementId(context, "NHV1_NHV2_1"));
+        assertDoesNotThrow(() -> strategy.getUcteNodeCode("NGEN"));
+        assertDoesNotThrow(() -> strategy.getUcteElementId("NHV1_NHV2_1"));
     }
 
     @Test
     void testVoltageLevelCounterNaming() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
 
-        UcteNodeCode firstBusCode = strategy.getUcteNodeCode(context, network.getBusBreakerView().getBus("NGEN"));
-        UcteNodeCode secondBusCode = strategy.getUcteNodeCode(context, network.getBusBreakerView().getBus("NGEN2"));
-        UcteNodeCode thirdBusCode = strategy.getUcteNodeCode(context, network.getBusBreakerView().getBus("NGEN3"));
+        UcteNodeCode firstBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN"));
+        UcteNodeCode secondBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN2"));
+        UcteNodeCode thirdBusCode = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("NGEN3"));
 
         String firstIdPart = firstBusCode.toString().substring(0, 6);
         String secondIdPart = secondBusCode.toString().substring(0, 6);
@@ -71,16 +69,16 @@ class CounterNamingStrategyTest {
     @Test
     void testBasicNodeCodeGeneration() {
 
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
         Bus genBus = network.getBusBreakerView().getBus("NGEN");
         Bus genbus2 = network.getBusBreakerView().getBus("NGEN2");
         Bus ucteBus = network.getBusBreakerView().getBus("F0000079");
         Bus loadBus = network.getBusBreakerView().getBus("NLOAD");
 
-        UcteNodeCode genCode = strategy.getUcteNodeCode(context, genBus);
-        UcteNodeCode genCode2 = strategy.getUcteNodeCode(context, genbus2);
-        UcteNodeCode loadCode = strategy.getUcteNodeCode(context, loadBus);
-        UcteNodeCode ucteCode = strategy.getUcteNodeCode(context, ucteBus);
+        UcteNodeCode genCode = strategy.getUcteNodeCode(genBus);
+        UcteNodeCode genCode2 = strategy.getUcteNodeCode(genbus2);
+        UcteNodeCode loadCode = strategy.getUcteNodeCode(loadBus);
+        UcteNodeCode ucteCode = strategy.getUcteNodeCode(ucteBus);
 
         assertAll(
                 () -> assertTrue(UcteNodeCode.isUcteNodeId(genCode.toString())),
@@ -105,17 +103,17 @@ class CounterNamingStrategyTest {
 
     @Test
     void testBranchElementIds() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
 
         Branch<?> transformer1 = network.getBranch("NGEN_NHV1");
         Branch<?> transformer2 = network.getBranch("NHV2_NLOAD");
         Branch<?> line1 = network.getBranch("NHV1_NHV2_1");
         Branch<?> line2 = network.getBranch("NHV1_NHV2_2");
 
-        UcteElementId transformerId1 = strategy.getUcteElementId(context, transformer1);
-        UcteElementId transformerId2 = strategy.getUcteElementId(context, transformer2);
-        UcteElementId lineId1 = strategy.getUcteElementId(context, line1);
-        UcteElementId lineId2 = strategy.getUcteElementId(context, line2);
+        UcteElementId transformerId1 = strategy.getUcteElementId(transformer1);
+        UcteElementId transformerId2 = strategy.getUcteElementId(transformer2);
+        UcteElementId lineId1 = strategy.getUcteElementId(line1);
+        UcteElementId lineId2 = strategy.getUcteElementId(line2);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(transformerId1.toString())),
@@ -126,8 +124,8 @@ class CounterNamingStrategyTest {
                 () -> assertNotEquals(transformerId1, transformerId2),
                 () -> assertNotEquals(lineId1, lineId2),
 
-                () -> assertEquals(transformerId1, strategy.getUcteElementId(context, transformer1)),
-                () -> assertEquals(transformerId2, strategy.getUcteElementId(context, transformer2)),
+                () -> assertEquals(transformerId1, strategy.getUcteElementId(transformer1)),
+                () -> assertEquals(transformerId2, strategy.getUcteElementId(transformer2)),
 
                 () -> assertEquals("F0000070 F0000110 0", transformerId1.toString()),
                 () -> assertEquals("F0000210 F0000330 0", transformerId2.toString()),
@@ -139,16 +137,16 @@ class CounterNamingStrategyTest {
 
     @Test
     void testSwitchElementIds() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
         Switch sw = network.getSwitch("NGEN-NGEN2");
         Switch sw2 = network.getSwitch("NGEN-NGEN3");
         Switch sw3 = network.getSwitch("NGEN-NGEN3");
         Switch sw4 = network.getSwitch("NGEN-NGEN4");
 
-        UcteElementId swId = strategy.getUcteElementId(context, sw);
-        UcteElementId swId2 = strategy.getUcteElementId(context, sw2);
-        UcteElementId swId3 = strategy.getUcteElementId(context, sw3);
-        UcteElementId swId4 = strategy.getUcteElementId(context, sw4);
+        UcteElementId swId = strategy.getUcteElementId(sw);
+        UcteElementId swId2 = strategy.getUcteElementId(sw2);
+        UcteElementId swId3 = strategy.getUcteElementId(sw3);
+        UcteElementId swId4 = strategy.getUcteElementId(sw4);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(swId.toString())),
@@ -170,13 +168,13 @@ class CounterNamingStrategyTest {
 
     @Test
     void testBoundaryLineElementIds() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
         BoundaryLine dl1 = network.getBoundaryLine("DL1");
         BoundaryLine dl2 = network.getBoundaryLine("DL2");
         BoundaryLine dl3 = network.getBoundaryLine("DL3");
-        UcteElementId dlId1 = strategy.getUcteElementId(context, dl1);
-        UcteElementId dlId2 = strategy.getUcteElementId(context, dl2);
-        UcteElementId dlId3 = strategy.getUcteElementId(context, dl3);
+        UcteElementId dlId1 = strategy.getUcteElementId(dl1);
+        UcteElementId dlId2 = strategy.getUcteElementId(dl2);
+        UcteElementId dlId3 = strategy.getUcteElementId(dl3);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(dlId1.toString())),
@@ -193,13 +191,13 @@ class CounterNamingStrategyTest {
 
     @Test
     void testParallelLines() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
 
         Branch<?> line1 = network.getBranch("NHV1_NHV2_1");
         Branch<?> line2 = network.getBranch("NHV1_NHV2_2");
 
-        UcteElementId id1 = strategy.getUcteElementId(context, line1);
-        UcteElementId id2 = strategy.getUcteElementId(context, line2);
+        UcteElementId id1 = strategy.getUcteElementId(line1);
+        UcteElementId id2 = strategy.getUcteElementId(line2);
 
         assertAll(
                 () -> assertTrue(UcteElementId.isUcteElementId(id1.toString())),
@@ -213,17 +211,17 @@ class CounterNamingStrategyTest {
 
     @Test
     void testExistingUcteNodeCodes() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
 
         Bus bus = network.getBusBreakerView().getBus("NGEN");
-        UcteNodeCode firstCode = strategy.getUcteNodeCode(context, bus);
+        UcteNodeCode firstCode = strategy.getUcteNodeCode(bus);
         assertNotNull(firstCode);
 
-        UcteNodeCode existingCode = strategy.getUcteNodeCode(context, bus);
+        UcteNodeCode existingCode = strategy.getUcteNodeCode(bus);
         assertNotNull(existingCode);
         assertEquals(firstCode, existingCode);
 
-        UcteNodeCode presentCode = strategy.getUcteNodeCode(context, bus.getId());
+        UcteNodeCode presentCode = strategy.getUcteNodeCode(bus.getId());
         assertNotNull(presentCode);
         assertEquals(firstCode, presentCode);
         assertEquals(existingCode, presentCode);
@@ -231,22 +229,22 @@ class CounterNamingStrategyTest {
 
     @Test
     void testNullAndInvalidIds() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
 
         assertAll(
-                () -> assertThrows(PowsyblException.class, () -> strategy.getUcteNodeCode(context, (String) null)),
-                () -> assertThrows(PowsyblException.class, () -> strategy.getUcteElementId(context, (String) null)),
-                () -> assertThrows(UcteException.class, () -> strategy.getUcteNodeCode(context, "INVALID_ID")),
-                () -> assertThrows(UcteException.class, () -> strategy.getUcteElementId(context, "INVALID_ID"))
+                () -> assertThrows(PowsyblException.class, () -> strategy.getUcteNodeCode((String) null)),
+                () -> assertThrows(PowsyblException.class, () -> strategy.getUcteElementId((String) null)),
+                () -> assertThrows(UcteException.class, () -> strategy.getUcteNodeCode("INVALID_ID")),
+                () -> assertThrows(UcteException.class, () -> strategy.getUcteElementId("INVALID_ID"))
         );
     }
 
     @Test
     void testCountryCode() {
-        context = strategy.initialize(network);
+        strategy.initializeNetwork(network);
 
         Bus genBus = network.getBusBreakerView().getBus("NGEN");
-        UcteNodeCode code = strategy.getUcteNodeCode(context, genBus);
+        UcteNodeCode code = strategy.getUcteNodeCode(genBus);
         assertEquals('F', code.toString().charAt(0));
     }
 }

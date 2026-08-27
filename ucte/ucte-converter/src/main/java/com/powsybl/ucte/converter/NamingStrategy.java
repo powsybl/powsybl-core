@@ -13,41 +13,25 @@ import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 
 /**
- * A naming strategy generates the UCTE codes of a network's buses and elements. Implementations must be
- * stateless: {@link #initialize(Network)} builds and returns a fresh {@link Context} for each export,
- * which is then passed to every other method, since a single {@link NamingStrategy} instance is shared
- * and reused across exports.
- *
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public interface NamingStrategy {
 
-    Context initialize(Network network);
+    void initializeNetwork(Network network);
 
     String getName();
 
-    UcteNodeCode getUcteNodeCode(Context context, String id);
+    UcteNodeCode getUcteNodeCode(String id);
 
-    UcteNodeCode getUcteNodeCode(Context context, Bus bus);
+    UcteNodeCode getUcteNodeCode(Bus bus);
 
-    UcteNodeCode getUcteNodeCode(Context context, BoundaryLine boundaryLine);
+    UcteNodeCode getUcteNodeCode(BoundaryLine boundaryLine);
 
-    UcteElementId getUcteElementId(Context context, String id);
+    UcteElementId getUcteElementId(String id);
 
-    UcteElementId getUcteElementId(Context context, Switch sw);
+    UcteElementId getUcteElementId(Switch sw);
 
-    UcteElementId getUcteElementId(Context context, Branch branch);
+    UcteElementId getUcteElementId(Branch branch);
 
-    UcteElementId getUcteElementId(Context context, BoundaryLine boundaryLine);
-
-    /**
-     * Per-export state of a {@link NamingStrategy}, built by {@link #initialize(Network)}. Deliberately
-     * minimal: the state needed to assign UCTE codes (e.g. the codes already assigned) is specific to
-     * each {@link NamingStrategy} implementation and lives on its own {@link Context} subtype, see
-     * {@link AbstractNamingStrategy.Context}.
-     */
-    interface Context {
-
-        Network getNetwork();
-    }
+    UcteElementId getUcteElementId(BoundaryLine boundaryLine);
 }
