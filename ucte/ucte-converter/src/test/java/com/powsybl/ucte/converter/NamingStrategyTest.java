@@ -30,26 +30,28 @@ class NamingStrategyTest {
     @Test
     void testUcteCode() {
         NamingStrategy strategy = new DefaultNamingStrategy();
+        NamingStrategy.Context context = strategy.initialize(Network.create("test", "test"));
 
-        UcteNodeCode code = strategy.getUcteNodeCode("FABCDE12");
+        UcteNodeCode code = strategy.getUcteNodeCode(context, "FABCDE12");
         assertEquals(UcteCountryCode.FR, code.getUcteCountryCode());
         assertEquals("ABCDE", code.getGeographicalSpot());
         assertEquals(UcteVoltageLevelCode.VL_380, code.getVoltageLevelCode());
         assertEquals(Character.valueOf('2'), code.getBusbar());
 
-        UcteNodeCode code2 = strategy.getUcteNodeCode("FABCDE12");
+        UcteNodeCode code2 = strategy.getUcteNodeCode(context, "FABCDE12");
         assertSame(code, code2);
     }
 
     @Test
     void testUcteElementId() {
         NamingStrategy strategy = new DefaultNamingStrategy();
+        NamingStrategy.Context context = strategy.initialize(Network.create("test", "test"));
 
-        UcteElementId elementId = strategy.getUcteElementId("FABCDE12 BFGHIJ2A 1");
-        UcteNodeCode node1 = strategy.getUcteNodeCode("FABCDE12");
+        UcteElementId elementId = strategy.getUcteElementId(context, "FABCDE12 BFGHIJ2A 1");
+        UcteNodeCode node1 = strategy.getUcteNodeCode(context, "FABCDE12");
         assertEquals(node1, elementId.getNodeCode1());
 
-        UcteNodeCode node2 = strategy.getUcteNodeCode("BFGHIJ2A");
+        UcteNodeCode node2 = strategy.getUcteNodeCode(context, "BFGHIJ2A");
         assertEquals(node2, elementId.getNodeCode2());
 
         assertEquals('1', elementId.getOrderCode());
@@ -63,23 +65,24 @@ class NamingStrategyTest {
         Network network = importer.importData(dataSource, NetworkFactory.findDefault(), new Properties());
 
         NamingStrategy strategy = new DefaultNamingStrategy();
-        UcteNodeCode code1 = strategy.getUcteNodeCode("B_SU1_11");
+        NamingStrategy.Context context = strategy.initialize(network);
+        UcteNodeCode code1 = strategy.getUcteNodeCode(context, "B_SU1_11");
         Bus bus1 = network.getVoltageLevel("B_SU1_1").getBusBreakerView().getBus("B_SU1_11");
-        assertEquals(code1, strategy.getUcteNodeCode(bus1));
+        assertEquals(code1, strategy.getUcteNodeCode(context, bus1));
 
         BoundaryLine boundaryLine = network.getBoundaryLine("XG__F_21 F_SU1_21 1");
-        UcteNodeCode code2 = strategy.getUcteNodeCode("XG__F_21");
-        assertEquals(code2, strategy.getUcteNodeCode(boundaryLine));
+        UcteNodeCode code2 = strategy.getUcteNodeCode(context, "XG__F_21");
+        assertEquals(code2, strategy.getUcteNodeCode(context, boundaryLine));
 
-        UcteElementId elementId1 = strategy.getUcteElementId("XG__F_21 F_SU1_21 1");
-        assertEquals(elementId1, strategy.getUcteElementId(boundaryLine));
+        UcteElementId elementId1 = strategy.getUcteElementId(context, "XG__F_21 F_SU1_21 1");
+        assertEquals(elementId1, strategy.getUcteElementId(context, boundaryLine));
 
-        UcteElementId elementId2 = strategy.getUcteElementId("B_SU1_11 B_SU1_21 1");
+        UcteElementId elementId2 = strategy.getUcteElementId(context, "B_SU1_11 B_SU1_21 1");
         Branch branch = network.getBranch("B_SU1_11 B_SU1_21 1");
-        assertEquals(elementId2, strategy.getUcteElementId(branch));
+        assertEquals(elementId2, strategy.getUcteElementId(context, branch));
 
-        UcteElementId elementId3 = strategy.getUcteElementId("F_SU1_12 F_SU1_11 1");
+        UcteElementId elementId3 = strategy.getUcteElementId(context, "F_SU1_12 F_SU1_11 1");
         Switch sw = network.getSwitch("F_SU1_12 F_SU1_11 1");
-        assertEquals(elementId3, strategy.getUcteElementId(sw));
+        assertEquals(elementId3, strategy.getUcteElementId(context, sw));
     }
 }
