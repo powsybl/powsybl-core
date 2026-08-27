@@ -914,6 +914,12 @@
                 <xs:attribute name="kind" use="required" type="iidm:DcSwitchKind"/>
                 <xs:attribute name="open" use="required" type="xs:boolean"/>
                 <xs:attribute name="r" use="required" type="xs:double" />
+                <xs:attribute name="connected1" use="required" type="xs:boolean"/>
+                <xs:attribute name="connected2" use="required" type="xs:boolean"/>
+                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -6,9 +6,9 @@
     <iidm:dcNode id="DC terminal 14" name="DC terminal 14" nominalV="500.0"/>
     <iidm:dcNode id="DC terminal 15" name="DC terminal 15" nominalV="500.0"/>
     <iidm:dcNode id="DC terminal 16" name="DC terminal 16" nominalV="500.0"/>
-    <iidm:dcSwitch id="DC Disconnector with default state" dcNode1="central DC terminal" dcNode2="DC terminal 12" kind="DISCONNECTOR" open="false" r="0.0"/>
-    <iidm:dcSwitch id="Closed DC Disconnector" dcNode1="central DC terminal" dcNode2="DC terminal 13" kind="DISCONNECTOR" open="false" r="0.0"/>
-    <iidm:dcSwitch id="Open DC Disconnector" dcNode1="central DC terminal" dcNode2="DC terminal 14" kind="DISCONNECTOR" open="true" r="0.0"/>
-    <iidm:dcSwitch id="DC Breaker" dcNode1="central DC terminal" dcNode2="DC terminal 15" kind="BREAKER" open="false" r="0.0"/>
-    <iidm:dcSwitch id="DC Disconnector with default aUsage" dcNode1="central DC terminal" dcNode2="DC terminal 16" kind="DISCONNECTOR" open="false" r="0.0"/>
+    <iidm:dcSwitch id="DC Disconnector with default state" dcNode1="central DC terminal" dcNode2="DC terminal 12" kind="DISCONNECTOR" open="false" r="0.0" connected1="true" connected2="true"/>
+    <iidm:dcSwitch id="Closed DC Disconnector" dcNode1="central DC terminal" dcNode2="DC terminal 13" kind="DISCONNECTOR" open="false" r="0.0" connected1="true" connected2="true"/>
+    <iidm:dcSwitch id="Open DC Disconnector" dcNode1="central DC terminal" dcNode2="DC terminal 14" kind="DISCONNECTOR" open="true" r="0.0" connected1="true" connected2="true"/>
+    <iidm:dcSwitch id="DC Breaker" dcNode1="central DC terminal" dcNode2="DC terminal 15" kind="BREAKER" open="false" r="0.0" connected1="true" connected2="true"/>
+    <iidm:dcSwitch id="DC Disconnector with default aUsage" dcNode1="central DC terminal" dcNode2="DC terminal 16" kind="DISCONNECTOR" open="false" r="0.0" connected1="true" connected2="true"/>
 </iidm:network>

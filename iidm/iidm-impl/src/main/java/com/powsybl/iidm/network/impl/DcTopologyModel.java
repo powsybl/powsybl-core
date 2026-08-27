@@ -226,8 +226,10 @@ class DcTopologyModel implements MultiVariantObject {
     class CalculatedDcBusTopology {
 
         private static boolean isDcBusValid(Set<DcNodeImpl> dcNodeSet) {
-            // DcBus is valid if at least one DcConnectable connected, i.e. there is at least one connected DcTerminal
-            return dcNodeSet.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
+            // DcBus is valid if at least one DcConnectable connected, i.e. there is at least one connected DcTerminal.
+            // A DcSwitch terminal only validates a bus if the switch is resistive (acts as a branch): a zero-resistance
+            // switch is a pure coupler and does not create a bus on its own.
+            return dcNodeSet.stream().flatMap(DcNode::getConnectedDcTerminalStream).anyMatch(DcTopologyModel::isBusValidatingTerminal);
         }
 
         private DcBusImpl createDcBus(Set<DcNodeImpl> dcNodeSet) {
@@ -259,7 +261,11 @@ class DcTopologyModel implements MultiVariantObject {
                     dcNodeSet.add(graph.getVertexObject(v));
                     graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
                         DcSwitchImpl dcSwitch = graph.getEdgeObject(e);
-                        if (dcSwitch.isOpen() || dcSwitch.getR() != 0.0) {
+                        // a switch merges its two nodes only if it is closed, has a zero resistance,
+                        // and both its terminals are connected; otherwise it is a branch (or out of service)
+                        // separating two buses.
+                        if (dcSwitch.isOpen() || dcSwitch.getR() != 0.0
+                                || !dcSwitch.getDcTerminal1().isConnected() || !dcSwitch.getDcTerminal2().isConnected()) {
                             return TraverseResult.TERMINATE_PATH;
                         } else {
                             dcNodeSet.add(graph.getVertexObject(v2));
@@ -372,10 +378,24 @@ class DcTopologyModel implements MultiVariantObject {
         return visitedDcTerminals.add(terminal) ? traverser.traverse(terminal, terminal.isConnected()) : TraverseResult.TERMINATE_PATH;
     }
 
+    private static boolean isSwitchTerminal(DcTerminal dcTerminal) {
+        return dcTerminal.getDcConnectable() instanceof DcSwitch;
+    }
+
+    private static boolean isBusValidatingTerminal(DcTerminal dcTerminal) {
+        // a switch terminal only validates a bus if the switch is resistive (acts as a branch)
+        if (dcTerminal.getDcConnectable() instanceof DcSwitch dcSwitch) {
+            return dcSwitch.getR() != 0.0;
+        }
+        return true;
+    }
+
     protected static void addNextDcTerminals(DcTerminal otherDcTerminal, List<DcTerminalImpl> nextDcTerminals) {
         Objects.requireNonNull(otherDcTerminal);
         Objects.requireNonNull(nextDcTerminals);
         DcConnectable<?> otherDcConnectable = otherDcTerminal.getDcConnectable();
+        // no DcSwitch case: a switch is never crossed through its terminals but through the topology graph edge
+        // (see traverseOtherDcNodes). A switch terminal reaching this method is therefore a no-op.
         if (otherDcConnectable instanceof DcLine dcLine) {
             if (dcLine.getDcTerminal1() == otherDcTerminal) {
                 nextDcTerminals.add((DcTerminalImpl) dcLine.getDcTerminal2());
@@ -416,6 +436,10 @@ class DcTopologyModel implements MultiVariantObject {
             int v = getVertex(terminal.getDcNode().getId());
             DcNode dcNode = graph.getVertexObject(v);
             for (DcTerminal t : dcNode.getDcTerminals()) {
+                if (isSwitchTerminal(t)) {
+                    // switch terminals are transparent to traversal: switches are crossed via the topology graph edges
+                    continue;
+                }
                 TraverseResult tTraverseResult = getTraverserResult(visitedDcTerminals, t, traverser);
                 if (tTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
                     return false;
@@ -444,10 +468,14 @@ class DcTopologyModel implements MultiVariantObject {
                                        DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
         return !graph.traverse(v, traversalType, (v1, e, v2) -> {
             DcSwitchImpl aSwitch = graph.getEdgeObject(e);
-            List<DcTerminal> otherBusDcTerminals = graph.getVertexObject(v2).getDcTerminals();
+            // pick a non-switch terminal as the representative of the neighbouring node: switch terminals are
+            // transparent to traversal (the switches themselves are reported via the traverse(DcSwitch) callback).
+            Optional<DcTerminal> otherBusDcTerminal = graph.getVertexObject(v2).getDcTerminals().stream()
+                    .filter(t -> !isSwitchTerminal(t))
+                    .findFirst();
             TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
-            if (switchTraverseResult == TraverseResult.CONTINUE && !otherBusDcTerminals.isEmpty()) {
-                DcTerminal otherDcTerminal = otherBusDcTerminals.getFirst();
+            if (switchTraverseResult == TraverseResult.CONTINUE && otherBusDcTerminal.isPresent()) {
+                DcTerminal otherDcTerminal = otherBusDcTerminal.get();
                 TraverseResult otherTermTraverseResult = getTraverserResult(visitedDcTerminals, otherDcTerminal, traverser);
                 if (otherTermTraverseResult == TraverseResult.CONTINUE) {
                     addNextDcTerminals(otherDcTerminal, nextDcTerminals);

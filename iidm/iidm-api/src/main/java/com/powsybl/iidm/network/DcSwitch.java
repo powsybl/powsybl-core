@@ -74,7 +74,7 @@ package com.powsybl.iidm.network;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcSwitch extends Identifiable<DcSwitch> {
+public interface DcSwitch extends DcConnectable<DcSwitch> {
 
     @Override
     default IdentifiableType getType() {
@@ -87,14 +87,40 @@ public interface DcSwitch extends Identifiable<DcSwitch> {
     DcSwitchKind getKind();
 
     /**
+     * @return the first DC Terminal (side {@link TwoSides#ONE}) of the DC Switch
+     */
+    DcTerminal getDcTerminal1();
+
+    /**
+     * @return the second DC Terminal (side {@link TwoSides#TWO}) of the DC Switch
+     */
+    DcTerminal getDcTerminal2();
+
+    /**
+     * @param side DC Switch side
+     * @return the DC Terminal at provided side
+     */
+    DcTerminal getDcTerminal(TwoSides side);
+
+    /**
+     * @param dcTerminal DC Terminal of the DC Switch
+     * @return the DC Switch side of the provided DC Terminal
+     */
+    TwoSides getSide(DcTerminal dcTerminal);
+
+    /**
      * @return The DC node at side 1 of the DC Switch
      */
-    DcNode getDcNode1();
+    default DcNode getDcNode1() {
+        return getDcTerminal1().getDcNode();
+    }
 
     /**
      * @return The DC node at side 2 of the DC Switch
      */
-    DcNode getDcNode2();
+    default DcNode getDcNode2() {
+        return getDcTerminal2().getDcNode();
+    }
 
     /**
      * @return the open status of the DC Switch. Depends on the working variant.
@@ -106,11 +132,6 @@ public interface DcSwitch extends Identifiable<DcSwitch> {
      * @return self for method chaining
      */
     DcSwitch setOpen(boolean open);
-
-    /**
-     * Remove the DC Switch from the network
-     */
-    void remove();
 
     /**
      * @return the resistance of the DC Switch in &#937;.

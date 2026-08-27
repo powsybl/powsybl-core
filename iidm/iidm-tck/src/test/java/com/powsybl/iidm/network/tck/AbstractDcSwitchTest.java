@@ -177,11 +177,12 @@ public abstract class AbstractDcSwitchTest {
         PowsyblException e2 = assertThrows(PowsyblException.class, dcSwitch1::isOpen);
         assertEquals("Cannot access open of removed equipment dcSwitch1", e2.getMessage());
 
+        // getDcNode1/getDcNode2 are now default methods delegating to the DC terminals
         PowsyblException e3 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode1);
-        assertEquals("Cannot access dcNode1 of removed equipment dcSwitch1", e3.getMessage());
+        assertEquals("Cannot access terminal1 of removed equipment dcSwitch1", e3.getMessage());
 
         PowsyblException e4 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode2);
-        assertEquals("Cannot access dcNode2 of removed equipment dcSwitch1", e4.getMessage());
+        assertEquals("Cannot access terminal2 of removed equipment dcSwitch1", e4.getMessage());
 
         PowsyblException e5 = assertThrows(PowsyblException.class, dcSwitch1::getR);
         assertEquals("Cannot access r of removed equipment dcSwitch1", e5.getMessage());

@@ -708,12 +708,14 @@ public abstract class AbstractSubnetworksExplorationTest {
     @Test
     public void testExploreDcConnectables() {
         var expectedIdsForSubnetwork1 = List.of(
+                id("dcSwitch1", ID_1),
                 id("dcGround1", ID_1),
                 id("dcLine1", ID_1),
                 id("lccDetailed1", ID_1),
                 id("vscDetailed1", ID_1));
 
         var expectedIdsForSubnetwork2 = List.of(
+                id("dcSwitch1", ID_2),
                 id("dcGround1", ID_2),
                 id("dcLine1", ID_2),
                 id("lccDetailed1", ID_2),

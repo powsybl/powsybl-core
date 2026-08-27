@@ -194,6 +194,7 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
             switch (dcConnectable.getType()) {
                 case DC_GROUND -> visitor.visitDcGround((DcGroundImpl) dcConnectable);
                 case DC_LINE -> visitor.visitDcLine((DcLineImpl) dcConnectable, dcTerminal.getSide());
+                case DC_SWITCH -> visitor.visitDcSwitch((DcSwitchImpl) dcConnectable, dcTerminal.getSide());
                 case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
                     AcDcConverter<?> converter = (AcDcConverter<?>) dcConnectable;
                     visitor.visitAcDcConverter(converter, dcTerminal.getTerminalNumber());
@@ -211,14 +212,9 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
 
         List<DcTerminal> dcTerminalList = getDcTerminals();
         if (!dcTerminalList.isEmpty()) {
+            // a connected DC switch also contributes a DC terminal to this node, so it is caught here as well
             throw new PowsyblException("Cannot remove DC node '" + getId()
                     + "' because DC connectable '" + dcTerminalList.get(0).getDcConnectable().getId() + "' is connected to it");
-        }
-        for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            if (dcSwitch.getDcNode1() == this || dcSwitch.getDcNode2() == this) {
-                throw new PowsyblException("Cannot remove DC node '" + getId()
-                        + "' because DC switch '" + dcSwitch.getId() + "' is connected to it");
-            }
         }
 
         network.getListeners().notifyBeforeRemoval(this);

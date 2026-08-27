@@ -22,7 +22,9 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     private final Ref<SubnetworkImpl> subnetworkRef;
     private DcSwitchKind kind;
     private String dcNode1Id;
+    private boolean connected1 = true;
     private String dcNode2Id;
+    private boolean connected2 = true;
     private Boolean open;
     private double r = 0.0;
 
@@ -44,8 +46,20 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     }
 
     @Override
+    public DcSwitchAdder setConnected1(boolean connected1) {
+        this.connected1 = connected1;
+        return this;
+    }
+
+    @Override
     public DcSwitchAdder setDcNode2(String dcNode2) {
         this.dcNode2Id = dcNode2;
+        return this;
+    }
+
+    @Override
+    public DcSwitchAdder setConnected2(boolean connected2) {
+        this.connected2 = connected2;
         return this;
     }
 
@@ -80,14 +94,19 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
                 getName(),
                 isFictitious(),
                 kind,
-                dcNode1,
-                dcNode2,
                 open,
                 this.r);
+        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(networkRef, TwoSides.ONE, null, dcNode1, connected1);
+        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(networkRef, TwoSides.TWO, null, dcNode2, connected2);
+        dcSwitch.addDcTerminal(dcTerminal1);
+        dcSwitch.addDcTerminal(dcTerminal2);
 
+        DcTopologyModel dcTopologyModel = getParentNetwork().getDcTopologyModel();
+        dcTopologyModel.attach(dcTerminal1);
+        dcTopologyModel.attach(dcTerminal2);
         getNetwork().getIndex().checkAndAdd(dcSwitch);
         getNetwork().getListeners().notifyCreation(dcSwitch);
-        getParentNetwork().getDcTopologyModel().addDcSwitchToTopology(dcSwitch, dcNode1Id, dcNode2Id);
+        dcTopologyModel.addDcSwitchToTopology(dcSwitch, dcNode1Id, dcNode2Id);
         return dcSwitch;
     }
 

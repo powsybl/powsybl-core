@@ -24,4 +24,8 @@ public interface DcTopologyVisitor {
         // empty default implementation
     }
 
+    default void visitDcSwitch(DcSwitch dcSwitch, TwoSides side) {
+        // empty default implementation
+    }
+
 }

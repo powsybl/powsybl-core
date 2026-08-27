@@ -203,7 +203,7 @@ public abstract class AbstractDcNodeTest {
 
         PowsyblException e = assertThrows(PowsyblException.class, dcNode1::remove);
         assertEquals("Cannot remove DC node '" + dcNode1.getId()
-                + "' because DC switch '" + dcSwitch.getId() + "' is connected to it", e.getMessage());
+                + "' because DC connectable '" + dcSwitch.getId() + "' is connected to it", e.getMessage());
 
         dcSwitch.remove();
         dcNode1.remove();

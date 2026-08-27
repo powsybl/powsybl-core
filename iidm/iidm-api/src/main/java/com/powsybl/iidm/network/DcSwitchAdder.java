@@ -16,7 +16,11 @@ public interface DcSwitchAdder extends IdentifiableAdder<DcSwitch, DcSwitchAdder
 
     DcSwitchAdder setDcNode1(String dcNode1);
 
+    DcSwitchAdder setConnected1(boolean connected1);
+
     DcSwitchAdder setDcNode2(String dcNode2);
+
+    DcSwitchAdder setConnected2(boolean connected2);
 
     DcSwitchAdder setOpen(boolean open);
 
