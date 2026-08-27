@@ -56,9 +56,9 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                     // between 1.5 and 1.7 -> 1.1
                     // >= 1.8 -> 1.2
                     String operatorStrategyVersion;
-                    if (version.compareTo("1.4") <= 0) {
+                    if (JsonUtil.compareVersions(version, "1.4") <= 0) {
                         operatorStrategyVersion = "1.0";
-                    } else if (version.compareTo("1.5") >= 0 && version.compareTo("1.7") <= 0) {
+                    } else if (JsonUtil.compareVersions(version, "1.5") >= 0 && JsonUtil.compareVersions(version, "1.7") <= 0) {
                         operatorStrategyVersion = "1.1";
                     } else {
                         operatorStrategyVersion = "1.2";
@@ -102,7 +102,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
             }
         }
         Objects.requireNonNull(operatorStrategy);
-        if (version.compareTo("1.3") < 0) {
+        if (JsonUtil.compareVersions(version, "1.3") < 0) {
             Objects.requireNonNull(limitViolationsResult);
             return new OperatorStrategyResult(operatorStrategy, List.of(
                     new OperatorStrategyResult.ConditionalActionsResult(
@@ -110,7 +110,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                             limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED,
                             limitViolationsResult, networkResult, Double.NaN
                     )));
-        } else if (version.compareTo("1.6") < 0) {
+        } else if (JsonUtil.compareVersions(version, "1.6") < 0) {
             return new OperatorStrategyResult(operatorStrategy, List.of(
                     new OperatorStrategyResult.ConditionalActionsResult(
                             operatorStrategy.getId(),

@@ -17,7 +17,6 @@ import com.powsybl.security.results.PreContingencyResult;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,7 +41,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
     @Override
     public PreContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
-        if (version == null) {
+        if (version == null) {  // assuming current version when version is not specified
             version = SecurityAnalysisResultSerializer.VERSION;
         }
         final String finalVersion = version;
@@ -51,7 +50,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
                 new AbstractContingencyResultDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> parsePreContingencyResult(
                 parser, deserializationContext, parsingContext, finalVersion, commonParsingContext, name));
-        if (finalVersion.compareTo("1.3") < 0) {
+        if (JsonUtil.compareVersions(finalVersion, "1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk()
                     ? LoadFlowResult.ComponentResult.Status.CONVERGED
@@ -76,32 +75,19 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
         if (found) {
             return true;
         }
-        if (parser.currentName().equals("status")) {
+        if ("status".equals(parser.currentName())) {
             parser.nextToken();
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", finalVersion, "1.3");
             parsingContext.status = JsonUtil.readValue(deserializationContext, parser,
                     LoadFlowResult.ComponentResult.Status.class);
             return true;
-        }
-        if (parser.currentName().equals("phaseShifterResults")) {
+        } else if ("phaseShifterResults".equals(parser.currentName())) {
             parser.nextToken();
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(
-                    CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "2.0");
-            parsingContext.phaseShifterResults = readPhaseShifterResults(parser, deserializationContext);
+                    CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "1.10");
+            parsingContext.phaseShifterResults = PhaseShifterResultSerializer.readPhaseShifterResults(parser, deserializationContext);
             return true;
         }
         return false;
-    }
-
-    private static Map<String, MovedPhaseShifterResult> readPhaseShifterResults(
-            JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        Map<String, MovedPhaseShifterResult> results = new LinkedHashMap<>();
-        java.util.List<?> list = JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
-        for (Object obj : list) {
-            if (obj instanceof MovedPhaseShifterResult result) {
-                results.put(result.transformerId(), result);
-            }
-        }
-        return results;
     }
 }

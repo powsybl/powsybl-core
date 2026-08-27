@@ -1,5 +1,5 @@
 {
-  "version" : "2.0",
+  "version" : "1.10",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -63,7 +63,12 @@
         "i3" : 3.2
       } ]
     },
-    "distributedActivePower" : 1.23
+    "distributedActivePower" : 1.23,
+    "phaseShifterResults" : [ {
+      "transformerId" : "T1",
+      "initialTap" : 2,
+      "newTap" : 4
+    } ]
   },
   "postContingencyResults" : [ {
     "contingency" : {

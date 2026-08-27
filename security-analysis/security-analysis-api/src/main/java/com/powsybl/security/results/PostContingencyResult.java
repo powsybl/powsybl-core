@@ -12,7 +12,6 @@ import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,8 +40,8 @@ public class PostContingencyResult extends AbstractContingencyResult {
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);
         this.connectivityResult = Objects.requireNonNull(connectivityResult);
-        this.phaseShifterResults = phaseShifterResults != null
-            ? Collections.unmodifiableMap(new LinkedHashMap<>(phaseShifterResults))
+        this.phaseShifterResults = phaseShifterResults != null && !phaseShifterResults.isEmpty()
+            ? Collections.unmodifiableMap(phaseShifterResults)
             : Collections.emptyMap();
     }
 

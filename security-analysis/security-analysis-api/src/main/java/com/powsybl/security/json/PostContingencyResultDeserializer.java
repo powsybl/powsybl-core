@@ -19,8 +19,6 @@ import com.powsybl.security.results.PostContingencyResult;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,7 +45,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
     @Override
     public PostContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
-        if (version == null) {
+        if (version == null) {  // assuming current version when version is not specified
             version = SecurityAnalysisResultSerializer.VERSION;
         }
         final String finalVersion = version;
@@ -60,7 +58,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         if (parsingContext.connectivityResult == null) {
             parsingContext.connectivityResult = ConnectivityResult.empty();
         }
-        if (finalVersion.compareTo("1.3") < 0) {
+        if (JsonUtil.compareVersions(finalVersion, "1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk()
                     ? PostContingencyComputationStatus.CONVERGED
@@ -105,23 +103,12 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
             case "phaseShifterResults":
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(
-                        CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "2.0");
-                parsingContext.phaseShifterResults = readPhaseShifterResults(parser, deserializationContext);
+                        CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "1.10");
+                parsingContext.phaseShifterResults = PhaseShifterResultSerializer.readPhaseShifterResults(parser, deserializationContext);
                 return true;
             default:
                 return false;
         }
     }
 
-    private static Map<String, MovedPhaseShifterResult> readPhaseShifterResults(
-            JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        Map<String, MovedPhaseShifterResult> results = new LinkedHashMap<>();
-        List<?> list = JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
-        for (Object obj : list) {
-            if (obj instanceof MovedPhaseShifterResult result) {
-                results.put(result.transformerId(), result);
-            }
-        }
-        return results;
-    }
 }

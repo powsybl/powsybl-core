@@ -16,7 +16,7 @@ import java.util.Objects;
  * @param initialTap The tap position before optimization
  * @param newTap The tap position after optimization
  *
- * @author Riad BENRADI
+ * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
  */
 public record MovedPhaseShifterResult(String transformerId, int initialTap, int newTap) {
 

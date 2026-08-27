@@ -11,7 +11,6 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -43,8 +42,8 @@ public class PreContingencyResult extends AbstractContingencyResult {
                                 Map<String, MovedPhaseShifterResult> phaseShifterResults) {
         super(limitViolationsResult, networkResult, distributedActivePower);
         this.status = Objects.requireNonNull(status);
-        this.phaseShifterResults = phaseShifterResults != null
-                ? Collections.unmodifiableMap(new LinkedHashMap<>(phaseShifterResults))
+        this.phaseShifterResults = phaseShifterResults != null && !phaseShifterResults.isEmpty()
+                ? Collections.unmodifiableMap(phaseShifterResults)
                 : Collections.emptyMap();
     }
 
