@@ -27,9 +27,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final RegulatingPoint regulatingPoint;
 
-    VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
+    VscConverterStationImpl(String id, String name, boolean fictitious, boolean equivalent, float lossFactor, Ref<NetworkImpl> ref,
                             boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint, TerminalExt regulatingTerminal) {
-        super(ref, id, name, fictitious, lossFactor);
+        super(ref, id, name, fictitious, equivalent, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);

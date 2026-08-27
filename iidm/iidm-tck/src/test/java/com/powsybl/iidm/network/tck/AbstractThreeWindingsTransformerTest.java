@@ -17,13 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractThreeWindingsTransformerTest extends AbstractTransformerTest {
 
@@ -61,6 +55,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(TWT_NAME, transformer.getNameOrId());
         assertEquals(substation, transformer.getSubstation().orElse(null));
         assertEquals(IdentifiableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
+        assertFalse(transformer.isEquivalent());
     }
 
     @Test
@@ -1317,5 +1312,11 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertTrue(areLimitsIdentical(activePowerLimits1, activePowerLimits2));
         assertTrue(areLimitsIdentical(apparentPowerLimits1, apparentPowerLimits2));
 
+    }
+
+    @Test
+    public void testEquivalent() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformerAdder().setEquivalent(true).add();
+        assertTrue(transformer.isEquivalent());
     }
 }

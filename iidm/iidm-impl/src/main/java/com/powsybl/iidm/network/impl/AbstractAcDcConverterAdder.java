@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T>> extends AbstractConnectableAdder<T> {
 
     protected String dcNode1Id;
     protected boolean dcConnected1 = true;

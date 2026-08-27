@@ -56,6 +56,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                                                                     .setVoltageLevel2("vl2")
                                                                     .setConnectableBus1("busA")
                                                                     .setConnectableBus2("busB")
+                                                                    .setEquivalent(true)
                                                                 .add();
         assertEquals("twt", twoWindingsTransformer.getId());
         assertEquals(TWT_NAME, twoWindingsTransformer.getOptionalName().orElse(null));
@@ -69,6 +70,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(7.0, twoWindingsTransformer.getRatedS(), 0.0);
         assertEquals(IdentifiableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
         assertSame(substation, twoWindingsTransformer.getSubstation().orElse(null));
+        assertTrue(twoWindingsTransformer.isEquivalent());
 
         // setter getter
         double r = 0.5;
@@ -137,6 +139,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertSame(vl2, twoWindingsTransformer.getTerminal2().getVoltageLevel());
         assertEquals(vl1.getNominalV(), twoWindingsTransformer.getRatedU1(), 0.0);
         assertEquals(vl2.getNominalV(), twoWindingsTransformer.getRatedU2(), 0.0);
+        assertFalse(twoWindingsTransformer.isEquivalent());
     }
 
     @Test
