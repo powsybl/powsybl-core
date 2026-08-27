@@ -97,6 +97,14 @@ class PartialSshEventTranslator {
     static final String PHASE_TAP_CHANGER_PREFIX = "phaseTapChanger";
     static final String RATIO_TAP_CHANGER_PREFIX = "ratioTapChanger";
 
+    private static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq.controlEnabled";
+    private static final String ACDC_TERMINAL_CONNECTED = "ACDCTerminal.connected";
+    private static final String ROTATING_MACHINE_P = "RotatingMachine.p";
+    private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
+    private static final String UNIT_MULTIPLIER = "UnitMultiplier";
+    private static final String KILO = "k";
+    private static final String MEGA = "M";
+
     private static final Set<String> LOAD_ATTRIBUTES = Set.of(P0, Q0);
     private static final Set<String> GENERATOR_ATTRIBUTES = Set.of(TARGET_P, TARGET_Q, TARGET_V, VOLTAGE_REGULATOR_ON);
     private static final Set<String> SHUNT_ATTRIBUTES = Set.of(SECTION_COUNT, TARGET_V, VOLTAGE_REGULATOR_ON);
@@ -215,8 +223,8 @@ class PartialSshEventTranslator {
 
     private PartialSshUpdates switchTerminalUpdates(Switch sw) {
         boolean connected = !sw.isOpen();
-        return newUpdates(CgmesNames.TERMINAL, cgmesIdFromAlias(sw, ALIAS_TERMINAL1)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
-                .object(CgmesNames.TERMINAL, cgmesIdFromAlias(sw, ALIAS_TERMINAL2)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
+        return newUpdates(CgmesNames.TERMINAL, cgmesIdFromAlias(sw, ALIAS_TERMINAL1)).value(ACDC_TERMINAL_CONNECTED, connected)
+                .object(CgmesNames.TERMINAL, cgmesIdFromAlias(sw, ALIAS_TERMINAL2)).value(ACDC_TERMINAL_CONNECTED, connected)
                 .updates();
     }
 
@@ -225,8 +233,8 @@ class PartialSshEventTranslator {
     private Result<PartialSshUpdates, String> dcSwitchUpdates(DcSwitch dcSwitch) {
         // A DCSwitch has no open state in the SSH profile either, it is carried by its two DC terminals.
         boolean connected = !dcSwitch.isOpen();
-        return success(newUpdates(CgmesNames.DC_TERMINAL, cgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
-                .object(CgmesNames.DC_TERMINAL, cgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2)).value(CgmesNames.ACDC_TERMINAL_CONNECTED, connected)
+        return success(newUpdates(CgmesNames.DC_TERMINAL, cgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1)).value(ACDC_TERMINAL_CONNECTED, connected)
+                .object(CgmesNames.DC_TERMINAL, cgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2)).value(ACDC_TERMINAL_CONNECTED, connected)
                 .updates());
     }
 
@@ -276,7 +284,7 @@ class PartialSshEventTranslator {
             case VOLTAGE_REGULATOR_ON -> generatorRegulatingControlUpdates(generator)
                     .map(regulatingControl -> merge(
                             newUpdates(CgmesNames.SYNCHRONOUS_MACHINE, cgmesId(generator))
-                                    .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, generator.isVoltageRegulatorOn())
+                                    .value(REGULATING_COND_EQ_CONTROL_ENABLED, generator.isVoltageRegulatorOn())
                                     .updates(),
                             regulatingControl));
             default -> throw new IllegalStateException("Unhandled generator attribute " + attribute);
@@ -286,9 +294,9 @@ class PartialSshEventTranslator {
     private PartialSshUpdates synchronousMachineUpdates(Generator generator) {
         // Sign convention: CGMES uses the load convention for machines, IIDM the generator convention.
         return newUpdates(CgmesNames.SYNCHRONOUS_MACHINE, cgmesId(generator))
-                .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, generator.isVoltageRegulatorOn())
-                .value(CgmesNames.ROTATING_MACHINE_P, -generator.getTargetP())
-                .value(CgmesNames.ROTATING_MACHINE_Q, -generator.getTargetQ())
+                .value(REGULATING_COND_EQ_CONTROL_ENABLED, generator.isVoltageRegulatorOn())
+                .value(ROTATING_MACHINE_P, -generator.getTargetP())
+                .value(ROTATING_MACHINE_Q, -generator.getTargetQ())
                 .value("SynchronousMachine.referencePriority", ReferencePriority.get(generator))
                 .enumValue("SynchronousMachine.operatingMode", "SynchronousMachineOperatingMode",
                         SteadyStateHypothesisExport.obtainOperatingMode(generator, generator.getMinP(), generator.getMaxP(), generator.getTargetP()))
@@ -303,9 +311,9 @@ class PartialSshEventTranslator {
             String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, reactivePowerControl);
             return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER.equals(mode)
                     ? regulatingControlUpdates(regulatingControlId, false, reactivePowerControl.isEnabled(),
-                            reactivePowerControl.getTargetQ(), CgmesNames.UNIT_MULTIPLIER_MEGA)
+                            reactivePowerControl.getTargetQ(), MEGA)
                     : regulatingControlUpdates(regulatingControlId, false, generator.isVoltageRegulatorOn(),
-                            generatorTargetV(generator), CgmesNames.UNIT_MULTIPLIER_KILO);
+                            generatorTargetV(generator), KILO);
         });
     }
 
@@ -397,13 +405,13 @@ class PartialSshEventTranslator {
         return switch (attribute) {
             case SECTION_COUNT -> success(newUpdates(shuntClassName(shunt), cgmesId(shunt))
                     .value("ShuntCompensator.sections", shunt.getSectionCount())
-                    .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, shunt.isVoltageRegulatorOn())
+                    .value(REGULATING_COND_EQ_CONTROL_ENABLED, shunt.isVoltageRegulatorOn())
                     .updates());
             case TARGET_V -> shuntRegulatingControlUpdates(shunt);
             case VOLTAGE_REGULATOR_ON -> shuntRegulatingControlUpdates(shunt)
                     .map(regulatingControl -> merge(
                             newUpdates(shuntClassName(shunt), cgmesId(shunt))
-                                    .value(CgmesNames.REGULATING_COND_EQ_CONTROL_ENABLED, shunt.isVoltageRegulatorOn())
+                                    .value(REGULATING_COND_EQ_CONTROL_ENABLED, shunt.isVoltageRegulatorOn())
                                     .updates(),
                             regulatingControl));
             default -> throw new IllegalStateException("Unhandled shunt compensator attribute " + attribute);
@@ -412,13 +420,13 @@ class PartialSshEventTranslator {
 
     private Result<PartialSshUpdates, String> shuntRegulatingControlUpdates(ShuntCompensator shunt) {
         return regulatingControlId(shunt).map(regulatingControlId ->
-                regulatingControlUpdates(regulatingControlId, true, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), CgmesNames.UNIT_MULTIPLIER_KILO));
+                regulatingControlUpdates(regulatingControlId, true, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), KILO));
     }
 
     private static String shuntClassName(ShuntCompensator shunt) {
         return switch (shunt.getModelType()) {
-            case LINEAR -> CgmesNames.LINEAR_SHUNT_COMPENSATOR;
-            case NON_LINEAR -> CgmesNames.NONLINEAR_SHUNT_COMPENSATOR;
+            case LINEAR -> "LinearShuntCompensator";
+            case NON_LINEAR -> "NonlinearShuntCompensator";
         };
     }
 
@@ -429,8 +437,8 @@ class PartialSshEventTranslator {
         // A change of the setpoint of the other mode is therefore not observable in the SSH profile.
         return regulatingControlId(svc).map(regulatingControlId ->
                 RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER.equals(CgmesExportUtil.getSvcMode(svc))
-                        ? regulatingControlUpdates(regulatingControlId, false, svc.isRegulating(), svc.getReactivePowerSetpoint(), CgmesNames.UNIT_MULTIPLIER_MEGA)
-                        : regulatingControlUpdates(regulatingControlId, false, svc.isRegulating(), svc.getVoltageSetpoint(), CgmesNames.UNIT_MULTIPLIER_KILO));
+                        ? regulatingControlUpdates(regulatingControlId, false, svc.isRegulating(), svc.getReactivePowerSetpoint(), MEGA)
+                        : regulatingControlUpdates(regulatingControlId, false, svc.isRegulating(), svc.getVoltageSetpoint(), KILO));
     }
 
     // HVDC
@@ -498,7 +506,7 @@ class PartialSshEventTranslator {
                 .value("RegulatingControl.discrete", discrete)
                 .value("RegulatingControl.enabled", enabled)
                 .value("RegulatingControl.targetValue", targetValue)
-                .enumValue("RegulatingControl.targetValueUnitMultiplier", CgmesNames.UNIT_MULTIPLIER, targetValueUnitMultiplier)
+                .enumValue("RegulatingControl.targetValueUnitMultiplier", UNIT_MULTIPLIER, targetValueUnitMultiplier)
                 .updates();
     }
 
