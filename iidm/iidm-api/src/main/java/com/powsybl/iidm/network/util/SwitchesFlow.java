@@ -173,6 +173,8 @@ public class SwitchesFlow {
         if (existingEdge == null) {
             graph.addEdge(swNode1, swNode2, new SwEdge(sw, swNode1, swNode2));
         } else if (existingEdge.isSwitch()) {
+            // No need to add a new edge on the graph:
+            // since SimpleWeightedGraph does not allow parallel edges, it would not change the graph anyway.
             parallelSwitchIds.put(sw.getId(), existingEdge.getSwitchId());
             parallelSwitchIds.putIfAbsent(existingEdge.getSwitchId(), sw.getId());
         }
