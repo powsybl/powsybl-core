@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -83,10 +84,12 @@ class NodeBreakerConnectTest {
             .setNode(3)
             .setMinP(-9999.99)
             .setMaxP(9999.99)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(400)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add()
+            .setLocalTargetV(400)
             .setTargetP(1)
-            .setTargetQ(0)
+            .setLocalTargetQ(0)
             .add();
         return network;
     }

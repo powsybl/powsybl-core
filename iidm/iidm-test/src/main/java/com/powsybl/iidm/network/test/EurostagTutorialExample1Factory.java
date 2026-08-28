@@ -8,7 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 /**
@@ -36,6 +37,11 @@ public final class EurostagTutorialExample1Factory {
     public static final String NGEN = "NGEN";
     public static final String NHV1 = "NHV1";
     public static final String NHV2 = "NHV2";
+
+    public static final double GENERATOR_LOCAL_TARGET_V = 24.5;
+    public static final double GENERATOR_LOCAL_TARGET_Q = 200d;
+    public static final double GENERATOR_REMOTE_TARGET_VALUE = 399d;
+    public static final String GENERATOR_ID = "GEN";
 
     private EurostagTutorialExample1Factory() {
     }
@@ -177,11 +183,12 @@ public final class EurostagTutorialExample1Factory {
                 .endStep()
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(158.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(nhv2Nload.getTerminal2())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(158.0)
+                    .withTerminal(nhv2Nload.getTerminal2())
+                    .withTargetDeadband(0)
+                    .add()
             .add();
         vlload.newLoad()
                 .setId("LOAD")
@@ -191,15 +198,15 @@ public final class EurostagTutorialExample1Factory {
                 .setQ0(200.0)
             .add();
         Generator generator = vlgen.newGenerator()
-                .setId("GEN")
+                .setId(GENERATOR_ID)
                 .setBus(ngen.getId())
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(24.5)
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
             .add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-9999.99)
@@ -308,7 +315,7 @@ public final class EurostagTutorialExample1Factory {
                 .setV(147.57861328125)
                 .setAngle(-9.614486694335938);
 
-        network.getGenerator("GEN").getTerminal()
+        network.getGenerator(GENERATOR_ID).getTerminal()
                 .setP(-605.558349609375)
                 .setQ(-225.2825164794922);
         network.getTwoWindingsTransformer(NGEN_NHV1).getTerminal1()
@@ -358,10 +365,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
         generator2.newReactiveCapabilityCurve()
                 .beginPoint()
@@ -401,10 +408,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(NGEN)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -661,7 +668,7 @@ public final class EurostagTutorialExample1Factory {
      * </pre>
      */
     public static Network createWithHighAndLowCurrentLimits() {
-        Network network = create(NetworkFactory.findDefault());
+        Network network = create();
         Line line = network.getLine(NHV1_NHV2_1);
 
         line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
@@ -819,10 +826,10 @@ public final class EurostagTutorialExample1Factory {
                .setConnectableBus(NGEN)
                .setMinP(-9999.99)
                .setMaxP(9999.99)
-               .setVoltageRegulatorOn(true)
-               .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                .setTargetP(607.0)
-               .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+               .setLocalTargetQ(301.0)
                .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -924,10 +931,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(NGEN)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(24.5)
+                .setLocalTargetV(301.0)
                 .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -996,10 +1003,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(NGEN)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
+                .setLocalTargetV(24.5)
                 .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -1125,19 +1132,19 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(nconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
         vlhv3.newGenerator().setId("GEN3")
                 .setConnectableBus(ndisconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
 
         vlhv3.newShuntCompensator()
@@ -1169,7 +1176,7 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithVoltageAngleLimit() {
-        Network network = create(NetworkFactory.findDefault());
+        Network network = create();
         network.setCaseDate(ZonedDateTime.parse("2023-06-28T23:11:51.614+02:00"));
 
         network.newVoltageAngleLimit()
@@ -1188,7 +1195,7 @@ public final class EurostagTutorialExample1Factory {
 
         network.newVoltageAngleLimit()
             .setId("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
-            .from(network.getGenerator("GEN").getTerminal())
+            .from(network.getGenerator(GENERATOR_ID).getTerminal())
             .to(network.getTwoWindingsTransformer(NGEN_NHV1).getTerminal2())
             .setLowLimit(-0.20)
             .setHighLimit(0.35)
@@ -1244,10 +1251,13 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithReactiveTcc() {
         Network network = create();
-        network.getTwoWindingsTransformer(NHV2_NLOAD)
-                .getRatioTapChanger()
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(NHV2_NLOAD).getRatioTapChanger();
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(100)
+            .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .withTargetDeadband(10.)
+            .build();
         return network;
     }
 
@@ -1262,7 +1272,7 @@ public final class EurostagTutorialExample1Factory {
     private static Network createRemoteTcc(Network network) {
         network.getTwoWindingsTransformer(NHV2_NLOAD)
                 .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
+                .setRegulationTerminal(network.getGenerator(GENERATOR_ID).getTerminal());
 
         return network;
     }
@@ -1380,11 +1390,12 @@ public final class EurostagTutorialExample1Factory {
                 .endStep()
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(158.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getTerminal())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(158.0)
+                    .withTerminal(network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getTerminal())
+                    .withTargetDeadband(0.0)
+                    .add()
             .add();
     }
 
@@ -1418,17 +1429,20 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network create3wWithReactiveTcc() {
         Network network = createWith3wWithVoltageControl();
-        network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
-                .getRatioTapChanger()
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        RatioTapChanger ratioTapChanger = network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getRatioTapChanger();
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(100)
+            .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .withTargetDeadband(10.)
+            .build();
         return network;
     }
 
     private static Network create3wRemoteTcc(Network network) {
         network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
                 .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
+                .setRegulationTerminal(network.getGenerator(GENERATOR_ID).getTerminal());
         return network;
     }
 
@@ -1441,23 +1455,66 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithRemoteVoltageGenerator() {
-        return addRemoteVoltageGenerator(create());
+        return createWithRemoteVoltageGenerator(create());
+    }
+
+    public static Network createWithRemoteVoltageGenerator(Network network) {
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(GENERATOR_LOCAL_TARGET_V);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE)
+            .withRegulating(true)
+            .build();
+        return network;
     }
 
     public static Network createWithRemoteReactiveGenerator() {
-        return removeVoltageControlForGenerator(addRemoteReactiveGenerator(create()));
+        Network network = create();
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(Double.NaN);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE)
+            .withRegulating(true)
+            .build();
+        return network;
     }
 
     public static Network createWithLocalReactiveGenerator() {
-        return removeVoltageControlForGenerator(addLocalReactiveGenerator(create()));
+        Network network = create();
+        Generator gen = network.getGenerator(GENERATOR_ID);
+        gen.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        gen.setLocalTargetV(Double.NaN);
+        gen.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(gen.getTerminal())
+            .withTargetValue(GENERATOR_LOCAL_TARGET_Q)
+            .withRegulating(true)
+            .build();
+        return network;
     }
 
+    /**
+     *
+     * @deprecated the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     public static Network createWithRemoteReactiveAndVoltageGenerators() {
-        return addRemoteVoltageGenerator(addRemoteReactiveGenerator(create()));
+        throw new UnsupportedOperationException("UnsupportedOperationException the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed");
     }
 
+    /**
+     *
+     * @deprecated the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     public static Network createWithLocalReactiveAndVoltageGenerator() {
-        return addLocalReactiveGenerator(create());
+        throw new UnsupportedOperationException("UnsupportedOperationException the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed");
     }
 
     public static Network createWithoutControl() {
@@ -1468,33 +1525,28 @@ public final class EurostagTutorialExample1Factory {
         return removeVoltageControlForGenerator(createWithRemoteVoltageGenerator());
     }
 
-    private static Network addLocalReactiveGenerator(Network network) {
-        return addReactiveGenerator(network, network.getGenerator("GEN").getRegulatingTerminal());
-    }
-
-    private static Network addRemoteReactiveGenerator(Network network) {
-        return addReactiveGenerator(network, network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
-    }
-
-    private static Network addReactiveGenerator(Network network, Terminal terminal) {
-        network.getGenerator("GEN").newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(terminal)
-                .withTargetQ(200)
-                .withEnabled(true).add();
-        return network;
-    }
-
-    private static Network addRemoteVoltageGenerator(Network network) {
-        network.getGenerator("GEN")
-                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
-                .setTargetV(399);
-        return network;
-    }
-
     private static Network removeVoltageControlForGenerator(Network network) {
-        Generator gen = network.getGenerator("GEN");
-        gen.setVoltageRegulatorOn(false);
-        gen.setTargetV(Double.NaN);
+        Generator gen = network.getGenerator(GENERATOR_ID);
+        gen.removeVoltageRegulation();
         return network;
+    }
+
+    public static Network createWithLocalVoltageGenerator() {
+        return createWithLocalVoltageGenerator(create());
+    }
+
+    public static Network createWithLocalVoltageGenerator(Network network) {
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(GENERATOR_LOCAL_TARGET_V);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .build();
+        return network;
+    }
+
+    private static Terminal getRemoteTerminal(Network network) {
+        return network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1();
     }
 }

@@ -10,10 +10,11 @@ package com.powsybl.loadflow.validation;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,12 +72,17 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(svcTerminal.getVoltageLevel()).thenReturn(voltageLevel);
 
         svc = Mockito.mock(StaticVarCompensator.class);
+        VoltageRegulation voltageRegulation = Mockito.mock(VoltageRegulation.class);
         Mockito.when(svc.getId()).thenReturn("svc");
         Mockito.when(svc.getTerminal()).thenReturn(svcTerminal);
-        Mockito.when(svc.getReactivePowerSetpoint()).thenReturn(reactivePowerSetpoint);
-        Mockito.when(svc.getVoltageSetpoint()).thenReturn(voltageSetpoint);
-        Mockito.when(svc.getRegulationMode()).thenReturn(regulationMode);
-        Mockito.when(svc.isRegulating()).thenReturn(regulating);
+        Mockito.when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
+        Mockito.when(voltageRegulation.getTargetValue()).thenReturn(reactivePowerSetpoint); // regulationMode = REACTIVE_POWER
+        Mockito.when(svc.getRegulatingTargetV()).thenReturn(voltageSetpoint);
+        Mockito.when(svc.getRegulatingTargetQ()).thenReturn(reactivePowerSetpoint);
+        Mockito.when(svc.getLocalTargetQ()).thenReturn(Double.NaN);
+        Mockito.when(svc.getLocalTargetV()).thenReturn(voltageSetpoint);
+        Mockito.when(voltageRegulation.getMode()).thenReturn(regulationMode);
+        Mockito.when(voltageRegulation.isRegulating()).thenReturn(regulating);
         Mockito.when(svc.getBmin()).thenReturn(bMin);
         Mockito.when(svc.getBmax()).thenReturn(bMax);
     }

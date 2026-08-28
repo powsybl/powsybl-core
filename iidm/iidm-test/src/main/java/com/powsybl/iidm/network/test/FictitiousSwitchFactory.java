@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -222,10 +222,9 @@ public final class FictitiousSwitchFactory {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(0.0)
             .setMaxP(70.0)
-            .setVoltageRegulatorOn(false)
             .setTargetP(0.0)
-            .setTargetV(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetV(0.0)
+            .setLocalTargetQ(0.0)
             .setNode(12)
             .add();
         generatorCB.newReactiveCapabilityCurve()
@@ -246,10 +245,9 @@ public final class FictitiousSwitchFactory {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(0.0)
             .setMaxP(80.0)
-            .setVoltageRegulatorOn(false)
             .setTargetP(0.0)
-            .setTargetV(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetV(0.0)
+            .setLocalTargetQ(0.0)
             .setNode(14)
             .add();
         generatorCC.newReactiveCapabilityCurve()
@@ -270,10 +268,10 @@ public final class FictitiousSwitchFactory {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(0.0)
             .setMaxP(35.0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setTargetP(21.789589)
-            .setTargetV(236.44736)
-            .setTargetQ(-20.701546)
+            .setLocalTargetV(236.44736)
+            .setLocalTargetQ(-20.701546)
             .setNode(16)
             .add();
         generatorCD.getTerminal()

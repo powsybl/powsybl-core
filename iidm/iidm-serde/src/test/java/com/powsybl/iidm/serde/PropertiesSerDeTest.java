@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
@@ -142,10 +143,12 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
                 .setId("shunt")
                 .setNode(6)
                 .setSectionCount(1)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(zipLoad.getTerminal())
-                .setTargetV(200)
-                .setTargetDeadband(5.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(zipLoad.getTerminal())
+                    .withTargetValue(200)
+                    .withTargetDeadband(5.0)
+                    .add()
                 .newLinearModel()
                 .setMaximumSectionCount(1)
                 .setBPerSection(3)
@@ -159,10 +162,12 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
                 .setId("shuntNonLinear")
                 .setNode(8)
                 .setSectionCount(1)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(zipLoad.getTerminal())
-                .setTargetV(200)
-                .setTargetDeadband(5.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(zipLoad.getTerminal())
+                    .withTargetValue(200)
+                    .withTargetDeadband(5.0)
+                    .add()
                 .newNonLinearModel()
                 .beginSection()
                 .setB(1.0)

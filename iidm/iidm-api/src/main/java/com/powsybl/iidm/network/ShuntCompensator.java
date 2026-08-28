@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 import java.util.OptionalInt;
 
 /**
@@ -108,7 +111,7 @@ import java.util.OptionalInt;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see ShuntCompensatorAdder
  */
-public interface ShuntCompensator extends Injection<ShuntCompensator> {
+public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRegulationHolder<ShuntCompensator> {
 
     /**
      * Get the count of sections in service.
@@ -260,16 +263,11 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     <M extends ShuntCompensatorModel> M getModel(Class<M> modelType);
 
     /**
-     * Get the terminal used for regulation.
-     */
-    default Terminal getRegulatingTerminal() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Set the terminal used for regulation.
      * If null is passed as regulating terminal, the regulation is considered local.
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }
@@ -279,7 +277,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -287,7 +287,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
@@ -297,7 +299,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #getLocalTargetV()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetV() {
         throw new UnsupportedOperationException();
     }
@@ -307,7 +311,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #setLocalTargetV(double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
@@ -318,7 +324,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#getTargetDeadband()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetDeadband() {
         throw new UnsupportedOperationException();
     }
@@ -329,7 +337,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setTargetDeadband(double)}  instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }

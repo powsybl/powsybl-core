@@ -10,12 +10,14 @@ package com.powsybl.iidm.serde.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -43,8 +45,8 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
             .setBus("B")
             .setConnectableBus("B")
             .setTargetP(100)
-            .setTargetV(380)
-            .setVoltageRegulatorOn(true)
+            .setLocalTargetV(380)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setMaxP(100)
             .setMinP(0)
             .add();
@@ -53,8 +55,8 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
                 .setBus("B")
                 .setConnectableBus("B")
                 .setTargetP(100)
-                .setTargetV(380)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(380)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMaxP(100)
                 .setMinP(0)
                 .add();
@@ -70,7 +72,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
         network.getGenerator("G4").newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
 
         // Check with latest version
-        Network network2 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", IidmVersion.V_1_16);
+        Network network2 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", CURRENT_IIDM_VERSION);
         assertEqualsEntsoeCategory(network2.getGenerator("G0"), 0);
         assertEqualsEntsoeCategory(network2.getGenerator("G4"), 4);
 

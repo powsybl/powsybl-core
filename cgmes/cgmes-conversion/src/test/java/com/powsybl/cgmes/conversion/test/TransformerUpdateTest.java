@@ -11,6 +11,7 @@ import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -278,9 +279,9 @@ class TransformerUpdateTest {
         int normalStep = getNormalStep(t3w, tapChangerId);
         assertEquals(normalStep, t3w.getLeg2().getRatioTapChanger().getTapPosition());
 
-        assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getRegulationValue()));
-        assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getTargetDeadband()));
-        assertSame(RatioTapChanger.RegulationMode.VOLTAGE, t3w.getLeg2().getRatioTapChanger().getRegulationMode());
+        assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getVoltageRegulation().getTargetValue()));
+        assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getVoltageRegulation().getTargetDeadband()));
+        assertTrue(t3w.getLeg2().getRatioTapChanger().isWithMode(RegulationMode.VOLTAGE));
         assertNotNull(t3w.getLeg2().getRatioTapChanger().getRegulationTerminal());
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
     }
@@ -298,8 +299,8 @@ class TransformerUpdateTest {
         assertNotNull(t3w);
         assertEquals(tapPosition, t3w.getLeg2().getRatioTapChanger().getTapPosition());
 
-        assertEquals(regulationValue, t3w.getLeg2().getRatioTapChanger().getRegulationValue());
-        assertEquals(targetDeadband, t3w.getLeg2().getRatioTapChanger().getTargetDeadband());
+        assertEquals(regulationValue, t3w.getLeg2().getRatioTapChanger().getVoltageRegulation().getTargetValue());
+        assertEquals(targetDeadband, t3w.getLeg2().getRatioTapChanger().getVoltageRegulation().getTargetDeadband());
         assertEquals(isRegulating, t3w.getLeg2().getRatioTapChanger().isRegulating());
     }
 

@@ -120,7 +120,7 @@ public class AmplNetworkReader {
         // Bug fix, to avoid generators out of main cc to have a different target voltage while connected to same bus (Eurostag check)
         // In that case it will not be part of result file, so not overwritten. So first reset all target voltages to nominal voltage
         for (Generator g : network.getGenerators()) {
-            g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
+            g.setLocalTargetV(g.getTerminal().getVoltageLevel().getNominalV());
         }
 
         read("_generators", 9, this::readGenerator);

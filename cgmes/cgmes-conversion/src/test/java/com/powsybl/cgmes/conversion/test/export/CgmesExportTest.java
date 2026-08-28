@@ -22,6 +22,8 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -78,16 +80,17 @@ class CgmesExportTest {
                 .setId("C1")
                 .setNode(5)
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(405.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         vl.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
         vl.newVscConverterStation()
                 .setId("C2")
                 .setNode(6)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(123)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(123)
                 .add();
         network.newHvdcLine()
                 .setId("hvdc_line")
@@ -279,7 +282,7 @@ class CgmesExportTest {
             Generator generator = networkFromCgmes.getGenerator("BAT");
             assertNotNull(generator);
             assertEquals(battery.getTargetP(), generator.getTargetP(), 0.0);
-            assertEquals(battery.getTargetQ(), generator.getTargetQ(), 0.0);
+            assertEquals(battery.getLocalTargetQ(), generator.getLocalTargetQ(), 0.0);
             assertEquals(battery.getMinP(), generator.getMinP(), 0.0);
             assertEquals(battery.getMaxP(), generator.getMaxP(), 0.0);
         }
@@ -557,7 +560,7 @@ class CgmesExportTest {
         assertInstanceOf(Generator.class, eqAtEnd2);
         Generator actualEquivalentInjection = (Generator) eqAtEnd2;
         assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), EPSILON);
-        assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
+        assertEquals(expected.getQ0(), -actualEquivalentInjection.getLocalTargetQ(), EPSILON);
     }
 
     @Test
@@ -565,8 +568,13 @@ class CgmesExportTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), new Properties());
 
-        Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
-        Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
+        String uuidNoRcc = "550ebe0d-f2b2-48c1-991f-cebea43a21aa";
+        String uuidNoRccRC = uuidNoRcc + "_RC";
+        Generator generatorNoRcc = network.getGenerator(uuidNoRcc);
+
+        String uuidRcc = "3a3b27be-b18b-4385-b557-6735d733baf0";
+        String uuidRccRC = uuidRcc + "_RC";
+        Generator generatorRcc = network.getGenerator(uuidRcc);
 
         generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
         generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
@@ -582,34 +590,44 @@ class CgmesExportTest {
             String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
 
             // Check that RegulatingControl is properly exported
-            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertTrue(eq.contains(uuidRccRC));
+            assertTrue(eq.contains(uuidNoRccRC));
             generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
             generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
-            // RegulatingControl is exported when targetV is not NaN, even if voltage regulation is disabled
-            generatorRcc.setVoltageRegulatorOn(false);
-            generatorNoRcc.setVoltageRegulatorOn(false);
+            // RegulatingControl is exported when voltageRegulation is present, even if voltage regulation regulating is false
+            generatorRcc.getVoltageRegulation().setRegulating(false);
+            generatorNoRcc.getVoltageRegulation().setRegulating(false);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertTrue(eq.contains(uuidRccRC));
+            assertTrue(eq.contains(uuidNoRccRC));
             generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
             generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
-            // RegulatingControl isn't exported when targetV is NaN
-            double rccTargetV = generatorRcc.getTargetV();
-            generatorRcc.setTargetV(Double.NaN);
-            double noRccTargetV = generatorNoRcc.getTargetV();
-            generatorNoRcc.setTargetV(Double.NaN);
+            // RegulatingControl isn't exported when voltageRegulation is undefined
+            VoltageRegulation voltageRegulationRcc = generatorRcc.getVoltageRegulation();
+            VoltageRegulation voltageRegulationNoRcc = generatorNoRcc.getVoltageRegulation();
+            generatorRcc.removeVoltageRegulation();
+            generatorNoRcc.removeVoltageRegulation();
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.setTargetV(rccTargetV);
-            generatorRcc.setVoltageRegulatorOn(true);
-            generatorNoRcc.setTargetV(noRccTargetV);
-            generatorNoRcc.setVoltageRegulatorOn(true);
+            assertFalse(eq.contains(uuidRccRC));
+            assertFalse(eq.contains(uuidNoRccRC));
+            generatorRcc.newVoltageRegulation()
+                .withTerminal(voltageRegulationRcc.getTerminal())
+                .withTargetDeadband(voltageRegulationRcc.getTargetDeadband())
+                .withSlope(voltageRegulationRcc.getSlope())
+                .withTargetValue(voltageRegulationRcc.getTargetValue())
+                .withMode(voltageRegulationRcc.getMode())
+                .build();
+            generatorNoRcc.newVoltageRegulation()
+                .withTerminal(voltageRegulationNoRcc.getTerminal())
+                .withTargetDeadband(voltageRegulationNoRcc.getTargetDeadband())
+                .withSlope(voltageRegulationNoRcc.getSlope())
+                .withTargetValue(voltageRegulationNoRcc.getTargetValue())
+                .withMode(voltageRegulationNoRcc.getMode())
+                .build();
 
             // RegulatingControl isn't exported when Qmin and Qmax are the same
             ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
@@ -623,16 +641,16 @@ class CgmesExportTest {
             mmrlAdder.add();
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertFalse(eq.contains(uuidRccRC));
+            assertFalse(eq.contains(uuidNoRccRC));
 
             // RegulatingControl is however exported when the corresponding CGMES property is present
-            generatorRcc.setProperty(PROPERTY_REGULATING_CONTROL, "3a3b27be-b18b-4385-b557-6735d733baf0_RC");
-            generatorNoRcc.setProperty(PROPERTY_REGULATING_CONTROL, "550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC");
+            generatorRcc.setProperty(PROPERTY_REGULATING_CONTROL, uuidRccRC);
+            generatorNoRcc.setProperty(PROPERTY_REGULATING_CONTROL, uuidNoRccRC);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertTrue(eq.contains(uuidRccRC));
+            assertTrue(eq.contains(uuidNoRccRC));
 
         }
     }

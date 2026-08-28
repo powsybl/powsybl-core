@@ -8,8 +8,10 @@
 package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -34,18 +36,23 @@ class ExternalGridConverter extends AbstractConverter {
         ExternalGridModel externalGridModel = ExternalGridModel.create(elmXnet);
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
-        Generator g = vl.newGenerator()
+        boolean voltageRegulatorOn = obtainVoltageRegulatorOn(externalGridModel.type);
+        GeneratorAdder adder = vl.newGenerator()
                 .setId(elmXnet.getLocName())
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setTargetP(externalGridModel.p)
-                .setTargetQ(externalGridModel.q)
-                .setTargetV(externalGridModel.voltageSetpointpu * vl.getNominalV())
-                .setVoltageRegulatorOn(obtainVoltageRegulatorOn(externalGridModel.type))
+                .setLocalTargetQ(externalGridModel.q)
+                .setLocalTargetV(externalGridModel.voltageSetpointpu * vl.getNominalV())
                 .setMinP(externalGridModel.minP)
-                .setMaxP(externalGridModel.maxP)
+                .setMaxP(externalGridModel.maxP);
+        if (voltageRegulatorOn) {
+            adder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
                 .add();
+        }
 
+        Generator g = adder.add();
         g.newMinMaxReactiveLimits()
             .setMinQ(externalGridModel.minQ)
             .setMaxQ(externalGridModel.maxQ)
