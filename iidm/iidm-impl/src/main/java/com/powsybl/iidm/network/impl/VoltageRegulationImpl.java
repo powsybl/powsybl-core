@@ -489,6 +489,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                 LOGGER.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", oldRegulatingTerminal.getConnectable().getId(),
                     regulatedEquipmentId, regulatedEquipmentId);
                 updateTerminal(localTerminal);
+                // TODO MSA update the targetValue? for each variants?
                 return;
             }
         }
