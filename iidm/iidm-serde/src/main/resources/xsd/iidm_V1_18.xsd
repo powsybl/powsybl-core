@@ -892,6 +892,10 @@
     <xs:complexType name="DcLine">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:element name="operationalLimitsGroup" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="selectedOperationalLimitsGroupIds" use="optional" type="iidm:selectedOperationalLimitsGroupIds"/>
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
