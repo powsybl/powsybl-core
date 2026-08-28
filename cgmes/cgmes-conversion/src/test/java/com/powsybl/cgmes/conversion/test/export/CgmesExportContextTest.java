@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,6 +44,23 @@ class CgmesExportContextTest {
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context1.getTopologyKind());
         assertEquals(network.getCaseDate(), context1.getScenarioTime());
         assertEquals("1D", context1.getBusinessProcess());
+    }
+
+    @Test
+    void baseVoltageIdIndependentOfDefaultLocale() {
+        Network network = Network.create("test", "test");
+        network.newSubstation().setId("S").add()
+                .newVoltageLevel().setId("VL").setNominalV(220.5).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            // A locale using a comma as decimal separator would leak into the derived BaseVoltage mRID
+            Locale.setDefault(Locale.FRANCE);
+            String id = new CgmesExportContext(network).getBaseVoltageIdFromNominalV(220.5);
+            assertEquals("220.5_BV", id);
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
     @Test
