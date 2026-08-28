@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
@@ -319,35 +318,6 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
         double p = this.getTerminal().getP();
         if (!Double.isNaN(p)) {
             this.setTargetP(-p);
-        }
-    }
-
-    default void setTargetQToQ() {
-        // If remote reactive power regulation is enabled, the target value is updated
-        if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
-            double remoteQ = getVoltageRegulation().getTerminal().getQ();
-            if (!Double.isNaN(remoteQ)) {
-                getVoltageRegulation().setTargetValue(-remoteQ);
-            }
-        }
-        double q = this.getTerminal().getQ();
-        if (!Double.isNaN(q)) {
-            // In any cases we set the localTargetQ
-            this.setLocalTargetQ(-q);
-        }
-    }
-
-    default void setTargetVToV() {
-        if (this.isRegulatingWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
-            Bus remoteBus = getVoltageRegulation().getTerminal().getBusView().getBus();
-            if (remoteBus != null && !Double.isNaN(remoteBus.getV())) {
-                getVoltageRegulation().setTargetValue(remoteBus.getV());
-            }
-        }
-        // In any cases we set the localTargetV
-        Bus bus = this.getTerminal().getBusView().getBus();
-        if (bus != null && !Double.isNaN(bus.getV())) {
-            this.setLocalTargetV(bus.getV());
         }
     }
 }

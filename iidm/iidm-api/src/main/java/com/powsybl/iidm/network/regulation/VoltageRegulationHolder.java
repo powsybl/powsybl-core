@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.regulation;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VariantManager;
 
@@ -164,6 +165,60 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      */
     default boolean isRemoteRegulating() {
         return getVoltageRegulation() != null && getVoltageRegulation().isWithTerminal();
+    }
+
+    /**
+     * <p>
+     *     Updates the target reactive power value in both local and remote regulation scenarios
+     * </p>
+     * <p>
+     *     In all cases, the local target reactive power value is set to the negated reactive power
+     *     value at the equipment's terminal
+     * </p>
+     * <p>
+     *     If the reactive power regulation mode is enabled and regulation is performed remotely,
+     *     the target value is updated to the negated reactive power value at the remote terminal
+     * </p>
+     */
+    default void setTargetQToQ() {
+        // If remote reactive power regulation is enabled, the target value is updated
+        if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
+            double remoteQ = getVoltageRegulation().getTerminal().getQ();
+            if (!Double.isNaN(remoteQ)) {
+                getVoltageRegulation().setTargetValue(-remoteQ);
+            }
+        }
+        double q = this.getTerminal().getQ();
+        if (!Double.isNaN(q)) {
+            // In any cases we set the localTargetQ
+            this.setLocalTargetQ(-this.getTerminal().getQ());
+        }
+    }
+
+    /**
+     * <p>
+     *     Updates the target voltage value in both local and remote regulation scenarios
+     * </p>
+     * <p>
+     *     In all cases, the local target voltage value is set to the voltage value at the equipment's terminal
+     * </p>
+     * <p>
+     *     If the voltage regulation mode is enabled and regulation is performed remotely,
+     *     the target value is updated to the voltage value at the remote terminal
+     * </p>
+     */
+    default void setTargetVToV() {
+        if (this.isRegulatingWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
+            Bus remoteBus = getVoltageRegulation().getTerminal().getBusView().getBus();
+            if (remoteBus != null && !Double.isNaN(remoteBus.getV())) {
+                getVoltageRegulation().setTargetValue(remoteBus.getV());
+            }
+        }
+        Bus bus = this.getTerminal().getBusView().getBus();
+        if (bus != null && !Double.isNaN(bus.getV())) {
+            // In any cases we set the localTargetV
+            this.setLocalTargetV(bus.getV());
+        }
     }
 
 }
