@@ -11,8 +11,18 @@ import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcLineAdder;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.Collection;
+
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.LIMITS_GROUP;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readAllSelectedGroupIds;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readLoadingLimitsGroups;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readPI;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeAllSelectedGroupIds;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeLimits;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writePI;
 
 /**
@@ -40,6 +50,22 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         context.getWriter().writeBooleanAttribute("connected2", dcTerminal2.isConnected());
         writePI(dcTerminal1, context.getWriter());
         writePI(dcTerminal2, context.getWriter());
+        // this attribute only names groups, so it is empty whenever there are none to name; the error for
+        // writing limits to a file older than 1.18 is raised on the groups themselves, in writeSubElements
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+                writeAllSelectedGroupIds(null, dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered(), context.getWriter()));
+    }
+
+    @Override
+    protected void writeSubElements(final DcLine dcLine, final Network parent, final NetworkSerializerContext context) {
+        Collection<OperationalLimitsGroup> groupsToWrite = context.getOptions().isOnlySelectedOperationalLimitsGroups()
+                ? dcLine.getAllSelectedOperationalLimitsGroups()
+                : dcLine.getOperationalLimitsGroups();
+        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(!groupsToWrite.isEmpty(),
+                getRootElementName(), LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
+                IidmVersion.V_1_18, context,
+                () -> writeLimits(context, null, getRootElementName(),
+                        dcLine.getSelectedOperationalLimitsGroup().orElse(null), groupsToWrite));
     }
 
     @Override
@@ -63,11 +89,24 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
                 .add();
         readPI(dcLine.getDcTerminal1(), context.getReader());
         readPI(dcLine.getDcTerminal2(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+                readAllSelectedGroupIds(dcLine, dcLine.getId(), context));
         return dcLine;
     }
 
     @Override
     protected void readSubElements(final DcLine dcLine, final NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> readSubElement(elementName, dcLine, context));
+    }
+
+    @Override
+    protected void readSubElement(final String elementName, final DcLine dcLine, final NetworkDeserializerContext context) {
+        if (LIMITS_GROUP.equals(elementName)) {
+            IidmSerDeUtil.assertMinimumVersion(getRootElementName(), LIMITS_GROUP,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_18, context);
+            readLoadingLimitsGroups(dcLine, dcLine.getId(), ThreeSides.ONE, LIMITS_GROUP, context);
+        } else {
+            super.readSubElement(elementName, dcLine, context);
+        }
     }
 }

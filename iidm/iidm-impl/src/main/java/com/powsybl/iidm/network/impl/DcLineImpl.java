@@ -8,12 +8,19 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.ActivePowerLimitsAdder;
+import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.ValidationUtil;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -22,11 +29,16 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
 
     public static final String R_ATTRIBUTE = "r";
 
+    private static final String LIMITS_ATTRIBUTE = "limits";
+
     private double r;
+
+    private final OperationalLimitsGroupsImpl operationalLimitsGroups;
 
     DcLineImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double r) {
         super(ref, subnetworkRef, id, name, fictitious);
         this.r = r;
+        this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, LIMITS_ATTRIBUTE);
     }
 
     @Override
@@ -84,5 +96,132 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
         this.r = r;
         getNetwork().getListeners().notifyUpdate(this, R_ATTRIBUTE, oldValue, r);
         return this;
+    }
+
+    /**
+     * A removed DC equipment must refuse access, like the {@code r} and terminal accessors above and like
+     * {@code DcNodeImpl} does for its voltage limits. {@code BoundaryLineImpl}, whose delegations this class
+     * otherwise copies, has no such rule and delegates bare; ours add one of these two calls.
+     */
+    private void checkAccess() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, LIMITS_ATTRIBUTE);
+    }
+
+    private void checkModification() {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, LIMITS_ATTRIBUTE);
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
+        checkAccess();
+        return operationalLimitsGroups.getOperationalLimitsGroups();
+    }
+
+    @Override
+    public Optional<String> getSelectedOperationalLimitsGroupId() {
+        checkAccess();
+        return operationalLimitsGroups.getSelectedOperationalLimitsGroupId();
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+        checkAccess();
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+        checkAccess();
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroupIdsOrdered();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+        checkAccess();
+        return operationalLimitsGroups.getOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+        checkAccess();
+        return operationalLimitsGroups.getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+        checkAccess();
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroups();
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
+        checkModification();
+        return operationalLimitsGroups.newOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup(String id) {
+        checkModification();
+        operationalLimitsGroups.setSelectedOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(String... ids) {
+        checkModification();
+        operationalLimitsGroups.addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup(String id) {
+        checkModification();
+        operationalLimitsGroups.removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup() {
+        checkModification();
+        operationalLimitsGroups.cancelSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(String... ids) {
+        checkModification();
+        operationalLimitsGroups.deselectOperationalLimitsGroups(ids);
+    }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+        checkModification();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
+    @Override
+    public CurrentLimitsAdder newCurrentLimits() {
+        checkModification();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits() {
+        checkModification();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        checkModification();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 }

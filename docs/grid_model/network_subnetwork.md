@@ -186,7 +186,7 @@ A generator is a piece of equipment that injects or consumes active power, and i
 | $EnergySource$      |      | The energy source harnessed to turn the generator                                  |
 | $IsCondenser$       |      | True if the generator may behave as a condenser                                    |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                       |
-| $Equivalent$        | -    | Indicates if the generator is an equivalent, from a network reduction for instance | 
+| $Equivalent$        | -    | Indicates if the generator is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -227,7 +227,7 @@ A load is a passive equipment representing a delivery point that consumes or pro
 |--------------|------|-------------------------------------------------------------------------------|
 | $P0$         | MW   | The active power setpoint                                                     |
 | $Q0$         | MVar | The reactive power setpoint                                                   |
-| $Equivalent$ | -    | Indicates if the load is an equivalent, from a network reduction for instance | 
+| $Equivalent$ | -    | Indicates if the load is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -293,7 +293,7 @@ battery side and vice versa. The power flow is bidirectional, and it is controll
 | $MaxP$              | MW   | The Maximum active power (discharging limit)                                     |
 | $ReactiveLimits$    | MVar | Operational limits of the battery (P/Q/V diagram)                                |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                     |
-| $Equivalent$        | -    | Indicates if the battery is an equivalent, from a network reduction for instance | 
+| $Equivalent$        | -    | Indicates if the battery is an equivalent, from a network reduction for instance |
 
 The values `TargetP`, `LocalTargetQ`, `MinP`, `MaxP`, are required.
 
@@ -363,7 +363,7 @@ Optional:
 | $TargetQ$            | MVar | The reactive power target                                                              |
 | $TargetV$            | kV   | The voltage target                                                                     |
 | $VoltageRegulatorOn$ |      | True if the generation part regulates voltage                                          |
-| $Equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance | 
+| $Equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -429,7 +429,7 @@ Shunt compensators follow a passive-sign convention:
 | $G$                   | S    | The conductance of the shunt compensator in its current state                              |
 | $LocalTargetV$        | kV   | The voltage target at the local terminal                                                   |
 | $VoltageRegulation$   |      | See [Voltage Regulation](./additional.md#voltage-regulation)                               |
-| $Equivalent$          | -    | Indicates if the shunt compensator is an equivalent, from a network reduction for instance | 
+| $Equivalent$          | -    | Indicates if the shunt compensator is an equivalent, from a network reduction for instance |
 
 - For Linear Shunt Compensators
 
@@ -498,7 +498,7 @@ Static VAR compensators follow a passive-sign convention:
 | $LocalTargetQ$      | MVar | The reactive power target at local terminal                                                     |
 | $LocalTargetV$      | kV   | The voltage target at local terminal                                                            |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                                    |
-| $Equivalent$        | -    | Indicates if the Static VAR compensator is an equivalent, from a network reduction for instance | 
+| $Equivalent$        | -    | Indicates if the Static VAR compensator is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -675,7 +675,7 @@ $$
 | $V_{1\ nom}$ | kV       | The rated voltage at side 1                                                           |
 | $V_{2\ nom}$ | kV       | The rated voltage at side 2                                                           |
 | $RatedS$     | MVA      | The normal apparent power                                                             |
-| $Equivalent$ | -        | Indicates if the transformer is an equivalent, from a network reduction for instance. | 
+| $Equivalent$ | -        | Indicates if the transformer is an equivalent, from a network reduction for instance. |
 
 **Specifications**
 
@@ -718,7 +718,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 | Attribute    | Unit | Description                                                                          |
 |--------------|------|--------------------------------------------------------------------------------------|
 | $RatedU0$    | kV   | The rated voltage at the star bus                                                    |
-| $Equivalent$ | -    | Indicates if the transformer is an equivalent, from a network reduction for instance | 
+| $Equivalent$ | -    | Indicates if the transformer is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -969,6 +969,12 @@ A DC Line has two DC Terminals.
 
 The $R$ value can't be negative, because this is a detailed model, it is a direct physical representation, not an equivalent model.
 
+**Metadata**
+
+- A DC Line can have [loading limits](./additional.md#loading-limits), in a single collection for the whole line
+rather than one per side: a DC Line has no shunt admittance, so the current entering one DC Terminal is the current
+leaving the other. Current limits are the meaningful kind here; apparent power limits have no meaning on DC.
+
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 
@@ -1032,7 +1038,7 @@ LCC and VSC share the following characteristics.
 | $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention             |
 | $MaxP$          | MW       | Maximum active power at point of common coupling, load sign convention             |
 | $DroopCurve$    |          | Droop curve for droop control mode                                                 |
-| $Equivalent$    | -        | Indicates if the converter is an equivalent, from a network reduction for instance | 
+| $Equivalent$    | -        | Indicates if the converter is an equivalent, from a network reduction for instance |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:
@@ -1139,7 +1145,7 @@ hence a PowerFactor of 0.89443.
 
 **Specifications**
 
-- The terminal used for regulation is the Point of Common Coupling terminal (pccTerminal), for both voltage and reactive power control modes.  
+- The terminal used for regulation is the Point of Common Coupling terminal (pccTerminal), for both voltage and reactive power control modes.
 The `pccTerminal` and the `voltage regulation terminal` are kept consistent according to the following rules:
   - When `pccTerminal` is set:
     - if the new terminal is the local terminal, the `voltage regulation terminal` is unset

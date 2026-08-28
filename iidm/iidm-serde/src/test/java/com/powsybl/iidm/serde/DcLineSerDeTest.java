@@ -7,15 +7,20 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -43,6 +48,33 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
         testWriteVersionedXml(network, options, "dcLineNotSupported.xml", IidmVersion.V_1_14);
+    }
+
+    @Test
+    void testLimitsNotSupported() {
+        Network network = createBaseNetwork();
+
+        // versions 1.15 to 1.17 support the DC line but not its operational limits, so exporting a DC line
+        // that declares limits must fail rather than silently drop them
+        testForAllPreviousVersions(IidmVersion.V_1_18, version -> {
+            if (version.compareTo(IidmVersion.V_1_15) < 0) {
+                return;
+            }
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
+            assertEquals("dcLine.operationalLimitsGroup is not defined as default and not supported for IIDM version "
+                    + version.toString(".") + ". IIDM version should be >= 1.18", e.getMessage());
+        });
+
+        // the same export must succeed with no limits to drop or the assertions above prove nothing
+        Network noLimits = Network.create("dcLineTest", "code");
+        noLimits.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
+        noLimits.newDcNode().setId("dcNode1").setNominalV(500.).add();
+        noLimits.newDcNode().setId("dcNode2").setNominalV(500.).add();
+        noLimits.newDcLine().setId("dcLine").setDcNode1("dcNode1").setDcNode2("dcNode2").setR(1.0).add();
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_17.toString("."));
+        assertDoesNotThrow(() -> NetworkSerDe.write(noLimits, options, tmpDir.resolve("noLimits.xml")));
     }
 
     private static Network createBaseNetwork() {
@@ -79,6 +111,20 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
                 .add();
         dcLine2.getDcTerminal1().setP(100.).setI(200.);
         dcLine2.getDcTerminal2().setP(-98.).setI(-195.);
+        dcLine2.newOperationalLimitsGroup("summer")
+                .newCurrentLimits()
+                .setPermanentLimit(2106.0)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(2350.0)
+                .endTemporaryLimit()
+                .add();
+        dcLine2.newOperationalLimitsGroup("winter")
+                .newCurrentLimits()
+                .setPermanentLimit(2400.0)
+                .add();
+        dcLine2.setSelectedOperationalLimitsGroup("summer");
         return network;
     }
 

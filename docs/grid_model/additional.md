@@ -112,8 +112,9 @@ Some equipment has operational limits regarding the current, active power or app
 
 Loading limits can be declined into active power limits (in MW), apparent power limits (in kVA) and current limits (in A).
 They may be set for [lines](./network_subnetwork.md#line), [boundary lines](./network_subnetwork.md#boundary-line),
-[tie lines](./network_subnetwork.md#tie-line) (via their boundary lines), [two-winding transformers](./network_subnetwork.md#two-winding-transformer)
-and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
+[tie lines](./network_subnetwork.md#tie-line) (via their boundary lines), [two-winding transformers](./network_subnetwork.md#two-winding-transformer),
+[three-winding transformers](./network_subnetwork.md#three-winding-transformer) and [DC lines](./network_subnetwork.md#dc-line).
+The active power limits are in absolute value.
 
 ### High loading limits
 
