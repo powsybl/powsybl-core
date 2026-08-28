@@ -10,16 +10,11 @@ package com.powsybl.iidm.network.tck.voltage.regulation;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -39,18 +34,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public abstract class AbstractVoltageRegulationOnGeneratorTest {
-
-    private VoltageLevel voltageLevel;
-    private Terminal remoteTerminal;
-    private Network network;
-
-    @BeforeEach
-    void initNetwork() {
-        network = BatteryNetworkFactory.create();
-        voltageLevel = network.getVoltageLevel("VLGEN");
-        remoteTerminal = network.getBattery("BAT").getTerminal();
-    }
+public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractVoltageRegulationCommon<Generator> {
 
     @Test
     void shouldUnregisterTerminalOnRemoveGeneratorWithRemoteVoltageRegulation() {
@@ -355,6 +339,11 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest {
         });
     }
 
+    @Test
+    void shouldChangeTerminal() {
+        this.changeTerminalTest(newGeneratorAdder("changeTerminal").setLocalTargetQ(15.0).add());
+    }
+
     private GeneratorAdder newGeneratorAdder(String id) {
         return voltageLevel.newGenerator()
             .setId(id)
@@ -471,4 +460,5 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest {
             regulatingLocalVoltage,
             withValidationError ? String.format(validationError, regulatingLocalVoltage.id()) : null);
     }
+
 }

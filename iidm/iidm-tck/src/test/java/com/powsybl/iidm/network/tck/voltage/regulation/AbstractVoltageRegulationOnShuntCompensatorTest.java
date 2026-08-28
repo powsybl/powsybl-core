@@ -8,18 +8,13 @@
 package com.powsybl.iidm.network.tck.voltage.regulation;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -39,18 +34,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public abstract class AbstractVoltageRegulationOnShuntCompensatorTest {
-
-    private VoltageLevel voltageLevel;
-    private Terminal remoteTerminal;
-    private Network network;
-
-    @BeforeEach
-    void initNetwork() {
-        network = BatteryNetworkFactory.create();
-        voltageLevel = network.getVoltageLevel("VLGEN");
-        remoteTerminal = network.getBattery("BAT").getTerminal();
-    }
+public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends AbstractVoltageRegulationCommon<ShuntCompensator> {
 
     @Test
     void shouldUnregisterTerminalOnRemoveShuntCompensatorWithRemoteVoltageRegulation() {
@@ -369,6 +353,11 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest {
             assertEquals(targetValue, shuntCompensator.getVoltageRegulation().getTargetValue());
             assertEquals(targetValue, shuntCompensator.getRegulatingTargetV());
         });
+    }
+
+    @Test
+    void shouldChangeTerminal() {
+        this.changeTerminalTest(newShuntCompensatorAdder("changeTerminal").add());
     }
 
     private ShuntCompensatorAdder newShuntCompensatorAdder(String id) {
