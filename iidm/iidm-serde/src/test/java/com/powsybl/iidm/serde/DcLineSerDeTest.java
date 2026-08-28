@@ -51,6 +51,20 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void testExportOnlySelectedGroups() {
+        Network network = createBaseNetwork();
+
+        ExportOptions options = new ExportOptions().setOnlySelectedOperationalLimitsGroups(true);
+        Path path = tmpDir.resolve("onlySelectedGroups.xml");
+        NetworkSerDe.write(network, options, path);
+        DcLine dcLine = NetworkSerDe.read(path).getDcLine("dcLineWithSolvedV");
+
+        assertEquals(1, dcLine.getOperationalLimitsGroups().size());
+        assertEquals("summer", dcLine.getSelectedOperationalLimitsGroupId().orElseThrow());
+        assertEquals(2106.0, dcLine.getCurrentLimits().orElseThrow().getPermanentLimit());
+    }
+
+    @Test
     void testLimitsNotSupported() {
         Network network = createBaseNetwork();
 
@@ -75,6 +89,14 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         noLimits.newDcLine().setId("dcLine").setDcNode1("dcNode1").setDcNode2("dcNode2").setR(1.0).add();
         ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_17.toString("."));
         assertDoesNotThrow(() -> NetworkSerDe.write(noLimits, options, tmpDir.resolve("noLimits.xml")));
+
+        // exporting only the selected groups leaves nothing to write when none is selected, so the
+        // version error must not fire either
+        network.getDcLine("dcLineWithSolvedV").cancelSelectedOperationalLimitsGroup();
+        ExportOptions selectedOnly = new ExportOptions()
+                .setVersion(IidmVersion.V_1_17.toString("."))
+                .setOnlySelectedOperationalLimitsGroups(true);
+        assertDoesNotThrow(() -> NetworkSerDe.write(network, selectedOnly, tmpDir.resolve("noSelected.xml")));
     }
 
     private static Network createBaseNetwork() {
