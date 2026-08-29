@@ -387,7 +387,7 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void mergeTransformerConnectedSubstationsButKeepSourceVoltageLevelsSeparated() throws IOException {
+    void mergeTransformerConnectedSubstationsButKeepSourceVoltageLevelsSeparated() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("multipleNodeBreakerSubstations",
                 new ResourceSet("/", "multipleNodeBreakerSubstations.rawx"));
 
@@ -414,7 +414,7 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void skipNodeVoltageUpdateForBusBreakerFallback() throws IOException {
+    void skipNodeVoltageUpdateForBusBreakerFallback() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("multipleNodeBreakerSubstations",
                 new ResourceSet("/", "multipleNodeBreakerSubstations.rawx"));
         Properties properties = new Properties();
