@@ -251,7 +251,7 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         columnValueCount[j]++;
     }
 
-    private void fillLastEmptyColumns() {
+    void fillLastEmptyColumns() {
         for (int k = currentColumn + 1; k < columnCount; k++) {
             columnStart[k] = values.size();
         }
