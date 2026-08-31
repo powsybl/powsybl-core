@@ -14,12 +14,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import com.powsybl.iidm.serde.util.TopologyLevelUtil;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
 
@@ -382,64 +382,80 @@ public final class ConnectableSerDeUtil {
 
     private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
-        if (limits != null) {
-            throwBetaLowLimit(limits, exportOptions);
-
-            if (canWriteLimit(limits, exportOptions)) {
-                writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type);
-                writer.writeStartNodes();
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
-                for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                    writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                    writer.writeStringAttribute("name", tl.getName());
-                    writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
+        if (limits != null && writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type)) {
+            writer.writeStartNodes();
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
+            List<LoadingLimits.TemporaryLimit> tempLimits = StreamSupport.stream(
+                IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions).spliterator(),
+                false
+            ).toList();
+            int limitIndex = 0;
+            if (limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0) {
+                //the first temp limit was used as the permanent limit of the high limit, ignore it
+                limitIndex = 1;
+            }
+            for (int durationIndex = 0; durationIndex < tempLimits.size(); ++durationIndex) {
+                //since we skip the first temp limit when converting a low limit to a high limit (because it becomes the high limit), the last limit
+                //of the high limit should have a default name, the max value, and its duration is the duration of the last temp limit of the low limit
+                LoadingLimits.TemporaryLimit tl = limitIndex < tempLimits.size() ? tempLimits.get(limitIndex)
+                    : null;
+                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
+                writer.writeStringAttribute("name", tl != null ? tl.getName() : "minDurationTemporary");
+                writer.writeIntAttribute("acceptableDuration", tempLimits.get(durationIndex).getAcceptableDuration(), Integer.MAX_VALUE);
+                if (tl != null) {
                     writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
-                    writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
-                    writer.writeEndNode();
+                } else {
+                    //normally we don't write the max value, but if a low limit is shifted to a high limit, this information is necessary
+                    writer.writeDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
                 }
-                writer.writeEndNodes();
+                writer.writeBooleanAttribute("fictitious", tl != null && tl.isFictitious(), false);
+                if (tl != null) {
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
+                }
                 writer.writeEndNode();
             }
+            writer.writeEndNodes();
+            writer.writeEndNode();
         }
     }
 
-    private static <L extends LoadingLimits> boolean canWriteLimit(L limits, ExportOptions exportOptions) {
-        return limits.getDetectionKind() == DetectionKind.HIGH && !Double.isNaN(limits.getPermanentLimit())
-            || !limits.getTemporaryLimits().isEmpty()
-            && (limits.getDetectionKind() == DetectionKind.HIGH
-            //for >= 1.18, low limits have only temporary limits
-            || exportOptions.getVersion().compareTo(IidmVersion.V_1_18) >= 0);
-    }
-
-    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
+    private static <L extends LoadingLimits> boolean writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
+        boolean canContinueWriting = limits.getDetectionKind() == DetectionKind.HIGH
+                                    && !Double.isNaN(limits.getPermanentLimit())
+                                    || !limits.getTemporaryLimits().isEmpty();
+        if (!canContinueWriting) {
+            return false;
+        }
         writer.writeStartNode(nsUri, type + indexToString(index));
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
-                () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
-            );
-            writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
-        });
+        DetectionKind kind = limits.getDetectionKind();
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+            () -> {
+                String permanentName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
+                if (kind == DetectionKind.HIGH) {
+                    permanentName = limits.getPermanentLimitName();
+                }
+                writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
+                    permanentName,
+                    //permanent name is only written if it is not the default (also works for low limits, converted to high or not)
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME
+                );
+            });
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+            () -> {
+                if (kind == DetectionKind.HIGH) {
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
+                } else {
+                    //convert low limit to high limit by using first temporary as permanent
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions).iterator().next().getValue());
+                }
+            }
+        );
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
-            DetectionKind kind = limits.getDetectionKind();
             writer.writeStringAttribute(DETECTION_KIND, kind.name());
             if (kind == DetectionKind.HIGH) {
-                writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             }
         });
-    }
-
-    private static <L extends LoadingLimits> void throwBetaLowLimit(L limits, ExportOptions exportOptions) {
-        if (exportOptions.getVersion() == IidmVersion.V_1_17
-                && limits.getDetectionKind() == DetectionKind.LOW
-                && !exportOptions.isForceExportNetworkWithBetaFeatures()) {
-            throw new NotImplementedException("""
-                        The network contains low limits, export of this kind of limit is not supported in IIDM 1.17.
-                        Use IIDM 1.18 or later to export low limits, or force the export of the network in 1.17 and ignore those limits by:
-                        - using the config parameter iidm.export.xml.force-export-network-with-beta-features
-                        - using ExportOptions.setForceExportNetworkWithBetaFeatures""");
-        }
     }
 
     static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {
