@@ -22,37 +22,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup [JDK, Maven build, Sonar]
+        uses: powsybl/github-ci/setup-powsybl-dev@c44202e128bbdda6696f35135253bd5c514f240f #TODO change version to main after merge in github-ci
         with:
-          fetch-depth: 0
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
-
-      - name: Build with Maven (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: ./mvnw -B -ntp -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
-
-      - name: Build with Maven (Windows)
-        if: matrix.os == 'windows-latest'
-        run: mvnw.cmd -B -ntp verify -Dpowsybl.checks.skip=true
-        shell: cmd
-
-      - name: Build with Maven (MacOS)
-        if: matrix.os == 'macos-latest'
-        run: ./mvnw -B -ntp verify -Dpowsybl.checks.skip=true
-
-      - name: Run SonarCloud analysis
-        if: matrix.os == 'ubuntu-latest'
-        run: >
-          ./mvnw -B -ntp -DskipTests sonar:sonar
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.organization=powsybl-ci-github
-          -Dsonar.projectKey=com.powsybl:powsybl-core
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          sonar_projectKey: 'com.powsybl:powsybl-core'
