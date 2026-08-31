@@ -274,6 +274,10 @@ public class CgmesImport implements Importer {
         // and the resulting report, are deterministic and do not depend on hash-based Set iteration order.
         private static final Comparator<ReadOnlyDataSource> SUBNETWORK_ORDER =
                 Comparator.comparing(ds -> ((FilteredReadOnlyDataSource) ds).getKey());
+        // We rely on the CIMXML pattern:
+        // <effectiveDateTime>_<businessProcess>_<sourcingActor>_<modelPart>_<fileVersion>
+        // we define igmName := sourcingActor
+        private static final int SOURCING_ACTOR_INDEX = 2;
 
         private final ReadOnlyDataSource dataSource;
         private XMLInputFactory xmlInputFactory;
@@ -434,13 +438,10 @@ public class CgmesImport implements Importer {
             // and rely on it to find related SSH, TP files,
             Set<String> igmNames = new CgmesOnDataSource(dataSource).names().stream()
                     .filter(CgmesSubset.EQUIPMENT::isValidName)
-                    // We rely on the CIMXML pattern:
-                    // <effectiveDateTime>_<businessProcess>_<sourcingActor>_<modelPart>_<fileVersion>
-                    // we define igmName := sourcingActor
-                    .map(name -> name.split("_")[2])
+                    .map(name -> name.split("_")[SOURCING_ACTOR_INDEX])
                     .collect(Collectors.toSet());
             return igmNames.stream()
-                    .<ReadOnlyDataSource>map(igmName -> new FilteredReadOnlyDataSource(dataSource, igmName, name -> name.contains(igmName)
+                    .<ReadOnlyDataSource>map(igmName -> new FilteredReadOnlyDataSource(dataSource, igmName, name -> matchesIgmName(name, igmName)
                             || isBoundary(name)
                             || isShared(name, igmNames)))
                     .collect(Collectors.toCollection(() -> new TreeSet<>(SUBNETWORK_ORDER)));
@@ -450,12 +451,18 @@ public class CgmesImport implements Importer {
             return CgmesSubset.EQUIPMENT_BOUNDARY.isValidName(name) || CgmesSubset.TOPOLOGY_BOUNDARY.isValidName(name);
         }
 
+        private static boolean matchesIgmName(String name, String igmName) {
+            // Match the sourcingActor segment exactly, not just as a substring,
+            // so that an IGM name that is a substring of another one (for example "Galia" in "HVDC-Nordheim-Galia")
+            // does not wrongly pull files of the other IGM into this one.
+            String[] parts = name.split("_");
+            return parts.length > SOURCING_ACTOR_INDEX && parts[SOURCING_ACTOR_INDEX].equals(igmName);
+        }
+
         private static boolean isShared(String name, Set<String> allIgmNames) {
-            // The name does not contain the name of one the IGMs
+            // The name does not match the name of one the IGMs
             return allIgmNames.stream()
-                    .filter(name::contains)
-                    .findAny()
-                    .isEmpty();
+                    .noneMatch(igmName -> matchesIgmName(name, igmName));
         }
     }
 
