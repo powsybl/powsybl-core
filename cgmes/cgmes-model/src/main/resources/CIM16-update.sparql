@@ -288,7 +288,8 @@ SELECT *
     ?ExternalNetworkInjection  a cim:ExternalNetworkInjection ;
         cim:ExternalNetworkInjection.p ?p ;
         cim:ExternalNetworkInjection.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled ;
+        cim:ExternalNetworkInjection.referencePriority ?referencePriority
 }
 
 # query: asynchronousMachines
