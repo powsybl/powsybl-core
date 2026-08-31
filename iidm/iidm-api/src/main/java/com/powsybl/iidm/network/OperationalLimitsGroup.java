@@ -14,11 +14,7 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoad
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface OperationalLimitsGroup extends PropertiesHolder {
-
-    String getId();
-
-    Optional<CurrentLimits> getCurrentLimits();
+public interface OperationalLimitsGroup extends CurrentOperationalLimitsGroup {
 
     Optional<ActivePowerLimits> getActivePowerLimits();
 
@@ -39,16 +35,9 @@ public interface OperationalLimitsGroup extends PropertiesHolder {
         };
     }
 
-    CurrentLimitsAdder newCurrentLimits();
-
     ActivePowerLimitsAdder newActivePowerLimits();
 
     ApparentPowerLimitsAdder newApparentPowerLimits();
-
-    default CurrentLimitsAdder newCurrentLimits(CurrentLimits currentLimits) {
-        CurrentLimitsAdder currentLimitsAdder = newCurrentLimits();
-        return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
-    }
 
     default ActivePowerLimitsAdder newActivePowerLimits(ActivePowerLimits activePowerLimits) {
         ActivePowerLimitsAdder activePowerLimitsAdder = newActivePowerLimits();
@@ -60,11 +49,7 @@ public interface OperationalLimitsGroup extends PropertiesHolder {
         return initializeFromLoadingLimits(apparentPowerLimitsAdder, apparentPowerLimits);
     }
 
-    void removeCurrentLimits();
-
     void removeActivePowerLimits();
 
     void removeApparentPowerLimits();
-
-    boolean isEmpty();
 }
