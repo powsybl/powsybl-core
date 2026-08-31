@@ -201,7 +201,7 @@ class VoltageLevelConverter extends AbstractConverter {
     static void updateNodeVoltage(PsseSubstation psseSubstation, Network network, ContainersMapping containersMapping) {
         psseSubstation.getNodes().forEach(psseNode -> {
             VoltageLevel voltageLevel = network.getVoltageLevel(containersMapping.getVoltageLevelId(psseNode.getI()));
-            if (voltageLevel != null) {
+            if (voltageLevel != null && voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
                 findConnectedBusViewNode(voltageLevel, psseNode.getNi())
                         .ifPresent(busView -> {
                             busView.setV(psseNode.getVm() * voltageLevel.getNominalV());
