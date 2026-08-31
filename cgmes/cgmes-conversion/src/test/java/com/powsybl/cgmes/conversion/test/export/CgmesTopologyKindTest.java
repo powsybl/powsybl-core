@@ -278,8 +278,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setNode2(3)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(false)
-                .setRetained(true) // will be considered non-retained by the export
-                                   // because it has the same topological nodes on each side
+                .setRetained(true) // will be considered non-retained by the export because it has the same topological nodes on each side
                 .add();
         voltageLevel2.newLoad()
                 .setId("LD_C")

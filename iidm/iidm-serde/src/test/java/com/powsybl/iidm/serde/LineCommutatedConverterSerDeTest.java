@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 

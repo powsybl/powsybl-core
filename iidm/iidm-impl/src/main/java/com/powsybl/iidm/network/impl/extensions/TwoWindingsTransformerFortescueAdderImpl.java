@@ -9,9 +9,9 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 
 import java.util.Objects;
 

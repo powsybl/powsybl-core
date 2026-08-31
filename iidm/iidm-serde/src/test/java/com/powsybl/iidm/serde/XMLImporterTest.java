@@ -8,10 +8,11 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +46,8 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     private void writeNetwork(String fileName, String namespaceUri, boolean writeExt) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri +
+                "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -62,7 +64,8 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     private void writeNetworkWithExtension(String fileName, String namespaceUri) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri +
+                "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -81,7 +84,8 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             writer.newLine();
             writer.write("<!--sfsfs-->");
-            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_VERSION.getNamespaceURI() + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_VERSION.getNamespaceURI() +
+                "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -173,44 +177,36 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void importData() {
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+
         // should be ok
-        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test0"), NetworkFactory.findDefault(), null));
+        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test0"), networkFactory, null));
 
         // should fail because file that does not exist
-        try {
-            importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test4"), NetworkFactory.findDefault(), null);
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        DirectoryDataSource dataSource4 = new DirectoryDataSource(fileSystem.getPath("/"), "test4");
+        assertThrows(PowsyblException.class, () -> importer.importData(dataSource4, networkFactory, null));
 
         // extension plugin will be not found but default option just warn
-        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), null));
+        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), networkFactory, null));
 
         // extension plugin will be not found but option is set to throw an exception
         // (deprecated parameter name)
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
-        try {
-            importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params);
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        DirectoryDataSource dataSource5 = new DirectoryDataSource(fileSystem.getPath("/"), "test5");
+        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params));
 
         // extension plugin will be not found but option is set to throw an exception
         // (parameter name following same naming convention of XmlExporter)
         Properties params2 = new Properties();
         params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
-        try {
-            importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params2);
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params2));
 
         // read file with id mapping
-        Network network = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), NetworkFactory.findDefault(), params);
+        Network network = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), networkFactory, params);
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
 
-        Network network2 = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test7"), NetworkFactory.findDefault(), null);
+        Network network2 = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test7"), networkFactory, null);
         assertNotNull(network2.getSubstation("P1"));
     }
 

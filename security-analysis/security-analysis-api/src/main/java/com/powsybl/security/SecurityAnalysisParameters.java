@@ -180,9 +180,10 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         }
 
         /**
-         * If a branch is monitored in N and N-1 state, a result will only be added for it after a contingency if the power on the line
-         * is modified of at least the proportional threshold (without unit) compared to the pre-contingency state.
-         * The default value is 0.0, meaning that no branch is filtered in the post-contingency results.
+         * If a branch or three-winding transformer is monitored in both the N and N-1 states, a result is added after a contingency
+         * only if the active or reactive power at at least one terminal changes by more than the power threshold (in MW and MVAr)
+         * compared to the pre-contingency state.
+         * The default value is 0.0, meaning that no branches or three-winding transformers are filtered from the post-contingency results.
          */
         public double getPowerModificationThreshold() {
             return powerModificationThreshold;
@@ -195,7 +196,8 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
         /**
          * If a bus is monitored in N and N-1 state, a result will only be added for it after a contingency if its voltage
-         * is modified of at least the proportional threshold (without unit) compared to the pre-contingency state.
+         * magnitude is modified of at least the proportional threshold (without unit) compared to the pre-contingency state.
+         * For example, when set to 0.01, voltage magnitude changes lower than 1% of pre-contingency bus voltage magnitude value are not reported.
          * The default value is 0.0, meaning that no bus is filtered in the post-contingency results.
          */
         public double getVoltageModificationProportionalThreshold() {
@@ -209,8 +211,8 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
         /**
          * If a bus is monitored in N and N-1 state, a result will only be added for it after a contingency if its voltage
-         * is modified of at least the absolute threshold (in kV) compared to the pre-contingency state.
-         * The default value is 0.0, meaning that no bus is filtered in the post-contingency results.
+         * magnitude is modified of at least the absolute threshold (in kV) compared to the pre-contingency state.
+         * The default value is 0.0 kV, meaning that no bus is filtered in the post-contingency results.
          */
         public double getVoltageModificationAbsoluteThreshold() {
             return voltageModificationAbsoluteThreshold;
@@ -229,8 +231,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
         /**
          * Returns the voltage modification threshold for a given pre-contingency voltage.
-         * If absolute threshold is not 0, it is returned. Otherwise, proportional threshold is used.
-         * If both thresholds are set, the minimum of the two is returned.
+         * If both absolute and proportional thresholds are set, the minimum of the two is returned.
          *
          * @param preContingencyVoltage the voltage for which to calculate the threshold
          * @return the voltage modification threshold

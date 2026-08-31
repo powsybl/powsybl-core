@@ -19,11 +19,8 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-
-import static com.powsybl.powerfactory.converter.ContainersMappingHelper.buildSubstationId;
-import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
-import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.converter.AbstractConverter.ConnectedObjRef;
+import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -40,6 +37,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.powsybl.powerfactory.converter.ContainersMappingHelper.buildSubstationId;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.ELMTERM;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

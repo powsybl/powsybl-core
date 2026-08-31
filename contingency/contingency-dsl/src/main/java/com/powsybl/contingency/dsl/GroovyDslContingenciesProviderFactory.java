@@ -24,7 +24,8 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
     @Override
     public GroovyDslContingenciesProvider create() {
         Path dslFile = PlatformConfig.defaultConfig().getOptionalModuleConfig("groovy-dsl-contingencies")
-                .map(config -> config.getOptionalPathProperty("dsl-file").orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: property dsl-file not found in module groovy-dsl-contingencies")))
+                .map(config -> config.getOptionalPathProperty("dsl-file")
+                    .orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: property dsl-file not found in module groovy-dsl-contingencies")))
                 .orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: Module groovy-dsl-contingencies not found"));
         return new GroovyDslContingenciesProvider(dslFile);
     }

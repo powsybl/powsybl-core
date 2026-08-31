@@ -57,7 +57,7 @@ class DcTopologyModel implements MultiVariantObject {
     // NetworkImpl is non-public and therefore RefChain<NetworkImpl> is as well.
     // If you want a DcTopologyModel object, get it through
     // Network::getDcTopologyModel
-    public DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
+    DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = Objects.requireNonNull(networkRef);
         this.subnetworkRef = Objects.requireNonNull(subnetworkRef);
         // the ref object of the variant array is the same as the current object

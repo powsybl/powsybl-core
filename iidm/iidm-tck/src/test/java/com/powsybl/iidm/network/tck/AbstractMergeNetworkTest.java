@@ -14,10 +14,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -320,7 +320,7 @@ public abstract class AbstractMergeNetworkTest {
     static class FooNetworkExtensionImpl extends AbstractExtension<Network> implements FooNetworkExtension {
         private final String val;
 
-        public FooNetworkExtensionImpl(String val) {
+        FooNetworkExtensionImpl(String val) {
             this.val = val;
         }
 
