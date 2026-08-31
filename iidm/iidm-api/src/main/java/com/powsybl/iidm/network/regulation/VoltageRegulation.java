@@ -19,14 +19,15 @@ import org.jspecify.annotations.Nullable;
 public interface VoltageRegulation {
 
     /**
-     * The TargetValue for RegulationMode set
-     *
+     * <p>Get the TargetValue for RegulationMode set.</p>
+     * <p>This value is variant-dependant.</p>
      * @see VariantManager
      */
     double getTargetValue();
 
     /**
-     * To set the targetValue. {@link #getTargetValue()}
+     * <p>Set the targetValue.</p>
+     * <p>This value is variant-dependant.</p>
      *
      * @return the current instance for method chaining
      * @see #getTargetValue()
@@ -43,13 +44,14 @@ public interface VoltageRegulation {
      * The targetDeadband is only pertinent for objects with discrete (as opposed to continuous) voltage regulation,
      * which is the case for {@link RatioTapChanger} and {@link ShuntCompensator}
      * </p>
-     *
+     * <p>This value is variant-dependant.</p>
      * @see VariantManager
      */
     double getTargetDeadband();
 
     /**
-     * To set the targetDeadBand. {@link #getTargetDeadband()}
+     * <p>Set the targetDeadBand.</p>
+     * <p>This value is variant-dependant.</p>
      *
      * @return the current instance for method chaining
      * @see #getTargetDeadband()
@@ -58,17 +60,19 @@ public interface VoltageRegulation {
     VoltageRegulation setTargetDeadband(double targetDeadband);
 
     /**
-     * The slope attribute is relevant for:
-     * {@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}: it corresponds to the lambda in U0 = U + lambda*Q
-     * Not yet supported: {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER}: it corresponds to the tan(phi) in Q = tan(phi)*P
-     *
+     * Get the slope. It is relevant for:
+     * <ul>
+     * <li>{@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}: it corresponds to the lambda in <code>U0 = U + lambda*Q</code></li>
+     * <li>Not yet supported: RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER: it corresponds to the tan(phi) in <code>Q = tan(phi)*P</code></li>
+     * </ul>
+     * <p>This value is variant-dependant.</p>
      * @see VariantManager
      */
     double getSlope();
 
     /**
-     * To set the slope. {@link #getSlope()}
-     *
+     * Set the slope.
+     * <p>This value is variant-dependant.</p>
      * @return the current instance for method chaining
      * @see #getSlope()
      * @see VariantManager
@@ -76,12 +80,14 @@ public interface VoltageRegulation {
     VoltageRegulation setSlope(double slope);
 
     /**
-     * The Terminal used for regulation. Can be local or remote but must be in the network
+     * <p>The Terminal used for regulation. Can be local or remote but must be in the network</p>
+     * <p>This value is <b>NOT</b> variant-dependant.</p>
      */
     Terminal getTerminal();
 
     /**
-     * To set the Terminal with the expected targetValue. {@link #getTerminal()}
+     * <p>Set the Terminal with the expected targetValue.</p>
+     * <p>This value is <b>NOT</b> variant-dependant.</p>
      *
      * @return the current instance for method chaining
      * @see #getTerminal()
@@ -91,38 +97,26 @@ public interface VoltageRegulation {
     boolean isWithTerminal();
 
     /**
-     * RegulationMode is an enum describing the kinds of regulation. It has the following values:
-     * <ul>
-     *     <li>VOLTAGE</li>
-     *     <li>REACTIVE_POWER</li>
-     *     <li>VOLTAGE_PER_REACTIVE_POWER</li>
-     *     <li>REACTIVE_POWER_PER_ACTIVE_POWER</li>
-     * </ul>
-     * Returns {@code null} when no regulationMode is defined for the current variant.
+     * <p>Get the regulation mode.</p>
+     * <p>Returns {@code null} when no regulationMode is defined for the current variant.
      * This can happen in a multi-variant context, for instance when voltage regulation
-     * has been added only in another variant.
-     *
+     * has been added only in another variant.</p>
+     * <p>This value is variant-dependant.</p>
      * @see VariantManager
      */
     @Nullable
     RegulationMode getMode();
 
     /**
-     * RegulationMode is an enum describing the kinds of regulation. It has the following values:
-     * <ul>
-     *     <li>VOLTAGE</li>
-     *     <li>REACTIVE_POWER</li>
-     *     <li>VOLTAGE_PER_REACTIVE_POWER</li>
-     *     <li>REACTIVE_POWER_PER_ACTIVE_POWER</li>
-     * </ul>
-     *
+     * <p>Set the regulation mode.</p>
+     * <p>This value is variant-dependant.</p>
      * @return the current instance for method chaining
-     * @see VariantManager
+     * @see RegulationMode
      */
     VoltageRegulation setMode(RegulationMode mode);
 
     /**
-     * To know if the object is regulating or not.
+     * Tell if the holder is regulating or not.
      * If false all VoltageRegulation attributes are ignored
      *
      * @see VariantManager
@@ -130,10 +124,9 @@ public interface VoltageRegulation {
     boolean isRegulating();
 
     /**
-     * To set the regulating boolean
-     *
+     * <p>Set the regulating status.</p>
+     * <p>This value is variant-dependant.</p>
      * @return the current instance for method chaining
-     * @see VariantManager
      */
     VoltageRegulation setRegulating(boolean regulating);
 

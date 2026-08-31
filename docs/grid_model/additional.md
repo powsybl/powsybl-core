@@ -476,7 +476,7 @@ Here the list of objects capable of such regulation by authorized mode:
 | Equipment                                                                  | Voltage | Reactive Power | Voltage Per Reactive Power | Reactive Power Per Active Power |
 |----------------------------------------------------------------------------|---------|----------------|----------------------------|---------------------------------|
 | [Battery](./network_subnetwork.md#battery)                                 | X       | X (*)          |                            |                                 |
-| [Generator](./network_subnetwork.md#generator)                             | X       | X (*)          |                            | X                               |
+| [Generator](./network_subnetwork.md#generator)                             | X       | X (*)          |                            | X (Not yet implemented)         |
 | [RatioTapChanger](#ratio-tap-changer)                                      | X (*)   | X (*)          |                            |                                 |
 | [ShuntCompensator](./network_subnetwork.md#shunt-compensator)              | X       |                |                            |                                 |
 | [StaticVarCompensator](./network_subnetwork.md#static-var-compensator)     | X       | X              | X                          |                                 |

@@ -19,7 +19,9 @@ import com.powsybl.iidm.network.VariantManager;
 public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
 
     /**
-     * Creates a new VoltageRegulationBuilder instance
+     * <p>Creates a new VoltageRegulationBuilder instance.</p>
+     * <p>In multi-variant context, it will also create the {@link VoltageRegulation} for the other variants,
+     * but the regulation will be disabled.</p>
      */
     VoltageRegulationBuilder newVoltageRegulation();
 
@@ -159,8 +161,9 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     }
 
     /**
-     * Checks if the regulation is performed remotely
-     *
+     * <p>Checks if the regulation is performed remotely</p>
+     * <p>Note that this method also returns <code>true</code> when {@link VoltageRegulation#getTerminal()}
+     * is the local terminal of the holder.</p>
      * @return true if regulating remotely, false otherwise
      */
     default boolean isRemoteRegulating() {

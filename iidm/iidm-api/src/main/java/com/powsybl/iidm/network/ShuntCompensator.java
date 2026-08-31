@@ -265,7 +265,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
     /**
      * Set the terminal used for regulation.
      * If null is passed as regulating terminal, the regulation is considered local.
-     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {

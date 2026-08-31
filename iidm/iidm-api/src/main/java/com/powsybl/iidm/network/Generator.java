@@ -186,7 +186,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead.
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead.
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
@@ -237,10 +237,10 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      *     Set the voltage target in kV and set the local target in kV.
      * </p>
      * <p>Depends on the working variant.</p>
-     * @param targetV the voltage target in kV (see {@link Generator#getLocalTargetV()}).
-     * @param equivalentLocalTargetV the local target in kV (see {@link Generator#getEquivalentLocalTargetV()}).
+     * @param targetV the voltage target in kV.
+     * @param equivalentLocalTargetV the local target in kV.
      * @see VariantManager
-     * @deprecated use {@link Generator#setLocalTargetV(double)} instead.
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link Generator#setLocalTargetV(double)} instead.
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setTargetV(double targetV, double equivalentLocalTargetV);

@@ -129,7 +129,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
     VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
-     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead.
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead.
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {

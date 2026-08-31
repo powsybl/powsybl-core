@@ -88,7 +88,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
             n.invalidateValidationLevel();
             notifyUpdate(() -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
         });
-        //TODO: something must be done if there's no VoltageRegulation object: throw an Exception?
+        //TODO MSA Something must be done if there's no VoltageRegulation object: throw an Exception?
         return this;
     }
 
