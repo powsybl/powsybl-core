@@ -20,13 +20,14 @@ package com.powsybl.iidm.network;
  * than one collection per side as a {@link Branch} does. A DC Line has no shunt admittance, so the current
  * entering one DC Terminal is the current leaving the other, and one limit describes both.
  *
- * <p>{@link CurrentLimits} is the meaningful limit on a DC Line: it is the rating of the conductor, and it
- * is unambiguous because both DC Terminals carry the same current.
+ * <p>{@link CurrentLimits} is the only kind of limit a DC Line accepts: it is the rating of the conductor,
+ * and it is unambiguous because both DC Terminals carry the same current.
  *
- * <p>The other two kinds come with {@link FlowsLimitsHolder} and should not be relied on here.
- * {@link ApparentPowerLimits} has no meaning on DC. An {@link ActivePowerLimits} is ambiguous: the two DC
- * Terminals carry different active power, since the series resistance consumes some of it, and a single
- * limit does not say which of the two it bounds.
+ * <p>The other two kinds come with {@link FlowsLimitsHolder}, but a DC Line refuses them, because neither
+ * describes anything physical on DC. An {@link ApparentPowerLimits} has no meaning where there is no
+ * reactive power. An {@link ActivePowerLimits} would not say which DC Terminal it bounds, since the series
+ * resistance makes the two carry different active power. Setting either one fails with a
+ * {@link ValidationException}, and so does importing a network that contains one.
  *
  * <p>
  *  Characteristics

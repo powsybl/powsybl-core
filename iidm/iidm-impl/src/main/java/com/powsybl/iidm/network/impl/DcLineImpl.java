@@ -13,12 +13,14 @@ import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -31,6 +33,10 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
 
     private static final String LIMITS_ATTRIBUTE = "limits";
 
+    private static final Map<LimitType, String> UNSUPPORTED_LIMITS = Map.of(
+            LimitType.ACTIVE_POWER, "active power limits are not supported: the two DC terminals carry different active power",
+            LimitType.APPARENT_POWER, "apparent power limits are not supported: a DC line carries no reactive power");
+
     private double r;
 
     private final OperationalLimitsGroupsImpl operationalLimitsGroups;
@@ -38,7 +44,7 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
     DcLineImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double r) {
         super(ref, subnetworkRef, id, name, fictitious);
         this.r = r;
-        this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, LIMITS_ATTRIBUTE);
+        this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, LIMITS_ATTRIBUTE, UNSUPPORTED_LIMITS);
     }
 
     @Override
@@ -212,6 +218,8 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
         checkModification();
+        // before getOrCreate, or a refusal leaves an empty group behind
+        operationalLimitsGroups.checkSupported(LimitType.ACTIVE_POWER);
         return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
@@ -222,6 +230,7 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
         checkModification();
+        operationalLimitsGroups.checkSupported(LimitType.APPARENT_POWER);
         return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 }

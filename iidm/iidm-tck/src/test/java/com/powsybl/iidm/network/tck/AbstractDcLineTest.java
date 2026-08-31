@@ -164,6 +164,28 @@ public abstract class AbstractDcLineTest {
     }
 
     @Test
+    public void testOnlyCurrentLimitsAreAccepted() {
+        DcLine dcLine = createDcLine("dcLine");
+        OperationalLimitsGroup group = dcLine.newOperationalLimitsGroup("summer");
+
+        ValidationException e1 = assertThrows(ValidationException.class, group::newActivePowerLimits);
+        assertEquals("DC Line 'dcLine': active power limits are not supported: the two DC terminals carry different active power",
+                e1.getMessage());
+        ValidationException e2 = assertThrows(ValidationException.class, group::newApparentPowerLimits);
+        assertEquals("DC Line 'dcLine': apparent power limits are not supported: a DC line carries no reactive power",
+                e2.getMessage());
+
+        assertDoesNotThrow(() -> group.newCurrentLimits().setPermanentLimit(2106.0).add());
+        assertEquals(2106.0, group.getCurrentLimits().orElseThrow().getPermanentLimit());
+
+        // the deprecated adders refuse before creating the group they would have used
+        DcLine bare = createDcLine("bareDcLine");
+        assertThrows(ValidationException.class, bare::newActivePowerLimits);
+        assertThrows(ValidationException.class, bare::newApparentPowerLimits);
+        assertTrue(bare.getOperationalLimitsGroups().isEmpty());
+    }
+
+    @Test
     public void testMultipleLimitsGroups() {
         DcLine dcLine = createDcLine("dcLine");
 
