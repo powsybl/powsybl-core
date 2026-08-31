@@ -19,103 +19,103 @@ import java.util.function.Predicate;
 public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
 
     /**
-     * Get the collection of the defined {@link CurrentOperationalLimitsGroup}.
-     * @return the {@link CurrentOperationalLimitsGroup} s.
+     * Get the collection of the defined {@link OperationalLimitsGroup}.
+     * @return the {@link OperationalLimitsGroup} s.
      */
-    Collection<G> getCurrentOperationalLimitsGroups();
+    Collection<G> getOperationalLimitsGroups();
 
     /**
-     * <p>Get the ID of the last {@link CurrentOperationalLimitsGroup} set as selected (either by {@link #setSelectedCurrentOperationalLimitsGroup(String)} or any other mean).</p>
-     * <p>If the last selected was deselected (using {@link #deselectCurrentOperationalLimitsGroups(String...)} (String)}),
-     * then this will return the ID of the CurrentOperationalLimitsGroup selected before that if any (this logic can be repeated,
+     * <p>Get the ID of the last {@link OperationalLimitsGroup} set as selected (either by {@link #setSelectedOperationalLimitsGroup(String)} or any other mean).</p>
+     * <p>If the last selected was deselected (using {@link #deselectOperationalLimitsGroups(String...)} (String)}),
+     * then this will return the ID of the OperationalLimitsGroup selected before that if any (this logic can be repeated,
      * if the two previously selected are not selected anymore, gets the 3rd, the 4th, etc...),
      * otherwise an empty {@link Optional}</p>
-     * @return the ID of the last selected {@link CurrentOperationalLimitsGroup} from all the selected groups if any,
+     * @return the ID of the last selected {@link OperationalLimitsGroup} from all the selected groups if any,
      * the one selected before that if the last selected is not selected anymore (repeatable),
      * an empty {@link Optional} otherwise.
      */
-    Optional<String> getSelectedCurrentOperationalLimitsGroupId();
+    Optional<String> getSelectedOperationalLimitsGroupId();
 
     /**
-     * Get the IDs of all the selected {@link CurrentOperationalLimitsGroup}
-     * @return a collection containing one ID per selected {@link CurrentOperationalLimitsGroup} (might be empty if there is none selected)
+     * Get the IDs of all the selected {@link OperationalLimitsGroup}
+     * @return a collection containing one ID per selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
      */
-    Collection<String> getAllSelectedCurrentOperationalLimitsGroupIds();
+    Collection<String> getAllSelectedOperationalLimitsGroupIds();
 
     /**
-     * Get the IDs of all the selected {@link CurrentOperationalLimitsGroup}, in the order in which they were selected.<br>
+     * Get the IDs of all the selected {@link OperationalLimitsGroup}, in the order in which they were selected.<br>
      * If an element that was previously selected is selected again, it will be considered as if it was just selected with the last selection.
      * Meaning if two groups A and B are selected as such: select A, select B, select A, the order will be B, A.
      *
-     * @return an ordered collection of the IDs of all the selected {@link CurrentOperationalLimitsGroup}, the ordering relation being the order of the selection, from
+     * @return an ordered collection of the IDs of all the selected {@link OperationalLimitsGroup}, the ordering relation being the order of the selection, from
      * the oldest selected group to the most recently selected group.
      */
-    List<String> getAllSelectedCurrentOperationalLimitsGroupIdsOrdered();
+    List<String> getAllSelectedOperationalLimitsGroupIdsOrdered();
 
     /**
-     * Get the {@link CurrentOperationalLimitsGroup} corresponding to an ID.
+     * Get the {@link OperationalLimitsGroup} corresponding to an ID.
      * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
-     * @return the {@link CurrentOperationalLimitsGroup} of the given ID if any, an empty {@link Optional} otherwise.
+     * @return the {@link OperationalLimitsGroup} of the given ID if any, an empty {@link Optional} otherwise.
      */
-    Optional<G> getCurrentOperationalLimitsGroup(String id);
+    Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
 
     /**
-     * Get the {@link CurrentOperationalLimitsGroup} that was last selected (either by {@link #setSelectedCurrentOperationalLimitsGroup(String)} or any other mean)
+     * Get the {@link OperationalLimitsGroup} that was last selected (either by {@link #setSelectedOperationalLimitsGroup(String)} or any other mean)
      * If the last selected is not selected anymore, it will return the one selected before that (or the 3rd, 4th... if those are not selected anymore either)
-     * @return the first selected {@link CurrentOperationalLimitsGroup} from all the selected if any,
+     * @return the first selected {@link OperationalLimitsGroup} from all the selected if any,
      * the one selected before that if it is not selected anymore (repeatable),
      * an empty {@link Optional} otherwise.
      */
-    Optional<G> getSelectedCurrentOperationalLimitsGroup();
+    Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup();
 
     /**
-     * Get all the selected {@link CurrentOperationalLimitsGroup}. The list's order must be stable when elements are added or deleted.
-     * @return a list containing all selected {@link CurrentOperationalLimitsGroup} (might be empty if there is none selected)
+     * Get all the selected {@link OperationalLimitsGroup}. The list's order must be stable when elements are added or deleted.
+     * @return a list containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
      */
-    List<G> getAllSelectedCurrentOperationalLimitsGroups();
+    List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups();
 
     /**
-     * <p>Create a new {@link CurrentOperationalLimitsGroup} with the given ID.</p>
+     * <p>Create a new {@link OperationalLimitsGroup} with the given ID.</p>
      * <p>If a group of the given ID already exists, it is replaced silently.</p>
-     * @return the newly created group {@link CurrentOperationalLimitsGroup}.
+     * @return the newly created group {@link OperationalLimitsGroup}.
      */
-    G newCurrentOperationalLimitsGroup(String id);
+    OperationalLimitsGroup newOperationalLimitsGroup(String id);
 
     /**
-     * <p>Set the {@link CurrentOperationalLimitsGroup} corresponding to the given ID as the only selected one. If other groups were also selected, they are all deselected</p>
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as the only selected one. If other groups were also selected, they are all deselected</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.</p>
-     * To deselect a selected group, use {@link #deselectCurrentOperationalLimitsGroups(String...)}.
-     * To deselect all the selected groups, use {@link #cancelSelectedCurrentOperationalLimitsGroup()}
-     * To have multiple groups selected instead of a single one, use {@link #addSelectedCurrentOperationalLimitsGroups(String...)}
-     * @param id an ID of {@link CurrentOperationalLimitsGroup}
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
+     * To have multiple groups selected instead of a single one, use {@link #addSelectedOperationalLimitsGroups(String...)}
+     * @param id an ID of {@link OperationalLimitsGroup}
      */
-    void setSelectedCurrentOperationalLimitsGroup(String id);
+    void setSelectedOperationalLimitsGroup(String id);
 
     /**
-     * <p>Set the {@link CurrentOperationalLimitsGroup} corresponding to the given IDs as selected. If other groups were also selected, they are still selected</p>
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected. If other groups were also selected, they are still selected</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if any of the IDs don't correspond to an existing group.</p>
      * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
      * <p>Note that in the case of an error, this function will not stop at the first error but try on all groups</p>
-     * To deselect a selected group, use {@link #deselectCurrentOperationalLimitsGroups(String...)}.
-     * To deselect all the selected groups, use {@link #cancelSelectedCurrentOperationalLimitsGroup()}
-     * To have a single group selected and deselect all other groups, use {@link #setSelectedCurrentOperationalLimitsGroup(String)}
-     * @param ids the IDs of one or more {@link CurrentOperationalLimitsGroup}
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup(String)}
+     * @param ids the IDs of one or more {@link OperationalLimitsGroup}
      */
-    void addSelectedCurrentOperationalLimitsGroups(String... ids);
+    void addSelectedOperationalLimitsGroups(String... ids);
 
     /**
-     * <p>Set all the existing {@link CurrentOperationalLimitsGroup} whose id match the <code>predicate</code> as selected</p>
-     * To deselect a selected group, use {@link #deselectCurrentOperationalLimitsGroups(String...)}.
-     * To deselect all the selected groups, use {@link #cancelSelectedCurrentOperationalLimitsGroup()}
-     * To have a single group selected and deselect all other groups, use {@link #setSelectedCurrentOperationalLimitsGroup(String)}
+     * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected</p>
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup(String)}
      * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.<br>
      *                                          All groups whose ID would return true given the predicate will be activated<br>
      *                                          All groups whose ID would return false will stay in the same state as before.
      */
-    default void addSelectedCurrentOperationalLimitsGroupByPredicate(Predicate<String> operationalLimitsGroupIdPredicate) {
-        addSelectedCurrentOperationalLimitsGroups(
-            getCurrentOperationalLimitsGroups()
+    default void addSelectedOperationalLimitsGroupByPredicate(Predicate<String> operationalLimitsGroupIdPredicate) {
+        addSelectedOperationalLimitsGroups(
+            getOperationalLimitsGroups()
                 .stream()
                 .map(G::getId)
                 .filter(operationalLimitsGroupIdPredicate)
@@ -124,95 +124,95 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
     }
 
     /**
-     * <p>Remove the {@link CurrentOperationalLimitsGroup} corresponding to the given ID.
+     * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID.
      * This does not fail if the group corresponding to this ID doesn't exist</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
-     * @param id an ID of {@link CurrentOperationalLimitsGroup}
+     * @param id an ID of {@link OperationalLimitsGroup}
      */
-    void removeCurrentOperationalLimitsGroup(String id);
+    void removeOperationalLimitsGroup(String id);
 
     /**
-     * <p>Deselect all the selected {@link CurrentOperationalLimitsGroup}.</p>
-     * <p>After calling this method, no {@link CurrentOperationalLimitsGroup} is selected.</p>
-     * To deselect a specific {@link CurrentOperationalLimitsGroup}, use {@link #deselectCurrentOperationalLimitsGroups(String...)}
+     * <p>Deselect all the selected {@link OperationalLimitsGroup}.</p>
+     * <p>After calling this method, no {@link OperationalLimitsGroup} is selected.</p>
+     * To deselect a specific {@link OperationalLimitsGroup}, use {@link #deselectOperationalLimitsGroups(String...)}
      */
-    void cancelSelectedCurrentOperationalLimitsGroup();
+    void cancelSelectedOperationalLimitsGroup();
 
     /**
-     * <p>Deselect the {@link CurrentOperationalLimitsGroup} corresponding to all the <code>ids</code>.</p>
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code>.</p>
      * <p>For any of the ID, this method will do nothing in the following cases:
      * <ul>
-     *     <li>The {@link CurrentOperationalLimitsGroup} corresponding to the ID exists but is not selected</li>
+     *     <li>The {@link OperationalLimitsGroup} corresponding to the ID exists but is not selected</li>
      *     <li>The ID does not correspond to any existing group</li>
      *     <li>The ID is null</li>
      * </ul>
      * </p>
-     * To deselect all {@link CurrentOperationalLimitsGroup}, use {@link #cancelSelectedCurrentOperationalLimitsGroup()}
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup()}
      * @param ids the IDs of the groups to remove from the selected
      */
-    void deselectCurrentOperationalLimitsGroups(String... ids);
+    void deselectOperationalLimitsGroups(String... ids);
 
     /**
-     * Get the {@link CurrentLimits} of the last selected {@link CurrentOperationalLimitsGroup}.
-     * @return {@link CurrentLimits} of the last selected {@link CurrentOperationalLimitsGroup} if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
     default Optional<CurrentLimits> getCurrentLimits() {
-        return getSelectedCurrentOperationalLimitsGroup().flatMap(G::getCurrentLimits);
+        return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     /**
-     * Get the {@link CurrentLimits} of the {@link CurrentOperationalLimitsGroup} corresponding to <code>id</code>
+     * Get the {@link CurrentLimits} of the {@link OperationalLimitsGroup} corresponding to <code>id</code>
      * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
-     * @return a {@link Optional} containing the {@link CurrentLimits} of the {@link CurrentOperationalLimitsGroup} corresponding to the id if it exists,
+     * @return a {@link Optional} containing the {@link CurrentLimits} of the {@link OperationalLimitsGroup} corresponding to the id if it exists,
      * an empty {@link Optional} otherwise,
      */
     default Optional<CurrentLimits> getCurrentLimitsFromId(String id) {
-        return getCurrentOperationalLimitsGroup(id).flatMap(G::getCurrentLimits);
+        return getOperationalLimitsGroup(id).flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     /**
-     * Get all the {@link CurrentLimits} of all the selected {@link CurrentOperationalLimitsGroup}
-     * @return a collection of {@link CurrentLimits}, one per {@link CurrentOperationalLimitsGroup} that is selected, might be empty if none is selected
+     * Get all the {@link CurrentLimits} of all the selected {@link OperationalLimitsGroup}
+     * @return a collection of {@link CurrentLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
      */
     default Collection<CurrentLimits> getAllSelectedCurrentLimits() {
-        return getAllSelectedLoadingLimits(G::getCurrentLimits);
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits);
     }
 
     /**
-     * Get the {@link CurrentLimits} of the last selected {@link CurrentOperationalLimitsGroup}.
-     * @return {@link CurrentLimits} of the last selected {@link CurrentOperationalLimitsGroup} if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
     default CurrentLimits getNullableCurrentLimits() {
         return getCurrentLimits().orElse(null);
     }
 
     /**
-     * <p>Get the {@link CurrentOperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
-     * Set the {@link CurrentOperationalLimitsGroup} as the only selected one.</p>
-     * @return the selected {@link CurrentOperationalLimitsGroup}.
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
+     * Set the {@link OperationalLimitsGroup} as the only selected one.</p>
+     * @return the selected {@link OperationalLimitsGroup}.
      */
-    CurrentOperationalLimitsGroup getOrCreateSelectedCurrentOperationalLimitsGroup();
+    OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup();
 
     /**
-     * <p>Get the {@link CurrentOperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
-     * Set the {@link CurrentOperationalLimitsGroup} as the only selected one .</p>
-     * @param limitsGroupId an ID of {@link CurrentOperationalLimitsGroup}
-     * @return the selected {@link CurrentOperationalLimitsGroup}.
+     * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
+     * Set the {@link OperationalLimitsGroup} as the only selected one .</p>
+     * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
+     * @return the selected {@link OperationalLimitsGroup}.
      */
-    default G getOrCreateSelectedCurrentOperationalLimitsGroup(String limitsGroupId) {
-        G operationalLimitsGroup = getCurrentOperationalLimitsGroup(limitsGroupId).orElseGet(() -> newCurrentOperationalLimitsGroup(limitsGroupId));
-        setSelectedCurrentOperationalLimitsGroup(limitsGroupId);
+    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup(String limitsGroupId) {
+        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup(limitsGroupId));
+        setSelectedOperationalLimitsGroup(limitsGroupId);
         return operationalLimitsGroup;
     }
 
     /**
      * Helper function to return an operational limit of a given type using the provided function
-     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link CurrentOperationalLimitsGroup}
+     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link OperationalLimitsGroup}
      * @return a collection of loadingLimits, all the same type
      * @param <T> the type of loadingLimit
      */
-    default <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<G, Optional<T>> operationalLimitToLoadingLimitFunction) {
-        return getAllSelectedCurrentOperationalLimitsGroups()
+    default <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction) {
+        return getAllSelectedOperationalLimitsGroups()
             .stream()
             .map(operationalLimitToLoadingLimitFunction)
             .flatMap(Optional::stream)
