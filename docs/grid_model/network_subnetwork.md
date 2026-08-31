@@ -786,12 +786,12 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 
 **Characteristics**
 
-| Attribute             | Unit     | Description                     |
-|-----------------------|----------|---------------------------------|
-| $R$                   | $\Omega$ | The resistance of the HVDC line |
-| $NominalV$            | kV       | The nominal voltage             |
-| $ActivePowerSetpoint$ | MW       | The active power setpoint       |
-| $MaxP$                | MW       | The maximum active power        |
+| Attribute             | Unit     | Description                                      |
+|-----------------------|----------|--------------------------------------------------|
+| $R$                   | $\Omega$ | The resistance of the HVDC line, always positive |
+| $NominalV$            | kV       | The nominal voltage                              |
+| $ActivePowerSetpoint$ | MW       | The active power setpoint                        |
+| $MaxP$                | MW       | The maximum active power                         |
 
 **Specifications**
 
@@ -802,6 +802,7 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
   The flow sign is thus given by the type of the converter station: the power always flows from the rectifier converter station to the inverter converter station.
   At a terminal on the AC side, `P` and `Q` follow the passive sign convention. `P` is positive on the rectifier side. `P` is negative at the inverter side.
 - The active power setpoint and the maximum active power should always be positive values.
+- Same as the [DC Line of the detailed DC model](#dc-line), a negative value is forbidden for $R$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
