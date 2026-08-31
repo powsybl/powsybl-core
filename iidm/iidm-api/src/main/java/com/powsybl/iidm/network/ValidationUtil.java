@@ -664,7 +664,7 @@ public final class ValidationUtil {
         boolean regulating = voltageRegulationAttributes != null && voltageRegulationAttributes.isRegulating();
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         validationLevel = ValidationLevel.min(validationLevel,
-                checkRTCLoadTapChangingCapabilities(validable, loadTapChangingCapabilities, regulating, actionOnError, reportNode, validationLevel));
+                checkRTCLoadTapChangingCapabilities(validable, loadTapChangingCapabilities, regulating, actionOnError, reportNode));
 
         validationLevel = ValidationLevel.min(validationLevel,
                 checkVoltageRegulation(validable, voltageRegulationAttributes, network, RatioTapChanger.class, actionOnError, reportNode));
@@ -940,23 +940,22 @@ public final class ValidationUtil {
     public static ValidationLevel checkRTCLoadTapChangingCapabilities(@NonNull Validable owner,
                                                                       boolean loadTapChangingCapabilities,
                                                                       boolean regulating,
-                                                                      ValidationLevel validationLevel,
+                                                                      ValidationLevel minValidationLevel,
                                                                       ReportNode reportNode) {
-        return checkRTCLoadTapChangingCapabilities(owner, loadTapChangingCapabilities, regulating, checkValidationActionOnError(validationLevel), reportNode, validationLevel);
+        return checkRTCLoadTapChangingCapabilities(owner, loadTapChangingCapabilities, regulating, checkValidationActionOnError(minValidationLevel), reportNode);
     }
 
     private static ValidationLevel checkRTCLoadTapChangingCapabilities(Validable validable,
                                                                        boolean loadTapChangingCapabilities,
                                                                        boolean regulating,
                                                                        ActionOnError actionOnError,
-                                                                       ReportNode reportNode,
-                                                                       ValidationLevel validationLevel) {
+                                                                       ReportNode reportNode) {
         if (regulating && !loadTapChangingCapabilities) {
             throwExceptionOrLogError(validable, "regulation cannot be enabled on ratio tap changer without load tap changing capabilities", actionOnError,
                 id -> NetworkReports.rtcRegulationCannotBeEnabledWithoutLoadTapChanging(reportNode, id));
-            return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+            return ValidationLevel.EQUIPMENT;
         }
-        return validationLevel;
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     private static ValidationLevel checkPtc(Validable validable, PhaseTapChanger ptc, Network network, ActionOnError actionOnError, ReportNode reportNode) {

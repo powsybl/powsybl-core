@@ -44,14 +44,14 @@ public interface VoltageRegulation {
      * The targetDeadband is only pertinent for objects with discrete (as opposed to continuous) voltage regulation,
      * which is the case for {@link RatioTapChanger} and {@link ShuntCompensator}
      * </p>
-     * <p>This value is variant-dependant.</p>
+     * <p>This value is variant-dependent.</p>
      * @see VariantManager
      */
     double getTargetDeadband();
 
     /**
      * <p>Set the targetDeadBand.</p>
-     * <p>This value is variant-dependant.</p>
+     * <p>This value is variant-dependent.</p>
      *
      * @return the current instance for method chaining
      * @see #getTargetDeadband()
@@ -65,14 +65,14 @@ public interface VoltageRegulation {
      * <li>{@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}: it corresponds to the lambda in <code>U0 = U + lambda*Q</code></li>
      * <li>Not yet supported: RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER: it corresponds to the tan(phi) in <code>Q = tan(phi)*P</code></li>
      * </ul>
-     * <p>This value is variant-dependant.</p>
+     * <p>This value is variant-dependent.</p>
      * @see VariantManager
      */
     double getSlope();
 
     /**
      * Set the slope.
-     * <p>This value is variant-dependant.</p>
+     * <p>This value is variant-dependent.</p>
      * @return the current instance for method chaining
      * @see #getSlope()
      * @see VariantManager
@@ -81,13 +81,13 @@ public interface VoltageRegulation {
 
     /**
      * <p>The Terminal used for regulation. Can be local or remote but must be in the network</p>
-     * <p>This value is <b>NOT</b> variant-dependant.</p>
+     * <p>This value is <b>NOT</b> variant-dependent.</p>
      */
     Terminal getTerminal();
 
     /**
      * <p>Set the Terminal with the expected targetValue.</p>
-     * <p>This value is <b>NOT</b> variant-dependant.</p>
+     * <p>This value is <b>NOT</b> variant-dependent.</p>
      *
      * @return the current instance for method chaining
      * @see #getTerminal()
@@ -101,7 +101,7 @@ public interface VoltageRegulation {
      * <p>Returns {@code null} when no regulationMode is defined for the current variant.
      * This can happen in a multi-variant context, for instance when voltage regulation
      * has been added only in another variant.</p>
-     * <p>This value is variant-dependant.</p>
+     * <p>This value is variant-dependent.</p>
      * @see VariantManager
      */
     @Nullable
@@ -109,7 +109,7 @@ public interface VoltageRegulation {
 
     /**
      * <p>Set the regulation mode.</p>
-     * <p>This value is variant-dependant.</p>
+     * <p>This value is variant-dependent.</p>
      * @return the current instance for method chaining
      * @see RegulationMode
      */
@@ -125,7 +125,7 @@ public interface VoltageRegulation {
 
     /**
      * <p>Set the regulating status.</p>
-     * <p>This value is variant-dependant.</p>
+     * <p>This value is variant-dependent.</p>
      * @return the current instance for method chaining
      */
     VoltageRegulation setRegulating(boolean regulating);

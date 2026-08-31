@@ -247,7 +247,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                 network.get().getReportNodeContext().getReportNode());
         }
         this.updateTerminal(newTerminal);
-        this.setTargetValue(newTargetValue);
+        this.setTargetValueOnCurrentVariant(newTargetValue);
         return this;
     }
 
