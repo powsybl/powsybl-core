@@ -29,7 +29,7 @@ public final class PhaseShifterResultSerializer {
     }
 
     public static Map<String, MovedPhaseShifterResult> readPhaseShifterResults(
-            JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+            JsonParser parser, DeserializationContext deserializationContext) {
         Map<String, MovedPhaseShifterResult> results = new HashMap<>();
         List<MovedPhaseShifterResult> list = JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
         for (MovedPhaseShifterResult result : list) {
