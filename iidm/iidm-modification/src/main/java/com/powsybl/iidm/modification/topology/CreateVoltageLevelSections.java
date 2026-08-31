@@ -229,7 +229,12 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         SwitchKindsBetweenBusbarSectionsTraverser switchKindsBetweenBusbarSectionsTraverser = new SwitchKindsBetweenBusbarSectionsTraverser(busbarSection);
         busbarSection.getTerminal().traverse(switchKindsBetweenBusbarSectionsTraverser);
         leftSwitchesBetweenBusbar.addAll(switchKindsBetweenBusbarSectionsTraverser.getLeftSwitchesBetweenBusbar());
-        rightSwitchesBetweenBusbar.addAll(switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar());
+        List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser = switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar();
+        // need to remove the first switch because it will be replaced by rightSwitchKind only if there is a left busbar
+        if (!rightSwitchesBetweenBusbarFromTraverser.isEmpty() && leftSwitchKind != null) {
+            rightSwitchesBetweenBusbarFromTraverser.removeFirst();
+        }
+        rightSwitchesBetweenBusbar.addAll(rightSwitchesBetweenBusbarFromTraverser);
         if (nextSectionIndex == -1) {
             // Insert the busbar section before the first section or after the last
 
@@ -259,7 +264,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             switchesEncountered.forEach(s -> voltageLevel.getNodeBreakerView().removeSwitch(s.getId()));
 
             // Create a new busbar section
-            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, leftSwitchesBetweenBusbar, rightSwitchesBetweenBusbar);
+            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, leftSwitchesBetweenBusbar, rightSwitchesBetweenBusbarFromTraverser);
 
             // Create new switches between busbarSection and newBusbarSection
             createSwitchesBetweenBusbarSections(voltageLevel, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1, switchOpen1);
