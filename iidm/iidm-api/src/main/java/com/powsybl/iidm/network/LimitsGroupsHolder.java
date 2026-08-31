@@ -57,7 +57,7 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
      * @return the {@link OperationalLimitsGroup} of the given ID if any, an empty {@link Optional} otherwise.
      */
-    Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
+    Optional<G> getOperationalLimitsGroup(String id);
 
     /**
      * Get the {@link OperationalLimitsGroup} that was last selected (either by {@link #setSelectedOperationalLimitsGroup(String)} or any other mean)
@@ -66,20 +66,20 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * the one selected before that if it is not selected anymore (repeatable),
      * an empty {@link Optional} otherwise.
      */
-    Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup();
+    Optional<G> getSelectedOperationalLimitsGroup();
 
     /**
      * Get all the selected {@link OperationalLimitsGroup}. The list's order must be stable when elements are added or deleted.
      * @return a list containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
      */
-    List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups();
+    List<G> getAllSelectedOperationalLimitsGroups();
 
     /**
      * <p>Create a new {@link OperationalLimitsGroup} with the given ID.</p>
      * <p>If a group of the given ID already exists, it is replaced silently.</p>
      * @return the newly created group {@link OperationalLimitsGroup}.
      */
-    OperationalLimitsGroup newOperationalLimitsGroup(String id);
+    G newOperationalLimitsGroup(String id);
 
     /**
      * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as the only selected one. If other groups were also selected, they are all deselected</p>
@@ -157,7 +157,7 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
     default Optional<CurrentLimits> getCurrentLimits() {
-        return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getCurrentLimits);
+        return getSelectedOperationalLimitsGroup().flatMap(G::getCurrentLimits);
     }
 
     /**
@@ -167,7 +167,7 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * an empty {@link Optional} otherwise,
      */
     default Optional<CurrentLimits> getCurrentLimitsFromId(String id) {
-        return getOperationalLimitsGroup(id).flatMap(OperationalLimitsGroup::getCurrentLimits);
+        return getOperationalLimitsGroup(id).flatMap(G::getCurrentLimits);
     }
 
     /**
@@ -175,7 +175,7 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * @return a collection of {@link CurrentLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
      */
     default Collection<CurrentLimits> getAllSelectedCurrentLimits() {
-        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits);
+        return getAllSelectedLoadingLimits(G::getCurrentLimits);
     }
 
     /**
@@ -191,7 +191,7 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * Set the {@link OperationalLimitsGroup} as the only selected one.</p>
      * @return the selected {@link OperationalLimitsGroup}.
      */
-    OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup();
+    G getOrCreateSelectedOperationalLimitsGroup();
 
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
@@ -199,8 +199,8 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup}.
      */
-    default OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup(String limitsGroupId) {
-        OperationalLimitsGroup operationalLimitsGroup = getOperationalLimitsGroup(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup(limitsGroupId));
+    default G getOrCreateSelectedOperationalLimitsGroup(String limitsGroupId) {
+        G operationalLimitsGroup = getOperationalLimitsGroup(limitsGroupId).orElseGet(() -> newOperationalLimitsGroup(limitsGroupId));
         setSelectedOperationalLimitsGroup(limitsGroupId);
         return operationalLimitsGroup;
     }
@@ -211,7 +211,7 @@ public interface LimitsGroupsHolder<G extends CurrentOperationalLimitsGroup> {
      * @return a collection of loadingLimits, all the same type
      * @param <T> the type of loadingLimit
      */
-    default <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction) {
+    default <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<G, Optional<T>> operationalLimitToLoadingLimitFunction) {
         return getAllSelectedOperationalLimitsGroups()
             .stream()
             .map(operationalLimitToLoadingLimitFunction)
