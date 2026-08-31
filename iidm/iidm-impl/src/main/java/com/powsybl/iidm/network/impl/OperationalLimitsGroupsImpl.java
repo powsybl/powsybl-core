@@ -30,16 +30,35 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     private final Map<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
     private final AbstractIdentifiable<?> identifiable;
+    private final Map<LimitType, String> unsupportedLimitTypes;
 
     OperationalLimitsGroupsImpl(AbstractIdentifiable<?> identifiable, String attributeName) {
+        this(identifiable, attributeName, Map.of());
+    }
+
+    /**
+     * @param identifiable the equipment these groups belong to
+     * @param attributeName prefix used for referencing the limits (used when notifying listeners)
+     * @param unsupportedLimitTypes limit types the groups created here refuse, each with the message to throw
+     */
+    OperationalLimitsGroupsImpl(AbstractIdentifiable<?> identifiable, String attributeName, Map<LimitType, String> unsupportedLimitTypes) {
         this.identifiable = Objects.requireNonNull(identifiable);
         this.attributeName = attributeName;
+        this.unsupportedLimitTypes = Objects.requireNonNull(unsupportedLimitTypes);
+    }
+
+    /** Called before a group is created, so a refused add leaves no empty group behind. */
+    void checkSupported(LimitType limitType) {
+        String message = unsupportedLimitTypes.get(limitType);
+        if (message != null) {
+            throw new ValidationException(identifiable, message);
+        }
     }
 
     @Override
     public OperationalLimitsGroupImpl newOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
-        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsIds::contains);
+        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsIds::contains, unsupportedLimitTypes);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.put(id, newLimits);
         if (selectedLimitsIds.contains(id)) {
             notifyUpdate(oldLimits, newLimits);

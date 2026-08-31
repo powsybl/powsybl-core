@@ -65,6 +65,15 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void testOnlyCurrentLimitsCanBeRead() {
+        // a DcLine refuses the other kinds, so such a file can only be hand-written; reading must refuse it too
+        PowsyblException e = assertThrows(PowsyblException.class,
+                () -> NetworkSerDe.read(getVersionedNetworkAsStream("dcLineApparentPowerLimits.xml", CURRENT_IIDM_VERSION)));
+        assertEquals("DC Line 'dcLineWithSolvedV': apparent power limits are not supported: a DC line carries no reactive power",
+                e.getMessage());
+    }
+
+    @Test
     void testLimitsNotSupported() {
         Network network = createBaseNetwork();
 
