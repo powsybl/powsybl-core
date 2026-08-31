@@ -949,9 +949,10 @@ A DC Line has two DC Terminals.
 
 **Metadata**
 
-- A DC Line can have [loading limits](./additional.md#loading-limits), in a single collection for the whole line
-rather than one per side: a DC Line has no shunt admittance, so the current entering one DC Terminal is the current
-leaving the other. Current limits are the meaningful kind here; apparent power limits have no meaning on DC.
+- A DC Line can have [loading limits](./additional.md#loading-limits), in which case they are stored in a single
+collection for the whole line rather than one per side: a DC Line has no shunt admittance, so the current entering
+one DC Terminal is the current leaving the other. Only current limits are accepted. Active and apparent power limits
+are refused, because a DC Line carries no reactive power and its two DC Terminals carry different active power.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)

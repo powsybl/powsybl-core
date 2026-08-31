@@ -72,9 +72,10 @@ package com.powsybl.iidm.network;
  * </table>
  *
  * <p>
- * The voltage limits bound the <b>signed</b> voltage {@link #getV()}, not its magnitude, so that the operating band
- * of a DC node on the negative pole can be expressed. On such a node both limits are negative and crossing the low
- * voltage limit means that the voltage <i>magnitude</i> is too large.
+ * The voltage limits bound the <b>signed</b> voltage {@link #getV()}, not its magnitude. The rule is always
+ * {@code LowVoltageLimit <= V <= HighVoltageLimit}: a DC Node at a positive potential has a band such as
+ * {@code [480, 520]}, and one at a negative potential has {@code [-520, -480]}, with both limits negative. On the
+ * latter, crossing the low voltage limit means the voltage <i>magnitude</i> is too large.
  * </p>
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}

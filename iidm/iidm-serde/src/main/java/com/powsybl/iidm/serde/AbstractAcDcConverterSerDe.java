@@ -82,12 +82,12 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         double targetVdc = context.getReader().readDoubleAttribute("targetVdc");
 
         // unbounded active power as default value for IIDM version < 1.18 and for converters declaring no limit
-        double[] minP = {-Double.MAX_VALUE};
-        double[] maxP = {Double.MAX_VALUE};
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            minP[0] = context.getReader().readDoubleAttribute(MIN_P, -Double.MAX_VALUE);
-            maxP[0] = context.getReader().readDoubleAttribute(MAX_P, Double.MAX_VALUE);
-        });
+        double minP = -Double.MAX_VALUE;
+        double maxP = Double.MAX_VALUE;
+        if (context.getVersion().compareTo(IidmVersion.V_1_18) >= 0) {
+            minP = context.getReader().readDoubleAttribute(MIN_P, -Double.MAX_VALUE);
+            maxP = context.getReader().readDoubleAttribute(MAX_P, Double.MAX_VALUE);
+        }
         adder
             .setDcNode1(dcNode1Id)
             .setDcConnected1(dcConnected1)
@@ -99,8 +99,8 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             .setIdleLoss(idleLoss)
             .setSwitchingLoss(switchingLoss)
             .setResistiveLoss(resistiveLoss)
-            .setMinP(minP[0])
-            .setMaxP(maxP[0]);
+            .setMinP(minP)
+            .setMaxP(maxP);
         readNodeOrBus(adder, voltageLevel.getTopologyKind(), context);
     }
 

@@ -10,6 +10,7 @@
         <iidm:operationalLimitsGroup id="summer">
             <iidm:currentLimits permanentLimit="2106.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="2350.0"/>
+                <iidm:temporaryLimit name="5'" acceptableDuration="300" value="2600.0"/>
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup>
         <iidm:operationalLimitsGroup id="winter">

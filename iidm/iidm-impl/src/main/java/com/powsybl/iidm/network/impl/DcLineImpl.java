@@ -104,11 +104,6 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
         return this;
     }
 
-    /**
-     * A removed DC equipment must refuse access, like the {@code r} and terminal accessors above and like
-     * {@code DcNodeImpl} does for its voltage limits. {@code BoundaryLineImpl}, whose delegations this class
-     * otherwise copies, has no such rule and delegates bare; ours add one of these two calls.
-     */
     private void checkAccess() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, LIMITS_ATTRIBUTE);
     }
