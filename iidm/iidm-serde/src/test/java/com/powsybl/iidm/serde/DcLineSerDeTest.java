@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -52,29 +55,38 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testExportOnlySelectedGroups() throws IOException {
+    void testExportOnlySelectedGroups() {
         Network network = createBaseNetwork();
 
-        Network read = allFormatsRoundTripTest(network, "/dcLineOnlySelectedGroupsRef.xml", CURRENT_IIDM_VERSION,
-                new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        // testing only the current version would stop covering 1.18 the day a 1.19 is added
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            Network read = assertDoesNotThrow(() -> allFormatsRoundTripTest(network, "/dcLineOnlySelectedGroupsRef.xml", version,
+                    new ExportOptions().setOnlySelectedOperationalLimitsGroups(true)));
 
-        DcLine dcLine = read.getDcLine("dcLineWithSolvedV");
-        assertEquals(1, dcLine.getOperationalLimitsGroups().size());
-        assertEquals("summer", dcLine.getSelectedOperationalLimitsGroupId().orElseThrow());
-        assertEquals(2106.0, dcLine.getCurrentLimits().orElseThrow().getPermanentLimit());
+            DcLine dcLine = read.getDcLine("dcLineWithSolvedV");
+            assertEquals(1, dcLine.getOperationalLimitsGroups().size());
+            assertEquals("summer", dcLine.getSelectedOperationalLimitsGroupId().orElseThrow());
+            assertEquals(2106.0, dcLine.getCurrentLimits().orElseThrow().getPermanentLimit());
+        });
     }
 
     @Test
-    void testMultipleSelectedGroups() throws IOException {
+    void testMultipleSelectedGroups() {
         Network network = createBaseNetwork();
         network.getDcLine("dcLineWithSolvedV").addSelectedOperationalLimitsGroups("winter");
 
-        Network read = allFormatsRoundTripTest(network, "/dcLineMultipleSelectedGroupsRef.xml", CURRENT_IIDM_VERSION);
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            Network read = assertDoesNotThrow(() -> allFormatsRoundTripTest(network, "/dcLineMultipleSelectedGroupsRef.xml", version));
 
-        DcLine dcLine = read.getDcLine("dcLineWithSolvedV");
-        assertEquals(List.of("summer", "winter"), dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
-        assertEquals(2, dcLine.getAllSelectedCurrentLimits().size());
-        assertEquals(2400.0, dcLine.getCurrentLimits().orElseThrow().getPermanentLimit());
+            DcLine dcLine = read.getDcLine("dcLineWithSolvedV");
+            assertEquals(List.of("summer", "winter"), dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
+
+            // getCurrentLimits() alone only reads the last selected group, so both must be checked explicitly
+            Set<Double> permanentLimits = dcLine.getAllSelectedCurrentLimits().stream()
+                    .map(LoadingLimits::getPermanentLimit)
+                    .collect(Collectors.toSet());
+            assertEquals(Set.of(2106.0, 2400.0), permanentLimits);
+        });
     }
 
     @Test
