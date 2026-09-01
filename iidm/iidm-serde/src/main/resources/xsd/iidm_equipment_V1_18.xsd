@@ -589,6 +589,8 @@
                 <xs:attribute name="controlMode" use="required" type="iidm:AcDcConverterControlMode"/>
                 <xs:attribute name="targetP" use="optional" type="xs:double"/>
                 <xs:attribute name="targetVdc" use="optional" type="xs:double"/>
+                <xs:attribute name="minP" use="optional" type="xs:double"/>
+                <xs:attribute name="maxP" use="optional" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
@@ -870,6 +872,8 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
+                <xs:attribute name="lowVoltageLimit" use="optional" type="xs:double"/>
+                <xs:attribute name="highVoltageLimit" use="optional" type="xs:double"/>
                 <xs:attribute name="v" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
@@ -888,6 +892,10 @@
     <xs:complexType name="DcLine">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:element name="operationalLimitsGroup" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="selectedOperationalLimitsGroupIds" use="optional" type="iidm:selectedOperationalLimitsGroupIds"/>
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>

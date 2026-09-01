@@ -916,12 +916,19 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 
 **Characteristics**
 
-| Attribute  | Unit | Description                          |
-|------------|------|--------------------------------------|
-| $NominalV$ | kV   | The nominal voltage, always positive |
+| Attribute           | Unit | Description                          |
+|---------------------|------|--------------------------------------|
+| $NominalV$          | kV   | The nominal voltage, always positive |
+| $LowVoltageLimit$   | kV   | The low voltage limit, optional      |
+| $HighVoltageLimit$  | kV   | The high voltage limit, optional     |
 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
+
+The voltage limits describe the operating band of the DC node. Like the solved voltage, they are signed: they bound
+the voltage itself and not its magnitude, so both limits are negative on a DC node operating at negative polarity,
+and a DC node that may operate at either polarity has a band spanning both signs. Only the ordering of the two
+limits is checked: $LowVoltageLimit$ must not be greater than $HighVoltageLimit$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -939,6 +946,13 @@ A DC Line has two DC Terminals.
 | Attribute | Unit     | Description                            |
 |-----------|----------|----------------------------------------|
 | $R$       | $\Omega$ | The series resistance, always positive |
+
+**Metadata**
+
+- A DC Line can have [loading limits](./additional.md#loading-limits), in which case they are stored in a single
+collection for the whole line rather than one per side: a DC Line has no shunt admittance, so the current entering
+one DC Terminal is the current leaving the other. Only current limits are accepted. Active and apparent power limits
+are refused, because a DC Line carries no reactive power and its two DC Terminals carry different active power.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -1066,7 +1080,8 @@ same load sign convention as `TargetP`.
 
 `MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
 
-`MinP` and `MaxP` are not serializable as of today. Trying to serialize AC-DC converters with non-default values of `MinP` or `MaxP` will raise an error.
+`MinP` and `MaxP` are serialized from IIDM version 1.18 onwards, and are omitted from the serialized file when left unset.
+Exporting a converter with a non-default `MinP` or `MaxP` to an earlier IIDM version raises an error.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)

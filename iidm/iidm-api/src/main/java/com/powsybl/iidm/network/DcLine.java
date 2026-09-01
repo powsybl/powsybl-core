@@ -13,6 +13,23 @@ package com.powsybl.iidm.network;
  * <p> To create a DcLine, see {@link DcLineAdder}
  *
  * <p>
+ *  Operational limits
+ * </p>
+ *
+ * <p>A DC Line carries a single collection of {@link OperationalLimitsGroup} for the whole line, rather
+ * than one collection per side as a {@link Branch} does. A DC Line has no shunt admittance, so the current
+ * entering one DC Terminal is the current leaving the other, and one limit describes both.
+ *
+ * <p>{@link CurrentLimits} is the only kind of limit a DC Line accepts: it is the rating of the conductor,
+ * and it is unambiguous because both DC Terminals carry the same current.
+ *
+ * <p>The other two kinds come with {@link FlowsLimitsHolder}, but a DC Line refuses them, because neither
+ * describes anything physical on DC. An {@link ApparentPowerLimits} has no meaning where there is no
+ * reactive power. An {@link ActivePowerLimits} would not say which DC Terminal it bounds, since the series
+ * resistance makes the two carry different active power. Setting either one fails with a
+ * {@link ValidationException}, and so does importing a network that contains one.
+ *
+ * <p>
  *  Characteristics
  * </p>
  *
@@ -57,7 +74,7 @@ package com.powsybl.iidm.network;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcLine extends DcConnectable<DcLine> {
+public interface DcLine extends DcConnectable<DcLine>, FlowsLimitsHolder {
 
     @Override
     default IdentifiableType getType() {

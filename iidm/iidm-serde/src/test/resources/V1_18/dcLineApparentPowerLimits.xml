@@ -14,7 +14,7 @@
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup>
         <iidm:operationalLimitsGroup id="winter">
-            <iidm:currentLimits permanentLimit="2400.0"/>
+            <iidm:apparentPowerLimits permanentLimit="2400.0"/>
         </iidm:operationalLimitsGroup>
     </iidm:dcLine>
 </iidm:network>

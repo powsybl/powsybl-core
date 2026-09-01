@@ -379,6 +379,18 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * Check the voltage limits of a DC node. Contrary to {@link #checkVoltageLimits(Validable, double, double)},
+     * negative limits are valid for a DC node on the negative pole. The limits bound the signed voltage {@link DcNode#getV()}.
+     * Only the ordering of the two bounds is checked. An undefined ({@link Double#NaN}) bound passes, since all comparisons with NaN are false.
+     */
+    public static void checkDcVoltageLimits(Validable validable, double lowVoltageLimit, double highVoltageLimit) {
+        if (lowVoltageLimit > highVoltageLimit) {
+            throw new ValidationException(validable, "Inconsistent voltage limit range ["
+                    + lowVoltageLimit + ", " + highVoltageLimit + "]");
+        }
+    }
+
     public static void checkTopologyKind(Validable validable, TopologyKind topologyKind) {
         if (topologyKind == null) {
             throw new ValidationException(validable, "topology kind is invalid");

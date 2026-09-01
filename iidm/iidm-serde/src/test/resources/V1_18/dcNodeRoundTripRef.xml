@@ -4,5 +4,6 @@
         <iidm:alias>someAlias</iidm:alias>
         <iidm:property name="prop name" value="prop value"/>
     </iidm:dcNode>
-    <iidm:dcNode id="dcNodeWithSolvedV" name="A DC Node with solved V" nominalV="500.0" v="498.0"/>
+    <iidm:dcNode id="dcNodeWithSolvedV" name="A DC Node with solved V" nominalV="500.0" lowVoltageLimit="480.0" highVoltageLimit="520.0" v="498.0"/>
+    <iidm:dcNode id="dcNodeWithNegativeLimits" name="A DC Node with negative voltage limits" nominalV="500.0" lowVoltageLimit="-520.0" highVoltageLimit="-480.0" v="-502.0"/>
 </iidm:network>

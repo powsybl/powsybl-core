@@ -486,18 +486,20 @@ public final class ConnectableSerDeUtil {
     }
 
     /**
-     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the boundary line
-     * @param boundaryLine the {@link BoundaryLine} on which to add the selected groups
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on a holder carrying a single
+     * collection of groups, such as a {@link BoundaryLine} or a {@link DcLine}
+     * @param holder the {@link FlowsLimitsHolder} on which to add the selected groups
+     * @param identifiableId the id of the identifiable owning the <code>holder</code>
      * @param context to deserialize the data
      */
-    static void readAllSelectedGroupIds(BoundaryLine boundaryLine, NetworkDeserializerContext context) {
+    static void readAllSelectedGroupIds(FlowsLimitsHolder holder, String identifiableId, NetworkDeserializerContext context) {
         Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
             null,
-            c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
+            c -> holder.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
             context
         );
         context.addSelectedGroupIds(
-            boundaryLine.getId(),
+            identifiableId,
             ThreeSides.ONE,
             selectedIds
         );

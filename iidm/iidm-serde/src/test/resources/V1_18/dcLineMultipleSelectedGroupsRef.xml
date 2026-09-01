@@ -6,7 +6,7 @@
         <iidm:alias>someAlias</iidm:alias>
         <iidm:property name="prop name" value="prop value"/>
     </iidm:dcLine>
-    <iidm:dcLine id="dcLineWithSolvedV" name="A DC Line with solved values" dcNode1="dcNode1" dcNode2="dcNode2" r="4.0" connected1="true" connected2="true" dcP1="100.0" dcI1="200.0" dcP2="-98.0" dcI2="-195.0" selectedOperationalLimitsGroupIds="summer">
+    <iidm:dcLine id="dcLineWithSolvedV" name="A DC Line with solved values" dcNode1="dcNode1" dcNode2="dcNode2" r="4.0" connected1="true" connected2="true" dcP1="100.0" dcI1="200.0" dcP2="-98.0" dcI2="-195.0" selectedOperationalLimitsGroupIds="summer,winter">
         <iidm:operationalLimitsGroup id="summer">
             <iidm:currentLimits permanentLimit="2106.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="2350.0"/>

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -27,6 +28,7 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
     private final Validable validable;
     private final String attributeName;
     private final Predicate<String> isSelected;
+    private final Map<LimitType, String> unsupportedLimitTypes;
 
     /**
      * @param id the ID of the group we want to create
@@ -35,8 +37,20 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
      * @param isSelected a predicate telling this group if it is part of the selected groups
      */
     OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Predicate<String> isSelected) {
+        this(id, identifiable, attributeName, isSelected, Map.of());
+    }
+
+    /**
+     * @param id the ID of the group we want to create
+     * @param identifiable on what to create the group
+     * @param attributeName prefix used for referencing the limits (used when notifying listeners)
+     * @param isSelected a predicate telling this group if it is part of the selected groups
+     * @param unsupportedLimitTypes limit types this group refuses, each with the message to throw
+     */
+    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Predicate<String> isSelected,
+                               Map<LimitType, String> unsupportedLimitTypes) {
         this(id, Objects.requireNonNull(identifiable), identifiable.getNetwork().getListeners(),
-                identifiable, attributeName, Objects.requireNonNull(isSelected));
+                identifiable, attributeName, Objects.requireNonNull(isSelected), unsupportedLimitTypes);
     }
 
     /**
@@ -49,12 +63,28 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
      */
     public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
                                       Validable validable, String attributeName, Predicate<String> isSelected) {
+        this(id, identifiable, listeners, validable, attributeName, isSelected, Map.of());
+    }
+
+    /**
+     * @param id the ID of the group we want to create
+     * @param identifiable on what to create the group
+     * @param listeners the listeners on the changes of this group
+     * @param validable used for exception mechanism when validating the network, provides a label for the error
+     * @param attributeName prefix used for referencing the limits (used when notifying listeners)
+     * @param isSelected a predicate telling this group if it is selected or not
+     * @param unsupportedLimitTypes limit types this group refuses, each with the message to throw
+     */
+    public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
+                                      Validable validable, String attributeName, Predicate<String> isSelected,
+                                      Map<LimitType, String> unsupportedLimitTypes) {
         this.id = Objects.requireNonNull(id);
         this.identifiable = Objects.requireNonNull(identifiable);
         this.listeners = listeners;
         this.validable = Objects.requireNonNull(validable);
         this.attributeName = Objects.requireNonNull(attributeName);
         this.isSelected = isSelected;
+        this.unsupportedLimitTypes = Objects.requireNonNull(unsupportedLimitTypes);
     }
 
     @Override
@@ -79,17 +109,27 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
+        checkSupported(LimitType.CURRENT);
         return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
+        checkSupported(LimitType.ACTIVE_POWER);
         return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        checkSupported(LimitType.APPARENT_POWER);
         return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
+    }
+
+    private void checkSupported(LimitType limitType) {
+        String message = unsupportedLimitTypes.get(limitType);
+        if (message != null) {
+            throw new ValidationException(validable, message);
+        }
     }
 
     @Override
