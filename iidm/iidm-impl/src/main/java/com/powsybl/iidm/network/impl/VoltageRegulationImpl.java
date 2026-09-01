@@ -395,55 +395,17 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     private void setAttributesOnCurrentVariant(AttributesWithTerminal attributes) {
-        RegulationMode currentVariantMode = attributes.mode();
-        boolean currentVariantRegulating = attributes.isRegulating();
-        Terminal currentVariantTerminal = attributes.terminal();
-        boolean currentVariantWithTerminal = currentVariantTerminal != null;
-        double currentVariantTargetValue = attributes.targetValue();
-        double currentVariantSlope = attributes.slope();
-        double currentVariantTargetDeadband = attributes.targetDeadband();
-
-        ValidationUtil.checkVoltageRegulationMode(validable,
-            currentVariantMode,
-            currentVariantRegulating,
-            currentVariantWithTerminal,
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationSlope(validable,
-            currentVariantSlope,
-            currentVariantMode,
-            currentVariantRegulating,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationDeadband(validable,
-            currentVariantTargetDeadband,
-            currentVariantRegulating,
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationTerminal(validable,
-            currentVariantTerminal,
-            currentVariantRegulating,
-            network.get(),
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationTargetValue(validable,
-            currentVariantTargetValue,
-            currentVariantMode,
-            currentVariantRegulating,
-            currentVariantWithTerminal,
-            classHolder,
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-
-        this.setModeOnCurrentVariant(currentVariantMode);
-        this.setSlopeOnCurrentVariant(currentVariantSlope);
-        this.setTargetDeadbandOnCurrentVariant(currentVariantTargetDeadband);
-        this.updateTerminal(currentVariantTerminal);
-        this.setTargetValueOnCurrentVariant(currentVariantTargetValue);
-        this.setRegulatingOnCurrentVariant(currentVariantRegulating);
+        if (this.network.get().getVariantManager().getVariantCount() > 1 &&
+                (terminal != null && terminal != attributes.terminal() || terminal == null && attributes.terminal() != null)) {
+            throw new PowsyblException(this.validable.getMessageHeader() + "Cannot change terminal when there are multiple variants");
+        }
+        checkAttributes(attributes);
+        this.setModeOnCurrentVariant(attributes.mode());
+        this.setSlopeOnCurrentVariant(attributes.slope());
+        this.setTargetDeadbandOnCurrentVariant(attributes.targetDeadband());
+        this.updateTerminal(attributes.terminal());
+        this.setTargetValueOnCurrentVariant(attributes.targetValue());
+        this.setRegulatingOnCurrentVariant(attributes.isRegulating());
     }
 
     @Override
