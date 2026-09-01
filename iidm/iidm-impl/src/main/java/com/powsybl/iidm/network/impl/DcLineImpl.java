@@ -104,6 +104,7 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
         return this;
     }
 
+    // A removed DcLine's limits cannot be accessed, like r above and like DcNodeImpl does for its voltage limits.
     private void checkAccess() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, LIMITS_ATTRIBUTE);
     }
