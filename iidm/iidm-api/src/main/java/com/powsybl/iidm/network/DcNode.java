@@ -72,10 +72,38 @@ package com.powsybl.iidm.network;
  * </table>
  *
  * <p>
- * The voltage limits bound the <b>signed</b> voltage {@link #getV()}, not its magnitude. The rule is always
- * {@code LowVoltageLimit <= V <= HighVoltageLimit}: a DC Node at a positive potential has a band such as
- * {@code [480, 520]}, and one at a negative potential has {@code [-520, -480]}, with both limits negative. On the
- * latter, crossing the low voltage limit means the voltage <i>magnitude</i> is too large.
+ * These limits apply to the signed value returned by {@link #getV()}, not to how big that number is once you
+ * ignore its sign. The rule is always {@code LowVoltageLimit <= V <= HighVoltageLimit}. This matters because
+ * the same check already written for {@link VoltageLevel} can be reused as is: a healthy DC Node on the
+ * negative side reads something like {@code -500}. If the limits were stored ignoring the sign, as
+ * {@code [480, 520]}, that check would see {@code -500 <= 480} and wrongly say the voltage is too low. Stored
+ * signed instead, as {@code [-520, -480]}, the same check sees {@code -500} sits between them and reports
+ * nothing, which is correct.
+ * </p>
+ *
+ * <p>
+ * A DC Node on the positive side has a band such as {@code [480, 520]}. One on the negative side has a band
+ * such as {@code [-520, -480]}. On the negative side, going below {@code -520} (the low limit) means the
+ * voltage is too big once you ignore the sign, and going above {@code -480} (the high limit) means it is too
+ * small: the opposite of the positive side. So "low" always means the smaller number and "high" always means
+ * the bigger number, but which one is "too big" and which one is "too little" flips depending on which side of
+ * zero the band is on.
+ * </p>
+ *
+ * <p>
+ * A band can even sit around zero, such as {@code [-10, 10]}. There, {@code V = -15} crosses the low limit and
+ * {@code V = 15} crosses the high limit, but both are the same problem: the voltage moved too far from zero, in
+ * one direction or the other. Neither crossing means "too little", because every value close to zero is inside
+ * the band and allowed. So code that wants to report "voltage too high" or "voltage too low" cannot decide it
+ * from which field, low or high, was crossed. It first has to check where zero falls relative to the band.
+ * </p>
+ *
+ * <p>
+ * There are too many different bands for one meaning of "low" and "high" to fit them all: a positive-side node,
+ * a negative-side node, and a node centered on zero each need a different answer. So this class does not try
+ * to pick one. It only checks that {@code LowVoltageLimit <= HighVoltageLimit}
+ * ({@link ValidationUtil#checkDcVoltageLimits}), the one rule that holds in every case, and leaves it to
+ * whoever reads {@code V} and the band to decide what "too high" or "too low" means for that particular node.
  * </p>
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
