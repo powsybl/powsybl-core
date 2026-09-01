@@ -14,7 +14,7 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoad
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface OperationalLimitsGroup extends CurrentOperationalLimitsGroup {
+public interface OperationalLimitsGroup extends CurrentLimitsGroup {
 
     Optional<ActivePowerLimits> getActivePowerLimits();
 
