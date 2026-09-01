@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -161,5 +162,21 @@ public final class LoadingLimitsUtil {
             groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy.newApparentPowerLimits(limit).add());
             groupToCopy.getPropertyNames().forEach(propertyName -> copy.setProperty(propertyName, groupToCopy.getProperty(propertyName)));
         });
+    }
+
+    /**
+     * Helper function to return an operational limit of a given type using the provided function
+     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link CurrentLimitsGroup}
+     * @return a collection of loadingLimits, all the same type
+     * @param <T> the type of loadingLimit
+     */
+    public static <H extends LimitsGroupsHolder<G>,
+        T extends LoadingLimits,
+        G extends CurrentLimitsGroup> Collection<T> getAllSelectedLoadingLimits(H holder, Function<G, Optional<T>> operationalLimitToLoadingLimitFunction) {
+        return holder.getAllSelectedOperationalLimitsGroups()
+            .stream()
+            .map(operationalLimitToLoadingLimitFunction)
+            .flatMap(Optional::stream)
+            .toList();
     }
 }

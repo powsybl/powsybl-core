@@ -10,8 +10,9 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.getAllSelectedLoadingLimits;
 
 /**
  * @author Dissoubray Nathan {@literal <nathan.dissoubray at rte-france.com>}
@@ -175,7 +176,7 @@ public interface LimitsGroupsHolder<G extends CurrentLimitsGroup> {
      * @return a collection of {@link CurrentLimits}, one per {@link CurrentLimitsGroup} that is selected, might be empty if none is selected
      */
     default Collection<CurrentLimits> getAllSelectedCurrentLimits() {
-        return getAllSelectedLoadingLimits(G::getCurrentLimits);
+        return getAllSelectedLoadingLimits(this, G::getCurrentLimits);
     }
 
     /**
@@ -205,17 +206,4 @@ public interface LimitsGroupsHolder<G extends CurrentLimitsGroup> {
         return operationalLimitsGroup;
     }
 
-    /**
-     * Helper function to return an operational limit of a given type using the provided function
-     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link CurrentLimitsGroup}
-     * @return a collection of loadingLimits, all the same type
-     * @param <T> the type of loadingLimit
-     */
-    default <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<G, Optional<T>> operationalLimitToLoadingLimitFunction) {
-        return getAllSelectedOperationalLimitsGroups()
-            .stream()
-            .map(operationalLimitToLoadingLimitFunction)
-            .flatMap(Optional::stream)
-            .toList();
-    }
 }

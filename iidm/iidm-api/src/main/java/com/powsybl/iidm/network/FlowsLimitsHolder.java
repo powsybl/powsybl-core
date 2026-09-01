@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.getAllSelectedLoadingLimits;
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
 /**
@@ -40,7 +41,7 @@ public interface FlowsLimitsHolder extends LimitsGroupsHolder<OperationalLimitsG
      * @return a collection of {@link ActivePowerLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
      */
     default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits() {
-        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits);
+        return getAllSelectedLoadingLimits(this, OperationalLimitsGroup::getActivePowerLimits);
     }
 
     /**
@@ -74,7 +75,7 @@ public interface FlowsLimitsHolder extends LimitsGroupsHolder<OperationalLimitsG
      * @return a collection of {@link ApparentPowerLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
      */
     default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits() {
-        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getApparentPowerLimits);
+        return getAllSelectedLoadingLimits(this, OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     /**
