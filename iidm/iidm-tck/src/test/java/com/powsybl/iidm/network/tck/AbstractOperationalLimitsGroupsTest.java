@@ -12,15 +12,17 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
-import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -768,7 +770,9 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
 
         //check no group is selected if any is null
-        assertThrows(NullPointerException.class, () -> leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, null, EurostagTutorialExample1Factory.NOT_ACTIVATED));
+        assertThrows(NullPointerException.class,
+            () -> leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, null,
+                EurostagTutorialExample1Factory.NOT_ACTIVATED));
         assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
 
         //check no group selected if any does not exist
@@ -797,16 +801,22 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     @ParameterizedTest
     @MethodSource("provideUtilCheckTemporaryLimitsArguments")
-    public void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedOverload> expected) {
+    public void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side,
+                                                  Collection<Double> limitReductions, LimitType type, double value,
+                                                  Collection<ExpectedOverload> expected) {
         for (double limitReduction : limitReductions) {
             Collection<Overload> overloads = switch (identifiable) {
                 case Branch<?> b -> {
                     if (limitReduction == 1) {
                         yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), new LimitsComputer.NoModificationsImpl(), value, type);
                     } else {
-                        //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
-                        //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                        //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                        /*
+                         * multiply by limitReduction because all the limits will be reduced, so we also want to reduce
+                         * the actual value to match that. The arguments to this method test both with and without limitReduction.
+                         * All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                         * To get the same situation, we need to reduce both the limits and the value. The limits are
+                         * supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                         */
                         yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReduction, value * limitReduction, type);
                     }
                 }
@@ -814,9 +824,13 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     if (limitReduction == 1) {
                         yield LimitViolationUtils.checkAllTemporaryLimits(t, side, new LimitsComputer.NoModificationsImpl(), value, type);
                     } else {
-                        //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
-                        //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                        //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                        /*
+                         * multiply by limitReduction because all the limits will be reduced, so we also want to reduce
+                         * the actual value to match that. The arguments to this method test both with and without limitReduction.
+                         * All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                         * To get the same situation, we need to reduce both the limits and the value. The limits are
+                         * supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                         */
                         yield LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReduction, value * limitReduction, type);
                     }
                 }
@@ -852,7 +866,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.95, 1.12), LimitType.CURRENT, 299, List.of()), // below any permanent limit
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.8, 1.37), LimitType.CURRENT, 310, List.of(
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
                     300,
                     60 * 40
@@ -860,7 +874,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             )), // above permanent of activated_1_2
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.82, 1.23), LimitType.CURRENT, 510, List.of(
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
                     300,
                     60 * 40
@@ -882,7 +896,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     30
                 ),
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
                     1100,
                     60 * 10
@@ -930,11 +944,13 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     0
                 )
             )), // above last temporary of 1_2
-            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.99, 1.01), LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
-            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.96, 1.87), LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
+            //under all limits
+            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.99, 1.01), LimitType.ACTIVE_POWER, 200, List.of()),
+            // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
+            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.96, 1.87), LimitType.ACTIVE_POWER, 275, List.of()),
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.88, 1.64), LimitType.ACTIVE_POWER, 375, List.of(
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
                     350,
                     45 * 60
@@ -953,7 +969,11 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     @ParameterizedTest
     @MethodSource("provideReductionValueSelectionArguments")
-    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction, LimitType type, double value, Collection<ExpectedOverload> expected) {
+    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side,
+                                                                   double limitReductionValue,
+                                                                   Collection<String> groupsToApplyLimitReduction,
+                                                                   LimitType type, double value,
+                                                                   Collection<ExpectedOverload> expected) {
         Collection<Overload> overloads = switch (identifiable) {
             case Branch<?> b -> LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReductionValue, groupsToApplyLimitReduction, value, type);
             case ThreeWindingsTransformer t -> LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReductionValue, groupsToApplyLimitReduction, value, type);
@@ -1018,13 +1038,13 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             )), // apply to only 2 groups out of 4
             Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(), LimitType.ACTIVE_POWER, 290, List.of(
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
                     350,
                     45 * 60
                 ),
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.NOT_ACTIVATED,
                     300,
                     25 * 60
@@ -1032,7 +1052,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             )), //apply to all groups
             Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE), LimitType.ACTIVE_POWER, 290, List.of(
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
                     350,
                     45 * 60

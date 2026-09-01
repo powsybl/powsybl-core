@@ -14,8 +14,9 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
+
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.ValueType.*;
 import static org.junit.jupiter.api.Assertions.*;

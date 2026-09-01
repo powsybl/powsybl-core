@@ -7,10 +7,13 @@
  */
 package com.powsybl.commons.binary;
 
+import com.github.luben.zstd.ZstdOutputStream;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -18,51 +21,23 @@ import static com.powsybl.commons.binary.BinUtil.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
+ * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
  */
 public class BinWriter extends AbstractTreeDataWriter {
 
     private final String rootVersion;
-    private final DataOutputStream dos;
-    private final DataOutputStream tmpDos;
-    private final ByteArrayOutputStream buffer;
     private final byte[] binaryMagicNumber;
-    private Map<String, String> extensionVersions = Collections.emptyMap();
-
+    private final OutputStream outputStream;
+    private final SegmentedByteBuffer body = new SegmentedByteBuffer();
     private final Map<TypedName, Integer> namesIndex = new LinkedHashMap<>();
+    private Map<String, String> extensionVersions = Collections.emptyMap();
 
     private record TypedName(String name, byte type) { }
 
-    public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
+    public BinWriter(OutputStream os, byte[] binaryMagicNumber, String rootVersion) {
+        this.outputStream = Objects.requireNonNull(os);
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
         this.rootVersion = Objects.requireNonNull(rootVersion);
-        this.dos = new DataOutputStream(new BufferedOutputStream(Objects.requireNonNull(outputStream)));
-        this.buffer = new ByteArrayOutputStream();
-        this.tmpDos = new DataOutputStream(buffer);
-    }
-
-    private static void writeIndex(int index, DataOutputStream dataOutputStream) {
-        try {
-            dataOutputStream.writeShort(index);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static void writeString(String value, DataOutputStream dataOutputStream) {
-        try {
-            if (value == null) {
-                writeIndex(NULL_STRING_SENTINEL, dataOutputStream);
-            } else {
-                byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-                if (bytes.length >= NULL_STRING_SENTINEL) {
-                    throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
-                }
-                writeIndex(bytes.length, dataOutputStream);
-                dataOutputStream.write(bytes);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @Override
@@ -76,9 +51,15 @@ public class BinWriter extends AbstractTreeDataWriter {
     }
 
     @Override
+    public void writeNamespace(String prefix, String namespace) {
+        // nothing to do
+    }
+
+    @Override
     public void writeStartNode(String namespace, String name) {
         if (namesIndex.isEmpty()) {
-            namesIndex.put(new TypedName(name, TYPE_OBJECT), 1); // root element is not a child of another node, hence index is not expected
+            // root element is not a child of another node, its index is not consumed in the body
+            namesIndex.put(new TypedName(name, TYPE_OBJECT), 1);
         } else {
             writeEntry(name, TYPE_OBJECT);
         }
@@ -86,7 +67,7 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeEndNode() {
-        writeIndex(END_NODE, tmpDos);
+        body.writeShort(END_NODE);
     }
 
     private void writeEntry(String name, byte type) {
@@ -100,24 +81,58 @@ public class BinWriter extends AbstractTreeDataWriter {
             namesIndex.put(key, newIndex);
             index = newIndex;
         }
-        writeIndex(index, tmpDos);
-    }
-
-    @Override
-    public void writeNamespace(String prefix, String namespace) {
-        // nothing to do
+        body.writeShort(index);
     }
 
     @Override
     public void writeNodeContent(String value) {
         writeEntry("", TYPE_STRING_CONTENT);
-        writeString(value, tmpDos);
+        writeString(value);
     }
 
     @Override
     public void writeStringAttribute(String name, String value) {
         writeEntry(name, TYPE_STRING);
-        writeString(value, tmpDos);
+        writeString(value);
+    }
+
+    private void writeString(String value) {
+        if (value == null) {
+            body.writeShort(NULL_STRING_SENTINEL);
+            return;
+        }
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length >= NULL_STRING_SENTINEL) {
+            throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
+        }
+        body.writeShort(bytes.length);
+        body.writeBytes(bytes);
+    }
+
+    private static void writeString(String value, OutputStream out) throws IOException {
+        if (value == null) {
+            writeShort(out, NULL_STRING_SENTINEL);
+            return;
+        }
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length >= NULL_STRING_SENTINEL) {
+            throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
+        }
+        writeShort(out, bytes.length);
+        out.write(bytes);
+    }
+
+    private static void writeShort(OutputStream out, int s) throws IOException {
+        out.write((s >>> 8) & 0xFF);
+        out.write(s & 0xFF);
+    }
+
+    @Override
+    public void writeStringAttribute(String name, String value, String defaultValue) {
+        if (Objects.equals(defaultValue, name)) {
+            return;
+        }
+        writeStringAttribute(name, value);
     }
 
     @Override
@@ -132,11 +147,7 @@ public class BinWriter extends AbstractTreeDataWriter {
             return;
         }
         writeEntry(name, TYPE_DOUBLE);
-        try {
-            tmpDos.writeDouble(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        body.writeDouble(value);
     }
 
     @Override
@@ -145,21 +156,13 @@ public class BinWriter extends AbstractTreeDataWriter {
             return;
         }
         writeEntry(name, TYPE_FLOAT);
-        try {
-            tmpDos.writeFloat(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        body.writeFloat(value);
     }
 
     @Override
     public void writeIntAttribute(String name, int value) {
         writeEntry(name, TYPE_INT);
-        try {
-            tmpDos.writeInt(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        body.writeInt(value);
     }
 
     @Override
@@ -173,11 +176,7 @@ public class BinWriter extends AbstractTreeDataWriter {
     @Override
     public void writeBooleanAttribute(String name, boolean value) {
         writeEntry(name, TYPE_BOOLEAN);
-        try {
-            tmpDos.writeBoolean(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        body.writeBoolean(value);
     }
 
     @Override
@@ -194,78 +193,57 @@ public class BinWriter extends AbstractTreeDataWriter {
             return;
         }
         writeEntry(name, TYPE_ENUM);
-        try {
-            tmpDos.writeShort(value.ordinal());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        body.writeShort(value.ordinal());
     }
 
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
         writeEntry(name, TYPE_INT_ARRAY);
-        try {
-            tmpDos.writeShort(values.size());
-            for (int v : values) {
-                tmpDos.writeInt(v);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        body.writeShort(values.size());
+        for (int v : values) {
+            body.writeInt(v);
         }
     }
 
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
         writeEntry(name, TYPE_STRING_ARRAY);
-        try {
-            tmpDos.writeShort(values.size());
-            for (String s : values) {
-                writeString(s, tmpDos);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        body.writeShort(values.size());
+        for (String s : values) {
+            writeString(s);
         }
-    }
-
-    @Override
-    public void close() {
-        try {
-            tmpDos.flush();
-            writeHeader();
-            dos.write(buffer.toByteArray());
-            dos.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void writeHeader() throws IOException {
-        // magic number ("Binary IIDM" in ASCII)
-        dos.write(binaryMagicNumber);
-
-        // iidm version
-        writeString(rootVersion, dos);
-
-        // extensions versions
-        writeIndex(extensionVersions.size(), dos);
-        extensionVersions.forEach((extensionName, extensionVersion) -> {
-            writeString(extensionName, dos);
-            writeString(extensionVersion, dos);
-        });
-
-        writeIndex(namesIndex.size(), dos);
-        namesIndex.keySet().forEach(nameTypeKey -> {
-            writeString(nameTypeKey.name(), dos);
-            try {
-                dos.writeByte(nameTypeKey.type());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
     }
 
     @Override
     public void setVersions(Map<String, String> extensionVersions) {
         this.extensionVersions = Objects.requireNonNull(extensionVersions);
+    }
+
+    @Override
+    public void close() {
+        try (var zstdOut = new ZstdOutputStream(outputStream, -2).setChecksum(false)) {
+            writeHeader(zstdOut);
+            body.writeTo(zstdOut);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private void writeHeader(OutputStream out) throws IOException {
+        out.write(binaryMagicNumber);
+        writeString(rootVersion, out);
+
+        writeShort(out, extensionVersions.size());
+        for (var entry : extensionVersions.entrySet()) {
+            writeString(entry.getKey(), out);
+            writeString(entry.getValue(), out);
+        }
+
+        writeShort(out, namesIndex.size());
+        for (TypedName key : namesIndex.keySet()) {
+            writeString(key.name(), out);
+            out.write(key.type());
+        }
+        out.flush();
     }
 }

@@ -25,7 +25,7 @@ class ControlUnitImpl implements ControlUnit {
 
     private ControlZoneImpl controlZone;
 
-    public ControlUnitImpl(String id, boolean participate, VariantManagerHolder variantManagerHolder) {
+    ControlUnitImpl(String id, boolean participate, VariantManagerHolder variantManagerHolder) {
         this.id = Objects.requireNonNull(id);
         int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
         this.participate = new TBooleanArrayList(variantArraySize);

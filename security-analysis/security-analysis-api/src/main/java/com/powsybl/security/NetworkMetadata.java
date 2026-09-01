@@ -9,8 +9,8 @@ package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Network;
-import java.time.ZonedDateTime;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**

@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-powerfactory</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-powerfactory-converter</artifactId>
@@ -44,6 +44,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-geodata</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

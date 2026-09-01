@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TwoWindingsTransformerPhaseAngleClockXmlSerDeTest extends AbstractIidmSerDeTest {
 

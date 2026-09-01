@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Injection;
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-public interface InjectionObservabilityAdder <I extends Injection<I>>
+public interface InjectionObservabilityAdder<I extends Injection<I>>
         extends ExtensionAdder<I, InjectionObservability<I>> {
 
     @Override

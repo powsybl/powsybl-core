@@ -26,7 +26,7 @@ public interface Terminal {
     /**
      * A node/breaker view of the terminal.
      */
-    public static interface NodeBreakerView {
+    interface NodeBreakerView {
 
         /**
          * Get the connection node of this terminal in a node/breaker topology.
@@ -44,7 +44,7 @@ public interface Terminal {
     /**
      * A bus/breaker view of the terminal.
      */
-    public static interface BusBreakerView {
+    interface BusBreakerView {
 
         /**
          * Get the connection bus of this terminal in the bus/breaker topology.
@@ -72,7 +72,7 @@ public interface Terminal {
     /**
      * A bus view of the terminal.
      */
-    public static interface BusView {
+    interface BusView {
 
         /**
          * Get the connection bus of this terminal in the bus only topology.

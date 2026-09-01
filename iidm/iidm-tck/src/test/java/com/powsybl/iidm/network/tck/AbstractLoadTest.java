@@ -187,12 +187,7 @@ public abstract class AbstractLoadTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            load.getQ0();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, load::getQ0);
 
         // Remove observer changes
         network.removeListener(mockedListener);

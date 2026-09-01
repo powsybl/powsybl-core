@@ -185,6 +185,7 @@ public class TimeSeriesTable {
         return new TimeSeriesTable(fromVersion, toVersion, tableIndex, ByteBuffer::allocate);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     private void initTable(List<DoubleTimeSeries> doubleTimeSeries, List<StringTimeSeries> stringTimeSeries) {
         initLock.lock();
         try {

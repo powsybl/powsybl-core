@@ -8,12 +8,11 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import java.util.*;
-
+import com.powsybl.iidm.network.Identifiable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Identifiable;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -171,35 +170,37 @@ public class DifferencesReport implements Differences {
         summary(Category.MISSING, missings, summary);
         summary(Category.MATCHES, matches, summary);
         if (!diffs.isEmpty()) {
-            diffs.keySet().forEach(category -> {
-                if (logDetails) {
-                    LOG.warn("Differences for {} ({})", category, diffs.get(category).size());
-                }
-                diffs.get(category).keySet().stream()
-                        .sorted(Comparator.comparing(Identifiable::getId))
-                        .limit(maxDetailDiffs)
-                        .forEach(id -> {
-                            Set<Diff> ds = diffs.get(category).get(id);
-                            summary.inc(Category.DIFFS, category, diffs.get(category).size());
-                            if (logDetails) {
-                                if (ds.size() > 1) {
-                                    LOG.warn("    {}", id);
-                                    diffs.get(category).get(id).stream()
-                                            .limit(maxDetailDiffs)
-                                            .forEach(diff -> {
-                                                LOG.warn("        {} {}",
-                                                        diff.expected,
-                                                        diff.actual);
-                                            });
-                                } else {
-                                    Diff diff = ds.iterator().next();
-                                    LOG.warn("    {} {} {}", id, diff.expected, diff.actual);
-                                }
-                            }
-                        });
-            });
+            diffs.keySet().forEach(category -> summaryOnCategory(summary, category));
         }
         return summary;
+    }
+
+    private void summaryOnCategory(Summary summary, String category) {
+        if (logDetails) {
+            LOG.warn("Differences for {} ({})", category, diffs.get(category).size());
+        }
+        diffs.get(category).keySet().stream()
+            .sorted(Comparator.comparing(Identifiable::getId))
+            .limit(maxDetailDiffs)
+            .forEach(id -> {
+                Set<Diff> ds = diffs.get(category).get(id);
+                summary.inc(Category.DIFFS, category, diffs.get(category).size());
+                if (logDetails) {
+                    if (ds.size() > 1) {
+                        LOG.warn("    {}", id);
+                        diffs.get(category).get(id).stream()
+                            .limit(maxDetailDiffs)
+                            .forEach(diff -> {
+                                LOG.warn("        {} {}",
+                                    diff.expected,
+                                    diff.actual);
+                            });
+                    } else {
+                        Diff diff = ds.iterator().next();
+                        LOG.warn("    {} {} {}", id, diff.expected, diff.actual);
+                    }
+                }
+            });
     }
 
     private void summary(

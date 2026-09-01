@@ -62,7 +62,12 @@ public class StudyCase extends AbstractPowerFactoryData {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        JsonUtil.parseObject(parser, fieldName -> switch (fieldName) {
+        JsonUtil.parseObject(parser, fieldName -> parseField(parser, context, fieldName));
+        return new StudyCase(context.name, context.time, context.elmNets, context.index);
+    }
+
+    private static boolean parseField(JsonParser parser, ParsingContext context, String fieldName) throws IOException {
+        return switch (fieldName) {
             case "name" -> {
                 context.name = parser.nextTextValue();
                 yield true;
@@ -76,7 +81,8 @@ public class StudyCase extends AbstractPowerFactoryData {
                 yield true;
             }
             case "objects" -> {
-                JsonUtil.parseObjectArray(parser, obj -> { }, parser2 -> DataObject.parseJson(parser2, context.index, context.scheme));
+                JsonUtil.parseObjectArray(parser, obj -> {
+                }, parser2 -> DataObject.parseJson(parser2, context.index, context.scheme));
                 yield true;
             }
             case "elmNets" -> {
@@ -87,8 +93,7 @@ public class StudyCase extends AbstractPowerFactoryData {
                 yield true;
             }
             default -> false;
-        });
-        return new StudyCase(context.name, context.time, context.elmNets, context.index);
+        };
     }
 
     public static StudyCase parseJson(Reader reader) {

@@ -13,8 +13,8 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.triplestore.api.PropertyBag;
 
 import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
 import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;

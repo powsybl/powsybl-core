@@ -169,12 +169,18 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     private static Stream<Arguments> parametersOK() {
         return Stream.of(
-            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.BREAKER, SwitchKind.BREAKER, false, true, "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, true, false, "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
-            Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, false, false, "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
-            Arguments.of("BBS21", false, true, SwitchKind.BREAKER, SwitchKind.BREAKER, true, true, "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
-            Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
+            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true,
+                "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
+            Arguments.of("BBS11", true, true, SwitchKind.BREAKER, SwitchKind.BREAKER, false, true,
+                "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
+            Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, true, false,
+                "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
+            Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, false, false,
+                "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
+            Arguments.of("BBS21", false, true, SwitchKind.BREAKER, SwitchKind.BREAKER, true, true,
+                "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
+            Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true,
+                "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
         );
     }
 

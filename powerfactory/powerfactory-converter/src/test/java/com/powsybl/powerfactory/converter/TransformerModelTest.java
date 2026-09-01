@@ -7,13 +7,11 @@
  */
 package com.powsybl.powerfactory.converter;
 
+import com.powsybl.powerfactory.converter.TransformerConverter.TransformerModel;
+import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.powerfactory.converter.TransformerConverter.TransformerModel;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
