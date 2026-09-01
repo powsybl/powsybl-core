@@ -29,6 +29,8 @@ import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
 public final class ConnectableSerDeUtil {
 
     static final String VALUE_KEY = "value";
+    static final String ACCEPTABLE_DURATION_KEY = "acceptableDuration";
+    static final String FICTITIOUS_KEY = "fictitious";
     static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME = "temporaryLimits";
     static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NAME = "temporaryLimit";
     static final String PERMANENT_LIMIT_VALUE = "permanentLimit";
@@ -307,9 +309,9 @@ public final class ConnectableSerDeUtil {
         switch (elementName) {
             case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
                 String name = reader.readStringAttribute("name");
-                int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
+                int acceptableDuration = reader.readIntAttribute(ACCEPTABLE_DURATION_KEY, Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
-                boolean fictitious = reader.readBooleanAttribute("fictitious", false);
+                boolean fictitious = reader.readBooleanAttribute(FICTITIOUS_KEY, false);
                 LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
                 readProperties(context, tempLimitAdder);
                 tempLimitAdder
@@ -389,29 +391,30 @@ public final class ConnectableSerDeUtil {
                 IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions).spliterator(),
                 false
             ).toList();
-            int limitIndex = 0;
-            if (limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0) {
-                //the first temp limit was used as the permanent limit of the high limit, ignore it
-                limitIndex = 1;
+            boolean shiftLowToHigh = limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0;
+            //the first temp limit was used as the permanent limit of the high limit, ignore it if shifting low to high limit
+            int startingLimitIndex = shiftLowToHigh ? 1 : 0;
+            int limitIndex = startingLimitIndex;
+            for (int durationIndex = 0; durationIndex < tempLimits.size() - startingLimitIndex; ++durationIndex) {
+                LoadingLimits.TemporaryLimit tl = tempLimits.get(limitIndex);
+                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
+                writer.writeStringAttribute("name", tl.getName());
+                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tempLimits.get(durationIndex).getAcceptableDuration(), Integer.MAX_VALUE);
+                writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
+                writer.writeBooleanAttribute(FICTITIOUS_KEY, tl.isFictitious(), false);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
+                writer.writeEndNode();
+                ++limitIndex;
             }
-            for (int durationIndex = 0; durationIndex < tempLimits.size(); ++durationIndex) {
+            if (shiftLowToHigh) {
                 //since we skip the first temp limit when converting a low limit to a high limit (because it becomes the high limit), the last limit
                 //of the high limit should have a default name, the max value, and its duration is the duration of the last temp limit of the low limit
-                LoadingLimits.TemporaryLimit tl = limitIndex < tempLimits.size() ? tempLimits.get(limitIndex)
-                    : null;
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                writer.writeStringAttribute("name", tl != null ? tl.getName() : "minDurationTemporary");
-                writer.writeIntAttribute("acceptableDuration", tempLimits.get(durationIndex).getAcceptableDuration(), Integer.MAX_VALUE);
-                if (tl != null) {
-                    writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
-                } else {
-                    //normally we don't write the max value, but if a low limit is shifted to a high limit, this information is necessary
-                    writer.writeDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
-                }
-                writer.writeBooleanAttribute("fictitious", tl != null && tl.isFictitious(), false);
-                if (tl != null) {
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
-                }
+                writer.writeStringAttribute("name", "minDurationTemporary");
+                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tempLimits.getLast().getAcceptableDuration(), Integer.MAX_VALUE);
+                writer.writeDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
+                writer.writeBooleanAttribute(FICTITIOUS_KEY, true);
+                //no properties to write
                 writer.writeEndNode();
             }
             writer.writeEndNodes();
@@ -428,17 +431,16 @@ public final class ConnectableSerDeUtil {
         }
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () ->
+            writer.writeStringAttribute(DETECTION_KIND, kind.name())
+        );
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
             () -> {
-                String permanentName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
                 if (kind == DetectionKind.HIGH) {
-                    permanentName = limits.getPermanentLimitName();
+                    writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
+                        limits.getPermanentLimitName(),
+                        LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
                 }
-                writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
-                    permanentName,
-                    //permanent name is only written if it is not the default (also works for low limits, converted to high or not)
-                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME
-                );
             });
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
             () -> {
@@ -451,7 +453,6 @@ public final class ConnectableSerDeUtil {
             }
         );
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
-            writer.writeStringAttribute(DETECTION_KIND, kind.name());
             if (kind == DetectionKind.HIGH) {
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             }
