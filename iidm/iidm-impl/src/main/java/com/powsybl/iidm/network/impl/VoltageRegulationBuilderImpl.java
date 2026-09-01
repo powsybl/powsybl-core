@@ -13,20 +13,19 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
 
-    private final Function<VoltageRegulationExt, VoltageRegulationExt> voltageRegulationSetter;
+    private final Function<VoltageRegulation.AttributesWithTerminal, VoltageRegulationExt> voltageRegulationSetter;
 
     VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                         Validable validable,
                                         VoltageRegulationHolder<?> holder,
                                         Ref<NetworkImpl> network,
-                                        UnaryOperator<VoltageRegulationExt> voltageRegulationSetter) {
+                                        Function<VoltageRegulation.AttributesWithTerminal, VoltageRegulationExt> voltageRegulationSetter) {
         super(holderClass, validable, holder, network);
         this.voltageRegulationSetter = voltageRegulationSetter;
     }
@@ -46,6 +45,6 @@ class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuild
             voltageRegulationAttributes,
             network.get().getMinValidationLevel(),
             network.get().getReportNodeContext().getReportNode());
-        return this.voltageRegulationSetter.apply(VoltageRegulationImpl.createVoltageRegulation(validable, holder, classHolder, network, voltageRegulationAttributes));
+        return this.voltageRegulationSetter.apply(voltageRegulationAttributes);
     }
 }

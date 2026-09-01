@@ -8,11 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.VoltageSourceConverter;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
@@ -200,7 +196,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl(VoltageSourceConverter.class, this, this, getNetwork().getRef(), this::setOrMergeVoltageRegulation);
+        return new VoltageRegulationBuilderImpl(VoltageSourceConverter.class, this, this, getNetwork().getRef(), this::createOrUpdateVoltageRegulation);
     }
 
     @Override
@@ -281,20 +277,17 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     /**
      * <p>
-     * Updates the voltage regulation by merging the current configuration
-     * with the provided one and returns the updated voltage regulation object.
+     * Creates or updates the voltage regulation corresponding to the provided attributes.
      * </p>
-     * <p>
-     * This method must remain private to ensure voltage regulation lifecycle operations are done through
-     * the public API and to avoid sharing a voltage regulation instance between equipments.
-     * </p>
-     *
-     * @param newVoltageRegulation The new voltage regulation to merge with the current one.
-     *                          Must not be null.
-     * @return The updated voltageRegulation after merging.
+     * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
+     * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt setOrMergeVoltageRegulation(@NonNull VoltageRegulationExt newVoltageRegulation) {
-        this.voltageRegulation = VoltageRegulationImpl.mergeVoltageRegulation(this.voltageRegulation, newVoltageRegulation);
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VoltageSourceConverter.class, getNetwork().getRef(), attributes);
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(attributes);
+        }
         return this.voltageRegulation;
     }
 }

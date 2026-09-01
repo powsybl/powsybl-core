@@ -106,22 +106,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         }
     }
 
-    /**
-     * Merges two instances of {@code VoltageRegulationExt} by applying the attributes of the new instance
-     * to the current instance. If the current instance is null, the new instance is returned.
-     *
-     * @param currentVoltageRegulation The current {@code VoltageRegulationExt} instance, may be null.
-     * @param newVoltageRegulation The new {@code VoltageRegulationExt} instance to merge into the current instance, must not be null.
-     * @return A {@code VoltageRegulationExt} instance representing the merged result. If the current instance is null, the new instance is returned.
-     */
-    static VoltageRegulationExt mergeVoltageRegulation(VoltageRegulationExt currentVoltageRegulation,
-                                                       @NonNull VoltageRegulationExt newVoltageRegulation) {
-        if (currentVoltageRegulation == null) {
-            return newVoltageRegulation;
-        }
-        return currentVoltageRegulation.setAttributesOnCurrentVariant(newVoltageRegulation);
-    }
-
     private void initVariantAttributes(double targetValue, double targetDeadband, double slope, boolean regulating, RegulationMode mode, int variantArraySize) {
         Integer regulationModeIndex = RegulationMode.getIndexFromMode(mode);
         for (int i = 0; i < variantArraySize; i++) {
@@ -145,6 +129,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         NetworkImpl n = network.get();
         ValidationUtil.checkVoltageRegulation(validable, newAttributes, n, classHolder,
             n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+
+        if (n.getVariantManager().getVariantCount() > 1 && terminal != newAttributes.terminal()) {
+            throw new PowsyblException(this.validable.getMessageHeader() + "Cannot change terminal when there are multiple variants");
+        }
     }
 
     @Override
@@ -394,11 +382,8 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         }
     }
 
-    private void setAttributesOnCurrentVariant(AttributesWithTerminal attributes) {
-        if (this.network.get().getVariantManager().getVariantCount() > 1 &&
-                (terminal != null && terminal != attributes.terminal() || terminal == null && attributes.terminal() != null)) {
-            throw new PowsyblException(this.validable.getMessageHeader() + "Cannot change terminal when there are multiple variants");
-        }
+    @Override
+    public void setAttributesOnCurrentVariant(AttributesWithTerminal attributes) {
         checkAttributes(attributes);
         this.setModeOnCurrentVariant(attributes.mode());
         this.setSlopeOnCurrentVariant(attributes.slope());
@@ -406,18 +391,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         this.updateTerminal(attributes.terminal());
         this.setTargetValueOnCurrentVariant(attributes.targetValue());
         this.setRegulatingOnCurrentVariant(attributes.isRegulating());
-    }
-
-    @Override
-    public VoltageRegulationExt setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation) {
-        setAttributesOnCurrentVariant(new AttributesWithTerminal(
-            voltageRegulation.getTargetValue(),
-            voltageRegulation.getTargetDeadband(),
-            voltageRegulation.getSlope(),
-            voltageRegulation.getMode(),
-            voltageRegulation.isRegulating(),
-            voltageRegulation.getTerminal()));
-        return this;
     }
 
     private int getCurrentVariantIndex() {

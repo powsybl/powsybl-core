@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,12 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 /**
@@ -352,6 +348,76 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
             .setMinP(12.0)
             .setMaxP(120.0)
             .setTargetP(100.0);
+    }
+
+    @Test
+    void testMergeWithTerminalInMultiVariant() {
+        Generator gen = newGeneratorAdder("gen1")
+                .setLocalTargetQ(15.0)
+                .setLocalTargetV(110.0)
+                .add();
+
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        String other = "Other";
+        network.getVariantManager().cloneVariant(initialVariantId, other);
+        network.getVariantManager().setWorkingVariant(other);
+
+        // Creating a VoltageRegulation object with a terminal could be considered as changing the terminal.
+        // This is not allowed in multi-variant mode.
+        VoltageRegulationBuilder builder = gen.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(120)
+                .withTerminal(gen.getTerminal())
+                .withRegulating(true);
+        PowsyblException powsyblException = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Generator 'gen1': Cannot set terminal when there are multiple variants",
+                powsyblException.getMessage());
+
+        // But it must be possible to create a voltage regulation in multi-variant mode if the terminal is not changed.
+        builder = gen.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true);
+        assertDoesNotThrow(builder::build);
+    }
+
+    @Test
+    void testCreateVoltageRegulationInMultiVariant() {
+        Generator otherGen = network.getGenerator("GEN");
+        Generator gen = newGeneratorAdder("gen3")
+                .setLocalTargetQ(15.0)
+                .setLocalTargetV(110.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(120)
+                    .withTerminal(otherGen.getTerminal())
+                    .withRegulating(true)
+                    .add()
+                .add();
+
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        String other = "Other";
+        network.getVariantManager().cloneVariant(initialVariantId, other);
+        network.getVariantManager().setWorkingVariant(other);
+
+        // Setting the voltage regulation with the same terminal is allowed
+        VoltageRegulationBuilder builder = gen.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(130)
+                .withTerminal(otherGen.getTerminal())
+                .withRegulating(true);
+
+        assertDoesNotThrow(builder::build);
+
+        // But it is not allowed to change the terminal (multi-variant)
+        builder = gen.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(110)
+                .withTerminal(gen.getTerminal())
+                .withRegulating(true);
+
+        PowsyblException powsyblException = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Generator 'gen3': Cannot change terminal when there are multiple variants",
+                powsyblException.getMessage());
     }
 
     private Generator createGenerator(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator) {
