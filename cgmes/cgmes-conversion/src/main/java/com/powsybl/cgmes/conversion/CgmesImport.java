@@ -229,6 +229,10 @@ public class CgmesImport implements Importer {
                 futures.add(executor.submit(() -> importData2(dsList.get(idx), networkFactory, p, tripleStoreReportNodes.get(idx), conversionReportNodes.get(idx))));
             }
             Network[] networks = new Network[dsList.size()];
+            // It is fine to retrieve the result sequentially.
+            // Futures already run in parallel on the executor, so blocking on them in submission order costs nothing.
+            // An ExecutorCompletionService would only save time here if collecting a finished result were expensive,
+            // which it isn't (we are only putting network objects in the list, this is a cheap operation).
             for (int i = 0; i < futures.size(); i++) {
                 networks[i] = futures.get(i).get();
             }
@@ -885,7 +889,8 @@ public class CgmesImport implements Importer {
     private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER = new Parameter(
             IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT,
             ParameterType.INTEGER,
-            "Number of threads used to import subnetworks of a CGM concurrently (1 = sequential import)",
+            "Number of threads used to import subnetworks of a CGM concurrently (1 = sequential import). " +
+                    "Applicable only if iidm.import.cgmes.cgm-with-subnetworks parameter is set to true.",
             1);
 
     public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(
