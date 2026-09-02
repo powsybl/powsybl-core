@@ -115,6 +115,16 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public TieLine setR(double r) {
+        throw new UnsupportedOperationException("Cannot update TieLine resistance: it is computed from its boundary lines.");
+    }
+
+    @Override
+    public TieLine setX(double x) {
+        throw new UnsupportedOperationException("Cannot update TieLine reactance: it is computed from its boundary lines.");
+    }
+
+    @Override
     public double getG1() {
         return TieLineUtil.getG1(boundaryLine1, boundaryLine2);
     }
