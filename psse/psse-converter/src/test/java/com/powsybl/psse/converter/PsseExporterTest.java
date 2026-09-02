@@ -266,6 +266,12 @@ class PsseExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importExportTestRawTwoWindingsTransformerSecondRatio() throws IOException {
+        Network network = importTest("TwoWindingsTransformerSecondRatio", "TwoWindingsTransformerSecondRatio.raw", false);
+        exportTest(network, "TwoWindingsTransformerSecondRatio_exported", "TwoWindingsTransformerSecondRatio_exported.raw");
+    }
+
+    @Test
     void importExportTestRawFiveBusNodeBreakerSplitBus() throws IOException {
         Network network = importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
 
