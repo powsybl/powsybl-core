@@ -33,6 +33,7 @@ public class PostContingencyResultSerializer extends StdSerializer<PostContingen
         serializerProvider.defaultSerializeField("networkResult", postContingencyResult.getNetworkResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("connectivityResult", postContingencyResult.getConnectivityResult(), jsonGenerator);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "distributedActivePower", postContingencyResult.getDistributedActivePower());
+        PhaseShifterResultSerializer.write(postContingencyResult.getPhaseShifterResults(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

@@ -65,7 +65,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(ctx, version, SOURCE_VERSION_ATTRIBUTE);
-                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, version.compareTo("1.7") >= 0);
+                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, JsonUtil.compareVersions(version, "1.7") >= 0);
                     break;
 
                 case "network":

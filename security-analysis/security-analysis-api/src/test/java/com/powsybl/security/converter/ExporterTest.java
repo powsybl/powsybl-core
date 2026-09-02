@@ -103,7 +103,8 @@ class ExporterTest extends AbstractSerDeTest {
                 new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
                 NetworkResult.empty(),
                 ConnectivityResult.empty(),
-                2.34
+                2.34,
+                Collections.emptyMap()
         );
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
@@ -157,7 +158,8 @@ class ExporterTest extends AbstractSerDeTest {
         operatorStrategyResults.add(opStrategyResult2);
         SecurityAnalysisResult result = new SecurityAnalysisResult(
                 new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult,
-                    new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23),
+                    new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23,
+                    Map.of("T1", new MovedPhaseShifterResult("T1", 2, 4))),
                 Collections.singletonList(postContingencyResult), operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;

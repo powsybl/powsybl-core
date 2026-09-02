@@ -78,7 +78,7 @@ class SecurityTest {
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1,
             PostContingencyComputationStatus.CONVERGED,
             new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
-            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyMap());
 
         result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }

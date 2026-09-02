@@ -11,9 +11,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.security.results.*;
+import com.powsybl.security.results.MovedPhaseShifterResult;
+import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.results.PreContingencyResult;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
@@ -27,6 +31,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
 
     private static final class ParsingContext {
         LoadFlowResult.ComponentResult.Status status = null;
+        Map<String, MovedPhaseShifterResult> phaseShifterResults = Collections.emptyMap();
     }
 
     public PreContingencyResultDeserializer() {
@@ -35,38 +40,54 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
 
     @Override
     public PreContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
-        if (version == null) {  // assuming current version...
+        if (version == null) {  // assuming current version when version is not specified
             version = SecurityAnalysisResultSerializer.VERSION;
         }
         final String finalVersion = version;
         ParsingContext parsingContext = new ParsingContext();
-        AbstractContingencyResultDeserializer.ParsingContext commonParsingContext = new AbstractContingencyResultDeserializer.ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> {
-            boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext, finalVersion, CONTEXT_NAME);
-            if (found) {
-                return true;
-            }
-            if (parser.currentName().equals("status")) {
-                parser.nextToken();
-                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
-                        finalVersion, "1.3");
-                parsingContext.status = JsonUtil.readValue(deserializationContext, parser, LoadFlowResult.ComponentResult.Status.class);
-                return true;
-            }
-            return false;
-        });
-        if (finalVersion.compareTo("1.3") < 0) {
+        AbstractContingencyResultDeserializer.ParsingContext commonParsingContext =
+                new AbstractContingencyResultDeserializer.ParsingContext();
+        JsonUtil.parsePolymorphicObject(parser, name -> parsePreContingencyResult(
+                parser, deserializationContext, parsingContext, finalVersion, commonParsingContext, name));
+        if (JsonUtil.compareVersions(finalVersion, "1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
-            parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
+            parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk()
+                    ? LoadFlowResult.ComponentResult.Status.CONVERGED
+                    : LoadFlowResult.ComponentResult.Status.FAILED;
         }
         return new PreContingencyResult(
                 parsingContext.status,
                 commonParsingContext.limitViolationsResult,
                 Objects.requireNonNullElseGet(commonParsingContext.networkResult,
-                    () -> new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
-                commonParsingContext.distributedActivePower
-        );
+                        () -> new NetworkResult(commonParsingContext.branchResults,
+                                commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
+                commonParsingContext.distributedActivePower,
+                parsingContext.phaseShifterResults);
+    }
+
+    private boolean parsePreContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
+                                               ParsingContext parsingContext, String finalVersion,
+                                               AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
+                                               String name) throws IOException {
+        boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext,
+                finalVersion, CONTEXT_NAME);
+        if (found) {
+            return true;
+        }
+        if ("status".equals(parser.currentName())) {
+            parser.nextToken();
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", finalVersion, "1.3");
+            parsingContext.status = JsonUtil.readValue(deserializationContext, parser,
+                    LoadFlowResult.ComponentResult.Status.class);
+            return true;
+        } else if ("phaseShifterResults".equals(parser.currentName())) {
+            parser.nextToken();
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(
+                    CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "1.10");
+            parsingContext.phaseShifterResults = PhaseShifterResultSerializer.readPhaseShifterResults(parser, deserializationContext);
+            return true;
+        }
+        return false;
     }
 }

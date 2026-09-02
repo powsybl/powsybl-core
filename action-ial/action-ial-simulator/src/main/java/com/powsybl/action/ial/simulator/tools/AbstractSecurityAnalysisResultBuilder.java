@@ -62,7 +62,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
                             runningContext.getContingency(),
                             PostContingencyComputationStatus.FAILED,
                             new LimitViolationsResult(Collections.emptyList(), getPostContingencyActions(runningContext.getContingency())),
-                            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN
+                            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyMap()
                     )
             );
         }
@@ -81,7 +81,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
                             runningContext.getContingency(),
                             PostContingencyComputationStatus.CONVERGED,
                             new LimitViolationsResult(violations, getPostContingencyActions(runningContext.getContingency())),
-                            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN
+                            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyMap()
                     )
             );
         }

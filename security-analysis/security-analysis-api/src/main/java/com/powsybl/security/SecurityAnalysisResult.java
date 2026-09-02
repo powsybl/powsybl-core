@@ -29,14 +29,17 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final List<OperatorStrategyResult> operatorStrategyResults;
 
     public static SecurityAnalysisResult empty() {
-        return new SecurityAnalysisResult(new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), NetworkResult.empty(), Double.NaN),
-                Collections.emptyList(), Collections.emptyList());
+        PreContingencyResult preContingencyResult = new PreContingencyResult(
+                LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), NetworkResult.empty(),
+                Double.NaN, Collections.emptyMap());
+        return new SecurityAnalysisResult(preContingencyResult, Collections.emptyList(), Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, NetworkResult.empty(), Double.NaN),
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, NetworkResult.empty(),
+                        Double.NaN, Collections.emptyMap()),
                 postContingencyResults, Collections.emptyList());
     }
 
@@ -47,8 +50,13 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<BusResult> preContingencyBusResults,
                                   List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults,
                                   List<OperatorStrategyResult> operatorStrategyResults) {
-        this(new PreContingencyResult(preContingencyStatus, preContingencyResult,
-                new NetworkResult(preContingencyBranchResults, preContingencyBusResults, preContingencyThreeWindingsTransformerResults), Double.NaN),
+        this(new PreContingencyResult(
+                        preContingencyStatus,
+                        preContingencyResult,
+                        new NetworkResult(preContingencyBranchResults, preContingencyBusResults,
+                                preContingencyThreeWindingsTransformerResults),
+                        Double.NaN,
+                        Collections.emptyMap()),
                 postContingencyResults, operatorStrategyResults);
     }
 
