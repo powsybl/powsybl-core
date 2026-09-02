@@ -10,12 +10,12 @@ package com.powsybl.security.results;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 
-import java.util.*;
+import java.util.Objects;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class PreContingencyResult extends AbstractContingencyResult {
+public class PreContingencyResult extends AbstractContingencyResult<PreContingencyResult> {
 
     private final LoadFlowResult.ComponentResult.Status status;
 

@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.util.Objects;
@@ -14,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public abstract class AbstractContingencyResult {
+public abstract class AbstractContingencyResult<T extends AbstractContingencyResult<T>> extends AbstractExtendable<T> {
     private final LimitViolationsResult limitViolationsResult;
     private final NetworkResult networkResult;
     private final double distributedActivePower;
