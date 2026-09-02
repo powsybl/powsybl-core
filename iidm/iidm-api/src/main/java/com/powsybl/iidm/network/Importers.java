@@ -57,6 +57,7 @@ public final class Importers {
      */
     public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters,
                                      ComputationManager computationManager, ImportConfig config, ReportNode reportNode) {
+        Objects.requireNonNull(dataSource);
         Importer importer = Importer.find(loader, format, computationManager, config);
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
