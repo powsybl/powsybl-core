@@ -142,6 +142,8 @@ Limit scalings can be specified in order to detect when a specific limit is **ne
 artificially modify the limit itself.
 For instance, with a limit scaling set to 95% for a limit of 1000 MW, the security analysis will flag a limit
 violation for any value exceeding 950 MW.
+Limit scalings can also use a scaling higher than 100%. With a limit scaling of 110% for a limit of 1000 MW, the security
+analysis will flag a limit violation for any value exceeding 1100 MW.
 
 Each limit scaling has its own criteria specifying for which limits and under what conditions it should be applied.
 These criteria can include:
