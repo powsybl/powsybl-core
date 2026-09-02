@@ -59,9 +59,9 @@ public final class TestingResultFactory {
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        double limitReductionValue = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitReductionValue).value(value).build();
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolations.add(limitViolation);
         List<FaultResult> faultResults = new ArrayList<>();
         MagnitudeFeederResult feederResult;
@@ -82,7 +82,7 @@ public final class TestingResultFactory {
         String operationalLimitsGroupId = "activated_limits_group";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        double limitReductionValue = 1;
+        double limitScalingValue = 1;
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(
             subjectId,
@@ -92,7 +92,7 @@ public final class TestingResultFactory {
             null,
             Integer.MAX_VALUE,
             limit,
-            limitReductionValue,
+            limitScalingValue,
             value,
             ThreeSides.ONE,
             null
@@ -111,9 +111,9 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        double limitReductionValue = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitReductionValue).value(value).build();
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
@@ -138,9 +138,9 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        double limitReductionValue = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitReductionValue).value(value).build();
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
@@ -159,9 +159,9 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        double limitReductionValue = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitReductionValue).value(value).build();
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
@@ -184,9 +184,9 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        double limitReductionValue = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitReductionValue).value(value).build();
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();

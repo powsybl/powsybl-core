@@ -91,7 +91,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     @Test
-    void testLimitReductionOnCurrentPermanentLimit() {
+    void testLimitScalingOnCurrentPermanentLimit() {
         final double i = 460;
         Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = line1.getLimits(LimitType.CURRENT, TwoSides.ONE);
@@ -161,7 +161,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     @Test
-    void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
+    void testLimitScalingOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = tieLine1.getBoundaryLine(TwoSides.ONE).getCurrentLimits();

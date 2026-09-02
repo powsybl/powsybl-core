@@ -450,8 +450,8 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for permanent limit checks
      */
-    default void checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
+    default void checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, double limitScalingValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitScalingValue);
         LimitViolationDetection.checkLimitViolation(transformer, side, value, type, Set.of(LoadingLimitType.PATL), limitsComputer, consumer);
     }
 
@@ -459,8 +459,8 @@ public interface LimitViolationDetector {
      * Generic implementation for temporary limit checks
      * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
-    default boolean checkTemporary(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
+    default boolean checkTemporary(Branch<?> branch, TwoSides side, double limitScalingValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitScalingValue);
         LimitViolationConsumerWrapper wrapper = new LimitViolationConsumerWrapper(consumer);
         LimitViolationDetection.checkLimitViolation(branch, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, wrapper);
         return wrapper.noOverload;
@@ -470,8 +470,8 @@ public interface LimitViolationDetector {
      * Generic implementation for temporary limit checks
      * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
-    default boolean checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
+    default boolean checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitScalingValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitScalingValue);
         LimitViolationConsumerWrapper wrapper = new LimitViolationConsumerWrapper(consumer);
         LimitViolationDetection.checkLimitViolation(transformer, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, wrapper);
         return wrapper.noOverload;

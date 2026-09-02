@@ -37,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 class LimitScalingModuleTest extends AbstractSerDeTest {
 
     @Test
-    void limitReductionReadV10() {
+    void limitScalingReadV10() {
         LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
-        LimitScalingList expectedReductions = new LimitScalingList(
+        LimitScalingList expectedScalings = new LimitScalingList(
             List.of(
                 getLimitScaling1(),
                 getLimitScaling2(),
@@ -47,13 +47,13 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
                 getLimitScaling4()
             )
         );
-        compareLimitScalingList(expectedReductions, limitScalingList);
+        compareLimitScalingList(expectedScalings, limitScalingList);
     }
 
     @Test
-    void limitReductionReadV11() {
+    void limitScalingReadV11() {
         LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.1.json"));
-        LimitScalingList expectedReductions = new LimitScalingList(
+        LimitScalingList expectedScalings = new LimitScalingList(
             List.of(
                 getLimitScaling1(),
                 getLimitScaling2(),
@@ -62,7 +62,7 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
                 getLimitScaling5()
             )
         );
-        compareLimitScalingList(expectedReductions, limitScalingList);
+        compareLimitScalingList(expectedScalings, limitScalingList);
     }
 
     @Test
@@ -126,9 +126,9 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
 
     @Test
     void compatibilityWithOldCriterion() throws IOException {
-        LimitScalingList reductionList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
+        LimitScalingList scalingsList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            LimitScalingListSerDeUtil.write(reductionList, bos);
+            LimitScalingListSerDeUtil.write(scalingsList, bos);
             ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_groupV1.2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             // Should not happen

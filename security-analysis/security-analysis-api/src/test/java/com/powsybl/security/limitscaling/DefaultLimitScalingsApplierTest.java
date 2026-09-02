@@ -43,38 +43,38 @@ class DefaultLimitScalingsApplierTest {
     static void init() {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
-        LimitScaling reduction1 = LimitScaling.builder(LimitType.CURRENT, 0.9)
+        LimitScaling scaling1 = LimitScaling.builder(LimitType.CURRENT, 0.9)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency1"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .withLimitDurationCriteria(new PermanentDurationCriterion())
                 .build();
-        LimitScaling reduction2 = LimitScaling.builder(LimitType.CURRENT, 0.5)
+        LimitScaling scaling2 = LimitScaling.builder(LimitType.CURRENT, 0.5)
                 .withMonitoringOnly(false)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
                 .build();
-        LimitScaling reduction3 = LimitScaling.builder(LimitType.CURRENT, 0.1)
+        LimitScaling scaling3 = LimitScaling.builder(LimitType.CURRENT, 0.1)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency3"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
                 .build();
-        LimitScaling reduction4 = LimitScaling.builder(LimitType.CURRENT, 0.75)
+        LimitScaling scaling4 = LimitScaling.builder(LimitType.CURRENT, 0.75)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency4"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
                 .build();
-        LimitScaling reduction5 = LimitScaling.builder(LimitType.CURRENT, 0.1)
+        LimitScaling scaling5 = LimitScaling.builder(LimitType.CURRENT, 0.1)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency5"))
                 // Applicable only for the 2 winding transformer NHV2_NLOAD on Side 2
                 .withNetworkElementCriteria(new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
                         VoltageInterval.between(150., 160., true, true))))
                 .build();
-        LimitScaling reduction6 = LimitScaling.builder(LimitType.CURRENT, 0.2)
+        LimitScaling scaling6 = LimitScaling.builder(LimitType.CURRENT, 0.2)
                 .withMonitoringOnly(true)
                 .build();
-        applier = new DefaultLimitScalingsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5, reduction6));
+        applier = new DefaultLimitScalingsApplier(List.of(scaling1, scaling2, scaling3, scaling4, scaling5, scaling6));
     }
 
     @Test
@@ -91,22 +91,22 @@ class DefaultLimitScalingsApplierTest {
         line.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
         // pre-contingency
         applier.setWorkingContingency(null);
-        // - No reductions apply for "NHV1_NHV2_1"
+        // - No scalings apply for "NHV1_NHV2_1"
         computeAndCheckLimitsOnLine1WithoutScalings();
-        // - Some reductions apply for "NHV1_NHV2_2"
+        // - Some scalings apply for "NHV1_NHV2_2"
         computeAndCheckLimitsOnLine2(0.5, false);
         computeAndCheckLimitsOnLine2(0.2, true);
 
         // contingency0
         applier.setWorkingContingency("contingency0");
-        // - Same reductions as before apply for both network elements => the cache is used.
+        // - Same scalings as before apply for both network elements => the cache is used.
         computeAndCheckLimitsOnLine1WithoutScalings();
         computeAndCheckLimitsOnLine2(0.5, false);
         computeAndCheckLimitsOnLine2(0.2, true);
 
         // contingency1
         applier.setWorkingContingency("contingency1");
-        // - Some reductions apply for "NHV1_NHV2_1", but only for permanent limits
+        // - Some scalings apply for "NHV1_NHV2_1", but only for permanent limits
         Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
         assertFalse(limits.isEmpty());
         LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
@@ -126,7 +126,7 @@ class DefaultLimitScalingsApplierTest {
                 new Tuple(720., List.of(950.))
             );
 
-        // - Same reductions as before apply for "NHV1_NHV2_2"
+        // - Same scalings as before apply for "NHV1_NHV2_2"
         computeAndCheckLimitsOnLine2(0.5, false);
         computeAndCheckLimitsOnLine2(0.2, true);
     }
@@ -190,9 +190,9 @@ class DefaultLimitScalingsApplierTest {
     }
 
     @Test
-    void severalApplicableReductionsTest() {
+    void severalApplicableScalingsTest() {
         applier.setWorkingContingency("contingency3");
-        // Several reductions apply for line2 (with 0.5 and 0.1 reductions), only the last is used.
+        // Several scalings apply for line2 (with 0.5 and 0.1 scalings), only the last is used.
         computeAndCheckLimitsOnLine2(0.1, false);
     }
 
@@ -239,7 +239,7 @@ class DefaultLimitScalingsApplierTest {
                     .setName("60'")
                 .endTemporaryLimit()
                 .add();
-        // The reduction only applies on side 2 for NHV2_NLOAD
+        // The scaling only applies on side 2 for NHV2_NLOAD
         Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(nhv2Nload,
                 LimitType.CURRENT, ThreeSides.ONE, false);
         assertFalse(limits.isEmpty());
@@ -248,7 +248,7 @@ class DefaultLimitScalingsApplierTest {
         assertEquals(1200., container.getLimits().getTemporaryLimitValue(60), 0.01);
         assertFalse(container.isDistinct());
 
-        // The reduction only applies on side 1 for NHV2_NLOAD
+        // The scaling only applies on side 1 for NHV2_NLOAD
         limits = applier.computeLimits(nhv2Nload, LimitType.CURRENT, ThreeSides.TWO, false);
         assertFalse(limits.isEmpty());
         container = limits.stream().findFirst().orElseThrow();
@@ -262,7 +262,7 @@ class DefaultLimitScalingsApplierTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("getNoChangesComputers")
     void noChangesTest(String desc, DefaultLimitScalingsApplier noChangesComputer) {
-        // In this test, no effective reductions were defined (either no reductions were used in the computer or
+        // In this test, no effective scalings were defined (either no scalings were used in the computer or
         // their values are all equal to 1.0).
         Collection<LimitsContainer<LoadingLimits>> limits = noChangesComputer.computeLimits(network.getLine("NHV1_NHV2_1"),
                 LimitType.CURRENT, ThreeSides.TWO, false);
@@ -273,17 +273,17 @@ class DefaultLimitScalingsApplierTest {
     }
 
     static Stream<Arguments> getNoChangesComputers() {
-        DefaultLimitScalingsApplier noReductionComputer = new DefaultLimitScalingsApplier(Collections.emptyList());
-        LimitScaling reduction1 = LimitScaling.builder(LimitType.CURRENT, 1.)
+        DefaultLimitScalingsApplier noScalingComputer = new DefaultLimitScalingsApplier(Collections.emptyList());
+        LimitScaling scaling1 = LimitScaling.builder(LimitType.CURRENT, 1.)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .build();
-        LimitScaling reduction2 = LimitScaling.builder(LimitType.CURRENT, 1.)
+        LimitScaling scaling2 = LimitScaling.builder(LimitType.CURRENT, 1.)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .build();
-        DefaultLimitScalingsApplier reductionsTo1Computer = new DefaultLimitScalingsApplier(List.of(reduction1, reduction2));
+        DefaultLimitScalingsApplier scalingsTo1Computer = new DefaultLimitScalingsApplier(List.of(scaling1, scaling2));
         return Stream.of(
-                Arguments.of("No reductions", noReductionComputer),
-                Arguments.of("Reductions to 1.0", reductionsTo1Computer)
+                Arguments.of("No scalings", noScalingComputer),
+                Arguments.of("Scalings to 1.0", scalingsTo1Computer)
         );
     }
 
