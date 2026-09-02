@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -38,47 +39,56 @@ import static org.junit.jupiter.api.Assertions.*;
 class DefaultLimitScalingsApplierTest {
     private static DefaultLimitScalingsApplier applier;
     private static Network network;
+    private static LimitScaling scaling1;
+    private static LimitScaling scaling2;
+    private static LimitScaling scaling3;
+    private static LimitScaling scaling4;
+    private static LimitScaling scaling5;
+    private static LimitScaling scaling6;
 
     @BeforeAll
-    static void init() {
-        network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-
-        LimitScaling scaling1 = LimitScaling.builder(LimitType.CURRENT, 0.9)
+    static void setup() {
+        scaling1 = LimitScaling.builder(LimitType.CURRENT, 0.9)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency1"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .withLimitDurationCriteria(new PermanentDurationCriterion())
                 .build();
-        LimitScaling scaling2 = LimitScaling.builder(LimitType.CURRENT, 0.5)
+        scaling2 = LimitScaling.builder(LimitType.CURRENT, 0.5)
                 .withMonitoringOnly(false)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
                 .build();
-        LimitScaling scaling3 = LimitScaling.builder(LimitType.CURRENT, 0.1)
+        scaling3 = LimitScaling.builder(LimitType.CURRENT, 0.1)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency3"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
                 .build();
-        LimitScaling scaling4 = LimitScaling.builder(LimitType.CURRENT, 0.75)
+        scaling4 = LimitScaling.builder(LimitType.CURRENT, 0.75)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency4"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
                 .build();
-        LimitScaling scaling5 = LimitScaling.builder(LimitType.CURRENT, 0.1)
+        scaling5 = LimitScaling.builder(LimitType.CURRENT, 0.1)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency5"))
                 // Applicable only for the 2 winding transformer NHV2_NLOAD on Side 2
                 .withNetworkElementCriteria(new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
                         VoltageInterval.between(150., 160., true, true))))
                 .build();
-        LimitScaling scaling6 = LimitScaling.builder(LimitType.CURRENT, 0.2)
+        scaling6 = LimitScaling.builder(LimitType.CURRENT, 0.2)
                 .withMonitoringOnly(true)
                 .build();
+    }
+
+    @BeforeEach
+    void init() {
+        network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         applier = new DefaultLimitScalingsApplier(List.of(scaling1, scaling2, scaling3, scaling4, scaling5, scaling6));
     }
 
     @Test
-    void applyReductionsTest() {
+    void applyScalingsTest() {
         Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         line.newOperationalLimitsGroup2(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).newCurrentLimits()
             .setPermanentLimit(800)
