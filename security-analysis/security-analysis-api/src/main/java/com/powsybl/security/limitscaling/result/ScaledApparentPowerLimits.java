@@ -19,8 +19,8 @@ public class ScaledApparentPowerLimits extends AbstractScaledLoadingLimits imple
     /**
      * Create a {@link ScaledApparentPowerLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
      */
-    public ReducedApparentPowerLimits(double permanentLimit, double originalPermanentLimit,
-                                      double permanentLimitScaling, String permanentLimitName) {
+    public ScaledApparentPowerLimits(double permanentLimit, double originalPermanentLimit,
+                                     double permanentLimitScaling, String permanentLimitName) {
         super(permanentLimit, originalPermanentLimit, permanentLimitScaling, permanentLimitName);
     }
 

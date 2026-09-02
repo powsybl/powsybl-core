@@ -19,8 +19,8 @@ public class ScaledActivePowerLimits extends AbstractScaledLoadingLimits impleme
      * Create a {@link ScaledActivePowerLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#HIGH}
      */
     public ScaledActivePowerLimits(double permanentLimit, double originalPermanentLimit,
-                                   double permanentLimitScaling) {
-        super(permanentLimit, originalPermanentLimit, permanentLimitScaling);
+                                   double permanentLimitScaling, String permanentLimitName) {
+        super(permanentLimit, originalPermanentLimit, permanentLimitScaling, permanentLimitName);
     }
 
     /**

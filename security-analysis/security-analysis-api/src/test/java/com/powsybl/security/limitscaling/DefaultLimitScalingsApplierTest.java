@@ -215,7 +215,7 @@ class DefaultLimitScalingsApplierTest {
         LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
         LoadingLimits scaledLimits = container.getLimits();
         assertEquals(1100, scaledLimits.getPermanentLimit(), 0.01);
-        assertTrue(Double.isNaN(scaledLimits.getTemporaryLimitValue(10 * 60))); // removed since the 1' limit's reduced value is < 1200
+        assertTrue(Double.isNaN(scaledLimits.getTemporaryLimitValue(10 * 60))); // removed since the 1' limit's scaled value is < 1200
         assertEquals(1125, scaledLimits.getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, scaledLimits.getTemporaryLimitValue(0), 0.01);
         checkOriginalLimitsDefaultOnLine1(container.getOriginalLimits());
@@ -223,15 +223,15 @@ class DefaultLimitScalingsApplierTest {
     }
 
     @Test
-    void noLimitsToReduceTest() {
+    void noLimitsToScaleTest() {
         Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getTwoWindingsTransformer("NGEN_NHV1"),
                 LimitType.CURRENT, ThreeSides.ONE, false);
-        // There are no limits on "NGEN_NHV1" => no reduced limits.
+        // There are no limits on "NGEN_NHV1" => no scaled limits.
         assertTrue(limits.isEmpty());
     }
 
     @Test
-    void reduceOnOneSideOnlyTest() {
+    void scaleOnOneSideOnlyTest() {
         applier.setWorkingContingency("contingency5");
         TwoWindingsTransformer nhv2Nload = network.getTwoWindingsTransformer("NHV2_NLOAD");
         nhv2Nload.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
@@ -322,7 +322,7 @@ class DefaultLimitScalingsApplierTest {
     }
 
     @Test
-    void checkPermanentLimitNameOnReducedLimits() {
+    void checkPermanentLimitNameOnScaledLimits() {
         Network n = FourSubstationsNodeBreakerFactory.create();
         Line lineS2S3 = n.getLine("LINE_S2S3");
         OperationalLimitsGroup group1 = lineS2S3.getOrCreateSelectedOperationalLimitsGroup1("Set 1");
@@ -339,24 +339,24 @@ class DefaultLimitScalingsApplierTest {
                 .setPermanentLimitName("Permanent current power limit")
                 .add();
 
-        LimitReduction reductionActive = LimitReduction.builder(LimitType.ACTIVE_POWER, 0.1).build();
-        LimitReduction reductionApparent = LimitReduction.builder(LimitType.APPARENT_POWER, 0.1).build();
-        LimitReduction reductionCurrent = LimitReduction.builder(LimitType.CURRENT, 0.1).build();
-        var limitReductionApplier = new DefaultLimitReductionsApplier(List.of(reductionActive, reductionApparent, reductionCurrent));
+        LimitScaling scalingActive = LimitScaling.builder(LimitType.ACTIVE_POWER, 0.1).build();
+        LimitScaling scalingApparent = LimitScaling.builder(LimitType.APPARENT_POWER, 0.1).build();
+        LimitScaling scalingCurrent = LimitScaling.builder(LimitType.CURRENT, 0.1).build();
+        var limitScalingApplier = new DefaultLimitScalingsApplier(List.of(scalingActive, scalingApparent, scalingCurrent));
 
-        assertReducedPermanentLimitName("Permanent active power limit",
-                limitReductionApplier.computeLimits(lineS2S3, LimitType.ACTIVE_POWER, ThreeSides.ONE, false));
-        assertReducedPermanentLimitName("Permanent apparent power limit",
-                limitReductionApplier.computeLimits(lineS2S3, LimitType.APPARENT_POWER, ThreeSides.ONE, false));
-        assertReducedPermanentLimitName("Permanent current power limit",
-                limitReductionApplier.computeLimits(lineS2S3, LimitType.CURRENT, ThreeSides.ONE, false));
+        assertScaledPermanentLimitName("Permanent active power limit",
+                limitScalingApplier.computeLimits(lineS2S3, LimitType.ACTIVE_POWER, ThreeSides.ONE, false));
+        assertScaledPermanentLimitName("Permanent apparent power limit",
+                limitScalingApplier.computeLimits(lineS2S3, LimitType.APPARENT_POWER, ThreeSides.ONE, false));
+        assertScaledPermanentLimitName("Permanent current power limit",
+                limitScalingApplier.computeLimits(lineS2S3, LimitType.CURRENT, ThreeSides.ONE, false));
     }
 
-    void assertReducedPermanentLimitName(String expectedName, Collection<LimitsContainer<LoadingLimits>> limits) {
+    void assertScaledPermanentLimitName(String expectedName, Collection<LimitsContainer<LoadingLimits>> limits) {
         assertFalse(limits.isEmpty());
         LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
         assertEquals(expectedName, container.getLimits().getPermanentLimitName());
-        // Check that the reduction was indeed applied
+        // Check that the scaling was indeed applied
         assertEquals(10., container.getLimits().getPermanentLimit(), 0.1);
         assertTrue(container.isDistinct());
     }

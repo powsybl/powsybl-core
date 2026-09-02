@@ -81,8 +81,8 @@ public abstract class AbstractScaledLoadingLimits extends UnsupportedPropertiesH
         }
     }
 
-    protected AbstractReducedLoadingLimits(double permanentLimit, double originalPermanentLimit,
-                                           double permanentLimitScaling, String permanentLimitName) {
+    protected AbstractScaledLoadingLimits(double permanentLimit, double originalPermanentLimit,
+                                          double permanentLimitScaling, String permanentLimitName) {
         this(DetectionKind.HIGH, permanentLimit, originalPermanentLimit, permanentLimitScaling);
         setPermanentLimitName(permanentLimitName);
     }

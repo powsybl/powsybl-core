@@ -35,7 +35,7 @@ public class DefaultLimitsScaler extends AbstractLimitsScaler<LoadingLimits> {
         if (originalLimits.getDetectionKind() == DetectionKind.HIGH) {
             double scaledPermanentLimit = applyScaling(originalLimits.getPermanentLimit(), getPermanentLimitScaling());
             scaledLoadingLimits = initHigh(originalLimits.getLimitType(), scaledPermanentLimit,
-                originalLimits.getPermanentLimit(), getPermanentLimitScaling());
+                originalLimits.getPermanentLimit(), getPermanentLimitScaling(), originalLimits.getPermanentLimitName());
         } else {
             scaledLoadingLimits = initLow(originalLimits.getLimitType());
         }
@@ -65,11 +65,12 @@ public class DefaultLimitsScaler extends AbstractLimitsScaler<LoadingLimits> {
 
     private AbstractScaledLoadingLimits initHigh(LimitType type, double permanentLimit,
                                                  double originalPermanentLimit,
-                                                 double permanentLimitScaling) {
+                                                 double permanentLimitScaling,
+                                                 String permanentLimitName) {
         return switch (type) {
-            case ACTIVE_POWER -> new ScaledActivePowerLimits(permanentLimit, originalPermanentLimit, permanentLimitScaling);
-            case APPARENT_POWER -> new ScaledApparentPowerLimits(permanentLimit, originalPermanentLimit, permanentLimitScaling);
-            case CURRENT -> new ScaledCurrentLimits(permanentLimit, originalPermanentLimit, permanentLimitScaling);
+            case ACTIVE_POWER -> new ScaledActivePowerLimits(permanentLimit, originalPermanentLimit, permanentLimitScaling, permanentLimitName);
+            case APPARENT_POWER -> new ScaledApparentPowerLimits(permanentLimit, originalPermanentLimit, permanentLimitScaling, permanentLimitName);
+            case CURRENT -> new ScaledCurrentLimits(permanentLimit, originalPermanentLimit, permanentLimitScaling, permanentLimitName);
             default -> throw new IllegalArgumentException(
                     String.format("Unsupported limits type for scalings (%s)", type));
         };

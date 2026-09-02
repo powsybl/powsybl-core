@@ -18,8 +18,8 @@ public class ScaledCurrentLimits extends AbstractScaledLoadingLimits implements 
     /**
      * Create a {@link ScaledCurrentLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
      */
-    public ReducedCurrentLimits(double permanentLimit, double originalPermanentLimit,
-                                double permanentLimitScaling, String permanentLimitName) {
+    public ScaledCurrentLimits(double permanentLimit, double originalPermanentLimit,
+                               double permanentLimitScaling, String permanentLimitName) {
         super(permanentLimit, originalPermanentLimit, permanentLimitScaling, permanentLimitName);
     }
 
