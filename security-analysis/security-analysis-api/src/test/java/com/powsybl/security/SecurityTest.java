@@ -203,6 +203,9 @@ class SecurityTest {
 
     @Test
     void checkLimitsDC() {
+        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, -0.2, 0.95));
+        assertEquals("Limit scaling should be positive, got -0.2", eBadLimit.getMessage());
+
         var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, -0.1));
         assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());
 
@@ -216,6 +219,9 @@ class SecurityTest {
     @Test
     void checkLimitsDCOnThreeWindingsTransformer() {
         Network otherNetwork = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimitsAndTerminalsPAndQ();
+
+        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, -0.3, 0.95));
+        assertEquals("Limit scaling should be positive, got -0.3", eBadLimit.getMessage());
 
         var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, 0.7f, -0.1));
         assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());

@@ -50,17 +50,17 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *
-     * @param subjectId          The identifier of the network equipment on which the violation occurred.
-     * @param subjectName        An optional name of the network equipment on which the violation occurred.
-     * @param operationalLimitsGroupId The {@link OperationalLimitsGroup} due to which this violation occurred.
-     * @param limitType          The type of limit which has been violated.
-     * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
-     * @param limit              The value of the limit which has been violated.
-     * @param limitScaling     The limit scaling factor used for violation detection.
-     * @param value              The actual value of the physical value which triggered the detection of a violation.
-     * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
-     * @param voltageLocation    Detailed information about the location of the violation.
+     * @param subjectId                 The identifier of the network equipment on which the violation occurred.
+     * @param subjectName               An optional name of the network equipment on which the violation occurred.
+     * @param operationalLimitsGroupId  The {@link OperationalLimitsGroup} due to which this violation occurred.
+     * @param limitType                 The type of limit which has been violated.
+     * @param limitName                 An optional name for the limit which has been violated.
+     * @param acceptableDuration        The acceptable duration, in seconds, associated to the violation value.
+     * @param limit                     The value of the limit which has been violated.
+     * @param limitScaling              The limit scaling factor used for violation detection.
+     * @param value                     The actual value of the physical value which triggered the detection of a violation.
+     * @param side                      The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @param voltageLocation           Detailed information about the location of the violation.
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, String operationalLimitsGroupId, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
                           double limit, double limitScaling, double value, @Nullable ThreeSides side, @Nullable ViolationLocation voltageLocation) {
@@ -88,7 +88,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitName          An optional name for the limit which has been violated.
      * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
-     * @param limitScaling     The limit scaling factor used for violation detection.
+     * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
      * @deprecated use {@link LimitViolationBuilder} or
@@ -111,7 +111,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitName          An optional name for the limit which has been violated.
      * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
-     * @param limitScaling     The limit scaling factor used for violation detection.
+     * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
      * @deprecated use {@link LimitViolationBuilder} or
@@ -134,7 +134,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitName          An optional name for the limit which has been violated.
      * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
-     * @param limitScaling     The limit scaling factor used for violation detection.
+     * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @deprecated use {@link LimitViolationBuilder} or
      * {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
@@ -157,7 +157,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitName          An optional name for the limit which has been violated.
      * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
-     * @param limitScaling     The limit scaling factor used for violation detection.
+     * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
      * @deprecated use {@link LimitViolationBuilder} or
@@ -179,7 +179,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitName          An optional name for the limit which has been violated.
      * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
-     * @param limitScaling     The limit scaling factor used for violation detection.
+     * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
      * @deprecated use {@link LimitViolationBuilder} or
@@ -201,7 +201,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitName          An optional name for the limit which has been violated.
      * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
-     * @param limitScaling     The limit scaling factor used for violation detection.
+     * @param limitScaling       The limit scaling factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @deprecated use {@link LimitViolationBuilder} or
      * {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
@@ -217,12 +217,12 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *
-     * @param subjectId      The identifier of the network equipment on which the violation occurred.
-     * @param limitType      The type of limit which has been violated.
-     * @param limit          The value of the limit which has been violated.
-     * @param limitScaling The limit scaling factor used for violation detection.
-     * @param value          The actual value of the physical value which triggered the detection of a violation.
-     * @param voltageLocation    Detailed information about the location of the violation.
+     * @param subjectId       The identifier of the network equipment on which the violation occurred.
+     * @param limitType       The type of limit which has been violated.
+     * @param limit           The value of the limit which has been violated.
+     * @param limitScaling    The limit scaling factor used for violation detection.
+     * @param value           The actual value of the physical value which triggered the detection of a violation.
+     * @param voltageLocation Detailed information about the location of the violation.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, double limitScaling, double value, ViolationLocation voltageLocation) {
         this(subjectId, null, null, limitType, null, Integer.MAX_VALUE, limit, limitScaling, value, null, voltageLocation);
@@ -237,7 +237,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectName    An optional name of the network equipment on which the violation occurred.
      * @param limitType      The type of limit which has been violated.
      * @param limit          The value of the limit which has been violated.
-     * @param limitScaling The limit scaling factor used for violation detection.
+     * @param limitScaling   The limit scaling factor used for violation detection.
      * @param value          The actual value of the physical value which triggered the detection of a violation.
      * @deprecated use {@link LimitViolationBuilder} or
      * {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
@@ -252,13 +252,13 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *
-     * @param subjectId      The identifier of the network equipment on which the violation occurred.
-     * @param subjectName    An optional name of the network equipment on which the violation occurred.
-     * @param limitType      The type of limit which has been violated.
-     * @param limit          The value of the limit which has been violated.
-     * @param limitScaling The limit scaling factor used for violation detection.
-     * @param value          The actual value of the physical value which triggered the detection of a violation.
-     * @param voltageLocation    Detailed information about the location of the violation.
+     * @param subjectId       The identifier of the network equipment on which the violation occurred.
+     * @param subjectName     An optional name of the network equipment on which the violation occurred.
+     * @param limitType       The type of limit which has been violated.
+     * @param limit           The value of the limit which has been violated.
+     * @param limitScaling    The limit scaling factor used for violation detection.
+     * @param value           The actual value of the physical value which triggered the detection of a violation.
+     * @param voltageLocation Detailed information about the location of the violation.
      * @deprecated use {@link LimitViolationBuilder} or
      * {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
@@ -276,7 +276,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectId      The identifier of the network equipment on which the violation occurred.
      * @param limitType      The type of limit which has been violated.
      * @param limit          The value of the limit which has been violated.
-     * @param limitScaling The limit scaling factor used for violation detection.
+     * @param limitScaling   The limit scaling factor used for violation detection.
      * @param value          The actual value of the physical value which triggered the detection of a violation.
      * @deprecated use {@link LimitViolationBuilder} or
      * {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}

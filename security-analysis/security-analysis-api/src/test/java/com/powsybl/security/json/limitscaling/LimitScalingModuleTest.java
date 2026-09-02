@@ -121,11 +121,11 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
 
         roundTripTest(limitScalingList, LimitScalingListSerDeUtil::write,
                 LimitScalingListSerDeUtil::read,
-            "/LimitReductionsV1.3.json");
+            "/LimitScalingsV1.3.json");
     }
 
     @Test
-    void compatibilityWithOldCriterion() throws IOException {
+    void compatibilityWithOldCriterion() {
         LimitScalingList scalingsList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             LimitScalingListSerDeUtil.write(scalingsList, bos);
