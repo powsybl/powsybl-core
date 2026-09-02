@@ -511,6 +511,13 @@ public class DgsParser {
                 throw new PowerFactoryException("RealMatrix: Unexpected number of cols: '"
                     + attributeName + "' rows: " + actualRows + " cols: " + actualCols + " expected cols: " + this.cols);
             }
+            // The record must actually carry actualRows x actualCols values. The read loop below already
+            // returns empty when a declared cell is missing, but only after allocating the whole matrix, so a
+            // row declaring more values than it holds would force an oversized allocation from a tiny input.
+            long availableValues = (long) fields.length - indexField - 2;
+            if (actualRows < 0 || (long) actualRows * actualCols > availableValues) {
+                return Optional.empty();
+            }
             RealMatrix realMatrix = new BlockRealMatrix(actualRows, actualCols);
             for (int i = 0; i < actualRows; i++) {
                 for (int j = 0; j < actualCols; j++) {
