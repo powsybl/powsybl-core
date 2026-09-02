@@ -4,17 +4,17 @@ The `table-formatter` module is used to configure the rendering of tables displa
 
 ## Optional properties
 
-**invalidString**  
+**invalid-string**  
 The `invalid-string` property is an optional property that defines the replacement string to display when a value is absent. The default value of this property is `inv`.
 
 **language**  
 The `language` property is an optional property that defines the language code of the locale to use. The default value
 of this property is the language code (2-characters code) of the system default locale.
 
-**printHeader**  
+**print-header**  
 The `print-header` property is an optional property that defines whether the headers of the columns are displayed or not. The default value of this property is `true`.
 
-**printTitle**  
+**print-title**  
 The `print-title` property is an optional property that defines whether the title of the table is displayed or not. The default value of this property is `true`.
 
 **separator**  
