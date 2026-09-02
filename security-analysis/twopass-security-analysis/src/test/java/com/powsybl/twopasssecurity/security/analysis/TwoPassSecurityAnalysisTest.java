@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.*;
@@ -19,6 +18,7 @@ import com.powsybl.security.results.ConnectivityResult;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.PreContingencyResult;
+import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

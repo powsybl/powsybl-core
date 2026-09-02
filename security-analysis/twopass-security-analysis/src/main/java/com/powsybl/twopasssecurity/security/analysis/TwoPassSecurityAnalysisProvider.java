@@ -11,13 +11,13 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisProvider;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.SecurityAnalysisRunParameters;
 import com.powsybl.tools.PowsyblCoreVersion;
+import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

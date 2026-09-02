@@ -11,11 +11,11 @@ import com.powsybl.commons.compress.ZipPackager;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.results.OperatorStrategyResult;
 import com.powsybl.security.results.PostContingencyResult;
+import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

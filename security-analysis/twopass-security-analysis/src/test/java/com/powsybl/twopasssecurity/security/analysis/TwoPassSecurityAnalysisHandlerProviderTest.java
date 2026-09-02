@@ -9,8 +9,8 @@ package com.powsybl.twopasssecurity.security.analysis;
 
 import com.powsybl.commons.config.ModuleConfigRepository;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import com.powsybl.tools.PowsyblCoreVersion;
+import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityAnalysisParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
