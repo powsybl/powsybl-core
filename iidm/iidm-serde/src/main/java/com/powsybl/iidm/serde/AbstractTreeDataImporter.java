@@ -60,6 +60,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS = "iidm.import.only-selected-operational-limits-groups";
 
+    public static final String CHECK_REVERTED_MIN_Q_MAX_Q = "iidm.import.xml.check-reverted-minqmaxq";
+
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
             .addAdditionalNames("throwExceptionIfExtensionNotFound");
@@ -78,6 +80,10 @@ public abstract class AbstractTreeDataImporter implements Importer {
     public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(MISSING_PERMANENT_LIMIT_PERCENTAGE,
             ParameterType.DOUBLE, "Percentage applied to lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only)",
             100.);
+
+    public static final Parameter CHECK_REVERTED_MIN_Q_MAX_Q_PARAMETER = new Parameter(CHECK_REVERTED_MIN_Q_MAX_Q,
+            ParameterType.BOOLEAN, "Check and reorder reversed minQ/maxQ values in reactive capability curves",
+            false);
 
     public static final Parameter MINIMAL_VALIDATION_LEVEL_PARAMETER = new Parameter(MINIMAL_VALIDATION_LEVEL,
             ParameterType.STRING, "Minimal validation level accepted",
@@ -104,7 +110,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
         List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER,
                 EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER,
                 WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
-                MINIMAL_VALIDATION_LEVEL_PARAMETER, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER);
+                CHECK_REVERTED_MIN_Q_MAX_Q_PARAMETER, MINIMAL_VALIDATION_LEVEL_PARAMETER,
+                ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER);
         return ConfiguredParameter.load(parameters, getFormat(), defaultValueConfig);
     }
 
@@ -194,6 +201,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
                     new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
                 .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig))
+                .setCheckRevertedMinQMaxQ(Parameter.readBoolean(getFormat(), parameters, CHECK_REVERTED_MIN_Q_MAX_Q_PARAMETER, defaultValueConfig))
                 .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig))
                 .setOnlySelectedOperationalLimitsGroups(Parameter.readBoolean(getFormat(), parameters, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, defaultValueConfig));
         getAndCheckExtensionsToInclude(parameters, importOptions, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, false);
