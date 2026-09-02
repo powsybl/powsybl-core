@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.list.ListChangeListener;
+import com.powsybl.commons.list.ObservableArrayList;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +34,44 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected final List<C> chunks;
 
+    // This listener needs to be strongly held, so cannot be converted to a local variable
+    private final ListChangeListener<C> chunkListChangeListener;
+
     protected AbstractTimeSeries(TimeSeriesMetadata metadata, C... chunks) {
         this(metadata, Arrays.asList(chunks));
     }
 
     protected AbstractTimeSeries(TimeSeriesMetadata metadata, List<C> chunks) {
         this.metadata = Objects.requireNonNull(metadata);
-        this.chunks = Objects.requireNonNull(chunks);
+        ObservableArrayList<C> observableChunks = new ObservableArrayList<>(Objects.requireNonNull(chunks));
+        chunkListChangeListener = new ListChangeListener<>() {
+            @Override
+            public void onAdded(List<C> added, int fromIndex) {
+                invalidateArrays();
+            }
+
+            @Override
+            public void onRemoved(List<C> removed, int fromIndex) {
+                invalidateArrays();
+            }
+
+            @Override
+            public void onSet(List<C> oldElements, List<C> newElements, int fromIndex) {
+                invalidateArrays();
+            }
+
+            @Override
+            public void onSorted(Comparator<? super C> comparator) {
+                invalidateArrays();
+            }
+
+            @Override
+            public void onCleared() {
+                invalidateArrays();
+            }
+        };
+        observableChunks.addListener(chunkListChangeListener);
+        this.chunks = observableChunks;
     }
 
     public void synchronize(TimeSeriesIndex newIndex) {
@@ -383,5 +416,9 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             return metadata.equals(other.metadata) && chunks.equals(other.chunks);
         }
         return false;
+    }
+
+    protected void invalidateArrays() {
+        // Default implementation does nothing
     }
 }
