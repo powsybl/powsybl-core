@@ -35,6 +35,21 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         return new StringTimeSeries(metadata, chunk);
     }
 
+    @Override
+    protected StringTimeSeries createTimeSeries(List<StringDataChunk> chunks) {
+        return new StringTimeSeries(metadata, chunks);
+    }
+
+    @Override
+    protected StringDataChunk toCompactChunk() {
+        return new UncompressedStringDataChunk(getMinOffset(), toCompactArray());
+    }
+
+    @Override
+    protected boolean isBlank(StringDataChunk chunk) {
+        return chunk.stream(metadata.getIndex()).allMatch(p -> p.getValue() == null);
+    }
+
     private void forEachChunk(Consumer<StringDataChunk> consumer) {
         chunks.forEach(consumer);
     }
