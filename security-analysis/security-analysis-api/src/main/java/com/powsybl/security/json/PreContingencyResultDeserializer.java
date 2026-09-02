@@ -9,6 +9,7 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.*;
@@ -31,6 +32,33 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
 
     public PreContingencyResultDeserializer() {
         super(PreContingencyResult.class);
+    }
+
+    public PreContingencyResultDeserializer(JsonDeserializer<Object> limitViolationsResultDeserializer,
+                                             JsonDeserializer<Object> networkResultDeserializer,
+                                             JsonDeserializer<Object> busResultDeserializer,
+                                             JsonDeserializer<Object> branchResultDeserializer,
+                                             JsonDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+        super(PreContingencyResult.class,
+            limitViolationsResultDeserializer,
+            networkResultDeserializer,
+            busResultDeserializer,
+            branchResultDeserializer,
+            threeWindingsTransformerResultDeserializer);
+    }
+
+    @Override
+    protected PreContingencyResultDeserializer create(JsonDeserializer<Object> limitViolationsResultDeserializer,
+                                         JsonDeserializer<Object> networkResultDeserializer,
+                                         JsonDeserializer<Object> busResultDeserializer,
+                                         JsonDeserializer<Object> branchResultDeserializer,
+                                         JsonDeserializer<Object> threeWindingsTransformerResultDeserializer) {
+        return new PreContingencyResultDeserializer(
+            limitViolationsResultDeserializer,
+            networkResultDeserializer,
+            busResultDeserializer,
+            branchResultDeserializer,
+            threeWindingsTransformerResultDeserializer);
     }
 
     @Override

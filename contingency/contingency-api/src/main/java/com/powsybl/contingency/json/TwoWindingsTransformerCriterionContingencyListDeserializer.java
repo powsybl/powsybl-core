@@ -9,6 +9,7 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.list.TwoWindingsTransformerCriterionContingencyList;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
@@ -22,7 +23,16 @@ import java.io.IOException;
 public class TwoWindingsTransformerCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<TwoWindingsTransformerCriterionContingencyList> {
 
     public TwoWindingsTransformerCriterionContingencyListDeserializer() {
-        super(TwoWindingsTransformerCriterionContingencyList.class);
+        this(null, null);
+    }
+
+    public TwoWindingsTransformerCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
+        super(TwoWindingsTransformerCriterionContingencyList.class, criterionDeser, propertyDeser);
+    }
+
+    @Override
+    protected TwoWindingsTransformerCriterionContingencyListDeserializer create(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
+        return new TwoWindingsTransformerCriterionContingencyListDeserializer(criterionDeser, propertyDeser);
     }
 
     @Override
