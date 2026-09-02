@@ -7,25 +7,34 @@
  */
 package com.powsybl.ampl.converter;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.ServiceLoader;
+
+import com.powsybl.commons.util.ServiceLoaderCache;
 
 /**
 *
 * @author Ferrari Giovanni {@literal <giovanni.ferrari@techrain.eu>}
 */
 public final class AmplExtensionWriters {
-    private AmplExtensionWriters() {
 
+    private static final ServiceLoaderCache<AmplExtensionWriter> WRITERS_LOADER = new ServiceLoaderCache<>(AmplExtensionWriter.class);
+
+    private AmplExtensionWriters() {
     }
 
     public static AmplExtensionWriter getWriter(String name) {
         Objects.requireNonNull(name);
-        for (AmplExtensionWriter w : ServiceLoader.load(AmplExtensionWriter.class, AmplExtensionWriters.class.getClassLoader())) {
+        for (AmplExtensionWriter w : WRITERS_LOADER.getServices()) {
             if (w.getName().equals(name)) {
                 return w;
             }
         }
         return null;
     }
+
+    public static List<String> getWriterNames() {
+        return WRITERS_LOADER.getServices().stream().map(AmplExtensionWriter::getName).toList();
+    }
+
 }
