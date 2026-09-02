@@ -10,6 +10,9 @@ package com.powsybl.timeseries.ast;
 import java.util.Deque;
 
 /**
+ * This interface helps store the NodeCalc expressions to stack instead of building a new string for each node.<br/>
+ * Each expression part of string type is then appended only once to the final result.
+ *
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 @FunctionalInterface

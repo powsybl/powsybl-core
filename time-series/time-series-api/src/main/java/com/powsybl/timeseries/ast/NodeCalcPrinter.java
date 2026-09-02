@@ -23,6 +23,9 @@ public class NodeCalcPrinter implements NodeCalcVisitor<NodeCalcPrintable, Void>
         Deque<Object> stack = new ArrayDeque<>();
         stack.push(root);
 
+        // Build the output iteratively, each printable pushes its children and its expression parts onto the stack in reverse order,
+        // Then process the stored expressions in their printing order.
+        // Unlike recursive string concatenation, this does not repeatedly copy the strings of entire subtree, resulting linear time complexity.
         while (!stack.isEmpty()) {
             Object node = stack.pop();
             if (node instanceof String text) {
