@@ -15,11 +15,14 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
+import java.nio.file.Path;
 import java.util.Properties;
 
 /**
@@ -98,9 +101,13 @@ public class ConversionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        String inputFile = line.getOptionValue(INPUT_FILE);
-        String outputFormat = line.getOptionValue(OUTPUT_FORMAT);
-        String outputFile = line.getOptionValue(OUTPUT_FILE);
+        ToolOptions options = new ToolOptions(line, context);
+        Path inputFile = options.getPath(INPUT_FILE)
+                .orElseThrow(() -> new ParseException("Missing required option: " + INPUT_FILE));
+        String outputFormat = options.getValue(OUTPUT_FORMAT)
+                .orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FORMAT));
+        Path outputFile = options.getPath(OUTPUT_FILE)
+                .orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FILE));
 
         Exporter exporter = Exporter.find(outputFormat);
         if (exporter == null) {
@@ -108,11 +115,11 @@ public class ConversionTool implements Tool {
         }
 
         Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Network.read(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(),
+        Network network = Network.read(inputFile, context.getShortTimeExecutionComputationManager(),
             createImportConfig(), inputParams, createNetworkFactory(), new ImportersServiceLoader(), ReportNode.NO_OP);
 
         Properties outputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-        DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
+        DataSource ds2 = Exporters.createDataSource(outputFile, new DefaultDataSourceObserver() {
             @Override
             public void opened(String streamName) {
                 context.getOutputStream().println("Generating file " + streamName + "...");
