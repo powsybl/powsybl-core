@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -43,6 +44,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     private AbstractHvdcConverterStation<?> converterStation2;
 
+    private boolean removed = false;
+
     HvdcLineImpl(String id, String name, boolean fictitious, double r, double nominalV, double maxP, ConvertersMode convertersMode, double activePowerSetpoint,
                  AbstractHvdcConverterStation<?> converterStation1, AbstractHvdcConverterStation<?> converterStation2,
                  Ref<NetworkImpl> networkRef) {
@@ -75,11 +78,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public NetworkImpl getNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed hvdc line " + id);
+        }
         return networkRef.get();
     }
 
     @Override
     public Network getParentNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access parent network of removed hvdc line " + id);
+        }
         // the parent network is the network that contains both terminals of converter stations.
         Network subnetwork1 = converterStation1.getParentNetwork();
         Network subnetwork2 = converterStation2.getParentNetwork();
@@ -175,11 +184,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public AbstractHvdcConverterStation<?> getConverterStation1() {
+        if (removed) {
+            throw new PowsyblException("Cannot access converter station of removed hvdc line " + id);
+        }
         return converterStation1;
     }
 
     @Override
     public AbstractHvdcConverterStation<?> getConverterStation2() {
+        if (removed) {
+            throw new PowsyblException("Cannot access converter station of removed hvdc line " + id);
+        }
         return converterStation2;
     }
 
@@ -232,6 +247,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
+        removed = true;
     }
 
     @Override
