@@ -17,6 +17,7 @@ import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
@@ -318,6 +319,46 @@ class DefaultLimitScalingsApplierTest {
                 Arguments.of("c1", c1, false, true, false),
                 Arguments.of("c2", c2, false, false, true)
         );
+    }
+
+    @Test
+    void checkPermanentLimitNameOnReducedLimits() {
+        Network n = FourSubstationsNodeBreakerFactory.create();
+        Line lineS2S3 = n.getLine("LINE_S2S3");
+        OperationalLimitsGroup group1 = lineS2S3.getOrCreateSelectedOperationalLimitsGroup1("Set 1");
+        group1.newActivePowerLimits()
+                .setPermanentLimit(100)
+                .setPermanentLimitName("Permanent active power limit")
+                .add();
+        group1.newApparentPowerLimits()
+                .setPermanentLimit(100)
+                .setPermanentLimitName("Permanent apparent power limit")
+                .add();
+        group1.newCurrentLimits()
+                .setPermanentLimit(100)
+                .setPermanentLimitName("Permanent current power limit")
+                .add();
+
+        LimitReduction reductionActive = LimitReduction.builder(LimitType.ACTIVE_POWER, 0.1).build();
+        LimitReduction reductionApparent = LimitReduction.builder(LimitType.APPARENT_POWER, 0.1).build();
+        LimitReduction reductionCurrent = LimitReduction.builder(LimitType.CURRENT, 0.1).build();
+        var limitReductionApplier = new DefaultLimitReductionsApplier(List.of(reductionActive, reductionApparent, reductionCurrent));
+
+        assertReducedPermanentLimitName("Permanent active power limit",
+                limitReductionApplier.computeLimits(lineS2S3, LimitType.ACTIVE_POWER, ThreeSides.ONE, false));
+        assertReducedPermanentLimitName("Permanent apparent power limit",
+                limitReductionApplier.computeLimits(lineS2S3, LimitType.APPARENT_POWER, ThreeSides.ONE, false));
+        assertReducedPermanentLimitName("Permanent current power limit",
+                limitReductionApplier.computeLimits(lineS2S3, LimitType.CURRENT, ThreeSides.ONE, false));
+    }
+
+    void assertReducedPermanentLimitName(String expectedName, Collection<LimitsContainer<LoadingLimits>> limits) {
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(expectedName, container.getLimits().getPermanentLimitName());
+        // Check that the reduction was indeed applied
+        assertEquals(10., container.getLimits().getPermanentLimit(), 0.1);
+        assertTrue(container.isDistinct());
     }
 
 }

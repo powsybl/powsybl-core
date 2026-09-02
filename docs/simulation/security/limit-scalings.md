@@ -87,3 +87,8 @@ When no duration criteria are present, the scaling is applied to all permanent a
 
 When several duration criteria are specified, the limit scalings apply to each one.
 For instance, if both criteria `PERMANENT` and (`TEMPORARY` ; `EQUALITY`: 600) are defined, the limit scaling will apply to permanent limits and 600 s limits.
+
+### Operational limits groups selection
+
+The list of the ids of the operational limits groups on which the limit scaling will be applied. If the list is empty, then the limit scaling will be applied to all operational limits groups.
+
