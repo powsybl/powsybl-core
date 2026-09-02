@@ -8,9 +8,12 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 class TopologyExportCornerCasesTest extends AbstractSerDeTest {
 
@@ -50,7 +53,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportDisconnectedLoadBusBreaker() {
         test(createDisconnectedLoadBBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1"},
+                new String[] {"voltageLevel1_0", "voltageLevel1_2"},
                 true);
     }
 
@@ -58,6 +61,30 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     void testExportDisconnectedLoadNodeBreaker() {
         test(createDisconnectedLoadNBNetwork(), false, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
+    }
+
+    @Test
+    void testImportBusIdsShouldNotDependOnConnectablesOrder() {
+        Network network = createDisconnectedLoadBBNetwork();
+        List<Connectable<?>> connectableOrder1 = List.of(network.getLoad("load1"), network.getLoad("load2"));
+        List<Connectable<?>> connectableOrder2 = List.of(network.getLoad("load2"), network.getLoad("load1"));
+        assertArrayEquals(busesIdAfterImportNetworkFromCgmes(network, connectableOrder1), busesIdAfterImportNetworkFromCgmes(network, connectableOrder2));
+    }
+
+    private Object[] busesIdAfterImportNetworkFromCgmes(Network network, List<Connectable<?>> connectables) {
+        // Export as node-breaker, with ordered connectables list
+        Network spyNetwork = spy(network);
+        doReturn(connectables).when(spyNetwork).getConnectables();
+        String name = "network_test";
+        Properties params = new Properties();
+        params.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), name);
+        new CgmesExport().export(spyNetwork, params, zip);
+        // import with CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = true
+        Properties cgmesImportParameters = new Properties();
+        cgmesImportParameters.put(CgmesImport.CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE, "true");
+        Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"), LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), cgmesImportParameters);
+        return networkFromCgmes.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray();
     }
 
     private void test(Network network,
