@@ -430,7 +430,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-contingency-screening-security-analysis</artifactId>
+            <artifactId>powsybl-twopass-security-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
 
