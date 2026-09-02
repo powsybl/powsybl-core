@@ -175,6 +175,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
     private final Map<String, String> metrics;
     private final String logs;
     private final List<ComponentResult> componentResults;
+    private static final Status DEFAULT_OK_STATUS_FOR_RETROCOMPATIBILITY = Status.PARTIALLY_CONVERGED;
 
     public LoadFlowResultImpl(boolean ok, Map<String, String> metrics, String logs) {
         this(ok, metrics, logs, Collections.emptyList());
@@ -189,6 +190,11 @@ public class LoadFlowResultImpl implements LoadFlowResult {
     }
 
     private Status computeStatus(List<ComponentResult> componentResults) {
+        // Retro-compatibility
+        if (componentResults.isEmpty() && ok) {
+            return DEFAULT_OK_STATUS_FOR_RETROCOMPATIBILITY;
+        }
+
         int convergedCount = 0;
         int maxIterOrFailedCount = 0;
         for (ComponentResult componentResult : componentResults) {
