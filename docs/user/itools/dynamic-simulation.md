@@ -5,6 +5,7 @@ In the end, the results and the modified network can be exported to files.
 
 ## Usage
 ```
+$> itools dynamic-simulation --help
 usage: itools [OPTIONS] dynamic-simulation --case-file <FILE> [--output-variables-file
        <FILE>] --dynamic-models-file <FILE> [--event-models-file <FILE>]
        [--help] [-I <property=value>] [--import-parameters <IMPORT_PARAMETERS>]
@@ -23,6 +24,9 @@ Available arguments are:
                                               Groovy file: defines the dynamic
                                               models to be associated to chosen
                                               equipments of the network
+-E <property=value>                           use value for given exporter
+                                              parameter
+    --export-parameters <EXPORT_PARAMETERS>   the exporter configuration file    
     --event-models-file <FILE>                dynamic event models description
                                               as a Groovy file: defines the
                                               dynamic event models to be
@@ -32,6 +36,9 @@ Available arguments are:
  -I <property=value>                          use value for given importer
                                               parameter
     --import-parameters <IMPORT_PARAMETERS>   the importer configuation file
+    --output-case-file <FILE>                 modified network path
+    --output-case-format <CASE_FORMAT>        modified network output format
+                                              [CGMES, AMPL, JIIDM, XIIDM, BIIDM]
     --output-file <FILE>                      dynamic simulation results output
                                               path
     --parameters-file <FILE>                  dynamic simulation parameters as
