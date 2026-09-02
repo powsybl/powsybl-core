@@ -73,7 +73,9 @@ class ActionSimulatorToolTest extends AbstractToolTest {
         when(runningContext.getFileSystem()).thenReturn(fileSystem);
 
         commandLine = mock(CommandLine.class);
+        when(commandLine.hasOption("case-file")).thenReturn(true);
         when(commandLine.getOptionValue("case-file")).thenReturn("/path-case-file");
+        when(commandLine.hasOption("dsl-file")).thenReturn(true);
         when(commandLine.getOptionValue("dsl-file")).thenReturn("/path-dsl-file");
     }
 

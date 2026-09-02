@@ -20,10 +20,12 @@ import com.powsybl.loadflow.validation.extension.ExtensionsValidation;
 import com.powsybl.loadflow.validation.io.ValidationWriters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -141,58 +143,59 @@ public class ValidationTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
-        Path outputFolder = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FOLDER));
+        ToolOptions options = new ToolOptions(line, context);
+        Path caseFile = options.getPath(CASE_FILE).orElseThrow(() -> new ParseException("Missing required option: " + CASE_FILE));
+        Path outputFolder = options.getPath(OUTPUT_FOLDER).orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FOLDER));
         if (!Files.exists(outputFolder)) {
             Files.createDirectories(outputFolder);
         }
         ValidationConfig config = ValidationConfig.load();
-        if (line.hasOption(VERBOSE)) {
+        if (options.hasOption(VERBOSE)) {
             config.setVerbose(true);
         }
-        if (line.hasOption(OUTPUT_FORMAT)) {
-            config.setValidationOutputWriter(ValidationOutputWriter.valueOf(line.getOptionValue(OUTPUT_FORMAT)));
+        if (options.hasOption(OUTPUT_FORMAT)) {
+            config.setValidationOutputWriter(options.getEnum(OUTPUT_FORMAT, ValidationOutputWriter.class).orElseThrow(IllegalStateException::new));
         }
         ComparisonType comparisonType = null;
-        if (line.hasOption(COMPARE_RESULTS)) {
+        if (options.hasOption(COMPARE_RESULTS)) {
             config.setCompareResults(true);
-            comparisonType = ComparisonType.valueOf(line.getOptionValue(COMPARE_RESULTS));
+            comparisonType = options.getEnum(COMPARE_RESULTS, ComparisonType.class).orElseThrow(IllegalStateException::new);
         }
         Set<ValidationType> validationTypes = new TreeSet<>(Arrays.asList(ValidationType.values()));
-        if (line.hasOption(TYPES)) {
-            validationTypes = Arrays.stream(line.getOptionValue(TYPES).split(","))
+        if (options.hasOption(TYPES)) {
+            validationTypes = options.getValues(TYPES).orElseThrow(IllegalStateException::new).stream()
                     .map(ValidationType::valueOf)
                     .collect(Collectors.toCollection(TreeSet::new));
         }
         Network network = loadNetwork(caseFile, line, context);
         try (ValidationWriters validationWriters = new ValidationWriters(network.getId(), validationTypes, outputFolder, config)) {
             if (config.isCompareResults() && ComparisonType.COMPUTATION.equals(comparisonType)) {
-                Preconditions.checkArgument(line.hasOption(LOAD_FLOW) || line.hasOption(RUN_COMPUTATION),
+                Preconditions.checkArgument(options.hasOption(LOAD_FLOW) || options.hasOption(RUN_COMPUTATION),
                         "Computation results comparison requires to run a computation (options --" + LOAD_FLOW + " or --" + RUN_COMPUTATION + ").");
 
                 context.getOutputStream().println("Running pre-loadflow validation on network " + network.getId());
                 runValidation(network, config, validationTypes, validationWriters, context);
             }
 
-            if (line.hasOption(LOAD_FLOW)) {
+            if (options.hasOption(LOAD_FLOW)) {
                 runLoadflow(network, config, context);
                 context.getOutputStream().println("Running post-loadflow validation on network " + network.getId());
-            } else if (line.hasOption(RUN_COMPUTATION)) {
-                runComputation(line.getOptionValue(RUN_COMPUTATION), network, context);
+            } else if (options.hasOption(RUN_COMPUTATION)) {
+                runComputation(options.getValue(RUN_COMPUTATION).orElseThrow(IllegalStateException::new), network, context);
                 context.getOutputStream().println("Running post-computation validation on network " + network.getId());
             }
 
             runValidation(network, config, validationTypes, validationWriters, context);
 
             if (config.isCompareResults() && ComparisonType.BASECASE.equals(comparisonType)) {
-                Preconditions.checkArgument(line.hasOption(COMPARE_CASE_FILE),
+                Preconditions.checkArgument(options.hasOption(COMPARE_CASE_FILE),
                         "Base cases comparison requires to provide a second basecase (option --" + COMPARE_CASE_FILE + ").");
-                Path compareCaseFile = context.getFileSystem().getPath(line.getOptionValue(COMPARE_CASE_FILE));
+                Path compareCaseFile = options.getPath(COMPARE_CASE_FILE).orElseThrow(IllegalStateException::new);
                 Network compareNetwork = loadNetwork(compareCaseFile, line, context);
                 context.getOutputStream().println("Running validation on network " + compareNetwork.getId() + " to compare");
                 runValidation(compareNetwork, config, validationTypes, validationWriters, context);
             }
-            if (line.hasOption(WITH_EXTENSIONS_OPTION)) {
+            if (options.hasOption(WITH_EXTENSIONS_OPTION)) {
                 ExtensionsValidation.runExtensionValidations(network, config, context);
             }
         }
