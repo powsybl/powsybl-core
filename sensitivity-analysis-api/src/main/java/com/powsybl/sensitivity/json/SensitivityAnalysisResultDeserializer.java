@@ -42,7 +42,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
-                    parser.nextToken(); // skip
+                    parser.nextToken();
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
                     break;
