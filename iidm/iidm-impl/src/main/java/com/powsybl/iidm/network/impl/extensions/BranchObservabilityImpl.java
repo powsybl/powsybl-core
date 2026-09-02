@@ -56,7 +56,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP1() {
+    public ObservabilityQuality<B> getNullableQualityP1() {
         return qualityP1;
     }
 
@@ -82,7 +82,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP2() {
+    public ObservabilityQuality<B> getNullableQualityP2() {
         return qualityP2;
     }
 
@@ -108,7 +108,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ1() {
+    public ObservabilityQuality<B> getNullableQualityQ1() {
         return qualityQ1;
     }
 
@@ -134,7 +134,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ2() {
+    public ObservabilityQuality<B> getNullableQualityQ2() {
         return qualityQ2;
     }
 
