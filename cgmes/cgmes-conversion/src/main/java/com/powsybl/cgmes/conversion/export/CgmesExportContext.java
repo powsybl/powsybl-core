@@ -70,6 +70,7 @@ public class CgmesExportContext {
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     public static final String DEFAULT_BUSINESS_PROCESS = "1D";
     public static final boolean UPDATE_DEPENDENCIES_DEFAULT_VALUE = true;
+    public static final boolean CGM_EXPORT_WITH_TP_DEFAULT_VALUE = false;
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -90,6 +91,7 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private boolean cgmExportWithTp = CGM_EXPORT_WITH_TP_DEFAULT_VALUE;
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
         return fictitiousContainers.get(id.getId());
@@ -156,6 +158,7 @@ public class CgmesExportContext {
             setProfiles(exportParameters.profiles());
             setBaseName(exportParameters.baseName());
             setUpdateDependencies(exportParameters.updateDependencies());
+            setCgmExportWithTp(exportParameters.cgmExportWithTp());
         }
     }
 
@@ -622,6 +625,15 @@ public class CgmesExportContext {
 
     public boolean updateDependencies() {
         return updateDependencies;
+    }
+
+    public CgmesExportContext setCgmExportWithTp(boolean cgmExportWithTp) {
+        this.cgmExportWithTp = cgmExportWithTp;
+        return this;
+    }
+
+    public boolean isCgmExportWithTp() {
+        return cgmExportWithTp;
     }
 
     record BaseVoltageSource(Double nominalV, String id, Source source) { }
