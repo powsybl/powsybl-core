@@ -133,7 +133,7 @@ LoadRangeAction -up-|> RangeAction
 }
 }
 class Step {
- - boolean isRelative
+ - boolean isOffsetRelative
  - double value
  - double offset = 0
 }
@@ -166,7 +166,7 @@ Range <|-- UnionRange
 RangeRemedialAction --* "1" Range
 
 class ContinuousRange {
- - boolean isRelative
+ - boolean isRangeRelative
  - Optional<Double> mimimum
  - Optional<Double> maximum
 }
