@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -51,6 +52,7 @@ class TransformersValidationTest extends AbstractValidationTest {
     private Bus bus;
 
     @BeforeEach
+    @Override
     void setUp() throws IOException {
         super.setUp();
 
@@ -110,8 +112,9 @@ class TransformersValidationTest extends AbstractValidationTest {
                                                              targetV, regulatedSide, Float.NaN, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
     }
 
+    @DisplayName("Rule 2 (voltage is higher than target): if voltageDeviation (error) > 0 -> fail when required decrease > available decrease + threshold")
     @Test
-    void checkTwts() {
+    void checkTransformerShouldSucceedWhenVoltageTooHigh() {
         assertTrue(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
         Mockito.when(bus.getV()).thenReturn(highV);
         assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
@@ -128,6 +131,42 @@ class TransformersValidationTest extends AbstractValidationTest {
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.INSTANCE, ValidationType.TWTS);
         assertTrue(ValidationType.TWTS.check(network, strictConfig, validationWriter));
+    }
+
+    @DisplayName("Rule: voltage is lower than target")
+    @Test
+    void checkTransformerShouldFailWhenVoltageTooLow() {
+        Mockito.when(bus.getV()).thenReturn(lowV);
+        assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+    }
+
+    @DisplayName("Rule: voltage is higher than target")
+    @Test
+    void checkTransformerShouldFailWhenVoltageTooHigh() {
+        Mockito.when(bus.getV()).thenReturn(highV);
+        assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+    }
+
+    @Test
+    void checkTransformerShouldSucceedWhenVoltageMatchTargetV() {
+        Mockito.when(bus.getV()).thenReturn(targetV);
+        assertTrue(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+    }
+
+    @DisplayName("Rule: if no increase/decrease is possible, the check is not applies")
+    @Test
+    void checkTransformerShouldSucceedWhenIncreaseDecreaseNotPossible() {
+        // Given no increase/decrease is possible: voltage ratio are undefined
+        RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
+        RatioTapChangerStep previousStep = Mockito.mock(RatioTapChangerStep.class);
+        RatioTapChangerStep nextStep = Mockito.mock(RatioTapChangerStep.class);
+        Mockito.when(previousStep.getRho()).thenReturn(Double.NaN);
+        Mockito.when(nextStep.getRho()).thenReturn(Double.NaN);
+        Mockito.when(ratioTapChanger.getStep(tapPosition - 1)).thenReturn(previousStep);
+        Mockito.when(ratioTapChanger.getStep(tapPosition + 1)).thenReturn(nextStep);
+        Mockito.when(transformer.getRatioTapChanger()).thenReturn(ratioTapChanger);
+        // When Then
+        assertTrue(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
     }
 
 }
