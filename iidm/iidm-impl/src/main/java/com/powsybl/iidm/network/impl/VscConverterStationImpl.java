@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 
-import java.util.Optional;
-
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -63,8 +61,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
-        int variantIndex = n.getVariantIndex();
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
         boolean oldValue = isRegulating();
         if (voltageRegulation != null) {
             voltageRegulation.setMode(RegulationMode.VOLTAGE);
@@ -73,6 +69,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
             newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
         }
         n.invalidateValidationLevel();
+        int variantIndex = n.getVariantIndex();
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
@@ -84,15 +82,17 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
+        NetworkImpl n = getNetwork();
         double oldValue;
         if (voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
             oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(voltageSetpoint);
         } else {
-            oldValue = this.getLocalTargetV();
-            this.setLocalTargetV(voltageSetpoint);
+            oldValue = getLocalTargetV();
+            setLocalTargetV(voltageSetpoint);
         }
-        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        n.invalidateValidationLevel();
+        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
         notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
@@ -111,11 +111,18 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public VscConverterStation setLocalTargetV(double targetV) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkDoublePositive(this, targetV, "targetV");
+        ValidationUtil.checkLocalTargetQandV(this,
+                VscConverterStation.class,
+                targetV,
+                this.getLocalTargetQ(),
+                getVoltageRegulation(),
+                n.getMinValidationLevel(),
+                n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetV.set(variantIndex, targetV);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("targetV", variantId, oldValue, targetV);
+        notifyUpdate("localTargetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -133,7 +140,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("targetQ", variantId, oldValue, targetQ);
+        notifyUpdate("localTargetQ", variantId, oldValue, targetQ);
         return this;
     }
 
@@ -152,8 +159,10 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
             oldValue = this.getLocalTargetQ();
             this.setLocalTargetQ(reactivePowerSetpoint);
         }
-        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        NetworkImpl n = getNetwork();
+        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
         notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+        n.invalidateValidationLevel();
         return this;
     }
 
@@ -195,7 +204,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         localTargetQ.fill(initVariantArraySize, initVariantArraySize + number, localTargetQ.get(sourceIndex));
         localTargetV.ensureCapacity(localTargetV.size() + number);
         localTargetV.fill(initVariantArraySize, initVariantArraySize + number, localTargetV.get(sourceIndex));
-        getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
     }
 
     @Override
@@ -203,7 +214,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         super.reduceVariantArraySize(number);
         localTargetQ.remove(localTargetQ.size() - number, number);
         localTargetV.remove(localTargetV.size() - number, number);
-        getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
+        if (voltageRegulation != null) {
+            voltageRegulation.reduceVariantArraySize(number);
+        }
     }
 
     @Override
@@ -213,7 +226,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
             localTargetQ.set(index, localTargetQ.get(sourceIndex));
             localTargetV.set(index, localTargetV.get(sourceIndex));
         }
-        getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
+        }
     }
 
     @Override
@@ -224,10 +239,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
-    }
-
-    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
-        return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
@@ -242,25 +253,38 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
             null,
             getNetwork().getMinValidationLevel(),
             getNetwork().getReportNodeContext().getReportNode());
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
-        this.voltageRegulation = null;
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+            voltageRegulation = null;
+        }
     }
 
     @Override
     public VscConverterStationImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            Terminal oldValue = regulation.getTerminal();
+        Terminal oldValue = null;
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getTerminal();
             double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
-            regulation.setTerminal(regulatingTerminal, targetValue);
-            String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-            notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
-        });
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE) // Default regulation mode
+                    .withRegulating(false)
+                    .withTerminal(regulatingTerminal)
+                    .build();
+        }
+        NetworkImpl n = getNetwork();
+        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
+        notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
+        n.invalidateValidationLevel();
         return this;
     }
 
     @Override
     public void remove() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+        }
         super.remove();
     }
 

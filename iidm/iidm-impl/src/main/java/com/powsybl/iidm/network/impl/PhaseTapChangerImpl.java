@@ -70,8 +70,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         return regulatingPoint.isRegulating(network.get().getVariantIndex());
     }
 
-    @Override
-    protected RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating) {
+    private RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating) {
         return new RegulatingPoint(parent.getTransformer().getId(), () -> null, variantArraySize, regulating, false);
     }
 

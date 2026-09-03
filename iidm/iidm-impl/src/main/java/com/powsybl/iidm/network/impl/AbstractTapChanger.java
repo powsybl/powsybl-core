@@ -64,8 +64,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         relativeNeutralPosition = getRelativeNeutralPosition();
     }
 
-    protected abstract RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating);
-
     protected NetworkImpl getNetwork() {
         return parent.getNetwork();
     }

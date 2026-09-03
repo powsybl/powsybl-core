@@ -13,8 +13,6 @@ import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 
-import java.util.Optional;
-
 /**
  * {@inheritDoc}
  *
@@ -186,6 +184,13 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public Battery setLocalTargetV(double targetV) {
         NetworkImpl n = getNetwork();
+        ValidationUtil.checkLocalTargetQandV(this,
+                Battery.class,
+                targetV,
+                this.getLocalTargetQ(),
+                getVoltageRegulation(),
+                n.getMinValidationLevel(),
+                n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValueLocalTargetV = this.localTargetV.set(variantIndex, targetV);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -257,7 +262,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             localTargetQ.add(localTargetQ.get(sourceIndex));
             localTargetV.add(localTargetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
     }
 
     /**
@@ -269,7 +276,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         targetP.remove(targetP.size() - number, number);
         localTargetQ.remove(localTargetQ.size() - number, number);
         localTargetV.remove(localTargetV.size() - number, number);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
+        if (voltageRegulation != null) {
+            voltageRegulation.reduceVariantArraySize(number);
+        }
     }
 
     /**
@@ -283,22 +292,22 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             localTargetQ.set(index, localTargetQ.get(sourceIndex));
             localTargetV.set(index, localTargetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
+        }
     }
 
     @Override
     public void remove() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+        }
         super.remove();
     }
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
-    }
-
-    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
-        return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
@@ -318,8 +327,10 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             null,
             getNetwork().getMinValidationLevel(),
             getNetwork().getReportNodeContext().getReportNode());
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
-        this.voltageRegulation = null;
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+            voltageRegulation = null;
+        }
     }
 
     /**

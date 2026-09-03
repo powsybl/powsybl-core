@@ -104,8 +104,6 @@ abstract class AbstractTapChangerAdderImpl<
 
     protected abstract A self();
 
-    protected abstract ValidationLevel checkTapChangerRegulation(H parent, double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, TerminalExt regulationTerminal);
-
     protected abstract String getValidableType();
 
 }

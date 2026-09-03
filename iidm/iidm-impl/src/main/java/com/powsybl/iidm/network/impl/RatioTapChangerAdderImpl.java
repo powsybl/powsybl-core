@@ -74,6 +74,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         @Override
         public RatioTapChangerAdder endStep() {
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
+            this.copyPropertiesTo(step);
             step.validate(parent);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;
@@ -130,7 +131,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
     @Override
     public double getLocalTargetQ() {
-        return 0;
+        return Double.NaN;
     }
 
     @Override
@@ -187,11 +188,6 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     @Override
     protected RatioTapChangerAdderImpl self() {
         return this;
-    }
-
-    @Override
-    protected ValidationLevel checkTapChangerRegulation(RatioTapChangerParent parent, double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, TerminalExt regulationTerminal) {
-        return ValidationLevel.STEADY_STATE_HYPOTHESIS; // TODO MSA move to phaseTapChanger ?
     }
 
     @Override

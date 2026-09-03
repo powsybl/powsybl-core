@@ -79,10 +79,9 @@ class GeneratorModificationTest {
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification8.hasImpactOnNetwork(network));
 
         generator.getVoltageRegulation().setRegulating(false);
-        generator.getVoltageRegulation().setRegulating(true);
         generator.setLocalTargetV(Double.NaN);
         modifs = new GeneratorModification.Modifs();
-        modifs.setRegulating(false);
+        modifs.setRegulating(true);
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);
         NetworkModification modification9 = new GeneratorModification("GEN", modifs);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification9.hasImpactOnNetwork(network));

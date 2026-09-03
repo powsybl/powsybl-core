@@ -1474,7 +1474,6 @@ public final class EurostagTutorialExample1Factory {
     public static Network createWithRemoteReactiveGenerator() {
         Network network = create();
         Generator generator = network.getGenerator(GENERATOR_ID);
-        generator.setLocalTargetV(Double.NaN);
         generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
         generator.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
@@ -1482,6 +1481,7 @@ public final class EurostagTutorialExample1Factory {
             .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE)
             .withRegulating(true)
             .build();
+        generator.setLocalTargetV(Double.NaN);
         return network;
     }
 
@@ -1489,13 +1489,13 @@ public final class EurostagTutorialExample1Factory {
         Network network = create();
         Generator gen = network.getGenerator(GENERATOR_ID);
         gen.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
-        gen.setLocalTargetV(Double.NaN);
         gen.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(gen.getTerminal())
             .withTargetValue(GENERATOR_LOCAL_TARGET_Q)
             .withRegulating(true)
             .build();
+        gen.setLocalTargetV(Double.NaN);
         return network;
     }
 

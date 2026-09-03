@@ -152,7 +152,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
-        // Backward compatibility : If a generator with old setters is added and voltageRegulation does not exist,
+        // Backward compatibility: If a generator with old setters is added and voltageRegulation does not exist,
         // the new voltageRegulation will be created from the old attributes.
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);

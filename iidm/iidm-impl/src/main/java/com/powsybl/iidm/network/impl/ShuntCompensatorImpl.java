@@ -72,6 +72,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             getNetwork().getMinValidationLevel(),
             getNetwork().getReportNodeContext().getReportNode());
         this.localTargetV.set(getCurrentIndex(), targetV);
+        getNetwork().invalidateValidationLevel();
         return this;
     }
 
@@ -283,7 +284,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public void remove() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+        }
         super.remove();
     }
 
@@ -298,7 +301,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             solvedSectionCount.add(solvedSectionCount.get(sourceIndex));
             localTargetV.add(localTargetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
     }
 
     @Override
@@ -311,13 +316,17 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         solvedSectionCount.clear();
         solvedSectionCount.addAll(solvedSectionCountTmp);
         localTargetV.remove(localTargetV.size() - number, number);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
+        if (voltageRegulation != null) {
+            voltageRegulation.reduceVariantArraySize(number);
+        }
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(index));
+        if (voltageRegulation != null) {
+            voltageRegulation.deleteVariantArrayElement(index);
+        }
     }
 
     @Override
@@ -328,7 +337,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             solvedSectionCount.set(index, solvedSectionCount.get(sourceIndex));
             localTargetV.set(index, localTargetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
+        }
     }
 
     @Override
@@ -355,12 +366,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public void removeVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
-        this.voltageRegulation = null;
-    }
-
-    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
-        return Optional.ofNullable(this.voltageRegulation);
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+            voltageRegulation = null;
+        }
     }
 
     /**

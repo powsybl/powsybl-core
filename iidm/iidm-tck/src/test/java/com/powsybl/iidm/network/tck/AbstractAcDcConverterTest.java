@@ -1263,12 +1263,12 @@ public abstract class AbstractAcDcConverterTest {
                 .setTargetVdc(500.0)
                 .setLocalTargetQ(50.0)
                 .newVoltageRegulation()
-                .withMode(regulationMode)
-                .withTargetValue(targetValue)
-                .withRegulating(regulating)
-                .withTerminal(terminal)
-                .withSlope(slope)
-                .add()
+                    .withMode(regulationMode)
+                    .withTargetValue(targetValue)
+                    .withRegulating(regulating)
+                    .withTerminal(terminal)
+                    .withSlope(slope)
+                    .add()
                 .add();
         // THEN
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("VSC12987");

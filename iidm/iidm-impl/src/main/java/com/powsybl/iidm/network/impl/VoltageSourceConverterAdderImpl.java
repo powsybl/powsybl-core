@@ -88,22 +88,22 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
             voltageRegulatorOn = false;
         }
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
-            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, null);
+            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, pccTerminal);
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
-            VoltageSourceConverter.class,
-            localTargetV,
-            localTargetQ,
-            voltageRegulationAttributes,
-            network.getMinValidationLevel(),
-            network.getReportNodeContext().getReportNode()));
+                VoltageSourceConverter.class,
+                localTargetV,
+                localTargetQ,
+                voltageRegulationAttributes,
+                network.getMinValidationLevel(),
+                network.getReportNodeContext().getReportNode()));
 
         ValidationUtil.checkRegulatingTerminal(this, this.pccTerminal, network);
         VoltageSourceConverterImpl dcVsConverter = new VoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 minP, maxP,
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,
-            localTargetQ, localTargetV, voltageRegulationAttributes);
+                localTargetQ, localTargetV, voltageRegulationAttributes);
         super.checkAndAdd(dcVsConverter);
         return dcVsConverter;
     }
