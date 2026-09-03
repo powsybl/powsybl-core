@@ -442,7 +442,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>, taking into account a scaling of the limits
      * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the transformer to look at
-     * @param limitScalingValue a scaling coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      */
     Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitScalingValue, LimitType type);

@@ -738,10 +738,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
-     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a reduction of the limits
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a scaling of the limits
      * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the branch to look at
-     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
@@ -758,9 +758,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
-     * return an overload for the side 1 of the branch, of the <code>type</code>, taking into account a reduction of the limits
+     * return an overload for the side 1 of the branch, of the <code>type</code>, taking into account a scaling of the limits
      * by a factor of <code>limitScalingValue</code>.
-     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
@@ -776,9 +776,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
-     * return an overload for the side 2 of the branch, of the <code>type</code>, taking into account a reduction of the limits
+     * return an overload for the side 2 of the branch, of the <code>type</code>, taking into account a scaling of the limits
      * by a factor of <code>limitScalingValue</code>.
-     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
@@ -794,10 +794,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
-     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a reduction of the limits
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a scaling of the limits
      * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the branch to look at
-     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      */
     Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type);

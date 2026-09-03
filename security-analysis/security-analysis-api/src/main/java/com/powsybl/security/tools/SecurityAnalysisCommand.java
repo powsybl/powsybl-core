@@ -119,7 +119,7 @@ public class SecurityAnalysisCommand implements Command {
                 .argName("FILE")
                 .build());
         options.addOption(Option.builder().longOpt(LIMIT_SCALINGS_FILE)
-                .desc("limit reductions file (.json)")
+                .desc("limit scalings file (.json)")
                 .hasArg()
                 .argName("FILE")
                 .build());

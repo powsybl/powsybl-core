@@ -33,7 +33,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
 
     public DefaultLimitViolationDetector(double limitScalingValue, Collection<LoadingLimitType> currentLimitTypes) {
         if (limitScalingValue <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitScalingValue);
+            throw new IllegalArgumentException("Bad limit scaling " + limitScalingValue);
         }
         this.limitScalingValue = limitScalingValue;
         limitsComputer = new SimpleLimitsComputer(limitScalingValue);
