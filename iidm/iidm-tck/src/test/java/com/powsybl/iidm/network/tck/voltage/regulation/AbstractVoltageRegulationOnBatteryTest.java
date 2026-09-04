@@ -37,7 +37,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVoltageRegulationCommon<Battery> {
 
     @Test
-    void shouldUnregisterTerminalOnRemoveBatteryWithRemoteVoltageRegulation() {
+    public void shouldUnregisterTerminalOnRemoveBatteryWithRemoteVoltageRegulation() {
         String batteryId = "removedBattery";
         DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(batteryId,
             RegulationMode.VOLTAGE,
@@ -54,7 +54,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void shouldRemoveBatteryOnRemoveBatteryWithoutVoltageRegulation() {
+    public void shouldRemoveBatteryOnRemoveBatteryWithoutVoltageRegulation() {
         String batteryId = "removedBattery";
         Battery battery = newBatteryAdder(batteryId).setLocalTargetQ(10).add();
         assertEquals(0, remoteTerminal.getReferrers().size());
@@ -66,7 +66,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     // Cases battery regulating
     @ParameterizedTest(name = "{argumentSetName}")
     @MethodSource("provideBatteryRegulating")
-    void testBatteryRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
+    public void testBatteryRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
         Battery battery = createBattery(dataVoltageRegulationHolderCreator);
         assertTrue(battery.isRegulating());
         VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
@@ -81,7 +81,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
 
     // Cases missing VoltageRegulation
     @Test
-    void testMissingVoltageRegulationOk() {
+    public void testMissingVoltageRegulationOk() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("missingVoltageRegulation")
             .setLocalTargetQ(10);
@@ -93,7 +93,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testMissingVoltageRegulationWithMissingTargetQ() {
+    public void testMissingVoltageRegulationWithMissingTargetQ() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("missingVoltageRegulation");
         // WHEN
@@ -105,7 +105,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     // Cases Regulating True, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testBatteryOk() {
+    public void testBatteryOk() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("ErrorTargetValuePresent_when_terminal_absent");
         batteryAdder
@@ -121,7 +121,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testBatteryErrorLocalTargetVMissing() {
+    public void testBatteryErrorLocalTargetVMissing() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("LocalVoltageTargetV_missing");
         batteryAdder.newVoltageRegulation()
@@ -135,7 +135,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testBatteryErrorLocalTargetVMissingTargetQPresent() {
+    public void testBatteryErrorLocalTargetVMissingTargetQPresent() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("LocalVoltageTargetV_missing");
         batteryAdder.newVoltageRegulation()
@@ -150,7 +150,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testBatteryErrorLocalTargetVMissingTargetValuePresent() {
+    public void testBatteryErrorLocalTargetVMissingTargetValuePresent() {
         // GIVEN
         VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
@@ -162,7 +162,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testBatteryErrorTargetValuePresent() {
+    public void testBatteryErrorTargetValuePresent() {
         // GIVEN
         VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("ErrorTargetValuePresent_when_terminal_absent")
             .setLocalTargetV(24)
@@ -179,7 +179,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     // Cases Regulating True, Terminal present, Mode VOLTAGE
 
     @Test
-    void testBatteryRemoteVoltageRegulatingOk() {
+    public void testBatteryRemoteVoltageRegulatingOk() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("OK_Remote_Voltage");
         VoltageRegulationAdder<BatteryAdder> voltageRegulationAdder = batteryAdder
@@ -203,7 +203,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testBatteryRemoteVoltageRegulatingErrorMissingTargetValue() {
+    public void testBatteryRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
         VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("Error_Remote_Voltage_Missing_targetValue")
             .newVoltageRegulation()
@@ -219,7 +219,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testBatteryLocalVoltageRegulatingOffOk() {
+    public void testBatteryLocalVoltageRegulatingOffOk() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("OK_Local_Voltage_OFF");
         VoltageRegulationAdder<BatteryAdder> voltageRegulationAdder = batteryAdder
@@ -243,7 +243,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testBatteryLocalVoltageRegulatingOffErrorMissingTargetQ() {
+    public void testBatteryLocalVoltageRegulatingOffErrorMissingTargetQ() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("Error_Local_Voltage_OFF_Missing_TargetQ");
         batteryAdder.newVoltageRegulation()
@@ -259,7 +259,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     // Cases Regulating false, Terminal present, Mode VOLTAGE
 
     @Test
-    void testBatteryRemoteVoltageRegulatingOffOk() {
+    public void testBatteryRemoteVoltageRegulatingOffOk() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("OK_Remote_Voltage_OFF");
         VoltageRegulationAdder<BatteryAdder> voltageRegulationAdder = batteryAdder
@@ -285,7 +285,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void testBatteryRemoteVoltageRegulatingOffErrorMissingTargetQ() {
+    public void testBatteryRemoteVoltageRegulatingOffErrorMissingTargetQ() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("Error_Remote_Voltage_OFF_Missing_TargetQ");
         batteryAdder.newVoltageRegulation()
@@ -302,7 +302,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
 
     // RemoveTerminal
     @Test
-    void testRemoveTerminalOnMultiVariantThrowException() {
+    public void testRemoveTerminalOnMultiVariantThrowException() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
         int targetValue = 220;
@@ -340,7 +340,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
-    void shouldChangeTerminal() {
+    public void shouldChangeTerminal() {
         this.changeTerminalTest(newBatteryAdder("changeTerminal")
             .setLocalTargetQ(10.0)
             .add());

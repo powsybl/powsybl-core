@@ -62,7 +62,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     }
 
     @Test
-    void shouldUnregisterTerminalOnRemoveRatioTapChangerWithRemoteVoltageRegulation() {
+    public void shouldUnregisterTerminalOnRemoveRatioTapChangerWithRemoteVoltageRegulation() {
         String ratioTapChangerId = "removedRatioTapChanger";
         DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(ratioTapChangerId,
             RegulationMode.VOLTAGE,
@@ -78,7 +78,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     }
 
     @Test
-    void shouldRemoveRatioTapChangerOnRemoveRatioTapChangerWithoutVoltageRegulation() {
+    public void shouldRemoveRatioTapChangerOnRemoveRatioTapChangerWithoutVoltageRegulation() {
         RatioTapChanger ratioTapChanger = newRatioTapChangerAdder(false).add();
         assertEquals(0, remoteTerminal.getReferrers().size());
         ratioTapChanger.remove();
@@ -89,7 +89,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     // Cases ratioTapChanger regulating
     @ParameterizedTest(name = "{argumentSetName}")
     @MethodSource("provideRatioTapChangerRegulating")
-    void testRatioTapChangerRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
+    public void testRatioTapChangerRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
         RatioTapChanger ratioTapChanger = createRatioTapChanger(dataVoltageRegulationHolderCreator);
         assertTrue(ratioTapChanger.isRegulating());
         VoltageRegulation voltageRegulation = ratioTapChanger.getVoltageRegulation();
@@ -104,7 +104,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
 
     // Cases missing VoltageRegulation
     @Test
-    void testMissingVoltageRegulationOk() {
+    public void testMissingVoltageRegulationOk() {
         // GIVEN
         RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(false);
         // WHEN
@@ -118,7 +118,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     // Cases Regulating True, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testRatioTapChangerOk() {
+    public void testRatioTapChangerOk() {
         // GIVEN
         RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(true);
         ratioTapChangerAdder
@@ -136,7 +136,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     }
 
     @Test
-    void testRatioTapChangerErrorTargetValuePresent() {
+    public void testRatioTapChangerErrorTargetValuePresent() {
         // GIVEN
         VoltageRegulationAdder<RatioTapChangerAdder> adder = newRatioTapChangerAdder(true)
             .newVoltageRegulation()
@@ -152,7 +152,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     // Cases Regulating True, Terminal present, Mode VOLTAGE
 
     @Test
-    void testRatioTapChangerRemoteVoltageRegulatingOk() {
+    public void testRatioTapChangerRemoteVoltageRegulatingOk() {
         // GIVEN
         RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(true);
         VoltageRegulationAdder<RatioTapChangerAdder> voltageRegulationAdder = ratioTapChangerAdder
@@ -177,7 +177,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     }
 
     @Test
-    void testRatioTapChangerRemoteVoltageRegulatingErrorMissingTargetValue() {
+    public void testRatioTapChangerRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
         VoltageRegulationAdder<RatioTapChangerAdder> adder = newRatioTapChangerAdder(true)
             .newVoltageRegulation()
@@ -193,7 +193,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testRatioTapChangerLocalVoltageRegulatingOffOk() {
+    public void testRatioTapChangerLocalVoltageRegulatingOffOk() {
         // GIVEN
         RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(false);
         VoltageRegulationAdder<RatioTapChangerAdder> voltageRegulationAdder = ratioTapChangerAdder
@@ -219,7 +219,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
     // Cases Regulating false, Terminal present, Mode VOLTAGE
 
     @Test
-    void testRatioTapChangerRemoteVoltageRegulatingOffOk() {
+    public void testRatioTapChangerRemoteVoltageRegulatingOffOk() {
         // GIVEN
         RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(false);
         VoltageRegulationAdder<RatioTapChangerAdder> voltageRegulationAdder = ratioTapChangerAdder
@@ -245,7 +245,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
 
     // RemoveTerminal
     @Test
-    void shouldThrowExceptionOnRemoveTerminalOnMultiVariant() {
+    public void shouldThrowExceptionOnRemoveTerminalOnMultiVariant() {
         // GIVEN
         RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(true);
         int targetValue = 220;

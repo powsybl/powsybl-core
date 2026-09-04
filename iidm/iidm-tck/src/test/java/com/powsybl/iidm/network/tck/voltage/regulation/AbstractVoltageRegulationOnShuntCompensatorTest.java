@@ -37,7 +37,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends AbstractVoltageRegulationCommon<ShuntCompensator> {
 
     @Test
-    void shouldUnregisterTerminalOnRemoveShuntCompensatorWithRemoteVoltageRegulation() {
+    public void shouldUnregisterTerminalOnRemoveShuntCompensatorWithRemoteVoltageRegulation() {
         String shuntCompensatorId = "removedShuntCompensator";
         DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(shuntCompensatorId,
             RegulationMode.VOLTAGE,
@@ -56,7 +56,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void shouldRemoveShuntCompensatorOnRemoveShuntCompensatorWithoutVoltageRegulation() {
+    public void shouldRemoveShuntCompensatorOnRemoveShuntCompensatorWithoutVoltageRegulation() {
         String shuntCompensatorId = "removedShuntCompensator";
         ShuntCompensator shuntCompensator = newShuntCompensatorAdder(shuntCompensatorId).add();
         assertEquals(0, remoteTerminal.getReferrers().size());
@@ -68,7 +68,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     // Cases shuntCompensator regulating
     @ParameterizedTest(name = "{argumentSetName}")
     @MethodSource("provideShuntCompensatorRegulating")
-    void testShuntCompensatorRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
+    public void testShuntCompensatorRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
         ShuntCompensator shuntCompensator = createShuntCompensator(dataVoltageRegulationHolderCreator);
         assertTrue(shuntCompensator.isRegulating());
         VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
@@ -83,7 +83,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
 
     // Cases missing VoltageRegulation
     @Test
-    void testMissingVoltageRegulationOk() {
+    public void testMissingVoltageRegulationOk() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("missingVoltageRegulation")
             .setLocalTargetQ(10);
@@ -97,7 +97,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     // Cases Regulating True, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testShuntCompensatorOk() {
+    public void testShuntCompensatorOk() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("ErrorTargetValuePresent_when_terminal_absent");
         shuntCompensatorAdder
@@ -114,7 +114,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testShuntCompensatorErrorLocalTargetVMissing() {
+    public void testShuntCompensatorErrorLocalTargetVMissing() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("LocalVoltageTargetV_missing");
         shuntCompensatorAdder.newVoltageRegulation()
@@ -129,7 +129,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testShuntCompensatorErrorLocalTargetVMissingTargetQPresent() {
+    public void testShuntCompensatorErrorLocalTargetVMissingTargetQPresent() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("LocalVoltageTargetV_missing");
         shuntCompensatorAdder.newVoltageRegulation()
@@ -145,7 +145,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testShuntCompensatorErrorLocalTargetVMissingTargetValuePresent() {
+    public void testShuntCompensatorErrorLocalTargetVMissingTargetValuePresent() {
         // GIVEN
         VoltageRegulationAdder<ShuntCompensatorAdder> adder = newShuntCompensatorAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
@@ -158,7 +158,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testShuntCompensatorErrorTargetValuePresent() {
+    public void testShuntCompensatorErrorTargetValuePresent() {
         // GIVEN
         VoltageRegulationAdder<ShuntCompensatorAdder> adder = newShuntCompensatorAdder("ErrorTargetValuePresent_when_terminal_absent")
             .setLocalTargetV(24)
@@ -176,7 +176,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     // Cases Regulating True, Terminal present, Mode VOLTAGE
 
     @Test
-    void testShuntCompensatorRemoteVoltageRegulatingOk() {
+    public void testShuntCompensatorRemoteVoltageRegulatingOk() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("OK_Remote_Voltage");
         VoltageRegulationAdder<ShuntCompensatorAdder> voltageRegulationAdder = shuntCompensatorAdder
@@ -202,7 +202,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testShuntCompensatorRemoteVoltageRegulatingErrorMissingTargetValue() {
+    public void testShuntCompensatorRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
         VoltageRegulationAdder<ShuntCompensatorAdder> adder = newShuntCompensatorAdder("Error_Remote_Voltage_Missing_targetValue")
             .newVoltageRegulation()
@@ -219,7 +219,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testShuntCompensatorLocalVoltageRegulatingOffOk() {
+    public void testShuntCompensatorLocalVoltageRegulatingOffOk() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("OK_Local_Voltage_OFF");
         VoltageRegulationAdder<ShuntCompensatorAdder> voltageRegulationAdder = shuntCompensatorAdder
@@ -243,7 +243,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testShuntCompensatorLocalVoltageRegulatingOffNoError() {
+    public void testShuntCompensatorLocalVoltageRegulatingOffNoError() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("Ok_Local_Voltage_OFF_Missing_TargetQ");
         shuntCompensatorAdder.newVoltageRegulation()
@@ -266,7 +266,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     // Cases Regulating false, Terminal present, Mode VOLTAGE
 
     @Test
-    void testShuntCompensatorRemoteVoltageRegulatingOffOk() {
+    public void testShuntCompensatorRemoteVoltageRegulatingOffOk() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("OK_Remote_Voltage_OFF");
         VoltageRegulationAdder<ShuntCompensatorAdder> voltageRegulationAdder = shuntCompensatorAdder
@@ -292,7 +292,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void testShuntCompensatorRemoteVoltageRegulatingOffOkWithNoLocalTargetQ() {
+    public void testShuntCompensatorRemoteVoltageRegulatingOffOkWithNoLocalTargetQ() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("Ok_Remote_Voltage_OFF_Missing_TargetQ");
         shuntCompensatorAdder.newVoltageRegulation()
@@ -317,7 +317,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
 
     // RemoveTerminal
     @Test
-    void testRemoveTerminalOnMultiVariantThrowException() {
+    public void testRemoveTerminalOnMultiVariantThrowException() {
         // GIVEN
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
         int targetValue = 220;
@@ -356,7 +356,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     }
 
     @Test
-    void shouldChangeTerminal() {
+    public void shouldChangeTerminal() {
         this.changeTerminalTest(newShuntCompensatorAdder("changeTerminal").add());
     }
 

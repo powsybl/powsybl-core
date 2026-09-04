@@ -33,7 +33,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractVoltageRegulationCommon<Generator> {
 
     @Test
-    void shouldUnregisterTerminalOnRemoveGeneratorWithRemoteVoltageRegulation() {
+    public void shouldUnregisterTerminalOnRemoveGeneratorWithRemoteVoltageRegulation() {
         String generatorId = "removedGenerator";
         DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(generatorId,
             RegulationMode.VOLTAGE,
@@ -50,7 +50,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void shouldRemoveGeneratorOnRemoveGeneratorWithoutVoltageRegulation() {
+    public void shouldRemoveGeneratorOnRemoveGeneratorWithoutVoltageRegulation() {
         String generatorId = "removedGenerator";
         Generator generator = newGeneratorAdder(generatorId).setLocalTargetQ(10).add();
         assertEquals(0, remoteTerminal.getReferrers().size());
@@ -62,7 +62,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     // Cases generator regulating
     @ParameterizedTest(name = "{argumentSetName}")
     @MethodSource("provideGeneratorRegulating")
-    void testGeneratorRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
+    public void testGeneratorRegulating(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator, String validationErrorOnRegulatingFalse) {
         Generator generator = createGenerator(dataVoltageRegulationHolderCreator);
         assertTrue(generator.isRegulating());
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
@@ -77,7 +77,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
 
     // Cases missing VoltageRegulation
     @Test
-    void testMissingVoltageRegulationOk() {
+    public void testMissingVoltageRegulationOk() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("missingVoltageRegulation")
             .setLocalTargetQ(10);
@@ -89,7 +89,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testMissingVoltageRegulationWithMissingTargetQ() {
+    public void testMissingVoltageRegulationWithMissingTargetQ() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("missingVoltageRegulation");
         // WHEN
@@ -101,7 +101,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     // Cases Regulating True, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testGeneratorOk() {
+    public void testGeneratorOk() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent");
         generatorAdder
@@ -117,7 +117,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testGeneratorErrorLocalTargetVMissing() {
+    public void testGeneratorErrorLocalTargetVMissing() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing");
         generatorAdder.newVoltageRegulation()
@@ -131,7 +131,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testGeneratorErrorLocalTargetVMissingTargetQPresent() {
+    public void testGeneratorErrorLocalTargetVMissingTargetQPresent() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing");
         generatorAdder.newVoltageRegulation()
@@ -146,7 +146,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testGeneratorErrorLocalTargetVMissingTargetValuePresent() {
+    public void testGeneratorErrorLocalTargetVMissingTargetValuePresent() {
         // GIVEN
         VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
@@ -158,7 +158,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testGeneratorErrorTargetValuePresent() {
+    public void testGeneratorErrorTargetValuePresent() {
         // GIVEN
         VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent")
             .setLocalTargetV(24)
@@ -175,7 +175,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     // Cases Regulating True, Terminal present, Mode VOLTAGE
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingOk() {
+    public void testGeneratorRemoteVoltageRegulatingOk() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("OK_Remote_Voltage");
         VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
@@ -199,7 +199,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingErrorMissingTargetValue() {
+    public void testGeneratorRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
         VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue")
             .newVoltageRegulation()
@@ -215,7 +215,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
 
     @Test
-    void testGeneratorLocalVoltageRegulatingOffOk() {
+    public void testGeneratorLocalVoltageRegulatingOffOk() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("OK_Local_Voltage_OFF");
         VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
@@ -239,7 +239,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testGeneratorLocalVoltageRegulatingOffErrorMissingTargetQ() {
+    public void testGeneratorLocalVoltageRegulatingOffErrorMissingTargetQ() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("Error_Local_Voltage_OFF_Missing_TargetQ");
         generatorAdder.newVoltageRegulation()
@@ -255,7 +255,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     // Cases Regulating false, Terminal present, Mode VOLTAGE
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingOffOk() {
+    public void testGeneratorRemoteVoltageRegulatingOffOk() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("OK_Remote_Voltage_OFF");
         VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
@@ -281,7 +281,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testGeneratorRemoteVoltageRegulatingOffErrorMissingTargetQ() {
+    public void testGeneratorRemoteVoltageRegulatingOffErrorMissingTargetQ() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("Error_Remote_Voltage_OFF_Missing_TargetQ");
         generatorAdder.newVoltageRegulation()
@@ -298,7 +298,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
 
     // RemoveTerminal
     @Test
-    void testRemoveTerminalOnMultiVariantThrowException() {
+    public void testRemoveTerminalOnMultiVariantThrowException() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
         int targetValue = 220;
@@ -336,7 +336,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void shouldChangeTerminal() {
+    public void shouldChangeTerminal() {
         this.changeTerminalTest(newGeneratorAdder("changeTerminal").setLocalTargetQ(15.0).add());
     }
 
@@ -351,7 +351,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testMergeWithTerminalInMultiVariant() {
+    public void testMergeWithTerminalInMultiVariant() {
         Generator gen = newGeneratorAdder("gen1")
                 .setLocalTargetQ(15.0)
                 .setLocalTargetV(110.0)
@@ -381,7 +381,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
-    void testCreateVoltageRegulationInMultiVariant() {
+    public void testCreateVoltageRegulationInMultiVariant() {
         Generator otherGen = network.getGenerator("GEN");
         Generator gen = newGeneratorAdder("gen3")
                 .setLocalTargetQ(15.0)

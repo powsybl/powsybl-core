@@ -57,7 +57,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testBattery() {
+    public void testBattery() {
         // GIVEN
         int targetQ = 10;
 
@@ -98,7 +98,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testGeneratorRemoteVoltageRegulation() {
+    public void testGeneratorRemoteVoltageRegulation() {
         // GIVEN
         int remoteTargetV = 220;
         int localTargetV = 110;
@@ -148,7 +148,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testGeneratorLocalVoltageRegulation() {
+    public void testGeneratorLocalVoltageRegulation() {
         // GIVEN
         int targetV = 220;
         int equivalentLocalTargetV = 110;
@@ -197,7 +197,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testRatioTapChanger() {
+    public void testRatioTapChanger() {
         // GIVEN
         int targetValue = 120;
         int targetV = 220;
@@ -254,7 +254,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testShuntCompensator() {
+    public void testShuntCompensator() {
         // GIVEN
         int targetV = 220;
         double targetDeadband = 5.0;
@@ -302,7 +302,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testStaticVarCompensator() {
+    public void testStaticVarCompensator() {
         // GIVEN
         int targetV = 120;
         int targetQ = 10;
@@ -349,7 +349,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testVscConverterStation() {
+    public void testVscConverterStation() {
         // GIVEN
         int targetV = 120;
         int targetQ = 10;
@@ -395,7 +395,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testVoltageSourceConverter() {
+    public void testVoltageSourceConverter() {
         // GIVEN
         int targetV = 120;
         int targetQ = 10;

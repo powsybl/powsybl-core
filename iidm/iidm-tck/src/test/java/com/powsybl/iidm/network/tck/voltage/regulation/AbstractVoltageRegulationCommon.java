@@ -37,7 +37,7 @@ abstract class AbstractVoltageRegulationCommon<T extends VoltageRegulationHolder
         remoteTerminal = network.getBattery("BAT").getTerminal();
     }
 
-    void changeTerminalTest(T holder) {
+    public void changeTerminalTest(T holder) {
         var vlgen = network.getVoltageLevel("VLGEN");
         Bus ngen = vlgen.getBusBreakerView().getBus("NGEN");
 
