@@ -52,7 +52,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     private static void writeVoltageLevels(Substation s, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (VoltageLevel vl : IidmSerDeUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
+        for (VoltageLevel vl : IidmSerDeUtil.sorted(s.getNetwork(), s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelSerDe.INSTANCE.write(vl, null, context);
         }
         context.getWriter().writeEndNodes();
@@ -60,7 +60,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     private static void writeTwoWindingsTransformers(Substation s, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        Iterable<TwoWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getTwoWindingsTransformers(), context.getOptions());
+        Iterable<TwoWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getNetwork(), s.getTwoWindingsTransformers(), context.getOptions());
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
                 continue;
@@ -72,7 +72,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     private static void writeThreeWindingsTransformers(Substation s, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        Iterable<ThreeWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getThreeWindingsTransformers(), context.getOptions());
+        Iterable<ThreeWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getNetwork(), s.getThreeWindingsTransformers(), context.getOptions());
         for (ThreeWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
                 continue;
@@ -90,7 +90,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
             Collection<OverloadManagementSystem> validOverloadManagementSystems = filterValidOverloadManagementSystems(s);
             if (!validOverloadManagementSystems.isEmpty()) {
                 context.getWriter().writeStartNodes();
-                IidmSerDeUtil.sorted(validOverloadManagementSystems, context.getOptions())
+                IidmSerDeUtil.sorted(s.getNetwork(), validOverloadManagementSystems, context.getOptions())
                         .forEach(oms -> OverloadManagementSystemSerDe.INSTANCE.write(oms, null, context));
                 context.getWriter().writeEndNodes();
             }
