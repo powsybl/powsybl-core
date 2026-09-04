@@ -138,10 +138,24 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         this.groupSupplier = groupSupplier;
     }
 
+    /**
+     * Define how to build a limit from the given group
+     * @param group the group that owns the limit
+     * @return the limit that was built
+     */
     protected abstract L buildLimit(OperationalLimitsGroupImpl group);
 
+    /**
+     * How to set the limit to the group
+     * @param limits the limit to set
+     * @param group the group that owns the limit
+     */
     protected abstract void setLimitToGroup(L limits, OperationalLimitsGroupImpl group);
 
+    /**
+     * Get the type of the limit
+     * @return the type of the limit
+     */
     protected abstract String getLimitTypeName();
 
     @Override

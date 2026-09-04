@@ -732,6 +732,18 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * Check that the provided limit has correct values.
+     * @param validable used to get the error message header in case the limit is invalid
+     * @param permanentLimit the value of the permanent limit. Must be strictly positive.
+     * @param permanentLimitName the name of the permanent limit. Must be empty if the detection kind is LOW.
+     * @param detectionKind the kind of the limit
+     * @param temporaryLimits all the temporary limits. Each one must be higher than the permanent limit,
+     *                        and each limit's value must be higher than the previous one.
+     * @param validationLevel the level of validation of the network
+     * @param reportNode to report and log errors
+     * @return the new validation level after checking the limit.
+     */
     public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, String permanentLimitName, DetectionKind detectionKind,
                                                      Collection<LoadingLimits.TemporaryLimit> temporaryLimits, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkLoadingLimits(validable, permanentLimit, permanentLimitName, detectionKind, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
