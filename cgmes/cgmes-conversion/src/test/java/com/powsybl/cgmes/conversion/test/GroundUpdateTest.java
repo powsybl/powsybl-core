@@ -46,23 +46,23 @@ class GroundUpdateTest {
         Network network = readCgmesResources(DIR, "ground_EQ.xml");
         assertEq(network);
 
-        // Import a SSH where the ground is connected
+        // Import a SSH where the ground is connected. No fictitious switch needed.
         readCgmesResources(network, DIR, "ground_SSH.xml");
         assertFictSwitch(network, false);
         assertGroundConnected(network, true);
 
-        // Import a SSH where the ground is disconnected
+        // Import a SSH where the ground is disconnected. A fictitious switch is created.
         readCgmesResources(network, DIR, "ground_SSH_1.xml");
         assertFictSwitch(network, true);
         assertGroundConnected(network, false);
 
-        // Check that a second import does'nt create a new fictitious switch
+        // Check that a second import doesn't create a new fictitious switch.
         readCgmesResources(network, DIR, "ground_SSH_1.xml");
         assertFictSwitch(network, true);
         assertGroundConnected(network, false);
 
         // When importing a situation where the ground is reconnected,
-        // the fictitious switch remains but is now closed
+        // the fictitious switch remains and is now closed.
         readCgmesResources(network, DIR, "ground_SSH.xml");
         assertFictSwitch(network, true);
         assertGroundConnected(network, true);
@@ -70,6 +70,7 @@ class GroundUpdateTest {
 
     @Test
     void completeUpdateUsingDifferentVariantsTest() {
+        // Basically the same test as above except the different situations are imported in different variants.
         Network network = readCgmesResources(DIR, "ground_EQ.xml", "ground_SSH.xml");
 
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "update-08");
