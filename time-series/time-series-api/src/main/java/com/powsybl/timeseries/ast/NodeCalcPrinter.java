@@ -25,7 +25,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<NodeCalcPrintable, Void>
 
         // Build the output iteratively using a StringBuilder, each printable pushes its children and its expression parts onto the stack in reverse order,
         // Then process the stored expressions in their printing order, and the String parts are appended once to the shared StringBuilder,
-        // Unlike recursive string concatenation, this does not repeatedly copy the strings of entire subtree, resulting linear time complexity.
+        // Unlike recursive string concatenation, this does not repeatedly copy the strings of entire subtree, resulting in linear time complexity.
         while (!stack.isEmpty()) {
             Object node = stack.pop();
             if (node instanceof String text) {
