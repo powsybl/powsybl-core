@@ -7,9 +7,18 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -95,6 +104,35 @@ class HvdcUpdateTest {
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    @Test
+    void vscReactivePowerSetpointRoundTripFlipsSign() throws IOException {
+        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        HvdcLine senderLine = network.getHvdcLine("DCLineSegment-Vsc");
+        VscConverterStation vsc = (VscConverterStation) senderLine.getConverterStation2();
+        assertEquals(0.0, vsc.getReactivePowerSetpoint(), 1e-7);
+
+        vsc.setVoltageRegulatorOn(false);
+        vsc.setReactivePowerSetpoint(30.0);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            String baseName = "vsc-q-roundtrip";
+            network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+            vsc.setReactivePowerSetpoint(0.0);
+
+            Properties importParameters = new Properties();
+            importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+            network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+            assertEquals(30.0, vsc.getReactivePowerSetpoint(), 1e-7);
+        }
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
