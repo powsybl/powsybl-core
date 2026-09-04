@@ -299,14 +299,14 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    void shouldSucceedParseLimitReductionsFile() throws IOException {
+    void shouldSucceedParseLimitScalingsFile() throws IOException {
         //Given
-        byte[] limitReductionsBytes;
-        try (InputStream is = getClass().getResourceAsStream("/LimitReductionsV1.1.json")) {
+        byte[] limitScalingsBytes;
+        try (InputStream is = getClass().getResourceAsStream("/LimitScalings.json")) {
             assertNotNull(is);
-            limitReductionsBytes = is.readAllBytes();
+            limitScalingsBytes = is.readAllBytes();
         }
-        Files.write(fileSystem.getPath("limit-scalings"), limitReductionsBytes);
+        Files.write(fileSystem.getPath("limit-scalings"), limitScalingsBytes);
         ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_SCALINGS_FILE, "limit-scalings"));
         //When
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();

@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.json.limitscaling;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
@@ -25,10 +26,13 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -80,6 +84,18 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
         compareLimitScalingList(expectedScalings, limitScalingList);
     }
 
+    @Test
+    void checkVersion() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/LimitReductionsV1.2_incorrect_naming.json")) {
+            PowsyblException e = assertThrows(PowsyblException.class, () -> LimitScalingListSerDeUtil.read(is));
+            assertEquals("limit-scaling-list. limitScalings is not valid for this version", e.getMessage());
+        }
+        try (InputStream is = getClass().getResourceAsStream("/LimitScalingsV1.3_incorrect_naming.json")) {
+            PowsyblException e = assertThrows(PowsyblException.class, () -> LimitScalingListSerDeUtil.read(is));
+            assertEquals("limit-scaling-list. limitReductions is not valid for this version", e.getMessage());
+        }
+    }
+
     private void compareLimitScalingList(LimitScalingList expected, LimitScalingList actual) {
         Assertions.assertThat(actual.getLimitScalings())
             .hasSize(expected.getLimitScalings().size())
@@ -121,7 +137,7 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
 
         roundTripTest(limitScalingList, LimitScalingListSerDeUtil::write,
                 LimitScalingListSerDeUtil::read,
-            "/LimitScalingsV1.3.json");
+            "/LimitScalings.json");
     }
 
     @Test
