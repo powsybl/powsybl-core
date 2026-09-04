@@ -29,7 +29,7 @@ public class LimitViolationBuilder {
     private Double limit;
     private String limitName;
     private Integer duration = Integer.MAX_VALUE;
-    private double reduction = 1.0;
+    private double scaling = 1.0;
     private Double value;
     private ThreeSides side;
     private ViolationLocation violationLocation;
@@ -127,12 +127,12 @@ public class LimitViolationBuilder {
     }
 
     /**
-     * @param reduction The limit reduction factor used for violation detection.
+     * @param scaling The limit scaling factor used for violation detection.
      *                  Default is 1.
      * @return this {@link LimitViolationBuilder}
      */
-    public LimitViolationBuilder reduction(double reduction) {
-        this.reduction = reduction;
+    public LimitViolationBuilder scaling(double scaling) {
+        this.scaling = scaling;
         return this;
     }
 
@@ -195,14 +195,14 @@ public class LimitViolationBuilder {
             case CURRENT:
                 requireNonNull(duration, "Acceptable duration must be defined.");
                 requireNonNull(side, "Violation side must be defined.");
-                return new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, type, limitName, duration, limit, reduction, value, side, violationLocation);
+                return new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, type, limitName, duration, limit, scaling, value, side, violationLocation);
             case LOW_VOLTAGE:
             case HIGH_VOLTAGE:
             case LOW_SHORT_CIRCUIT_CURRENT:
             case HIGH_SHORT_CIRCUIT_CURRENT:
             case LOW_VOLTAGE_ANGLE:
             case HIGH_VOLTAGE_ANGLE:
-                return new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, type, limitName, Integer.MAX_VALUE, limit, reduction, value, null, violationLocation);
+                return new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, type, limitName, Integer.MAX_VALUE, limit, scaling, value, null, violationLocation);
             default:
                 throw new UnsupportedOperationException(String.format("Building %s limits is not supported.", type.name()));
         }

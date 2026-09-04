@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
-import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 import com.powsybl.security.results.PostContingencyResult;
 
 import java.io.IOException;
@@ -53,21 +53,20 @@ public final class Security {
         return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), LimitsComputer.NO_MODIFICATIONS);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, double limitReductionValue) {
-        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitReductionValue);
+    public static List<LimitViolation> checkLimits(Network network, double limitScalingValue) {
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitScalingValue);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, double limitReductionValue) {
+    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, double limitScalingValue) {
         Objects.requireNonNull(currentLimitType);
-        return checkLimits(network, EnumSet.of(currentLimitType), limitReductionValue);
+        return checkLimits(network, EnumSet.of(currentLimitType), limitScalingValue);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
-        // allow to increase the limits
-        if (limitReductionValue <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
+    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, double limitScalingValue) {
+        if (limitScalingValue < 0) {
+            throw new IllegalArgumentException("Limit scaling should be positive, got " + limitScalingValue);
         }
-        return checkLimits(network, currentLimitTypes, new SimpleLimitsComputer(limitReductionValue));
+        return checkLimits(network, currentLimitTypes, new SimpleLimitsComputer(limitScalingValue));
     }
 
     public static List<LimitViolation> checkLimits(Network network, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer) {
@@ -82,12 +81,11 @@ public final class Security {
         return violations;
     }
 
-    public static List<LimitViolation> checkLimitsDc(Network network, double limitReductionValue, double dcPowerFactor) {
-        // allow to increase the limits
-        if (limitReductionValue <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
+    public static List<LimitViolation> checkLimitsDc(Network network, double limitScalingValue, double dcPowerFactor) {
+        if (limitScalingValue < 0) {
+            throw new IllegalArgumentException("Limit scaling should be positive, got " + limitScalingValue);
         }
-        return checkLimitsDc(network, new SimpleLimitsComputer(limitReductionValue), dcPowerFactor);
+        return checkLimitsDc(network, new SimpleLimitsComputer(limitScalingValue), dcPowerFactor);
     }
 
     public static List<LimitViolation> checkLimitsDc(Network network, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double dcPowerFactor) {
@@ -231,7 +229,7 @@ public final class Security {
     }
 
     private static double getAbsValueLimit(LimitViolation violation) {
-        return Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitReduction());
+        return Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitScaling());
     }
 
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Network network, Writer writer, TableFormatterFactory formatterFactory,
@@ -338,7 +336,7 @@ public final class Security {
     }
 
     private static double getViolationLimit(LimitViolation violation) {
-        return violation.getLimit() * violation.getLimitReduction();
+        return violation.getLimit() * violation.getLimitScaling();
     }
 
     private static double getViolationRate(LimitViolation violation) {

@@ -408,15 +408,15 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean isOverloaded(double limitReductionValue) {
-        return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT) || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT);
+    public boolean isOverloaded(double limitScalingValue) {
+        return checkPermanentLimit1(limitScalingValue, LimitType.CURRENT) || checkPermanentLimit2(limitScalingValue, LimitType.CURRENT);
     }
 
     @Override
-    public boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, double limitScalingValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkPermanentLimit1(limitReductionValue, type),
-            () -> checkPermanentLimit2(limitReductionValue, type));
+            () -> checkPermanentLimit1(limitScalingValue, type),
+            () -> checkPermanentLimit2(limitScalingValue, type));
     }
 
     @Override
@@ -425,8 +425,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean checkPermanentLimit1(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
+    public boolean checkPermanentLimit1(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitScalingValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -435,8 +435,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean checkPermanentLimit2(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
+    public boolean checkPermanentLimit2(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitScalingValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -445,10 +445,10 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkTemporaryLimits1(limitReductionValue, type),
-            () -> checkTemporaryLimits2(limitReductionValue, type));
+            () -> checkTemporaryLimits1(limitScalingValue, type),
+            () -> checkTemporaryLimits2(limitScalingValue, type));
     }
 
     @Override
@@ -457,8 +457,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Overload checkTemporaryLimits1(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
+    public Overload checkTemporaryLimits1(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitScalingValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -467,8 +467,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Overload checkTemporaryLimits2(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
+    public Overload checkTemporaryLimits2(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitScalingValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -477,8 +477,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitScalingValue, getValueForLimit(getTerminal(side), type), type);
     }
 
     public double getValueForLimit(Terminal t, LimitType type) {
