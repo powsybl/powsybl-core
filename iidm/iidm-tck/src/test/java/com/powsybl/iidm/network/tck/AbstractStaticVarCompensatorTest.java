@@ -88,6 +88,23 @@ public abstract class AbstractStaticVarCompensatorTest {
     }
 
     @Test
+    public void undefinedRegulatingWithEquipmentValidationLevel() {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        StaticVarCompensator svc = network.getVoltageLevel("VL2").newStaticVarCompensator()
+                .setId("SVC3")
+                .setConnectableBus("B2")
+                .setBus("B2")
+                .setBmin(0.0002)
+                .setBmax(0.0008)
+                .setReactivePowerSetpoint(1.0)
+                .add();
+
+        assertFalse(svc.isRegulating());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
+
+    @Test
     public void changeVoltageSetpointTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         svc.setVoltageSetpoint(391.0);
