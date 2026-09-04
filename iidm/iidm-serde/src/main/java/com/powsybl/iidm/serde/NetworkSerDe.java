@@ -1295,14 +1295,18 @@ public final class NetworkSerDe {
         try {
             Pipe pipe = Pipe.open();
             executor.execute(() -> {
-                try (Pipe.SinkChannel sinkChannel = pipe.sink()) {
-                    write(network, new ExportOptions().setFormat(format), Channels.newOutputStream(sinkChannel));
+                try (OutputStream tmp = Channels.newOutputStream(pipe.sink());
+                     //using buffered stream is about 20 times more effective for xml and json formats
+                     OutputStream os = format == TreeDataFormat.BIN ? tmp : new BufferedOutputStream(tmp)) {
+                    write(network, new ExportOptions().setFormat(format), os);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
             });
-            try (Pipe.SourceChannel sourceChannel = pipe.source()) {
-                return read(Channels.newInputStream(sourceChannel),
+            try (InputStream tmp = Channels.newInputStream(pipe.source());
+                 //using buffered stream for read has little impact, but it mimics the write behavior
+                 InputStream is = format == TreeDataFormat.BIN ? tmp : new BufferedInputStream(tmp)) {
+                return read(is,
                         new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
             }
         } catch (IOException e) {
