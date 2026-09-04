@@ -291,7 +291,7 @@ public final class JsonUtil {
         boolean headerDone = false;
         Set<String> notFound = new HashSet<>();
 
-        if (!extendable.getExtensions().isEmpty()) {
+        if (extendable.hasExtensions()) {
             for (Extension<T> extension : extendable.getExtensions()) {
                 ExtensionJsonSerializer serializer = supplier.getSerializer(extension.getName());
                 if (serializer != null) {

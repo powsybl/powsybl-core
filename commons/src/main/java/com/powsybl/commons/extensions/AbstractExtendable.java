@@ -7,19 +7,17 @@
  */
 package com.powsybl.commons.extensions;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractExtendable<T> implements Extendable<T> {
 
-    private final Map<Class<?>, Extension<T>> extensions = new HashMap<>();
+    private Map<Class<?>, Extension<T>> extensions = null;
 
-    private final Map<String, Extension<T>> extensionsByName = new HashMap<>();
+    private Map<String, Extension<T>> extensionsByName = null;
 
     @Override
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
@@ -28,6 +26,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         // remove any existing, which will trigger extension own cleanup if any
         this.removeExtension((Class<E>) type);
         extension.setExtendable((T) this);
+        initiateExtensions();
         extensions.put(type, extension);
         extensionsByName.put(extension.getName(), extension);
     }
@@ -35,18 +34,28 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     @Override
     public <E extends Extension<T>> E getExtension(Class<? super E> type) {
         Objects.requireNonNull(type);
+        if (extensions == null) {
+            return null;
+        }
         return (E) extensions.get(type);
     }
 
     @Override
     public <E extends Extension<T>> E getExtensionByName(String name) {
         Objects.requireNonNull(name);
+        if (extensionsByName == null) {
+            return null;
+        }
         return (E) extensionsByName.get(name);
     }
 
     protected <E extends Extension<T>> void removeExtension(Class<E> type, E extension) {
-        extensions.remove(type);
-        extensionsByName.remove(extension.getName());
+        if (extensions != null) {
+            extensions.remove(type);
+        }
+        if (extensionsByName != null) {
+            extensionsByName.remove(extension.getName());
+        }
         extension.setExtendable(null);
     }
 
@@ -63,9 +72,37 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return removed;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>To limit memory usage, it is recommended to use {@link #hasExtensions()} before calling this method.
+     * (or to call {@link #getExtensionsStream()} instead).</p>
+     * @return the properties
+     */
     @Override
     public Collection<Extension<T>> getExtensions() {
+        initiateExtensions();
         return extensionsByName.values();
+    }
+
+    public Stream<Extension<T>> getExtensionsStream() {
+        if (extensionsByName == null) {
+            return Stream.empty();
+        }
+        return extensionsByName.values().stream();
+    }
+
+    private void initiateExtensions() {
+        if (extensions == null) {
+            extensions = new HashMap<>();
+        }
+        if (extensionsByName == null) {
+            extensionsByName = new HashMap<>();
+        }
+    }
+
+    @Override
+    public boolean hasExtensions() {
+        return extensions != null && !extensions.isEmpty();
     }
 
     @Override

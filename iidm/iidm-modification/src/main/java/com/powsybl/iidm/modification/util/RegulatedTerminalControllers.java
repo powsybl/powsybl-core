@@ -99,7 +99,7 @@ public class RegulatedTerminalControllers {
 
     private List<TerminalRef> findRegulatedTerminalsInExtensions(Identifiable<?> identifiable) {
         List<TerminalRef> regulatedTerminals = new ArrayList<>();
-        identifiable.getExtensions().stream().map(Extension::getName).forEach(extensionName ->
+        identifiable.getExtensionsStream().map(Extension::getName).forEach(extensionName ->
                 add(regulatedTerminals, findRegulatedTerminalInExtension(identifiable, extensionName)));
         return regulatedTerminals;
     }
