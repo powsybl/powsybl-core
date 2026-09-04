@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.ZonedDateTime;
 import java.util.function.Supplier;
 
@@ -248,6 +249,63 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         ImportOptions options = new ImportOptions();
         PowsyblException e = assertThrows(PowsyblException.class, () -> options.setMinimalValidationLevel("Unknown value"));
         assertEquals("Unexpected value for minimalValidationLevel: Unknown value", e.getMessage());
+    }
+
+    @Test
+    void testLowLimits() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.newOperationalLimitsGroup1("a").newCurrentLimits().setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setAcceptableDuration(40 * 60)
+            .setName("40'")
+            .setValue(700)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setAcceptableDuration(60 * 60)
+            .setName("60'")
+            .setValue(500)
+            .endTemporaryLimit()
+            .add();
+        line.newOperationalLimitsGroup1("b").newApparentPowerLimits()
+            .setPermanentLimit(100)
+            .add();
+        line.newOperationalLimitsGroup2("c").newApparentPowerLimits().setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setAcceptableDuration(30 * 60)
+            .setName("30'")
+            .setValue(400)
+            .endTemporaryLimit()
+            .add();
+        allFormatsRoundTripFromMinVersionTest(network, "eurostag-low-limits.xml", IidmVersion.V_1_18);
+    }
+
+    @Test
+    void checkInvalidLowLimitWithPermanentName() {
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream networkStream = getVersionedNetworkAsStream("invalidLowLimitWithPermanentLimitName.xml", version);
+            Exception e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(networkStream));
+            assertTrue(e.getMessage().contains("The permanent limit name 'invalidPermanent' is specified, but the detection kind is LOW. There is no permanent limit for such a kind."));
+        });
+    }
+
+    @Test
+    void checkInvalidLowLimitWithPermanentValue() {
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream networkStream = getVersionedNetworkAsStream("invalidLowLimitWithPermanentLimitValue.xml", version);
+            Exception e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(networkStream));
+            assertTrue(e.getMessage().contains("A permanent limit of value '557.34' is specified, but the detection kind is LOW. There is no permanent limit for such a kind."));
+        });
+    }
+
+    @Test
+    void checkInvalidLimitKind() {
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream networkStream = getVersionedNetworkAsStream("invalidLimitKind.xml", version);
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> NetworkSerDe.read(networkStream));
+            assertTrue(e.getMessage().contains("DetectionKind.INVALID"));
+        });
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier, String permanentLimitName) {

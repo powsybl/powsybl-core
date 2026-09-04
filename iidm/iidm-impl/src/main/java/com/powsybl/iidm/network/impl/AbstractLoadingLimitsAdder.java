@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -23,10 +25,13 @@ import static java.lang.Integer.MAX_VALUE;
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends AbstractBasePropertiesHolder implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
+    private final NetworkImpl network;
+    Supplier<OperationalLimitsGroupImpl> groupSupplier;
+
     protected final Validable validable;
     private final String ownerId;
 
-    protected String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
+    protected String permanentLimitName;
     protected double permanentLimit = Double.NaN;
     protected DetectionKind detectionKind = DetectionKind.HIGH;
     protected final String operationalGroupId;
@@ -125,15 +130,37 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
     }
 
-    AbstractLoadingLimitsAdder(Validable validable, String ownerId, String operationalGroupId) {
+    AbstractLoadingLimitsAdder(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalGroupId, NetworkImpl network) {
         this.validable = Objects.requireNonNull(validable);
         this.ownerId = ownerId;
         this.operationalGroupId = operationalGroupId;
+        this.network = network;
+        this.groupSupplier = groupSupplier;
     }
+
+    /**
+     * Define how to build a limit from the given group
+     * @param group the group that owns the limit
+     * @return the limit that was built
+     */
+    protected abstract L buildLimit(OperationalLimitsGroupImpl group);
+
+    /**
+     * How to set the limit to the group
+     * @param limits the limit to set
+     * @param group the group that owns the limit
+     */
+    protected abstract void setLimitToGroup(L limits, OperationalLimitsGroupImpl group);
+
+    /**
+     * Get the type of the limit
+     * @return the type of the limit
+     */
+    protected abstract String getLimitTypeName();
 
     @Override
     public A setPermanentLimitName(String limitName) {
-        this.permanentLimitName = Objects.requireNonNull(limitName);
+        this.permanentLimitName = limitName;
         return (A) this;
     }
 
@@ -179,7 +206,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected ValidationLevel checkLoadingLimits(ValidationLevel validationLevel, ReportNode reportNode) {
-        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, detectionKind, temporaryLimits.values(), validationLevel, reportNode);
+        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, permanentLimitName, detectionKind, temporaryLimits.values(), validationLevel, reportNode);
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
@@ -217,4 +244,24 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         return ownerId;
     }
 
+    @Override
+    public L add() {
+        checkAndUpdateValidationLevel(network);
+        OperationalLimitsGroupImpl group = groupSupplier.get();
+        if (group == null) {
+            throw new PowsyblException(String.format(
+                "Error adding %s on %s: error getting or creating the group",
+                getLimitTypeName(),
+                getOwnerId()
+            ));
+        }
+        if (detectionKind == DetectionKind.HIGH && permanentLimitName == null) {
+            permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
+        }
+        L limits = buildLimit(group);
+        setLimitToGroup(limits, group);
+        this.copyPropertiesTo(limits);
+
+        return limits;
+    }
 }
