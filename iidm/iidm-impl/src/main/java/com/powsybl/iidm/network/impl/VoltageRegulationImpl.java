@@ -441,11 +441,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     protected void notifyUpdate(@NonNull NotifyUpdateKey attribute, Object oldValue, Object newValue) {
-        network.get().getListeners().notifyUpdate(getIdentifiable(), attribute.getKey(), oldValue, newValue);
+        network.get().getListeners().notifyUpdate(getIdentifiable(), getNotification(attribute), oldValue, newValue);
     }
 
     protected void notifyUpdate(@NonNull NotifyUpdateKey attribute, String variantId, Object oldValue, Object newValue) {
-        network.get().getListeners().notifyUpdate(getIdentifiable(), attribute.getKey(), variantId, oldValue, newValue);
+        network.get().getListeners().notifyUpdate(getIdentifiable(), getNotification(attribute), variantId, oldValue, newValue);
     }
 
     private Identifiable<?> getIdentifiable() {
@@ -454,5 +454,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         } else {
             return (Identifiable<?>) this.validable;
         }
+    }
+
+    private String getNotification(@NonNull NotifyUpdateKey attribute) {
+        if (validable instanceof RatioTapChangerParent parent) {
+            return parent.getTapChangerAttribute() + "." + attribute.getKey();
+        }
+        return attribute.getKey();
     }
 }

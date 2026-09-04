@@ -8,16 +8,12 @@
 package com.powsybl.iidm.network.tck.voltage.regulation;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +21,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
@@ -280,6 +278,52 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
             assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetV()));
             assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetQ()));
         });
+    }
+
+    @Test
+    public void twoWindingsTransformerNotificationsTest() {
+        // GIVEN
+        RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(false);
+        RatioTapChanger ratioTapChanger = ratioTapChangerAdder
+                .setLoadTapChangingCapabilities(true)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(220)
+                .withTerminal(remoteTerminal)
+                .withRegulating(true)
+                .withTargetDeadband(10)
+                .add()
+                .add();
+
+        List<String> notifications = new ArrayList<>();
+        network.addListener(new NetworkListener() {
+            @Override
+            public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+                notifications.add(attribute);
+            }
+        });
+        // WHEN
+        ratioTapChanger.getVoltageRegulation().setTargetValue(230);
+        //THEN
+        assertTrue(notifications.contains("TapChanger.VoltageRegulation.TargetValue"));
+    }
+
+    @Test
+    public void threeWindingsTransformerNotificationsTest() {
+        // GIVEN
+        Network n = ThreeWindingsTransformerNetworkFactory.create();
+
+        List<String> notifications = new ArrayList<>();
+        n.addListener(new NetworkListener() {
+            @Override
+            public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+                notifications.add(attribute);
+            }
+        });
+        // WHEN
+        n.getThreeWindingsTransformer("3WT").getLeg(ThreeSides.TWO).getRatioTapChanger().getVoltageRegulation().setTargetValue(230);
+        //THEN
+        assertTrue(notifications.contains("TapChanger2.VoltageRegulation.TargetValue"));
     }
 
     private RatioTapChangerAdder newRatioTapChangerAdder(boolean loadTapChangingCapabilities) {
