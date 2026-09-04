@@ -20,7 +20,6 @@ import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
