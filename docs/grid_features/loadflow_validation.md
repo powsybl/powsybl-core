@@ -124,7 +124,7 @@ in susceptance, so that they are voltage dependent.
 
 $targetP = 0$ MW
 
-- If the regulation mode is `OFF`, then $targetQ$ is constant
+- If the regulation is disabled, then $targetQ$ is constant
 - If the regulation mode is `REACTIVE_POWER`, it behaves like a generator without voltage regulation
 - If the regulation mode is `VOLTAGE`, it behaves like a generator with voltage regulation with the following bounds (dependent on the voltage, which is not the case for generators):
   $minQ = - Bmax * V^2$ and $maxQ = - Bmin V^2$
