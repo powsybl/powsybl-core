@@ -187,7 +187,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
             assertTrue(e.getMessage().contains("limit-violation. limitScaling is not valid for this version"));
         }
         try (InputStream inputStream = getClass().getResourceAsStream("/shortcircuit-results-with-feeder-result_wrong_reduction_naming.json")) {
-            //should throw, since limitScaling is valid only until version 1.5 included
+            //should throw, since limitReduction is valid only until version 1.5 included
             UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> ShortCircuitAnalysisResultDeserializer.read(inputStream));
             assertTrue(e.getMessage().contains("limit-violation. limitReduction is not valid for this version"));
         }

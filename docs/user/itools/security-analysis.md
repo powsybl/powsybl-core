@@ -42,7 +42,7 @@ Available arguments are:
  -I <property=value>                          use value for given importer
                                               parameter
     --import-parameters <IMPORT_PARAMETERS>   the importer configuration file
-    --limit-scalings-file <FILE>            limit scalings file (.json)
+    --limit-scalings-file <FILE>              limit scalings file (.json)
     --limit-types <LIMIT-TYPES>               limit type filter (all if not set)
     --log-file <FILE>                         log output path (.zip)
     --monitoring-file <FILE>                  monitoring file (.json) to get
