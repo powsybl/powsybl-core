@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 class FaultResultDeserializer {
 
     private static final String CONTEXT_NAME = "FaultResult";
+    public static final String TAG = "Tag: ";
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
@@ -85,9 +86,29 @@ class FaultResultDeserializer {
                     case "shortCircuitBusResults" ->
                         faultResultParameters.shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
                     case "status" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.currentName(), version, "1.1");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
                         parser.nextToken();
                         faultResultParameters.status = FaultResult.Status.valueOf(parser.getValueAsString());
+                    }
+                    case "equivalentR" -> {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        parser.nextToken();
+                        faultResultParameters.equivalentR = parser.readValueAs(Double.class);
+                    }
+                    case "equivalentX" -> {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        parser.nextToken();
+                        faultResultParameters.equivalentX = parser.readValueAs(Double.class);
+                    }
+                    case "equivalentRZero" -> {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        parser.nextToken();
+                        faultResultParameters.equivalentRZero = parser.readValueAs(Double.class);
+                    }
+                    case "equivalentXZero" -> {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        parser.nextToken();
+                        faultResultParameters.equivalentXZero = parser.readValueAs(Double.class);
                     }
                     case "extensions" -> {
                         parser.nextToken();
@@ -112,6 +133,10 @@ class FaultResultDeserializer {
         Fault fault = null;
         double shortCircuitPower = Double.NaN;
         Duration timeConstant = null;
+        double equivalentR = Double.NaN;
+        double equivalentX = Double.NaN;
+        double equivalentRZero = Double.NaN;
+        double equivalentXZero = Double.NaN;
         FortescueValue current = null;
         FortescueValue voltage = null;
         double currentMagnitude = Double.NaN;
@@ -130,11 +155,12 @@ class FaultResultDeserializer {
             } else {
                 if (!Double.isNaN(parameters.currentMagnitude)) {
                     return new MagnitudeFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
-                        parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults,
-                        parameters.timeConstant, FaultResult.Status.SUCCESS);
+                            parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults,
+                            parameters.timeConstant, FaultResult.Status.SUCCESS, parameters.equivalentR, parameters.equivalentX);
                 } else {
                     return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
-                        parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant, FaultResult.Status.SUCCESS);
+                            parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant,
+                            FaultResult.Status.SUCCESS, parameters.equivalentR, parameters.equivalentRZero, parameters.equivalentX, parameters.equivalentXZero);
                 }
             }
         } else {
@@ -142,11 +168,12 @@ class FaultResultDeserializer {
                 return new FailedFaultResult(parameters.fault, parameters.status);
             } else if (!Double.isNaN(parameters.currentMagnitude)) {
                 return new MagnitudeFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
-                    parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults,
-                    parameters.timeConstant, parameters.status);
+                        parameters.limitViolations, parameters.currentMagnitude, parameters.voltageMagnitude, parameters.shortCircuitBusResults,
+                        parameters.timeConstant, parameters.status, parameters.equivalentR, parameters.equivalentX);
             } else {
                 return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
-                    parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant, parameters.status);
+                        parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant,
+                        parameters.status, parameters.equivalentR, parameters.equivalentRZero, parameters.equivalentX, parameters.equivalentXZero);
             }
         }
     }

@@ -26,10 +26,16 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
 
     public MagnitudeFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                                 List<LimitViolation> limitViolations, double current, double voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
-                                Duration timeConstant, Status status) {
-        super(fault, status, shortCircuitPower, timeConstant, feederResults, limitViolations, shortCircuitBusResults);
+                                Duration timeConstant, Status status, double equivalentR, double equivalentX) {
+        super(fault, status, shortCircuitPower, timeConstant, feederResults, limitViolations, shortCircuitBusResults, equivalentR, equivalentX);
         this.current = current;
         this.voltage = voltage;
+    }
+
+    public MagnitudeFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                                List<LimitViolation> limitViolations, double current, double voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
+                                Duration timeConstant, Status status) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status, Double.NaN, Double.NaN);
     }
 
     public MagnitudeFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
@@ -52,6 +58,12 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
         this(fault, Double.NaN, null, null, Double.NaN, Double.NaN, Collections.emptyList(), null, status);
     }
 
+    public MagnitudeFaultResult(Fault fault, double shortCircuitPower, double current, double voltage,
+                                Duration timeConstant, Status status, double equivalentR, double equivalentX) {
+        this(fault, shortCircuitPower, Collections.emptyList(), Collections.emptyList(), current, voltage, Collections.emptyList(),
+                timeConstant, status, equivalentR, equivalentX);
+    }
+
     /**
      * The three-phase current magnitude [in A].
      */
@@ -65,5 +77,4 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
     public double getVoltage() {
         return voltage;
     }
-
 }
