@@ -255,7 +255,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             this.holder.getLocalTargetQ(),
             false,
             isRegulating(),
-            false,
+            isWithTerminal(),
             getMode(),
             network.get().getMinValidationLevel(),
             network.get().getReportNodeContext().getReportNode());

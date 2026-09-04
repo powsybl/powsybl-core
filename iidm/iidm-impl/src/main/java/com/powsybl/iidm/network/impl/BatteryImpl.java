@@ -117,10 +117,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             Battery.class,
             this.getLocalTargetV(),
             targetQ,
-            true,
-            false,
-            false,
-            null,
+            getVoltageRegulation(),
             getNetwork().getMinValidationLevel(),
             getNetwork().getReportNodeContext().getReportNode());
         int variantIndex = network.getVariantIndex();
