@@ -30,6 +30,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import com.powsybl.iidm.serde.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
@@ -1138,9 +1139,10 @@ public final class NetworkSerDe {
         networks.push(network);
 
         ReportNode validationReportNode = DeserializerReports.readWarningValidationPart(reportNode);
-        reader.readChildNodes(elementName ->
-                readNetworkElement(elementName, networks, networkFactory, context,
-                        extensionNamesImported, extensionNamesNotFound, extensionsSupplier, validationReportNode));
+        Networks.executeWithReportNode(network, validationReportNode, () ->
+                reader.readChildNodes(elementName ->
+                        readNetworkElement(elementName, networks, networkFactory, context,
+                                extensionNamesImported, extensionNamesNotFound, extensionsSupplier, validationReportNode)));
 
         context.executeEndTasks(network, DeserializationEndTask.Step.AFTER_EXTENSIONS, validationReportNode);
 
