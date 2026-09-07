@@ -458,7 +458,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     private String getNotification(@NonNull NotifyUpdateKey attribute) {
         if (validable instanceof RatioTapChangerParent parent) {
-            return parent.getTapChangerAttribute() + "." + attribute.getKey();
+            return "ratio" + parent.getTapChangerAttribute() + "." + attribute.getKey();
         }
         return attribute.getKey();
     }

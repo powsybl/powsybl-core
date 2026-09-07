@@ -305,7 +305,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         // WHEN
         ratioTapChanger.getVoltageRegulation().setTargetValue(230);
         //THEN
-        assertTrue(notifications.contains("TapChanger.VoltageRegulation.TargetValue"));
+        assertTrue(notifications.contains("ratioTapChanger.VoltageRegulation.TargetValue"));
     }
 
     @Test
@@ -323,7 +323,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         // WHEN
         n.getThreeWindingsTransformer("3WT").getLeg(ThreeSides.TWO).getRatioTapChanger().getVoltageRegulation().setTargetValue(230);
         //THEN
-        assertTrue(notifications.contains("TapChanger2.VoltageRegulation.TargetValue"));
+        assertTrue(notifications.contains("ratioTapChanger2.VoltageRegulation.TargetValue"));
     }
 
     private RatioTapChangerAdder newRatioTapChangerAdder(boolean loadTapChangingCapabilities) {
