@@ -18,14 +18,14 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PhaseShifterResultSerializerTest {
+class PhaseShifterResultSerializerUtilTest {
 
     @Test
     void testWriteSortedByTransformerId() throws IOException {
         StringWriter writer = new StringWriter();
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
-        PhaseShifterResultSerializer.write(Map.of(
+        PhaseShifterResultSerializerUtil.write(Map.of(
             "B", new MovedPhaseShifterResult("B", 1, 2),
             "A", new MovedPhaseShifterResult("A", 3, 4)), generator);
         generator.writeEndObject();
@@ -41,7 +41,7 @@ class PhaseShifterResultSerializerTest {
         StringWriter writer = new StringWriter();
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
-        PhaseShifterResultSerializer.write(Map.of(), generator);
+        PhaseShifterResultSerializerUtil.write(Map.of(), generator);
         generator.writeEndObject();
         generator.close();
 
@@ -59,7 +59,7 @@ class PhaseShifterResultSerializerTest {
         StringWriter writer = new StringWriter();
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
-        PhaseShifterResultSerializer.write(
+        PhaseShifterResultSerializerUtil.write(
                 Map.of("T1", new MovedPhaseShifterResult("T1", 0, 2)), generator);
         generator.writeEndObject();
         generator.close();

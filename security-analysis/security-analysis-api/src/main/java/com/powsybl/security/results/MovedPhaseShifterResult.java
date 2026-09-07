@@ -25,5 +25,8 @@ public record MovedPhaseShifterResult(String transformerId, int initialTap, int 
      */
     public MovedPhaseShifterResult {
         Objects.requireNonNull(transformerId, "Transformer ID cannot be null");
+        if (initialTap == newTap) {
+            throw new IllegalArgumentException("The tap position has not been changed (initialTap = newTap = " + initialTap + ")");
+        }
     }
 }

@@ -11,8 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -27,22 +26,17 @@ public class PostContingencyResult extends AbstractContingencyResult {
 
     private final ConnectivityResult connectivityResult;
 
-    private final Map<String, MovedPhaseShifterResult> phaseShifterResults;
-
     public PostContingencyResult(Contingency contingency,
                                  PostContingencyComputationStatus status,
                                  LimitViolationsResult limitViolationsResult,
                                  NetworkResult networkResult,
                                  ConnectivityResult connectivityResult,
                                  double distributedActivePower,
-                                 Map<String, MovedPhaseShifterResult> phaseShifterResults) {
-        super(limitViolationsResult, networkResult, distributedActivePower);
+                                 List<MovedPhaseShifterResult> phaseShifterResults) {
+        super(limitViolationsResult, networkResult, distributedActivePower, phaseShifterResults);
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);
         this.connectivityResult = Objects.requireNonNull(connectivityResult);
-        this.phaseShifterResults = phaseShifterResults != null && !phaseShifterResults.isEmpty()
-            ? Collections.unmodifiableMap(phaseShifterResults)
-            : Collections.emptyMap();
     }
 
     public Contingency getContingency() {
@@ -55,13 +49,5 @@ public class PostContingencyResult extends AbstractContingencyResult {
 
     public ConnectivityResult getConnectivityResult() {
         return connectivityResult;
-    }
-
-    public Map<String, MovedPhaseShifterResult> getPhaseShifterResults() {
-        return phaseShifterResults;
-    }
-
-    public MovedPhaseShifterResult getPhaseShifterResult(String transformerId) {
-        return phaseShifterResults.get(transformerId);
     }
 }

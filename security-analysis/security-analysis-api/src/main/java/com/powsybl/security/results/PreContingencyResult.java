@@ -11,7 +11,7 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -21,41 +21,28 @@ public class PreContingencyResult extends AbstractContingencyResult {
 
     private final LoadFlowResult.ComponentResult.Status status;
 
-    private final Map<String, MovedPhaseShifterResult> phaseShifterResults;
-
     public PreContingencyResult() {
         this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, NetworkResult.empty(), Double.NaN,
-                Collections.emptyMap());
+                Collections.emptyList());
     }
 
     public PreContingencyResult(LoadFlowResult.ComponentResult.Status status,
                                 LimitViolationsResult limitViolationsResult,
                                 NetworkResult networkResult,
                                 double distributedActivePower) {
-        this(status, limitViolationsResult, networkResult, distributedActivePower, Collections.emptyMap());
+        this(status, limitViolationsResult, networkResult, distributedActivePower, Collections.emptyList());
     }
 
     public PreContingencyResult(LoadFlowResult.ComponentResult.Status status,
                                 LimitViolationsResult limitViolationsResult,
                                 NetworkResult networkResult,
                                 double distributedActivePower,
-                                Map<String, MovedPhaseShifterResult> phaseShifterResults) {
-        super(limitViolationsResult, networkResult, distributedActivePower);
+                                List<MovedPhaseShifterResult> phaseShifterResults) {
+        super(limitViolationsResult, networkResult, distributedActivePower, phaseShifterResults);
         this.status = Objects.requireNonNull(status);
-        this.phaseShifterResults = phaseShifterResults != null && !phaseShifterResults.isEmpty()
-                ? Collections.unmodifiableMap(phaseShifterResults)
-                : Collections.emptyMap();
     }
 
     public LoadFlowResult.ComponentResult.Status getStatus() {
         return status;
-    }
-
-    public Map<String, MovedPhaseShifterResult> getPhaseShifterResults() {
-        return phaseShifterResults;
-    }
-
-    public MovedPhaseShifterResult getPhaseShifterResult(String transformerId) {
-        return phaseShifterResults.get(transformerId);
     }
 }

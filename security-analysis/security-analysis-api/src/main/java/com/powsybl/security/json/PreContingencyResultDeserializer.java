@@ -17,7 +17,7 @@ import com.powsybl.security.results.PreContingencyResult;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
@@ -31,7 +31,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
 
     private static final class ParsingContext {
         LoadFlowResult.ComponentResult.Status status = null;
-        Map<String, MovedPhaseShifterResult> phaseShifterResults = Collections.emptyMap();
+        List<MovedPhaseShifterResult> phaseShifterResults = Collections.emptyList();
     }
 
     public PreContingencyResultDeserializer() {
@@ -85,7 +85,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
             parser.nextToken();
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(
                     CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "1.10");
-            parsingContext.phaseShifterResults = PhaseShifterResultSerializer.readPhaseShifterResults(parser, deserializationContext);
+            parsingContext.phaseShifterResults = PhaseShifterResultSerializerUtil.readPhaseShifterResults(parser, deserializationContext);
             return true;
         }
         return false;

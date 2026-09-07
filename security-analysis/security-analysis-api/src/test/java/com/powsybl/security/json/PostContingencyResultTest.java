@@ -57,7 +57,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
             new NetworkResult(branchResults, busResults, threeWindingsTransformerResults),
             new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")),
             Double.NaN,
-            Collections.emptyMap());
+            Collections.emptyList());
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
@@ -99,7 +99,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
                 new NetworkResult(branchResults, busResults, threeWindingsTransformerResults),
                 new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()),
                 1.23,
-                Collections.emptyMap());
+                Collections.emptyList());
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 

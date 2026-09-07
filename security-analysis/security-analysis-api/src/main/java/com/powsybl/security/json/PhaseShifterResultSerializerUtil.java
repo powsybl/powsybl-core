@@ -15,27 +15,21 @@ import com.powsybl.security.results.MovedPhaseShifterResult;
 
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
  */
-public final class PhaseShifterResultSerializer {
+public final class PhaseShifterResultSerializerUtil {
 
-    private PhaseShifterResultSerializer() {
+    private PhaseShifterResultSerializerUtil() {
         // utility class
     }
 
-    public static Map<String, MovedPhaseShifterResult> readPhaseShifterResults(
+    public static List<MovedPhaseShifterResult> readPhaseShifterResults(
             JsonParser parser, DeserializationContext deserializationContext) {
-        Map<String, MovedPhaseShifterResult> results = new HashMap<>();
-        List<MovedPhaseShifterResult> list = JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
-        for (MovedPhaseShifterResult result : list) {
-            results.put(result.transformerId(), result);
-        }
-        return results;
+        return JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
     }
 
     public static void write(Map<String, MovedPhaseShifterResult> phaseShifterResults, JsonGenerator jsonGenerator) throws IOException {

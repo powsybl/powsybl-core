@@ -31,7 +31,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     public static SecurityAnalysisResult empty() {
         PreContingencyResult preContingencyResult = new PreContingencyResult(
                 LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), NetworkResult.empty(),
-                Double.NaN, Collections.emptyMap());
+                Double.NaN, Collections.emptyList());
         return new SecurityAnalysisResult(preContingencyResult, Collections.emptyList(), Collections.emptyList());
     }
 
@@ -39,7 +39,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults) {
         this(new PreContingencyResult(preContingencyStatus, preContingencyResult, NetworkResult.empty(),
-                        Double.NaN, Collections.emptyMap()),
+                        Double.NaN, Collections.emptyList()),
                 postContingencyResults, Collections.emptyList());
     }
 
@@ -56,7 +56,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                         new NetworkResult(preContingencyBranchResults, preContingencyBusResults,
                                 preContingencyThreeWindingsTransformerResults),
                         Double.NaN,
-                        Collections.emptyMap()),
+                        Collections.emptyList()),
                 postContingencyResults, operatorStrategyResults);
     }
 

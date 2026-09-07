@@ -19,7 +19,7 @@ import com.powsybl.security.results.PostContingencyResult;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
@@ -39,7 +39,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         Contingency contingency = null;
         PostContingencyComputationStatus status = null;
         ConnectivityResult connectivityResult = null;
-        Map<String, MovedPhaseShifterResult> phaseShifterResults = Collections.emptyMap();
+        List<MovedPhaseShifterResult> phaseShifterResults = Collections.emptyList();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(
                         CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "1.10");
-                parsingContext.phaseShifterResults = PhaseShifterResultSerializer.readPhaseShifterResults(parser, deserializationContext);
+                parsingContext.phaseShifterResults = PhaseShifterResultSerializerUtil.readPhaseShifterResults(parser, deserializationContext);
                 return true;
             default:
                 return false;
