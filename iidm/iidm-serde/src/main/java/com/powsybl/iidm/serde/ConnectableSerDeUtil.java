@@ -382,9 +382,44 @@ public final class ConnectableSerDeUtil {
         writeLoadingLimits(index, limits, writer, nsUri, version, valid, exportOptions, CURRENT_LIMITS);
     }
 
+    /**
+     * <p>Write a loading limit by taking into account specificities related to the version.</p>
+     * Export low limit as a high limit for versions of IIDM <= 1.17<br>
+     * When writing a low limit as a high limit, the following occurs:
+     * <pre>
+     *     Low limit                    -->    High limit
+     *                                          10' ---- Infinity 3rd temporary
+     *          10'                                 10'
+     *      10' ---- 1200 3rd temporary         20' ---- 1200 2nd temporary
+     *          20'                                 20'
+     *      20' ---- 800 2nd temporary          40' ---- 800 1st temporary
+     *          40' (duration allowed value)        40'
+     *      40' ---- 500 1st temporary              ---- 500 (permanent limit)
+     *      Indefinitely                          Indefinitely
+     * </pre>
+     * The first temporary of the low limit becomes the permanent limit. Then, the temporary limits of the high limit is created as such:
+     * <ul>
+     *     <li>1st temporary: the value of the 2nd temporary of the low, with the duration and name of the 1st temporary of the low</li>
+     *     <li>2nd temporary: the value of the 3rd temporary of the low, with the duration and name of the 2nd temporary of the low</li>
+     *     <li>continues as such for all following limits</li>
+     *     <li>last temporary: infinity value ({@link Double#MAX_VALUE}, with the duration and name of the last temporary of the low</li>
+     * </ul>
+     * This ensures that for any given value, the returned allowed duration will be the same if taken from the original low limit, or from the created high limit.
+     * @param index the index of the element for which we write the limit, related to the context of the call.
+     *              For example, if writing the limits for a connectable on side 1, index is 1, on side 2, it's 2
+     * @param limits the limits to write
+     * @param writer the writer to use to serialize the limit (binary, XML, JSON, etc...)
+     * @param nsUri the URI of the namespace, this is an http path to the schema of the serialized file (and XSD for the XML)
+     * @param version the IIDM version in which to export
+     * @param valid if true, write in SSH, otherwise in equipment mode
+     * @param exportOptions various options for the export
+     * @param type the type of the limit ({@link #CURRENT_LIMITS}, {@link #ACTIVE_POWER_LIMITS}, {@link #APPARENT_POWER_LIMITS})
+     * @param <L> something that is a {@code LoadingLimits}
+     */
     private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
-        if (limits != null && writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type)) {
+        if (limits != null && canWriteLimits(limits)) {
+            writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type);
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
             List<LoadingLimits.TemporaryLimit> tempLimits = StreamSupport.stream(
@@ -398,7 +433,7 @@ public final class ConnectableSerDeUtil {
             for (int durationIndex = 0; durationIndex < tempLimits.size() - startingLimitIndex; ++durationIndex) {
                 LoadingLimits.TemporaryLimit tl = tempLimits.get(limitIndex);
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                writer.writeStringAttribute("name", tl.getName());
+                writer.writeStringAttribute("name", tempLimits.get(durationIndex).getName());
                 writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tempLimits.get(durationIndex).getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute(FICTITIOUS_KEY, tl.isFictitious(), false);
@@ -410,10 +445,9 @@ public final class ConnectableSerDeUtil {
                 //since we skip the first temp limit when converting a low limit to a high limit (because it becomes the high limit), the last limit
                 //of the high limit should have a default name, the max value, and its duration is the duration of the last temp limit of the low limit
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                writer.writeStringAttribute("name", "minDurationTemporary");
+                writer.writeStringAttribute("name", tempLimits.getLast().getName());
                 writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tempLimits.getLast().getAcceptableDuration(), Integer.MAX_VALUE);
-                writer.writeDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
-                writer.writeBooleanAttribute(FICTITIOUS_KEY, true);
+                //do not write Double.MAX_VALUE as limit value (not written by default)
                 //no properties to write
                 writer.writeEndNode();
             }
@@ -422,13 +456,13 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    private static <L extends LoadingLimits> boolean writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
-        boolean canContinueWriting = limits.getDetectionKind() == DetectionKind.HIGH
-                                    && !Double.isNaN(limits.getPermanentLimit())
-                                    || !limits.getTemporaryLimits().isEmpty();
-        if (!canContinueWriting) {
-            return false;
-        }
+    private static <L extends LoadingLimits> boolean canWriteLimits(L limits) {
+        return limits.getDetectionKind() == DetectionKind.HIGH
+            && !Double.isNaN(limits.getPermanentLimit())
+            || !limits.getTemporaryLimits().isEmpty();
+    }
+
+    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () ->
