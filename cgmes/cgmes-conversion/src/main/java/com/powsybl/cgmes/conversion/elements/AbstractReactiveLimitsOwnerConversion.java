@@ -215,7 +215,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         boolean defaultRegulatingOn = getDefaultRegulatingOn(voltageRegulation.isRegulating(), context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
 
-        double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
+        double targetQ = -cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         setReactivePowerRegulation(voltageRegulation, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));

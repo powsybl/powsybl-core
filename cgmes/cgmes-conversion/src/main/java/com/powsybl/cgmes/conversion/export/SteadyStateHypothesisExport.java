@@ -329,21 +329,21 @@ public final class SteadyStateHypothesisExport {
         for (Generator g : network.getGenerators()) {
             String cgmesOriginalClass = g.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
-            boolean controlEnabled = g.isRegulatingWithMode(RegulationMode.VOLTAGE);
+            boolean controlEnabled = g.isRegulating();
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
-                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getRegulatingTargetQ(),
+                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getLocalTargetQ(),
                             controlEnabled, g.getLocalTargetV(), cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), controlEnabled,
-                            -g.getTargetP(), -g.getRegulatingTargetQ(), ReferencePriority.get(g),
+                            -g.getTargetP(), -g.getLocalTargetQ(), ReferencePriority.get(g),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), controlEnabled,
-                            -g.getTargetP(), -g.getRegulatingTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
+                            -g.getTargetP(), -g.getLocalTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
@@ -453,7 +453,7 @@ public final class SteadyStateHypothesisExport {
             String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g);
             if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
                 // We use the targetValue from voltageRegulation (not null because hasRegulatingControlCapability) for remote regulation, which is not null
-                target = g.getVoltageRegulation().getTargetValue();
+                target = -g.getVoltageRegulation().getTargetValue();
                 targetValueUnitMultiplier = "M";
             } else {
                 target = g.getRegulatingTargetV();
