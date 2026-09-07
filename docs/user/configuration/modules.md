@@ -47,4 +47,5 @@ table-formatter.md
 - [dynamic-security-analysis](../../simulation/dynamic_security/configuration.md#configuration)
 - [dynamic-security-analysis-default-parameters](../../simulation/dynamic_security/configuration.md#parameters)
 - [table-formatter](table-formatter.md)
+- [math-matrix](math-matrix.md)
 

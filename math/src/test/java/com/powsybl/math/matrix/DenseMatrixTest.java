@@ -172,4 +172,14 @@ class DenseMatrixTest extends AbstractMatrixTest {
         assertEquals("Argument epsilonValue should be positive but received -1.0", e.getMessage());
     }
 
+    @Test
+    void printShouldNotPreserveNotNeededExtraSpaces() throws IOException {
+        Matrix matrix = getMatrixFactory().create(1, 4, 1);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        matrix.set(0, 3, 1.23456);
+        String result = print(matrix);
+        assertEquals(" 0.333 3.142 2.0 1.235" + System.lineSeparator(), result);
+    }
 }

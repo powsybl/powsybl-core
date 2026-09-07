@@ -35,7 +35,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         if (originalLimits.getDetectionKind() == DetectionKind.HIGH) {
             double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
             reducedLoadingLimits = initHigh(originalLimits.getLimitType(), reducedPermanentLimit,
-                originalLimits.getPermanentLimit(), getPermanentLimitReduction());
+                originalLimits.getPermanentLimit(), getPermanentLimitReduction(), originalLimits.getPermanentLimitName());
         } else {
             reducedLoadingLimits = initLow(originalLimits.getLimitType());
         }
@@ -65,11 +65,15 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
 
     private AbstractReducedLoadingLimits initHigh(LimitType type, double permanentLimit,
                                                   double originalPermanentLimit,
-                                                  double permanentLimitReduction) {
+                                                  double permanentLimitReduction,
+                                                  String permanentLimitName) {
         return switch (type) {
-            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
-            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
-            case CURRENT -> new ReducedCurrentLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit,
+                    permanentLimitReduction, permanentLimitName);
+            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit,
+                    permanentLimitReduction, permanentLimitName);
+            case CURRENT -> new ReducedCurrentLimits(permanentLimit, originalPermanentLimit,
+                    permanentLimitReduction, permanentLimitName);
             default -> throw new IllegalArgumentException(
                     String.format("Unsupported limits type for reductions (%s)", type));
         };
