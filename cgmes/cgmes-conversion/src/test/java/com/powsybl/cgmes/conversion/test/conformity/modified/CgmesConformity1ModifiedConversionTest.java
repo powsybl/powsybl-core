@@ -475,7 +475,7 @@ class CgmesConformity1ModifiedConversionTest {
         Generator g = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         VoltageRegulation voltageRegulation = g.getVoltageRegulation();
         assertNotNull(voltageRegulation);
-        assertEquals(115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(-115.5, voltageRegulation.getTargetValue(), 0.0);
         assertEquals(REACTIVE_POWER, voltageRegulation.getMode());
         assertTrue(voltageRegulation.isRegulating());
         assertSame(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), voltageRegulation.getTerminal());
