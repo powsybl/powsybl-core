@@ -129,11 +129,9 @@ public class RegulatingControlMappingForGenerators {
 
         VoltageRegulationBuilder voltageRegulationBuilder = gen.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
-            .withRegulating(false);
-
-        if (!mappedRegulatingTerminal.getTerminal().getConnectable().getId().equals(gen.getId())) {
-            voltageRegulationBuilder.withTerminal(mappedRegulatingTerminal.getTerminal());
-        }
+            .withRegulating(false)
+            // always set the terminal in case of reactive power regulation
+            .withTerminal(mappedRegulatingTerminal.getTerminal());
         voltageRegulationBuilder.build();
 
         // add qPercent as an extension
