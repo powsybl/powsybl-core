@@ -8,7 +8,6 @@
 package com.powsybl.commons.extensions;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -84,13 +83,6 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return extensionsByName.values();
     }
 
-    public Stream<Extension<T>> getExtensionsStream() {
-        if (extensionsByName == null) {
-            return Stream.empty();
-        }
-        return extensionsByName.values().stream();
-    }
-
     private void initiateExtensions() {
         if (extensions == null) {
             extensions = new HashMap<>();
@@ -98,11 +90,6 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         if (extensionsByName == null) {
             extensionsByName = new HashMap<>();
         }
-    }
-
-    @Override
-    public boolean hasExtensions() {
-        return extensions != null && !extensions.isEmpty();
     }
 
     @Override

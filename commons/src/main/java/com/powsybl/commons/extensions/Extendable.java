@@ -58,18 +58,6 @@ public interface Extendable<O> {
     <E extends Extension<O>> Collection<E> getExtensions();
 
     /**
-     * Get all extensions associated with this extendable object as a stream.
-     * @return
-     */
-    Stream<Extension<O>> getExtensionsStream();
-
-    /**
-     * Returns whether this extendable has at least an extension.
-     * @return
-     */
-    boolean hasExtensions();
-
-    /**
      * Returns a name that is used to find matching {@link ExtensionAdderProvider}s
      * when selecting implementations of extensions in {@link #newExtension}. This
      * is meant to be overriden by extendables when multiple implementations exist.
@@ -98,6 +86,24 @@ public interface Extendable<O> {
     default <E extends Extension<O>, B extends ExtensionAdder<O, E>> B newExtension(Class<B> type) {
         ExtensionAdderProvider provider = ExtensionAdderProviders.findCachedProvider(getImplementationName(), type);
         return (B) provider.newAdder(this);
+    }
+
+    /**
+     * Get all extensions associated with this extendable object as a stream.
+     * @return
+     */
+    default Stream<Extension<O>> getExtensionsStream() {
+        Collection<Extension<O>> extensions = getExtensions();
+        return extensions != null ? extensions.stream() : Stream.empty();
+    }
+
+    /**
+     * Returns whether this extendable has at least an extension.
+     * @return
+     */
+    default boolean hasExtensions() {
+        Collection<Extension<O>> extensions = getExtensions();
+        return extensions != null && !extensions.isEmpty();
     }
 
 }
