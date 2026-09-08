@@ -165,7 +165,7 @@ class ShuntCompensatorUpdateTest {
         assertNotNull(shuntCompensator);
         double tol = 0.0000001;
         assertEquals(sectionsCount, shuntCompensator.getSectionCount());
-        double targetValue = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetValue() : Double.NaN;
+        double targetValue = shuntCompensator.getRegulatingTargetV();
         assertEquals(targetV, targetValue, tol);
         double actualTargetDeadband = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetDeadband() : Double.NaN;
         assertEquals(targetDeadband, actualTargetDeadband, tol);
