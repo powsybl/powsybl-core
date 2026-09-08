@@ -68,8 +68,8 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
             svc.getVoltageRegulation().setRegulating(true);
         } else {
             if (q == 0) {
-                svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
                 svc.getVoltageRegulation().setRegulating(false);
+                svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
             } else {
                 if (svc.isRemoteRegulating()) {
                     svc.getVoltageRegulation().setTargetValue(-q);
@@ -191,14 +191,19 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     private static <T extends VoltageRegulationHolder<T>> void updateVoltageRegulation(T holder, String className, String id, boolean vregul, double targetV, double targetQ) {
         createVoltageRegulationIfMissing(holder);
 
-        holder.setLocalTargetQ(targetQ);
-
         double nominalV = holder.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        double targetValue = targetV * nominalV;
+        double targetValueV = targetV * nominalV;
         if (holder.isRemoteRegulating()) {
-            holder.getVoltageRegulation().setTargetValue(targetValue);
+            if (holder.isWithMode(RegulationMode.VOLTAGE)) {
+                holder.getVoltageRegulation().setTargetValue(targetValueV);
+                holder.setLocalTargetQ(targetQ);
+            } else if (holder.isWithMode(RegulationMode.REACTIVE_POWER)) {
+                holder.setLocalTargetV(targetValueV);
+                holder.getVoltageRegulation().setTargetValue(targetQ);
+            }
         } else {
-            holder.setLocalTargetV(targetValue);
+            holder.setLocalTargetV(targetValueV);
+            holder.setLocalTargetQ(targetQ);
         }
 
         if (holder.isWithMode(RegulationMode.VOLTAGE)) {
