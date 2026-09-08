@@ -120,8 +120,9 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
         double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
         boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+        boolean regulatingOn = updatedControlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband);
 
-        setRegulation(shuntCompensator, targetV, targetDeadband, updatedControlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
+        setRegulation(shuntCompensator, targetV, targetDeadband, regulatingOn);
     }
 
     // Regulation values (targetV and targetDeadband) must be valid before enabling it,
@@ -130,7 +131,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
         VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
         if (voltageRegulation == null) {
-            voltageRegulation = shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
+            return;
         }
         voltageRegulation.setRegulating(regulatingOn);
         if (shuntCompensator.isRemoteRegulating()) {
