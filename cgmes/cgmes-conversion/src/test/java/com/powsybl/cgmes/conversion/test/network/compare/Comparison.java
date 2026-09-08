@@ -359,8 +359,8 @@ public class Comparison {
                 expected.getVoltageRegulation().getTargetDeadband(),
                 actual.getVoltageRegulation().getTargetDeadband());
             compare("voltageRegulation.terminal",
-                expected.getVoltageRegulation().getTerminal().getConnectable().getId(),
-                actual.getVoltageRegulation().getTerminal().getConnectable().getId());
+                expected.getRegulatingTerminal().getConnectable().getId(),
+                actual.getRegulatingTerminal().getConnectable().getId());
             compare("voltageRegulation.isRegulating",
                 expected.getVoltageRegulation().isRegulating(),
                 actual.getVoltageRegulation().isRegulating());

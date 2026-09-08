@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.junit.jupiter.api.Test;
@@ -39,25 +40,25 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         Generator g1 = network.getGenerator("SM_1");
         assertLocalTargets(g1, Double.NaN, Double.NaN);
         VoltageRegulation reg1 = g1.getVoltageRegulation();
-        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, false);
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, false);
 
         // G2: remote voltage regulation
         Generator g2 = network.getGenerator("SM_2");
         assertLocalTargets(g2, Double.NaN, Double.NaN);
         VoltageRegulation reg2 = g2.getVoltageRegulation();
-        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", Double.NaN, false);
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", Double.NaN, Double.NaN, false);
 
         // G3: local reactive power regulation
         Generator g3 = network.getGenerator("SM_3");
         assertLocalTargets(g3, Double.NaN, Double.NaN);
         VoltageRegulation reg3 = g3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SM_3", Double.NaN, false);
+        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SM_3", Double.NaN, Double.NaN, false);
 
         // G4: remote reactive power regulation
         Generator g4 = network.getGenerator("SM_4");
         assertLocalTargets(g4, Double.NaN, Double.NaN);
         VoltageRegulation reg4 = g4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", Double.NaN, false);
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", Double.NaN, Double.NaN, false);
     }
 
     @Test
@@ -75,25 +76,73 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         Generator g1 = network.getGenerator("SM_1");
         assertLocalTargets(g1, 10, 400);
         VoltageRegulation reg1 = g1.getVoltageRegulation();
-        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, true);
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
 
         // G2: remote voltage regulation
         Generator g2 = network.getGenerator("SM_2");
         assertLocalTargets(g2, 10, Double.NaN);
         VoltageRegulation reg2 = g2.getVoltageRegulation();
-        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, true);
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, Double.NaN, true);
 
         // G3: local reactive power regulation
         Generator g3 = network.getGenerator("SM_3");
         assertLocalTargets(g3, 10, Double.NaN);
         VoltageRegulation reg3 = g3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SM_3", 10, true);
+        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SM_3", 10, Double.NaN, true);
 
         // G4: remote reactive power regulation
         Generator g4 = network.getGenerator("SM_4");
         assertLocalTargets(g4, 10, Double.NaN);
         VoltageRegulation reg4 = g4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", 20, true);
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", 20, Double.NaN, true);
+    }
+
+    @Test
+    void shuntCompensatorVoltageRegulationEq() {
+        // EQ only import: regulation is created without targets and not enabled
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml");
+
+        // SC0: no regulation (not CGMES compliant)
+        ShuntCompensator sc0 = network.getShuntCompensator("LSC_0");
+        assertTrue(Double.isNaN(sc0.getLocalTargetV()));
+        VoltageRegulation reg0 = sc0.getVoltageRegulation();
+        assertNull(reg0);
+
+        // SC1: local voltage regulation
+        ShuntCompensator sc1 = network.getShuntCompensator("LSC_1");
+        assertTrue(Double.isNaN(sc1.getLocalTargetV()));
+        VoltageRegulation reg1 = sc1.getVoltageRegulation();
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, false);
+
+        // SC2: remote voltage regulation
+        ShuntCompensator sc2 = network.getShuntCompensator("LSC_2");
+        assertTrue(Double.isNaN(sc2.getLocalTargetV()));
+        VoltageRegulation reg2 = sc2.getVoltageRegulation();
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", Double.NaN, Double.NaN, false);
+    }
+
+    @Test
+    void shuntCompensatorVoltageRegulationEqAndSsh() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
+
+        // SC0: no regulation (not CGMES compliant)
+        ShuntCompensator sc0 = network.getShuntCompensator("LSC_0");
+        assertTrue(Double.isNaN(sc0.getLocalTargetV()));
+        VoltageRegulation reg0 = sc0.getVoltageRegulation();
+        assertNull(reg0);
+
+        // SC1: local voltage regulation
+        ShuntCompensator sc1 = network.getShuntCompensator("LSC_1");
+        assertEquals(400, sc1.getLocalTargetV());
+        VoltageRegulation reg1 = sc1.getVoltageRegulation();
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, 2.0, true);
+
+        // SC2: remote voltage regulation
+        ShuntCompensator sc2 = network.getShuntCompensator("LSC_2");
+        assertTrue(Double.isNaN(sc2.getLocalTargetV()));
+        VoltageRegulation reg2 = sc2.getVoltageRegulation();
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
     }
 
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {
@@ -102,7 +151,8 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertEquals(localTargetV, gen.getLocalTargetV());
     }
 
-    private void assertVoltageRegulation(VoltageRegulation reg, RegulationMode mode, String terminalId, double targetValue, boolean isRegulating) {
+    private void assertVoltageRegulation(VoltageRegulation reg, RegulationMode mode, String terminalId,
+                                         double targetValue, double targetDeadband, boolean isRegulating) {
         assertNotNull(reg);
         assertEquals(mode, reg.getMode());
         if (reg.getTerminal() == null) {
@@ -111,6 +161,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
             assertEquals(terminalId, reg.getTerminal().getConnectable().getId());
         }
         assertEquals(targetValue, reg.getTargetValue());
+        assertEquals(targetDeadband, reg.getTargetDeadband());
         assertEquals(isRegulating, reg.isRegulating());
     }
 

@@ -1776,6 +1776,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             shuntCompensator.getTerminal().setQ(0.0);
             shuntCompensator.getTerminal().setP(0.0);
             shuntCompensator.setSectionCount(0);
+            shuntCompensator.setLocalTargetV(Double.NaN);
         } else if (identifiable instanceof Generator generator) {
             generator.removeVoltageRegulation();
             generator.setLocalTargetV(Double.NaN);

@@ -64,13 +64,16 @@ public class RegulatingControlMappingForShuntCompensators {
 
     private void setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc) {
         // Take default terminal if it has not been defined in CGMES files (it is never null)
-        Terminal terminal = RegulatingTerminalMapper
+        Terminal regulatingTerminal = RegulatingTerminalMapper
             .mapForVoltageControl(rc.cgmesTerminal, context)
             .orElse(shuntCompensator.getTerminal());
+        if (regulatingTerminal.getConnectable().getId().equals(shuntCompensator.getId())) {
+            regulatingTerminal = null;
+        }
         shuntCompensator.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false)
-            .withTerminal(terminal)
+            .withTerminal(regulatingTerminal)
             .build();
         shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rcId);
     }

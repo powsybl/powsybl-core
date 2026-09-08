@@ -151,12 +151,11 @@ public final class CgmesConformity1NetworkCatalog {
             .add();
         shBrussels110.getTerminal().setQ(-330.75);
         shBrussels110.newVoltageRegulation()
-            .withTargetValue(110.0)
-            .withTerminal(shBrussels110.getTerminal())
             .withTargetDeadband(0.5)
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false)
             .build();
+        shBrussels110.setLocalTargetV(110.0);
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
             .setId("f96d552a-618d-4d0c-a39a-2dea3c411dee")
             .setName("BE-Busbar_5")
@@ -207,11 +206,10 @@ public final class CgmesConformity1NetworkCatalog {
         shBrussels380.getTerminal().setQ(-59.058144);
         shBrussels380.newVoltageRegulation()
             .withTargetDeadband(0.5)
-            .withTargetValue(380.0)
-            .withTerminal(shBrussels380.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false)
             .build();
+        shBrussels380.setLocalTargetV(380.0);
         BoundaryLine be3 = vlBrussels380.newBoundaryLine()
             .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
             .setName("BE-Line_3")
@@ -1108,7 +1106,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setQ0(67.377544);
 
         network.getShuntCompensator(SHUNT_ID_1).remove();
-        ShuntCompensator shuntCompensatorBeS2 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
+        network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
                 .newShuntCompensator()
                     .setId(SHUNT_ID_1)
                     .setName("BE_S2")
@@ -1137,9 +1135,9 @@ public final class CgmesConformity1NetworkCatalog {
                             .setG(1.09E-5)
                         .endSection()
                     .add()
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380.0).withTargetDeadband(0.5).withRegulating(false).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetDeadband(0.5).withRegulating(false).add()
+                .setLocalTargetV(380.0)
                 .add();
-        shuntCompensatorBeS2.getVoltageRegulation().setTerminal(shuntCompensatorBeS2.getTerminal(), 380.0);
         return network;
     }
 
