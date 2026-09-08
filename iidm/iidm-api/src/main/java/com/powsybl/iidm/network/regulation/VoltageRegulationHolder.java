@@ -130,7 +130,8 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * Gets the regulating target voltage value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#VOLTAGE}
      */
     default double getRegulatingTargetV() {
-        if (isWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
+        if ((isWithMode(RegulationMode.VOLTAGE) || isWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER))
+            && isRemoteRegulating()) {
             return getVoltageRegulation().getTargetValue();
         }
         return getLocalTargetV();
