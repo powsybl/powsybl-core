@@ -1071,9 +1071,10 @@ Only the segment containing the anchor point has a directly known $(P_i, V_i)$, 
 of every other segment is derived by walking the curve from the anchor, segment by segment: crossing a segment with droop
 coefficient $k$ between voltages $V_{min}$ and $V_{max}$ shifts $P$ by $(V_{max} - V_{min}) / k$.
 
-Each segment in the `DroopCurve` is defined with a minimal and maximal voltage, and a droop coefficient. The segment used
+Each segment in the `DroopCurve` is defined with a minimal and maximal voltage $V_{min}$ and $V_{max}$, and a droop coefficient $k$. The segment used
 at a given DC voltage is the one which verifies:
 $V_{DC} \in [V_{min}, V_{max})$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+A droop curve must be invertible. This implies that all the droop coefficients $k$ must be non-zero and with the same sign.
 
 `MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
 same load sign convention as `TargetP`.
