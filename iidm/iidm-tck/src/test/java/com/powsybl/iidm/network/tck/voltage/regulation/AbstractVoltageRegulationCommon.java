@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck.voltage.regulation;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -14,11 +15,14 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // TODO MSA Complete me with some extra tests like removeTerminal on multiVariants
 /**
@@ -89,6 +93,36 @@ abstract class AbstractVoltageRegulationCommon<T extends VoltageRegulationHolder
         voltageRegulation.setTerminal(null, Double.NaN);
         assertEquals(localTargetV, holder.getRegulatingTargetV());
         assertEquals(holder.getTerminal(), holder.getRegulatingTerminal());
+    }
+
+    public void testMergeWithTerminalInMultiVariant(VoltageRegulationHolder<T> holder, String equipmentName, String equipmentType) {
+        this.testMergeWithTerminalInMultiVariant(holder, equipmentName, equipmentType, Double.NaN);
+    }
+
+    public void testMergeWithTerminalInMultiVariant(VoltageRegulationHolder<T> holder, String equipmentName, String equipmentType, double targetDeadband) {
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        String other = "Other";
+        network.getVariantManager().cloneVariant(initialVariantId, other);
+        network.getVariantManager().setWorkingVariant(other);
+
+        // Creating a VoltageRegulation object with a terminal could be considered as changing the terminal.
+        // This is not allowed in multi-variant mode.
+        VoltageRegulationBuilder builder = holder.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(120)
+            .withTerminal(holder.getTerminal())
+            .withTargetDeadband(targetDeadband)
+            .withRegulating(true);
+        PowsyblException powsyblException = assertThrows(PowsyblException.class, builder::build);
+        String expectedMessage = String.format("%s '%s': Cannot set terminal when there are multiple variants", equipmentType, equipmentName);
+        assertEquals(expectedMessage, powsyblException.getMessage());
+
+        // But it must be possible to create a voltage regulation in multi-variant mode if the terminal is not changed.
+        builder = holder.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetDeadband(targetDeadband)
+            .withRegulating(true);
+        assertDoesNotThrow(builder::build);
     }
 
 }

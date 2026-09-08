@@ -372,6 +372,17 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
                 .add();
     }
 
+    @Test
+    public void testMergeWithTerminalInMultiVariant() {
+        String shuntCompensator1 = "shuntCompensator1";
+        String equipmentType = "Shunt compensator";
+        ShuntCompensator gen = newShuntCompensatorAdder(shuntCompensator1)
+            .setLocalTargetQ(15.0)
+            .setLocalTargetV(110.0)
+            .add();
+        this.testMergeWithTerminalInMultiVariant(gen, shuntCompensator1, equipmentType, 10.0);
+    }
+
     private ShuntCompensator createShuntCompensator(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator) {
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder(dataVoltageRegulationHolderCreator.id())
             .setLocalTargetV(dataVoltageRegulationHolderCreator.localTargetV())

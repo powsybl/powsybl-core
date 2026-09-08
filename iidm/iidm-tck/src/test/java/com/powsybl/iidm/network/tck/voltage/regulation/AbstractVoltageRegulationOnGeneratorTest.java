@@ -352,32 +352,13 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
 
     @Test
     public void testMergeWithTerminalInMultiVariant() {
-        Generator gen = newGeneratorAdder("gen1")
+        String gen1 = "gen1";
+        String equipmentType = "Generator";
+        Generator gen = newGeneratorAdder(gen1)
                 .setLocalTargetQ(15.0)
                 .setLocalTargetV(110.0)
                 .add();
-
-        String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        String other = "Other";
-        network.getVariantManager().cloneVariant(initialVariantId, other);
-        network.getVariantManager().setWorkingVariant(other);
-
-        // Creating a VoltageRegulation object with a terminal could be considered as changing the terminal.
-        // This is not allowed in multi-variant mode.
-        VoltageRegulationBuilder builder = gen.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(120)
-                .withTerminal(gen.getTerminal())
-                .withRegulating(true);
-        PowsyblException powsyblException = assertThrows(PowsyblException.class, builder::build);
-        assertEquals("Generator 'gen1': Cannot set terminal when there are multiple variants",
-                powsyblException.getMessage());
-
-        // But it must be possible to create a voltage regulation in multi-variant mode if the terminal is not changed.
-        builder = gen.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(true);
-        assertDoesNotThrow(builder::build);
+        this.testMergeWithTerminalInMultiVariant(gen, gen1, equipmentType);
     }
 
     @Test
