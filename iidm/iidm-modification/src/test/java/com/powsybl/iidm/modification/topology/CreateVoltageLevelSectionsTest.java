@@ -435,7 +435,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
     }
 
     @Test
-    void testNamingStrategy() {
+    void testNamingStrategyWhenReplacingBreakerWithDisconnectors() {
         Network network = createNetwork();
         VoltageLevel vl2 = network.getSubstation("S1").newVoltageLevel()
                 .setId("VL2")
