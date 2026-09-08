@@ -15,9 +15,11 @@ import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
+import com.powsybl.ucte.converter.util.UcteExporterReports;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
 import org.apache.commons.math3.complex.Complex;
@@ -74,7 +76,7 @@ public class UcteExporter implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties parameters, DataSource dataSource) {
+    public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
@@ -91,7 +93,8 @@ public class UcteExporter implements Exporter {
         namingStrategy.initializeNetwork(network);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation);
+        ReportNode exportReportNode = UcteExporterReports.exportUcteNetwork(reportNode);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation, exportReportNode);
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
@@ -132,7 +135,7 @@ public class UcteExporter implements Exporter {
      * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
+    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation, ReportNode reportNode) {
 
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
@@ -145,7 +148,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation);
+        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
@@ -154,6 +157,7 @@ public class UcteExporter implements Exporter {
             voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
                 if (isYNode(bus)) {
                     LOGGER.warn("Ignoring YNode {}", bus.getId());
+                    UcteExporterReports.ignoredYNode(context.getReportNode(), bus.getId());
                 } else {
                     convertBus(ucteNetwork, bus, context);
                 }
@@ -348,8 +352,8 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
-        String geographicalName = mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), STATUS_PROPERTY_KEY + "_XNode"));
+        String geographicalName = mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY, context);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), STATUS_PROPERTY_KEY + "_XNode", context));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
@@ -408,7 +412,7 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine = new UcteLine(ucteElementId, status, 0, 0, 0, null, elementName);
         ucteNetwork.addLine(ucteLine);
 
-        setSwitchCurrentLimit(ucteLine, sw);
+        setSwitchCurrentLimit(ucteLine, sw, context);
     }
 
     /**
@@ -498,6 +502,7 @@ public class UcteExporter implements Exporter {
         // The corresponding transformer will be connected to the XNode
         if (isBoundaryLineYNode(boundaryLine)) {
             LOGGER.warn("Ignoring BoundaryLine at YNode in the export {}", boundaryLine.getId());
+            UcteExporterReports.ignoredBoundaryLineAtYNode(context.getReportNode(), boundaryLine.getId());
             return;
         }
 
@@ -517,7 +522,7 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine);
     }
 
-    private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key) {
+    private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key, UcteExporterContext context) {
         String value;
         String value1 = identifiable1.getProperty(key, "");
         String value2 = identifiable2.getProperty(key, "");
@@ -526,9 +531,11 @@ public class UcteExporter implements Exporter {
         } else if (value1.isEmpty()) {
             value = value2;
             LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", key, value2);
+            UcteExporterReports.mergedPropertySide1Empty(context.getReportNode(), key, value2);
         } else if (value2.isEmpty()) {
             value = value1;
             LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", key, value1);
+            UcteExporterReports.mergedPropertySide2Empty(context.getReportNode(), key, value1);
         } else {
             // Inconsistent values, declare the result value empty
             value = "";
@@ -536,6 +543,7 @@ public class UcteExporter implements Exporter {
                     key,
                     value1,
                     value2);
+            UcteExporterReports.mergedPropertyInconsistent(context.getReportNode(), key, value1, value2);
         }
         return value;
     }
@@ -645,6 +653,7 @@ public class UcteExporter implements Exporter {
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         if (isTransformerYNode(twoWindingsTransformer)) {
             LOGGER.info("Transformer at boundary is exported {}", twoWindingsTransformer.getId());
+            UcteExporterReports.transformerAtBoundaryExported(context.getReportNode(), twoWindingsTransformer.getId());
             // The transformer element id contains references to the original UCTE nodes
             // (Inner node inside network and boundary XNode)
             // We can export it as a regular transformer
@@ -778,17 +787,19 @@ public class UcteExporter implements Exporter {
         return true;
     }
 
-    private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw) {
+    private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw, UcteExporterContext context) {
         if (sw.hasProperty(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
                 ucteLine.setCurrentLimit(null);
                 LOGGER.warn("Switch {}: No current limit provided", sw.getId());
+                UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
             }
         } else {
             ucteLine.setCurrentLimit(null);
             LOGGER.warn("Switch {}: No current limit provided", sw.getId());
+            UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
         }
     }
 
