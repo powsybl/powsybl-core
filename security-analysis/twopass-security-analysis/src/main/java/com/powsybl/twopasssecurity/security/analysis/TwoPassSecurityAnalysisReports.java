@@ -20,35 +20,35 @@ public final class TwoPassSecurityAnalysisReports {
 
     public static ReportNode createTwoPassSecurityAnalysisReportNode(ReportNode reportNode, String networkId) {
         return reportNode.newReportNode()
-                .withMessageTemplate("twoPassSecurityAnalysis")
+                .withMessageTemplate("core.securityAnalysis.twoPass.start")
                 .withTypedValue("networkId", networkId, TypedValue.ID)
                 .add();
     }
 
     public static ReportNode reportTotalContingencies(ReportNode reportNode, int count) {
         return reportNode.newReportNode()
-                .withMessageTemplate("twoPassSecurityAnalysisTotalContingencies")
+                .withMessageTemplate("core.securityAnalysis.twoPass.totalContingencies")
                 .withUntypedValue("count", count)
                 .add();
     }
 
     public static ReportNode reportFirstPassStarted(ReportNode reportNode, String providerName) {
         return reportNode.newReportNode()
-                .withMessageTemplate("twoPassSecurityAnalysisFirstPassStarted")
+                .withMessageTemplate("core.securityAnalysis.twoPass.firstPassStarted")
                 .withUntypedValue("providerName", providerName)
                 .add();
     }
 
     public static void reportSecondPassRequired(ReportNode reportNode, int count) {
         reportNode.newReportNode()
-                .withMessageTemplate("twoPassSecurityAnalysisSecondPassRequired")
+                .withMessageTemplate("core.securityAnalysis.twoPass.secondPassRequired")
                 .withUntypedValue("count", count)
                 .add();
     }
 
     public static void reportSecondPassStarted(ReportNode reportNode, String providerName) {
         reportNode.newReportNode()
-                .withMessageTemplate("twoPassSecurityAnalysisSecondPassStarted")
+                .withMessageTemplate("core.securityAnalysis.twoPass.secondPassStarted")
                 .withUntypedValue("providerName", providerName)
                 .add();
     }

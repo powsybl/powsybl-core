@@ -19,15 +19,19 @@ import com.powsybl.twopasssecurity.security.analysis.parameters.TwoPassSecurityA
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Business logic for two-pass security analysis: first pass on all contingencies,
- * then second pass on those that did not converge or triggered an automaton, results merged.
+ * then second pass on those that did not converge or triggered a phase shifter, results merged.
  *
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
  */
@@ -59,8 +63,8 @@ public class TwoPassSecurityAnalysis {
         this.contingenciesProvider = contingenciesProvider;
         this.runParameters = runParameters;
         this.parameters = parameters;
-        this.firstProvider = java.util.Objects.requireNonNull(firstProvider, "First provider is required");
-        this.secondProvider = java.util.Objects.requireNonNull(secondProvider, "Second provider is required");
+        this.firstProvider = Objects.requireNonNull(firstProvider, "First provider is required");
+        this.secondProvider = Objects.requireNonNull(secondProvider, "Second provider is required");
     }
 
     private static SecurityAnalysisProvider findProvider(String providerName) {
@@ -116,7 +120,7 @@ public class TwoPassSecurityAnalysis {
 
     /**
      * Selects contingencies that should be re-analyzed with the second provider:
-     * those that did not converge or triggered an automaton.
+     * those that did not converge or triggered a phase shifter.
      */
     private List<Contingency> selectContingenciesForSecondPass(SecurityAnalysisResult firstResult,
                                                                      List<Contingency> allContingencies) {
@@ -126,7 +130,7 @@ public class TwoPassSecurityAnalysis {
         return firstResult.getPostContingencyResults().stream()
             .filter(this::requiresSecondPass)
             .map(r -> contingencyById.get(r.getContingency().getId()))
-            .filter(java.util.Objects::nonNull)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 
@@ -197,8 +201,8 @@ public class TwoPassSecurityAnalysis {
     }
 
     private byte[] mergeLogBytes(SecurityAnalysisReport firstReport, SecurityAnalysisReport secondReport) {
-        java.util.Optional<byte[]> firstLogBytes = firstReport.getLogBytes();
-        java.util.Optional<byte[]> secondLogBytes = secondReport.getLogBytes();
+        Optional<byte[]> firstLogBytes = firstReport.getLogBytes();
+        Optional<byte[]> secondLogBytes = secondReport.getLogBytes();
 
         if (firstLogBytes.isPresent() && secondLogBytes.isEmpty()) {
             return firstLogBytes.get();
@@ -212,7 +216,7 @@ public class TwoPassSecurityAnalysis {
             return new byte[0];
         }
 
-        Map<String, byte[]> logsByName = new java.util.HashMap<>();
+        Map<String, byte[]> logsByName = new HashMap<>();
         logsByName.put("first-pass-analysis.log", firstLogBytes.get());
         logsByName.put("second-pass-analysis.log", secondLogBytes.get());
 
@@ -234,10 +238,10 @@ public class TwoPassSecurityAnalysis {
         Map<String, OperatorStrategyResult> secondStrategyMap = secondStrategyResults.stream()
                 .collect(Collectors.toMap(r -> r.getOperatorStrategy().getId(), Function.identity()));
 
-        Map<String, OperatorStrategyResult> mergedStrategyMap = new java.util.HashMap<>(firstStrategyMap);
+        Map<String, OperatorStrategyResult> mergedStrategyMap = new HashMap<>(firstStrategyMap);
         mergedStrategyMap.putAll(secondStrategyMap);
 
-        return new java.util.ArrayList<>(mergedStrategyMap.values());
+        return new ArrayList<>(mergedStrategyMap.values());
     }
 
 }

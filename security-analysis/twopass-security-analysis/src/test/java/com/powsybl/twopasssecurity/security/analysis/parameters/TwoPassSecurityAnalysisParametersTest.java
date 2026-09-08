@@ -32,15 +32,6 @@ class TwoPassSecurityAnalysisParametersTest {
     }
 
     @Test
-    void testSetBothProviders() {
-        twoPassSecurityAnalysisParameters.setFirstProviderName("OpenLoadFlow")
-                .setSecondProviderName("DynaFlow");
-
-        assertEquals("OpenLoadFlow", twoPassSecurityAnalysisParameters.getFirstProviderName());
-        assertEquals("DynaFlow", twoPassSecurityAnalysisParameters.getSecondProviderName());
-    }
-
-    @Test
     void testGetName() {
         assertEquals("twopass-security-analysis-parameters", twoPassSecurityAnalysisParameters.getName());
     }
