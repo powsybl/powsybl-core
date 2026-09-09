@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
@@ -97,16 +96,10 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     public VscConverterStationImpl add() {
         NetworkImpl network = getNetwork();
 
-        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null && voltageRegulationAttributes == null) {
-            voltageRegulatorOn = false;
-            reactivePowerSetpoint = localTargetQ;
-        }
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
-        } else if (voltageRegulationAttributes == null && network.getMinValidationLevel() == ValidationLevel.EQUIPMENT) {
-            newVoltageRegulation().withMode(RegulationMode.VOLTAGE)
-                .withRegulating(false)
-                .add();
+            // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
         } else {
             if (!Double.isNaN(voltageSetpoint) && Double.isNaN(localTargetV)) {
                 this.setLocalTargetV(voltageSetpoint);
