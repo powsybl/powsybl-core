@@ -446,7 +446,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
         createBusbarSection(vl2, "VL2_BBS12", 1, 1, 2);
         createBreaker(vl2, "VL2_B_BBS12_BBS13", 0, 1);
 
-        // add a new busbar between two created busbars. it will turn the breaker in a disconnector
+        // add a new busbar between two created busbars. it will turn the existing breaker into a disconnector
         CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
                 .withReferenceBusbarSectionId("VL2_BBS11")
                 .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
@@ -467,7 +467,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
                 .map(BusbarSection::getId)
                 .toList();
         assertEquals(3, busbarSectionIds.size());
-        // the Breaker was removed so new busbar is called with DISCONNECTOR and not with BREAKER
-        assertTrue(busbarSectionIds.containsAll(List.of("VL2_BBS11", "VL2_BBS12", "VL2_1_DISCONNECTOR_2")));
+        // the Breaker was removed so new busbar is named with DISCONNECTOR and not with BREAKER
+        assertTrue(busbarSectionIds.containsAll(List.of("VL2_BBS11", "VL2_BBS12", "VL2_1_DISCONNECTOR_2_DISCONNECTOR")));
     }
 }
