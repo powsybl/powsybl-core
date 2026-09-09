@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  */
 public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLimits, CurrentLimitsAdder> implements CurrentLimitsAdder {
 
-    CurrentLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalGroupId, NetworkImpl network) {
+    public CurrentLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalGroupId, NetworkImpl network) {
         super(groupSupplier, validable, ownerId, operationalGroupId, network);
     }
 
