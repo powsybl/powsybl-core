@@ -128,7 +128,11 @@ public final class VoltageRegulationUtils {
                     adder.setLocalTargetV(localTargetV);
                 }
             } else {
-                adder.setLocalTargetV(localTargetV);
+                if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+                    adder.setLocalTargetV(targetV);
+                } else {
+                    adder.setLocalTargetV(localTargetV);
+                }
             }
             vrAdder.add();
             adder.setLocalTargetQ(targetQ);
