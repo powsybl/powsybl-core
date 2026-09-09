@@ -101,12 +101,12 @@ class StaticVarCompensatorUpdateTest {
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-V"), Double.NaN, 405.0, true);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-V"), -0.0, 405.0, true);
         assertSsh(network.getStaticVarCompensator("StaticVarCompensator-Q"), 210.0, Double.NaN, true);
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-V"), Double.NaN, 400.0, false);
+        assertSsh(network.getStaticVarCompensator("StaticVarCompensator-V"), -0.0, 400.0, false);
         assertSsh(network.getStaticVarCompensator("StaticVarCompensator-Q"), 215.0, Double.NaN, false);
     }
 

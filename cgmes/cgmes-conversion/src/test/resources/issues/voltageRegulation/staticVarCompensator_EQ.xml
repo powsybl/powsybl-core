@@ -1,0 +1,218 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>StaticVarCompensator voltage regulation</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Sub geographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_ST">
+    <cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:BaseVoltage rdf:ID="_BV_400">
+    <cim:IdentifiedObject.name>Base voltage 400.0 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_225">
+    <cim:IdentifiedObject.name>Base voltage 225.0 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>225.0</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:VoltageLevel rdf:ID="_VL_1">
+    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST"/>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_400"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1">
+    <cim:IdentifiedObject.name>Connectivity node 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1"/>
+</cim:ConnectivityNode>
+<cim:BusbarSection rdf:ID="_BBS">
+    <cim:IdentifiedObject.name>Busbar section</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_1"/>
+</cim:BusbarSection>
+<cim:Terminal rdf:ID="_T_BBS">
+    <cim:IdentifiedObject.name>Terminal BBS</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BBS"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:ConnectivityNode rdf:ID="_CN_2">
+    <cim:IdentifiedObject.name>Connectivity node 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1"/>
+</cim:ConnectivityNode>
+<cim:Breaker rdf:ID="_BR_12">
+    <cim:IdentifiedObject.name>Breaker 12</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_1"/>
+</cim:Breaker>
+<cim:Terminal rdf:ID="_T_BR_12_1">
+    <cim:IdentifiedObject.name>Terminal BR 12 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BR_12"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_BR_12_2">
+    <cim:IdentifiedObject.name>Terminal BR 12 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BR_12"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:VoltageLevel rdf:ID="_VL_2">
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST"/>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_225"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_3">
+    <cim:IdentifiedObject.name>Connectivity node 3</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2"/>
+</cim:ConnectivityNode>
+<cim:PowerTransformer rdf:ID="_PT">
+    <cim:IdentifiedObject.name>Power transformer</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST"/>
+</cim:PowerTransformer>
+<cim:PowerTransformerEnd rdf:ID="_PTE_1">
+    <cim:IdentifiedObject.name>Transformer end 1</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_1"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_400"/>
+</cim:PowerTransformerEnd>
+<cim:PowerTransformerEnd rdf:ID="_PTE_2">
+    <cim:IdentifiedObject.name>Transformer end 2</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:PowerTransformerEnd.r>0.1</cim:PowerTransformerEnd.r>
+    <cim:PowerTransformerEnd.x>1</cim:PowerTransformerEnd.x>
+    <cim:PowerTransformerEnd.ratedU>225</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT"/>
+    <cim:TransformerEnd.Terminal rdf:resource="#_T_PTE_2"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_225"/>
+</cim:PowerTransformerEnd>
+<cim:Terminal rdf:ID="_T_PTE_1">
+    <cim:IdentifiedObject.name>Terminal PTE 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PT"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_PTE_2">
+    <cim:IdentifiedObject.name>Terminal PTE 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_PT"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
+</cim:Terminal>
+<cim:ConnectivityNode rdf:ID="_CN_4">
+    <cim:IdentifiedObject.name>Connectivity node 4</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2"/>
+</cim:ConnectivityNode>
+<cim:Breaker rdf:ID="_BR_34">
+    <cim:IdentifiedObject.name>Breaker 34</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_2"/>
+</cim:Breaker>
+<cim:Terminal rdf:ID="_T_BR_34_1">
+    <cim:IdentifiedObject.name>Terminal BR 34 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BR_34"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_BR_34_2">
+    <cim:IdentifiedObject.name>Terminal BR 34 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BR_34"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_4"/>
+</cim:Terminal>
+
+<!-- SVC_1: local voltage regulation -->
+<cim:StaticVarCompensator rdf:ID="_SVC_1">
+    <cim:IdentifiedObject.name>Static var compensator 1</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_1"/>
+    <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_1"/>
+    <cim:StaticVarCompensator.capacitiveRating>625.0</cim:StaticVarCompensator.capacitiveRating>
+    <cim:StaticVarCompensator.inductiveRating>-625.0</cim:StaticVarCompensator.inductiveRating>
+    <cim:StaticVarCompensator.slope>0.1</cim:StaticVarCompensator.slope>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:ID="_T_SVC_1">
+    <cim:IdentifiedObject.name>Terminal SVC 1</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:RegulatingControl rdf:ID="_RC_1">
+    <cim:IdentifiedObject.name>Regulating control 1</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_1"/>
+</cim:RegulatingControl>
+
+<!-- SVC_2: remote voltage regulation -->
+<cim:StaticVarCompensator rdf:ID="_SVC_2">
+    <cim:IdentifiedObject.name>Static var compensator 2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_1"/>
+    <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_2"/>
+    <cim:StaticVarCompensator.capacitiveRating>625.0</cim:StaticVarCompensator.capacitiveRating>
+    <cim:StaticVarCompensator.inductiveRating>-625.0</cim:StaticVarCompensator.inductiveRating>
+    <cim:StaticVarCompensator.slope>0.1</cim:StaticVarCompensator.slope>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:ID="_T_SVC_2">
+    <cim:IdentifiedObject.name>Terminal SVC 2</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:RegulatingControl rdf:ID="_RC_2">
+    <cim:IdentifiedObject.name>Regulating control 2</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_BBS"/>
+</cim:RegulatingControl>
+
+<!-- SVC_3: local reactive power regulation -->
+<cim:StaticVarCompensator rdf:ID="_SVC_3">
+    <cim:IdentifiedObject.name>Static var compensator 3</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_2"/>
+    <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_3"/>
+    <cim:StaticVarCompensator.capacitiveRating>625.0</cim:StaticVarCompensator.capacitiveRating>
+    <cim:StaticVarCompensator.inductiveRating>-625.0</cim:StaticVarCompensator.inductiveRating>
+    <cim:StaticVarCompensator.slope>0.1</cim:StaticVarCompensator.slope>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:ID="_T_SVC_3">
+    <cim:IdentifiedObject.name>Terminal SVC 3</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
+</cim:Terminal>
+<cim:RegulatingControl rdf:ID="_RC_3">
+    <cim:IdentifiedObject.name>Regulating control 3</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.reactivePower"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_3"/>
+</cim:RegulatingControl>
+
+<!-- SVC_4: remote reactive power regulation -->
+<cim:StaticVarCompensator rdf:ID="_SVC_4">
+    <cim:IdentifiedObject.name>Static var compensator 4</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL_2"/>
+    <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_4"/>
+    <cim:StaticVarCompensator.capacitiveRating>625.0</cim:StaticVarCompensator.capacitiveRating>
+    <cim:StaticVarCompensator.inductiveRating>-625.0</cim:StaticVarCompensator.inductiveRating>
+    <cim:StaticVarCompensator.slope>0.1</cim:StaticVarCompensator.slope>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:ID="_T_SVC_4">
+    <cim:IdentifiedObject.name>Terminal SVC 4</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_4"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_4"/>
+</cim:Terminal>
+<cim:RegulatingControl rdf:ID="_RC_4">
+    <cim:IdentifiedObject.name>Regulating control 4</cim:IdentifiedObject.name>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.reactivePower"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#_T_PTE_2"/>
+</cim:RegulatingControl>
+
+</rdf:RDF>

@@ -41,7 +41,7 @@ class StaticVarCompensatorTest {
         assertExpectedControl(svc, RegulationMode.VOLTAGE, 405.0, Double.NaN, false);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-voltageSetPoint-svcControlMode-on");
-        assertExpectedControl(svc, RegulationMode.VOLTAGE, 405.0, Double.NaN, true);
+        assertExpectedControl(svc, RegulationMode.VOLTAGE, 405.0, -10.0, true);
 
         svc = network.getStaticVarCompensator("StaticVarCompensator-reactivePower-svcControlMode");
         assertExpectedControl(svc, RegulationMode.REACTIVE_POWER, Double.NaN, Double.NaN, false);

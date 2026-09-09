@@ -1785,6 +1785,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
             generator.getTerminal().setP(0.0).setQ(0.0);
         } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
             staticVarCompensator.removeVoltageRegulation();
+            staticVarCompensator.setLocalTargetV(Double.NaN);
+            staticVarCompensator.setLocalTargetQ(Double.NaN);
             staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
         } else if (identifiable instanceof VscConverterStation converter) {
             converter.removeVoltageRegulation();

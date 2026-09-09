@@ -1,0 +1,103 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e74">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>StaticVarCompensator voltage regulation</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+<cim:Terminal rdf:about="#_T_BBS">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Breaker rdf:about="#_BR_12">
+    <cim:Equipment.inService>true</cim:Equipment.inService>
+    <cim:Switch.open>false</cim:Switch.open>
+    <cim:Switch.locked>false</cim:Switch.locked>
+</cim:Breaker>
+<cim:Terminal rdf:about="#_T_BR_12_1">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_BR_12_2">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_PTE_1">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_PTE_2">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Breaker rdf:about="#_BR_34">
+    <cim:Equipment.inService>true</cim:Equipment.inService>
+    <cim:Switch.open>false</cim:Switch.open>
+    <cim:Switch.locked>false</cim:Switch.locked>
+</cim:Breaker>
+<cim:Terminal rdf:about="#_T_BR_34_1">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_BR_34_2">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+
+<cim:StaticVarCompensator rdf:about="#_SVC_1">
+    <cim:Equipment.inService>true</cim:Equipment.inService>
+    <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    <cim:StaticVarCompensator.q>-10</cim:StaticVarCompensator.q>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:about="#_T_SVC_1">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:RegulatingControl rdf:about="#_RC_1">
+    <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>400.0</cim:RegulatingControl.targetValue>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+</cim:RegulatingControl>
+
+<cim:StaticVarCompensator rdf:about="#_SVC_2">
+    <cim:Equipment.inService>true</cim:Equipment.inService>
+    <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    <cim:StaticVarCompensator.q>-10</cim:StaticVarCompensator.q>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:about="#_T_SVC_2">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:RegulatingControl rdf:about="#_RC_2">
+    <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>400.0</cim:RegulatingControl.targetValue>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+</cim:RegulatingControl>
+
+<cim:StaticVarCompensator rdf:about="#_SVC_3">
+    <cim:Equipment.inService>true</cim:Equipment.inService>
+    <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    <cim:StaticVarCompensator.q>-10</cim:StaticVarCompensator.q>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:about="#_T_SVC_3">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:RegulatingControl rdf:about="#_RC_3">
+    <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>10.0</cim:RegulatingControl.targetValue>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+</cim:RegulatingControl>
+
+<cim:StaticVarCompensator rdf:about="#_SVC_4">
+    <cim:Equipment.inService>true</cim:Equipment.inService>
+    <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    <cim:StaticVarCompensator.q>-10</cim:StaticVarCompensator.q>
+</cim:StaticVarCompensator>
+<cim:Terminal rdf:about="#_T_SVC_4">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:RegulatingControl rdf:about="#_RC_4">
+    <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>20.0</cim:RegulatingControl.targetValue>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+</cim:RegulatingControl>
+
+</rdf:RDF>

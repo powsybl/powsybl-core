@@ -983,7 +983,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setAngle(-17.412200);
 
         VoltageLevel vlAnvers220 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_2);
-        StaticVarCompensator staticVarCompensator = vlAnvers220.newStaticVarCompensator()
+        vlAnvers220.newStaticVarCompensator()
                 .setId("3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
                 .setName("SVC-1230797516")
                 .setBus(BUS_ID_1)
@@ -991,10 +991,9 @@ public final class CgmesConformity1NetworkCatalog {
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
                 .setLocalTargetV(229.5)
+                .setLocalTargetQ(-0.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
-        staticVarCompensator.getVoltageRegulation().setTerminal(staticVarCompensator.getTerminal(), 229.5);
-        staticVarCompensator.setLocalTargetV(Double.NaN);
 
         setGeneratorValues(network, "550ebe0d-f2b2-48c1-991f-cebea43a21aa", -118.0, -85.603401, 18.720301);
         setGeneratorValues(network, "3a3b27be-b18b-4385-b557-6735d733baf0", -90.0, 84.484905, 100.256);

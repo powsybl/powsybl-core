@@ -11,6 +11,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.junit.jupiter.api.Test;
@@ -145,10 +146,81 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
     }
 
+    @Test
+    void staticVarCompensatorVoltageRegulationEq() {
+        // EQ only import: regulation is created without targets and not enabled
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
+
+        // SVC1: local voltage regulation
+        StaticVarCompensator svc1 = network.getStaticVarCompensator("SVC_1");
+        assertLocalTargets(svc1, Double.NaN, Double.NaN);
+        VoltageRegulation reg1 = svc1.getVoltageRegulation();
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, false);
+
+        // SVC2: remote voltage regulation
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC_2");
+        assertLocalTargets(svc2, Double.NaN, Double.NaN);
+        VoltageRegulation reg2 = svc2.getVoltageRegulation();
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", Double.NaN, Double.NaN, false);
+
+        // SVC3: local reactive power regulation
+        StaticVarCompensator svc3 = network.getStaticVarCompensator("SVC_3");
+        assertLocalTargets(svc3, Double.NaN, Double.NaN);
+        VoltageRegulation reg3 = svc3.getVoltageRegulation();
+        assertNotNull(reg3);
+        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SVC_3", Double.NaN, Double.NaN, false);
+
+        // SVC4: remote reactive power regulation
+        StaticVarCompensator svc4 = network.getStaticVarCompensator("SVC_4");
+        assertLocalTargets(svc4, Double.NaN, Double.NaN);
+        VoltageRegulation reg4 = svc4.getVoltageRegulation();
+        assertNotNull(reg4);
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", Double.NaN, Double.NaN, false);
+    }
+
+    @Test
+    void staticVarCompensatorVoltageRegulationEqAndSsh() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
+
+        // SVC1: local voltage regulation
+        StaticVarCompensator svc1 = network.getStaticVarCompensator("SVC_1");
+        assertLocalTargets(svc1, 10, 400);
+        VoltageRegulation reg1 = svc1.getVoltageRegulation();
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
+
+        // SVC2: remote voltage regulation
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC_2");
+        assertLocalTargets(svc2, 10, Double.NaN);
+        VoltageRegulation reg2 = svc2.getVoltageRegulation();
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, Double.NaN, true);
+
+        // SVC3: local reactive power regulation
+        StaticVarCompensator svc3 = network.getStaticVarCompensator("SVC_3");
+        assertLocalTargets(svc3, 10, Double.NaN);
+        VoltageRegulation reg3 = svc3.getVoltageRegulation();
+        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SVC_3", 10, Double.NaN, true);
+
+        // SVC4: remote reactive power regulation
+        StaticVarCompensator svc4 = network.getStaticVarCompensator("SVC_4");
+        assertLocalTargets(svc4, 10, Double.NaN);
+        VoltageRegulation reg4 = svc4.getVoltageRegulation();
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", 20, Double.NaN, true);
+    }
+
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {
         assertNotNull(gen);
-        assertEquals(localTargetQ, gen.getLocalTargetQ());
-        assertEquals(localTargetV, gen.getLocalTargetV());
+        assertLocalTargets(gen.getLocalTargetQ(), gen.getLocalTargetV(), localTargetQ, localTargetV);
+    }
+
+    private void assertLocalTargets(StaticVarCompensator svc, double localTargetQ, double localTargetV) {
+        assertNotNull(svc);
+        assertLocalTargets(svc.getLocalTargetQ(), svc.getLocalTargetV(), localTargetQ, localTargetV);
+    }
+
+    private void assertLocalTargets(double actualTargetQ, double actualTargetV, double expectedTargetQ, double expectedTargetV) {
+        assertEquals(expectedTargetQ, actualTargetQ);
+        assertEquals(expectedTargetV, actualTargetV);
     }
 
     private void assertVoltageRegulation(VoltageRegulation reg, RegulationMode mode, String terminalId,
