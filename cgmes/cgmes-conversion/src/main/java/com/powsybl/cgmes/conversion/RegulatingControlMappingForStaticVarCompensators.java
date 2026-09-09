@@ -11,7 +11,6 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -35,13 +34,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
         this.parent = parent;
         this.context = context;
         mapping = new HashMap<>();
-    }
-
-    public static void initialize(StaticVarCompensatorAdder adder) {
-        adder.newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(false)
-            .add();
     }
 
     public void add(String iidmId, PropertyBag sm) {
@@ -75,6 +67,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
             LOG.trace("Regulating control Id not present for static var compensator {}", svc.getId());
+            // VoltageRegulation is mandatory for SVC in IIDM.
             setDefaultRegulatingControl(rc, svc);
             return;
         }
@@ -82,6 +75,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
         if (control == null) {
             context.missing(String.format("Regulating control %s", controlId));
+            // VoltageRegulation is mandatory for SVC in IIDM.
             setDefaultRegulatingControl(rc, svc);
             return;
         }
@@ -125,7 +119,12 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
     private boolean setRegulatingControlVoltage(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
         setDefaultRegulatingControlData(rc, svc);
-        Terminal regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context).orElse(null);
+        Terminal regulatingTerminal = RegulatingTerminalMapper
+            .mapForVoltageControl(control.cgmesTerminal, context)
+            .orElse(svc.getTerminal());
+        if (regulatingTerminal.getConnectable().getId().equals(svc.getId())) {
+            regulatingTerminal = null;
+        }
         svc.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(regulatingTerminal)
@@ -145,6 +144,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         }
         svc.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
+            // always set the terminal in case of reactive power regulation
             .withTerminal(mappedRegulatingTerminal.getTerminal())
             .withRegulating(false)
             .build();
