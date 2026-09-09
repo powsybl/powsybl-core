@@ -484,7 +484,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "StaticVarCompensator.q");
-            writer.writeCharacters(CgmesExportUtil.format(svc.getTerminal().getQ()));
+            writer.writeCharacters(CgmesExportUtil.format(svc.getLocalTargetQ()));
             writer.writeEndElement();
             writer.writeEndElement();
             addRegulatingControlView(svc, regulatingControlViews, context);
