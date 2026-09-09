@@ -181,7 +181,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
-        // put targetValue in localtargetV if localTerminal
         network.getIndex().checkAndAdd(generator);
         network.getListeners().notifyCreation(generator);
         return generator;

@@ -128,11 +128,7 @@ public final class VoltageRegulationUtils {
                     adder.setLocalTargetV(localTargetV);
                 }
             } else {
-                if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
-                    adder.setLocalTargetV(targetV);
-                } else {
-                    adder.setLocalTargetV(localTargetV);
-                }
+                setLocalTargetV(adder, targetV, localTargetV);
             }
             vrAdder.add();
             adder.setLocalTargetQ(targetQ);
@@ -145,8 +141,16 @@ public final class VoltageRegulationUtils {
                 .add();
             adder.setLocalTargetV(targetV);
         } else {
-            adder.setLocalTargetV(localTargetV);
+            setLocalTargetV(adder, targetV, localTargetV);
             adder.setLocalTargetQ(targetQ);
+        }
+    }
+
+    private static <T extends VoltageRegulationHolderAdder<T>> void setLocalTargetV(VoltageRegulationHolderAdder<T> adder, double targetV, double localTargetV) {
+        if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+            adder.setLocalTargetV(targetV);
+        } else {
+            adder.setLocalTargetV(localTargetV);
         }
     }
 
