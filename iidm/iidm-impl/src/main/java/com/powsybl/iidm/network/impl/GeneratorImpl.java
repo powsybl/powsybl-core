@@ -287,7 +287,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getEquivalentLocalTargetV() {
-        return isRemoteRegulating() ? this.getLocalTargetV() : Double.NaN;
+        return this.getLocalTargetV();
     }
 
     @Override

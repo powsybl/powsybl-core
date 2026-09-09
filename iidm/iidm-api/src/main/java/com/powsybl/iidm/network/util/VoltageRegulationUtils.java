@@ -71,6 +71,45 @@ public final class VoltageRegulationUtils {
         throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
     }
 
+    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                 RegulationMode regulationMode,
+                                                                                                                 double targetV,
+                                                                                                                 double targetQ,
+                                                                                                                 Boolean regulating,
+                                                                                                                 Terminal terminal) {
+        if (regulationMode != null && regulating != null) {
+            VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
+                .withMode(regulationMode);
+            double targetValue = Double.NaN;
+            if (VOLTAGE.equals(regulationMode)) {
+                if (terminal != null) {
+                    targetValue = targetV;
+                } else {
+                    adder.setLocalTargetV(targetV);
+                }
+                adder.setLocalTargetQ(targetQ);
+            } else if (REACTIVE_POWER.equals(regulationMode)) {
+                if (terminal != null) {
+                    targetValue = targetQ;
+                } else {
+                    adder.setLocalTargetQ(targetQ);
+                }
+                adder.setLocalTargetV(targetV);
+            }
+            vrAdder.withTerminal(terminal)
+                .withTargetValue(targetValue)
+                .withRegulating(regulating)
+                .add();
+        } else {
+            adder.newVoltageRegulation()
+                .withMode(VOLTAGE)
+                .withRegulating(false)
+                .add();
+            adder.setLocalTargetV(targetV);
+            adder.setLocalTargetQ(targetQ);
+        }
+    }
+
     private static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
                                                                                                           boolean withLocalTargetValue,
                                                                                                           double targetV,
@@ -89,7 +128,7 @@ public final class VoltageRegulationUtils {
                     adder.setLocalTargetV(localTargetV);
                 }
             } else {
-                adder.setLocalTargetV(targetV);
+                adder.setLocalTargetV(localTargetV);
             }
             vrAdder.add();
             adder.setLocalTargetQ(targetQ);
@@ -100,6 +139,7 @@ public final class VoltageRegulationUtils {
                 .withTargetValue(targetQ)
                 .withTerminal(terminal)
                 .add();
+            adder.setLocalTargetV(targetV);
         } else {
             adder.setLocalTargetV(localTargetV);
             adder.setLocalTargetQ(targetQ);

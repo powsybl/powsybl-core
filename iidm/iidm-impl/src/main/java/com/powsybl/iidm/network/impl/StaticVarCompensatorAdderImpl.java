@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -124,29 +126,20 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && regulating == null) {
             regulating = false;
         }
+
+        // Backward compatibility: If a generator with old setters is added and voltageRegulation does not exist,
+        // the new voltageRegulation will be created from the old attributes.
         if (voltageRegulationAttributes == null && regulating != null) {
-            if (regulationMode == null) {
-                regulationMode = RegulationMode.VOLTAGE;
-            }
-            double targetValue = Double.NaN;
-            if (regulatingTerminal != null) {
-                if (regulationMode == RegulationMode.VOLTAGE) {
-                    targetValue = voltageSetpoint;
-                    localTargetQ = reactivePowerSetpoint;
-                } else {
-                    targetValue = reactivePowerSetpoint;
-                    localTargetV = voltageSetpoint;
-                }
-            } else {
+            createVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
+        // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
+        // the old local attributes will be set without overriding the local attributes if already set
+        } else {
+            if (!Double.isNaN(voltageSetpoint) && Double.isNaN(localTargetV)) {
                 localTargetV = voltageSetpoint;
+            }
+            if (!Double.isNaN(reactivePowerSetpoint) && Double.isNaN(localTargetQ)) {
                 localTargetQ = reactivePowerSetpoint;
             }
-            newVoltageRegulation()
-                .withMode(regulationMode)
-                .withTargetValue(targetValue)
-                .withTerminal(regulatingTerminal)
-                .withRegulating(regulating)
-                .add();
         }
 
         TerminalExt terminal = checkAndGetTerminal();

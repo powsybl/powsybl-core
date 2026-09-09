@@ -279,12 +279,14 @@ public final class ValidationUtil {
                 return ValidationLevel.EQUIPMENT;
             }
         } else if (!withTerminal) {
-            if (RegulationMode.VOLTAGE.equals(regulationMode) && !ignoreLocalTargetV) {
+            if ((RegulationMode.VOLTAGE_PER_REACTIVE_POWER.equals(regulationMode) || RegulationMode.VOLTAGE.equals(regulationMode))
+                && !ignoreLocalTargetV) {
+                String reason = String.format("voltageRegulation is set with %s mode and regulating true and the terminal is unset", regulationMode.name());
                 if (Double.isNaN(localTargetV)) {
                     throwExceptionOrLogErrorForInvalidValue(validable,
                         localTargetV,
                         localTargetVName,
-                        "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset",
+                        reason,
                         actionOnError,
                         id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
                     return ValidationLevel.EQUIPMENT;
@@ -293,7 +295,7 @@ public final class ValidationUtil {
                     throwExceptionOrLogErrorForInvalidValue(validable,
                         localTargetV,
                         localTargetVName,
-                        "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset",
+                        reason,
                         actionOnError,
                         id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
                     return ValidationLevel.EQUIPMENT;
@@ -1266,11 +1268,8 @@ public final class ValidationUtil {
     private static ValidationLevel checkVoltageRegulationTerminal(@NonNull Validable owner, boolean regulating, Terminal terminal,
                                                                   Network network, Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                                   ActionOnError actionOnError, ReportNode reportNode) {
-        if (terminal != null) {
-            if (terminal.getVoltageLevel().getNetwork() != network) {
-                throw new ValidationException(owner, "voltageRegulation.terminal is not part of the network");
-            }
-            // TODO MSA In the case of reactive power regulation, the regulated terminal should be the terminal of a branch or 3-winding transformer leg.
+        if (terminal != null && terminal.getVoltageLevel().getNetwork() != network) {
+            throw new ValidationException(owner, "voltageRegulation.terminal is not part of the network");
         }
         if (regulating && terminal == null && classHolder == RatioTapChanger.class) {
             throwExceptionOrLogError(owner, "a regulation terminal has to be set for a regulating ratio tap changer", actionOnError,

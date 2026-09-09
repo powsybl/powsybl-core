@@ -255,6 +255,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                     localTargetV = targetV;
                 }
             }
+        // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
+        // the old local attributes will be set without overriding the local attributes if already set
+        } else {
+            if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+                localTargetV = targetV;
+            }
         }
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);

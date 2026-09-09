@@ -84,12 +84,19 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         super.preCheck();
         NetworkImpl network = getNetwork();
 
-        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn != null && voltageRegulationAttributes == null) {
-            voltageRegulatorOn = false;
-        }
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, pccTerminal);
+        // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
+        // the old local attributes will be set without overriding the local attributes if already set
+        } else {
+            if (Double.isNaN(localTargetV) && !Double.isNaN(voltageSetpoint)) {
+                localTargetV = voltageSetpoint;
+            }
+            if (Double.isNaN(localTargetQ) && !Double.isNaN(reactivePowerSetpoint)) {
+                localTargetQ = reactivePowerSetpoint;
+            }
         }
+
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
                 VoltageSourceConverter.class,
                 localTargetV,

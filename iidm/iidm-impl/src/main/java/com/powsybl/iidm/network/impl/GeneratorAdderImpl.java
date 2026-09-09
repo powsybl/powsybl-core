@@ -156,6 +156,12 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         // the new voltageRegulation will be created from the old attributes.
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
+        // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
+        // the old local attributes will be set without overriding the local attributes if already set
+        } else {
+            if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+                localTargetV = targetV;
+            }
         }
 
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,

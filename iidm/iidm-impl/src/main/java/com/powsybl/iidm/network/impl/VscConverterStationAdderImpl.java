@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
@@ -102,6 +103,17 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         }
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
+        } else if (voltageRegulationAttributes == null && network.getMinValidationLevel() == ValidationLevel.EQUIPMENT) {
+            newVoltageRegulation().withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .add();
+        } else {
+            if (!Double.isNaN(voltageSetpoint) && Double.isNaN(localTargetV)) {
+                this.setLocalTargetV(voltageSetpoint);
+            }
+            if (!Double.isNaN(reactivePowerSetpoint) && Double.isNaN(localTargetQ)) {
+                this.setLocalTargetQ(reactivePowerSetpoint);
+            }
         }
 
         String id = checkAndGetUniqueId();
