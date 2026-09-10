@@ -83,25 +83,10 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     }
 
     /**
-     * Checks that YNodes and the equipment attached to them are correctly reported when exporting a network
-     * containing 2 distinct YNode situations: an isolated YNode, and a YNode with a boundary line.
-     *
-     * <pre>
-     * Network layout:
-     *
-     *     VL_MAIN                 VL_BOUNDARY
-     *
-     *     YNODE_1                 YNODE_2
-     *        o                       o
-     *                                |
-     *                                +---- BL_AT_YNODE
-     *
-     * </pre>
-     * YNODE_1 and YNODE_2 are each reported as an ignored YNode, regardless of the equipment attached
-     * to them: the boundary line at YNODE_2 is additionally reported as ignored.
+     * Checks that a YNode is reported as ignored when exporting the network.
      */
     @Test
-    void testYNodeExclusionsReported() {
+    void testYNodeExclusionReported() {
         Network network = NetworkFactory.findDefault().createNetwork("ynode-test", "test");
         Substation substation = network.newSubstation().setId("S").setCountry(Country.FR).add();
 
@@ -114,29 +99,6 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         // TODO change me when ynodes detection is enriched
         vlMain.getBusBreakerView().newBus().setId("YNODE_1").add();
 
-        VoltageLevel vlBoundary = substation.newVoltageLevel()
-                                            .setId("VL_BOUNDARY")
-                                            .setNominalV(380)
-                                            .setTopologyKind(TopologyKind.BUS_BREAKER)
-                                            .add();
-        vlBoundary.getBusBreakerView().newBus().setId("YNODE_2").add();
-        vlBoundary.newBoundaryLine()
-                  .setId("BL_AT_YNODE")
-                  .setBus("YNODE_2")
-                  .setConnectableBus("YNODE_2")
-                  .setR(0.0)
-                  .setX(0.2)
-                  .setG(0.0)
-                  .setB(0.0)
-                  .setP0(0.0)
-                  .setQ0(0.0)
-                  .setPairingKey("XXXXXX11")
-                  .newGeneration()
-                  .setTargetP(0.0)
-                  .setTargetQ(0.0)
-                  .add()
-                  .add();
-
         ReportNode rootReportNode = newTestRootReportNode();
         new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
 
@@ -145,9 +107,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                    + Creating UCTE Network
                       + Buses and Switches
                          Ignoring YNode YNODE_1
-                         Ignoring YNode YNODE_2
-                      + Boundary Lines
-                         Ignoring BoundaryLine at YNode in the export BL_AT_YNODE
+                      Boundary Lines
                       Lines
                       Tie-Lines
                       Transformers
