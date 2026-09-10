@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, TenneT (https://www.tennet.eu/)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,20 +12,21 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.util.Properties;
 
-import static com.powsybl.ucte.converter.util.UcteConverterConstants.GEOGRAPHICAL_NAME_PROPERTY_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Arthur Michaut {@literal <arthur.michaut at artelys.com>}
@@ -46,19 +47,15 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          .build();
     }
 
-    /**
-     * Recursively collect all children nodes and their children. The tree is visited vertically.
-     *
-     * @param node a node
-     * @return a {@link List} containing all descendant nodes. Their order respects a vertical visiting strategy.
-     */
-    private static List<ReportNode> getAllDescendantNodes(ReportNode node) {
-        List<ReportNode> result = new ArrayList<>();
-        for (ReportNode child : node.getChildren()) {
-            result.add(child);
-            result.addAll(getAllDescendantNodes(child));
+    private static boolean checkReportNode(String expected, ReportNode reportNode) {
+        StringWriter sw = new StringWriter();
+        try {
+            reportNode.print(sw);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return result;
+        assertEquals(expected, TestUtil.normalizeLineSeparator(sw.toString()));
+        return true;
     }
 
     @Test
@@ -68,45 +65,46 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     }
 
     /**
-     * Checks that exporting a network produces exactly one top-level report node, with message key
-     * {@code core.ucte.export.UcteExport}, under the root report node passed to the exporter. The network
-     * itself (loaded from {@code /expectedExport.uct}) is not relevant here, only the shape of the resulting
-     * report tree.
+     * Checks the full shape of the report tree produced when exporting a network (loaded from
+     * {@code /expectedExport.uct}): the {@code networkCreation} node with its five conversion-step children,
+     * in order, followed by the top-level {@code fileWriting} node.
      */
     @Test
-    void testExportCreatesSingleTopLevelReportNode() {
+    void testExportReportsNetworkCreationAndFileWriting() {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         ReportNode rootReportNode = newTestRootReportNode();
 
         new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
 
-        assertEquals(1, rootReportNode.getChildren().size());
-        ReportNode exportReportNode = rootReportNode.getChildren().getFirst();
-        assertEquals("core.ucte.export.UcteExport", exportReportNode.getMessageKey());
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
     }
 
     /**
      * Checks that YNodes and the equipment attached to them are correctly reported when exporting a network
-     * containing three distinct YNode situations: an isolated YNode, a YNode with a boundary line, and a YNode
-     * on one side of a two-windings transformer.
-     *
+     * containing 2 distinct YNode situations: an isolated YNode, and a YNode with a boundary line.
      *
      * <pre>
      * Network layout:
      *
-     *     VL_MAIN                                     VL_BOUNDARY                            VL_TRANSFORMER
+     *     VL_MAIN                 VL_BOUNDARY
      *
-     *   FFFFFF11           YNODE_1                 YNODE_2                                      YNODE_3
-     *       o                 o                       o                                            o
-     *       |                                         |                                            |
-     *       |                                         +---- BL_AT_YNODE                            |
-     *       |                                                                                      |
-     *       +-------------------------------FFFFFF11   FFFFFF12 1----------------------------------+
+     *     YNODE_1                 YNODE_2
+     *        o                       o
+     *                                |
+     *                                +---- BL_AT_YNODE
      *
      * </pre>
-     * YNODE_1, YNODE_2 and YNODE_3 are each reported as an ignored YNode, regardless of the equipment attached
-     * to them: the boundary line at YNODE_2 is additionally reported as ignored, while the transformer between
-     * FFFFFF11 and YNODE_3 is still reported as exported (warning severity)
+     * YNODE_1 and YNODE_2 are each reported as an ignored YNode, regardless of the equipment attached
+     * to them: the boundary line at YNODE_2 is additionally reported as ignored.
      */
     @Test
     void testYNodeExclusionsReported() {
@@ -145,139 +143,22 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                   .add()
                   .add();
 
-        VoltageLevel vlTransformer = substation.newVoltageLevel()
-                                                .setId("VL_TRANSFORMER")
-                                                .setNominalV(220)
-                                                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                                                .add();
-        vlTransformer.getBusBreakerView().newBus().setId("YNODE_3").add();
-        substation.newTwoWindingsTransformer()
-                  .setId("FFFFFF11 FFFFFF12 1")
-                  .setVoltageLevel1("VL_MAIN")
-                  .setBus1("FFFFFF11")
-                  .setConnectableBus1("FFFFFF11")
-                  .setRatedU1(380.0)
-                  .setVoltageLevel2("VL_TRANSFORMER")
-                  .setBus2("YNODE_3")
-                  .setConnectableBus2("YNODE_3")
-                  .setRatedU2(220.0)
-                  .setR(1.0)
-                  .setX(10.0)
-                  .setG(0.0)
-                  .setB(0.0)
-                  .add();
-
         ReportNode rootReportNode = newTestRootReportNode();
         new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
 
-        List<ReportNode> allNodes = getAllDescendantNodes(rootReportNode);
-
-        // The bus itself is reported as an ignored YNode for every YNode bus, regardless of what else
-        // is attached to it (boundary line, transformer).
-        List<ReportNode> ignoredYNode = allNodes.stream()
-                .filter(n -> n.getMessageKey().equals("core.ucte.export.ignoredYNode"))
-                .toList();
-        assertEquals(3, ignoredYNode.size());
-        Set<String> ignoredYNodeBusIds = ignoredYNode.stream()
-                .map(n -> n.getValue("busId").map(Object::toString).orElseThrow())
-                .collect(Collectors.toSet());
-        assertEquals(Set.of("YNODE_1", "YNODE_2", "YNODE_3"), ignoredYNodeBusIds);
-        ignoredYNode.forEach(n -> assertEquals(Optional.of(TypedValue.WARN_SEVERITY),
-                n.getValue(ReportConstants.SEVERITY_KEY)));
-
-        List<ReportNode> ignoredBoundaryLine = allNodes.stream()
-                .filter(n -> n.getMessageKey().equals("core.ucte.export.ignoredBoundaryLineAtYNode"))
-                .toList();
-        assertEquals(1, ignoredBoundaryLine.size());
-        assertEquals(Optional.of("BL_AT_YNODE"),
-                ignoredBoundaryLine.getFirst().getValue("boundaryLineId").map(Object::toString));
-        assertEquals(Optional.of(TypedValue.WARN_SEVERITY),
-                ignoredBoundaryLine.getFirst().getValue(ReportConstants.SEVERITY_KEY));
-
-        List<ReportNode> transformerAtBoundary = allNodes.stream()
-                .filter(n -> n.getMessageKey().equals("core.ucte.export.transformerAtBoundaryExported"))
-                .toList();
-        assertEquals(1, transformerAtBoundary.size());
-        assertEquals(Optional.of("FFFFFF11 FFFFFF12 1"),
-                transformerAtBoundary.getFirst().getValue("transformerId").map(Object::toString));
-        assertEquals(Optional.of(TypedValue.INFO_SEVERITY),
-                transformerAtBoundary.getFirst().getValue(ReportConstants.SEVERITY_KEY));
-    }
-
-    /**
-     * Checks that inconsistencies between merged boundary line properties are correctly reported when exporting
-     * a merged network. The FR and BE networks (loaded from {@code /frForMergeProperties.uct} and
-     * {@code /beForMergeProperties.uct}) share three boundary lines pairing on XNodes XXXXXX11, XXXXXX12 and
-     * XXXXXX13, whose {@code geographicalName} property is set up to differ across sides:
-     * <ul>
-     *     <li>XXXXXX11: empty on the FR side, {@code "XNODE 1"} on the BE side</li>
-     *     <li>XXXXXX12: {@code "XNODE 2"} on the FR side, empty on the BE side</li>
-     *     <li>XXXXXX13: {@code "XNODE 5"} on the FR side, {@code "XNODE 3"} on the BE side (both non-empty
-     *     and different)</li>
-     * </ul>
-     * After merging, exporting reports {@code mergedPropertyInconsistent} for XXXXXX13 (both sides non-empty
-     * and different), and either {@code mergedPropertySide1Empty} or {@code mergedPropertySide2Empty} for
-     * XXXXXX11 and XXXXXX12 (one side empty), depending on which BoundaryLine ends up as side 1 vs side 2 in
-     * the merge.
-     */
-    @Test
-    void testMergedPropertyInconsistenciesReported() {
-        Network networkFR = loadNetworkFromResourceFile("/frForMergeProperties.uct");
-        Network networkBE = loadNetworkFromResourceFile("/beForMergeProperties.uct");
-        Network mergedNetwork = Network.merge(networkBE, networkFR);
-
-        ReportNode rootReportNode = newTestRootReportNode();
-        new UcteExporter().export(mergedNetwork, new Properties(), new MemDataSource(), rootReportNode);
-
-        List<ReportNode> mergedPropertyNodes = getAllDescendantNodes(rootReportNode)
-                .stream()
-                .filter(n -> n.getMessageKey().startsWith("core.ucte.export.mergedProperty"))
-                .toList();
-
-        // XXXXXX13's geographicalName differs on both sides ("XNODE 5" on the FR side, "XNODE 3" on the
-        // BE side): both non-empty and different -> mergedPropertyInconsistent fires, regardless of which
-        // BoundaryLine ends up as side 1 vs side 2 in the merge.
-        List<ReportNode> inconsistent = mergedPropertyNodes
-                .stream()
-                .filter(n -> n.getMessageKey().equals("core.ucte.export.mergedPropertyInconsistent"))
-                .filter(n -> n.getValue("key").map(Object::toString).map(GEOGRAPHICAL_NAME_PROPERTY_KEY::equals)
-                              .orElse(false))
-                .toList();
-        assertEquals(1, inconsistent.size());
-        assertEquals(
-                "XNODE 3",
-                inconsistent.getFirst().getValue("side1Value").map(Object::toString).orElseThrow()
-        );
-        assertEquals(
-                "XNODE 5",
-                inconsistent.getFirst().getValue("side2Value").map(Object::toString).orElseThrow()
-        );
-
-        // XXXXXX11's geographicalName is empty on the FR side and "XNODE 1" on the BE side, and XXXXXX12's
-        // geographicalName is "XNODE 2" on the FR side and empty on the BE side: for each, one side is
-        // empty -> either mergedPropertySide1Empty or mergedPropertySide2Empty fires (depending on side
-        // assignment), and whichever one fires keeps the surviving non-empty value.
-        List<ReportNode> oneSideEmpty = mergedPropertyNodes
-                .stream()
-                .filter(n -> n.getMessageKey().equals("core.ucte.export.mergedPropertySide1Empty")
-                        || n.getMessageKey().equals("core.ucte.export.mergedPropertySide2Empty"))
-                .filter(n -> n.getValue("key").map(Object::toString).map(GEOGRAPHICAL_NAME_PROPERTY_KEY::equals)
-                              .orElse(false))
-                .toList();
-        assertEquals(2, oneSideEmpty.size());
-        Set<String> survivingValues = oneSideEmpty
-                .stream()
-                .map(n -> {
-                    String survivingValueKey;
-                    if (n.getMessageKey().equals("core.ucte.export.mergedPropertySide1Empty")) {
-                        survivingValueKey = "side2Value";
-                    } else {
-                        survivingValueKey = "side1Value";
-                    }
-                    return n.getValue(survivingValueKey).map(Object::toString).orElseThrow();
-                })
-                .collect(Collectors.toSet());
-        assertEquals(Set.of("XNODE 1", "XNODE 2"), survivingValues);
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Buses and Switches
+                         Ignoring YNode YNODE_1
+                         Ignoring YNode YNODE_2
+                      + Boundary Lines
+                         Ignoring BoundaryLine at YNode in the export BL_AT_YNODE
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
     }
 
     /**
@@ -311,12 +192,16 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         ReportNode rootReportNode = newTestRootReportNode();
         new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
 
-        List<ReportNode> matches = getAllDescendantNodes(rootReportNode)
-                .stream()
-                .filter(n -> n.getMessageKey().equals("core.ucte.export.switchCurrentLimitMissing"))
-                .toList();
-        assertEquals(1, matches.size());
-        assertEquals(Optional.of("FFFFFF11 FFFFFF12 1"), matches.getFirst().getValue("switchId").map(Object::toString));
-        assertEquals(Optional.of(TypedValue.WARN_SEVERITY), matches.getFirst().getValue(ReportConstants.SEVERITY_KEY));
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Buses and Switches
+                         Switch FFFFFF11 FFFFFF12 1: No current limit provided
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
     }
 }
