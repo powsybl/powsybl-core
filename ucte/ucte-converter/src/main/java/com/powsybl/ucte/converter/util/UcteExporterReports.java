@@ -70,4 +70,12 @@ public final class UcteExporterReports {
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
+
+    public static void nominalPowerMissing(ReportNode reportNode, String transformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.nominalPowerMissing")
+                .withUntypedValue("transformerId", transformerId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
 }

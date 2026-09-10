@@ -869,10 +869,8 @@ public class UcteImporter implements Importer {
         sw.setProperty(ORDER_CODE, String.valueOf(ucteLineId.charAt(ucteLineId.length() - 1)));
     }
 
-    private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
-        if (!Double.isNaN(transformer.getNominalPower())) {
-            twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
-        }
+    private static void addNominalPowerProperty(UcteTransformer ucteTransformer, TwoWindingsTransformer twTransformer) {
+        twTransformer.setRatedS(ucteTransformer.getNominalPower());
     }
 
     private static void addXnodeStatusProperty(UcteNode ucteNode, Identifiable<?> identifiable) {
