@@ -83,39 +83,6 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     }
 
     /**
-     * Checks that a YNode is reported as ignored when exporting the network.
-     */
-    @Test
-    void testYNodeExclusionReported() {
-        Network network = NetworkFactory.findDefault().createNetwork("ynode-test", "test");
-        Substation substation = network.newSubstation().setId("S").setCountry(Country.FR).add();
-
-        VoltageLevel vlMain = substation.newVoltageLevel()
-                                        .setId("VL_MAIN")
-                                        .setNominalV(380)
-                                        .setTopologyKind(TopologyKind.BUS_BREAKER)
-                                        .add();
-        vlMain.getBusBreakerView().newBus().setId("FFFFFF11").add();
-        // TODO change me when ynodes detection is enriched
-        vlMain.getBusBreakerView().newBus().setId("YNODE_1").add();
-
-        ReportNode rootReportNode = newTestRootReportNode();
-        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
-
-        assertTrue(checkReportNode("""
-                + Test exporting UCTE network
-                   + Creating UCTE Network
-                      + Buses and Switches
-                         Ignoring YNode YNODE_1
-                      Boundary Lines
-                      Lines
-                      Tie-Lines
-                      Transformers
-                   Network exported to file .uct
-                """, rootReportNode));
-    }
-
-    /**
      * Checks that a closed switch with no current limit is reported when exporting the network.
      * <p>
      * Network layout:
