@@ -63,14 +63,6 @@ public final class UcteExporterReports {
                 .add();
     }
 
-    public static void ignoredYNode(ReportNode reportNode, String busId) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.ignoredYNode")
-                .withUntypedValue("busId", busId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
     public static void switchCurrentLimitMissing(ReportNode reportNode, String switchId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.switchCurrentLimitMissing")
