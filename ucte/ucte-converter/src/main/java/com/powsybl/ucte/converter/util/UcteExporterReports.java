@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, TenneT (https://www.tennet.eu/)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -20,9 +20,46 @@ public final class UcteExporterReports {
     private UcteExporterReports() {
     }
 
-    public static ReportNode exportUcteNetwork(ReportNode reportNode) {
+    public static ReportNode networkCreation(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.UcteExport")
+                .withMessageTemplate("core.ucte.export.networkCreation")
+                .add();
+    }
+
+    public static ReportNode busesAndSwitches(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.busesAndSwitches")
+                .add();
+    }
+
+    public static ReportNode boundaryLines(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.boundaryLines")
+                .add();
+    }
+
+    public static ReportNode lines(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.lines")
+                .add();
+    }
+
+    public static ReportNode tieLines(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.tieLines")
+                .add();
+    }
+
+    public static ReportNode transformers(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.transformers")
+                .add();
+    }
+
+    public static void fileWritten(ReportNode reportNode, String fileName) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.fileWritten")
+                .withUntypedValue("fileName", fileName)
                 .add();
     }
 
@@ -39,42 +76,6 @@ public final class UcteExporterReports {
                 .withMessageTemplate("core.ucte.export.ignoredBoundaryLineAtYNode")
                 .withUntypedValue("boundaryLineId", boundaryLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
-    public static void mergedPropertySide1Empty(ReportNode reportNode, String key, String side2Value) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.mergedPropertySide1Empty")
-                .withUntypedValue("key", key)
-                .withUntypedValue("side2Value", side2Value)
-                .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .add();
-    }
-
-    public static void mergedPropertySide2Empty(ReportNode reportNode, String key, String side1Value) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.mergedPropertySide2Empty")
-                .withUntypedValue("key", key)
-                .withUntypedValue("side1Value", side1Value)
-                .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .add();
-    }
-
-    public static void mergedPropertyInconsistent(ReportNode reportNode, String key, String side1Value, String side2Value) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.mergedPropertyInconsistent")
-                .withUntypedValue("key", key)
-                .withUntypedValue("side1Value", side1Value)
-                .withUntypedValue("side2Value", side2Value)
-                .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .add();
-    }
-
-    public static void transformerAtBoundaryExported(ReportNode reportNode, String transformerId) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.transformerAtBoundaryExported")
-                .withUntypedValue("transformerId", transformerId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
