@@ -9,8 +9,11 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.strategy.OperatorStrategy;
@@ -27,12 +30,38 @@ import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURC
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class OperatorStrategyResultDeserializer extends StdDeserializer<OperatorStrategyResult> {
+public class OperatorStrategyResultDeserializer extends StdDeserializer<OperatorStrategyResult> implements ContextualDeserializer {
 
     private static final String CONTEXT_NAME = "OperatorStrategyResult";
 
+    private final transient JsonDeserializer<Object> operatorStrategyDeserializer;
+    private final transient JsonDeserializer<Object> limitViolationsResultDeserializer;
+    private final transient JsonDeserializer<Object> networkResultDeserializer;
+    private final transient JsonDeserializer<Object> conditionalActionsResultDeserializer;
+
     public OperatorStrategyResultDeserializer() {
+        this(null, null, null, null);
+    }
+
+    public OperatorStrategyResultDeserializer(JsonDeserializer<Object> operatorStrategyDeserializer,
+                                              JsonDeserializer<Object> limitViolationsResultDeserializer,
+                                              JsonDeserializer<Object> networkResultDeserializer,
+                                              JsonDeserializer<Object> conditionalActionsResultDeserializer) {
         super(OperatorStrategyResult.class);
+        this.operatorStrategyDeserializer = operatorStrategyDeserializer;
+        this.limitViolationsResultDeserializer = limitViolationsResultDeserializer;
+        this.networkResultDeserializer = networkResultDeserializer;
+        this.conditionalActionsResultDeserializer = conditionalActionsResultDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new OperatorStrategyResultDeserializer(
+            JsonUtil.buildValueDeserializer(ctxt, property, OperatorStrategy.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, LimitViolationsResult.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, NetworkResult.class),
+            JsonUtil.buildListDeserializer(ctxt, property, OperatorStrategyResult.ConditionalActionsResult.class)
+        );
     }
 
     @Override
@@ -64,27 +93,26 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                         operatorStrategyVersion = "1.2";
                     }
                     JsonUtil.setSourceVersion(deserializationContext, operatorStrategyVersion, SOURCE_VERSION_ATTRIBUTE);
-                    operatorStrategy = JsonUtil.readValue(deserializationContext, parser, OperatorStrategy.class);
+                    operatorStrategy = JsonUtil.readValue(operatorStrategyDeserializer, deserializationContext, parser, OperatorStrategy.class);
                     JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE); // restore
                     break;
 
                 case "limitViolationsResult":
                     parser.nextToken();
-                    limitViolationsResult = JsonUtil.readValue(deserializationContext, parser, LimitViolationsResult.class);
+                    limitViolationsResult = JsonUtil.readValue(limitViolationsResultDeserializer, deserializationContext, parser, LimitViolationsResult.class);
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: limitViolationsResult",
                             version, "1.5");
                     break;
 
                 case "networkResult":
                     parser.nextToken();
-                    networkResult = JsonUtil.readValue(deserializationContext, parser, NetworkResult.class);
+                    networkResult = JsonUtil.readValue(networkResultDeserializer, deserializationContext, parser, NetworkResult.class);
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: networkResult",
                             version, "1.5");
                     break;
 
                 case "status":
-                    parser.nextToken();
-                    status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
+                    status = PostContingencyComputationStatus.valueOf(parser.nextTextValue());
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             version, "1.3");
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
@@ -93,7 +121,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
 
                 case "conditionalActionsResults":
                     parser.nextToken();
-                    conditionalActionsResultList = JsonUtil.readList(deserializationContext, parser, OperatorStrategyResult.ConditionalActionsResult.class);
+                    conditionalActionsResultList = JsonUtil.readList(conditionalActionsResultDeserializer, deserializationContext, parser, OperatorStrategyResult.ConditionalActionsResult.class);
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: conditionalActionsResults",
                             version, "1.6");
                     break;

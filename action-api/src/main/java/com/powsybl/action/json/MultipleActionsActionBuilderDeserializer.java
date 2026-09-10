@@ -8,8 +8,8 @@
 package com.powsybl.action.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.ActionBuilder;
 import com.powsybl.action.MultipleActionsAction;
@@ -21,10 +21,23 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<MultipleActionsActionBuilder> {
+public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<MultipleActionsActionBuilder>
+    implements ContextualDeserializer {
+
+    private final transient JsonDeserializer<Object> actionsBuilderDeserializer;
 
     public MultipleActionsActionBuilderDeserializer() {
+        this(null);
+    }
+
+    public MultipleActionsActionBuilderDeserializer(JsonDeserializer<Object> actionsBuilderDeserializer) {
         super(MultipleActionsAction.class);
+        this.actionsBuilderDeserializer = actionsBuilderDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new MultipleActionsActionBuilderDeserializer(JsonUtil.buildListDeserializer(ctxt, property, ActionBuilder.class));
     }
 
     @Override
@@ -42,7 +55,7 @@ public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<Mu
                     return true;
                 case "actions":
                     jsonParser.nextToken();
-                    builder.withActionBuilders(JsonUtil.readList(deserializationContext, jsonParser, ActionBuilder.class));
+                    builder.withActionBuilders(JsonUtil.readList(actionsBuilderDeserializer, deserializationContext, jsonParser, ActionBuilder.class));
                     return true;
                 default:
                     return false;
