@@ -229,7 +229,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         SwitchKindsBetweenBusbarSectionsTraverser switchKindsBetweenBusbarSectionsTraverser = new SwitchKindsBetweenBusbarSectionsTraverser(busbarSection);
         busbarSection.getTerminal().traverse(switchKindsBetweenBusbarSectionsTraverser);
         leftSwitchesBetweenBusbar.addAll(switchKindsBetweenBusbarSectionsTraverser.getLeftSwitchesBetweenBusbar());
-        List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser = getRightSwitchesBetweenBusbarFromTraverser(switchKindsBetweenBusbarSectionsTraverser);
+        List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser = getRightSwitchesBetweenBusbarFromTraverser(switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar());
         rightSwitchesBetweenBusbar.addAll(rightSwitchesBetweenBusbarFromTraverser);
         if (nextSectionIndex == -1) {
             // Insert the busbar section before the first section or after the last
@@ -271,14 +271,14 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         }
     }
 
-    private List<SwitchKind> getRightSwitchesBetweenBusbarFromTraverser(SwitchKindsBetweenBusbarSectionsTraverser switchKindsBetweenBusbarSectionsTraverser) {
-        List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser = new ArrayList<>(switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar());
+    private List<SwitchKind> getRightSwitchesBetweenBusbarFromTraverser(List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser) {
+        List<SwitchKind> rightSwitchesBetweenBusbar = new ArrayList<>(rightSwitchesBetweenBusbarFromTraverser);
         // The first switch kind is the existing connection to the neighboring busbar.
         // This connection is removed when inserting the new busbar, so it must not be passed to the naming strategy.
-        if (!rightSwitchesBetweenBusbarFromTraverser.isEmpty() && leftSwitchKind != null) {
-            rightSwitchesBetweenBusbarFromTraverser.removeFirst();
+        if (!rightSwitchesBetweenBusbar.isEmpty() && leftSwitchKind != null) {
+            rightSwitchesBetweenBusbar.removeFirst();
         }
-        return rightSwitchesBetweenBusbarFromTraverser;
+        return rightSwitchesBetweenBusbar;
     }
 
     private int findNextSectionIndex(VoltageLevel vl, BusbarSectionPosition referenceBusbarSectionPosition) {
