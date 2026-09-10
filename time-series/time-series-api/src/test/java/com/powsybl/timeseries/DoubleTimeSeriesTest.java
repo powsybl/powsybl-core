@@ -174,4 +174,39 @@ class DoubleTimeSeriesTest {
         }
         assertFalse(it.hasNext());
     }
+
+    @Test
+    void shouldProduceEmptySeriesWhenSplittingOverGap() {
+        // Given: Time serie with two chunks with a gap at index 3..5
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        // When
+        List<DoubleTimeSeries> timeSeriesSplitList = timeSeries.split(2);
+        // Then
+        assertEquals(4, timeSeriesSplitList.size());
+        assertArrayEquals(new double[]{1d, 2d}, timeSeriesSplitList.get(0).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{3d, NaN}, timeSeriesSplitList.get(1).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{}, timeSeriesSplitList.get(2).toCompactArray(), 0d); // gap => empty serie
+        assertArrayEquals(new double[]{7d, 8d}, timeSeriesSplitList.get(3).toCompactArray(), 0d);
+    }
+
+    @Test
+    void shouldPreserveStoredNaNValuesWhenSplitting() {
+        // Given: Time serie with a single chunk where NaN are stored explicitly (not a gap)
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}));
+        // When
+        List<DoubleTimeSeries> timeSeriesSplitList = timeSeries.split(2);
+        // Then
+        assertEquals(4, timeSeriesSplitList.size());
+        assertArrayEquals(new double[]{1d, 2d}, timeSeriesSplitList.get(0).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{3d, NaN}, timeSeriesSplitList.get(1).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{}, timeSeriesSplitList.get(2).toCompactArray(), 0d); // only NaN values => empty serie
+        assertArrayEquals(new double[]{7d, 8d}, timeSeriesSplitList.get(3).toCompactArray(), 0d);
+    }
+
 }
