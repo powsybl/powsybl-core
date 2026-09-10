@@ -203,9 +203,8 @@ Pre-contingency, post-contingency, and operator strategy results all report the 
 ### Phase Shifter Results
 
 The security analysis can report the tap position changes of phase shifters that have been moved during the
-computation. A `MovedPhaseShifterResult` record holds the transformer ID, the initial tap position before optimization
-and the new tap position after optimization. The record is validated on construction: the transformer ID must not be
-`null` and the tap position must have actually changed.
+computation. A `MovedPhaseShifterResult` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase shifter on a three-winding transformer, the initial tap position before optimization
+and the new tap position after optimization. The side is required because a three-winding transformer can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. The record is validated on construction: the transformer ID and side must not be `null`, and the tap position must have actually changed.
 
 These phase shifter results are exposed through the `phaseShifterResults` map, available both in the
 `PreContingencyResult` and in each `PostContingencyResult`. The map can be queried by transformer ID via
@@ -217,6 +216,7 @@ following fields:
 | Field            | Type    | Description                                       |
 |------------------|---------|---------------------------------------------------|
 | `transformerId`  | String  | ID of the phase shifter transformer               |
+| `side`           | String  | Side of the transformer (`ONE`, `TWO`, `THREE`)   |
 | `initialTap`     | int     | Tap position before optimization                  |
 | `newTap`         | int     | Tap position after optimization                   |
 

@@ -40,6 +40,7 @@ public final class PhaseShifterResultSerializerUtil {
                     .sorted(Comparator.comparing(MovedPhaseShifterResult::transformerId)).toList()) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("transformerId", psr.transformerId());
+                jsonGenerator.writeStringField("side", psr.side().name());
                 jsonGenerator.writeNumberField("initialTap", psr.initialTap());
                 jsonGenerator.writeNumberField("newTap", psr.newTap());
                 jsonGenerator.writeEndObject();

@@ -18,13 +18,14 @@ import java.util.Objects;
  *
  * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
  */
-public record MovedPhaseShifterResult(String transformerId, int initialTap, int newTap) {
+public record MovedPhaseShifterResult(String transformerId, ThreeSides side, int initialTap, int newTap) {
 
     /**
      * Compact constructor for validation.
      */
     public MovedPhaseShifterResult {
         Objects.requireNonNull(transformerId, "Transformer ID cannot be null");
+        Objects.requireNonNull(side, "Side cannot be null");
         if (initialTap == newTap) {
             throw new IllegalArgumentException("The tap position has not been changed (initialTap = newTap = " + initialTap + ")");
         }
