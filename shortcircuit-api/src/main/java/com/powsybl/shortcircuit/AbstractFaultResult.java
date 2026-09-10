@@ -34,8 +34,12 @@ abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> imple
 
     private final List<ShortCircuitBusResults> shortCircuitBusResults;
 
+    private final double equivalentR;
+
+    private final double equivalentX;
+
     protected AbstractFaultResult(Fault fault, Status status, double shortCircuitPower, Duration timeConstant, List<FeederResult> feederResults,
-                               List<LimitViolation> limitViolations, List<ShortCircuitBusResults> shortCircuitBusResults) {
+                               List<LimitViolation> limitViolations, List<ShortCircuitBusResults> shortCircuitBusResults, double equivalentR, double equivalentX) {
         this.fault = Objects.requireNonNull(fault);
         this.shortCircuitPower = shortCircuitPower;
         this.limitViolations = new ArrayList<>();
@@ -52,6 +56,8 @@ abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> imple
             this.feederResults.addAll(feederResults);
         }
         this.status = Objects.requireNonNull(status);
+        this.equivalentR = equivalentR;
+        this.equivalentX = equivalentX;
     }
 
     @Override
@@ -103,4 +109,13 @@ abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> imple
         return Double.NaN;
     }
 
+    @Override
+    public double getEquivalentR() {
+        return equivalentR;
+    }
+
+    @Override
+    public double getEquivalentX() {
+        return equivalentX;
+    }
 }

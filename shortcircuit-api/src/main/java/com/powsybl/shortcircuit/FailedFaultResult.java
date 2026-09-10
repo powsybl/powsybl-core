@@ -15,6 +15,6 @@ package com.powsybl.shortcircuit;
 public class FailedFaultResult extends AbstractFaultResult {
 
     public FailedFaultResult(Fault fault, Status status) {
-        super(fault, status, Double.NaN, null, null, null, null);
+        super(fault, status, Double.NaN, null, null, null, null, Double.NaN, Double.NaN);
     }
 }

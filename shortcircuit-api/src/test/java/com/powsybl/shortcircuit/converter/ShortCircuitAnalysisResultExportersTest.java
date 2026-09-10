@@ -160,6 +160,44 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
         assertEquals(List.of("BBS1"), locationBusBreaker.getBusIds());
     }
 
+    @Test
+    void readJsonFaultResultVersion16() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-version16.json"));
+        assertEquals(1, result.getFaultResults().size());
+
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(Fault.FaultType.SINGLE_PHASE, faultResult.getFault().getFaultType());
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+        assertEquals(1.0, faultResult.getEquivalentR(), 0);
+        assertEquals(2.0, faultResult.getEquivalentX(), 0);
+
+        LimitViolation violation = faultResult.getLimitViolations().getFirst();
+        assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
+        assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
+
+        ViolationLocation location = violation.getViolationLocation().orElseThrow();
+        assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
+        BusBreakerViolationLocation locationBusBreaker = (BusBreakerViolationLocation) location;
+        assertEquals(List.of("BBS1"), locationBusBreaker.getBusIds());
+    }
+
+    @Test
+    void readJsonFortescueFaultResultWithEquivalentImpedance() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-fortescue-results-with-equivalent-impedance.json"));
+        assertEquals(1, result.getFaultResults().size());
+
+        FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id");
+        assertEquals(2.0, faultResult.getEquivalentR(), 0);
+        assertEquals(4.0, faultResult.getEquivalentX(), 0);
+        assertEquals(3.0, faultResult.getEquivalentRZero(), 0);
+        assertEquals(5.0, faultResult.getEquivalentXZero(), 0);
+    }
+
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisResultExporters.export(result, path, "CSV", network);
