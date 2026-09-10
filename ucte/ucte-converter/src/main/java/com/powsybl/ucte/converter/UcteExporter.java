@@ -56,6 +56,8 @@ public class UcteExporter implements Exporter {
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
 
+    public static final int NOMINAL_POWER_NOVALUE = 99999;
+
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public UcteExporter() {
@@ -673,8 +675,13 @@ public class UcteExporter implements Exporter {
         try {
             nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer);
         } catch (IllegalStateException e) {
-            UcteExporterReports.nominalPowerMissing(context.getReportNode(), twoWindingsTransformer.getId());
-            throw new PowsyblException("Transformer " + twoWindingsTransformer.getId() + ": no nominal power");
+            nominalPower = NOMINAL_POWER_NOVALUE;
+            LOGGER.warn("Transformer {}: No nominal power provided. Defaulting to {}",
+                    twoWindingsTransformer.getId(),
+                    NOMINAL_POWER_NOVALUE);
+            UcteExporterReports.nominalPowerMissing(context.getReportNode(),
+                    twoWindingsTransformer.getId(),
+                    NOMINAL_POWER_NOVALUE);
         }
 
         UcteTransformer ucteTransformer = new UcteTransformer(
