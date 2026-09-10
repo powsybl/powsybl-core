@@ -10,6 +10,10 @@ package com.powsybl.ucte.converter.util;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 /**
  * Message-templated {@link ReportNode} entries reported by {@link com.powsybl.ucte.converter.UcteExporter}.
  *
@@ -69,5 +73,30 @@ public final class UcteExporterReports {
                 .withUntypedValue("switchId", switchId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
+    }
+
+    public static void nominalPowerMissing(ReportNode reportNode, String transformerId, double nominalPowerNovalue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.nominalPowerMissing")
+                .withUntypedValue("transformerId", transformerId)
+                // nominal power is exported in a 5 chars column
+                .withUntypedValue("nominalPowerNovalue", formatAsExported(nominalPowerNovalue, 5))
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    /**
+     * Formats a double value the same way {@link com.powsybl.ucte.network.io.UcteWriter} exports it: as a decimal
+     * string truncated to {@code fieldLength} characters.
+     */
+    private static String formatAsExported(double value, int fieldLength) {
+        DecimalFormat numberFormatter = new DecimalFormat();
+        numberFormatter.setGroupingUsed(false);
+        numberFormatter.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+        numberFormatter.setMinimumIntegerDigits(1);
+        numberFormatter.setMinimumFractionDigits(1);
+        numberFormatter.setMaximumFractionDigits(fieldLength);
+        String formatted = numberFormatter.format(value);
+        return formatted.length() > fieldLength ? formatted.substring(0, fieldLength) : formatted;
     }
 }
