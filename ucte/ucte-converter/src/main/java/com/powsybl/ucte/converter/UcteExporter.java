@@ -364,8 +364,8 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
-        String geographicalName = mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY, context);
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), STATUS_PROPERTY_KEY + "_XNode", context));
+        String geographicalName = mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
@@ -534,7 +534,7 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine);
     }
 
-    private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key, UcteExporterContext context) {
+    private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key) {
         String value;
         String value1 = identifiable1.getProperty(key, "");
         String value2 = identifiable2.getProperty(key, "");
@@ -543,11 +543,9 @@ public class UcteExporter implements Exporter {
         } else if (value1.isEmpty()) {
             value = value2;
             LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", key, value2);
-            UcteExporterReports.mergedPropertySide1Empty(context.getReportNode(), key, value2);
         } else if (value2.isEmpty()) {
             value = value1;
             LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", key, value1);
-            UcteExporterReports.mergedPropertySide2Empty(context.getReportNode(), key, value1);
         } else {
             // Inconsistent values, declare the result value empty
             value = "";
@@ -555,7 +553,6 @@ public class UcteExporter implements Exporter {
                     key,
                     value1,
                     value2);
-            UcteExporterReports.mergedPropertyInconsistent(context.getReportNode(), key, value1, value2);
         }
         return value;
     }
@@ -665,7 +662,6 @@ public class UcteExporter implements Exporter {
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         if (isTransformerYNode(twoWindingsTransformer)) {
             LOGGER.info("Transformer at boundary is exported {}", twoWindingsTransformer.getId());
-            UcteExporterReports.transformerAtBoundaryExported(context.getReportNode(), twoWindingsTransformer.getId());
             // The transformer element id contains references to the original UCTE nodes
             // (Inner node inside network and boundary XNode)
             // We can export it as a regular transformer
