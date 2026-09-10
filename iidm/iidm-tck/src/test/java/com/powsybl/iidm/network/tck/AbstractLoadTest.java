@@ -45,6 +45,7 @@ public abstract class AbstractLoadTest {
         assertEquals(0.0, load.getQ0(), 0.0);
         load.setLoadType(LoadType.AUXILIARY);
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
+        assertFalse(load.isEquivalent());
     }
 
     @Test
@@ -127,11 +128,13 @@ public abstract class AbstractLoadTest {
                         .setQ0(1.0)
                         .setLoadType(LoadType.AUXILIARY)
                         .setNode(1)
+                        .setEquivalent(true)
                     .add();
         assertEquals(2.0, load.getP0(), 0.0);
         assertEquals(1.0, load.getQ0(), 0.0);
         assertEquals("testAdder", load.getId());
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
+        assertTrue(load.isEquivalent());
     }
 
     @Test

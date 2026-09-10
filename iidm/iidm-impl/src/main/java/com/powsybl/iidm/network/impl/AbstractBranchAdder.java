@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.ValidationException;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends AbstractConnectableAdder<T> {
 
     private Integer node1;
 

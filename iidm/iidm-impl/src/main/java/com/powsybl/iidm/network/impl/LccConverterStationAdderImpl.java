@@ -41,7 +41,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         LccConverterStationImpl converterStation
-                = new LccConverterStationImpl(getNetworkRef(), id, name, isFictitious(), getLossFactor(), powerFactor);
+                = new LccConverterStationImpl(getNetworkRef(), id, name, isFictitious(), isEquivalent(), getLossFactor(), powerFactor);
         converterStation.addTerminal(terminal);
         getVoltageLevel().getTopologyModel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);

@@ -86,6 +86,7 @@ public abstract class AbstractLineTest {
                 .setBus2("busB")
                 .setConnectableBus1("busA")
                 .setConnectableBus2("busB")
+                .setEquivalent(true)
                 .add();
         assertEquals("line", acLine.getId());
         assertEquals(LINE_NAME, acLine.getOptionalName().orElse(null));
@@ -113,6 +114,7 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal(TwoSides.TWO).getBusBreakerView().getConnectableBus());
         assertNull(acLine.getTerminal1().getTerminalNumber());
         assertNull(acLine.getTerminal2().getTerminalNumber());
+        assertTrue(acLine.isEquivalent());
 
         assertEquals(IdentifiableType.LINE, acLine.getType());
 
@@ -201,6 +203,7 @@ public abstract class AbstractLineTest {
 
         assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
         assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
+        assertFalse(acLine.isEquivalent());
     }
 
     @Test

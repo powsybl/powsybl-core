@@ -63,6 +63,13 @@
         <xs:attribute name="name" use="optional" type="xs:string"/>
         <xs:attribute name="fictitious" use="optional" type="xs:boolean" default="false"/>
     </xs:complexType>
+    <xs:complexType name="Connectable">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="equivalent" use="optional" type="xs:boolean"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="Alias">
         <xs:simpleContent>
             <xs:extension base="iidm:nonEmptyString">
@@ -153,7 +160,7 @@
     </xs:complexType>
     <xs:complexType name="BusbarSection">
         <xs:complexContent>
-            <xs:extension base="iidm:Identifiable">
+            <xs:extension base="iidm:Connectable">
                 <xs:attribute name="node" use="required" type="xs:int"/>
             </xs:extension>
         </xs:complexContent>
@@ -240,7 +247,7 @@
     </xs:simpleType>
     <xs:complexType name="Injection">
         <xs:complexContent>
-            <xs:extension base="iidm:Identifiable">
+            <xs:extension base="iidm:Connectable">
                 <xs:attribute name="node" use="optional" type="xs:int"/>
                 <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
@@ -447,7 +454,7 @@
     </xs:complexType>
     <xs:complexType name="Branch">
         <xs:complexContent>
-            <xs:extension base="iidm:Identifiable">
+            <xs:extension base="iidm:Connectable">
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
@@ -486,7 +493,7 @@
     </xs:complexType>
     <xs:complexType name="ThreeWindingsTransformer">
         <xs:complexContent>
-            <xs:extension base="iidm:Identifiable">
+            <xs:extension base="iidm:Connectable">
                 <xs:sequence>
                     <xs:element name="ratioTapChanger1" type="iidm:RatioTapChanger" minOccurs="0"/>
                     <xs:element name="phaseTapChanger1" type="iidm:PhaseTapChanger" minOccurs="0"/>
@@ -574,7 +581,7 @@
     </xs:complexType>
     <xs:complexType name="AcDcConverter">
         <xs:complexContent>
-            <xs:extension base="iidm:Identifiable">
+            <xs:extension base="iidm:Connectable">
                 <xs:sequence>
                     <xs:element name="pccTerminal" type="iidm:TerminalRef"/>
                     <xs:element name="droopCurve" minOccurs="0" maxOccurs="1" type="iidm:DroopCurve"/>
@@ -768,7 +775,7 @@
     </xs:complexType>
     <xs:complexType name="TieLine">
         <xs:complexContent>
-            <xs:extension base="iidm:Identifiable">
+            <xs:extension base="iidm:Connectable">
                 <xs:attribute name="boundaryLineId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="boundaryLineId2" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
@@ -813,7 +820,7 @@
     </xs:complexType>
     <xs:complexType name="HvdcLine">
         <xs:complexContent>
-            <xs:extension base="iidm:Identifiable">
+            <xs:extension base="iidm:Connectable">
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
                 <xs:attribute name="activePowerSetpoint" use="required" type="xs:double"/>

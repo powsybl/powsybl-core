@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface AcDcConverterAdder<T extends AcDcConverter<T> & Connectable<T> & DcConnectable<T>, A extends AcDcConverterAdder> extends IdentifiableAdder<T, A> {
+public interface AcDcConverterAdder<T extends AcDcConverter<T> & Connectable<T> & DcConnectable<T>, A extends AcDcConverterAdder> extends ConnectableAdder<T, A> {
 
     A setNode1(int node1);
 
