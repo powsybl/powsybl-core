@@ -9,6 +9,8 @@ package com.powsybl.config.classic;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.FileSystem;
@@ -16,8 +18,13 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.ServiceLoader;
 
 /**
  * The classic powsybl PlatformConfig provider. It uses System Properties to
@@ -33,6 +40,8 @@ import java.util.Objects;
  */
 @AutoService(PlatformConfigProvider.class)
 public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassicPlatformConfigProvider.class);
 
     private static final String NAME = "classic";
 
@@ -68,6 +77,9 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
      * take precedence over the values defined in subsequent directories.
      * Configuration properties encountered in environment variables take precedence
      * over the values defined in config directories.
+     * Default configurations bundled in jars (discovered through {@link DefaultConfigProvider})
+     * form the lowest-precedence layer: they are overridden by any value defined in the config
+     * directories or in environment variables.
      */
     static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName) {
         List<ModuleConfigRepository> repositoriesFromPath = Arrays.stream(configDirs)
@@ -76,7 +88,62 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
         List<ModuleConfigRepository> repositories = new ArrayList<>();
         repositories.add(new EnvironmentModuleConfigRepository(System.getenv(), FileSystems.getDefault()));
         repositories.addAll(repositoriesFromPath);
+        loadBundledDefaultConfigRepository().ifPresent(repositories::add);
         return new StackedModuleConfigRepository(repositories);
+    }
+
+    /**
+     * Discovers all {@link DefaultConfigProvider} implementations on the classpath and, if any,
+     * builds a single repository from the default {@code config.yml} bundled in their jars.
+     */
+    static Optional<ModuleConfigRepository> loadBundledDefaultConfigRepository() {
+        ClassLoader classLoader = ClassicPlatformConfigProvider.class.getClassLoader();
+        List<DefaultConfigProvider> providers = ServiceLoader.load(DefaultConfigProvider.class, classLoader)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+        if (providers.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(buildBundledDefaultConfigRepository(providers, classLoader, FileSystems.getDefault()));
+    }
+
+    /**
+     * Builds the bundled default configuration repository from the given providers. Providers are
+     * ordered by descending priority (ties broken by name); when several providers define the same
+     * property of the same module, the highest-priority one wins and an overlap is logged at WARN.
+     */
+    static ModuleConfigRepository buildBundledDefaultConfigRepository(List<DefaultConfigProvider> providers,
+                                                                      ClassLoader classLoader, FileSystem fileSystem) {
+        List<DefaultConfigProvider> sortedProviders = providers.stream()
+                .sorted(Comparator.comparingInt(DefaultConfigProvider::getPriority).reversed()
+                        .thenComparing(DefaultConfigProvider::getName))
+                .toList();
+        List<ModuleConfigRepository> repositories = new ArrayList<>();
+        Map<String, String> ownerByProperty = new HashMap<>();
+        for (DefaultConfigProvider provider : sortedProviders) {
+            ClasspathModuleConfigRepository repository =
+                    new ClasspathModuleConfigRepository(provider.getResourceName(), classLoader, fileSystem);
+            warnOnOverlappingDefaults(provider, repository, ownerByProperty);
+            repositories.add(repository);
+        }
+        return new StackedModuleConfigRepository(repositories);
+    }
+
+    private static void warnOnOverlappingDefaults(DefaultConfigProvider provider, ClasspathModuleConfigRepository repository,
+                                                  Map<String, String> ownerByProperty) {
+        for (String moduleName : repository.getModuleNames()) {
+            repository.getModuleConfig(moduleName).ifPresent(moduleConfig -> {
+                for (String propertyName : moduleConfig.getPropertyNames()) {
+                    String key = moduleName + "." + propertyName;
+                    String winningProvider = ownerByProperty.putIfAbsent(key, provider.getName());
+                    if (winningProvider != null) {
+                        LOGGER.warn("Bundled default configuration property '{}' is defined by both provider '{}' and '{}'; "
+                                + "'{}' takes precedence (higher priority)", key, winningProvider, provider.getName(), winningProvider);
+                    }
+                }
+            });
+        }
     }
 
     @Override
