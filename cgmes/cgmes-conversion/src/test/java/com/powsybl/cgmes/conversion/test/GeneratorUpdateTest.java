@@ -113,7 +113,7 @@ class GeneratorUpdateTest {
 
     private static void assertSecondSsh(Network network) {
         assertSsh(network.getGenerator("SynchronousMachine"), 165.0, -5.0, 410.0, RegulationMode.VOLTAGE, 0.9, 1);
-        assertSsh(network.getGenerator("ExternalNetworkInjection"), -10.0, -5.0, Double.NaN, null, 0.0, 0);
+        assertSsh(network.getGenerator("ExternalNetworkInjection"), -10.0, -5.0, Double.NaN, null, 0.0, 2);
         assertSsh(network.getGenerator("EquivalentInjection"), -174.0, -5.0, Double.NaN, RegulationMode.REACTIVE_POWER, 0.0, 0);
     }
 

@@ -561,6 +561,11 @@ $$
 | $G2$      | S        | The second side shunt conductance |
 | $B2$      | S        | The second side shunt susceptance |
 
+**Specifications**
+
+Since this can be used for an equivalent model (such as a network equivalent), calculations can lead to the resistance being negative.
+Therefore, a negative value is allowed for $R$.
+
 **Metadata**
 
 - Lines can have [loading limits](./additional.md#loading-limits).
@@ -666,6 +671,8 @@ $$
 
 - A [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer) can be associated with a two-winding power transformer.
 - For a two-winding transformer, the normal apparent power shall be identical at both sides 1 and 2.
+- Since this can be used for an equivalent model (such as a network equivalent), calculations can lead to the resistance being negative.
+Therefore, a negative value is allowed for $R_{nom}$.
 
 **Available extensions**
 
@@ -781,12 +788,12 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 
 **Characteristics**
 
-| Attribute             | Unit     | Description                     |
-|-----------------------|----------|---------------------------------|
-| $R$                   | $\Omega$ | The resistance of the HVDC line |
-| $NominalV$            | kV       | The nominal voltage             |
-| $ActivePowerSetpoint$ | MW       | The active power setpoint       |
-| $MaxP$                | MW       | The maximum active power        |
+| Attribute             | Unit     | Description                                      |
+|-----------------------|----------|--------------------------------------------------|
+| $R$                   | $\Omega$ | The resistance of the HVDC line, always positive |
+| $NominalV$            | kV       | The nominal voltage                              |
+| $ActivePowerSetpoint$ | MW       | The active power setpoint                        |
+| $MaxP$                | MW       | The maximum active power                         |
 
 **Specifications**
 
@@ -797,6 +804,7 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
   The flow sign is thus given by the type of the converter station: the power always flows from the rectifier converter station to the inverter converter station.
   At a terminal on the AC side, `P` and `Q` follow the passive sign convention. `P` is positive on the rectifier side. `P` is negative at the inverter side.
 - The active power setpoint and the maximum active power should always be positive values.
+- Same as the [DC Line of the detailed DC model](#dc-line), a negative value is forbidden for $R$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -937,6 +945,10 @@ A DC Line has two DC Terminals.
 | Attribute | Unit     | Description                            |
 |-----------|----------|----------------------------------------|
 | $R$       | $\Omega$ | The series resistance, always positive |
+
+**Specifications**
+
+The $R$ value can't be negative, because this is a detailed model, it is a direct physical representation, not an equivalent model.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
