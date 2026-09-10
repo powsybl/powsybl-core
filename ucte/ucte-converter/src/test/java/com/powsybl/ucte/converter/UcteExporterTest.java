@@ -296,15 +296,17 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testExportFailsWhenNoNominalPowerIsProvided() {
+    void testNominalPowerDefaultedWhenNotProvided() {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1");
         transformer.setRatedS(Double.NaN);
 
         MemDataSource dataSource = new MemDataSource();
-        UcteExporter exporter = new UcteExporter();
-        Properties parameters = new Properties();
-        assertThrows(PowsyblException.class, () -> exporter.export(network, parameters, dataSource));
+        new UcteExporter().export(network, new Properties(), dataSource);
+        Network reimported = reimport(dataSource);
+
+        assertEquals(UcteExporter.NOMINAL_POWER_NOVALUE,
+                reimported.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS());
     }
 
     @Test
