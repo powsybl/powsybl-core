@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.util.Collections;
@@ -34,7 +35,8 @@ public abstract class AbstractContingencyResult {
         this.distributedActivePower = distributedActivePower;
         this.phaseShifterResults = phaseShifterResults != null && !phaseShifterResults.isEmpty()
                 ? Collections.unmodifiableMap(phaseShifterResults.stream()
-                        .collect(Collectors.toMap(MovedPhaseShifterResult::transformerId, Function.identity())))
+                        .collect(Collectors.toMap(psr -> psr.transformerId() + "_" + (psr.side() != null ? psr.side().name() : ""),
+                        Function.identity())))
                 : Collections.emptyMap();
     }
 
@@ -56,5 +58,9 @@ public abstract class AbstractContingencyResult {
 
     public MovedPhaseShifterResult getPhaseShifterResult(String transformerId) {
         return phaseShifterResults.get(transformerId);
+    }
+
+    public MovedPhaseShifterResult getPhaseShifterResult(String transformerId, ThreeSides side) {
+        return phaseShifterResults.get(transformerId + "_" + (side != null ? side.name() : ""));
     }
 }

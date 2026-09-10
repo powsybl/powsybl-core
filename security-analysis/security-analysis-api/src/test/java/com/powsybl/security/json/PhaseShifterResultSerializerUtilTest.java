@@ -53,7 +53,6 @@ class PhaseShifterResultSerializerUtilTest {
     void testRecordValidation() {
         assertNotNull(new MovedPhaseShifterResult("T1", ThreeSides.ONE, 2, 4).transformerId());
         assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult(null, ThreeSides.ONE, 0, 1));
-        assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult("T1", null, 0, 1));
     }
 
     @Test
@@ -68,6 +67,7 @@ class PhaseShifterResultSerializerUtilTest {
 
         String result = writer.toString();
         assertTrue(result.contains("\"transformerId\":\"T1\""));
+        assertTrue(result.contains("\"side\":\"THREE\""));
         assertTrue(result.contains("\"initialTap\":0"));
         assertTrue(result.contains("\"newTap\":2"));
     }

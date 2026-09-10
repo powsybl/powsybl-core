@@ -204,11 +204,10 @@ Pre-contingency, post-contingency, and operator strategy results all report the 
 
 The security analysis can report the tap position changes of phase shifters that have been moved during the
 computation. A `MovedPhaseShifterResult` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase shifter on a three-winding transformer, the initial tap position before optimization
-and the new tap position after optimization. The side is required because a three-winding transformer can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. The record is validated on construction: the transformer ID and side must not be `null`, and the tap position must have actually changed.
+and the new tap position after optimization. The side is required for three-winding transformers because they can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. For two-winding transformers the side is omitted (`null`). The record is validated on construction: the transformer ID must not be `null`, and the tap position must have actually changed.
 
 These phase shifter results are exposed through the `phaseShifterResults` map, available both in the
-`PreContingencyResult` and in each `PostContingencyResult`. The map can be queried by transformer ID via
-`getPhaseShifterResult(transformerId)`.
+`PreContingencyResult` and in each `PostContingencyResult`. The map key is compound (`transformerId + "_" + side` for 3-winding; just `transformerId` for 2-winding). It can be queried by `getPhaseShifterResult(transformerId)` for two-winding transformers, or `getPhaseShifterResult(transformerId, side)` for three-winding transformers.
 
 When serialized to JSON, the phase shifter results are written as a `phaseShifterResults` array of objects with the
 following fields:
@@ -216,7 +215,7 @@ following fields:
 | Field            | Type    | Description                                       |
 |------------------|---------|---------------------------------------------------|
 | `transformerId`  | String  | ID of the phase shifter transformer               |
-| `side`           | String  | Side of the transformer (`ONE`, `TWO`, `THREE`)   |
+| `side`           | String  | Optional side of a three-winding transformer (`ONE`, `TWO`, `THREE`); omitted for two-winding transformers |
 | `initialTap`     | int     | Tap position before optimization                  |
 | `newTap`         | int     | Tap position after optimization                   |
 
