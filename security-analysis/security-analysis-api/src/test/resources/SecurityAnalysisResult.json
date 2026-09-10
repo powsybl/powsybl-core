@@ -66,6 +66,7 @@
     "distributedActivePower" : 1.23,
     "phaseShifterResults" : [ {
       "transformerId" : "T1",
+      "side" : "ONE",
       "initialTap" : 2,
       "newTap" : 4
     } ]

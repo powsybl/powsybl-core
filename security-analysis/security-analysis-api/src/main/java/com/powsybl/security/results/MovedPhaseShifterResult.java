@@ -7,6 +7,8 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.iidm.network.ThreeSides;
+
 import java.util.Objects;
 
 /**

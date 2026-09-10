@@ -9,6 +9,7 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.results.MovedPhaseShifterResult;
 import org.junit.jupiter.api.Test;
 
@@ -26,8 +27,8 @@ class PhaseShifterResultSerializerUtilTest {
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
         PhaseShifterResultSerializerUtil.write(Map.of(
-            "B", new MovedPhaseShifterResult("B", 1, 2),
-            "A", new MovedPhaseShifterResult("A", 3, 4)), generator);
+            "B", new MovedPhaseShifterResult("B", ThreeSides.TWO, 1, 2),
+            "A", new MovedPhaseShifterResult("A", ThreeSides.ONE, 3, 4)), generator);
         generator.writeEndObject();
         generator.close();
 
@@ -50,8 +51,9 @@ class PhaseShifterResultSerializerUtilTest {
 
     @Test
     void testRecordValidation() {
-        assertNotNull(new MovedPhaseShifterResult("T1", 2, 4).transformerId());
-        assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult(null, 0, 1));
+        assertNotNull(new MovedPhaseShifterResult("T1", ThreeSides.ONE, 2, 4).transformerId());
+        assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult(null, ThreeSides.ONE, 0, 1));
+        assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult("T1", null, 0, 1));
     }
 
     @Test
@@ -60,7 +62,7 @@ class PhaseShifterResultSerializerUtilTest {
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
         PhaseShifterResultSerializerUtil.write(
-                Map.of("T1", new MovedPhaseShifterResult("T1", 0, 2)), generator);
+                Map.of("T1", new MovedPhaseShifterResult("T1", ThreeSides.THREE, 0, 2)), generator);
         generator.writeEndObject();
         generator.close();
 
