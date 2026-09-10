@@ -514,7 +514,6 @@ public class UcteExporter implements Exporter {
         // The corresponding transformer will be connected to the XNode
         if (isBoundaryLineYNode(boundaryLine)) {
             LOGGER.warn("Ignoring BoundaryLine at YNode in the export {}", boundaryLine.getId());
-            UcteExporterReports.ignoredBoundaryLineAtYNode(context.getReportNode(), boundaryLine.getId());
             return;
         }
 

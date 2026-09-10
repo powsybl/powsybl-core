@@ -71,14 +71,6 @@ public final class UcteExporterReports {
                 .add();
     }
 
-    public static void ignoredBoundaryLineAtYNode(ReportNode reportNode, String boundaryLineId) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.ignoredBoundaryLineAtYNode")
-                .withUntypedValue("boundaryLineId", boundaryLineId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
     public static void switchCurrentLimitMissing(ReportNode reportNode, String switchId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.switchCurrentLimitMissing")
