@@ -502,8 +502,8 @@ Static VAR compensators follow a passive-sign convention:
 
   where $V$ is the voltage of the bus that connects the static VAR compensator to the network. Even if the regulating terminal is remote, only the local voltage has to be considered to retrieve the minimum and the maximum amount of reactive power. Reactive limits can be handled in an approximate way using the nominal voltage of the connected bus.
 - The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
-- The `LocalTargetQ` is required when the regulation mode is set to `REACTIVE_POWER`, `VoltageRegulation.Terminal` is not set and the regulation si enabled (`regulating` = true).
-- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the Static VAR Compensator is considered as not able to regulate voltage.
+- The `LocalTargetQ` is required when the regulation mode is set to `REACTIVE_POWER`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+- [Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given, the Static VAR Compensator is considered as not able to regulate voltage.
 
 **Available extensions**
 

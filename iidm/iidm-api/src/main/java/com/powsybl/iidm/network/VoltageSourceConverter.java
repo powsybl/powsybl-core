@@ -142,7 +142,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
     /**
      * Check if voltage regulator is on.
      * @return true if voltage regulator is on, false otherwise
-     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
+     * @deprecated use {@link #isRegulating()} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     boolean isVoltageRegulatorOn();

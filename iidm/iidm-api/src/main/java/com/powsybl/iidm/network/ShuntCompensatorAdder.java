@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
@@ -40,7 +39,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount);
 
     /**
-     * @deprecated use {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
@@ -48,7 +47,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     }
 
     /**
-     * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withRegulating(boolean)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
@@ -56,7 +55,8 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     }
 
     /**
-     * @deprecated use {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetV(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setTargetV(double targetV) {
@@ -64,7 +64,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     }
 
     /**
-     * @deprecated use {@link VoltageRegulationAdder#withTargetDeadband(double)} instead
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetDeadband(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {

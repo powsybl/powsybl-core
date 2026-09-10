@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
@@ -19,25 +20,27 @@ public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscC
         VoltageRegulationHolderAdder<VscConverterStationAdder> {
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withRegulating(boolean)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetV(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     VscConverterStationAdder setVoltageSetpoint(double voltageSetpoint);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetQ(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {

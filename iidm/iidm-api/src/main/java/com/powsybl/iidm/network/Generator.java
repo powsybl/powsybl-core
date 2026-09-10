@@ -180,7 +180,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
@@ -196,7 +196,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * @deprecated use {@link #getLocalTargetV()} instead.
+     * @deprecated use {@link #getRegulatingTargetV()} instead.
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     double getTargetV();
@@ -211,7 +211,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p/>
      * <p>Depends on the working variant.</p>
      * @see VariantManager
-     * @deprecated use {@link #setLocalTargetV(double)} instead.
+     * @deprecated use {@link #setLocalTargetV(double)} or {@link VoltageRegulation#setTargetValue(double)} instead.
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setTargetV(double targetV);

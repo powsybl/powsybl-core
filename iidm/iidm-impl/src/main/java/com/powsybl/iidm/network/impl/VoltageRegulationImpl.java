@@ -424,7 +424,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                 LOGGER.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", oldRegulatingTerminal.getConnectable().getId(),
                     regulatedEquipmentId, regulatedEquipmentId);
                 updateTerminal(localTerminal);
-                // TODO MSA update the targetValue? for each variants?
                 return;
             }
         }
@@ -432,7 +431,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         regulating.fill(0, regulating.size(), false);
         targetValue.fill(0, targetValue.size(), Double.NaN);
         regulationMode.fill(0, regulationMode.size(), VOLTAGE.getIndex());
-        // TODO MSA add a default localTargetQ if missing in a variant?
+        // TODO add a default localTargetQ if missing in a variant?
         LOGGER.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
     }
 

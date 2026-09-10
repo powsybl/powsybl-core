@@ -277,7 +277,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
+     * @deprecated use {@link #isRegulating()} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     boolean isVoltageRegulatorOn();
@@ -299,7 +299,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * @deprecated use {@link #getLocalTargetV()} instead
+     * @deprecated use {@link #getRegulatingTargetV()} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetV() {
@@ -311,7 +311,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * @deprecated use {@link #setLocalTargetV(double)} instead
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetV(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setTargetV(double targetV) {

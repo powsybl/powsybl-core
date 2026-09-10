@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
@@ -36,13 +37,13 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
     GeneratorAdder setMinP(double minP);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #newVoltageRegulation()} and {@link VoltageRegulationBuilder#withRegulating(boolean)}
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #newVoltageRegulation()} and {@link VoltageRegulationBuilder#withTerminal(Terminal)}
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal);
@@ -50,19 +51,21 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
     GeneratorAdder setTargetP(double targetP);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #setLocalTargetQ(double)}
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     GeneratorAdder setTargetQ(double targetQ);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #newVoltageRegulation()} and {@link VoltageRegulationBuilder#withTargetValue(double)}
+     * or {@link #setLocalTargetV(double)}
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     GeneratorAdder setTargetV(double targetV);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #newVoltageRegulation()} and {@link VoltageRegulationBuilder#withTargetValue(double)} for `targetV`
+     * and {@link #setLocalTargetV(double)} for `equivalentLocalTargetV`
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV);

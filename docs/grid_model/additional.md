@@ -407,14 +407,12 @@ A ratio tap changer is described by a set of tap positions (or steps) within whi
 - the solved position index of the tap that represents the index after a calculation
 - whether the ratio tap changer can change tap positions onload or only offload
 
-// TODO MSA update this section with the new VoltageRegulation object
-If the ratio tap changer can change tap positions onload, regulation is specified as follows:
-- whether the tap changer is regulating or not
+If the ratio tap changer can change tap positions onload, regulation is specified by:
 - if the tap changer is regulating, `loadTapChangingCapabilities` must be set to `true`
-- the regulation mode, which can be `VOLTAGE` or `REACTIVE_POWER`: the tap changer either regulates the voltage or the reactive power
-- the regulation value (either a voltage value in `kV` or a reactive power value in `MVar`)
-- the regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
-- the target deadband, which defines a margin on the regulation so as to avoid an excessive update of controls
+- the regulation mode, for more information see [Voltage Regulation - Characteristics - Mode](#voltage-regulation)
+- the regulation value, for more information see [Voltage Regulation - Characteristics - TargetValue](#voltage-regulation)
+- the regulating terminal, for more information see [Voltage Regulation - Characteristics - Terminal](#voltage-regulation)
+- the target deadband, for more information see [Voltage Regulation - Characteristics - TargetDeadBand](#voltage-regulation)
 
 
 Each step of a ratio tap changer has the following attributes:
@@ -435,10 +433,12 @@ twoWindingsTransformer.newRatioTapChanger()
     .setLowTapPosition(-1)
     .setTapPosition(0)
     .setLoadTapChangingCapabilities(true)
-    .setRegulating(true)
-    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-    .setRegulationValue(25)
-    .setRegulationTerminal(twoWindingsTransformer.getTerminal1())
+    .newVoltageRegulation()
+        .withRegulating(true)
+        .withMode(RegulationMode.VOLTAGE)
+        .withTargetValue(25)
+        .withTerminal(twoWindingsTransformer.getTerminal1())
+        .add()
     .beginStep()
         .setRho(0.95)
         .setR(1.)
@@ -498,7 +498,12 @@ Here the list of objects capable of such regulation by authorized mode:
 
 **Specifications**
 
-TODO MSA add information when the voltageRegulation is absent
+The voltageRegulation is optional. If it is missing, the equipment is not regulating.  
+If the voltageRegulation is absent, the localTargetQ must be set so that localTargetQ is mandatory for the following equipment to compute their reactive power injection:
+ - [Battery](./network_subnetwork.md#battery)
+ - [Generator](./network_subnetwork.md#generator)
+ - [VscConverterStation](./network_subnetwork.md#vsc-converter-station)
+ - [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter)
 
 The values `Regulating` and `Mode` are always required. `TargetValue` is required when the `Terminal` is set.
 

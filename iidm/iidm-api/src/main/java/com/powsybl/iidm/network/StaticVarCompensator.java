@@ -143,7 +143,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>Depends on the working variant.</p>
      * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetV(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
@@ -164,7 +164,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>Depends on the working variant.</p>
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetQ(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
@@ -183,7 +183,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>Depends on the working variant.</p>
      * @param regulationMode the regulating mode
      * @return this to allow method chaining
-     * @deprecated use {@link #newVoltageRegulation()} with {@link com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder#withMode(RegulationMode)} instead
+     * @deprecated use {@link VoltageRegulation#setMode(RegulationMode)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);

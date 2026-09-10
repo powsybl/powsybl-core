@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
@@ -21,31 +22,33 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
     StaticVarCompensatorAdder setBmax(double bMax);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetV(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetQ(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} with {@link com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder#withMode(RegulationMode)} instead
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withRegulating(boolean)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensatorAdder setRegulating(boolean regulating);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
      */
     @Deprecated(forRemoval = true, since = "7.4.0")
     default StaticVarCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
