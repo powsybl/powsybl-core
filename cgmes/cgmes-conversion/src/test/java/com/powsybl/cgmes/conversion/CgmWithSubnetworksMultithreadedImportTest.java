@@ -5,25 +5,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.conversion.test;
+package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
-import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -167,6 +173,82 @@ class CgmWithSubnetworksMultithreadedImportTest {
         assertEquals(EXPECTED_REPORT, print(sequentialReport));
         assertEquals(EXPECTED_REPORT, print(parallelReport));
         assertEquals(EXPECTED_REPORT, print(overSubscribedReport));
+    }
+
+    @Test
+    void callingThreadInterruptedDuringParallelImportThrowsPowsyblException() {
+        ReadOnlyDataSource ds = CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource();
+        Thread.currentThread().interrupt();
+        try {
+            PowsyblException e = assertThrows(PowsyblException.class, () -> importWithThreadCount(ds, 2, ReportNode.NO_OP));
+            assertEquals("Interrupted while importing CGMES subnetworks", e.getMessage());
+        } finally {
+            assertTrue(Thread.interrupted(), "interrupt status should still be set");
+        }
+    }
+
+    @Test
+    void callingThreadInterruptedDuringSequentialImportThrowsPowsyblException() {
+        ReadOnlyDataSource ds = CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource();
+        Thread.currentThread().interrupt();
+        try {
+            assertThrows(PowsyblException.class, () -> importWithThreadCount(ds, 1, ReportNode.NO_OP));
+        } finally {
+            assertTrue(Thread.interrupted(), "interrupt status should still be set");
+        }
+    }
+
+    @Test
+    void oneSubnetworkImportFailureThrowsPowsyblException() {
+        ReadOnlyDataSource validSubnetworkDs = CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource();
+        Set<ReadOnlyDataSource> dss = Set.of(new BrokenReadOnlyDataSource(), validSubnetworkDs);
+        CgmesImport cgmesImport = new CgmesImport();
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        Properties importParams = new Properties();
+        PowsyblException e = assertThrows(PowsyblException.class,
+                () -> cgmesImport.importSubnetworks(dss, networkFactory, importParams, ReportNode.NO_OP, 2));
+        assertEquals("Failed to import CGMES subnetwork", e.getMessage());
+        assertEquals("CIM Namespace not found", e.getCause().getMessage());
+    }
+
+    /**
+     * A data source that always fails to read, simulating a subnetwork import failure.
+     */
+    private static final class BrokenReadOnlyDataSource implements ReadOnlyDataSource {
+        @Override
+        public String getBaseName() {
+            return "broken";
+        }
+
+        @Override
+        public boolean exists(String suffix, String ext) {
+            return false;
+        }
+
+        @Override
+        public boolean exists(String fileName) {
+            return false;
+        }
+
+        @Override
+        public boolean isDataExtension(String ext) {
+            return false;
+        }
+
+        @Override
+        public InputStream newInputStream(String suffix, String ext) throws IOException {
+            throw new IOException("Simulated failure reading subnetwork data");
+        }
+
+        @Override
+        public InputStream newInputStream(String fileName) throws IOException {
+            throw new IOException("Simulated failure reading subnetwork data");
+        }
+
+        @Override
+        public Set<String> listNames(String regex) {
+            return new HashSet<>();
+        }
     }
 
     private static ReportNode newReportNode() {

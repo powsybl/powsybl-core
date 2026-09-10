@@ -203,7 +203,7 @@ public class CgmesImport implements Importer {
      * <p>{@link ReportNode} is not safe for concurrent mutation of the same parent, so every child report node
      * used by the subnetwork imports is created here, sequentially, before any parallel work is dispatched.
      */
-    private Network[] importSubnetworks(Set<ReadOnlyDataSource> dss, NetworkFactory networkFactory, Properties p, ReportNode reportNode, int threadCount) {
+    Network[] importSubnetworks(Set<ReadOnlyDataSource> dss, NetworkFactory networkFactory, Properties p, ReportNode reportNode, int threadCount) {
         // dss is sorted deterministically by MultipleGridModelChecker, so import order (and therefore the
         // produced report) does not depend on the thread count used.
         List<ReadOnlyDataSource> dsList = new ArrayList<>(dss);
@@ -222,11 +222,12 @@ public class CgmesImport implements Importer {
             return networks;
         }
 
-        try (ExecutorService executor = CleanableExecutors.newFixedThreadPool("cgmes-cgm-import", Math.min(threadCount, dsList.size()))) {
+        try (StoppableExecutorService executor = new StoppableExecutorService(
+                CleanableExecutors.newFixedThreadPool("cgmes-cgm-import", Math.min(threadCount, dsList.size())))) {
             List<Future<Network>> futures = new ArrayList<>(dsList.size());
             for (int i = 0; i < dsList.size(); i++) {
                 int idx = i;
-                futures.add(executor.submit(() -> importData2(dsList.get(idx), networkFactory, p, tripleStoreReportNodes.get(idx), conversionReportNodes.get(idx))));
+                futures.add(executor.get().submit(() -> importData2(dsList.get(idx), networkFactory, p, tripleStoreReportNodes.get(idx), conversionReportNodes.get(idx))));
             }
             Network[] networks = new Network[dsList.size()];
             // It is fine to retrieve the result sequentially.
@@ -245,7 +246,21 @@ public class CgmesImport implements Importer {
         }
     }
 
+    private record StoppableExecutorService(ExecutorService delegate) implements AutoCloseable {
+        ExecutorService get() {
+            return delegate;
+        }
+
+        @Override
+        public void close() {
+            delegate.shutdownNow();
+        }
+    }
+
     private Network importData2(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode tripleStoreReportNode, ReportNode conversionReportNode) {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new PowsyblException("Interrupted while importing CGMES subnetwork " + ds.getBaseName());
+        }
         CgmesModel cgmes = createCgmesModel(ds, p, tripleStoreReportNode);
         return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
