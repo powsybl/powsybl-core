@@ -40,4 +40,8 @@ public class UcteExporterContext {
     public ReportNode getReportNode() {
         return reportNode;
     }
+
+    public UcteExporterContext withReportNode(ReportNode reportNode) {
+        return new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
+    }
 }
