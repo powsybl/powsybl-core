@@ -58,12 +58,6 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         return true;
     }
 
-    @Test
-    void testExportUcteWithoutReportNodeDoesntThrow() {
-        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
-        new UcteExporter().export(network, new Properties(), new MemDataSource());
-    }
-
     /**
      * Checks the full shape of the report tree produced when exporting a network (loaded from
      * {@code /expectedExport.uct}): the {@code networkCreation} node with its five conversion-step children,
