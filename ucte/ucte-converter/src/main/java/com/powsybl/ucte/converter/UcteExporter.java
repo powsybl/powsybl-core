@@ -159,10 +159,10 @@ public class UcteExporter implements Exporter {
         UcteExporterContext busesAndSwitchesContext = context.withReportNode(UcteExporterReports.busesAndSwitches(reportNode));
         network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
             voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
-                if (!isYNode(bus)) {
-                    convertBus(ucteNetwork, bus, busesAndSwitchesContext);
-                } else {
+                if (isYNode(bus)) {
                     LOGGER.warn("Ignoring YNode {}", bus.getId());
+                } else {
+                    convertBus(ucteNetwork, bus, busesAndSwitchesContext);
                 }
             });
             voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
