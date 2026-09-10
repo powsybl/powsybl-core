@@ -10,6 +10,7 @@ package com.powsybl.timeseries;
 import java.nio.DoubleBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -18,6 +19,9 @@ import java.util.function.Consumer;
 public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, DoubleDataChunk, DoubleTimeSeries> implements DoubleTimeSeries {
 
     private static final double[] NAN_ARRAY = new double[]{Double.NaN};
+
+    private final AtomicReference<double[]> toArrayRef = new AtomicReference<>();
+    private final AtomicReference<double[]> toCompactArrayRef = new AtomicReference<>();
 
     public StoredDoubleTimeSeries(TimeSeriesMetadata metadata, DoubleDataChunk... chunks) {
         super(metadata, chunks);
@@ -52,12 +56,15 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
 
     @Override
     public double[] toArray() {
-        DoubleBuffer buffer = DoubleBuffer.allocate(metadata.getIndex().getPointCount());
-        for (int i = 0; i < metadata.getIndex().getPointCount(); i++) {
-            buffer.put(i, Double.NaN);
+        if (toArrayRef.get() == null) {
+            DoubleBuffer buffer = DoubleBuffer.allocate(metadata.getIndex().getPointCount());
+            for (int i = 0; i < metadata.getIndex().getPointCount(); i++) {
+                buffer.put(i, Double.NaN);
+            }
+            fillBuffer(buffer, 0);
+            toArrayRef.set(buffer.array());
         }
-        fillBuffer(buffer, 0);
-        return buffer.array();
+        return toArrayRef.get();
     }
 
     @Override
@@ -65,13 +72,16 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         if (chunks.isEmpty()) {
             return new double[0];
         }
-        int minOffset = getMinOffset();
-        int compactLength = getMaxChunkEnd() - minOffset;
-        double[] array = new double[compactLength];
-        Arrays.fill(array, Double.NaN);
-        DoubleBuffer buffer = DoubleBuffer.wrap(array);
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
-        return array;
+        if (toCompactArrayRef.get() == null) {
+            int minOffset = getMinOffset();
+            int compactLength = getMaxChunkEnd() - minOffset;
+            double[] array = new double[compactLength];
+            Arrays.fill(array, Double.NaN);
+            DoubleBuffer buffer = DoubleBuffer.wrap(array);
+            chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
+            toCompactArrayRef.set(array);
+        }
+        return toCompactArrayRef.get();
     }
 
     @Override
@@ -79,4 +89,9 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         return new DoubleTimeSeriesValues(toCompactArray(), getMinOffset());
     }
 
+    @Override
+    protected void invalidateArrays() {
+        toArrayRef.set(null);
+        toCompactArrayRef.set(null);
+    }
 }

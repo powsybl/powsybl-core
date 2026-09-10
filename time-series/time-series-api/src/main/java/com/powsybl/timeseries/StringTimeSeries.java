@@ -9,6 +9,7 @@ package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -17,6 +18,9 @@ import java.util.function.Consumer;
 public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringDataChunk, StringTimeSeries> implements TimeSeries<StringPoint, StringTimeSeries> {
 
     private static final String[] NULL_ARRAY = new String[] {null};
+
+    private final AtomicReference<String[]> toArrayRef = new AtomicReference<>();
+    private final AtomicReference<String[]> toCompactArrayRef = new AtomicReference<>();
 
     public StringTimeSeries(TimeSeriesMetadata metadata, StringDataChunk... chunks) {
         super(metadata, chunks);
@@ -48,20 +52,26 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
     }
 
     public String[] toArray() {
-        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, metadata.getIndex().getPointCount());
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
-        return buffer.toArray();
+        if (toArrayRef.get() == null) {
+            CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, metadata.getIndex().getPointCount());
+            chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
+            toArrayRef.set(buffer.toArray());
+        }
+        return toArrayRef.get();
     }
 
     public String[] toCompactArray() {
         if (chunks.isEmpty()) {
             return new String[0];
         }
-        int minOffset = getMinOffset();
-        int compactLength = getMaxChunkEnd() - minOffset;
-        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, compactLength);
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
-        return buffer.toArray();
+        if (toCompactArrayRef.get() == null) {
+            int minOffset = getMinOffset();
+            int compactLength = getMaxChunkEnd() - minOffset;
+            CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, compactLength);
+            chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
+            toCompactArrayRef.set(buffer.toArray());
+        }
+        return toCompactArrayRef.get();
     }
 
     public String get(int index) {
@@ -72,4 +82,9 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         return new StringTimeSeriesValues(toCompactArray(), getMinOffset());
     }
 
+    @Override
+    protected void invalidateArrays() {
+        toArrayRef.set(null);
+        toCompactArrayRef.set(null);
+    }
 }

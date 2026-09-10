@@ -437,4 +437,78 @@ class CalculatedTimeSeriesTest {
         e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonValueNull));
         assertEquals("Unexpected JSON token: VALUE_NULL", e0.getMessage());
     }
+
+    @Test
+    void testCacheReturnsSameInstance() {
+        timeSeries.synchronize(RegularTimeSeriesIndex.create(
+            Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15)));
+        double[] values1 = timeSeries.toArray();
+        double[] values2 = timeSeries.toArray();
+        assertSame(values1, values2);
+    }
+
+    @Test
+    void testCacheInvalidatedOnSetTimeSeriesNameResolver() {
+        timeSeries.synchronize(RegularTimeSeriesIndex.create(
+            Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15)));
+        DoubleTimeSeriesValues v1 = timeSeries.getDoubleTimeSeriesValues();
+        timeSeries.setTimeSeriesNameResolver(CalculatedTimeSeries.EMPTY_RESOLVER);
+        DoubleTimeSeriesValues v2 = timeSeries.getDoubleTimeSeriesValues();
+        assertNotSame(v1, v2);
+        assertEquals(v1, v2);
+    }
+
+    @Test
+    void testCacheInvalidatedOnDependencyUpdate() {
+        // This test verifies that the internal cache of a calculated time series is invalidated when a dependency is updated.
+        // This ensures that if the underlying data provided by the resolver changes, the calculated time series
+        // will re-evaluate its expression using the updated data.
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15));
+        String doubleTimeSeriesName = "doubleTimeSeries";
+        DoubleTimeSeries constantTimeSeries = TimeSeries.createDouble(doubleTimeSeriesName, index, 1d, 1d);
+        CalculatedTimeSeries calculatedTimeSeriesWithDependencies = new CalculatedTimeSeries("calculatedTimeSeriesNoDependencies", BinaryOperation.plus(
+            new TimeSeriesNameNodeCalc(doubleTimeSeriesName), new TimeSeriesNameNodeCalc(doubleTimeSeriesName)
+        ));
+
+        final List<TimeSeriesMetadata> metadata = new ArrayList<>();
+        metadata.add(constantTimeSeries.getMetadata());
+        final List<DoubleTimeSeries> doubleTimeSeries = new ArrayList<>();
+        doubleTimeSeries.add(constantTimeSeries);
+
+        TimeSeriesNameResolver resolver = new TimeSeriesNameResolver() {
+            @Override
+            public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
+                return metadata;
+            }
+
+            @Override
+            public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
+                return Set.of(1);
+            }
+
+            @Override
+            public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames) {
+                return doubleTimeSeries;
+            }
+        };
+        calculatedTimeSeriesWithDependencies.setTimeSeriesNameResolver(resolver);
+        calculatedTimeSeriesWithDependencies.synchronize(index);
+
+        double[] arrayValue2 = calculatedTimeSeriesWithDependencies.toArray();
+        assertArrayEquals(new double[] {2.0, 2.0}, arrayValue2);
+
+        // Simulate new value for the constantTimeSeries: value 1.0 is replaced by 123.0
+        constantTimeSeries = TimeSeries.createDouble(doubleTimeSeriesName, index, 123d, 123d);
+        // We remove metadata from the list used in the resolver
+        metadata.removeFirst();
+        // And we add the timeSeries metadata with the new value
+        metadata.add(constantTimeSeries.getMetadata());
+        // We do the same thing with DoubleTimeSeries
+        doubleTimeSeries.removeFirst();
+        doubleTimeSeries.add(constantTimeSeries);
+
+        // We collect the new array expected to be 246 = 123 + 123
+        double[] arrayValue246 = calculatedTimeSeriesWithDependencies.toArray();
+        assertArrayEquals(new double[] {246.0, 246.0}, arrayValue246);
+    }
 }
