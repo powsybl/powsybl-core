@@ -216,6 +216,10 @@ final class NodeBreakerValidation {
         return getTheOnlySubstation(Set.of(bus));
     }
 
+    int getSourceVoltageLevel(int bus) {
+        return getTheOnlySubstation(bus).map(PsseSubstation::getIs).orElse(0);
+    }
+
     Optional<PsseSubstation> getTheOnlySubstation(Set<Integer> busesSet) {
         Set<PsseSubstation> psseSubstationSet = busesSet.stream()
                 .filter(busSubstations::containsKey)
