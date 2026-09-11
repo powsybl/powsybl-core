@@ -151,8 +151,14 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void importBadData() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Importers.importData(loader, UNSUPPORTED_FORMAT, null, null, computationManager, importConfigMock));
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath(WORK_DIR), "foo");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Importers.importData(loader, UNSUPPORTED_FORMAT, dataSource, null, computationManager, importConfigMock));
         assertEquals("Import format " + UNSUPPORTED_FORMAT + " not supported", e.getMessage());
+    }
+
+    @Test
+    void importDataNullDataSource() {
+        assertThrows(NullPointerException.class, () -> Importers.importData(loader, TEST_FORMAT, null, null, computationManager, importConfigMock));
     }
 
     @Test
