@@ -1296,7 +1296,7 @@ public final class NetworkSerDe {
             Pipe pipe = Pipe.open();
             executor.execute(() -> {
                 try (OutputStream tmp = Channels.newOutputStream(pipe.sink());
-                     //using buffered stream is about 20 times more effective for xml and json formats
+                     //using buffered stream is about 20 times more effective for xml
                      OutputStream os = format == TreeDataFormat.BIN ? tmp : new BufferedOutputStream(tmp)) {
                     write(network, new ExportOptions().setFormat(format), os);
                 } catch (Exception t) {
