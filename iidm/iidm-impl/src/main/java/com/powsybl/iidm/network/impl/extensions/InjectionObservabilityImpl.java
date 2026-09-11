@@ -52,7 +52,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityP() {
+    public ObservabilityQuality<T> getNullableQualityP() {
         return qualityP;
     }
 
@@ -78,7 +78,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityQ() {
+    public ObservabilityQuality<T> getNullableQualityQ() {
         return qualityQ;
     }
 
@@ -104,7 +104,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityV() {
+    public ObservabilityQuality<T> getNullableQualityV() {
         return qualityV;
     }
 
