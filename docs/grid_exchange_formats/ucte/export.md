@@ -7,6 +7,18 @@ The export fails with a `UcteException` if the network contains any of the follo
 equivalent: shunt compensators, static VAR compensators, batteries, LCC or VSC converter stations, HVDC lines, or
 three-winding transformers.
 
+## Limitations
+
+**Follows UCTE-DEF import**: Note that updated export is available, that is, export is possible if the file was imported
+with the same format. For instance, if you import a UCTE-DEF file in powsybl, you can update some elements and then
+export it back to UCTE-DEF format, but you cannot export to UCTE-DEF format a file imported from another format.
+
+**Sum of loads and generators**: If the bus has one or several [loads](../../grid_model/network_subnetwork.md#load),
+their active and reactive powers are summed to initialize the node's active and reactive load. If the bus has one or
+several [generators](../../grid_model/network_subnetwork.md#generator), their active and reactive target powers are
+summed to initialize the node's active and reactive power generation, and their minimum/maximum active and reactive
+power limits are used to initialize the node's permissible power generation range.
+
 ## Options
 
 These properties can be defined in the configuration file in
@@ -38,46 +50,52 @@ Its default value is `false`.
 Every bus of the network's [bus/breaker view](../../grid_model/network_subnetwork.md#voltage-level) is converted into a
 UCTE node, using the naming strategy to compute its UCTE node code.
 
-**Node status**: The node status is `EQUIVALENT` if the bus is fictitious, `REAL` otherwise.
+**Node status**: Derived from the bus "fictitiousness". Follows the convention for node status in UCTE-DEF 
+specification: 
+- 0 = Real node
+- 1 = Equivalent node
 
-**Node type**: The node type is `UT` if the bus is the network's
-[slack bus](../../grid_model/extensions.md#slack-terminal), `PU` if a connected generator regulates voltage, and `PQ`
-otherwise.
+**Node type**: Derived from the bus behavior and follows the node type convention in UCTE-DEF 
+specification:
+- 0 = P and Q constant (PQ node);
+- 1 = Q and θ constant,
+- 2 = P and U constant (PU node),
+- 3 = U and θ constant (global slack node, only one in the whole network))
 
-**Note:** these are mnemonic names, not the single-digit codes actually written to the file. The complete node status
-and node type code tables are documented in the [official UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf).
-
-If the bus has one or several [loads](../../grid_model/network_subnetwork.md#load), their active and reactive powers are
-summed to initialize the node's active and reactive load. If the bus has one or several
-[generators](../../grid_model/network_subnetwork.md#generator), their active and reactive target powers are summed to
-initialize the node's active and reactive power generation, and their minimum/maximum active and reactive power limits
-are used to initialize the node's permissible power generation range. The energy source of the generator is converted to
-a UCTE power plant type according to the following table, unless the generator has a `powerPlantType` property
-(typically set at import time), in which case this property's value is used directly:
+The energy source of the generator is converted to a UCTE power plant type according to the following table, unless the
+generator has a `powerPlantType` property (typically set at import time), in which case this property's value is used
+directly:
 
 | IIDM Energy source | UCTE Power plant type |
 |:------------------:|:---------------------:|
-|       Hydro        |       Hydro (H)       |
-|      Nuclear       |      Nuclear (N)      |
-|      Thermal       |     Hard coal (C)     |
-|        Wind        |       Wind (W)        |
-|   Other sources    |      Further (F)      |
+|       Hydro        |           H           |
+|      Nuclear       |           N           |
+|      Thermal       |           C           |
+|        Wind        |           W           |
+|   Other sources    |           F           |
 
-The letter in parentheses is the actual mnemonic written to the file. The full list of power plant type mnemonics
-(including `L` for lignite, `G` for gas and `O` for oil, none of which is produced by this mapping) is documented in the
-[official UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf).
+Follows the convention for power plant types in UCTE-DEF specification:
+- H: hydro
+- N: nuclear
+- L: lignite
+- C: hard coal
+- G: gas
+- O: oil
+- W: wind
+- F: further
 
 ### Line conversion
 
 #### Busbar coupler conversion
 
 Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) of the network's bus/breaker view is converted into
-a UCTE busbar coupler (a UCTE line with resistance, reactance and susceptance set to `0`). Its status is
-`BUSBAR_COUPLER_IN_OPERATION` or `BUSBAR_COUPLER_OUT_OF_OPERATION` depending on whether the switch is closed or open
-(see the [official UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)
-for the corresponding element status codes). If the switch has a `currentLimit` property that can be parsed as an
-integer, it is used as the current limit of the coupler. Otherwise, no current limit is set, and a warning is
-[reported](#reporting).
+a UCTE busbar coupler (a UCTE line with resistance, reactance and susceptance set to `0`). Its status is derived from
+the open/closed state of the original switch and follows the convention in UCTE-DEF specification:
+- 2: busbar coupler _IN_ operation (closed)
+- 7: busbar coupler _OUT_ of operation (open) 
+
+If the switch has a `currentLimit` property that can be parsed as an integer, it is used as the current limit of the
+coupler. Otherwise, no current limit is set, and a warning is [reported](#reporting).
 
 #### Boundary line conversion
 
@@ -112,7 +130,7 @@ property is left empty on the X-node.
 Every [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer) of the network is
 converted into a UCTE transformer.
 
-The nominal power is taken from the transformer's (otherwise deprecated) `nomimalPower` property.
+The nominal power is taken from the transformer's `nomimalPower` property.
 
 If a permanent current limit is defined on both sides of the transformer, the smaller of the two is used; otherwise, the
 one that is defined is used, if any.
