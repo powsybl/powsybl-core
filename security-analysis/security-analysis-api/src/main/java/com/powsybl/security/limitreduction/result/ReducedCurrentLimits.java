@@ -19,8 +19,8 @@ public class ReducedCurrentLimits extends AbstractReducedLoadingLimits implement
      * Create a {@link ReducedCurrentLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
      */
     public ReducedCurrentLimits(double permanentLimit, double originalPermanentLimit,
-                                double permanentLimitReduction) {
-        super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+                                double permanentLimitReduction, String permanentLimitName) {
+        super(permanentLimit, originalPermanentLimit, permanentLimitReduction, permanentLimitName);
     }
 
     /**

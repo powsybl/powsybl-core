@@ -1,6 +1,6 @@
 # loadflow-results-completion-parameters
 
-The `loadflow-results-completion-parameters` module is used by the [load flow validation](../../grid_features/loadflow_validation.md) and the
+The `loadflow-results-completion-parameters` module is used by the [load flow validation](../../grid_features/loadflow_validation/index.md) and the
 [load flow post processor](../../grid_features/import_post_processor.md) features.
 
 ## Optional properties

@@ -7,6 +7,7 @@
  */
 package com.powsybl.ucte.network.io;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -111,5 +112,34 @@ class UcteRecordWriterTest {
         assertThrows(IllegalArgumentException.class, () -> recordWriter.writeInteger(value, 0, 6));
         recordWriter.newLine();
         bufferedWriter.close();
+    }
+
+    private static String writeStringField(String value, int beginIndex, int endIndex) throws IOException {
+        StringWriter writer = new StringWriter();
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
+
+        recordWriter.writeString(value, beginIndex, endIndex);
+        recordWriter.newLine();
+        bufferedWriter.close();
+        return writer.toString();
+    }
+
+    @Test
+    void shouldNeutralizeLineBreaksInString() throws IOException {
+        // a control character in a string field would otherwise split the fixed-width record
+        // and let the value forge extra records (e.g. via an imported network property)
+        assertEquals(String.format("AB CD%n"), writeStringField("AB\nCD", 0, 12));
+        assertEquals(String.format("AB  CD%n"), writeStringField("AB\r\nCD", 0, 12));
+    }
+
+    @Test
+    void shouldTruncateStringToFieldWidth() throws IOException {
+        assertEquals(String.format("ABCDE%n"), writeStringField("ABCDEFGHIJKL", 0, 5));
+    }
+
+    @Test
+    void shouldWriteStringUnchangedWhenItFits() throws IOException {
+        assertEquals(String.format("ABC%n"), writeStringField("ABC", 0, 5));
     }
 }
