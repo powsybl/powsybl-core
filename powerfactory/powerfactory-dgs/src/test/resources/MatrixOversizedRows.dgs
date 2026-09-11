@@ -1,0 +1,5 @@
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+1;Version;5.0
+
+$$ElmFoo;ID(a:40);M:SIZEROW(i);M:SIZECOL(i);M:0:0(r);M:0:1(r)
+2;2147483647;2

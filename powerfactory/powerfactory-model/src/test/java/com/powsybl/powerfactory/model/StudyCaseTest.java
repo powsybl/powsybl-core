@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,14 @@ class StudyCaseTest extends AbstractPowerFactoryTest {
         assertEquals(List.of(1.3949d, 2.34d, 3.1223d), objFoo.getDoubleVectorAttributeValue("dv"));
         assertEquals(List.of(3L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).toList());
         assertEquals(List.of("AA", "BBB"), objFoo.getStringVectorAttributeValue("sv"));
+    }
+
+    @Test
+    void jsonOversizedMatrixTest() throws IOException {
+        String json = new String(getClass().getResourceAsStream("/studyCase.json").readAllBytes(), StandardCharsets.UTF_8)
+                .replace("\"rowCount\" : 2", "\"rowCount\" : 2147483647");
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> StudyCase.parseJson(new StringReader(json)));
+        assertTrue(e.getMessage().contains("less than the declared"));
     }
 
     @Test
