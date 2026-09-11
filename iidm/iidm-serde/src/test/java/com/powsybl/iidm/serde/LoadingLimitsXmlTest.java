@@ -49,7 +49,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("danglingLine.activePowerLimits is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
-                        e.getMessage());
+                    e.getMessage());
             }
         });
 
@@ -93,7 +93,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("twoWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
-                        e.getMessage());
+                    e.getMessage());
             }
         });
 
@@ -146,7 +146,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("tieLine.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
-                        e.getMessage());
+                    e.getMessage());
             }
         });
 
@@ -178,7 +178,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("threeWindingsTransformer.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
-                        e.getMessage());
+                    e.getMessage());
             }
         });
 
@@ -214,7 +214,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         // Check that import succeeds for versions prior to 1.12
         // (the permanent limit is computed)
         ImportOptions options = new ImportOptions()
-                .setMissingPermanentLimitPercentage(90.);
+            .setMissingPermanentLimitPercentage(90.);
         testForAllPreviousVersions(IidmVersion.V_1_12, version -> {
             Network n = NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null);
             Line line = n.getLine("NHV1_NHV2_1");
@@ -225,7 +225,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         // The import should fail for versions after (or equals) 1.12
         testForAllVersionsSince(IidmVersion.V_1_12, version -> {
             PowsyblException e = assertThrows(PowsyblException.class,
-                    () -> NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null));
+                () -> NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null));
             assertTrue(e.getMessage().contains("permanentLimit is absent"));
         });
     }
@@ -235,7 +235,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         // Check that import succeeds for all versions:
         // with the minimalValidationLevel option set to EQUIPMENT, the limits are imported to Double.NaN
         ImportOptions options = new ImportOptions()
-                .setMinimalValidationLevel(ValidationLevel.EQUIPMENT.toString());
+            .setMinimalValidationLevel(ValidationLevel.EQUIPMENT.toString());
         testForAllVersionsSince(IidmVersion.V_1_0, version -> {
             Network n = NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null);
             Line line = n.getLine("NHV1_NHV2_1");
@@ -306,6 +306,33 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> NetworkSerDe.read(networkStream));
             assertTrue(e.getMessage().contains("DetectionKind.INVALID"));
         });
+    }
+
+    @Test
+    void checkExportLowLimitAsHighLimit() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.newOperationalLimitsGroup1("low limit to high limit").newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setValue(500)
+            .setAcceptableDuration(40 * 60)
+            .setName("40'")
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setValue(800)
+            .setAcceptableDuration(20 * 60)
+            .setName("20'")
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setValue(1200)
+            .setAcceptableDuration(10 * 60)
+            .setName("10'")
+            .endTemporaryLimit()
+            .add();
+        line.setSelectedOperationalLimitsGroup1("low limit to high limit");
+        allFormatsRoundTripFromMinToMaxVersionTest(network, "eurostag-tutorial-export_low_as_high.xml", IidmVersion.V_1_5, IidmVersion.V_1_18);
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier, String permanentLimitName) {

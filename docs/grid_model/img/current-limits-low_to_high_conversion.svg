@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Copyright (c) 2026, RTE (http://www.rte-france.com)
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<svg
+   width="1050.5425"
+   height="398.5"
+   version="1.1"
+   id="svg119"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <style
+     id="style83"><![CDATA[
+text {font-size:13.75px;font-family:sans-serif;fill:#000000}
+.dashed-line1 {fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:6, 6}
+.dashed-line2 {fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:8, 4}
+.line {fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;}
+.arrow {fill:#000000;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter}
+]]></style>
+  <g
+     id="g117"
+     transform="translate(-4.0434503,-89.5)">
+    <text
+       x="4.2694869"
+       y="171.99632"
+       id="text85">branch current (A)</text>
+    <path
+       class="arrow"
+       d="m 4.8524673,190.46403 5,-10 4.9999997,10 z"
+       id="path87" />
+    <path
+       class="line"
+       d="M 10,189.69431 V 448"
+       id="path89" />
+    <path
+       class="dashed-line2"
+       d="m 10,448 v 40"
+       id="path91" />
+    <text
+       x="265"
+       y="413"
+       id="text93">temporary limit x s (name A)</text>
+    <text
+       x="100"
+       y="453"
+       id="text95">acceptable permanently</text>
+    <path
+       class="dashed-line1"
+       d="M 10,408 H 260"
+       id="path97" />
+    <text
+       x="265"
+       y="333"
+       id="text99">temporary limit y s (name B)</text>
+    <text
+       x="100"
+       y="373"
+       id="text101">acceptable x s</text>
+    <path
+       class="dashed-line1"
+       d="M 10,328 H 260"
+       id="path103" />
+    <text
+       x="265"
+       y="253"
+       id="text105">temporary limit z s (name C)</text>
+    <text
+       x="100"
+       y="293"
+       id="text107">acceptable y s</text>
+    <path
+       class="dashed-line1"
+       d="M 10,248 H 260"
+       id="path109" />
+    <text
+       x="100"
+       y="213"
+       id="text113">acceptable z s</text>
+    <text
+       x="596.22601"
+       y="99.946777"
+       id="text85-3"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">branch current (A)</text>
+    <path
+       class="arrow"
+       d="m 596.80902,128.41448 5,-10 5,10 z"
+       id="path87-6"
+       style="fill:#000000;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter" />
+    <path
+       class="line"
+       d="M 601.95655,127.76258 V 447.95045"
+       id="path89-7"
+       style="fill:none;stroke:#000000;stroke-width:2.22672;stroke-linecap:butt" />
+    <path
+       class="dashed-line2"
+       d="m 601.95655,447.95045 v 40"
+       id="path91-5"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:8, 4" />
+    <text
+       x="856.95654"
+       y="412.95044"
+       id="text93-3"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">permanent limit</text>
+    <text
+       x="691.95654"
+       y="452.95044"
+       id="text95-5"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">acceptable permanently</text>
+    <path
+       class="dashed-line1"
+       d="m 601.95655,407.95045 h 250"
+       id="path97-6"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:6, 6" />
+    <text
+       x="856.95654"
+       y="332.95044"
+       id="text99-2"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">temporary limit x s (name A)</text>
+    <text
+       x="691.95654"
+       y="372.95044"
+       id="text101-9"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">acceptable x s</text>
+    <path
+       class="dashed-line1"
+       d="m 601.95655,327.95045 h 250"
+       id="path103-1"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:6, 6" />
+    <text
+       x="856.95654"
+       y="252.95044"
+       id="text105-2"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">temporary limit y s (name B)</text>
+    <text
+       x="857.61322"
+       y="172.31081"
+       id="text105-2-6"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">temporary limit z s (name C)</text>
+    <text
+       x="691.95654"
+       y="292.95044"
+       id="text107-7"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">acceptable y s</text>
+    <path
+       class="dashed-line1"
+       d="m 601.95655,247.95045 h 250"
+       id="path109-0"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:6, 6" />
+    <path
+       class="dashed-line1"
+       d="m 602.20413,170.17626 h 250"
+       id="path109-0-3"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:6, 6" />
+    <text
+       x="691.95654"
+       y="212.95044"
+       id="text113-9"
+       style="font-size:13.75px;font-family:sans-serif;fill:#000000">acceptable z s</text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:13.75px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none"
+       x="532.02325"
+       y="174.20848"
+       id="text30976"><tspan
+         id="tspan30974"
+         x="532.02325"
+         y="174.20848"
+         style="font-size:13.75px">+ infinity</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
+       d="m 491.89522,409.37948 92.3197,-0.12752"
+       id="path39227"/>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:13.3333px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none"
+       x="493.29727"
+       y="429.75937"
+       id="text51674"><tspan
+         id="tspan51672"
+         x="493.29727"
+         y="429.75937"
+         style="font-size:13.3333px">same value</tspan></text>
+  </g>
+</svg>
