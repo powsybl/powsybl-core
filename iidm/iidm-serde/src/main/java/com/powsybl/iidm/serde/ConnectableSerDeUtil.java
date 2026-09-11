@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
 
@@ -419,36 +418,20 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null && canWriteLimits(limits)) {
+            FormattedLimits formattedLimits = new FormattedLimits(limits, version);
             writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type);
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
-            List<LoadingLimits.TemporaryLimit> tempLimits = StreamSupport.stream(
-                IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions).spliterator(),
-                false
-            ).toList();
-            boolean shiftLowToHigh = limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0;
-            //the first temp limit was used as the permanent limit of the high limit, ignore it if shifting low to high limit
-            int startingLimitIndex = shiftLowToHigh ? 1 : 0;
-            int limitIndex = startingLimitIndex;
-            for (int durationIndex = 0; durationIndex < tempLimits.size() - startingLimitIndex; ++durationIndex) {
-                LoadingLimits.TemporaryLimit tl = tempLimits.get(limitIndex);
+
+            for (FormattedTemporaryLimit tl : formattedLimits.sortedTemporaryLimits(exportOptions)) {
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                writer.writeStringAttribute("name", tempLimits.get(durationIndex).getName());
-                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tempLimits.get(durationIndex).getAcceptableDuration(), Integer.MAX_VALUE);
-                writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
-                writer.writeBooleanAttribute(FICTITIOUS_KEY, tl.isFictitious(), false);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
-                writer.writeEndNode();
-                ++limitIndex;
-            }
-            if (shiftLowToHigh) {
-                //since we skip the first temp limit when converting a low limit to a high limit (because it becomes the high limit), the last limit
-                //of the high limit should have a default name, the max value, and its duration is the duration of the last temp limit of the low limit
-                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                writer.writeStringAttribute("name", tempLimits.getLast().getName());
-                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tempLimits.getLast().getAcceptableDuration(), Integer.MAX_VALUE);
-                //do not write Double.MAX_VALUE as limit value (not written by default)
-                //no properties to write
+                writer.writeStringAttribute("name", tl.name);
+                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tl.duration, Integer.MAX_VALUE);
+                if (tl.originalLimit != null) {
+                    writer.writeDoubleAttribute(VALUE_KEY, tl.originalLimit.getValue(), Double.MAX_VALUE);
+                    writer.writeBooleanAttribute(FICTITIOUS_KEY, tl.originalLimit.isFictitious(), false);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl.originalLimit, writer, nsUri, exportOptions));
+                }
                 writer.writeEndNode();
             }
             writer.writeEndNodes();
@@ -482,7 +465,7 @@ public final class ConnectableSerDeUtil {
                     writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
                 } else {
                     //convert low limit to high limit by using first temporary as permanent
-                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions).iterator().next().getValue());
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getTemporaryLimits().iterator().next().getValue());
                 }
             }
         );
@@ -491,6 +474,48 @@ public final class ConnectableSerDeUtil {
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             }
         });
+    }
+
+    private record FormattedTemporaryLimit(LoadingLimits.TemporaryLimit originalLimit, int duration, String name) { }
+
+    private record FormattedLimits(List<FormattedTemporaryLimit> formattedTemporaryLimits) {
+        FormattedLimits(LoadingLimits limits, IidmVersion version) {
+            this(buildFormattedTemporaryLimits(limits, version));
+        }
+
+        private static List<FormattedTemporaryLimit> buildFormattedTemporaryLimits(LoadingLimits limits, IidmVersion version) {
+            List<LoadingLimits.TemporaryLimit> tempLimits = limits.getTemporaryLimits().stream().toList();
+            List<FormattedTemporaryLimit> formattedTemporaryLimits = new ArrayList<>();
+            boolean shiftLowToHigh = limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0;
+            //the first temp limit was used as the permanent limit of the high limit, ignore it if shifting low to high limit
+            int startingLimitIndex = shiftLowToHigh ? 1 : 0;
+            int limitIndex = startingLimitIndex;
+            for (int durationIndex = 0; durationIndex < tempLimits.size() - startingLimitIndex; ++durationIndex) {
+                LoadingLimits.TemporaryLimit tl = tempLimits.get(limitIndex);
+                String name = tempLimits.get(durationIndex).getName();
+                int duration = tempLimits.get(durationIndex).getAcceptableDuration();
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(tl, duration, name));
+                ++limitIndex;
+            }
+            if (shiftLowToHigh) {
+                //since we skip the first temp limit when converting a low limit to a high limit (because it becomes the high limit), the last limit
+                //of the high limit should have a default name, the max value, and its duration is the duration of the last temp limit of the low limit
+                LoadingLimits.TemporaryLimit tl = tempLimits.getLast();
+                String name = tl.getName();
+                int duration = tl.getAcceptableDuration();
+                //the other values inside the temp limit are not relevant to the last created limit
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(null, duration, name));
+            }
+            return formattedTemporaryLimits;
+        }
+
+        Iterable<FormattedTemporaryLimit> sortedTemporaryLimits(ExportOptions exportOptions) {
+            Objects.requireNonNull(exportOptions);
+            return exportOptions.isSorted() ? formattedTemporaryLimits.stream()
+                        .sorted(Comparator.comparing(FormattedTemporaryLimit::name))
+                        .toList()
+                    : formattedTemporaryLimits;
+        }
     }
 
     static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {
