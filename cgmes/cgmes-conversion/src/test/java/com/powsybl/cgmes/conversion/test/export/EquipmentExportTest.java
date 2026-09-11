@@ -1076,7 +1076,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
 
@@ -1084,7 +1084,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
 
@@ -1092,7 +1092,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createRemoteVoltageTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "voltage");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "voltage");
 
@@ -1100,7 +1100,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createRemoteReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
 
@@ -1118,7 +1118,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
-            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
 
@@ -1126,7 +1126,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "voltage");
-            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "voltage");
 
@@ -1134,7 +1134,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
-            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
         }

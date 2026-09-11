@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.time.ZonedDateTime;
 
@@ -1270,9 +1271,10 @@ public final class EurostagTutorialExample1Factory {
     }
 
     private static Network createRemoteTcc(Network network) {
-        network.getTwoWindingsTransformer(NHV2_NLOAD)
-                .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator(GENERATOR_ID).getTerminal());
+        VoltageRegulation voltageRegulation = network.getTwoWindingsTransformer(NHV2_NLOAD)
+            .getRatioTapChanger()
+            .getVoltageRegulation();
+        voltageRegulation.setTerminal(network.getGenerator(GENERATOR_ID).getTerminal(), voltageRegulation.getTargetValue());
 
         return network;
     }
@@ -1440,9 +1442,10 @@ public final class EurostagTutorialExample1Factory {
     }
 
     private static Network create3wRemoteTcc(Network network) {
-        network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
+        VoltageRegulation voltageRegulation = network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
                 .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator(GENERATOR_ID).getTerminal());
+                .getVoltageRegulation();
+        voltageRegulation.setTerminal(network.getGenerator(GENERATOR_ID).getTerminal(), voltageRegulation.getTargetValue());
         return network;
     }
 

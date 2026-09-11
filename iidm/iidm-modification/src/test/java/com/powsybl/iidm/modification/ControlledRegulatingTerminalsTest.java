@@ -34,11 +34,11 @@ class ControlledRegulatingTerminalsTest {
 
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("TWT");
 
-        assertNotEquals(t2w.getRatioTapChanger().getRegulationTerminal(), t2w.getTerminal2());
+        assertNotEquals(t2w.getRatioTapChanger().getRegulatingTerminal(), t2w.getTerminal2());
         assertNotEquals(t2w.getPhaseTapChanger().getRegulationTerminal(), t2w.getTerminal2());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(t2w.getRatioTapChanger().getRegulationTerminal(), t2w.getTerminal2());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(t2w.getRatioTapChanger().getRegulatingTerminal(), t2w.getTerminal2());
         controlledRegulatingTerminals.replaceRegulatedTerminal(t2w.getPhaseTapChanger().getRegulationTerminal(), t2w.getTerminal2());
-        assertEquals(t2w.getRatioTapChanger().getRegulationTerminal(), t2w.getTerminal2());
+        assertEquals(t2w.getRatioTapChanger().getRegulatingTerminal(), t2w.getTerminal2());
         assertEquals(t2w.getPhaseTapChanger().getRegulationTerminal(), t2w.getTerminal2());
     }
 
@@ -49,12 +49,12 @@ class ControlledRegulatingTerminalsTest {
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT");
 
-        assertNotEquals(t3w.getLeg2().getRatioTapChanger().getRegulationTerminal(), t3w.getLeg1().getTerminal());
-        assertNotEquals(t3w.getLeg3().getRatioTapChanger().getRegulationTerminal(), t3w.getLeg1().getTerminal());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(t3w.getLeg2().getRatioTapChanger().getRegulationTerminal(), t3w.getLeg1().getTerminal());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(t3w.getLeg3().getRatioTapChanger().getRegulationTerminal(), t3w.getLeg1().getTerminal());
-        assertEquals(t3w.getLeg2().getRatioTapChanger().getRegulationTerminal(), t3w.getLeg1().getTerminal());
-        assertEquals(t3w.getLeg3().getRatioTapChanger().getRegulationTerminal(), t3w.getLeg1().getTerminal());
+        assertNotEquals(t3w.getLeg2().getRatioTapChanger().getRegulatingTerminal(), t3w.getLeg1().getTerminal());
+        assertNotEquals(t3w.getLeg3().getRatioTapChanger().getRegulatingTerminal(), t3w.getLeg1().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(t3w.getLeg2().getRatioTapChanger().getRegulatingTerminal(), t3w.getLeg1().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(t3w.getLeg3().getRatioTapChanger().getRegulatingTerminal(), t3w.getLeg1().getTerminal());
+        assertEquals(t3w.getLeg2().getRatioTapChanger().getRegulatingTerminal(), t3w.getLeg1().getTerminal());
+        assertEquals(t3w.getLeg3().getRatioTapChanger().getRegulatingTerminal(), t3w.getLeg1().getTerminal());
     }
 
     @Test

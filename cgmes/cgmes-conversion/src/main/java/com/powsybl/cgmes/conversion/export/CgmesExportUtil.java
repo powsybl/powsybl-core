@@ -340,7 +340,7 @@ public final class CgmesExportUtil {
 
     static boolean tapChangerControlIsDefined(RatioTapChanger rtc) {
         return rtc.getVoltageRegulation() != null && !Double.isNaN(rtc.getVoltageRegulation().getTargetValue())
-                && rtc.getRegulationTerminal() != null;
+                && rtc.getRegulatingTerminal() != null;
     }
 
     static boolean tapChangerControlIsDefined(PhaseTapChanger ptc) {

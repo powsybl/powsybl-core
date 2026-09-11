@@ -53,16 +53,16 @@ public class RegulatedTerminalControllers {
             }
             case TWO_WINDINGS_TRANSFORMER -> {
                 TwoWindingsTransformer t2w = (TwoWindingsTransformer) identifiable;
-                t2w.getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulationTerminal()));
+                t2w.getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
                 t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
             }
             case THREE_WINDINGS_TRANSFORMER -> {
                 ThreeWindingsTransformer t3w = (ThreeWindingsTransformer) identifiable;
-                t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulationTerminal()));
+                t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
                 t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
-                t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulationTerminal()));
+                t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
                 t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
-                t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulationTerminal()));
+                t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
                 t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
             }
             case GENERATOR -> {
@@ -173,9 +173,18 @@ public class RegulatedTerminalControllers {
         t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> replace(ptc, currentRegulatedTerminal, newRegulatedTerminal));
     }
 
-    private static void replace(TapChanger<?, ?, ?, ?> tc, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
-        if (tc.getRegulationTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(tc.getRegulationTerminal()))) {
-            tc.setRegulationTerminal(newRegulatedTerminal);
+    private static void replace(PhaseTapChanger ptc, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        if (ptc.getRegulationTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(ptc.getRegulationTerminal()))) {
+            ptc.setRegulationTerminal(newRegulatedTerminal);
+        }
+    }
+
+    private static void replace(RatioTapChanger rtc, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
+        if (voltageRegulation != null
+            && voltageRegulation.getTerminal() != null
+            && currentRegulatedTerminal.equals(newTerminalRef(voltageRegulation.getTerminal()))) {
+            voltageRegulation.setTerminal(newRegulatedTerminal, voltageRegulation.getTargetValue());
         }
     }
 

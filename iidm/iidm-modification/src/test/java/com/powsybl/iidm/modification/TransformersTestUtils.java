@@ -186,7 +186,7 @@ final class TransformersTestUtils {
         List<String> strings = new ArrayList<>();
         strings.add(String.valueOf(rtc.getLowTapPosition()));
         strings.add(String.valueOf(rtc.getTapPosition()));
-        strings.add(rtc.getRegulationTerminal().getBusView().getBus().getId());
+        strings.add(rtc.getRegulatingTerminal().getBusView().getBus().getId());
         strings.add(String.valueOf(rtc.getRegulatingTargetV()));
         VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
         if (voltageRegulation != null) {

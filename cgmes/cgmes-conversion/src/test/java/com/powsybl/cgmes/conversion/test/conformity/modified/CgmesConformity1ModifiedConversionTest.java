@@ -252,7 +252,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getRegulatingTargetV()));
         assertFalse(rtc.isRegulating());
-        assertNull(rtc.getRegulationTerminal());
+        assertNull(rtc.getRegulatingTerminal());
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
@@ -280,7 +280,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getRegulatingTargetV()));
         assertFalse(rtc.isRegulating());
-        assertNull(rtc.getRegulationTerminal());
+        assertNull(rtc.getRegulatingTerminal());
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
@@ -646,14 +646,14 @@ class CgmesConformity1ModifiedConversionTest {
         TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
         RatioTapChanger rtc = twt2.getRatioTapChanger();
         assertNotNull(rtc);
-        Terminal regulatingTerminal = rtc.getRegulationTerminal();
+        Terminal regulatingTerminal = rtc.getRegulatingTerminal();
         assertNotNull(regulatingTerminal);
         assertSame(twt2.getTerminal1().getBusBreakerView().getBus(), regulatingTerminal.getBusBreakerView().getBus());
 
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
         RatioTapChanger rtc2 = twt3.getLeg3().getRatioTapChanger();
         assertNotNull(rtc2);
-        Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
+        Terminal regulatingTerminal2 = rtc2.getRegulatingTerminal();
         assertNotNull(regulatingTerminal2);
         assertSame(network.getVoltageLevel("93778e52-3fd5-456d-8b10-987c3e6bc47e").getBusBreakerView().getBus("03163ede-7eec-457f-8641-365982227d7c"),
                 regulatingTerminal2.getBusBreakerView().getBus());
@@ -666,13 +666,13 @@ class CgmesConformity1ModifiedConversionTest {
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
         RatioTapChanger rtc2 = twt3.getLeg2().getRatioTapChanger();
         assertNotNull(rtc2);
-        Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
+        Terminal regulatingTerminal2 = rtc2.getRegulatingTerminal();
         assertNotNull(regulatingTerminal2);
         assertTrue(rtc2.isRegulating());
 
         RatioTapChanger rtc3 = twt3.getLeg3().getRatioTapChanger();
         assertNotNull(rtc3);
-        Terminal regulatingTerminal3 = rtc3.getRegulationTerminal();
+        Terminal regulatingTerminal3 = rtc3.getRegulatingTerminal();
         assertNotNull(regulatingTerminal3);
         assertFalse(rtc3.isRegulating());
     }

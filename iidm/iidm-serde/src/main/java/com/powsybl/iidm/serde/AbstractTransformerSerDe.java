@@ -130,7 +130,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, voltageRegulation != null ? voltageRegulation.getTargetValue() : Double.NaN);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(rtc, context));
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> TerminalRefSerDe.writeTerminalRef(rtc.getRegulatingTerminal(), context, ELEM_TERMINAL_REF));
 
         context.getWriter().writeStartNodes();
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {

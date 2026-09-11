@@ -76,4 +76,23 @@ public interface PhaseTapChanger extends TapChanger<
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Set the regulating status.
+     * Tap changer must support onload tap changing capabilities to enable regulation.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    PhaseTapChanger setRegulating(boolean regulating);
+
+    /**
+     * Get the terminal used for regulation.
+     */
+    Terminal getRegulationTerminal();
+
+    /**
+     * Set the terminal used for regulation.
+     */
+    PhaseTapChanger setRegulationTerminal(Terminal regulationTerminal);
+
 }

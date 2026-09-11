@@ -282,7 +282,7 @@ class TransformerUpdateTest {
         assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getVoltageRegulation().getTargetValue()));
         assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getVoltageRegulation().getTargetDeadband()));
         assertTrue(t3w.getLeg2().getRatioTapChanger().isWithMode(RegulationMode.VOLTAGE));
-        assertNotNull(t3w.getLeg2().getRatioTapChanger().getRegulationTerminal());
+        assertNotNull(t3w.getLeg2().getRatioTapChanger().getRegulatingTerminal());
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
     }
 

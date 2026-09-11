@@ -24,6 +24,7 @@ import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
@@ -607,7 +608,10 @@ public class UcteImporter implements Importer {
 
         createRatioTapChangerAdder(uctePhaseRegulation, transformer)
                 .add();
-        transformer.getRatioTapChanger().setRegulating(false);
+        VoltageRegulation voltageRegulation = transformer.getRatioTapChanger().getVoltageRegulation();
+        if (voltageRegulation != null) {
+            voltageRegulation.setRegulating(false);
+        }
         double currentRatioTapChangerRho = transformer.getRatioTapChanger().getCurrentStep().getRho();
         createPhaseTapChangerAdder(ucteAngleRegulation, transformer, currentRatioTapChangerRho)
                 .add();

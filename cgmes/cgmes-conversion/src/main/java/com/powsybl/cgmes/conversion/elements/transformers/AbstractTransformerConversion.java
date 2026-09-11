@@ -196,7 +196,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context));
         findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresentOrElse(rtc::setSolvedTapPosition, rtc::unsetSolvedTapPosition);
 
-        if (rtc.getRegulationTerminal() != null) {
+        if (rtc.getRegulatingTerminal() != null) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
             double defaultTargetV = getDefaultTargetV(rtc, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);

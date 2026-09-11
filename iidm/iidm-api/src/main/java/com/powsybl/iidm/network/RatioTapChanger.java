@@ -113,4 +113,29 @@ public interface RatioTapChanger extends TapChanger<
     default RatioTapChanger setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Set the regulating status.
+     * Tap changer must support onload tap changing capabilities to enable regulation.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChanger setRegulating(boolean regulating);
+
+    /**
+     * Get the terminal used for regulation.
+     * @deprecated use {@link #getRegulatingTerminal()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    Terminal getRegulationTerminal();
+
+    /**
+     * Set the terminal used for regulation.
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} ()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChanger setRegulationTerminal(Terminal regulationTerminal);
 }

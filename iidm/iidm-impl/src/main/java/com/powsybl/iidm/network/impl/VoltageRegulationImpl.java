@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -26,6 +27,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 
@@ -283,6 +287,16 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public VoltageRegulation setRegulating(boolean newRegulating) {
+        AttributesWithTerminal newAttributes = this.getAttributes().withRegulating(newRegulating);
+        if (holder instanceof RatioTapChanger ratioTapChanger && validable instanceof RatioTapChangerParent parent) {
+            ValidationUtil.checkRatioTapChangerRegulation(parent, newAttributes,
+                ratioTapChanger.hasLoadTapChangingCapabilities(),
+                network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+            Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
+            tapChangers.remove(parent.getRatioTapChanger());
+            ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, newRegulating,
+                network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        }
         ValidationUtil.checkLocalTargetQandV(validable,
             classHolder,
             this.holder.getLocalTargetV(),
@@ -293,15 +307,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             getMode(),
             network.get().getMinValidationLevel(),
             network.get().getReportNodeContext().getReportNode());
-        AttributesWithTerminal newAttributes = this.getAttributes().withRegulating(newRegulating);
         checkAttributes(newAttributes);
-        if (holder instanceof RatioTapChanger ratioTapChanger) {
-            ValidationUtil.checkRTCLoadTapChangingCapabilities(validable,
-                ratioTapChanger.hasLoadTapChangingCapabilities(),
-                newRegulating,
-                network.get().getMinValidationLevel(),
-                network.get().getReportNodeContext().getReportNode());
-        }
         setRegulatingOnCurrentVariant(newRegulating);
         return this;
     }

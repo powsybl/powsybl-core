@@ -1061,7 +1061,7 @@ public final class EquipmentExport {
             String tapChangerControlId = null;
             if (CgmesExportUtil.tapChangerControlIsDefined(rtc)) {
                 String controlName = twtName + "_RTC_RC";
-                String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
+                String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulatingTerminal(), context);
                 tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String tccMode = CgmesExportUtil.getTcMode(rtc);

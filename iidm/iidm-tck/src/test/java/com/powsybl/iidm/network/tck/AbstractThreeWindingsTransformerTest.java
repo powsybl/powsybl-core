@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.jupiter.api.Test;
 
@@ -488,7 +489,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
         createPhaseTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
 
-        leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
+        leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).getVoltageRegulation().setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg1.getPhaseTapChanger();
         phaseTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
@@ -502,7 +503,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         createRatioTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
         createPhaseTapChanger(leg2, transformer.getTerminal(ThreeSides.TWO));
 
-        leg2.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
+        leg2.getRatioTapChanger().setLoadTapChangingCapabilities(true).getVoltageRegulation().setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg2.getPhaseTapChanger();
         phaseTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
@@ -517,7 +518,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         createPhaseTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
         createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
 
-        leg3.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
+        leg3.getRatioTapChanger().setLoadTapChangingCapabilities(true).getVoltageRegulation().setRegulating(true);
         PhaseTapChanger phaseTapChanger = leg3.getPhaseTapChanger();
         phaseTapChanger.setLoadTapChangingCapabilities(true);
         ValidationException e = assertThrows(ValidationException.class, () -> phaseTapChanger.setRegulating(true));
@@ -532,10 +533,11 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
         createRatioTapChanger(leg3, transformer.getTerminal(ThreeSides.THREE));
 
-        leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).setRegulating(true);
+        leg1.getRatioTapChanger().setLoadTapChangingCapabilities(true).getVoltageRegulation().setRegulating(true);
         RatioTapChanger ratioTapChanger = leg3.getRatioTapChanger();
         ratioTapChanger.setLoadTapChangingCapabilities(true);
-        ValidationException e = assertThrows(ValidationException.class, () -> ratioTapChanger.setRegulating(true));
+        VoltageRegulation voltageRegulation = ratioTapChanger.getVoltageRegulation();
+        ValidationException e = assertThrows(ValidationException.class, () -> voltageRegulation.setRegulating(true));
         assertTrue(e.getMessage().contains(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED));
     }
 

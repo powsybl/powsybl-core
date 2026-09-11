@@ -464,7 +464,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "158", "k");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "158", "k");
 
@@ -472,7 +472,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "100", "M");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "100", "M");
 
@@ -480,7 +480,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createRemoteVoltageTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "158", "k");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "158", "k");
 
@@ -488,7 +488,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createRemoteReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "100", "M");
-            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "100", "M");
 
@@ -506,7 +506,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "true", "0", "100", "M");
-            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "false", "0", "100", "M");
 
@@ -514,7 +514,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "true", "0", "158", "k");
-            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "false", "0", "158", "k");
 
@@ -522,7 +522,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "true", "0", "100", "M");
-            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "false", "0", "100", "M");
         }

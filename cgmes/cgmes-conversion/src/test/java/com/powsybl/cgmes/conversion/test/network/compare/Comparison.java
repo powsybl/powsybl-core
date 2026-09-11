@@ -823,30 +823,39 @@ public class Comparison {
             // Check regulation
             compare("tapChanger.isRegulating", expected.isRegulating(),
                     actual.isRegulating());
-            if (expected.getRegulationTerminal() == null
-                    || actual.getRegulationTerminal() == null) {
+            if (getRegulationTerminal(expected) == null
+                    || getRegulationTerminal(actual) == null) {
                 // TODO We are not checking regulation terminals if one of them is null
             } else {
                 equivalent(
                         "tapChanger.RegulationTerminalConnectable",
-                        expected.getRegulationTerminal().getConnectable(),
-                        actual.getRegulationTerminal().getConnectable());
+                        getRegulationTerminal(expected).getConnectable(),
+                        getRegulationTerminal(actual).getConnectable());
             }
 
-            if (expected.getRegulationTerminal() != null || actual.getRegulationTerminal() != null) {
-                if (expected.getRegulationTerminal() == null) {
+            if (getRegulationTerminal(expected) != null || getRegulationTerminal(actual) != null) {
+                if (getRegulationTerminal(expected) == null) {
                     diff.unexpected("Tap changer regulating terminal");
                     return;
                 }
-                if (actual.getRegulationTerminal() == null) {
+                if (getRegulationTerminal(actual) == null) {
                     diff.missing("TapChanger regulating terminal");
                     return;
                 }
                 sameIdentifier("tapChanger.getRegulationTerminal",
-                        expected.getRegulationTerminal().getBusBreakerView().getBus(),
-                        actual.getRegulationTerminal().getBusBreakerView().getBus());
+                        getRegulationTerminal(expected).getBusBreakerView().getBus(),
+                        getRegulationTerminal(actual).getBusBreakerView().getBus());
             }
         }
+    }
+
+    private Terminal getRegulationTerminal(TapChanger<?, ?, ?, ?> tapChanger) {
+        if (tapChanger instanceof RatioTapChanger rtc) {
+            return rtc.getRegulatingTerminal();
+        } else if (tapChanger instanceof PhaseTapChanger ptc) {
+            return ptc.getRegulationTerminal();
+        }
+        throw new IllegalArgumentException("Unknown tap changer type");
     }
 
     private <T extends TapChanger<T, S, ?, ?>, S extends TapChangerStep<S>> void compareTapChangerStep(

@@ -76,7 +76,7 @@ class TransformersValidationTest extends AbstractValidationTest {
 
         RatioTapChanger ratioTapChanger = Mockito.mock(RatioTapChanger.class);
         Mockito.when(ratioTapChanger.isRegulating()).thenReturn(true);
-        Mockito.when(ratioTapChanger.getRegulationTerminal()).thenReturn(terminal);
+        Mockito.when(ratioTapChanger.getRegulatingTerminal()).thenReturn(terminal);
         Mockito.when(ratioTapChanger.getTapPosition()).thenReturn(tapPosition);
         Mockito.when(ratioTapChanger.getLowTapPosition()).thenReturn(lowTapPosition);
         Mockito.when(ratioTapChanger.getHighTapPosition()).thenReturn(highTapPosition);
