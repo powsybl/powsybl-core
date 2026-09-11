@@ -23,8 +23,10 @@ class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTr
 
     private final SubstationImpl substation;
 
+    /* Nominal series resistance specified in &#937; at the secondary voltage side */
     private double r;
 
+    /* nominal series reactance specified in &#937; at the secondary voltage side. */
     private double x;
 
     private double g;
