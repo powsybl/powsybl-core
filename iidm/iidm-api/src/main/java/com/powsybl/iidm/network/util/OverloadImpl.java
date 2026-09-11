@@ -26,21 +26,21 @@ public class OverloadImpl implements Overload {
     private final String operationalLimitsGroupId;
 
     private final double previousLimit;
-    private final double limitReductionCoefficient;
+    private final double limitScalingCoefficient;
 
     public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, String operationalLimitsGroupId) {
         this(temporaryLimit, previousLimitName, previousLimit, 1, operationalLimitsGroupId);
     }
 
-    public OverloadImpl(String previousLimitName, double previousLimit, double limitReductionCoefficient, String operationalLimitsGroupId) {
-        this(UNACCEPTABLE_LIMIT, previousLimitName, previousLimit, limitReductionCoefficient, operationalLimitsGroupId);
+    public OverloadImpl(String previousLimitName, double previousLimit, double limitScalingCoefficient, String operationalLimitsGroupId) {
+        this(UNACCEPTABLE_LIMIT, previousLimitName, previousLimit, limitScalingCoefficient, operationalLimitsGroupId);
     }
 
-    public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, double limitReductionCoefficient, String operationalLimitsGroupId) {
+    public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, double limitScalingCoefficient, String operationalLimitsGroupId) {
         this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
         this.previousLimitName = previousLimitName;
         this.previousLimit = previousLimit;
-        this.limitReductionCoefficient = limitReductionCoefficient;
+        this.limitScalingCoefficient = limitScalingCoefficient;
         this.operationalLimitsGroupId = operationalLimitsGroupId;
     }
 
@@ -84,8 +84,8 @@ public class OverloadImpl implements Overload {
     }
 
     @Override
-    public double getLimitReductionCoefficient() {
-        return limitReductionCoefficient;
+    public double getLimitScalingCoefficient() {
+        return limitScalingCoefficient;
     }
 
     @Override

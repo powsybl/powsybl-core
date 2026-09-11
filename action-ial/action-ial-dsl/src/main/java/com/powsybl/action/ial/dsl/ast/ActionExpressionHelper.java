@@ -47,12 +47,12 @@ public final class ActionExpressionHelper {
         return new MostLoadedNode(branchIds);
     }
 
-    public static IsOverloadedNode newIsOverloadedNode(List<String> branchIds, double limitReduction) {
-        return new IsOverloadedNode(branchIds, limitReduction);
+    public static IsOverloadedNode newIsOverloadedNode(List<String> branchIds, double limitScaling) {
+        return new IsOverloadedNode(branchIds, limitScaling);
     }
 
-    public static AllOverloadedNode newAllOverloadedNode(List<String> branchIds, double limitReduction) {
-        return new AllOverloadedNode(branchIds, limitReduction);
+    public static AllOverloadedNode newAllOverloadedNode(List<String> branchIds, double limitScaling) {
+        return new AllOverloadedNode(branchIds, limitScaling);
     }
 
     public static ContingencyOccurredNode newContingencyOccured(String contingencyId) {

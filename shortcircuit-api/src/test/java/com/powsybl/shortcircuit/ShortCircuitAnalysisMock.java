@@ -80,7 +80,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
             .subject("VLGEN")
             .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
             .limit(0)
-            .reduction(0)
+            .scaling(0)
             .value(0)
             .build();
         FortescueFaultResult faultResult = new FortescueFaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),

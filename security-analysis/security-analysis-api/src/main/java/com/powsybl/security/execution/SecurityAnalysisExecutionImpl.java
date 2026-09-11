@@ -66,7 +66,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
                 .setOperatorStrategies(data.getOperatorStrategies())
                 .setActions(data.getActions())
                 .setMonitors(data.getMonitors())
-                .setLimitReductions(data.getLimitReductions());
+                .setLimitScalings(data.getLimitScalings());
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(),

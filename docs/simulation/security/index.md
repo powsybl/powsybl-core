@@ -5,7 +5,7 @@
 configuration.md
 contingency-dsl.md
 action-dsl.md
-limit-reductions.md
+limit-scalings.md
 ```
 
 The security analysis is a simulation that checks violations on a network. These checks can be done on the base case or
@@ -135,25 +135,27 @@ state or post-contingency state with a contingency id or both. For example:
   contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the
   branch.
 
-(security-limit-reductions)=
-### Limit reductions
+(security-limit-scalings)=
+### Limit scalings
 
-Limit reductions can be specified in order to detect when a specific limit is **nearly** reached, without having to
+Limit scalings can be specified in order to detect when a specific limit is **nearly** reached, without having to
 artificially modify the limit itself.
-For instance, with a limit reduction set to 95% for a limit of 1000 MW, the security analysis will flag a limit
+For instance, with a limit scaling set to 95% for a limit of 1000 MW, the security analysis will flag a limit
 violation for any value exceeding 950 MW.
+Limit scalings can also use a scaling higher than 100%. With a limit scaling of 110% for a limit of 1000 MW, the security
+analysis will flag a limit violation for any value exceeding 1100 MW.
 
-Each limit reduction has its own criteria specifying for which limits and under what conditions it should be applied.
+Each limit scaling has its own criteria specifying for which limits and under what conditions it should be applied.
 These criteria can include:
 
 - the type of limit (current, active power or apparent power);
 - the use case (for monitoring only or also for applying remedial actions);
 - the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.);
-- the network elements targeted by the reduction (by ids, countries and/or nominal voltages);
-- which operational limits are affected by the reduction (permanent or temporary + acceptable duration);
-- which specified operational limit groups are affected by the reduction.
+- the network elements targeted by the scaling (by ids, countries and/or nominal voltages);
+- which operational limits are affected by the scaling (permanent or temporary + acceptable duration).
+- which specified operational limit groups are affected by the scaling.
 
-You can find more details about limit reductions [here](./limit-reductions).
+You can find more details about limit scalings [here](./limit-scalings).
 
 ## Outputs
 
@@ -205,7 +207,7 @@ The following example is a result of a security analysis with remedial action, e
 
 ```json
 {
-  "version" : "1.9",
+  "version" : "1.10",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -220,7 +222,7 @@ The following example is a result of a security analysis with remedial action, e
         "operationalLimitsGroupId" : "activated_1_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
-        "limitReduction" : 0.95,
+        "limitScaling" : 0.95,
         "value" : 110.0,
         "side" : "ONE",
         "extensions" : {
@@ -298,7 +300,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO",
         "extensions" : {
@@ -318,7 +320,7 @@ The following example is a result of a security analysis with remedial action, e
         },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.9,
+        "limitScaling" : 0.9,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
@@ -329,7 +331,7 @@ The following example is a result of a security analysis with remedial action, e
         },
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.7,
+        "limitScaling" : 0.7,
         "value" : 115.0,
         "extensions" : {
           "Voltage" : {
@@ -342,7 +344,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "ONE"
       }, {
@@ -351,7 +353,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO"
       } ],

@@ -36,7 +36,7 @@ public interface Overload {
       */
     String getOperationalLimitsGroupId();
 
-    default double getLimitReductionCoefficient() {
+    default double getLimitScalingCoefficient() {
         return 1;
     }
 }

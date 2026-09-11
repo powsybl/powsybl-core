@@ -45,7 +45,7 @@ class SecurityAnalysisResultMergerTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000f)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -58,7 +58,7 @@ class SecurityAnalysisResultMergerTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(900f)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(950)
             .side(TwoSides.ONE)
             .build();

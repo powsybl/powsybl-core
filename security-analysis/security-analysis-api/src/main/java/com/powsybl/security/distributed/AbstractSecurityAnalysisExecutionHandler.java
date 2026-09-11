@@ -16,9 +16,9 @@ import com.powsybl.contingency.strategy.OperatorStrategyList;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.NetworkVariant;
-import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.limitreduction.LimitReductionList;
+import com.powsybl.security.json.limitscaling.LimitScalingListSerDeUtil;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.LimitScalingList;
 import com.powsybl.security.monitor.StateMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
     private static final String PARAMETERS_FILE = "parameters.json";
     private static final String ACTIONS_FILE = "actions.json";
     private static final String STRATEGIES_FILE = "strategies.json";
-    private static final String LIMIT_REDUCTIONS_FILE = "limit-reductions.json";
+    private static final String LIMIT_SCALINGS_FILE = "limit-scalings.json";
 
     protected final int executionCount;
     protected final T input;
@@ -153,7 +153,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
         }
         addOperatorStrategyFile(options, workingDir, input.getOperatorStrategies());
         addActionFile(options, workingDir, input.getActions());
-        addLimitReductionsFile(options, workingDir, input.getLimitReductions());
+        addLimitScalingsFile(options, workingDir, input.getLimitScalings());
     }
 
     private static Path getCasePath(Path workingDir) {
@@ -172,8 +172,8 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
         return workingDir.resolve(STRATEGIES_FILE);
     }
 
-    private static Path getLimitReductionsPath(Path workingDir) {
-        return workingDir.resolve(LIMIT_REDUCTIONS_FILE);
+    private static Path getLimitScalingsPath(Path workingDir) {
+        return workingDir.resolve(LIMIT_SCALINGS_FILE);
     }
 
     private static Path getContingenciesPath(Path workingDir) {
@@ -229,16 +229,16 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
     }
 
     /**
-     * Add limit reductions file option, and write it as JSON to working directory.
+     * Add limit scalings file option, and write it as JSON to working directory.
      */
-    private void addLimitReductionsFile(S options, Path workingDir, List<LimitReduction> limitReductions) {
-        if (limitReductions.isEmpty()) {
+    private void addLimitScalingsFile(S options, Path workingDir, List<LimitScaling> limitScalings) {
+        if (limitScalings.isEmpty()) {
             return;
         }
-        Path path = getLimitReductionsPath(workingDir);
-        options.limitReductionsFile(path);
-        LOGGER.debug("Writing limit reductions to file {}", path);
-        LimitReductionListSerDeUtil.write(new LimitReductionList(limitReductions), path);
+        Path path = getLimitScalingsPath(workingDir);
+        options.limitScalingsFile(path);
+        LOGGER.debug("Writing limit scalings to file {}", path);
+        LimitScalingListSerDeUtil.write(new LimitScalingList(limitScalings), path);
     }
 
     /**
