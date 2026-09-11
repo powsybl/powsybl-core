@@ -96,11 +96,12 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     public VscConverterStationImpl add() {
         NetworkImpl network = getNetwork();
 
+        // Backward compatibility
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
-            // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
-            // the old local attributes will be set without overriding the local attributes if already set
         } else {
+            // In the case of a vsc converter station with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
             if (!Double.isNaN(voltageSetpoint) && Double.isNaN(localTargetV)) {
                 this.setLocalTargetV(voltageSetpoint);
             }

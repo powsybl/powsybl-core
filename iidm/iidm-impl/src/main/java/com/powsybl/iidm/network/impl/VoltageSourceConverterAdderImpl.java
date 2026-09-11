@@ -84,11 +84,12 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         super.preCheck();
         NetworkImpl network = getNetwork();
 
+        // Backward compatibility
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, pccTerminal);
-        // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
-        // the old local attributes will be set without overriding the local attributes if already set
         } else {
+            // In the case of a VoltageSourceConverter with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
             if (Double.isNaN(localTargetV) && !Double.isNaN(voltageSetpoint)) {
                 localTargetV = voltageSetpoint;
             }

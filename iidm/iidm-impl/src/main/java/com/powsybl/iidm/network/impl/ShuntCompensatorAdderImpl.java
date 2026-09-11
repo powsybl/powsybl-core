@@ -242,6 +242,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
+        // Backward compatibility
         if (this.voltageRegulationAttributes == null) {
             boolean isWithTerminal = regulatingTerminal != null;
             if (voltageRegulatorOn || !Double.isNaN(targetDeadband)) {
@@ -255,9 +256,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                     localTargetV = targetV;
                 }
             }
-        // Backward compatibility: In the case of a generator with old setters and newVoltageRegulation method used
-        // the old local attributes will be set without overriding the local attributes if already set
         } else {
+            // In the case of a shunt compensator with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
             if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
                 localTargetV = targetV;
             }

@@ -81,14 +81,14 @@ public final class VoltageRegulationUtils {
             VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
                 .withMode(regulationMode);
             double targetValue = Double.NaN;
-            if (VOLTAGE.equals(regulationMode)) {
+            if (regulationMode == VOLTAGE) {
                 if (terminal != null) {
                     targetValue = targetV;
                 } else {
                     adder.setLocalTargetV(targetV);
                 }
                 adder.setLocalTargetQ(targetQ);
-            } else if (REACTIVE_POWER.equals(regulationMode)) {
+            } else if (regulationMode == REACTIVE_POWER) {
                 if (terminal != null) {
                     targetValue = targetQ;
                 } else {

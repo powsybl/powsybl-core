@@ -115,11 +115,15 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue));
 
         writeTapChanger(rtc, context);
-        double targetDeadband = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getTargetDeadband() : Double.NaN;
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> writeTargetDeadband(targetDeadband, context));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            double targetDeadband = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+            writeTargetDeadband(targetDeadband, context);
+        });
         context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, rtc.hasLoadTapChangingCapabilities());
-        double targetValue = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getTargetValue() : Double.NaN;
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", targetValue));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
+            double targetValue = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getTargetValue() : Double.NaN;
+            context.getWriter().writeDoubleAttribute("targetV", targetValue);
+        });
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_17, context, () -> {
             VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
             context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, voltageRegulation != null ? voltageRegulation.getMode() : null);
@@ -143,15 +147,17 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Network network, NetworkDeserializerContext context) {
         List<Consumer<RatioTapChanger>> toApply = new ArrayList<>();
-        VoltageRegulationAdder<RatioTapChangerAdder> voltageRegulationAdder = adder.newVoltageRegulation();
-        readRatioTapChangerAttributes(adder, context, voltageRegulationAdder);
+        // Backward compatibility with IIDM versions prior to 1.18:
+        // The voltage regulation data were not serialized in the "voltageRegulation" sub-element
+        VoltageRegulationAdder<RatioTapChangerAdder> backwardCompatibilityVoltageRegulationAdder = adder.newVoltageRegulation();
+        readRatioTapChangerAttributes(adder, context, backwardCompatibilityVoltageRegulationAdder);
 
         boolean[] hasTerminalRef = new boolean[1];
         context.getReader().readChildNodes(subElementName -> {
             switch (subElementName) {
                 case ELEM_TERMINAL_REF -> {
                     hasTerminalRef[0] = true;
-                    readRatioTapChangerTerminalRef(adder, voltageRegulationAdder, network, context);
+                    readRatioTapChangerTerminalRef(adder, backwardCompatibilityVoltageRegulationAdder, network, context);
                 }
                 case STEP_ROOT_ELEMENT_NAME -> {
                     RatioTapChangerAdder.StepAdder stepAdder = adder.beginStep();
@@ -165,7 +171,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             }
         });
         if (!hasTerminalRef[0]) {
-            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, voltageRegulationAdder::add);
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, backwardCompatibilityVoltageRegulationAdder::add);
             RatioTapChanger ratioTapChanger = adder.add();
             toApply.forEach(consumer -> consumer.accept(ratioTapChanger));
         }
@@ -352,13 +358,14 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static void readRatioTapChangerAttributes(RatioTapChangerAdder adder, NetworkDeserializerContext context, VoltageRegulationAdder<RatioTapChangerAdder> voltageRegulationAdder) {
         AtomicBoolean regulating = new AtomicBoolean(false);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> regulating.set(context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false)));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context,
+            () -> regulating.set(context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false)));
 
         int[] lowTapPosition = new int[1];
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
-            lowTapPosition[0] = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () ->
-            lowTapPosition[0] = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION, 0));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context,
+            () -> lowTapPosition[0] = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
+            () -> lowTapPosition[0] = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION, 0));
         adder.setLowTapPosition(lowTapPosition[0]);
 
         OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
