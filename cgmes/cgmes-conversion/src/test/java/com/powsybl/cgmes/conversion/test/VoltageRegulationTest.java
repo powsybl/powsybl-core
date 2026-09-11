@@ -8,10 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.junit.jupiter.api.Test;
@@ -206,6 +203,50 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertLocalTargets(svc4, 10, Double.NaN);
         VoltageRegulation reg4 = svc4.getVoltageRegulation();
         assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", 20, Double.NaN, true);
+    }
+
+    @Test
+    void transformerVoltageRegulationEq() {
+        // EQ only import: regulation is created without targets and not enabled
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml");
+
+        // RTC1: 2w transformer voltage regulation
+        RatioTapChanger rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
+        assertVoltageRegulation(rtc1.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", Double.NaN, Double.NaN, false);
+
+        // RTC2: 2w transformer reactive power regulation
+        RatioTapChanger rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
+        assertVoltageRegulation(rtc2.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT2_2", Double.NaN, Double.NaN, false);
+
+        // RTC3: 3w transformer voltage regulation
+        RatioTapChanger rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc3.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", Double.NaN, Double.NaN, false);
+
+        // RTC4: 3w transformer reactive power regulation
+        RatioTapChanger rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc4.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT3_2", Double.NaN, Double.NaN, false);
+    }
+
+    @Test
+    void transformerVoltageRegulationEqAndSsh() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+
+        // RTC1: 2w transformer voltage regulation
+        RatioTapChanger rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
+        assertVoltageRegulation(rtc1.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
+
+        // RTC2: 2w transformer reactive power regulation
+        RatioTapChanger rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
+        assertVoltageRegulation(rtc2.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT2_2", 50.0, 2.0, true);
+
+        // RTC3: 3w transformer voltage regulation
+        RatioTapChanger rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc3.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
+
+        // RTC4: 3w transformer reactive power regulation
+        RatioTapChanger rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc4.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT3_2", 50.0, 2.0, true);
     }
 
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {
