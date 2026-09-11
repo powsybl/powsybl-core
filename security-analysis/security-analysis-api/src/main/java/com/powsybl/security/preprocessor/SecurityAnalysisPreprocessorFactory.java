@@ -18,9 +18,10 @@ import com.google.common.io.ByteSource;
  * on the command line {@literal itools security-analysis}. For that purpose, only one factory
  * must be provided at runtime as a service.
  *
- * @Deprecated(forRemoval=true) This interface will be removed on later versions, avoid new usages of it.
+ * @deprecated This interface will be removed on later versions, avoid new usages of it.
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
+@Deprecated(forRemoval = true, since = "7.4.0")
 public interface SecurityAnalysisPreprocessorFactory {
 
     String getName();
