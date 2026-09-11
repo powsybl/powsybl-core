@@ -35,8 +35,15 @@ public abstract class AbstractContingencyResult {
         this.distributedActivePower = distributedActivePower;
         this.phaseShifterResults = phaseShifterResults != null && !phaseShifterResults.isEmpty()
                 ? Collections.unmodifiableMap(phaseShifterResults.stream()
-                        .collect(Collectors.toMap(psr -> psr.transformerId() + "_" + (psr.side() != null ? psr.side().name() : ""),
-                        Function.identity())))
+                        .collect(Collectors.toMap(
+                                psr -> {
+                                    String key = psr.transformerId();
+                                    if (psr.side() != null) {
+                                        key += "_" + psr.side().name();
+                                    }
+                                    return key;
+                                },
+                                Function.identity())))
                 : Collections.emptyMap();
     }
 

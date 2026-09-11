@@ -10,11 +10,15 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.MovedPhaseShifterResult;
+import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.results.PreContingencyResult;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,5 +74,20 @@ class PhaseShifterResultSerializerUtilTest {
         assertTrue(result.contains("\"side\":\"THREE\""));
         assertTrue(result.contains("\"initialTap\":0"));
         assertTrue(result.contains("\"newTap\":2"));
+    }
+
+    @Test
+    void testGetPhaseShifterResultBothGetters() {
+        var pre = new PreContingencyResult(
+            LoadFlowResult.ComponentResult.Status.CONVERGED,
+            null,
+            new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+            0.0,
+            java.util.List.of(
+                new MovedPhaseShifterResult("T1", null, 0, 2),
+                new MovedPhaseShifterResult("T2", ThreeSides.ONE, 1, 3))
+        );
+        assertEquals(new MovedPhaseShifterResult("T1", null, 0, 2), pre.getPhaseShifterResult("T1"));
+        assertEquals(new MovedPhaseShifterResult("T2", ThreeSides.ONE, 1, 3), pre.getPhaseShifterResult("T2", ThreeSides.ONE));
     }
 }
