@@ -323,7 +323,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
-        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
+        return getSubstations(Optional.ofNullable(country).map(Country::getFullName).orElse(null), tsoId, geographicalTags);
     }
 
     @Override

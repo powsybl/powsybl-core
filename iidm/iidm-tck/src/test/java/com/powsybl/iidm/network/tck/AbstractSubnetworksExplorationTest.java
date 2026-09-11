@@ -378,11 +378,11 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertIds(List.of(n1Substation1, n2Substation1), merged.getSubstations(Country.FR, null));
         assertIds(List.of(n1Substation1), subnetwork1.getSubstations(Country.FR, null));
         assertIds(List.of(n2Substation1), subnetwork2.getSubstations(Country.FR, null));
-        var countryName = Country.ES.getName();
+        var countryName = Country.ES.getFullName();
         assertIds(List.of(n1Substation2), merged.getSubstations(countryName, null));
         assertIds(List.of(n1Substation2), subnetwork1.getSubstations(countryName, null));
         assertFalse(subnetwork2.getSubstations(countryName, null).iterator().hasNext());
-        countryName = Country.BE.getName();
+        countryName = Country.BE.getFullName();
         assertIds(List.of(n2Substation2), merged.getSubstations(countryName, null));
         assertFalse(subnetwork1.getSubstations(countryName, null).iterator().hasNext());
         assertIds(List.of(n2Substation2), subnetwork2.getSubstations(countryName, null));
