@@ -56,6 +56,8 @@ The `SensitivityComputationFactory` property has been removed in PowSyBl 3.0.0. 
 The `SensitivityFactorsProviderFactory` property has been removed in PowSyBl 3.0.0. Use the [sensitivity-analysis](../../simulation/sensitivity/index.md#sensitivity-factors) module and properties instead.
 
 **SecurityAnalysisFactory**<br>
-The `SecurityAnalysisFactory` property has been removed in PowSyBl 3.0.0. Use the [security-analysis](../../simulation/security/configuration.md) module instead.
+The `SecurityAnalysisFactory` property has been removed in PowSyBl 3.0.0. 
+Use the [security-analysis](../../simulation/security/configuration.md) module instead. 
 
+*Note: since version 7.4.0, the [security-analysis](../../simulation/security/configuration.md) module is deprecated and will be removed on later versions.*
 

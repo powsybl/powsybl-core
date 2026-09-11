@@ -1,5 +1,7 @@
 # Configuration
 
+> Warning : since version 7.4.0, the `security-analysis` is deprecated and will be removed on later versions, avoid new usages of it.
+
 The `security-analysis` module is used to configure the execution of the [security-analysis](../../user/itools/security-analysis.md) command and simulation.
 
 ## Implementation

@@ -41,7 +41,7 @@ table-formatter.md
 - [load-flow-action-simulator](load-flow-action-simulator.md)
 - [loadflow-results-completion-parameters](loadflow-results-completion-parameters.md)
 - [loadflow-validation](../../grid_features/loadflow_validation/configuration.md)
-- [security-analysis](../../simulation/security/configuration.md#configuration)
+- [security-analysis (deprecated)](../../simulation/security/configuration.md#configuration)
 - [limit-violation-default-filter](limit-violation-default-filter.md)
 - [dynamic-security-analysis](../../simulation/dynamic_security/configuration.md#configuration)
 - [dynamic-security-analysis-default-parameters](../../simulation/dynamic_security/configuration.md#parameters)
