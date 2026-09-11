@@ -1297,7 +1297,7 @@ public final class NetworkSerDe {
             executor.execute(() -> {
                 try (OutputStream tmp = Channels.newOutputStream(pipe.sink());
                      //using buffered stream is about 20 times more effective for xml
-                     OutputStream os = format == TreeDataFormat.BIN ? tmp : new BufferedOutputStream(tmp)) {
+                     OutputStream os = format == TreeDataFormat.XML ? new BufferedOutputStream(tmp) : tmp) {
                     write(network, new ExportOptions().setFormat(format), os);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
@@ -1305,7 +1305,7 @@ public final class NetworkSerDe {
             });
             try (InputStream tmp = Channels.newInputStream(pipe.source());
                  //using buffered stream for read has little impact, but it mimics the write behavior
-                 InputStream is = format == TreeDataFormat.BIN ? tmp : new BufferedInputStream(tmp)) {
+                 InputStream is = format == TreeDataFormat.XML ? new BufferedInputStream(tmp) : tmp) {
                 return read(is,
                         new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
             }
