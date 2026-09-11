@@ -55,9 +55,11 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         options.setCharset(StandardCharsets.ISO_8859_1);
         options.setIncludedExtensions(extensionsList);
         options.setWithAutomationSystems(false);
+        options.setNaturalOrder(true);
         assertEquals(0, (int) options.getIncludedExtensions().map(Set::size).orElse(-1));
         assertEquals(StandardCharsets.ISO_8859_1, options.getCharset());
         assertFalse(options.isWithAutomationSystems());
+        assertTrue(options.isNaturalOrder());
     }
 
     @Test
@@ -116,6 +118,7 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         assertEquals(TopologyLevel.NODE_BREAKER, options.getTopologyLevel());
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(Boolean.FALSE, options.isSorted());
+        assertEquals(Boolean.FALSE, options.isNaturalOrder());
         assertEquals(IidmSerDeConstants.CURRENT_IIDM_VERSION, options.getVersion());
         assertEquals(THROW_EXCEPTION, options.getIidmVersionIncompatibilityBehavior());
         assertEquals(StandardCharsets.UTF_8, options.getCharset());

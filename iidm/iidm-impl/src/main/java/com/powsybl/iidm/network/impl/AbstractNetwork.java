@@ -17,9 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -79,6 +77,11 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     @Override
     protected String getTypeDescription() {
         return "Network";
+    }
+
+    @Override
+    public Optional<Comparator<Identifiable<?>>> getIdentifiableNaturalOrderComparator() {
+        return Optional.of(Comparator.comparing(i -> ((AbstractIdentifiable) i).getSortIndex()));
     }
 
     protected DcTopologyModel getDcTopologyModel() {
