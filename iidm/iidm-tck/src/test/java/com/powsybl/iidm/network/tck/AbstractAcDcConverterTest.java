@@ -734,7 +734,7 @@ public abstract class AbstractAcDcConverterTest {
 
     @Test
     public void testDroopCurve() {
-        AcDcConverter<?> vsc = createVscA(vla).setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP);
+        AcDcConverter<?> vsc = createVscA(vla).setControlMode(AcDcConverter.ControlMode.DC_DROOP);
 
         assertEquals(DroopCurve.EMPTY, vsc.getDroopCurve());
         assertEquals(0., vsc.getDroopCurve().getSegments().size());

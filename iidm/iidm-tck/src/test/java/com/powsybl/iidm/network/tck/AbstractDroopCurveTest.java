@@ -51,13 +51,35 @@ public abstract class AbstractDroopCurveTest {
 
     @Test
     public void invalidK() {
-        DroopCurveAdder.SegmentAdder segmentAdder = converter.newDroopCurve()
+        DroopCurveAdder.SegmentAdder segmentAdder1 = converter.newDroopCurve()
                 .beginSegment()
                 .setK(Double.NaN)
                 .setMaxV(500.0)
                 .setMinV(100.0);
-        ValidationException e = assertThrows(ValidationException.class, segmentAdder::endSegment);
-        assertTrue(e.getMessage().contains("k is not set"));
+        ValidationException e1 = assertThrows(ValidationException.class, segmentAdder1::endSegment);
+        assertTrue(e1.getMessage().contains("k is not set"));
+
+        DroopCurveAdder.SegmentAdder segmentAdder2 = converter.newDroopCurve()
+                .beginSegment()
+                .setK(0.0)
+                .setMaxV(500.0)
+                .setMinV(100.0);
+        ValidationException e2 = assertThrows(ValidationException.class, segmentAdder2::endSegment);
+        assertTrue(e2.getMessage().contains("k is zero"));
+
+        DroopCurveAdder droopCurveAdder3 = converter.newDroopCurve()
+                .beginSegment()
+                .setK(1.0)
+                .setMaxV(500.0)
+                .setMinV(0.0)
+                .endSegment()
+                .beginSegment()
+                .setK(-1.0)
+                .setMaxV(100.0)
+                .setMinV(-500.0)
+                .endSegment();
+        ValidationException e3 = assertThrows(ValidationException.class, droopCurveAdder3::add);
+        assertTrue(e3.getMessage().contains("k have inconsistent signs"));
     }
 
     @Test
