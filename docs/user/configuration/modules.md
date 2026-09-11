@@ -15,7 +15,6 @@ import-export-parameters-default-value.md
 limit-violation-default-filter.md
 loadflow-results-completion-parameters.md
 load-flow-action-simulator.md
-loadflow-validation.md
 network.md
 table-formatter.md
 ```
@@ -41,10 +40,11 @@ table-formatter.md
 - [load-flow-based-phase-shifter-optimizer](../../simulation/loadflow/load-flow-based-phase-shifter-optimizer.md)
 - [load-flow-action-simulator](load-flow-action-simulator.md)
 - [loadflow-results-completion-parameters](loadflow-results-completion-parameters.md)
-- [loadflow-validation](loadflow-validation.md)
+- [loadflow-validation](../../grid_features/loadflow_validation/configuration.md)
 - [security-analysis](../../simulation/security/configuration.md#configuration)
 - [limit-violation-default-filter](limit-violation-default-filter.md)
 - [dynamic-security-analysis](../../simulation/dynamic_security/configuration.md#configuration)
 - [dynamic-security-analysis-default-parameters](../../simulation/dynamic_security/configuration.md#parameters)
 - [table-formatter](table-formatter.md)
+- [math-matrix](math-matrix.md)
 
