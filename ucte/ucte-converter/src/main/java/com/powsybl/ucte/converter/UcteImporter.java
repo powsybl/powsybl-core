@@ -794,7 +794,7 @@ public class UcteImporter implements Importer {
 
             addElementNameProperty(ucteTransfo, transformer);
             addTapChangers(ucteNetwork, ucteTransfo, transformer, combinePhaseAngleRegulation);
-            addNominalPowerProperty(ucteTransfo, transformer);
+            transformer.setRatedS(ucteTransfo.getNominalPower());
         }
     }
 
@@ -867,12 +867,6 @@ public class UcteImporter implements Importer {
     private static void addOrderCodeProperty(UcteLine ucteLine, Switch sw) {
         String ucteLineId = ucteLine.getId().toString();
         sw.setProperty(ORDER_CODE, String.valueOf(ucteLineId.charAt(ucteLineId.length() - 1)));
-    }
-
-    private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
-        if (!Double.isNaN(transformer.getNominalPower())) {
-            twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
-        }
     }
 
     private static void addXnodeStatusProperty(UcteNode ucteNode, Identifiable<?> identifiable) {
