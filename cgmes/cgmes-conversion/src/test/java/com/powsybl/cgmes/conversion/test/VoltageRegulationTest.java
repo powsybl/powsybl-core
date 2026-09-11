@@ -277,6 +277,86 @@ class VoltageRegulationTest extends AbstractSerDeTest {
             "false", "true", "-20", "0");
     }
 
+    @Test
+    void transformerVoltageRegulationEqTest() {
+        // EQ only import: regulation is created without targets and not enabled
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml");
+
+        // RTC0: no regulation
+        RatioTapChanger rtc0 = network.getTwoWindingsTransformer("PT2_0").getRatioTapChanger();
+        assertNotNull(rtc0);
+        assertNull(rtc0.getVoltageRegulation());
+
+        // RTC1: 2w transformer voltage regulation
+        RatioTapChanger rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
+        assertVoltageRegulation(rtc1.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", Double.NaN, Double.NaN, false);
+
+        // RTC2: 2w transformer reactive power regulation
+        RatioTapChanger rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
+        assertVoltageRegulation(rtc2.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT2_2", Double.NaN, Double.NaN, false);
+
+        // RTC3: 3w transformer voltage regulation
+        RatioTapChanger rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc3.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", Double.NaN, Double.NaN, false);
+
+        // RTC4: 3w transformer reactive power regulation
+        RatioTapChanger rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc4.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT3_2", Double.NaN, Double.NaN, false);
+    }
+
+    @Test
+    void transformerVoltageRegulationEqAndSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+
+        // RTC0: no regulation
+        RatioTapChanger rtc0 = network.getTwoWindingsTransformer("PT2_0").getRatioTapChanger();
+        assertNotNull(rtc0);
+        assertNull(rtc0.getVoltageRegulation());
+
+        // RTC1: 2w transformer voltage regulation
+        RatioTapChanger rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
+        assertVoltageRegulation(rtc1.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
+
+        // RTC2: 2w transformer reactive power regulation
+        RatioTapChanger rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
+        assertVoltageRegulation(rtc2.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT2_2", 50.0, 2.0, true);
+
+        // RTC3: 3w transformer voltage regulation
+        RatioTapChanger rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc3.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
+
+        // RTC4: 3w transformer reactive power regulation
+        RatioTapChanger rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
+        assertVoltageRegulation(rtc4.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT3_2", 50.0, 2.0, true);
+    }
+
+    @Test
+    void transformerVoltageRegulationExportTest() throws IOException {
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+
+        assertRatioTapChanger(eqFile, sshFile, "RTC_2_0", null, "1", "false");
+
+        assertRatioTapChanger(eqFile, sshFile, "RTC_2_1", "TCC_2_1", "2", "true");
+        assertTapChangerControl(eqFile, sshFile, "TCC_2_1", "T_BBS_2", MODE_KIND_VOLTAGE,
+            "true", "200", "1");
+
+        assertRatioTapChanger(eqFile, sshFile, "RTC_2_2", "TCC_2_2", "2", "true");
+        assertTapChangerControl(eqFile, sshFile, "TCC_2_2", "T_PT2E_2_2", MODE_KIND_REACTIVE_POWER,
+            "true", "50", "2");
+
+        assertRatioTapChanger(eqFile, sshFile, "RTC_3_1", "TCC_3_1", "2", "true");
+        assertTapChangerControl(eqFile, sshFile, "TCC_3_1", "T_BBS_2", MODE_KIND_VOLTAGE,
+            "true", "200", "1");
+
+        assertRatioTapChanger(eqFile, sshFile, "RTC_3_2", "TCC_3_2", "2", "true");
+        assertTapChangerControl(eqFile, sshFile, "TCC_3_2", "T_PT3E_2_2", MODE_KIND_REACTIVE_POWER,
+            "true", "50", "2");
+    }
+
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {
         assertNotNull(gen);
         assertLocalTargets(gen.getLocalTargetQ(), gen.getLocalTargetV(), localTargetQ, localTargetV);
@@ -327,6 +407,13 @@ class VoltageRegulationTest extends AbstractSerDeTest {
             "RegulatingCondEq.controlEnabled", controlEnabled);
     }
 
+    private void assertRatioTapChanger(String eqFile, String sshFile, String connectableId, String regulatingControlId, String step, String controlEnabled) {
+        assertConnectable(eqFile, sshFile, "RatioTapChanger", connectableId,
+            "TapChanger.TapChangerControl", regulatingControlId,
+            "TapChanger.step", step,
+            "TapChanger.controlEnabled", controlEnabled);
+    }
+
     private void assertConnectable(String eqFile, String sshFile, String connectableClass, String connectableId,
                                    String regulatingControlAttribute, String regulatingControlId,
                                    String initialStateValueAttribute, String initialStateValue,
@@ -342,16 +429,31 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertEquals(controlEnabled, getAttribute(connectableSsh, controlEnabledAttribute));
     }
 
+    private void assertTapChangerControl(String eqFile, String sshFile, String regulatingControlId,
+                                         String terminal, String mode,
+                                         String enabled, String targetValue, String targetDeadband) {
+        assertRegulatingControl(eqFile, sshFile, "TapChangerControl", regulatingControlId,
+            terminal, mode, "true", enabled, targetValue, targetDeadband);
+    }
+
     private void assertRegulatingControl(String eqFile, String sshFile, String regulatingControlId,
                                          String terminal, String mode,
                                          String discrete, String enabled, String targetValue, String targetDeadband) {
+        assertRegulatingControl(eqFile, sshFile, "RegulatingControl", regulatingControlId,
+            terminal, mode, discrete, enabled, targetValue, targetDeadband);
+    }
+
+    private void assertRegulatingControl(String eqFile, String sshFile,
+                                         String regulatingControlClass, String regulatingControlId,
+                                         String terminal, String mode,
+                                         String discrete, String enabled, String targetValue, String targetDeadband) {
         // Check EQ RegulatingControl
-        String regulatingControlEq = getElement(eqFile, "RegulatingControl", regulatingControlId);
+        String regulatingControlEq = getElement(eqFile, regulatingControlClass, regulatingControlId);
         assertEquals(terminal, getResource(regulatingControlEq, "RegulatingControl.Terminal"));
         assertEquals(mode, getResource(regulatingControlEq, "RegulatingControl.mode"));
 
         // Check SSH RegulatingControl
-        String regulatingControlSsh = getElement(sshFile, "RegulatingControl", regulatingControlId);
+        String regulatingControlSsh = getElement(sshFile, regulatingControlClass, regulatingControlId);
         assertEquals(discrete, getAttribute(regulatingControlSsh, "RegulatingControl.discrete"));
         assertEquals(enabled, getAttribute(regulatingControlSsh, "RegulatingControl.enabled"));
         assertEquals(targetValue, getAttribute(regulatingControlSsh, "RegulatingControl.targetValue"));
