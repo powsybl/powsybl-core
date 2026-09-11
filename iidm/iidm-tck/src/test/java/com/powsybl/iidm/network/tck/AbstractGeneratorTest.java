@@ -88,6 +88,23 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
+    public void undefinedVoltageRegulatorOnWithEquipmentValidationLevel() {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        Generator generator = voltageLevel.newGenerator()
+                .setId("GEN")
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE)
+                .setTargetP(30.0)
+                .setTargetQ(40.0)
+                .setNode(1)
+                .add();
+
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
+
+    @Test
     public void invalidMaxP() {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, Double.NaN, 10.0, 20.0,
                 30.0, 40.0, false, 20.0));
