@@ -52,6 +52,6 @@ class BatteryConverter extends AbstractConverter {
     }
 
     private static double getQ(Battery battery) {
-        return Double.isNaN(battery.getTargetQ()) ? 0.0 : -battery.getTargetQ();
+        return Double.isNaN(battery.getLocalTargetQ()) ? 0.0 : -battery.getLocalTargetQ();
     }
 }

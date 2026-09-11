@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.TwtData;
 
 import java.time.ZonedDateTime;
@@ -186,11 +187,14 @@ final class TransformersTestUtils {
         strings.add(String.valueOf(rtc.getLowTapPosition()));
         strings.add(String.valueOf(rtc.getTapPosition()));
         strings.add(rtc.getRegulationTerminal().getBusView().getBus().getId());
-        strings.add(String.valueOf(rtc.getTargetV()));
-        strings.add(String.valueOf(rtc.getRegulationValue()));
-        strings.add(String.valueOf(rtc.getRegulationMode()));
-        strings.add(String.valueOf(rtc.getTargetDeadband()));
-        strings.add(String.valueOf(rtc.isRegulating()));
+        strings.add(String.valueOf(rtc.getRegulatingTargetV()));
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
+        if (voltageRegulation != null) {
+            strings.add(String.valueOf(voltageRegulation.getTargetValue()));
+            strings.add(String.valueOf(voltageRegulation.getMode()));
+            strings.add(String.valueOf(voltageRegulation.getTargetDeadband()));
+            strings.add(String.valueOf(voltageRegulation.isRegulating()));
+        }
         strings.add(String.valueOf(rtc.getStepCount()));
         rtc.getAllSteps().forEach((step, rtcStep) -> {
             strings.add(String.valueOf(step));

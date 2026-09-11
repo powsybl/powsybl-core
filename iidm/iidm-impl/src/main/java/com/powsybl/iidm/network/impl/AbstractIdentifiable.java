@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.PropertiesContainer;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Identifiables;
 

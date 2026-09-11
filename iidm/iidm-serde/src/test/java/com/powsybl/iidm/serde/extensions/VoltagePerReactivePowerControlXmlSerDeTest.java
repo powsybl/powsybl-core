@@ -9,10 +9,10 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -34,17 +34,18 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
 
-        svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(0.5).add();
+        svc.getVoltageRegulation()
+            .setSlope(0.5)
+            .setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
 
         Network network2 = allFormatsRoundTripTest(network, "/voltagePerReactivePowerControl.xml", CURRENT_IIDM_VERSION);
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");
         assertNotNull(svc2);
-        VoltagePerReactivePowerControl control2 = svc2.getExtension(VoltagePerReactivePowerControl.class);
-        assertNotNull(control2);
+        assertEquals(0.5, svc2.getVoltageRegulation().getSlope(), 0.0);
 
-        assertEquals(0.5, control2.getSlope(), 0.0);
-        assertEquals("voltagePerReactivePowerControl", control2.getName());
+        // backward compatibility checks from version 1.5
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("voltagePerReactivePowerControl.xml", IidmVersion.V_1_5, CURRENT_IIDM_VERSION);
     }
 
 }

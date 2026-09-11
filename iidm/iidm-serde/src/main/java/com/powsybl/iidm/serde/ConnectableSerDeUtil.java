@@ -210,7 +210,13 @@ public final class ConnectableSerDeUtil {
         double p = reader.readDoubleAttribute("p" + indexToString(index));
         double q = reader.readDoubleAttribute("q" + indexToString(index));
         t.setP(p)
-                .setQ(q);
+            .setQ(q);
+    }
+
+    public static <I extends Injection<I>> void readPQ(List<Consumer<I>> toApply, TreeDataReader reader) {
+        double p = reader.readDoubleAttribute("p");
+        double q = reader.readDoubleAttribute("q");
+        toApply.add(injection -> injection.getTerminal().setP(p).setQ(q));
     }
 
     public static void readOptionalPQ(Integer index, Terminal t, TreeDataReader reader) {

@@ -12,6 +12,10 @@ import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.DroopCurve;
 import com.powsybl.iidm.network.DroopCurveAdder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -45,23 +49,40 @@ public class DroopCurveSerDe {
         context.getWriter().writeEndNode();
     }
 
+    @Deprecated(since = "7.4.0")
     public void read(AcDcConverter<?> converter, NetworkDeserializerContext context) {
-        DroopCurveAdder curveAdder = converter.newDroopCurve();
+        read(context).accept(converter);
+    }
+
+    public <T extends AcDcConverter<?>> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+        toApply.add(read(context));
+    }
+
+    private <T extends AcDcConverter<?>> Consumer<T> read(NetworkDeserializerContext context) {
+        List<DroopCurveSegmentData> segments = new ArrayList<>();
+        // Read
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(ROOT_ELEMENT_NAME)) {
                 double minV = context.getReader().readDoubleAttribute(ATTR_MIN_V);
                 double maxV = context.getReader().readDoubleAttribute(ATTR_MAX_V);
                 double k = context.getReader().readDoubleAttribute(ATTR_K);
+                segments.add(new DroopCurveSegmentData(minV, maxV, k));
                 context.getReader().readEndNode();
-                curveAdder.beginSegment()
-                        .setMinV(minV)
-                        .setMaxV(maxV)
-                        .setK(k)
-                        .endSegment();
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'droopCurve'");
             }
         });
-        curveAdder.add();
+        // Apply
+        return acDcConverter -> {
+            DroopCurveAdder adder = acDcConverter.newDroopCurve();
+            segments.forEach(segment -> adder.beginSegment()
+                .setMinV(segment.minV)
+                .setMaxV(segment.maxV)
+                .setK(segment.k)
+                .endSegment());
+            adder.add();
+        };
     }
+
+    private record DroopCurveSegmentData(double minV, double maxV, double k) { }
 }

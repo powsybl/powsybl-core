@@ -1,3 +1,5 @@
+import com.powsybl.iidm.network.regulation.RegulationMode
+
 /**
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -14,7 +16,7 @@ action('unknown generator') {
     }
 }
 
-action('targetV and targetQ with voltageRegulator OFF') {
+action('targetV and targetQ with regulating false') {
     modifications {
         generatorModification('GEN') {
             minP 20.0
@@ -22,17 +24,17 @@ action('targetV and targetQ with voltageRegulator OFF') {
             targetP 50.0
             targetV 10.0
             targetQ 25.0
-            voltageRegulatorOn false
+            regulating false
         }
     }
 }
 
-action('targetV and targetQ with voltageRegulator ON') {
+action('targetV and targetQ with voltageRegulationMode VOLTAGE') {
     modifications {
         generatorModification('GEN') {
             targetV 10.0
             targetQ 25.0
-            voltageRegulatorOn true
+            voltageRegulationMode RegulationMode.VOLTAGE
         }
     }
 }
@@ -116,6 +118,7 @@ action('connect with targetV change') {
         generatorModification('GEN') {
             connected true
             targetV 1234.56
+            voltageRegulationMode RegulationMode.VOLTAGE
         }
     }
 }

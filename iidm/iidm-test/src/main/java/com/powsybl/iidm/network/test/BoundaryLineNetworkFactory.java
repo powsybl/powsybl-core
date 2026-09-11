@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.Objects;
 
@@ -101,10 +102,10 @@ public final class BoundaryLineNetworkFactory {
                 .setId("G")
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(100.0)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(100.0)
                 .setTargetP(50.0)
-                .setTargetQ(30.0)
+                .setLocalTargetQ(30.0)
                 .setBus("BUS")
                 .add();
         return network;

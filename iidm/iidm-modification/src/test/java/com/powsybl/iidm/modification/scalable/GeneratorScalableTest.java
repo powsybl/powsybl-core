@@ -99,7 +99,7 @@ class GeneratorScalableTest {
 
         assertTrue(network.getGenerator("g3").getTerminal().isConnected());
         assertEquals(100.0, network.getGenerator("g3").getTargetP(), 0.0);
-        assertEquals(1.0, network.getGenerator("g3").getTargetV(), 0.0);
+        assertEquals(1.0, network.getGenerator("g3").getLocalTargetV(), 0.0);
     }
 
     @Test

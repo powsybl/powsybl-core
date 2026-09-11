@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -298,9 +299,14 @@ class TapPositionModificationTest {
             .beginStep()
             .setRho(1.0)
             .endStep()
-            .setTargetV(leg.getTerminal().getVoltageLevel().getNominalV())
-            .setTargetDeadband(2.0)
-            .setRegulationTerminal(leg.getTerminal())
+            .setLoadTapChangingCapabilities(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(leg.getTerminal().getVoltageLevel().getNominalV())
+                .withTargetDeadband(2.0)
+                .withTerminal(leg.getTerminal())
+                .withRegulating(false)
+                .add()
             .add();
 
         NetworkModification modification9 = getNetworkModification(TapType.PHASE, 0, threeWindingTransformer.getId(), ThreeSides.ONE);

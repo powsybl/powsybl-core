@@ -22,7 +22,7 @@ class BatteryExtension {
     }
 
     static double getQ0(Battery self) {
-        self.getTargetQ()
+        self.getLocalTargetQ()
     }
 
     static Battery setQ0(Battery self, double q0) {
