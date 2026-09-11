@@ -984,7 +984,7 @@ public final class EquipmentExport {
 
                         String className = "CurrentLimit";
                         String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), PATL, OPERATIONAL_LIMIT_VALUE);
-                        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE);
+                        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(context.getNetwork()));
                         LoadingLimitEq.write(operationalLimitId, className, "PATL", ptc.getRegulationValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
 
                         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
@@ -1374,7 +1374,7 @@ public final class EquipmentExport {
         }
 
         // Write the permanent limit type (if not already written)
-        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE);
+        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(context.getNetwork()));
         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, writer, context);
             exportedLimitTypes.add(operationalLimitTypeId);
@@ -1391,7 +1391,7 @@ public final class EquipmentExport {
                 int acceptableDuration = temporaryLimit.getAcceptableDuration();
 
                 // Write the temporary limit type (if not already written)
-                operationalLimitTypeId = context.getNamingStrategy().getCgmesId(TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_TYPE);
+                operationalLimitTypeId = context.getNamingStrategy().getCgmesId(TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_TYPE, ref(context.getNetwork()));
                 if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
                     OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, writer, context);
                     exportedLimitTypes.add(operationalLimitTypeId);

@@ -11,15 +11,16 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -64,19 +65,9 @@ class CgmesExportContextTest {
     }
 
     @Test
-    void emptyConstructor() {
-        CgmesExportContext context = new CgmesExportContext();
-        assertEquals(16, context.getCimVersion());
-        assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context.getCim().getNamespace());
-        assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
-        assertTrue(Duration.between(ZonedDateTime.now(), context.getScenarioTime()).toMinutes() < 1);
-        assertTrue(context.exportBoundaryPowerFlows());
-        assertEquals("1D", context.getBusinessProcess());
-    }
-
-    @Test
     void getSet() {
-        CgmesExportContext context = new CgmesExportContext()
+        Network network = Network.create("dummy", "test");
+        CgmesExportContext context = new CgmesExportContext(network)
             .setCimVersion(100)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
