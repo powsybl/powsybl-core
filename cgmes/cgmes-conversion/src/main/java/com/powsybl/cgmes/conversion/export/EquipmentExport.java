@@ -1674,7 +1674,10 @@ public final class EquipmentExport {
             String dcConverterUnitId = acDcConvertersUnit.get(converter).id();
             String converterId = context.getNamingStrategy().getCgmesId(converter);
             String className = converterClassName(converter);
-            String pccTerminalId = getTerminalId(converter.getPccTerminal(), context);
+            String pccTerminalId = null;
+            if (converter.getPccTerminal() != converter.getTerminal(TerminalNumber.ONE).orElseThrow()) {
+                pccTerminalId = getTerminalId(converter.getPccTerminal(), context);
+            }
             String capabilityCurveId = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             AcDcConverterEq.write(converterId, converter.getNameOrId(), className, converter.getDcTerminal1().getDcNode().getNominalV(),
                     converter.getIdleLoss(), converter.getSwitchingLoss(), converter.getResistiveLoss(), dcConverterUnitId,

@@ -978,11 +978,11 @@ public final class SteadyStateHypothesisExport {
             String pPccControl = converter.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "activePower" : "dcVoltage";
             writeCsConverter(converterId, targetPpcc, targetUdc, p, q, operatingMode, pPccControl, cimNamespace, writer, context);
         } else if (converter instanceof VoltageSourceConverter vsc) {
-            double targetQpcc = vsc.getRegulatingTargetQ();
-            double targetUpcc = vsc.getRegulatingTargetV();
+            double targetQpcc = vsc.isWithMode(RegulationMode.REACTIVE_POWER) ? vsc.getRegulatingTargetQ() : 0;
+            double targetUpcc = vsc.isWithMode(RegulationMode.VOLTAGE) ? vsc.getRegulatingTargetV() : 0;
             String pPccControl = vsc.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "pPcc" : "udc";
             String qPccControl = vsc.isWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
-            writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, q, pPccControl, qPccControl, cimNamespace, writer, context);
+            writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, vsc.getLocalTargetQ(), pPccControl, qPccControl, cimNamespace, writer, context);
         }
     }
 
