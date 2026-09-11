@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.extensions;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -18,9 +19,25 @@ public interface PilotPoint {
     }
 
     /**
-     * Get pilot point busbar section ID or bus ID of the bus/breaker view.
+     * A bus of the bus/breaker view referenced by a pilot point, identified by its voltage level ID and its bus ID.
      */
-    List<String> getBusbarSectionsOrBusesIds();
+    record BusRef(String voltageLevelId, String busId) {
+
+        public BusRef {
+            Objects.requireNonNull(voltageLevelId, "Pilot point bus voltage level ID is null");
+            Objects.requireNonNull(busId, "Pilot point bus ID is null");
+        }
+    }
+
+    /**
+     * Get pilot point buses of the bus/breaker view.
+     */
+    List<BusRef> getBuses();
+
+    /**
+     * Get pilot point busbar section IDs.
+     */
+    List<String> getBusbarSectionIds();
 
     double getTargetV();
 
