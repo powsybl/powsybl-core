@@ -444,7 +444,7 @@ public final class NetworkSerDe {
             if (ignoreEquipmentAtExport(identifiable, context) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
                 continue;
             }
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensionsStream()
                     .filter(e -> {
                         ExtensionSerDe extensionSerDe = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
                         return isExtensionIncluded(extensionSerDe, context.getOptions())
@@ -591,8 +591,7 @@ public final class NetworkSerDe {
         }
 
         IidmVersion networkVersion = options.getVersion();
-        return n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
-                        .stream()
+        return n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensionsStream()
                         .map(extension -> (ExtensionSerDe<?, ?>) getExtensionSerializer(options, extension, extensionsSupplier))
                         .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));

@@ -46,7 +46,7 @@ class LoadFlowDefaultParametersLoaderTest {
 
         assertFalse(parameters.isUseReactiveLimits());
         assertEquals(LoadFlowParameters.VoltageInitMode.DC_VALUES, parameters.getVoltageInitMode());
-        List<Extension<LoadFlowParameters>> extensions = parameters.getExtensions().stream().toList();
+        List<Extension<LoadFlowParameters>> extensions = parameters.getExtensionsStream().toList();
         assertEquals(1, extensions.size());
         JsonLoadFlowParametersTest.DummyExtension dummyExtension = (JsonLoadFlowParametersTest.DummyExtension) extensions.get(0);
         assertEquals(5, dummyExtension.getParameterDouble());
@@ -90,7 +90,7 @@ class LoadFlowDefaultParametersLoaderTest {
         moduleConfig.setStringProperty("default-parameters-loader", "test1");
 
         LoadFlowParameters parameters = new LoadFlowParameters(loaders, platformConfig);
-        List<Extension<LoadFlowParameters>> extensions = parameters.getExtensions().stream().toList();
+        List<Extension<LoadFlowParameters>> extensions = parameters.getExtensionsStream().toList();
         assertEquals(1, extensions.size());
     }
 

@@ -8,6 +8,7 @@
 
 package com.powsybl.iidm.network.impl;
 
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,39 +17,63 @@ import java.util.stream.Collectors;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class PropertiesContainer {
-    protected final Properties properties = new Properties();
+    private Properties properties = null;
 
+    /**
+     * <p>Returns the properties.</p>
+     * <p>To limit memory usage, it is recommended to use {@link #hasProperty()} before calling this method.</p>
+     * @return the properties
+     */
     public Properties getProperties() {
+        if (properties == null) {
+            properties = new Properties();
+        }
         return properties;
     }
 
     public boolean hasProperty() {
-        return !properties.isEmpty();
+        return properties != null && !properties.isEmpty();
     }
 
     public boolean hasProperty(String key) {
-        return properties.containsKey(key);
+        return properties != null && properties.containsKey(key);
     }
 
     public String getProperty(String key) {
+        if (properties == null) {
+            return null;
+        }
         Object val = properties.get(key);
         return val != null ? val.toString() : null;
     }
 
     public String getProperty(String key, String defaultValue) {
+        if (properties == null) {
+            return defaultValue;
+        }
+
         Object val = properties.getOrDefault(key, defaultValue);
         return val != null ? val.toString() : null;
     }
 
     public String setProperty(String key, String value) {
+        if (properties == null) {
+            properties = new Properties();
+        }
         return (String) properties.put(key, value);
     }
 
     public String removeProperty(String key) {
+        if (properties == null) {
+            return null;
+        }
         return (String) properties.remove(key);
     }
 
     public Set<String> getPropertyNames() {
+        if (properties == null) {
+            return new HashSet<>();
+        }
         return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
     }
 }
