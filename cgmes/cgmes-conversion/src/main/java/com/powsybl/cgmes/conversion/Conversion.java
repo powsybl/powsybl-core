@@ -287,7 +287,6 @@ public class Conversion {
         Context updateContext = createUpdateContext(network, reportNode);
 
         // add processes to create new equipment using update data (ssh and sv data)
-        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
         createTieLinesWhenThereAreMoreThanTwoBoundaryLinesAtBoundaryNodeDuringUpdate(network, updateContext);
         createFictitiousLoadsForSvInjectionsDuringUpdate(network, cgmes, updateContext);
 
@@ -355,6 +354,7 @@ public class Conversion {
         // Switches are updated first because the subsequent update of the terminals
         // is configurable and, if activated, may modify their state.
         // Then, the update of the terminals can overwrite the state of the switches
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
         updateSwitches(network, updateContext);
 
         updateLoads(network, cgmes, updateContext);
@@ -1061,10 +1061,6 @@ public class Conversion {
             return disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected;
         }
 
-        public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
-            return UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL;
-        }
-
         public List<DefaultValue> updateDefaultValuesPriority() {
             return usePreviousValuesDuringUpdate
                     ? List.of(DefaultValue.PREVIOUS, DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY)
@@ -1140,7 +1136,6 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
-        private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
         private boolean usePreviousValuesDuringUpdate = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
