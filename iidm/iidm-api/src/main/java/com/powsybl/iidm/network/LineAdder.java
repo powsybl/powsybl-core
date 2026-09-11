@@ -37,6 +37,12 @@ public interface LineAdder extends BranchAdder<Line, LineAdder> {
                 .setVoltageLevel2(line.getTerminal2().getVoltageLevel().getId());
     }
 
+    /**
+     * Set the resistance of the line in &#937. Since this can be an equivalent model, calculations can lead to the value being negative.
+     * Therefore, a negative value is allowed.
+     * @param r the value of the resistance of the line in &#937
+     * @return this adder, for chaining
+     */
     LineAdder setR(double r);
 
     LineAdder setX(double x);

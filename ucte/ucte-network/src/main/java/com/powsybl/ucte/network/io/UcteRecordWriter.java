@@ -63,8 +63,21 @@ class UcteRecordWriter {
         if (value == null) {
             return;
         }
+        String fieldValue = sanitizeField(value, endIndex - beginIndex);
         resizeBuffer(endIndex);
-        buffer.replace(beginIndex, endIndex, value);
+        buffer.replace(beginIndex, endIndex, fieldValue);
+    }
+
+    // A UCTE record is a single fixed-width line. Neutralize control characters so a value
+    // (e.g. a network property fed to the exporter) cannot inject a line break and forge
+    // extra records, and truncate to the field width so it cannot shift the following columns.
+    private static String sanitizeField(String value, int fieldLength) {
+        StringBuilder sb = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            sb.append(c < ' ' || c == '\u007f' ? ' ' : c);
+        }
+        return sb.length() > fieldLength ? sb.substring(0, fieldLength) : sb.toString();
     }
 
     private String alignAndTruncate(String str, int strLen, Alignment alignment) {
