@@ -112,6 +112,7 @@ public final class LoadingLimitsUtil {
         adder.setDetectionKind(limits.getDetectionKind());
         if (limits.getDetectionKind() == DetectionKind.HIGH) {
             adder.setPermanentLimit(limits.getPermanentLimit());
+            adder.setPermanentLimitName(limits.getPermanentLimitName());
         }
         limits.getTemporaryLimits().forEach(limit ->
                 adder.beginTemporaryLimit()

@@ -85,13 +85,13 @@
     <iidm:line id="LINE-5-4" r="1.0E-4" x="8.500000000000001E-4" b1="8.799999999999999" b2="8.799999999999999" voltageLevelId1="VL-5" bus1="BUS-5" connectableBus1="BUS-5" voltageLevelId2="VL-4" bus2="BUS-4" connectableBus2="BUS-4"/>
     <iidm:line id="LINE-6-4" r="1.7E-4" x="9.2E-4" b1="7.9" b2="7.9" voltageLevelId1="VL-6" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId2="VL-4" bus2="BUS-4" connectableBus2="BUS-4" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:apparentPowerLimits permanentLimit="50.0">
+            <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimit="50.0">
                 <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="60.0"/>
                 <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="70.0"/>
             </iidm:apparentPowerLimits>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:apparentPowerLimits permanentLimit="50.0">
+            <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimit="50.0">
                 <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="60.0"/>
                 <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="70.0"/>
             </iidm:apparentPowerLimits>

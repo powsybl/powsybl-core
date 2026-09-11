@@ -37,35 +37,21 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="NHV1_NHV2_1" r="3.0" x="33.0" b1="1.93E-4" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2"/>
-    <iidm:line id="NHV1_NHV2_2" r="3.0" x="33.0" b1="1.93E-4" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
-        <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:activePowerLimits detectionKind="HIGH" permanentLimitName="name1" permanentLimit="350.0">
-                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-            </iidm:activePowerLimits>
-            <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimitName="other name" permanentLimit="350.0">
-                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-            </iidm:apparentPowerLimits>
-            <iidm:currentLimits detectionKind="HIGH" permanentLimitName="hello" permanentLimit="350.0">
-                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+    <iidm:line id="NHV1_NHV2_1" r="3.0" x="33.0" b1="1.93E-4" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2">
+        <iidm:operationalLimitsGroup1 id="a">
+            <iidm:currentLimits detectionKind="LOW">
+                <iidm:temporaryLimit name="60'" acceptableDuration="3600" value="500.0"/>
+                <iidm:temporaryLimit name="40'" acceptableDuration="2400" value="700.0"/>
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup1>
-        <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:activePowerLimits detectionKind="HIGH" permanentLimitName="strange,,name" permanentLimit="350.0">
-                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-            </iidm:activePowerLimits>
-            <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimitName="" permanentLimit="350.0">
-                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+        <iidm:operationalLimitsGroup1 id="b">
+            <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimit="100.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="c">
+            <iidm:apparentPowerLimits permanentLimit="557.34" detectionKind="LOW">
+                <iidm:temporaryLimit name="30'" acceptableDuration="1800" value="400.0"/>
             </iidm:apparentPowerLimits>
-            <iidm:currentLimits detectionKind="HIGH" permanentLimitName="perma" permanentLimit="350.0">
-                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-                <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-            </iidm:currentLimits>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
+    <iidm:line id="NHV1_NHV2_2" r="3.0" x="33.0" b1="1.93E-4" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2"/>
 </iidm:network>

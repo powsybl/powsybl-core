@@ -142,9 +142,11 @@ If no temporary limit is present, then the acceptable duration above the permane
 ### Low loading limits
 
 ```{note}
-Currently, this model is in BETA and only available in the IIDM representation. There is no import or export of this kind of limit with any
-exchange format.
-The model is subject to change and support for downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.) may vary.
+Import / export of low limits is available starting from IIDM 1.18 (PowSyBl 7.4.0). Networks that contain low limits
+can only be exported to IIDM 1.17 or earlier by forcing the export to ignore the low limits.
+Be aware that exporting such network may result in an incomplete set of limits for some equipment.
+
+Low limits might not yet be supported by downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.).
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
 
 If you're unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html)

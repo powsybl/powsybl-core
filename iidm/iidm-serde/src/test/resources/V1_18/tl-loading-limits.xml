@@ -20,15 +20,15 @@
                                bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"
                                selectedOperationalLimitsGroupIds="DEFAULT">
                 <iidm:operationalLimitsGroup id="DEFAULT">
-                    <iidm:activePowerLimits permanentLimit="350.0">
+                    <iidm:activePowerLimits detectionKind="HIGH" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:activePowerLimits>
-                    <iidm:apparentPowerLimits permanentLimit="350.0">
+                    <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:apparentPowerLimits>
-                    <iidm:currentLimits permanentLimit="350.0">
+                    <iidm:currentLimits detectionKind="HIGH" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:currentLimits>
@@ -52,15 +52,15 @@
                                bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"
                                selectedOperationalLimitsGroupIds="DEFAULT">
                 <iidm:operationalLimitsGroup id="DEFAULT">
-                    <iidm:activePowerLimits permanentLimit="350.0">
+                    <iidm:activePowerLimits detectionKind="HIGH" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:activePowerLimits>
-                    <iidm:apparentPowerLimits permanentLimit="350.0">
+                    <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:apparentPowerLimits>
-                    <iidm:currentLimits permanentLimit="350.0">
+                    <iidm:currentLimits detectionKind="HIGH" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:currentLimits>
