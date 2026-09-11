@@ -672,17 +672,7 @@ public class UcteExporter implements Exporter {
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
 
         double nominalPower;
-        try {
-            nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer);
-        } catch (IllegalStateException e) {
-            nominalPower = NOMINAL_POWER_NOVALUE;
-            LOGGER.warn("Transformer {}: No nominal power provided. Defaulting to {}",
-                    twoWindingsTransformer.getId(),
-                    NOMINAL_POWER_NOVALUE);
-            UcteExporterReports.nominalPowerMissing(context.getReportNode(),
-                    twoWindingsTransformer.getId(),
-                    NOMINAL_POWER_NOVALUE);
-        }
+        nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer, context);
 
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
@@ -706,11 +696,12 @@ public class UcteExporter implements Exporter {
      * {@link TwoWindingsTransformer} as the {@code ratedS} field. For retro-compatibility, if ratedS is {@code NaN},
      * also look in the {@code nomimalPower}" property (now deprecated).
      * <br>
-     * Throw an IllegalStateException if no nominal power can be extracted.
+     * If both are absent, return default value {@code 99999} and log + report a warning
      * @param twoWindingsTransformer a transformer
      * @return The nominal power of the transformer
      */
-    private static double extractNominalPowerFromTransformer(TwoWindingsTransformer twoWindingsTransformer) {
+    private static double extractNominalPowerFromTransformer(TwoWindingsTransformer twoWindingsTransformer,
+                                                             UcteExporterContext context) {
         if (!Double.isNaN(twoWindingsTransformer.getRatedS())) {
             return twoWindingsTransformer.getRatedS();
         }
@@ -721,8 +712,13 @@ public class UcteExporter implements Exporter {
                 return legacyNominalPower;
             }
         }
-        throw new IllegalStateException(
-                "Provided transformer " + twoWindingsTransformer.getId() + " has no nominal power");
+        LOGGER.warn("Transformer {}: No nominal power provided. Defaulting to {}",
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        UcteExporterReports.nominalPowerMissing(context.getReportNode(),
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        return NOMINAL_POWER_NOVALUE;
     }
 
     /**
