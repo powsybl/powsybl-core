@@ -7,15 +7,15 @@
  */
 package com.powsybl.commons.util;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.Test;
-
 import static com.powsybl.commons.util.Result.failure;
 import static com.powsybl.commons.util.Result.success;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Nico Westerbeck {@literal <nico.westerbeck at 50hertz.com>}
@@ -64,7 +64,6 @@ class ResultTest {
                 .flatMap(value -> failure("too large"));
         assertEquals(failure("too small"), chained);
     }
-
 
     @Test
     void neitherTrackCarriesNull() {
