@@ -11,13 +11,13 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 
-import java.util.*;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian@ at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class PostContingencyResult extends AbstractContingencyResult {
+public class PostContingencyResult extends AbstractContingencyResult<PostContingencyResult> {
 
     private final Contingency contingency;
 
