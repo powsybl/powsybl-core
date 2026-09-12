@@ -13,7 +13,9 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import com.powsybl.iidm.network.util.UnsupportedPropertiesHolder;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -141,8 +143,8 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
     }
 
     @Override
-    public Collection<TemporaryLimit> getTemporaryLimits() {
-        return temporaryLimits.values();
+    public List<TemporaryLimit> getTemporaryLimits() {
+        return Collections.unmodifiableList(new ArrayList<>(temporaryLimits.values()));
     }
 
     @Override
