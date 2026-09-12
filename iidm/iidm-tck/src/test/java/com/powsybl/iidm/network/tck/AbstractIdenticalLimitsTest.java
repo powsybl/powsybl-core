@@ -8,8 +8,8 @@ public abstract class AbstractIdenticalLimitsTest {
     public boolean areLimitsIdentical(LoadingLimits limits1, LoadingLimits limits2) {
         boolean areIdentical = limits1.getPermanentLimit() == limits2.getPermanentLimit();
 
-        List<LoadingLimits.TemporaryLimit> tempLimits1 = limits1.getTemporaryLimits().stream().toList();
-        List<LoadingLimits.TemporaryLimit> tempLimits2 = limits2.getTemporaryLimits().stream().toList();
+        List<LoadingLimits.TemporaryLimit> tempLimits1 = limits1.getTemporaryLimits();
+        List<LoadingLimits.TemporaryLimit> tempLimits2 = limits2.getTemporaryLimits();
 
         if (areIdentical && tempLimits1.size() == tempLimits2.size()) {
             for (int i = 0; i < tempLimits1.size(); i++) {

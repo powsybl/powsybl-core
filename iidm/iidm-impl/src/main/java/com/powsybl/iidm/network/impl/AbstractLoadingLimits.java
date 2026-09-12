@@ -198,8 +198,8 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     }
 
     @Override
-    public Collection<TemporaryLimit> getTemporaryLimits() {
-        return temporaryLimits.values();
+    public List<TemporaryLimit> getTemporaryLimits() {
+        return Collections.unmodifiableList(new ArrayList<>(temporaryLimits.values()));
     }
 
     @Override

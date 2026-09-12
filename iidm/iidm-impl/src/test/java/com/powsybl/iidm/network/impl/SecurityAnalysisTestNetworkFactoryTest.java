@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -103,7 +102,7 @@ class SecurityAnalysisTestNetworkFactoryTest {
         assertTrue(network.getLine(lineS1S2V11Str).getCurrentLimits1().isPresent());
         assertEquals(75, network.getLine(lineS1S2V11Str).getCurrentLimits1().get().getPermanentLimit(), threshold);
         assertEquals(3, network.getLine(lineS1S2V11Str).getCurrentLimits1().get().getTemporaryLimits().size(), threshold);
-        List<LoadingLimits.TemporaryLimit> temporaryLimits = new ArrayList<>(network.getLine(lineS1S2V11Str).getCurrentLimits1().get().getTemporaryLimits());
+        List<LoadingLimits.TemporaryLimit> temporaryLimits = network.getLine(lineS1S2V11Str).getCurrentLimits1().get().getTemporaryLimits();
         assertEquals("10'", temporaryLimits.get(0).getName());
         assertEquals(600, temporaryLimits.get(0).getAcceptableDuration(), threshold);
         assertEquals(80, temporaryLimits.get(0).getValue(), threshold);
@@ -120,7 +119,7 @@ class SecurityAnalysisTestNetworkFactoryTest {
         assertTrue(network.getLine(lineS1S2V12Str).getCurrentLimits1().isPresent());
         assertEquals(75, network.getLine(lineS1S2V12Str).getCurrentLimits1().get().getPermanentLimit(), threshold);
         assertEquals(3, network.getLine(lineS1S2V12Str).getCurrentLimits1().get().getTemporaryLimits().size(), threshold);
-        temporaryLimits = new ArrayList<>(network.getLine(lineS1S2V12Str).getCurrentLimits1().get().getTemporaryLimits());
+        temporaryLimits = network.getLine(lineS1S2V12Str).getCurrentLimits1().get().getTemporaryLimits();
         assertEquals("10'", temporaryLimits.get(0).getName());
         assertEquals(600, temporaryLimits.get(0).getAcceptableDuration(), threshold);
         assertEquals(80, temporaryLimits.get(0).getValue(), threshold);
@@ -137,7 +136,7 @@ class SecurityAnalysisTestNetworkFactoryTest {
         assertTrue(network.getLine(lineS1S2V2Str).getCurrentLimits1().isPresent());
         assertEquals(60, network.getLine(lineS1S2V2Str).getCurrentLimits1().get().getPermanentLimit(), threshold);
         assertEquals(1, network.getLine(lineS1S2V2Str).getCurrentLimits1().get().getTemporaryLimits().size(), threshold);
-        temporaryLimits = new ArrayList<>(network.getLine(lineS1S2V2Str).getCurrentLimits1().get().getTemporaryLimits());
+        temporaryLimits = network.getLine(lineS1S2V2Str).getCurrentLimits1().get().getTemporaryLimits();
         assertEquals("10'", temporaryLimits.get(0).getName());
         assertEquals(600, temporaryLimits.get(0).getAcceptableDuration(), threshold);
         assertEquals(80, temporaryLimits.get(0).getValue(), threshold);
@@ -145,7 +144,7 @@ class SecurityAnalysisTestNetworkFactoryTest {
         assertTrue(network.getTwoWindingsTransformer(twtStr).getCurrentLimits1().isPresent());
         assertEquals(92, network.getTwoWindingsTransformer(twtStr).getCurrentLimits1().get().getPermanentLimit(), threshold);
         assertEquals(2, network.getTwoWindingsTransformer(twtStr).getCurrentLimits1().get().getTemporaryLimits().size(), threshold);
-        temporaryLimits = new ArrayList<>(network.getTwoWindingsTransformer(twtStr).getCurrentLimits1().get().getTemporaryLimits());
+        temporaryLimits = network.getTwoWindingsTransformer(twtStr).getCurrentLimits1().get().getTemporaryLimits();
         assertEquals("10'", temporaryLimits.get(0).getName());
         assertEquals(600, temporaryLimits.get(0).getAcceptableDuration(), threshold);
         assertEquals(100, temporaryLimits.get(0).getValue(), threshold);
@@ -156,7 +155,7 @@ class SecurityAnalysisTestNetworkFactoryTest {
         assertTrue(network.getTwoWindingsTransformer(twt2Str).getCurrentLimits1().isPresent());
         assertEquals(90, network.getTwoWindingsTransformer(twt2Str).getCurrentLimits1().get().getPermanentLimit(), threshold);
         assertEquals(2, network.getTwoWindingsTransformer(twt2Str).getCurrentLimits1().get().getTemporaryLimits().size(), threshold);
-        temporaryLimits = new ArrayList<>(network.getTwoWindingsTransformer(twt2Str).getCurrentLimits1().get().getTemporaryLimits());
+        temporaryLimits = network.getTwoWindingsTransformer(twt2Str).getCurrentLimits1().get().getTemporaryLimits();
         assertEquals("10'", temporaryLimits.get(0).getName());
         assertEquals(600, temporaryLimits.get(0).getAcceptableDuration(), threshold);
         assertEquals(100, temporaryLimits.get(0).getValue(), threshold);
