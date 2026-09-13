@@ -14,9 +14,9 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.MovedPhaseShifterResult;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
@@ -32,15 +32,15 @@ public final class PhaseShifterResultSerializerUtil {
         return JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
     }
 
-    public static void write(Map<String, MovedPhaseShifterResult> phaseShifterResults, JsonGenerator jsonGenerator) throws IOException {
+    public static void write(Collection<MovedPhaseShifterResult> phaseShifterResults, JsonGenerator jsonGenerator) throws IOException {
         if (!phaseShifterResults.isEmpty()) {
             jsonGenerator.writeFieldName("phaseShifterResults");
             jsonGenerator.writeStartArray();
-            for (var psr : phaseShifterResults.values().stream()
+            for (var psr : phaseShifterResults.stream()
                     .sorted(Comparator.comparing(MovedPhaseShifterResult::transformerId)).toList()) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("transformerId", psr.transformerId());
-                jsonGenerator.writeStringField("side", psr.side().name());
+                JsonUtil.writeOptionalEnum(jsonGenerator, "side", psr.getSide());
                 jsonGenerator.writeNumberField("initialTap", psr.initialTap());
                 jsonGenerator.writeNumberField("newTap", psr.newTap());
                 jsonGenerator.writeEndObject();

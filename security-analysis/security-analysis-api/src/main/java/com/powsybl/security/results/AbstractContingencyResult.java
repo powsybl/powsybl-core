@@ -10,6 +10,7 @@ package com.powsybl.security.results;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolationsResult;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,13 @@ public abstract class AbstractContingencyResult {
     private final LimitViolationsResult limitViolationsResult;
     private final NetworkResult networkResult;
     private final double distributedActivePower;
-    private final Map<String, MovedPhaseShifterResult> phaseShifterResults;
+    private final Map<PhaseShifterResultKey, MovedPhaseShifterResult> phaseShifterResults;
+
+    private record PhaseShifterResultKey(String transformerId, ThreeSides side) {
+        private PhaseShifterResultKey(MovedPhaseShifterResult phaseShifterResult) {
+            this(phaseShifterResult.transformerId(), phaseShifterResult.side());
+        }
+    }
 
     protected AbstractContingencyResult(LimitViolationsResult limitViolationsResult,
                                         NetworkResult networkResult,
@@ -36,13 +43,7 @@ public abstract class AbstractContingencyResult {
         this.phaseShifterResults = phaseShifterResults != null && !phaseShifterResults.isEmpty()
                 ? Collections.unmodifiableMap(phaseShifterResults.stream()
                         .collect(Collectors.toMap(
-                                psr -> {
-                                    String key = psr.transformerId();
-                                    if (psr.side() != null) {
-                                        key += "_" + psr.side().name();
-                                    }
-                                    return key;
-                                },
+                                PhaseShifterResultKey::new,
                                 Function.identity())))
                 : Collections.emptyMap();
     }
@@ -59,15 +60,15 @@ public abstract class AbstractContingencyResult {
         return distributedActivePower;
     }
 
-    public Map<String, MovedPhaseShifterResult> getPhaseShifterResults() {
-        return phaseShifterResults;
+    public Collection<MovedPhaseShifterResult> getPhaseShifterResults() {
+        return phaseShifterResults.values();
     }
 
     public MovedPhaseShifterResult getPhaseShifterResult(String transformerId) {
-        return phaseShifterResults.get(transformerId);
+        return phaseShifterResults.get(new PhaseShifterResultKey(transformerId, null));
     }
 
     public MovedPhaseShifterResult getPhaseShifterResult(String transformerId, ThreeSides side) {
-        return phaseShifterResults.get(transformerId + "_" + (side != null ? side.name() : ""));
+        return phaseShifterResults.get(new PhaseShifterResultKey(transformerId, side));
     }
 }
