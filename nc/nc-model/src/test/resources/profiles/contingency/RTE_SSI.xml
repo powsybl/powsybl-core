@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:d88519f4-8273-45c9-a6ba-2802145a1147">
+    <dcat:startDate>2024-01-31T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2024-01-31T23:59:59Z</dcat:endDate>
+    <dcat:keyword>SSI</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/SteadyStateInstruction-EU/2.4</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <nc:Contingency rdf:about="#_contingency-1">
+    <nc:Contingency.mustStudy>false</nc:Contingency.mustStudy>
+  </nc:Contingency>
+  <nc:Contingency rdf:about="#_contingency-9">
+    <nc:Contingency.mustStudy>true</nc:Contingency.mustStudy>
+  </nc:Contingency>
+</rdf:RDF>
