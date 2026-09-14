@@ -98,7 +98,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_1, context, () -> {
             Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
             context.getWriter().writeStartNodes();
-            IidmSerDeUtil.sorted(vl.getBusView().getBusStream(), context.getOptions(), vl.getNetwork())
+            IidmSerDeUtil.sorted(vl.getNetwork(), vl.getBusView().getBusStream(), context.getOptions())
                     .filter(bus -> !Double.isNaN(bus.getV()) || !Double.isNaN(bus.getAngle()))
                     .forEach(bus -> {
                         Set<Integer> nodes = nodesByBus.get(bus.getId());

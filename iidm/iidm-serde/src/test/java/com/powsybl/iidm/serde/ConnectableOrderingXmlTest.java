@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
+ * @author Alexandre Le Jean {@literal <alexandre.le-jean@artelys.com>}
  */
 class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
 
