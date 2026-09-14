@@ -436,8 +436,8 @@ public final class IidmSerDeUtil {
         Comparator<Identifiable<?>> comparator;
         if (exportOptions.isSorted()) {
             comparator = Comparator.comparing(Identifiable::getId);
-        } else if (exportOptions.isNaturalOrder() && network.getIdentifiableNaturalOrderComparator().isPresent()) {
-            comparator = network.getIdentifiableNaturalOrderComparator().get();
+        } else if (exportOptions.isConnectableCreationOrder() && network.getIdentifiableCreationOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableCreationOrderComparator().get();
         } else {
             return identifiables;
         }
@@ -458,7 +458,7 @@ public final class IidmSerDeUtil {
 
     /**
      * Sort identifiables by their ids if given export option is activated,
-     * otherwise, by their natural order if the network defines one.
+     * otherwise, by their creation order if the network defines one.
      * In all other cases, do not change the identifiables order.
      */
     public static <T extends Identifiable<T>> Stream<T> sorted(Network network, Stream<T> stream, ExportOptions exportOptions) {
@@ -468,8 +468,8 @@ public final class IidmSerDeUtil {
         Comparator<Identifiable<?>> comparator;
         if (exportOptions.isSorted()) {
             comparator = Comparator.comparing(Identifiable::getId);
-        } else if (exportOptions.isNaturalOrder() && network.getIdentifiableNaturalOrderComparator().isPresent()) {
-            comparator = network.getIdentifiableNaturalOrderComparator().get();
+        } else if (exportOptions.isConnectableCreationOrder() && network.getIdentifiableCreationOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableCreationOrderComparator().get();
         } else {
             return stream;
         }

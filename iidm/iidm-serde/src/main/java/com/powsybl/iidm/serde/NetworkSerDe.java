@@ -1296,7 +1296,7 @@ public final class NetworkSerDe {
             Pipe pipe = Pipe.open();
             executor.execute(() -> {
                 try (Pipe.SinkChannel sinkChannel = pipe.sink()) {
-                    write(network, new ExportOptions().setFormat(format).setNaturalOrder(true), Channels.newOutputStream(sinkChannel));
+                    write(network, new ExportOptions().setFormat(format).setConnectableCreationOrder(true), Channels.newOutputStream(sinkChannel));
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }

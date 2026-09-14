@@ -30,9 +30,9 @@ class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testRoundTripNaturalOrder() throws IOException {
+    void testRoundTripConnectableCreationOrder() throws IOException {
         ExportOptions exportOptions = new ExportOptions();
-        exportOptions.setNaturalOrder(true);
+        exportOptions.setConnectableCreationOrder(true);
         roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,
@@ -45,10 +45,10 @@ class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testRoundTripSortedOverNaturalOrder() throws IOException {
+    void testRoundTripSortedOverConnectableCreationOrder() throws IOException {
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setSorted(true);
-        exportOptions.setNaturalOrder(true);
+        exportOptions.setConnectableCreationOrder(true);
         roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,

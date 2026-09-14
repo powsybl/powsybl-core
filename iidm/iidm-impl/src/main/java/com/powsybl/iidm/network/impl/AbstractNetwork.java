@@ -80,8 +80,8 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     }
 
     @Override
-    public Optional<Comparator<Identifiable<?>>> getIdentifiableNaturalOrderComparator() {
-        return Optional.of(Comparator.comparing(i -> ((AbstractIdentifiable) i).getSortIndex()));
+    public Optional<Comparator<Identifiable<?>>> getIdentifiableCreationOrderComparator() {
+        return Optional.of(Comparator.comparing(i -> ((AbstractIdentifiable) i).getCreationOrder()));
     }
 
     protected DcTopologyModel getDcTopologyModel() {

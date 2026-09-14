@@ -80,10 +80,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     /**
      * Sort IIDM objects so that generated XML does depend on data model object order.
-     * Require object exported to define a natural order.
-     * Remark: Export option 'sorted' takes priority over 'naturalOrder'.
+     * Require object exported to define a creation order.
+     * Remark: Export option 'sorted' takes priority over 'useConnectableCreationOrder'.
      */
-    private boolean naturalOrder = false;
+    private boolean useConnectableCreationOrder = false;
 
     private boolean withAutomationSystems = true;
 
@@ -272,12 +272,12 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
-    public boolean isNaturalOrder() {
-        return naturalOrder;
+    public boolean isConnectableCreationOrder() {
+        return useConnectableCreationOrder;
     }
 
-    public ExportOptions setNaturalOrder(boolean naturalOrder) {
-        this.naturalOrder = naturalOrder;
+    public ExportOptions setConnectableCreationOrder(boolean useConnectableCreationOrder) {
+        this.useConnectableCreationOrder = useConnectableCreationOrder;
         return this;
     }
 

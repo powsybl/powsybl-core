@@ -1790,9 +1790,9 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Return a comparator to sort element in the natural order
+     * Return a comparator to sort element in the creation order
      */
-    default Optional<Comparator<Identifiable<?>>> getIdentifiableNaturalOrderComparator() {
+    default Optional<Comparator<Identifiable<?>>> getIdentifiableCreationOrderComparator() {
         return Optional.empty();
     }
 

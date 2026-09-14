@@ -23,7 +23,7 @@ class NetworkIndex {
 
     private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
     private final Map<String, String> idByAlias = new HashMap<>();
-    private long sortIndex = 0;
+    private long creationOrder = 0;
 
     private final Map<Class<? extends Identifiable>, Set<Identifiable<?>>> objectsByClass = new HashMap<>();
 
@@ -44,7 +44,7 @@ class NetworkIndex {
                     + ") '" + obj.getId() + "' already exists");
         }
         objectsById.put(obj.getId(), obj);
-        ((AbstractIdentifiable<?>) obj).setSortIndex(sortIndex++);
+        ((AbstractIdentifiable<?>) obj).setCreationOrder(creationOrder++);
         obj.getAliases().forEach(alias -> addAlias(obj, alias));
 
         Set<Identifiable<?>> all = objectsByClass.computeIfAbsent(obj.getClass(), k -> new LinkedHashSet<>());
