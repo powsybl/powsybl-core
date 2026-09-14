@@ -426,7 +426,7 @@ public final class IidmSerDeUtil {
 
     /**
      * Sort identifiables by their ids if given export option is activated,
-     * otherwise, by their natural order if the network defines one.
+     * otherwise, by their creation order if the network defines one.
      * In all other cases, do not change the identifiables order.
      */
     public static <T extends Identifiable<?>> Iterable<T> sorted(Network network, Iterable<T> identifiables, ExportOptions exportOptions) {
