@@ -9,10 +9,15 @@ package com.powsybl.psse.model;
 
 import com.powsybl.commons.PowsyblException;
 
+import java.io.Serial;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class PsseException extends PowsyblException {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public PsseException(String msg) {
         super(msg);

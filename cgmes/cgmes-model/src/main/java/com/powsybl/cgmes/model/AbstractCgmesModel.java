@@ -162,10 +162,10 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         Map<String, CgmesContainer> cs = new HashMap<>();
         connectivityNodeContainers().forEach(c -> {
             String id = c.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
-            String voltageLevel = c.getId("VoltageLevel");
-            String substation = c.getId(SUBSTATION);
             String type = c.getId("connectivityNodeContainerType");
-            String line = type != null && type.contains("Line") ? id : null;
+            String voltageLevel = type.contains("VoltageLevel") ? id : c.getId("VoltageLevel");
+            String substation = type.contains(SUBSTATION) ? id : c.getId(SUBSTATION);
+            String line = type.contains("Line") ? id : null;
             String name = c.get("name");
             cs.put(id, new CgmesContainer(voltageLevel, substation, line, name));
         });

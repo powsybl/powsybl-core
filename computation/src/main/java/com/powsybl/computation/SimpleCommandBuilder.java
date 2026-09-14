@@ -59,7 +59,7 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
 
     public SimpleCommandBuilder arg(Function<Integer, String> arg) {
         Objects.requireNonNull(arg);
-        Function<Integer, List<String> > previous = args;
+        Function<Integer, List<String>> previous = args;
         args = i -> {
             List<String> r = new ArrayList<>(previous.apply(i));
             r.add(arg.apply(i));

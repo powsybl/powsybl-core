@@ -12,6 +12,9 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Coordinate;
+import com.powsybl.iidm.network.extensions.LinePosition;
+import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -277,6 +280,163 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
     }
 
+    @Test
+    void mediumVoltageLoad() {
+        assertTrue(importAndCompareXiidm("MediumVoltageLoad"));
+    }
+
+    @Test
+    void externalGrid() {
+        assertTrue(importAndCompareXiidm("ExternalGrid"));
+    }
+
+    @Test
+    void robustnessTest() {
+        assertTrue(importAndCompareXiidm("robustness"));
+    }
+
+    @Test
+    void importWithoutForcingElmTermsAsBusbarSectionsTest() {
+        Properties parameters = new Properties();
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("ElmTermsAsBusbarSections", new ResourceSet("/", "ElmTermsAsBusbarSections.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+        assertFalse(allBusesHaveBusbarSection(network));
+    }
+
+    @Test
+    void importWithForcedElmTermsAsBusbarSectionsTest() {
+        Properties parameters = new Properties();
+        parameters.put(PowerFactoryImporter.FORCE_ALL_ELMTERMS_AS_BUSBARS, "true");
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("ElmTermsAsBusbarSections", new ResourceSet("/", "ElmTermsAsBusbarSections.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+        assertTrue(allBusesHaveBusbarSection(network));
+    }
+
+    private static boolean allBusesHaveBusbarSection(Network network) {
+        return network.getBusView().getBusStream().allMatch(bus ->
+                bus.getConnectedTerminalStream().anyMatch(terminal -> terminal.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION));
+    }
+
+    @Test
+    void importGeoDataTest() {
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("Geodata", new ResourceSet("/", "Geodata.dgs")),
+                        NetworkFactory.findDefault(),
+                        null);
+        assertNotNull(network);
+
+        assertNullSubstationCoordinates(network, "Substation_A");
+        assertNullSubstationCoordinates(network, "S4");
+        assertNullSubstationCoordinates(network, "S5");
+        assertNullSubstationCoordinates(network, "S6");
+
+        assertNullLineCoordinates(network, "Line_A_B_1");
+        assertNullLineCoordinates(network, "Line_B_C_1");
+        assertNullLineCoordinates(network, "Line_C_D_1");
+
+        Properties parameters = new Properties();
+        parameters.put(PowerFactoryImporter.IMPORT_GEODATA, "true");
+        network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("Geodata", new ResourceSet("/", "Geodata.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+
+        assertSubstationCoordinates(network, "Substation_A", 49.95, 11.45);
+        assertSubstationCoordinates(network, "S4", 48.95, 10.45);
+        assertSubstationCoordinates(network, "S5", 47.95, 9.45);
+        assertSubstationCoordinates(network, "S6", 46.95, 8.45);
+
+        assertLineCoordinates(network, "Line_A_B_1", List.of(new Coordinate(45.2, 9.2), new Coordinate(45.1, 9.1), new Coordinate(45.0, 9.0)));
+        assertLineCoordinates(network, "Line_B_C_1", List.of(new Coordinate(44.2, 8.2), new Coordinate(44.1, 8.1), new Coordinate(44.0, 8.0)));
+        assertLineCoordinates(network, "Line_C_D_1", List.of(new Coordinate(43.2, 7.2), new Coordinate(43.1, 7.1), new Coordinate(43.0, 7.0)));
+    }
+
+    private static void assertNullSubstationCoordinates(Network network, String substationId) {
+        Substation substation = network.getSubstation(substationId);
+        assertNotNull(substation);
+        SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
+        assertNull(substationPosition);
+    }
+
+    private static void assertSubstationCoordinates(Network network, String substationId, double latitude, double longitude) {
+        Substation substation = network.getSubstation(substationId);
+        assertNotNull(substation);
+        SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
+        assertNotNull(substationPosition);
+        assertEquals(latitude, substationPosition.getCoordinate().getLatitude(), 0.0001);
+        assertEquals(longitude, substationPosition.getCoordinate().getLongitude(), 0.0001);
+    }
+
+    private static void assertNullLineCoordinates(Network network, String lineId) {
+        Line line = network.getLine(lineId);
+        assertNotNull(line);
+        LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
+        assertNull(linePosition);
+    }
+
+    private static void assertLineCoordinates(Network network, String lineId, List<Coordinate> coordinates) {
+        Line line = network.getLine(lineId);
+        assertNotNull(line);
+        LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
+        assertNotNull(linePosition);
+
+        assertEquals(coordinates.size(), linePosition.getCoordinates().size());
+        for (int index = 0; index < coordinates.size(); index++) {
+            Coordinate expected = coordinates.get(index);
+            Coordinate actual = linePosition.getCoordinates().get(index);
+
+            assertEquals(expected.getLatitude(), actual.getLatitude(), 0.0001);
+            assertEquals(expected.getLongitude(), actual.getLongitude(), 0.0001);
+        }
+    }
+
+    @Test
+    void twoWindingsTransformerVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerVoltageControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerReactivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerReactivePowerControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerActivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerActivePowerControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerVoltageControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerReactivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerReactivePowerControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerActivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerActivePowerControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerSharedVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerSharedVoltageControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerSharedVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerSharedVoltageControl"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
@@ -471,7 +631,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         BranchData t2wtData41 = new BranchData(t2wt41, 0.0, false, true);
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
-        // The case does not have the reactive of the generator. We set it manually
+        // The case does not have the reactive power of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
@@ -524,6 +684,9 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
         importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
         importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_no-type", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_TypSwitch", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_ACDC", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {
@@ -564,7 +727,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         BranchData t2wtData57 = new BranchData(t2wt57, 0.0, false, true);
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
-        // The case does not have the reactive of the generator. We set it manually
+        // The case does not have the reactive power of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);

@@ -15,20 +15,20 @@ import java.util.Optional;
  */
 public class DataObjectRef {
 
-    private final long id;
+    private final DataObjectRefKey key;
 
     private final DataObjectIndex index;
 
-    public DataObjectRef(long id, DataObjectIndex index) {
-        this.id = id;
+    public DataObjectRef(DataObjectRefKey key, DataObjectIndex index) {
+        this.key = Objects.requireNonNull(key);
         this.index = Objects.requireNonNull(index);
     }
 
     public long getId() {
-        return id;
+        return key.resolveId(index);
     }
 
     public Optional<DataObject> resolve() {
-        return index.getDataObjectById(id);
+        return index.getDataObjectById(getId());
     }
 }

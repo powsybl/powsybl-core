@@ -445,7 +445,6 @@ class UndirectedGraphImplTest {
         Mockito.verify(listener2, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
     }
 
-
     /**
      * <pre>
      *           0

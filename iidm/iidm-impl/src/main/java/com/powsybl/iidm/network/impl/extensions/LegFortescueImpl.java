@@ -24,7 +24,7 @@ class LegFortescueImpl implements LegFortescue {
     private double groundingR;
     private double groundingX;
 
-    public LegFortescueImpl(double rz, double xz, boolean freeFluxes, WindingConnectionType connectionType,
+    LegFortescueImpl(double rz, double xz, boolean freeFluxes, WindingConnectionType connectionType,
                         double groundingR, double groundingX) {
         this.rz = rz;
         this.xz = xz;

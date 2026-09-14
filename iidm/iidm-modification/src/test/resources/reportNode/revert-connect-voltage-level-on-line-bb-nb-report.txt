@@ -1,5 +1,9 @@
 + Testing reportNode to revert connecting a voltage level on a line
+   Switch NHV1_NHV2_1_1_BREAKER removed
+   Switch NHV1_NHV2_1_1_DISCONNECTOR_2_0 removed
    Line NHV1_NHV2_1_1 removed
+   Switch NHV1_NHV2_1_2_BREAKER removed
+   Switch NHV1_NHV2_1_2_DISCONNECTOR_3_0 removed
    Line NHV1_NHV2_1_2 removed
    Line NHV1_NHV2_1 created
    Voltage level NHV1_NHV2_1_VL#0 removed

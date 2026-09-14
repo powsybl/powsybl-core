@@ -67,5 +67,3 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
                 disconnectedLoadActivePower, disconnectedGenerationActivePower, disconnectedElements);
     }
 }
-
-

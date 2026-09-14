@@ -15,8 +15,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
+import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -183,6 +183,12 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
+                    break;
+
+                case "debugDir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.11");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
                     break;
 
                 default:

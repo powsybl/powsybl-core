@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
 class DetailedHvdcConverterTest {
-
     // test tolerance for double values.
     // Only makes sense for values that are neither too big nor too small.
     // This is twice machine epsilon for single precision
@@ -227,12 +226,8 @@ class DetailedHvdcConverterTest {
     @Test
     void testVsc5() {
         // check i_acdc = 0 end in error
-        try {
-            importDgs("MTDCVscVariants5");
-            fail("Expected exception not thrown");
-        } catch (PowerFactoryException e) {
-            assertEquals("Unsupported value 0 for VSC 6.", e.getMessage());
-        }
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDCVscVariants5"));
+        assertEquals("Unsupported value 0 for VSC 6.", e.getMessage());
     }
 
     @Test
@@ -271,12 +266,8 @@ class DetailedHvdcConverterTest {
     void testVscDanglingTerminal() {
         // Check that we get an error in case of dangling DC terminal (i.e. there is a node referenced by StaCubic but
         // not in the list of terminals.
-        try {
-            importDgs("MTDCVscDanglingTerminal");
-            fail("Expected exception not thrown");
-        } catch (PowerFactoryException e) {
-            assertEquals("Detected unsupported terminal count (2) for object ElmVsc 6.", e.getMessage());
-        }
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDCVscDanglingTerminal"));
+        assertEquals("Detected unsupported terminal count (2) for object ElmVsc 6.", e.getMessage());
     }
 
     @Test
@@ -306,6 +297,91 @@ class DetailedHvdcConverterTest {
         assertNotNull(ground29);
         assertEquals(0.0, ground29.getR());
         assertEquals("Node_dc_r_ground 9", ground29.getDcTerminal().getDcNode().getId());
+    }
+
+    @Test
+    void testElmCoupNoTyp() {
+        // Check basic import of ElmCoup in DGS files.
+        // This is without TypSwitch therefore without resistance.
+        Network network = importDgs("MTDC-ElmCoup_no-type");
+
+        DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector with default state");
+        DcSwitch dcSwitch23 = network.getDcSwitch("Closed DC Disconnector");
+        DcSwitch dcSwitch24 = network.getDcSwitch("Open DC Disconnector");
+        DcSwitch dcSwitch25 = network.getDcSwitch("DC Breaker");
+        DcSwitch dcSwitch26 = network.getDcSwitch("DC Disconnector with default aUsage");
+
+        assertNotNull(dcSwitch22);
+        assertNotNull(dcSwitch23);
+        assertNotNull(dcSwitch24);
+        assertNotNull(dcSwitch25);
+        assertNotNull(dcSwitch26);
+        assertEquals(5, network.getDcSwitchCount());
+
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch22.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch23.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch24.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.BREAKER, dcSwitch25.getKind()); // aUsage = "cbk"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch26.getKind()); // aUsage unspecified
+
+        assertFalse(dcSwitch22.isOpen()); // on_off unspecified
+        assertFalse(dcSwitch23.isOpen()); // on_off = 1
+        assertTrue(dcSwitch24.isOpen()); // on_off = 0
+        assertFalse(dcSwitch25.isOpen()); // on_off unspecified
+        assertFalse(dcSwitch26.isOpen()); // on_off unspecified
+
+        // no TypSwitch, default resistance value is zero
+        assertEquals(0.0, dcSwitch22.getR());
+        assertEquals(0.0, dcSwitch23.getR());
+        assertEquals(0.0, dcSwitch24.getR());
+        assertEquals(0.0, dcSwitch25.getR());
+        assertEquals(0.0, dcSwitch26.getR());
+    }
+
+    @Test
+    void testElmCoupTypSwitch() {
+        // Check import of resistance with TypSwitch
+        Network network = importDgs("MTDC-ElmCoup_TypSwitch");
+
+        DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector without type");
+        DcSwitch dcSwitch23 = network.getDcSwitch("DC Disconnector with type no R");
+        DcSwitch dcSwitch24 = network.getDcSwitch("DC Disconnector with type and R");
+
+        assertNotNull(dcSwitch22);
+        assertNotNull(dcSwitch23);
+        assertNotNull(dcSwitch24);
+
+        assertEquals(3, network.getDcSwitchCount());
+
+        assertEquals(0.0, dcSwitch22.getR()); // no TypSwitch
+        assertEquals(0.0, dcSwitch23.getR()); // TypSwitch with unspecified resistance
+        assertEquals(0.01, dcSwitch24.getR(), RELATIVE_DELTA * 0.01); // TypSwitch with R_on = 0.01
+    }
+
+    @Test
+    void testElmCoupAcDc() {
+        // Check that AC and DC ElmCoup don't interfere.
+        Network network = importDgs("MTDC-ElmCoup_ACDC");
+
+        DcSwitch dcSwitch21 = network.getDcSwitch("DC Disconnector");
+        DcSwitch dcSwitch22 = network.getDcSwitch("AC Disconnector");
+
+        assertNotNull(dcSwitch21);
+        assertNull(dcSwitch22);
+        // cannot check for presence because the default name is used.
+        assertEquals(1, network.getSwitchCount());
+        assertEquals(1, network.getDcSwitchCount());
+    }
+
+    @Test
+    void testElmCoupBad() {
+        // Check that an ElmCoup with an incorrect number of DC terminals raises an exception:
+        // either connected to a single DC terminal, or connected to more than 2 DC terminals.
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad"));
+        assertEquals("ElmCoup 21 is connected to 1 DC terminals, expected exactly 2.", e.getMessage());
+
+        PowerFactoryException e2 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad-4T"));
+        assertEquals("ElmCoup 21 is connected to 4 DC terminals, expected exactly 2.", e2.getMessage());
     }
 
     private Network importDgs(String id) {

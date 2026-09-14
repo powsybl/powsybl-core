@@ -124,7 +124,9 @@ class ShuntCompensatorUpdateTest {
         assertFlows(network, 0.0, 50.0, 1.0, 25.0, 2.0, -5.0);
     }
 
-    private static void assertFlows(Network network, double linearShuntCompensatorP, double linearShuntCompensatorQ, double nonLinearShuntCompensatorP, double nonLinearShuntCompensatorQ, double equivalentShuntP, double equivalentShuntQ) {
+    private static void assertFlows(Network network, double linearShuntCompensatorP, double linearShuntCompensatorQ,
+                                    double nonLinearShuntCompensatorP, double nonLinearShuntCompensatorQ,
+                                    double equivalentShuntP, double equivalentShuntQ) {
         assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), linearShuntCompensatorP, linearShuntCompensatorQ);
         assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), nonLinearShuntCompensatorP, nonLinearShuntCompensatorQ);
         assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), equivalentShuntP, equivalentShuntQ);

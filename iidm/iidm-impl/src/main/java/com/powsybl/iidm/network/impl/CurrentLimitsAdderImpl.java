@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.Validable;
 
 import java.util.function.Supplier;
@@ -24,8 +25,8 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
 
     private final NetworkImpl network;
 
-    public CurrentLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
-        super(validable, ownerId);
+    public CurrentLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalLimitGroupId, NetworkImpl network) {
+        super(validable, ownerId, operationalLimitGroupId);
         this.groupSupplier = groupSupplier;
         this.network = network;
     }
@@ -37,7 +38,10 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
         if (group == null) {
             throw new PowsyblException(String.format("Error adding CurrentLimits on %s: error getting or creating the group", getOwnerId()));
         }
-        CurrentLimitsImpl limits = new CurrentLimitsImpl(group, permanentLimit, temporaryLimits);
+        CurrentLimitsImpl limits = detectionKind == DetectionKind.HIGH ?
+            new CurrentLimitsImpl(group, permanentLimit, permanentLimitName, temporaryLimits)
+            : new CurrentLimitsImpl(group, temporaryLimits);
+
         group.setCurrentLimits(limits);
         this.copyPropertiesTo(limits);
         return limits;

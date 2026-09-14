@@ -85,7 +85,7 @@ import java.util.OptionalInt;
  *             <td style="border: 1px solid black">The voltage target</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">TargetDeadband</td></td>
+ *             <td style="border: 1px solid black">TargetDeadband</td>
  *             <td style="border: 1px solid black">double</td>
  *             <td style="border: 1px solid black">kV</td>
  *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
@@ -198,6 +198,15 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     default ShuntCompensator unsetSolvedSectionCount() {
         throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
+     * Unset all solved values of the shunt compensator.
+     */
+    @Override
+    default void unsetSolvedValues() {
+        Injection.super.unsetSolvedValues();
+        unsetSolvedSectionCount();
     }
 
     /**

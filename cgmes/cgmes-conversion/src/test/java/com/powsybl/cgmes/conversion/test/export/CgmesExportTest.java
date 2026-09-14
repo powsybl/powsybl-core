@@ -167,10 +167,10 @@ class CgmesExportTest {
         String file = String.format("%s_%s.xml", baseName, instanceFile);
         String rdfIdAttributeName;
         String expectedRdfIdAttributeValue;
-        if (instanceFile.equals("EQ")) {
+        if ("EQ".equals(instanceFile)) {
             rdfIdAttributeName = "ID";
             expectedRdfIdAttributeValue = "_" + regulatingControlId;
-        } else if (instanceFile.equals("SSH")) {
+        } else if ("SSH".equals(instanceFile)) {
             rdfIdAttributeName = "about";
             expectedRdfIdAttributeValue = "#_" + regulatingControlId;
         } else {

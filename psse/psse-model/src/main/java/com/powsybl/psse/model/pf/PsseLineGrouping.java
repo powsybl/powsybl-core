@@ -7,8 +7,19 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -16,6 +27,69 @@ import com.univocity.parsers.annotations.Parsed;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseLineGrouping {
+
+    private static final Map<String, PsseFieldDefinition<PsseLineGrouping, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_I, STR_J, STR_ID, STR_MET, STR_DUM1, STR_DUM2, STR_DUM3, STR_DUM4,
+        STR_DUM5, STR_DUM6, STR_DUM7, STR_DUM8, STR_DUM9};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_JBUS, STR_MSLID, STR_MET, STR_DUM1, STR_DUM2, STR_DUM3,
+        STR_DUM4, STR_DUM5, STR_DUM6, STR_DUM7, STR_DUM8, STR_DUM9};
+
+    private int i;
+    private int j;
+    private String id = defaultStringFor(STR_ID, FIELDS);
+    private int met = defaultIntegerFor(STR_MET, FIELDS);
+    private Integer dum1;
+    private Integer dum2;
+    private Integer dum3;
+    private Integer dum4;
+    private Integer dum5;
+    private Integer dum6;
+    private Integer dum7;
+    private Integer dum8;
+    private Integer dum9;
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseLineGrouping fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseLineGrouping::new);
+    }
+
+    public static String[] toRecord(PsseLineGrouping psseLineGrouping, String[] headers) {
+        return Util.toRecord(psseLineGrouping, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseLineGrouping, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseLineGrouping, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseLineGrouping::getI, PsseLineGrouping::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseLineGrouping::getI, PsseLineGrouping::setI));
+        addField(fields, createNewField(STR_J, Integer.class, PsseLineGrouping::getJ, PsseLineGrouping::setJ));
+        addField(fields, createNewField(STR_JBUS, Integer.class, PsseLineGrouping::getJ, PsseLineGrouping::setJ));
+        addField(fields, createNewField(STR_ID, String.class, PsseLineGrouping::getId, PsseLineGrouping::setId, "&1"));
+        addField(fields, createNewField(STR_MSLID, String.class, PsseLineGrouping::getId, PsseLineGrouping::setId, "&1"));
+        addField(fields, createNewField(STR_MET, Integer.class, PsseLineGrouping::getMet, PsseLineGrouping::setMet, 1));
+        addField(fields, createNewField(STR_DUM1, Integer.class, PsseLineGrouping::getDum1, PsseLineGrouping::setDum1, null));
+        addField(fields, createNewField(STR_DUM2, Integer.class, PsseLineGrouping::getDum2, PsseLineGrouping::setDum2, null));
+        addField(fields, createNewField(STR_DUM3, Integer.class, PsseLineGrouping::getDum3, PsseLineGrouping::setDum3, null));
+        addField(fields, createNewField(STR_DUM4, Integer.class, PsseLineGrouping::getDum4, PsseLineGrouping::setDum4, null));
+        addField(fields, createNewField(STR_DUM5, Integer.class, PsseLineGrouping::getDum5, PsseLineGrouping::setDum5, null));
+        addField(fields, createNewField(STR_DUM6, Integer.class, PsseLineGrouping::getDum6, PsseLineGrouping::setDum6, null));
+        addField(fields, createNewField(STR_DUM7, Integer.class, PsseLineGrouping::getDum7, PsseLineGrouping::setDum7, null));
+        addField(fields, createNewField(STR_DUM8, Integer.class, PsseLineGrouping::getDum8, PsseLineGrouping::setDum8, null));
+        addField(fields, createNewField(STR_DUM9, Integer.class, PsseLineGrouping::getDum9, PsseLineGrouping::setDum9, null));
+
+        return fields;
+    }
 
     public PsseLineGrouping() {
     }
@@ -26,54 +100,6 @@ public class PsseLineGrouping {
         this.id = id;
         this.met = met;
     }
-
-    @Parsed(field = {"i", "ibus"})
-    private int i;
-
-    @Parsed(field = {"j", "jbus"})
-    private int j;
-
-    @Parsed(field = {"id", "mslid"}, defaultNullRead = "&1")
-    private String id;
-
-    @Parsed
-    private int met = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum3;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum4;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum5;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum6;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum7;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum8;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private Integer dum9;
 
     public int getI() {
         return i;

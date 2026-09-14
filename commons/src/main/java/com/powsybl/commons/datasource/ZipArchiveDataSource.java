@@ -87,7 +87,7 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
 
         private final ZipFile zipFile;
 
-        public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
+        ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
             super(zipFile.getInputStream(zipFile.getEntry(fileName)));
             this.zipFile = zipFile;
         }

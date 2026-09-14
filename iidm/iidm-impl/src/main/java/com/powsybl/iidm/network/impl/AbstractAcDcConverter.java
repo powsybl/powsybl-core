@@ -21,6 +21,8 @@ import java.util.Optional;
  */
 abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends AbstractConnectable<I> implements AcDcConverter<I>, MultiVariantObject {
 
+    public static final String MIN_P = "minP";
+    public static final String MAX_P = "maxP";
     public static final String IDLE_LOSS = "idleLoss";
     public static final String SWITCHING_LOSS = "switchingLoss";
     public static final String RESISTIVE_LOSS = "resistiveLoss";
@@ -30,6 +32,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     public static final String TARGET_VDC = "targetVdc";
     protected final List<DcTerminalImpl> dcTerminals = new ArrayList<>();
 
+    private double minP;
+    private double maxP;
     private double idleLoss;
     private double switchingLoss;
     private double resistiveLoss;
@@ -45,9 +49,12 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     private final TDoubleArrayList targetVdc;
 
     AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                          double minP, double maxP,
                           double idleLoss, double switchingLoss, double resistiveLoss,
                           TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
         super(ref, id, name, fictitious);
+        this.minP = minP;
+        this.maxP = maxP;
         this.idleLoss = idleLoss;
         this.switchingLoss = switchingLoss;
         this.resistiveLoss = resistiveLoss;
@@ -149,6 +156,62 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
+    public boolean connectDc() {
+        return ConnectDisconnectUtil.connectAllDcTerminals(
+            this,
+            getDcTerminals(),
+            getNetwork().getReportNodeContext().getReportNode()
+        );
+    }
+
+    @Override
+    public boolean disconnectDc() {
+        return ConnectDisconnectUtil.disconnectAllDcTerminals(
+            this,
+            getDcTerminals(),
+            getNetwork().getReportNodeContext().getReportNode()
+        );
+    }
+
+    @Override
+    public double getMinP() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, MIN_P);
+        return this.minP;
+    }
+
+    @Override
+    public I setMinP(double minP) {
+        // We do no consistency check with target P here to avoid blocking the user
+        // when editing the network.
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, MIN_P);
+        ValidationUtil.checkMinP(this, minP);
+        ValidationUtil.checkActivePowerLimits(this, minP, this.maxP);
+        double oldValue = this.minP;
+        this.minP = minP;
+        getNetwork().getListeners().notifyUpdate(this, MIN_P, oldValue, minP);
+        return self();
+    }
+
+    @Override
+    public double getMaxP() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, MAX_P);
+        return this.maxP;
+    }
+
+    @Override
+    public I setMaxP(double maxP) {
+        // We do no consistency check with target P here to avoid blocking the user
+        // when editing the network.
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, MAX_P);
+        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkActivePowerLimits(this, this.minP, maxP);
+        double oldValue = this.maxP;
+        this.maxP = maxP;
+        getNetwork().getListeners().notifyUpdate(this, MAX_P, oldValue, maxP);
+        return self();
+    }
+
+    @Override
     public double getIdleLoss() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, IDLE_LOSS);
         return this.idleLoss;
@@ -219,7 +282,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, CONTROL_MODE);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, controlMode, getTargetP(), getTargetVdc(),
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = pccRegulatingPoint.setRegulationMode(variantIndex, controlMode.ordinal());
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -236,10 +299,12 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public I setTargetP(double targetP) {
+        // We do no consistency check with min/max P here to avoid blocking the user
+        // when editing the network.
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_P);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, getControlMode(), targetP, getTargetVdc(),
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetP.set(variantIndex, targetP);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -259,7 +324,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_VDC);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, getControlMode(), getTargetP(), targetVdc,
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetVdc.set(variantIndex, targetVdc);
         String variantId = n.getVariantManager().getVariantId(variantIndex);

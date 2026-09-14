@@ -11,7 +11,8 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
+import com.powsybl.security.SecurityAnalysisParameters.ModifiedMonitoredElementsParameters;
+import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.DummyExtension;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ class SecurityAnalysisParametersTest {
     @Test
     void testLoadFromFile() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            String debugDir = "/tmp/debugDir";
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("security-analysis-default-parameters");
             moduleConfig.setStringProperty("increased-flow-violations-proportional-threshold", "0.3");
@@ -67,6 +69,8 @@ class SecurityAnalysisParametersTest {
             moduleConfig.setStringProperty("increased-low-voltage-violations-absolute-threshold", "20");
             moduleConfig.setStringProperty("increased-high-voltage-violations-absolute-threshold", "25");
             moduleConfig.setStringProperty("intermediate-results-in-operator-strategy", "true");
+            moduleConfig.setStringProperty("debug-dir", debugDir);
+
             SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(platformConfig);
             assertEquals(0.3, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
             assertEquals(0.4, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
@@ -74,7 +78,32 @@ class SecurityAnalysisParametersTest {
             assertEquals(20, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
             assertEquals(25, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
             assertTrue(parameters.getIntermediateResultsInOperatorStrategy());
+            assertEquals(debugDir, parameters.getDebugDir());
         }
+    }
+
+    @Test
+    void testDefaultPlatformConfig() {
+        SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+        assertFalse(parameters.getIntermediateResultsInOperatorStrategy());
+        assertNull(parameters.getDebugDir());
+    }
+
+    @Test
+    void testNoConfig() {
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+        assertFalse(parameters.getIntermediateResultsInOperatorStrategy());
+        assertNull(parameters.getDebugDir());
     }
 
     @Test
@@ -98,5 +127,26 @@ class SecurityAnalysisParametersTest {
         assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
         assertEquals(4.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
         assertEquals(5.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+    }
+
+    @Test
+    void testMonitored() {
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        ModifiedMonitoredElementsParameters monitored = parameters.getModifiedMonitoredElementsParameters();
+        assertNotNull(monitored);
+        assertEquals(0.0, monitored.getPowerModificationThreshold(), EPS);
+        assertEquals(0.0, monitored.getVoltageModificationProportionalThreshold(), EPS);
+        assertEquals(0.0, monitored.getVoltageModificationAbsoluteThreshold(), EPS);
+        assertEquals(0.0, monitored.getVoltageModificationThreshold(400.0), EPS);
+
+        monitored.setVoltageModificationAbsoluteThreshold(1.0);
+        assertEquals(1.0, monitored.getVoltageModificationThreshold(400.0), EPS);
+
+        monitored.setVoltageModificationProportionalThreshold(0.1);
+        monitored.setVoltageModificationAbsoluteThreshold(0.0);
+        assertEquals(40.0, monitored.getVoltageModificationThreshold(400.0), EPS);
+
+        monitored.setVoltageModificationAbsoluteThreshold(30.0);
+        assertEquals(30.0, monitored.getVoltageModificationThreshold(400.0), EPS);
     }
 }

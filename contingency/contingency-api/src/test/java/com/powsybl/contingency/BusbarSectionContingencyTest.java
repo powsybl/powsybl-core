@@ -9,9 +9,9 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.list.ContingencyList;
+import com.powsybl.iidm.modification.tripping.BusbarSectionTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.modification.tripping.BusbarSectionTripping;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

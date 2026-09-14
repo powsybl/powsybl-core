@@ -88,7 +88,7 @@ public class BoundaryPointXlsParser {
             Cell borderFromCell = row.getCell(14);
             Cell borderToCell = row.getCell(15);
             String boundaryPointName = boundaryPointNameCell.getStringCellValue();
-            if (boundaryPointName.equals("-")) {
+            if ("-".equals(boundaryPointName)) {
                 continue;
             }
             Country borderFrom = toCountry(borderFromCell.getStringCellValue());

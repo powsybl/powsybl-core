@@ -76,6 +76,27 @@ public class LimitReduction {
         this(limitType, value, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
+    private LimitReduction(LimitType limitType, double value, boolean monitoringOnly,
+                           ContingencyContext contingencyContext,
+                           List<NetworkElementCriterion> networkElementCriteria,
+                           List<LimitDurationCriterion> limitDurationCriteria,
+                           List<String> operationalLimitsGroupIdsSelection) {
+        if (isSupportedLimitType(limitType)) {
+            this.limitType = limitType;
+        } else {
+            throw new PowsyblException(limitType + " is not a supported limit type for limit reduction");
+        }
+        if (value < 0.) {
+            throw new PowsyblException("Limit reduction value should be equal or greater than 0");
+        }
+        this.value = value;
+        this.monitoringOnly = monitoringOnly;
+        this.contingencyContext = contingencyContext;
+        this.networkElementCriteria = networkElementCriteria;
+        this.durationCriteria = limitDurationCriteria;
+        this.operationalLimitsGroupIdsSelection = operationalLimitsGroupIdsSelection;
+    }
+
     /**
      * <p>Initialize a builder for creating more specific limit reductions (indicate a contingency context or criteria
      * on network elements or on limit durations).</p>
@@ -219,27 +240,6 @@ public class LimitReduction {
             return new LimitReduction(limitType, value, monitoringOnly, contingencyContext,
                     networkElementCriteria, limitDurationCriteria, operationalLimitsGroupIdsSelection);
         }
-    }
-
-    private LimitReduction(LimitType limitType, double value, boolean monitoringOnly,
-                          ContingencyContext contingencyContext,
-                          List<NetworkElementCriterion> networkElementCriteria,
-                          List<LimitDurationCriterion> limitDurationCriteria,
-                          List<String> operationalLimitsGroupIdsSelection) {
-        if (isSupportedLimitType(limitType)) {
-            this.limitType = limitType;
-        } else {
-            throw new PowsyblException(limitType + " is not a supported limit type for limit reduction");
-        }
-        if (value > 1. || value < 0.) {
-            throw new PowsyblException("Limit reduction value should be in [0;1]");
-        }
-        this.value = value;
-        this.monitoringOnly = monitoringOnly;
-        this.contingencyContext = contingencyContext;
-        this.networkElementCriteria = networkElementCriteria;
-        this.durationCriteria = limitDurationCriteria;
-        this.operationalLimitsGroupIdsSelection = operationalLimitsGroupIdsSelection;
     }
 
     public LimitType getLimitType() {

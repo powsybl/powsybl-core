@@ -47,7 +47,8 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<BusResult> preContingencyBusResults,
                                   List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults,
                                   List<OperatorStrategyResult> operatorStrategyResults) {
-        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, preContingencyThreeWindingsTransformerResults), Double.NaN),
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult,
+                new NetworkResult(preContingencyBranchResults, preContingencyBusResults, preContingencyThreeWindingsTransformerResults), Double.NaN),
                 postContingencyResults, operatorStrategyResults);
     }
 

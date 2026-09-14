@@ -8,22 +8,35 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.*;
-import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
+import com.powsybl.iidm.network.extensions.LineFortescueAdder;
+import com.powsybl.iidm.network.extensions.LoadAsymmetricalAdder;
+import com.powsybl.iidm.network.extensions.LoadConnectionType;
+import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
+import de.siegmar.fastcsv.reader.CommentStrategy;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.FieldModifiers;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.NamedCsvRecordHandler;
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.SubnodeConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import java.time.ZonedDateTime;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +49,14 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class EuropeanLvTestFeederFactory {
+
+    private static final Map<Class<?>, Mapper<?>> MAPPERS = Map.of(
+        BusCoord.class, (Mapper<BusCoord>) EuropeanLvTestFeederFactory::mapBusCoord,
+        Line.class, (Mapper<Line>) EuropeanLvTestFeederFactory::mapLine,
+        LineCode.class, (Mapper<LineCode>) EuropeanLvTestFeederFactory::mapLineCode,
+        Load.class, (Mapper<Load>) EuropeanLvTestFeederFactory::mapLoad,
+        Transformer.class, (Mapper<Transformer>) EuropeanLvTestFeederFactory::mapTransformer
+    );
 
     private EuropeanLvTestFeederFactory() {
     }
@@ -91,145 +112,84 @@ public final class EuropeanLvTestFeederFactory {
                 .add();
     }
 
-    public static class BusCoord {
-        @Parsed(field = "Busname")
-        int busName;
-
-        @Parsed
-        double x;
-
-        @Parsed
-        double y;
+    private static BusCoord mapBusCoord(NamedCsvRecord rec) {
+        return new BusCoord(
+            Integer.parseInt(rec.getField("Busname")),
+            Double.parseDouble(rec.getField("x")),
+            Double.parseDouble(rec.getField("y"))
+        );
     }
 
-    public static class Line {
-        @Parsed(field = "Name")
-        String name;
-
-        @Parsed(field = "Bus1")
-        int bus1;
-
-        @Parsed(field = "Bus2")
-        int bus2;
-
-        @Parsed(field = "Phases")
-        String phases;
-
-        @Parsed(field = "Length")
-        double length;
-
-        @Parsed(field = "Units")
-        String units;
-
-        @Parsed(field = "LineCode")
-        String code;
+    private static Line mapLine(NamedCsvRecord rec) {
+        return new Line(
+            rec.getField("Name"),
+            Integer.parseInt(rec.getField("Bus1")),
+            Integer.parseInt(rec.getField("Bus2")),
+            rec.getField("Phases"),
+            Double.parseDouble(rec.getField("Length")),
+            rec.getField("Units"),
+            rec.getField("LineCode")
+        );
     }
 
-    public static class LineCode {
-        @Parsed(field = "Name")
-        String name;
-
-        @Parsed
-        int nphases;
-
-        @Parsed(field = "R1")
-        double r1;
-
-        @Parsed(field = "X1")
-        double x1;
-
-        @Parsed(field = "R0")
-        double r0;
-
-        @Parsed(field = "X0")
-        double x0;
-
-        @Parsed(field = "C1")
-        double c1;
-
-        @Parsed(field = "C0")
-        double c0;
-
-        @Parsed(field = "Units")
-        String units;
+    private static LineCode mapLineCode(final NamedCsvRecord rec) {
+        return new LineCode(
+            rec.getField("Name"),
+            Integer.parseInt(rec.getField("nphases")),
+            Double.parseDouble(rec.getField("R1")),
+            Double.parseDouble(rec.getField("X1")),
+            Double.parseDouble(rec.getField("R0")),
+            Double.parseDouble(rec.getField("X0")),
+            Double.parseDouble(rec.getField("C1")),
+            Double.parseDouble(rec.getField("C0")),
+            rec.getField("Units")
+        );
     }
 
-    public static class Load {
-        @Parsed(field = "Name")
-        String name;
-
-        @Parsed
-        int numPhases;
-
-        @Parsed(field = "Bus")
-        int bus;
-
-        @Parsed
-        char phases;
-
-        @Parsed
-        double kV;
-
-        @Parsed(field = "Model")
-        int model;
-
-        @Parsed(field = "Connection")
-        String connection;
-
-        @Parsed
-        double kW;
-
-        @Parsed(field = "PF")
-        double pf;
-
-        @Parsed(field = "Yearly")
-        String yearly;
+    private static Load mapLoad(final NamedCsvRecord rec) {
+        return new Load(
+            rec.getField("Name"),
+            Integer.parseInt(rec.getField("numPhases")),
+            Integer.parseInt(rec.getField("Bus")),
+            rec.getField("phases").charAt(0),
+            Double.parseDouble(rec.getField("kV")),
+            Integer.parseInt(rec.getField("Model")),
+            rec.getField("Connection"),
+            Double.parseDouble(rec.getField("kW")),
+            Double.parseDouble(rec.getField("PF")),
+            rec.getField("Yearly")
+        );
     }
 
-    public static class Transformer {
-        @Parsed(field = "Name")
-        String name;
-
-        @Parsed
-        int phases;
-
-        @Parsed
-        String bus1;
-
-        @Parsed
-        int bus2;
-
-        @Parsed(field = "kV_pri")
-        double kvPri;
-
-        @Parsed(field = "kV_sec")
-        double kvSec;
-
-        @Parsed(field = "MVA")
-        double mva;
-
-        @Parsed(field = "Conn_pri")
-        String connPri;
-
-        @Parsed(field = "Conn_sec")
-        String connSec;
-
-        @Parsed(field = "%XHL")
-        double xhl;
-
-        @Parsed(field = "% resistance")
-        double resistance;
+    private static Transformer mapTransformer(final NamedCsvRecord rec) {
+        return new Transformer(
+            rec.getField("Name"),
+            Integer.parseInt(rec.getField("phases")),
+            rec.getField("bus1"),
+            Integer.parseInt(rec.getField("bus2")),
+            Double.parseDouble(rec.getField("kV_pri")),
+            Double.parseDouble(rec.getField("kV_sec")),
+            Double.parseDouble(rec.getField("MVA")),
+            rec.getField("Conn_pri"),
+            rec.getField("Conn_sec"),
+            Double.parseDouble(rec.getField("%XHL")),
+            Double.parseDouble(rec.getField("% resistance"))
+        );
     }
 
+    // Casting is safe here
+    @SuppressWarnings("unchecked")
     private static <T> List<T> parseCsv(String resourceName, Class<T> clazz) {
-        try (Reader inputReader = new InputStreamReader(Objects.requireNonNull(EuropeanLvTestFeederFactory.class.getResourceAsStream(resourceName)), StandardCharsets.UTF_8)) {
-            BeanListProcessor<T> rowProcessor = new BeanListProcessor<>(clazz);
-            CsvParserSettings settings = new CsvParserSettings();
-            settings.setHeaderExtractionEnabled(true);
-            settings.setProcessor(rowProcessor);
-            CsvParser parser = new CsvParser(settings);
-            parser.parse(inputReader);
-            return rowProcessor.getBeans();
+        try (Reader inputReader = new InputStreamReader(Objects.requireNonNull(EuropeanLvTestFeederFactory.class.getResourceAsStream(resourceName)), StandardCharsets.UTF_8);
+             CsvReader<NamedCsvRecord> csvReader = CsvReader.builder()
+                 .commentStrategy(CommentStrategy.SKIP)
+                 .build(NamedCsvRecordHandler.of(c -> c.fieldModifier(FieldModifiers.TRIM)), inputReader)) {
+            Mapper<T> mapper = (Mapper<T>) MAPPERS.get(clazz);
+            if (mapper == null) {
+                throw new IllegalArgumentException("Unsupported class: " + clazz);
+            }
+
+            return csvReader.stream().map(mapper::apply).toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -401,5 +361,28 @@ public final class EuropeanLvTestFeederFactory {
         createLoads(network);
         createTransformer(transformer, network);
         return network;
+    }
+
+    private interface Mapper<T> {
+        T apply(NamedCsvRecord rec);
+    }
+
+    public record BusCoord(int busName, double x, double y) {
+    }
+
+    public record Line(String name, int bus1, int bus2, String phases, double length, String units, String code) {
+    }
+
+    public record LineCode(String name, int nphases,
+                           double r1, double x1, double r0, double x0, double c1, double c0, String units) {
+    }
+
+    public record Load(String name, int numPhases, int bus, char phases, double kV, int model,
+                       String connection, double kW, double pf, String yearly) {
+    }
+
+    public record Transformer(String name, int phases, String bus1, int bus2,
+                              double kvPri, double kvSec, double mva,
+                              String connPri, String connSec, double xhl, double resistance) {
     }
 }

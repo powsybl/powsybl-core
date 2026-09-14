@@ -18,9 +18,25 @@ interface TopologyModel {
 
     void invalidateCache();
 
+    /**
+     * Attach the terminal for all the variants
+     */
     void attach(TerminalExt terminal, boolean test);
 
+    /**
+     * Attach the terminal only for the current variant
+     */
+    void attachInCurrentVariant(TerminalExt terminal, boolean test);
+
+    /**
+     * Detach the terminal for all the variant
+     */
     void detach(TerminalExt terminal);
+
+    /**
+     * Detach the terminal only for the current variant
+     */
+    void detachInCurrentVariant(TerminalExt terminal);
 
     boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
 

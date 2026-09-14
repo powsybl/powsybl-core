@@ -33,6 +33,74 @@ public abstract class AbstractDcTopologyTest {
     public static final double V_EPSILON = 1e-3;
 
     @Test
+    public void testDisconnectedNodes() {
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        network.getDcSwitch("dcSwitch").remove();
+        // disconnected nodes do not form buses
+        assertEquals(0, network.getDcBusCount());
+    }
+
+    @Test
+    public void testDcComponentsRespectSwitchOpenState() {
+        Network network = DcDetailedNetworkFactory.createSimple4NodesDcLinesSwitchLine();
+        // n1 -- dcLine1 -- n2 -- [dcSwitch closed, R=0.1] -- n3 -- dcLine2 -- n4
+        // switch closed: n2 and n3 remain in distinct buses (switch has resistance), but all in one component
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(4, network.getDcComponents().iterator().next().getSize());
+
+        network.getDcSwitch("dcSwitch").setR(0.0);
+        // switch closed with R=0: n2 and n3 merge into one bus, component size drops to 3
+        // Incidentally, this checks that the topology is updated when the DcSwitch resistance
+        // goes from non-zero to zero.
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(3, network.getDcComponents().iterator().next().getSize());
+
+        network.getDcSwitch("dcSwitch").setR(0.1);
+        // Check that topology is updated when the DcSwitch resistance goes from non-zero to zero.
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(4, network.getDcComponents().iterator().next().getSize());
+
+        network.getDcSwitch("dcSwitch").setOpen(true);
+        // switch open: n2 and n3 are disconnected, yielding two separate components
+        assertEquals(2, network.getDcComponents().size());
+        network.getDcComponents().forEach(c -> assertEquals(2, c.getSize()));
+    }
+
+    @Test
+    public void testHotChangeTopology() {
+        // check that
+        // n1 -- dcLine1 -- n2 -- [dcSwitch closed, R=0.1] -- n3 -- dcLine2 -- n4
+        Network network = DcDetailedNetworkFactory.createSimple4NodesDcLinesSwitchLine();
+        assertEquals(4, network.getDcBusCount());
+        assertEquals(1, network.getDcComponents().size());
+
+        network.getDcSwitch("dcSwitch").setOpen(true);
+        // switch open: n2 and n3 isolated from each other -> 2 components
+        assertEquals(4, network.getDcBusCount());
+        assertEquals(2, network.getDcComponents().size());
+
+        network.getDcSwitch("dcSwitch").setOpen(false);
+        // switch closed again: back to 1 component
+        assertEquals(4, network.getDcBusCount());
+        assertEquals(1, network.getDcComponents().size());
+
+        network.getDcSwitch("dcSwitch").setR(0.0);
+        // R=0: n2 and n3 merge into one bus
+        assertEquals(3, network.getDcBusCount());
+        assertEquals(1, network.getDcComponents().size());
+
+        network.getDcLine("dcLine1").remove();
+        // n1 has no more connected equipment -> no bus. Remaining: {n2,n3} and {n4}
+        assertEquals(2, network.getDcBusCount());
+        assertEquals(1, network.getDcComponents().size());
+
+        network.getDcNode("n1").remove();
+        // removing the isolated node changes nothing topologically
+        assertEquals(2, network.getDcBusCount());
+        assertEquals(1, network.getDcComponents().size());
+    }
+
+    @Test
     public void testBasicBusTopology() {
         Network net1 = Network.create("n1", "test");
 
@@ -128,6 +196,19 @@ public abstract class AbstractDcTopologyTest {
         assertEquals(501., n11.getV(), V_EPSILON);
         assertEquals(-502., n12DcBus.getV(), V_EPSILON);
         assertEquals(-502., n12.getV(), V_EPSILON);
+
+        // check that topology changes *for all variants* when switch resistance
+        // is altered
+        variantManager.cloneVariant("v1", "v2");
+        variantManager.setWorkingVariant("v2");
+        // single DcBus because the switch is closed and its resistance is zero.
+        assertEquals(1, net1.getDcBusCount());
+        // topology changes when resistance is non-zero
+        net1.getDcSwitch("s11-12").setR(0.1);
+        assertEquals(2, net1.getDcBusCount());
+        // It should have changed in variant v1 as well
+        variantManager.setWorkingVariant("v1");
+        assertEquals(2, net1.getDcBusCount());
     }
 
     @Test

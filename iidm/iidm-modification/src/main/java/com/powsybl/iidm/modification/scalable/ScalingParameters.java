@@ -20,7 +20,7 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingTy
  */
 public class ScalingParameters {
 
-    public static final String VERSION = "1.2";
+    public static final String VERSION = "1.3";
 
     public enum ScalingType {
         DELTA_P,
@@ -40,6 +40,9 @@ public class ScalingParameters {
     public static final Priority DEFAULT_PRIORITY = ONESHOT;
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
     public static final Set<String> DEFAULT_IGNORED_INJECTION_IDS = Collections.emptySet();
+    public static final double DEFAULT_LOAD_MIN_POWER_FACTOR = 0.0;
+    public static final Double DEFAULT_LOAD_MIN_Q_RATE = null;
+    public static final Double DEFAULT_LOAD_MAX_Q_RATE = null;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
     private boolean reconnect = DEFAULT_RECONNECT;
@@ -48,6 +51,9 @@ public class ScalingParameters {
     private ScalingType scalingType = DEFAULT_SCALING_TYPE;
     private Priority priority = DEFAULT_PRIORITY;
     private Set<String> ignoredInjectionIds = DEFAULT_IGNORED_INJECTION_IDS;
+    private double loadMinPowerFactor = DEFAULT_LOAD_MIN_POWER_FACTOR;
+    private Double loadMinQRate = DEFAULT_LOAD_MIN_Q_RATE;
+    private Double loadMaxQRate = DEFAULT_LOAD_MAX_Q_RATE;
 
     public ScalingParameters() {
     }
@@ -190,6 +196,67 @@ public class ScalingParameters {
         return this;
     }
 
+    /**
+     * @return the minimum power factor, in [0, 1]
+     */
+    public double getLoadMinPowerFactor() {
+        return loadMinPowerFactor;
+    }
+
+    /**
+     * Sets the minimum power factor allowed when scaling load reactive power.
+     * @param loadMinPowerFactor the minimum power factor must be in [0, 1]
+     * @throws IllegalArgumentException if the value is outside [0, 1]
+     */
+    public ScalingParameters setLoadMinPowerFactor(double loadMinPowerFactor) {
+        if (loadMinPowerFactor < 0.0 || loadMinPowerFactor > 1.0) {
+            throw new IllegalArgumentException("loadMinPowerFactor must be in [0, 1], got: " + loadMinPowerFactor);
+        }
+
+        this.loadMinPowerFactor = loadMinPowerFactor;
+        return this;
+    }
+
+    /**
+     * @return the minimum Q rate, or empty if disabled
+     */
+    public OptionalDouble getLoadMinQRate() {
+        return loadMinQRate != null ? OptionalDouble.of(loadMinQRate) : OptionalDouble.empty();
+    }
+
+    /**
+     * Sets the minimum allowed ratio between the scaled reactive power and the initial reactive power.
+     * @param loadMinQRate the minimum Q rate (must be <= 1), or {@code null} to disable
+     * @throws IllegalArgumentException if {@code loadMinQRate} is greater than 1
+     */
+    public ScalingParameters setLoadMinQRate(Double loadMinQRate) {
+        if (loadMinQRate != null && loadMinQRate > 1) {
+            throw new IllegalArgumentException("loadMinQRate cannot be greater than 1");
+        }
+        this.loadMinQRate = loadMinQRate;
+        return this;
+    }
+
+    /**
+     * @return the maximum Q rate, or empty if disabled
+     */
+    public OptionalDouble getLoadMaxQRate() {
+        return loadMaxQRate != null ? OptionalDouble.of(loadMaxQRate) : OptionalDouble.empty();
+    }
+
+    /**
+     * Sets the maximum allowed ratio between the scaled reactive power and the initial reactive power.
+     * @param loadMaxQRate the maximum Q rate (must be >= 1), or {@code null} to disable
+     * @throws IllegalArgumentException if {@code loadMaxQRate} is less than 1
+     */
+    public ScalingParameters setLoadMaxQRate(Double loadMaxQRate) {
+        if (loadMaxQRate != null && loadMaxQRate < 1) {
+            throw new IllegalArgumentException("loadMaxQRate cannot be lower than 1.");
+        }
+        this.loadMaxQRate = loadMaxQRate;
+        return this;
+    }
+
     public static ScalingParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -199,6 +266,7 @@ public class ScalingParameters {
         ScalingParameters scalingParameters = new ScalingParameters();
         platformConfig.getOptionalModuleConfig("scaling-default-parameters").ifPresent(config -> {
             scalingParameters.setScalingConvention(config.getEnumProperty("scalingConvention", Scalable.ScalingConvention.class, DEFAULT_SCALING_CONVENTION));
+            scalingParameters.setScalingType(config.getEnumProperty("scalingType", ScalingParameters.ScalingType.class, DEFAULT_SCALING_TYPE));
             scalingParameters.setConstantPowerFactor(config.getBooleanProperty("constantPowerFactor", DEFAULT_CONSTANT_POWER_FACTOR));
             scalingParameters.setReconnect(config.getBooleanProperty("reconnect", DEFAULT_RECONNECT));
             scalingParameters.setPriority(config.getEnumProperty("priority", ScalingParameters.Priority.class, DEFAULT_PRIORITY));
@@ -207,6 +275,9 @@ public class ScalingParameters {
                 config.getOptionalStringListProperty("ignoredInjectionIds")
                     .map(list -> (Set<String>) new HashSet<>(list))
                     .orElse(DEFAULT_IGNORED_INJECTION_IDS));
+            scalingParameters.setLoadMinPowerFactor(config.getDoubleProperty("loadMinPowerFactor", DEFAULT_LOAD_MIN_POWER_FACTOR));
+            config.getOptionalDoubleProperty("loadMinQRate").ifPresent(scalingParameters::setLoadMinQRate);
+            config.getOptionalDoubleProperty("loadMaxQRate").ifPresent(scalingParameters::setLoadMaxQRate);
         });
         return scalingParameters;
     }

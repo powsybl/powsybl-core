@@ -41,6 +41,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
      * or complete exceptionally in case of exception.
      */
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     public void run() {
         future.run();
         try {
@@ -100,7 +101,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
     static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
         private final CompletableFuture<?> source;
 
-        public SourceCancelingCompletableFuture(CompletableFuture<?> source) {
+        SourceCancelingCompletableFuture(CompletableFuture<?> source) {
             this.source = Objects.requireNonNull(source);
         }
 

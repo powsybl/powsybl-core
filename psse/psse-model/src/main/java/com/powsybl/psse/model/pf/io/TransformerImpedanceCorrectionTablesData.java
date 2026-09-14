@@ -8,19 +8,25 @@
 package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.LegacyTextReader;
+import com.powsybl.psse.model.io.RecordGroupIOJson;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseTransformerImpedanceCorrection;
 import com.powsybl.psse.model.pf.PsseTransformerImpedanceCorrectionPoint;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.pf.internal.ZCorr33;
+import com.powsybl.psse.model.pf.internal.ZCorr35First;
+import com.powsybl.psse.model.pf.internal.ZCorr35Points;
+import com.powsybl.psse.model.pf.internal.ZCorr35X;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
@@ -38,6 +44,8 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         withIO(FileFormat.LEGACY_TEXT, V32, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V33, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V35, new IOLegacyText35(this));
+        withFieldNames(V32, ZCorr33.getFieldNames3233());
+        withFieldNames(V33, ZCorr33.getFieldNames3233());
         withIO(FileFormat.JSON, new IOJson(this));
     }
 
@@ -58,8 +66,37 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         @Override
         public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
-            List<ZCorr33> list33 = new ZCorr33Data().read(reader, context);
-            return convertToImpedanceCorrectionList(list33);
+            List<String> records = reader.readRecords();
+            List<ZCorr33> list33 = new ZCorr33Data().readFromStrings(records, context);
+            return list33.stream()
+                    .map(IOLegacyText33::toImpedanceCorrectionDiscardingZeroPoints)
+                    .collect(Collectors.toList());
+        }
+
+        private static PsseTransformerImpedanceCorrection toImpedanceCorrectionDiscardingZeroPoints(ZCorr33 z) {
+            PsseTransformerImpedanceCorrection result = new PsseTransformerImpedanceCorrection();
+
+            result.setI(z.getI());
+
+            addPointIfNotZero(result, z.getT1(), z.getF1());
+            addPointIfNotZero(result, z.getT2(), z.getF2());
+            addPointIfNotZero(result, z.getT3(), z.getF3());
+            addPointIfNotZero(result, z.getT4(), z.getF4());
+            addPointIfNotZero(result, z.getT5(), z.getF5());
+            addPointIfNotZero(result, z.getT6(), z.getF6());
+            addPointIfNotZero(result, z.getT7(), z.getF7());
+            addPointIfNotZero(result, z.getT8(), z.getF8());
+            addPointIfNotZero(result, z.getT9(), z.getF9());
+            addPointIfNotZero(result, z.getT10(), z.getF10());
+            addPointIfNotZero(result, z.getT11(), z.getF11());
+
+            return result;
+        }
+
+        private static void addPointIfNotZero(PsseTransformerImpedanceCorrection result, double t, double f) {
+            if (t != 0.0 || f != 0.0) {
+                result.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(t, f));
+            }
         }
 
         @Override
@@ -74,277 +111,33 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 ZCorr33 parser33 = convertToTable(impedanceCorrection);
                 // write only the read points. Each table can have different number of points
                 String[] writeHeaders = ArrayUtils.subarray(headers, 0, 1 + 2 * impedanceCorrection.getPoints().size());
-                String record = recordData.buildRecord(parser33, writeHeaders, quotedFields, context);
-                write(String.format("%s%n", record), outputStream);
+                String rec = recordData.buildRecord(parser33, writeHeaders, quotedFields, context);
+                write(rec, outputStream);
             });
             writeEnd(outputStream);
         }
 
-        private static List<PsseTransformerImpedanceCorrection> convertToImpedanceCorrectionList(List<ZCorr33> recordList) {
-            List<PsseTransformerImpedanceCorrection> impedanceCorrectionList = new ArrayList<>();
-            recordList.forEach(record -> impedanceCorrectionList.add(convertToList(record)));
-            return impedanceCorrectionList;
-        }
-
-        private static PsseTransformerImpedanceCorrection convertToList(ZCorr33 record) {
-
-            PsseTransformerImpedanceCorrection impedanceCorrection = new PsseTransformerImpedanceCorrection(record.getI());
-            List<Double> list = Arrays.asList(record.getT1(), record.getF1(), record.getT2(), record.getF2(), record.getT3(), record.getF3(),
-                record.getT4(), record.getF4(), record.getT5(), record.getF5(), record.getT6(), record.getF6(), record.getT7(), record.getF7(),
-                record.getT8(), record.getF8(), record.getT9(), record.getF9(), record.getT10(), record.getF10(), record.getT11(), record.getF11());
-
-            for (int i = 0; i < list.size(); i = i + 2) {
-                if (validPoint(list.get(i), list.get(i + 1))) {
-                    impedanceCorrection.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(list.get(i), list.get(i + 1)));
-                }
-            }
-            return impedanceCorrection;
-        }
-
-        private static boolean validPoint(double t, double f) {
-            return t != 0.0 && f != 0.0;
-        }
-
         private static ZCorr33 convertToTable(PsseTransformerImpedanceCorrection impedanceCorrectionTable) {
 
-            ZCorr33 record = new ZCorr33();
-            record.setI(impedanceCorrectionTable.getI());
+            ZCorr33 rec = new ZCorr33();
+            rec.setI(impedanceCorrectionTable.getI());
 
             for (int i = 0; i < impedanceCorrectionTable.getPoints().size(); i++) {
-                record.setTF(i + 1, impedanceCorrectionTable.getPoints().get(i).getT(), impedanceCorrectionTable.getPoints().get(i).getF());
+                rec.setTF(i + 1, impedanceCorrectionTable.getPoints().get(i).getT(), impedanceCorrectionTable.getPoints().get(i).getF());
             }
 
-            return record;
+            return rec;
         }
 
         private static class ZCorr33Data extends AbstractRecordGroup<ZCorr33> {
             ZCorr33Data() {
-                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, "i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11");
+                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, ZCorr33.getFieldNames3233());
                 withQuotedFields();
             }
 
             @Override
             protected Class<ZCorr33> psseTypeClass() {
                 return ZCorr33.class;
-            }
-        }
-
-        public static class ZCorr33 {
-
-            @Parsed
-            private int i;
-
-            @Parsed
-            private double t1 = 0.0;
-
-            @Parsed
-            private double f1 = 0.0;
-
-            @Parsed
-            private double t2 = 0.0;
-
-            @Parsed
-            private double f2 = 0.0;
-
-            @Parsed
-            private double t3 = 0.0;
-
-            @Parsed
-            private double f3 = 0.0;
-
-            @Parsed
-            private double t4 = 0.0;
-
-            @Parsed
-            private double f4 = 0.0;
-
-            @Parsed
-            private double t5 = 0.0;
-
-            @Parsed
-            private double f5 = 0.0;
-
-            @Parsed
-            private double t6 = 0.0;
-
-            @Parsed
-            private double f6 = 0.0;
-
-            @Parsed
-            private double t7 = 0.0;
-
-            @Parsed
-            private double f7 = 0.0;
-
-            @Parsed
-            private double t8 = 0.0;
-
-            @Parsed
-            private double f8 = 0.0;
-
-            @Parsed
-            private double t9 = 0.0;
-
-            @Parsed
-            private double f9 = 0.0;
-
-            @Parsed
-            private double t10 = 0.0;
-
-            @Parsed
-            private double f10 = 0.0;
-
-            @Parsed
-            private double t11 = 0.0;
-
-            @Parsed
-            private double f11 = 0.0;
-
-            public int getI() {
-                return i;
-            }
-
-            public void setI(int i) {
-                this.i = i;
-            }
-
-            public double getT1() {
-                return t1;
-            }
-
-            public double getF1() {
-                return f1;
-            }
-
-            public double getT2() {
-                return t2;
-            }
-
-            public double getF2() {
-                return f2;
-            }
-
-            public double getT3() {
-                return t3;
-            }
-
-            public double getF3() {
-                return f3;
-            }
-
-            public double getT4() {
-                return t4;
-            }
-
-            public double getF4() {
-                return f4;
-            }
-
-            public double getT5() {
-                return t5;
-            }
-
-            public double getF5() {
-                return f5;
-            }
-
-            public double getT6() {
-                return t6;
-            }
-
-            public double getF6() {
-                return f6;
-            }
-
-            public double getT7() {
-                return t7;
-            }
-
-            public double getF7() {
-                return f7;
-            }
-
-            public double getT8() {
-                return t8;
-            }
-
-            public double getF8() {
-                return f8;
-            }
-
-            public double getT9() {
-                return t9;
-            }
-
-            public double getF9() {
-                return f9;
-            }
-
-            public double getT10() {
-                return t10;
-            }
-
-            public double getF10() {
-                return f10;
-            }
-
-            public double getT11() {
-                return t11;
-            }
-
-            public double getF11() {
-                return f11;
-            }
-
-            public void setTF(int point, double t, double f) {
-                switch (point) {
-                    case 1:
-                        this.t1 = t;
-                        this.f1 = f;
-                        break;
-                    case 2:
-                        this.t2 = t;
-                        this.f2 = f;
-                        break;
-                    case 3:
-                        this.t3 = t;
-                        this.f3 = f;
-                        break;
-                    case 4:
-                        this.t4 = t;
-                        this.f4 = f;
-                        break;
-                    case 5:
-                        this.t5 = t;
-                        this.f5 = f;
-                        break;
-                    case 6:
-                        this.t6 = t;
-                        this.f6 = f;
-                        break;
-                    case 7:
-                        this.t7 = t;
-                        this.f7 = f;
-                        break;
-                    case 8:
-                        this.t8 = t;
-                        this.f8 = f;
-                        break;
-                    case 9:
-                        this.t9 = t;
-                        this.f9 = f;
-                        break;
-                    case 10:
-                        this.t10 = t;
-                        this.f10 = f;
-                        break;
-                    case 11:
-                        this.t11 = t;
-                        this.f11 = f;
-                        break;
-                    default:
-                        throw new PsseException("Unexpected point " + point);
-                }
             }
         }
     }
@@ -359,12 +152,6 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
      */
     private static class IOLegacyText35 extends RecordGroupIOLegacyText<PsseTransformerImpedanceCorrection> {
 
-        private static final String[][] FIELD_NAMES = {
-            {"i", "t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3", "t4", "ref4", "imf4", "t5", "ref5", "imf5", "t6", "ref6", "imf6"},
-            {"t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3", "t4", "ref4", "imf4", "t5", "ref5", "imf5", "t6", "ref6", "imf6"},
-        };
-        private static final String[] QUOTED_FIELDS = {};
-
         IOLegacyText35(AbstractRecordGroup<PsseTransformerImpedanceCorrection> recordGroup) {
             super(recordGroup);
         }
@@ -373,51 +160,56 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> records = reader.readRecords();
 
-            ZCorr35FirstData record1Data = new ZCorr35FirstData();
-            ZCorr35PointsData record2Data = new ZCorr35PointsData();
-
             List<PsseTransformerImpedanceCorrection> impedanceCorrectionList = new ArrayList<>();
+            ZCorr35FirstData zCorr35FirstData = new ZCorr35FirstData();
+            ZCorr35PointsData zCorr35PointsData = new ZCorr35PointsData();
 
             int i = 0;
             while (i < records.size()) {
-                ZCorr35First r1 = record1Data.parseSingleRecord(records.get(i++), FIELD_NAMES[0], context);
+                ZCorr35First zFirst = zCorr35FirstData.parseSingleRecord(records.get(i++), ZCorr35First.getFieldNames(), context);
 
-                PsseTransformerImpedanceCorrection impedanceCorrection = new PsseTransformerImpedanceCorrection(r1.getI());
-                boolean endPoints = addImpedanceCorrectionPoints(impedanceCorrection, r1.getPoints());
+                PsseTransformerImpedanceCorrection psseTransformerImpedanceCorrection = new PsseTransformerImpedanceCorrection();
+                psseTransformerImpedanceCorrection.setI(zFirst.getI());
+                boolean endPoint = toImpedanceCorrectionPoints(zFirst.getPoints(), psseTransformerImpedanceCorrection);
 
-                while (i < records.size() && !endPoints) {
-                    ZCorr35Points r2 = record2Data.parseSingleRecord(records.get(i++), FIELD_NAMES[1], context);
-                    endPoints = addImpedanceCorrectionPoints(impedanceCorrection, r2);
+                // Then we can have an undefined number of lines
+                while (i < records.size() && !endPoint) {
+                    ZCorr35Points zPoints = zCorr35PointsData.parseSingleRecord(records.get(i++), ZCorr35Points.getFieldNames(), context);
+                    endPoint = toImpedanceCorrectionPoints(zPoints, psseTransformerImpedanceCorrection);
                 }
-                if (!impedanceCorrection.getPoints().isEmpty()) {
-                    impedanceCorrectionList.add(impedanceCorrection);
-                }
+
+                impedanceCorrectionList.add(psseTransformerImpedanceCorrection);
             }
 
             return impedanceCorrectionList;
         }
 
-        private static boolean addImpedanceCorrectionPoints(PsseTransformerImpedanceCorrection impedanceCorrection,
-            ZCorr35Points record2) {
-            Objects.requireNonNull(record2);
+        private static boolean toImpedanceCorrectionPoints(ZCorr35Points z, PsseTransformerImpedanceCorrection psseTransformerImpedanceCorrection) {
 
-            List<Double> list = Arrays.asList(record2.getT1(), record2.getRef1(), record2.getImf1(), record2.getT2(), record2.getRef2(), record2.getImf2(),
-                record2.getT3(), record2.getRef3(), record2.getImf3(), record2.getT4(), record2.getRef4(), record2.getImf4(),
-                record2.getT5(), record2.getRef5(), record2.getImf5(), record2.getT6(), record2.getRef6(), record2.getImf6());
-
-            for (int i = 0; i < list.size(); i = i + 3) {
-                if (endPoint(list.get(i), list.get(i + 1), list.get(i + 2))) {
-                    return true;
-                } else {
-                    impedanceCorrection.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(list.get(i), list.get(i + 1), list.get(i + 2)));
-                }
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT1(), z.getRef1(), z.getImf1())) {
+                return true;
             }
-
-            return false;
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT2(), z.getRef2(), z.getImf2())) {
+                return true;
+            }
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT3(), z.getRef3(), z.getImf3())) {
+                return true;
+            }
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT4(), z.getRef4(), z.getImf4())) {
+                return true;
+            }
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT5(), z.getRef5(), z.getImf5())) {
+                return true;
+            }
+            return addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT6(), z.getRef6(), z.getImf6());
         }
 
-        private static boolean endPoint(double t, double ref, double imf) {
-            return t == 0.0 && ref == 0.0 && imf == 0.0;
+        private static boolean addUntilEndPoint(PsseTransformerImpedanceCorrection psseTransformerImpedanceCorrection, double t, double ref, double imf) {
+            if (t == 0.0 && ref == 0.0 && imf == 0) {
+                return true;
+            }
+            psseTransformerImpedanceCorrection.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(t, ref, imf));
+            return false;
         }
 
         @Override
@@ -431,17 +223,17 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
                 int indexPoints = 0;
                 ZCorr35First r1 = convertToRecord1(impedanceCorrection, indexPoints);
-                String[] writeHeaders = ArrayUtils.subarray(FIELD_NAMES[0], 0, 1 + 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                String record = record1Data.buildRecord(r1, writeHeaders, QUOTED_FIELDS, context);
-                write(String.format("%s%n", record), outputStream);
+                String[] writeHeaders = ArrayUtils.subarray(ZCorr35First.getFieldNames(), 0, 1 + 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
+                String rec = record1Data.buildRecord(r1, writeHeaders, ZCorr35First.getFieldNamesString(), context);
+                write(rec, outputStream);
 
                 indexPoints = indexPoints + 6;
                 // A (0.0, 0.0, 0.0) point must be added at the end so <=
                 while (indexPoints <= impedanceCorrection.getPoints().size()) {
                     ZCorr35Points r2 = convertToRecord2(impedanceCorrection, indexPoints);
-                    String[] writeHeadersPoints = ArrayUtils.subarray(FIELD_NAMES[1], 0, 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                    String recordPoints = record2Data.buildRecord(r2, writeHeadersPoints, QUOTED_FIELDS, context);
-                    write(String.format("%s%n", recordPoints), outputStream);
+                    String[] writeHeadersPoints = ArrayUtils.subarray(ZCorr35Points.getFieldNames(), 0, 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
+                    String recordPoints = record2Data.buildRecord(r2, writeHeadersPoints, ZCorr35Points.getFieldNamesString(), context);
+                    write(recordPoints, outputStream);
 
                     indexPoints = indexPoints + 6;
                 }
@@ -504,238 +296,6 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 return ZCorr35Points.class;
             }
         }
-
-        public static class ZCorr35First {
-
-            @Parsed
-            private int i;
-
-            @Nested
-            private ZCorr35Points points;
-
-            public int getI() {
-                return i;
-            }
-
-            public void setI(int i) {
-                this.i = i;
-            }
-
-            public ZCorr35Points getPoints() {
-                return points;
-            }
-
-            public void setPoints(ZCorr35Points points) {
-                this.points = points;
-            }
-        }
-
-        public static class ZCorr35Points {
-
-            @Parsed
-            private double t1 = 0.0;
-
-            @Parsed
-            private double ref1 = 0.0;
-
-            @Parsed
-            private double imf1 = 0.0;
-
-            @Parsed
-            private double t2 = 0.0;
-
-            @Parsed
-            private double ref2 = 0.0;
-
-            @Parsed
-            private double imf2 = 0.0;
-
-            @Parsed
-            private double t3 = 0.0;
-
-            @Parsed
-            private double ref3 = 0.0;
-
-            @Parsed
-            private double imf3 = 0.0;
-
-            @Parsed
-            private double t4 = 0.0;
-
-            @Parsed
-            private double ref4 = 0.0;
-
-            @Parsed
-            private double imf4 = 0.0;
-
-            @Parsed
-            private double t5 = 0.0;
-
-            @Parsed
-            private double ref5 = 0.0;
-
-            @Parsed
-            private double imf5 = 0.0;
-
-            @Parsed
-            private double t6 = 0.0;
-
-            @Parsed
-            private double ref6 = 0.0;
-
-            @Parsed
-            private double imf6 = 0.0;
-
-            public double getT1() {
-                return t1;
-            }
-
-            public double getRef1() {
-                return ref1;
-            }
-
-            public double getImf1() {
-                return imf1;
-            }
-
-            public double getT2() {
-                return t2;
-            }
-
-            public double getRef2() {
-                return ref2;
-            }
-
-            public double getImf2() {
-                return imf2;
-            }
-
-            public double getT3() {
-                return t3;
-            }
-
-            public double getRef3() {
-                return ref3;
-            }
-
-            public double getImf3() {
-                return imf3;
-            }
-
-            public double getT4() {
-                return t4;
-            }
-
-            public double getRef4() {
-                return ref4;
-            }
-
-            public double getImf4() {
-                return imf4;
-            }
-
-            public double getT5() {
-                return t5;
-            }
-
-            public double getRef5() {
-                return ref5;
-            }
-
-            public double getImf5() {
-                return imf5;
-            }
-
-            public double getT6() {
-                return t6;
-            }
-
-            public double getRef6() {
-                return ref6;
-            }
-
-            public double getImf6() {
-                return imf6;
-            }
-
-            public void setTF(int point, double t, double ref, double imf) {
-                switch (point) {
-                    case 1:
-                        this.t1 = t;
-                        this.ref1 = ref;
-                        this.imf1 = imf;
-                        break;
-                    case 2:
-                        this.t2 = t;
-                        this.ref2 = ref;
-                        this.imf2 = imf;
-                        break;
-                    case 3:
-                        this.t3 = t;
-                        this.ref3 = ref;
-                        this.imf3 = imf;
-                        break;
-                    case 4:
-                        this.t4 = t;
-                        this.ref4 = ref;
-                        this.imf4 = imf;
-                        break;
-                    case 5:
-                        this.t5 = t;
-                        this.ref5 = ref;
-                        this.imf5 = imf;
-                        break;
-                    case 6:
-                        this.t6 = t;
-                        this.ref6 = ref;
-                        this.imf6 = imf;
-                        break;
-                    default:
-                        throw new PsseException("Unexpected point " + point);
-                }
-            }
-        }
-
-        public static class ZCorr35X {
-
-            public ZCorr35X() {
-            }
-
-            public ZCorr35X(int itable, double tap, double refact, double imfact) {
-                this.itable = itable;
-                this.tap = tap;
-                this.refact = refact;
-                this.imfact = imfact;
-            }
-
-            @Parsed
-            private int itable;
-
-            @Parsed
-            private double tap;
-
-            @Parsed
-            private double refact;
-
-            @Parsed
-            private double imfact;
-
-            public int getItable() {
-                return itable;
-            }
-
-            public double getTap() {
-                return tap;
-            }
-
-            public double getRefact() {
-                return refact;
-            }
-
-            public double getImfact() {
-                return imfact;
-            }
-        }
     }
 
     private static class IOJson extends RecordGroupIOJson<PsseTransformerImpedanceCorrection> {
@@ -748,13 +308,13 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             if (reader != null) {
                 throw new PsseException("Unexpected reader. Should be null");
             }
-            List<IOLegacyText35.ZCorr35X> parserRecords = new PsseTransformerImpedanceCorrection35xParserRecordData().read(null, context);
+            List<ZCorr35X> parserRecords = new PsseTransformerImpedanceCorrection35xParserRecordData().read(null, context);
             List<PsseTransformerImpedanceCorrection> records = new ArrayList<>();
             parserRecords.forEach(parserRecord -> convertToImpedanceCorrection(records, parserRecord));
             return records;
         }
 
-        private static void convertToImpedanceCorrection(List<PsseTransformerImpedanceCorrection> impedanceCorrectionList, IOLegacyText35.ZCorr35X parserRecord) {
+        private static void convertToImpedanceCorrection(List<PsseTransformerImpedanceCorrection> impedanceCorrectionList, ZCorr35X parserRecord) {
             if (impedanceCorrectionList.isEmpty()) {
                 PsseTransformerImpedanceCorrection impedanceCorrection = new PsseTransformerImpedanceCorrection(parserRecord.getItable());
                 impedanceCorrection.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(parserRecord.getTap(), parserRecord.getRefact(), parserRecord.getImfact()));
@@ -776,30 +336,30 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             if (outputStream != null) {
                 throw new PsseException("Unexpected outputStream. Should be null");
             }
-            List<IOLegacyText35.ZCorr35X> parserList = convertToParserList(impedanceCorrectionList);
+            List<ZCorr35X> parserList = convertToParserList(impedanceCorrectionList);
             new PsseTransformerImpedanceCorrection35xParserRecordData().write(parserList, context, null);
         }
 
-        private static List<IOLegacyText35.ZCorr35X> convertToParserList(List<PsseTransformerImpedanceCorrection> impedanceCorrectionList) {
-            List<IOLegacyText35.ZCorr35X> parserList = new ArrayList<>();
+        private static List<ZCorr35X> convertToParserList(List<PsseTransformerImpedanceCorrection> impedanceCorrectionList) {
+            List<ZCorr35X> parserList = new ArrayList<>();
 
             impedanceCorrectionList.forEach(impedanceCorrection -> impedanceCorrection.getPoints().forEach(point -> {
-                IOLegacyText35.ZCorr35X parserRecord = new IOLegacyText35.ZCorr35X(
+                ZCorr35X parserRecord = new ZCorr35X(
                     impedanceCorrection.getI(), point.getT(), point.getRef(), point.getImf());
                 parserList.add(parserRecord);
             }));
             return parserList;
         }
 
-        private static class PsseTransformerImpedanceCorrection35xParserRecordData extends AbstractRecordGroup<IOLegacyText35.ZCorr35X> {
+        private static class PsseTransformerImpedanceCorrection35xParserRecordData extends AbstractRecordGroup<ZCorr35X> {
             PsseTransformerImpedanceCorrection35xParserRecordData() {
                 super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES);
                 withQuotedFields();
             }
 
             @Override
-            protected Class<IOLegacyText35.ZCorr35X> psseTypeClass() {
-                return IOLegacyText35.ZCorr35X.class;
+            protected Class<ZCorr35X> psseTypeClass() {
+                return ZCorr35X.class;
             }
         }
     }

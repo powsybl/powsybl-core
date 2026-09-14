@@ -46,7 +46,8 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         this.offRegulationMode = -1;
     }
 
-    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, boolean regulating, int offRegulationMode, boolean useVoltageRegulation) {
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize,
+                    int regulationMode, boolean regulating, int offRegulationMode, boolean useVoltageRegulation) {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
         this.useVoltageRegulation = useVoltageRegulation;

@@ -7,11 +7,12 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.action.PhaseTapChangerRegulationAction;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.action.PhaseTapChangerRegulationAction;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}

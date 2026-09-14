@@ -364,6 +364,14 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         // nothing to do
     }
 
+    public int getMinOffset() {
+        return chunks.stream().mapToInt(C::getOffset).min().orElse(0);
+    }
+
+    public int getMaxChunkEnd() {
+        return chunks.stream().mapToInt(chunk -> chunk.getOffset() + chunk.getLength()).max().orElse(0);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(metadata, chunks);

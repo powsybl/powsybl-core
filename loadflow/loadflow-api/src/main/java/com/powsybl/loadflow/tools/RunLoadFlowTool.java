@@ -10,13 +10,12 @@ package com.powsybl.loadflow.tools;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.*;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.loadflow.json.LoadFlowResultSerializer;
 import com.powsybl.tools.Command;
@@ -52,6 +51,7 @@ public class RunLoadFlowTool implements Tool {
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
     private static final String OUTPUT_CASE_FILE = "output-case-file";
+    private static final String OUTPUT_LOG_FILE = "output-log-file";
 
     private enum Format {
         CSV,
@@ -110,6 +110,11 @@ public class RunLoadFlowTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_LOG_FILE)
+                        .desc("loadflow logs output path")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 options.addOption(createExportParametersFileOption());
@@ -160,19 +165,42 @@ public class RunLoadFlowTool implements Tool {
             JsonLoadFlowParameters.update(params, parametersFile);
         }
 
-        LoadFlowResult result = LoadFlow.run(network, context.getShortTimeExecutionComputationManager(), params);
+        ReportNode reportNode = LoadFlowReports.buildRootLoadFlowTool();
 
-        if (outputFile != null) {
-            exportResult(result, context, outputFile, format);
+        LoadFlowRunParameters runParameters = new LoadFlowRunParameters()
+                .setParameters(params)
+                .setComputationManager(context.getShortTimeExecutionComputationManager())
+                .setReportNode(reportNode);
+
+        LoadFlow.Runner runner = LoadFlow.find();
+        if (runner.checkParameters(runParameters)) {
+            LoadFlowResult result = runner.run(network, runParameters);
+
+            writeLog(line, context, reportNode);
+            if (outputFile != null) {
+                exportResult(result, context, outputFile, format);
+            } else {
+                printResult(result, context);
+            }
+
+            // exports the modified network to the filesystem, if requested
+            if (outputCaseFile != null) {
+                String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
+                Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
+                network.write(outputCaseFormat, outputParams, outputCaseFile);
+            }
         } else {
-            printResult(result, context);
+            writeLog(line, context, reportNode);
+            context.getOutputStream().printf("Unsupported parameters found, %s cannot launch the loadflow%n", runner.getName());
         }
+    }
 
-        // exports the modified network to the filesystem, if requested
-        if (outputCaseFile != null) {
-            String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
-            Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-            network.write(outputCaseFormat, outputParams, outputCaseFile);
+    private void writeLog(CommandLine line, ToolRunningContext context, ReportNode reportNode) throws IOException {
+        Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
+        if (outputLogFile != null) {
+            exportLog(reportNode, context, outputLogFile);
+        } else {
+            printLog(reportNode, context);
         }
     }
 
@@ -241,6 +269,12 @@ public class RunLoadFlowTool implements Tool {
         printLoadFlowResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
 
+    private void printLog(ReportNode reportNode, ToolRunningContext context) throws IOException {
+        Writer writer = new OutputStreamWriter(context.getOutputStream());
+        reportNode.print(writer);
+        writer.flush();
+    }
+
     private void exportResult(LoadFlowResult result, ToolRunningContext context, Path outputFile, Format format) {
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         switch (format) {
@@ -253,5 +287,10 @@ public class RunLoadFlowTool implements Tool {
                 LoadFlowResultSerializer.write(result, outputFile);
                 break;
         }
+    }
+
+    private void exportLog(ReportNode reportNode, ToolRunningContext context, Path outputLogFile) throws IOException {
+        context.getOutputStream().println("Writing logs to '" + outputLogFile + "'");
+        reportNode.print(outputLogFile);
     }
 }

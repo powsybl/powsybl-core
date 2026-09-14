@@ -37,6 +37,22 @@ SELECT *
     OPTIONAL { ?FullModel md:Model.version ?version }
 }}
 
+# query: modelDates
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # There are multiple FullModel instances.
+    # We return all dates from all Model instances that are not a boundary model
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.created ?created ;
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    FILTER (!regex(?profile, "Equipment", "i")
+        && !regex(?profile, "TopologyBoundary", "i"))
+}}
+
 # query: numObjectsByType
 # Only types in a namespace given as parameter
 SELECT ?Type (COUNT (DISTINCT ?object) AS ?numObjects)
@@ -272,7 +288,8 @@ SELECT *
     ?ExternalNetworkInjection  a cim:ExternalNetworkInjection ;
         cim:ExternalNetworkInjection.p ?p ;
         cim:ExternalNetworkInjection.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled ;
+        cim:ExternalNetworkInjection.referencePriority ?referencePriority
 }
 
 # query: asynchronousMachines

@@ -202,7 +202,8 @@ public interface Network extends Container<Network> {
      * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
-    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
+    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config,
+                        Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
         ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
         dataSource.putData(filename, data);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
@@ -356,7 +357,9 @@ public interface Network extends Container<Network> {
         return read(new MultipleReadOnlyDataSource(dataSources), properties, reportNode);
     }
 
-    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager,
+                        ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener,
+                        NetworkFactory networkFactory, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
         if (!Files.isDirectory(dir)) {
             throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
         }
@@ -365,27 +368,34 @@ public interface Network extends Container<Network> {
         }
     }
 
-    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager,
+                        ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener,
+                        ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, NetworkFactory.findDefault(), reportNode);
     }
 
-    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager,
+                        ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, ReportNode.NO_OP);
     }
 
-    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager,
+                        ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, parallel, loader, computationManager, config, null, consumer, listener);
     }
 
-    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config,
+                        Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, parallel, new ImportersServiceLoader(), computationManager, config, parameters, consumer, listener);
     }
 
-    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config,
+                        Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, parallel, new ImportersServiceLoader(), computationManager, config, consumer, listener);
     }
 
-    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config,
+                        Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         readAll(dir, parallel, computationManager, config, consumer, null);
     }
 
@@ -393,7 +403,8 @@ public interface Network extends Container<Network> {
         readAll(dir, parallel, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), consumer);
     }
 
-    static void readAll(Path dir, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener)
+        throws IOException, InterruptedException, ExecutionException {
         readAll(dir, parallel, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), consumer, listener);
     }
 
@@ -568,9 +579,10 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Just being able to name method create et not createNetwork. Create is not available in {@link NetworkFactory} for backward
-     * compatibility reason. To cleanup when {@link NetworkFactory#create(String, String)} will be removed.
+     * Just being able to name method create et not createNetwork.
+     * @deprecated since 7.3.0, use {@link NetworkFactory} instead
      */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     interface PrettyNetworkFactory {
 
         Network create(String id, String sourceFormat);
@@ -581,7 +593,9 @@ public interface Network extends Container<Network> {
      *
      * @param name name of the {@link NetworkFactory}
      * @return network factory with  the given name
+     * @deprecated since 7.3.0, use {@link NetworkFactory#find(String)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     static PrettyNetworkFactory with(String name) {
         return (id, sourceFormat) -> NetworkFactory.find(name).createNetwork(id, sourceFormat);
     }
@@ -1647,7 +1661,7 @@ public interface Network extends Container<Network> {
      * <p>Detach the current network (including its subnetworks) from its parent network.</p>
      * <p>Note that this operation is destructive: after it the current network's content
      * couldn't be accessed from the parent network anymore.</p>
-     * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.</br>
+     * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.<br/>
      * A {@link PowsyblException} is thrown if some un-splittable boundary elements are detected. This detection is processed
      * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
      *
@@ -1741,7 +1755,8 @@ public interface Network extends Container<Network> {
 
     /**
      * If network is valid, do nothing.<br>
-     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid.
+     * A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
      * If all network components are valid, network validation status is updated to true.
      * Return the network validation status.
      */
@@ -1751,7 +1766,8 @@ public interface Network extends Container<Network> {
 
     /**
      * If network is valid, do nothing.<br>
-     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid.
+     * A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
      * If all network components are valid, network validation status is updated to true.
      * Return the network validation status.
      */

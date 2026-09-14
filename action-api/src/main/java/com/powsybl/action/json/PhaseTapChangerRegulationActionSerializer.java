@@ -9,8 +9,8 @@ package com.powsybl.action.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.PhaseTapChangerRegulationAction;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
