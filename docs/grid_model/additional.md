@@ -139,6 +139,22 @@ Note that, following this modeling, in general, the last temporary limit (the hi
 If temporary limits are modeled, the permanent limit becomes mandatory.
 If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
 
+To create a high loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("group").newCurrentLimits()
+    .setPermanentLimit(600)
+    .beginTemporaryLimit()
+    .setName("10'")
+    .setAcceptableDuration(60 * 10)
+    .setValue(1000)
+    .endTemporaryLimit()
+    .add();
+```
+The detection kind is high by default, there is no need to specify it.
+
 ### Low loading limits
 
 ```{note}
@@ -161,6 +177,32 @@ Please look at this scheme to fully understand the modeling (the following examp
 
 ![Loading limits model](img/current-limits-low.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits-low.svg){width="50%" align=center class="only-dark"}
+
+To create a low loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("low limit").newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(60 * 40)
+            .setValue(500)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(900)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("5'")
+            .setAcceptableDuration(60 * 5)
+            .setValue(1200)
+            .endTemporaryLimit()
+            .add();
+```
+The detection kind is high by default, we need to specify that we want a low limit.
 
 (limit-group-collection)=
 ### Limit group collection
