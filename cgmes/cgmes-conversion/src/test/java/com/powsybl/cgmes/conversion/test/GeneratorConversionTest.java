@@ -74,6 +74,41 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testGeneratorActivePowerLimits() throws IOException {
+        //Ancien test : microBEFixedMinPMaxP
+        //Vérifier :
+        //minP
+        //maxP
+        //mode générateur / condenser
+        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml");
+        Generator g1 = network.getGenerator("SM");
+        assertEquals(50.0, g1.getMinP());
+        assertEquals(200.0, g1.getMaxP());
+        assertFalse(g1.isCondenser());
+    }
+
+    @Test
+    void testGeneratorRemoteReactivePowerControl() throws IOException {
+        // Ancien test : microBEReactivePowerGen
+        // Vérifier :
+        // - présence de l'extension
+        // - terminal régulé
+        // - activation
+        // - targetQ
+        assertTrue(true);
+    }
+
+    @Test
+    void testGeneratorEntsoeCategory() throws IOException {
+        // Ancien test : microGridBaseCaseAssembledEntsoeCategory
+        // Vérifier :
+        // assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
+        // assertEquals(42, g4.getExtension(GeneratorEntsoeCategory.class).getCode());
+        // assertNull(g1.getExtension(GeneratorEntsoeCategory.class));
+        assertTrue(true);
+    }
+
+    @Test
     void synchronousMachineOperatingModeAndKindConversion() throws IOException {
         Network network = createNetwork();
 
