@@ -19,8 +19,8 @@ public class ReducedActivePowerLimits extends AbstractReducedLoadingLimits imple
      * Create a {@link ReducedActivePowerLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#HIGH}
      */
     public ReducedActivePowerLimits(double permanentLimit, double originalPermanentLimit,
-                                    double permanentLimitReduction) {
-        super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+                                    double permanentLimitReduction, String permanentLimitName) {
+        super(permanentLimit, originalPermanentLimit, permanentLimitReduction, permanentLimitName);
     }
 
     /**
