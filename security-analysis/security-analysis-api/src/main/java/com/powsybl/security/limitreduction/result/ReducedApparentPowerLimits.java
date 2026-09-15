@@ -20,8 +20,8 @@ public class ReducedApparentPowerLimits extends AbstractReducedLoadingLimits imp
      * Create a {@link ReducedApparentPowerLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
      */
     public ReducedApparentPowerLimits(double permanentLimit, double originalPermanentLimit,
-                                      double permanentLimitReduction) {
-        super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+                                      double permanentLimitReduction, String permanentLimitName) {
+        super(permanentLimit, originalPermanentLimit, permanentLimitReduction, permanentLimitName);
     }
 
     /**
