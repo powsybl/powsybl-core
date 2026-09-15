@@ -8,10 +8,12 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,5 +44,23 @@ public abstract class AbstractIdentifiableTest {
 
         // Test nothing is returned when using old id
         assertNull(network.getIdentifiable("LOAD"));
+    }
+
+    @Test
+    public void testSetIdBusesBusBreaker() {
+        Network network = EurostagTutorialExample1Factory.create();
+        int count = 0;
+        for (Bus bus : network.getBusBreakerView().getBusStream().toList()) {
+            bus.setId(String.valueOf(count++));
+        }
+    }
+
+    @Test
+    public void testSetIdBusesNodeBreaker() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        int count = 0;
+        for (Bus bus : network.getBusBreakerView().getBusStream().toList()) {
+            bus.setId(String.valueOf(count++));
+        }
     }
 }

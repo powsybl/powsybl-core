@@ -10,6 +10,9 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -145,5 +148,13 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     @Override
     protected String getTypeDescription() {
         return "Switch";
+    }
+
+    @Override
+    public Switch setId(String id) {
+        String oldId = this.id;
+        super.setId(id);
+        this.voltageLevel.getTopologyModel().updateSwitchId(oldId, id);
+        return this;
     }
 }
