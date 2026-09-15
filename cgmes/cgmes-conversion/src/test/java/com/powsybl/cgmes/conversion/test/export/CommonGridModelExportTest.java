@@ -734,16 +734,34 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertEquals(1, beLoadGroupIds.size());
         assertEquals(1, nlLoadGroupIds.size());
 
-        // Each EQ file must contain one OperationalLimitType
-        Pattern regexOperationalLimitType = Pattern.compile("cim:OperationalLimitType rdf:ID=\"(_[^\"]*)\"");
-        Set<String> beOpLimitTypeIds = getUniqueMatches(beEqXml, regexOperationalLimitType);
-        Set<String> nlOpLimitTypeIds = getUniqueMatches(nlEqXml, regexOperationalLimitType);
-        assertFalse(beOpLimitTypeIds.isEmpty());
-        assertFalse(nlOpLimitTypeIds.isEmpty());
+        // Each EQ file must contain one OperationalLimitType for the PATL and two OperationalLimitType for the TATL
+        // CGMES OperationalLimitType IDs have the following shape (from the naming strategy):
+        // "_PATL_OLT_Network_BE" or "_TATL_OLT_Network_BE".
+        //
+        // The ID part of the regex after PATL or TATL, "\"(_[^\"]*)\"", matches:
+        //   "_" -> the literal underscore at the beginning of the ID
+        //   [^"]* -> zero or more characters that are not a double quote,
+        //            allowing us to match the rest of the ID until the closing quote.
+        //
+        // PATL and TATL are matched separately to filter the IDs into their respective lists.
+        String patlRegex = "cim:OperationalLimitType rdf:ID=\"(_PATL_[^\"]*)\"";
+        String tatlRegex = "cim:OperationalLimitType rdf:ID=\"(_TATL_[^\"]*)\"";
+
+        Pattern regexPatlOperationalLimitType = Pattern.compile(patlRegex);
+        Pattern regexTatlOperationalLimitType = Pattern.compile(tatlRegex);
+        Set<String> bePatlOpLimitTypeIds = getUniqueMatches(beEqXml, regexPatlOperationalLimitType);
+        Set<String> beTatlOpLimitTypeIds = getUniqueMatches(beEqXml, regexTatlOperationalLimitType);
+        Set<String> nlPatlOpLimitTypeIds = getUniqueMatches(nlEqXml, regexPatlOperationalLimitType);
+        Set<String> nlTatlOpLimitTypeIds = getUniqueMatches(nlEqXml, regexTatlOperationalLimitType);
+        assertEquals(1, bePatlOpLimitTypeIds.size());
+        assertEquals(2, beTatlOpLimitTypeIds.size());
+        assertEquals(1, nlPatlOpLimitTypeIds.size());
+        assertEquals(2, nlTatlOpLimitTypeIds.size());
 
         // The LoadGroup IDs and OperationalLimitType IDs must be different between the two IGMs
         assertTrue(Collections.disjoint(beLoadGroupIds, nlLoadGroupIds));
-        assertTrue(Collections.disjoint(beOpLimitTypeIds, nlOpLimitTypeIds));
+        assertTrue(Collections.disjoint(bePatlOpLimitTypeIds, nlPatlOpLimitTypeIds));
+        assertTrue(Collections.disjoint(beTatlOpLimitTypeIds, nlTatlOpLimitTypeIds));
     }
 
     private Network networkWithLoadsAndLimits2Subnetworks() {
