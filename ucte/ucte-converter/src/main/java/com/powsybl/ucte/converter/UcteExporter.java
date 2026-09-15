@@ -8,7 +8,6 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -16,7 +15,6 @@ import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
@@ -30,7 +28,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -55,9 +52,6 @@ public class UcteExporter implements Exporter {
             = new Parameter(COMBINE_PHASE_ANGLE_REGULATION, ParameterType.BOOLEAN, "Combine phase and angle regulation", false);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
-
-    private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
-            = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices());
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -86,7 +80,14 @@ public class UcteExporter implements Exporter {
         }
 
         String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
+        // a new instance is requested from the ServiceLoader for each export, instead of caching and
+        // reusing one across exports, so that concurrent exports don't share (and corrupt) the same
+        // NamingStrategy's internal id-mapping state
+        List<NamingStrategy> namingStrategies = ServiceLoader.load(NamingStrategy.class, UcteExporter.class.getClassLoader())
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
         namingStrategy.initializeNetwork(network);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
@@ -824,8 +825,8 @@ public class UcteExporter implements Exporter {
 
         if (namingStrategies.size() == 1 && name == null) {
             // no information to select the implementation but only one naming strategy, so we can use it by default
-            // (that is be the most common use case)
-            return namingStrategies.get(0);
+            // (that is the most common use case)
+            return namingStrategies.getFirst();
         } else {
             if (namingStrategies.size() > 1 && name == null) {
                 // several naming strategies and no information to select which one to choose, we can only throw
