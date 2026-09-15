@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
 
-    private static final String XML_WITH_REVERTED_MINQ_MAXQ = """
+    private static final String XML_WITH_INVERTED_MINQ_MAXQ = """
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="ReactiveLimits" sourceFormat="test" caseDate="2025-07-29T10:00:00.000+02:00" forecastDistance="0" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S" country="FR" tso="RTE">
@@ -57,12 +57,12 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void importShouldSucceedWhenRevertedMinQMaxQ() {
+    void importShouldSucceedWhenInvertedMinQMaxQ() {
         ImportOptions options = new ImportOptions()
-                .setCheckRevertedMinQMaxQ(true);
+                .setRepairInvalidReactiveCurveLimits(true);
 
         Network network = NetworkSerDe.read(
-                new ByteArrayInputStream(XML_WITH_REVERTED_MINQ_MAXQ.getBytes(StandardCharsets.UTF_8)),
+                new ByteArrayInputStream(XML_WITH_INVERTED_MINQ_MAXQ.getBytes(StandardCharsets.UTF_8)),
                 options,
                 null);
 
@@ -74,11 +74,11 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void importShouldThrowExceptionWhenNotRevertedMinQMaxQ() {
+    void importShouldThrowExceptionWhenNotInvertedMinQMaxQ() {
         ImportOptions options = new ImportOptions()
-                .setCheckRevertedMinQMaxQ(false);
+                .setRepairInvalidReactiveCurveLimits(false);
 
-        byte[] xmlBytes = XML_WITH_REVERTED_MINQ_MAXQ.getBytes(StandardCharsets.UTF_8);
+        byte[] xmlBytes = XML_WITH_INVERTED_MINQ_MAXQ.getBytes(StandardCharsets.UTF_8);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlBytes);
 
         ValidationException e = assertThrows(

@@ -103,8 +103,8 @@ public class ReactiveLimitsSerDe {
         ReactiveCapabilityCurveAdder.PointAdder pointAdder = curveAdder.beginPoint();
         PropertiesSerDe.readProperties(context, pointAdder);
 
-        if (context.getOptions().isCheckRevertedMinQMaxQ() && minQ > maxQ) {
-            LOGGER.warn("Reactive capability curve point at P={} has reversed limits (minQ={} > maxQ={}); values have been reordered", p, minQ, maxQ);
+        if (context.getOptions().isRepairInvalidReactiveCurveLimits() && minQ > maxQ) {
+            LOGGER.warn("Reactive capability curve point at P={} has inverted limits (minQ={} > maxQ={}); values have been reordered", p, minQ, maxQ);
             double tmp = minQ;
             minQ = maxQ;
             maxQ = tmp;
