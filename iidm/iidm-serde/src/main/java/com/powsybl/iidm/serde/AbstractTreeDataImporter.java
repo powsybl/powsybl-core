@@ -82,7 +82,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
             100.);
 
     public static final Parameter REPAIR_INVALID_REACTIVE_CURVE_LIMITS_PARAMETER = new Parameter(REPAIR_INVALID_REACTIVE_CURVE_LIMITS,
-            ParameterType.BOOLEAN, "Check and reorder reversed minQ/maxQ values in reactive capability curves",
+            ParameterType.BOOLEAN, "Check and reorder inverted minQ/maxQ values (minQ > maxQ) in reactive capability curves",
             false);
 
     public static final Parameter MINIMAL_VALIDATION_LEVEL_PARAMETER = new Parameter(MINIMAL_VALIDATION_LEVEL,

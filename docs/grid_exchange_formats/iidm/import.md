@@ -26,7 +26,7 @@ The `iidm.import.xml.with-automation-systems` property is an optional property t
 By default, the value is `true`, the overload management systems are imported when deserializing a network.
 
 **iidm.import.xml.repair-invalid-reactive-curve-limits**<br>
-The `iidm.import.xml.repair-invalid-reactive-curve-limits` property is an optional property that enables the IIDM importer to detect reversed `minQ > maxQ` values in `ReactiveCapabilityCurve` points and automatically reorder them before validation.
+The `iidm.import.xml.repair-invalid-reactive-curve-limits` property is an optional property that enables the IIDM importer to detect `minQ > maxQ` values in `ReactiveCapabilityCurve` points and automatically reorder them before validation.
 
 By default, the value is `false`.<br>
 When set to `false`, a reactive capability curve point with `minQ > maxQ` is considered invalid and the import fails with a validation error.<br>
