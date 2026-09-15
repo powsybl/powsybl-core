@@ -142,7 +142,7 @@ public class MatpowerExporter implements Exporter {
                              boolean isValidVoltageRegulation, boolean isRemoteRegulation, double ratedS) {
         }
 
-        public Context(double maxGeneratorActivePowerLimit, double maxGeneratorReactivePowerLimit) {
+        Context(double maxGeneratorActivePowerLimit, double maxGeneratorReactivePowerLimit) {
             this.maxGeneratorActivePowerLimit = maxGeneratorActivePowerLimit;
             this.maxGeneratorReactivePowerLimit = maxGeneratorReactivePowerLimit;
         }
@@ -436,7 +436,7 @@ public class MatpowerExporter implements Exporter {
 
         private final TwoSides side;
 
-        public FlowsLimitsHolderBranchAdapter(Branch<?> branch, TwoSides side) {
+        FlowsLimitsHolderBranchAdapter(Branch<?> branch, TwoSides side) {
             this.branch = branch;
             this.side = side;
         }
@@ -845,7 +845,8 @@ public class MatpowerExporter implements Exporter {
                 boolean isValidVoltageRegulation = isValidVoltageRegulation(g.isVoltageRegulatorOn(), regulatedBus);
                 boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
                 double ratedS = g.getRatedS();
-                addMgen(context, busNumber, id, getStatus(t), targetVpu, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), isValidVoltageRegulation, isRemoteRegulation, ratedS);
+                addMgen(context, busNumber, id, getStatus(t), targetVpu, targetP, minP, maxP, targetQ,
+                    Math.min(minQ, maxQ), Math.max(minQ, maxQ), isValidVoltageRegulation, isRemoteRegulation, ratedS);
             }
         }
     }
@@ -1051,7 +1052,8 @@ public class MatpowerExporter implements Exporter {
             boolean isValidVoltageRegulation = isValidVoltageRegulation(vscConverterStation.isVoltageRegulatorOn(), regulatedBus);
             double maxP = vscConverterStation.getHvdcLine().getMaxP();
             boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
-            addMgen(context, busNumber, id, getStatus(terminal, otherVscConverterStation.getTerminal()), targetVpu, targetP, -maxP, maxP, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
+            addMgen(context, busNumber, id, getStatus(terminal, otherVscConverterStation.getTerminal()), targetVpu, targetP,
+                -maxP, maxP, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
         }
     }
 
@@ -1064,34 +1066,36 @@ public class MatpowerExporter implements Exporter {
     // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation status.
     // If the bus has PV type, all of its generator must have a valid voltage set point.
     private static void createGeneratorsAndDefinePVBuses(MatpowerModel model, Context context) {
-        context.generatorsToBeExported.keySet().stream().sorted().forEach(busNumber -> {
-            List<Context.GenRc> genRcs = context.generatorsToBeExported.get(busNumber);
-            MBus mBus = model.getBusByNum(busNumber);
-            List<Context.GenRc> connectedGenRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation && genRc.status == CONNECTED_STATUS).toList();
-            List<Context.GenRc> disconnectedGenRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation && genRc.status == DISCONNECTED_STATUS).toList();
-            List<Context.GenRc> connectedGenRcsWithRegulationOff = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation && genRc.status == CONNECTED_STATUS).toList();
-            // disconnectedGenRcsWithRegulationOff are ignored as in this version are considered as loads
-            if (connectedGenRcsWithRegulationOn.isEmpty()) {
-                connectedGenRcsWithRegulationOff.forEach(genRc -> {
-                    MGen mGen = createMGen(model, busNumber, genRc, context);
-                    // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
-                    // are activated in Matpower power flow
-                    mGen.setVoltageMagnitudeSetpoint(0);
-                });
-            } else {
-                if (mBus.getType().equals(MBus.Type.PQ)) {
-                    mBus.setType(MBus.Type.PV);
-                }
-                connectedGenRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
+        context.generatorsToBeExported.keySet().stream().sorted().forEach(busNumber -> createGeneratorAndDefinePVBuses(model, context, busNumber));
+    }
 
-                connectedGenRcsWithRegulationOff.forEach(genRc -> {
-                    mBus.setRealPowerDemand(mBus.getRealPowerDemand() - genRc.targetP);
-                    mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - genRc.targetQ);
-                    context.generatorIdsConvertedToLoad.add(genRc.id);
-                });
+    private static void createGeneratorAndDefinePVBuses(MatpowerModel model, Context context, int busNumber) {
+        List<Context.GenRc> genRcs = context.generatorsToBeExported.get(busNumber);
+        MBus mBus = model.getBusByNum(busNumber);
+        List<Context.GenRc> connectedGenRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation && genRc.status == CONNECTED_STATUS).toList();
+        List<Context.GenRc> disconnectedGenRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation && genRc.status == DISCONNECTED_STATUS).toList();
+        List<Context.GenRc> connectedGenRcsWithRegulationOff = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation && genRc.status == CONNECTED_STATUS).toList();
+        // disconnectedGenRcsWithRegulationOff are ignored as in this version are considered as loads
+        if (connectedGenRcsWithRegulationOn.isEmpty()) {
+            connectedGenRcsWithRegulationOff.forEach(genRc -> {
+                MGen mGen = createMGen(model, busNumber, genRc, context);
+                // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
+                // are activated in Matpower power flow
+                mGen.setVoltageMagnitudeSetpoint(0);
+            });
+        } else {
+            if (mBus.getType().equals(MBus.Type.PQ)) {
+                mBus.setType(MBus.Type.PV);
             }
-            disconnectedGenRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
-        });
+            connectedGenRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
+
+            connectedGenRcsWithRegulationOff.forEach(genRc -> {
+                mBus.setRealPowerDemand(mBus.getRealPowerDemand() - genRc.targetP);
+                mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - genRc.targetQ);
+                context.generatorIdsConvertedToLoad.add(genRc.id);
+            });
+        }
+        disconnectedGenRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
     }
 
     private static MGen createMGen(MatpowerModel model, int busNumber, Context.GenRc genRc, Context context) {

@@ -8,18 +8,17 @@
 
 package com.powsybl.cgmes.alternatives.test;
 
-import java.io.IOException;
-import java.util.function.Consumer;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

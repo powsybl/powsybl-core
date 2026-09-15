@@ -50,11 +50,13 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     }
 
     private static LoadFlowResult createVersion12() {
-        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, Double.NaN)));
+        return new LoadFlowResultImpl(true, createMetrics(), "",
+            Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, Double.NaN)));
     }
 
     private static LoadFlowResult createVersion13() {
-        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, 356.78)));
+        return new LoadFlowResultImpl(true, createMetrics(), "",
+            Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, 356.78)));
     }
 
     private static LoadFlowResult createVersion14() {

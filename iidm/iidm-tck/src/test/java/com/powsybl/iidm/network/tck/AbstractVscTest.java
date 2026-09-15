@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.BeforeEach;
@@ -154,12 +155,7 @@ public abstract class AbstractVscTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            cs1.isVoltageRegulatorOn();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, () -> cs1.isVoltageRegulatorOn());
     }
 
     @Test
@@ -190,5 +186,20 @@ public abstract class AbstractVscTest {
         assertEquals(1.1, network.getVscConverterStation("C3").getLossFactor(), 0.01);
         assertEquals(cs2.getTerminal(), network.getVscConverterStation("C3").getRegulatingTerminal());
 
+    }
+
+    @Test
+    public void testVscConverterStationAdderWithoutVoltageRegulatorOnWithEquipmentValidationLevel() {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        VscConverterStation converterStation = network.getVoltageLevel("VL1").newVscConverterStation()
+                .setId("C4")
+                .setReactivePowerSetpoint(123)
+                .setConnectableBus("B1")
+                .setLossFactor(1.1f)
+                .add();
+
+        assertFalse(converterStation.isVoltageRegulatorOn());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 }

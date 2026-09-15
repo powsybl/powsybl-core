@@ -19,8 +19,8 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.LimitReductionList;
-import org.junit.jupiter.api.Test;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

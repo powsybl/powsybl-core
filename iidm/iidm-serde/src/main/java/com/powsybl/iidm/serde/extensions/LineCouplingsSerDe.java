@@ -78,40 +78,42 @@ public class LineCouplingsSerDe extends AbstractVersionableNetworkExtensionSerDe
     public LineCouplings read(Network network, DeserializerContext context) {
         TreeDataReader reader = context.getReader();
         LineCouplings extension = network.newExtension(LineCouplingsAdder.class).add();
-        reader.readChildNodes(elementName -> {
-            if (elementName.equals(MUTUAL_COUPLING_ROOT_ELEMENT_NAME)) {
-                String line1Id = reader.readStringAttribute("line1");
-                String line2Id = reader.readStringAttribute("line2");
-                double r = reader.readDoubleAttribute("r");
-                double x = reader.readDoubleAttribute("x");
-                LineSegment segment1 = readSegment(reader, "line1Start", "line1End");
-                LineSegment segment2 = readSegment(reader, "line2Start", "line2End");
-
-                Line line1 = network.getLine(line1Id);
-                Line line2 = network.getLine(line2Id);
-
-                if (line1 == null) {
-                    throw new PowsyblException("Line '" + line1Id + "' not found in network.");
-                }
-                if (line2 == null) {
-                    throw new PowsyblException("Line '" + line2Id + "' not found in network.");
-                }
-
-                MutualCouplingAdder adder = extension.newMutualCoupling();
-                adder.withLine1(line1)
-                    .withLine2(line2)
-                    .withR(r)
-                    .withX(x)
-                    .withLine1Segment(segment1)
-                    .withLine2Segment(segment2)
-                    .add();
-
-                reader.readEndNode();
-            } else {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'lineCouplings'");
-            }
-        });
+        reader.readChildNodes(elementName -> readLineCouplings(network, elementName, reader, extension));
         return extension;
+    }
+
+    private static void readLineCouplings(Network network, String elementName, TreeDataReader reader, LineCouplings extension) {
+        if (elementName.equals(MUTUAL_COUPLING_ROOT_ELEMENT_NAME)) {
+            String line1Id = reader.readStringAttribute("line1");
+            String line2Id = reader.readStringAttribute("line2");
+            double r = reader.readDoubleAttribute("r");
+            double x = reader.readDoubleAttribute("x");
+            LineSegment segment1 = readSegment(reader, "line1Start", "line1End");
+            LineSegment segment2 = readSegment(reader, "line2Start", "line2End");
+
+            Line line1 = network.getLine(line1Id);
+            Line line2 = network.getLine(line2Id);
+
+            if (line1 == null) {
+                throw new PowsyblException("Line '" + line1Id + "' not found in network.");
+            }
+            if (line2 == null) {
+                throw new PowsyblException("Line '" + line2Id + "' not found in network.");
+            }
+
+            MutualCouplingAdder adder = extension.newMutualCoupling();
+            adder.withLine1(line1)
+                .withLine2(line2)
+                .withR(r)
+                .withX(x)
+                .withLine1Segment(segment1)
+                .withLine2Segment(segment2)
+                .add();
+
+            reader.readEndNode();
+        } else {
+            throw new PowsyblException("Unknown element name '" + elementName + "' in 'lineCouplings'");
+        }
     }
 
     private static LineSegment readSegment(TreeDataReader reader,

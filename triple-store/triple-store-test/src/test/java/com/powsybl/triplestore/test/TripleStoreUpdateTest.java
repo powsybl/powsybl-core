@@ -8,13 +8,12 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

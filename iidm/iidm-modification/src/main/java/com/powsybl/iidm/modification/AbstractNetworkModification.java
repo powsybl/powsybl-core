@@ -15,8 +15,8 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.ModificationReports;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.NetworkSerDe;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}

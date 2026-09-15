@@ -99,38 +99,40 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void readSubElements(String id, LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case EXPONENTIAL_MODEL -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
-                    double np = context.getReader().readDoubleAttribute("np");
-                    double nq = context.getReader().readDoubleAttribute("nq");
-                    ExponentialLoadModelAdder modelAdder = adder.newExponentialModel();
-                    PropertiesSerDe.readProperties(context, modelAdder);
-                    modelAdder.setNp(np)
-                            .setNq(nq)
-                            .add();
-                }
-                case ZIP_MODEL -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
-                    double c0p = context.getReader().readDoubleAttribute("c0p");
-                    double c1p = context.getReader().readDoubleAttribute("c1p");
-                    double c2p = context.getReader().readDoubleAttribute("c2p");
-                    double c0q = context.getReader().readDoubleAttribute("c0q");
-                    double c1q = context.getReader().readDoubleAttribute("c1q");
-                    double c2q = context.getReader().readDoubleAttribute("c2q");
-                    ZipLoadModelAdder modelAdder = adder.newZipModel();
-                    PropertiesSerDe.readProperties(context, modelAdder);
-                    modelAdder.setC0p(c0p)
-                            .setC1p(c1p)
-                            .setC2p(c2p)
-                            .setC0q(c0q)
-                            .setC1q(c1q)
-                            .setC2q(c2q)
-                            .add();
-                }
-                default -> readSubElement(elementName, id, toApply, context);
+        context.getReader().readChildNodes(elementName -> readChildNode(id, adder, toApply, context, elementName));
+    }
+
+    private void readChildNode(String id, LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context, String elementName) {
+        switch (elementName) {
+            case EXPONENTIAL_MODEL -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
+                double np = context.getReader().readDoubleAttribute("np");
+                double nq = context.getReader().readDoubleAttribute("nq");
+                ExponentialLoadModelAdder modelAdder = adder.newExponentialModel();
+                PropertiesSerDe.readProperties(context, modelAdder);
+                modelAdder.setNp(np)
+                    .setNq(nq)
+                    .add();
             }
-        });
+            case ZIP_MODEL -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
+                double c0p = context.getReader().readDoubleAttribute("c0p");
+                double c1p = context.getReader().readDoubleAttribute("c1p");
+                double c2p = context.getReader().readDoubleAttribute("c2p");
+                double c0q = context.getReader().readDoubleAttribute("c0q");
+                double c1q = context.getReader().readDoubleAttribute("c1q");
+                double c2q = context.getReader().readDoubleAttribute("c2q");
+                ZipLoadModelAdder modelAdder = adder.newZipModel();
+                PropertiesSerDe.readProperties(context, modelAdder);
+                modelAdder.setC0p(c0p)
+                    .setC1p(c1p)
+                    .setC2p(c2p)
+                    .setC0q(c0q)
+                    .setC1q(c1q)
+                    .setC2q(c2q)
+                    .add();
+            }
+            default -> readSubElement(elementName, id, toApply, context);
+        }
     }
 }

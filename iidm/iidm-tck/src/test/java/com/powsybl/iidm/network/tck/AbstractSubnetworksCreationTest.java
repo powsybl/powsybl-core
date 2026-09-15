@@ -18,10 +18,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.stream.Stream;
-import static com.powsybl.iidm.network.tck.AbstractLineTest.areLinesIdentical;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.iidm.network.tck.AbstractLineTest.areLinesIdentical;
 import static com.powsybl.iidm.network.tck.AbstractTwoWindingsTransformerTest.areTwoWindingsTransformersIdentical;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

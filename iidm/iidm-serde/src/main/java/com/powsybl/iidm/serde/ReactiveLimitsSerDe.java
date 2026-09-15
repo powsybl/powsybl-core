@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -55,6 +56,14 @@ public class ReactiveLimitsSerDe {
                 context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, limits.getMaxQ());
                 IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(limits, context));
                 context.getWriter().writeEndNode();
+                break;
+
+            case SHAPE:
+                if (!context.getOptions().isForceExportNetworkWithBetaFeatures()) {
+                    throw new NotImplementedException("The network contains reactive capability shape limits, export of this kind of reactive limits is not yet supported. " +
+                        "To force the export of the network and ignore those limits, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
+                        "or ExportOptions.setForceExportNetworkWithBetaFeatures");
+                }
                 break;
 
             default:

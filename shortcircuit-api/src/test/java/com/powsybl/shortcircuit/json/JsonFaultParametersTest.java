@@ -170,7 +170,9 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges " +
+            "with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])",
+            e0.getMessage());
     }
 
     @Test
@@ -178,6 +180,8 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges " +
+            "with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])",
+            e0.getMessage());
     }
 }

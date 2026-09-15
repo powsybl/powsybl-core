@@ -7,8 +7,8 @@
  */
 package com.powsybl.ieeecdf.model.reader;
 
-import com.powsybl.ieeecdf.model.elements.IeeeCdfBus;
 import com.powsybl.ieeecdf.model.conversion.BusTypeConversion;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBus;
 
 import java.io.BufferedReader;
 import java.io.IOException;

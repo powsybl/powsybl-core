@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
@@ -81,19 +81,26 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineId("CJ")
                 .build();
         assertDoesNotThrow(() -> modificationWithError3.apply(network, false, ReportNode.NO_OP));
-        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3));
+        assertEquals("Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities", exception.getMessage());
         assertEquals("core.iidm.modification.noVoltageLevelInCommon", reportNode3.getChildren().get(0).getMessageKey());
 
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");
         Line line2 = network.getLine("CJ_2");
-        line1.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(100.).beginTemporaryLimit().setName("limit1").setValue(500).setAcceptableDuration(1200).endTemporaryLimit().add();
-        line1.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(200.).add();
-        line1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(100.).beginTemporaryLimit().setName("limit3").setValue(900).setAcceptableDuration(60).endTemporaryLimit().add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits()
+            .setPermanentLimit(100.).beginTemporaryLimit().setName("limit1").setValue(500).setAcceptableDuration(1200).endTemporaryLimit().add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits()
+            .setPermanentLimit(200.).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
+            .setPermanentLimit(100.).beginTemporaryLimit().setName("limit3").setValue(900).setAcceptableDuration(60).endTemporaryLimit().add();
 
-        line2.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(600.).beginTemporaryLimit().setName("limit4").setValue(1000).setAcceptableDuration(300).endTemporaryLimit().add();
-        line2.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(800.).add();
-        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits()
+            .setPermanentLimit(600.).beginTemporaryLimit().setName("limit4").setValue(1000).setAcceptableDuration(300).endTemporaryLimit().add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits()
+            .setPermanentLimit(800.).add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+            .setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
 
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)

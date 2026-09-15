@@ -234,7 +234,7 @@ class AmplModelExecutionHandlerTest {
     private static class MockAmplLocalExecutor implements LocalCommandExecutor {
         private final List<String> amplResourcesPathes;
 
-        public MockAmplLocalExecutor(List<String> amplResourcesPathes) {
+        MockAmplLocalExecutor(List<String> amplResourcesPathes) {
             this.amplResourcesPathes = amplResourcesPathes;
         }
 

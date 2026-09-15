@@ -46,7 +46,7 @@ class ComputationExceptionBuilderTest {
         try {
             Files.createDirectories(workingDir);
             try (BufferedWriter writer = Files.newBufferedWriter(f1, StandardCharsets.UTF_8);
-                 BufferedWriter w2 = Files.newBufferedWriter(f2, StandardCharsets.UTF_8);) {
+                 BufferedWriter w2 = Files.newBufferedWriter(f2, StandardCharsets.UTF_8)) {
                 writer.write("foo");
                 w2.write("bar");
             }

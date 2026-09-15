@@ -10,8 +10,8 @@ package com.powsybl.security.execution;
 import com.google.common.io.ByteSource;
 import com.powsybl.action.Action;
 import com.powsybl.contingency.strategy.OperatorStrategy;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
 

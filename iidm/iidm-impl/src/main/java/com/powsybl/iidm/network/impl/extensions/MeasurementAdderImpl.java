@@ -9,9 +9,9 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.MeasurementAdder;
-import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.HashMap;
 import java.util.Map;

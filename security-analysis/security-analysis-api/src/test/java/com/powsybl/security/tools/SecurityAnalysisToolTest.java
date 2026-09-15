@@ -28,10 +28,10 @@ import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.results.PreContingencyResult;
 import com.powsybl.tools.Command;
-import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.BeforeEach;
@@ -185,15 +185,11 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Test
     void readNetwork() {
-        try {
-            ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
-                    mock(ComputationManager.class), mock(ComputationManager.class));
-            CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-            Network network = SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
-            assertNotNull(network);
-        } catch (Exception e) {
-            fail(e);
-        }
+        ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
+                mock(ComputationManager.class), mock(ComputationManager.class));
+        CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
+        Network network = assertDoesNotThrow(() -> SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock())));
+        assertNotNull(network);
     }
 
     @Test

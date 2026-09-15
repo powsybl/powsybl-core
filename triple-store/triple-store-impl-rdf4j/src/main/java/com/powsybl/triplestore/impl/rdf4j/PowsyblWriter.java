@@ -8,22 +8,17 @@
 
 package com.powsybl.triplestore.impl.rdf4j;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-
 import org.eclipse.rdf4j.common.xml.XMLUtil;
-import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Literals;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.XSD;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.rdfxml.RDFXMLWriter;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -99,16 +94,16 @@ public class PowsyblWriter extends RDFXMLWriter {
         String value = uri.toString();
         String prefix = namespaceTable.get(uri.getNamespace());
         if (uri.getNamespace().equals("urn:uuid:")) {
-            if (objLocalName.equals("FullModel")) {
+            if ("FullModel".equals(objLocalName)) {
                 attName = "about";
             } else {
                 value = "_" + uri.getLocalName();
             }
         }
-        if (prefix != null && prefix.equals("data")) {
+        if ("data".equals(prefix)) {
             if (ctxt.contains("_SSH_")
-                    || ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer")
-                    || ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode")) {
+                    || ctxt.contains("_DY_") && "EnergyConsumer".equals(objLocalName)
+                    || ctxt.contains("_TP_") && !"TopologicalNode".equals(objLocalName)) {
                 attName = "about";
                 value = "#" + uri.getLocalName();
             } else {
@@ -150,7 +145,7 @@ public class PowsyblWriter extends RDFXMLWriter {
             String value = uri.toString();
             String prefix = namespaceTable.get(uri.getNamespace());
             // FIXME review the use of hard-coded literal "data" for CGMES
-            if (prefix != null && prefix.equals("data")) {
+            if ("data".equals(prefix)) {
                 value = "#" + uri.getLocalName();
             }
             writeAttribute(RDF.NAMESPACE, "resource", value);
