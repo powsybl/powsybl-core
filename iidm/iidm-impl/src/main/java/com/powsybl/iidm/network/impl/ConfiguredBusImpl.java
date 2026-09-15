@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -263,14 +262,10 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         var oldId = getId();
         super.setId(id);
         // Update the BusTerminal
-        Set<VoltageLevelExt> vlToUpdate = new HashSet<>();
-        for (BusTerminal terminal : getTerminals()) {
-            vlToUpdate.add(terminal.getVoltageLevel());
-        }
+        Set<VoltageLevelExt> vlToUpdate = getTerminals().stream()
+                .map(AbstractTerminal::getVoltageLevel).collect(Collectors.toSet());
         vlToUpdate.forEach(vl -> vl.getTopologyModel().updateBusId(oldId, id));
-        for (BusTerminal terminal : getTerminals()) {
-            terminal.getBusBreakerView().updateConnectableBus(id);
-        }
+        getTerminals().forEach(t -> t.getBusBreakerView().updateConnectableBus(id));
         return this;
     }
 
