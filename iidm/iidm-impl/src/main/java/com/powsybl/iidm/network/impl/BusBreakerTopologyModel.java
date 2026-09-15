@@ -1006,6 +1006,15 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         return disconnect(terminal);
     }
 
+    @Override
+    public void updateBusId(String id, String newId) {
+        if (buses.get(id) == null) {
+            throw new PowsyblException("Bus with id " + id + " does not exists in the voltage level bus breaker topology model");
+        }
+        Integer v = buses.remove(id);
+        buses.put(newId, v);
+    }
+
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {
         traverse(terminal, traverser, new HashSet<>(), traversalType);
     }
