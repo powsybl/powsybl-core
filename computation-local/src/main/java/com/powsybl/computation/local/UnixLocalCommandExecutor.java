@@ -42,13 +42,19 @@ public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
         for (Map.Entry<String, String> entry : env2.entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue();
+            // A variable name sits before the '=' assignment and after '$', so it cannot be
+            // single-quoted like the value. Reject anything but alphanumerics and underscores
+            // to keep a hostile name from breaking out of the command.
+            if (!name.matches("[a-zA-Z_]\\w*")) {
+                throw new IllegalArgumentException("Invalid environment variable name");
+            }
             internalCmd.append(name).append("=").append("'").append(singleQuoteEscape(value)).append("'");
             if (name.endsWith("PATH")) {
                 internalCmd.append(File.pathSeparator).append("$").append(name);
             }
             internalCmd.append(" ");
         }
-        internalCmd.append(program);
+        internalCmd.append("'").append(singleQuoteEscape(program)).append("'");
         for (String arg : args) {
             internalCmd.append(" '").append(singleQuoteEscape(arg)).append("'");
         }
