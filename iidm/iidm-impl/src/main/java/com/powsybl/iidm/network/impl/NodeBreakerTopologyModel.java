@@ -1571,4 +1571,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     private static String getExceptionMessageElementNotFound(String element, String id) {
         return element + " " + id + " not found";
     }
+
+    @Override
+    public void updateSwitchId(String id, String newId) {
+        if (switches.containsKey(id)) {
+            Integer edge = switches.remove(id);
+            switches.put(newId, edge);
+        } else {
+            throw new PowsyblException("Switch with id " + id + "does not exist");
+        }
+    }
 }

@@ -44,4 +44,7 @@ interface TopologyModel {
 
     default void updateBusId(String id, String newId) {
     }
+
+    default void updateSwitchId(String id, String newId) {
+    }
 }
