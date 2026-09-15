@@ -137,10 +137,14 @@ public class TwoPassSecurityAnalysis {
     private boolean requiresSecondPass(PostContingencyResult result) {
         PostContingencyComputationStatus status = result.getStatus();
         boolean diverged = status != PostContingencyComputationStatus.CONVERGED && status != PostContingencyComputationStatus.NO_IMPACT;
-        if (diverged) {
-            LOGGER.debug("Contingency {} diverged (status: {}), scheduling second pass analysis", result.getContingency().getId(), status);
+        boolean hasMovedPhaseShifter = !result.getPhaseShifterResults().isEmpty();
+        if (hasMovedPhaseShifter) {
+            LOGGER.debug("Contingency {} has moved phase shifter (status: {}), scheduling second pass analysis", result.getContingency().getId(), status);
         }
-        return diverged;
+        if (diverged) {
+            LOGGER.debug("Contingency {} did not converge (status: {}), scheduling second pass analysis", result.getContingency().getId(), status);
+        }
+        return hasMovedPhaseShifter || diverged;
     }
 
     /**

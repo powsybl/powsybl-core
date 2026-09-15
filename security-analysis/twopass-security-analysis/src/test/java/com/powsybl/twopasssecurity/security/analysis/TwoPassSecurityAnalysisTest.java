@@ -12,9 +12,11 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.*;
 import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.MovedPhaseShifterResult;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.PreContingencyResult;
@@ -281,6 +283,47 @@ class TwoPassSecurityAnalysisTest {
     }
 
     @Test
+    void testRequiresSecondPassWhenMovedPhaseShifterPresent() {
+        when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency1));
+
+        List<MovedPhaseShifterResult> phaseShifterResults = Collections.singletonList(
+                new MovedPhaseShifterResult("transformer1", ThreeSides.ONE, 1, 2)
+        );
+        PostContingencyResult firstResult = new PostContingencyResult(
+                contingency1,
+                PostContingencyComputationStatus.CONVERGED,
+                new LimitViolationsResult(Collections.emptyList()),
+                NetworkResult.empty(),
+                ConnectivityResult.empty(),
+                Double.NaN,
+                phaseShifterResults
+        );
+        SecurityAnalysisReport firstReport = new SecurityAnalysisReport(
+                new SecurityAnalysisResult(new PreContingencyResult(),
+                        Collections.singletonList(firstResult),
+                        Collections.emptyList())
+        );
+        when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
+
+        PostContingencyResult secondResult = createPostContingencyResult(contingency1,
+                PostContingencyComputationStatus.CONVERGED, 1);
+        when(secondProvider.run(eq(network), eq(workingVariantId), any(), any())).thenAnswer(invocation -> {
+            ContingenciesProvider filteredProvider = invocation.getArgument(2);
+            assertEquals(Collections.singletonList(contingency1), filteredProvider.getContingencies(network));
+            return CompletableFuture.completedFuture(new SecurityAnalysisReport(
+                    new SecurityAnalysisResult(new PreContingencyResult(),
+                            Collections.singletonList(secondResult),
+                            Collections.emptyList())
+            ));
+        });
+
+        SecurityAnalysisReport report = twoPassSecurityAnalysis.run().join();
+
+        assertEquals(1, report.getResult().getPostContingencyResults().getFirst()
+                .getLimitViolationsResult().getLimitViolations().size());
+    }
+
+    @Test
     void testRunKeepsFirstPassLogBytesAfterMerge() {
         when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency1));
 
@@ -335,7 +378,8 @@ class TwoPassSecurityAnalysisTest {
             limitViolations,
             NetworkResult.empty(),
             ConnectivityResult.empty(),
-            Double.NaN
+            Double.NaN,
+            Collections.emptyList()
         );
     }
 }
