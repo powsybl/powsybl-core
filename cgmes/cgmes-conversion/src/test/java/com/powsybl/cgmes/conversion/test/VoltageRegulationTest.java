@@ -450,6 +450,88 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVsConverterSsh(sshFile, "VSC_4", MODE_KIND_REACTIVE_PCC, "30", "-30.5", "0");
     }
 
+    @Test
+    void vscConverterStationVoltageRegulationEqTest() {
+        // EQ only import: regulation is created without targets and not enabled
+        Network network = readCgmesResources(DIR, "vsConverter_EQ.xml");
+
+        // VSC1: local voltage regulation
+        VscConverterStation vsc1 = network.getVscConverterStation("VSC_1");
+        assertLocalTargets(vsc1, Double.NaN, Double.NaN);
+        VoltageRegulation reg1 = vsc1.getVoltageRegulation();
+        assertNull(reg1);
+
+        // VSC2: remote voltage regulation
+        VscConverterStation vsc2 = network.getVscConverterStation("VSC_2");
+        assertLocalTargets(vsc2, Double.NaN, Double.NaN);
+        VoltageRegulation reg2 = vsc2.getVoltageRegulation();
+        assertVoltageRegulation(reg2, RegulationMode.REACTIVE_POWER, "ACL", Double.NaN, Double.NaN, false);
+
+        // VSC3: local reactive power regulation
+        VscConverterStation vsc3 = network.getVscConverterStation("VSC_3");
+        assertLocalTargets(vsc3, Double.NaN, Double.NaN);
+        VoltageRegulation reg3 = vsc3.getVoltageRegulation();
+        assertNull(reg3);
+
+        // VSC4: remote reactive power regulation
+        VscConverterStation vsc4 = network.getVscConverterStation("VSC_4");
+        assertLocalTargets(vsc4, Double.NaN, Double.NaN);
+        VoltageRegulation reg4 = vsc4.getVoltageRegulation();
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", Double.NaN, Double.NaN, false);
+    }
+
+    @Test
+    void vscConverterStationVoltageRegulationEqAndSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
+
+        // VSC1: local voltage regulation
+        VscConverterStation vsc1 = network.getVscConverterStation("VSC_1");
+        assertLocalTargets(vsc1, -22.5, 100);
+        VoltageRegulation reg1 = vsc1.getVoltageRegulation();
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
+
+        // VSC2: remote voltage regulation
+        VscConverterStation vsc2 = network.getVscConverterStation("VSC_2");
+        assertLocalTargets(vsc2, -30, Double.NaN);
+        VoltageRegulation reg2 = vsc2.getVoltageRegulation();
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "ACL", 100, Double.NaN, true);
+
+        // VSC3: local reactive power regulation
+        VscConverterStation vsc3 = network.getVscConverterStation("VSC_3");
+        assertLocalTargets(vsc3, -22.5, Double.NaN);
+        VoltageRegulation reg3 = vsc3.getVoltageRegulation();
+        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "VSC_3", -22.5, Double.NaN, true);
+
+        // VSC4: remote reactive power regulation
+        VscConverterStation vsc4 = network.getVscConverterStation("VSC_4");
+        assertLocalTargets(vsc4, -30, Double.NaN);
+        VoltageRegulation reg4 = vsc4.getVoltageRegulation();
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", 30.5, Double.NaN, true);
+    }
+
+    @Test
+    void vscConverterStationVoltageRegulationExportTest() throws IOException {
+        Network network = readCgmesResources(DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.CIM_VERSION, "100");
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParameters);
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir, exportParameters);
+
+        assertVsConverterEq(eqFile, "VSC_1", null);
+        assertVsConverterSsh(sshFile, "VSC_1", MODE_KIND_VOLTAGE_PCC, "22.5", "0", "100");
+
+        assertVsConverterEq(eqFile, "VSC_2", "T_ACL_1");
+        assertVsConverterSsh(sshFile, "VSC_2", MODE_KIND_VOLTAGE_PCC, "30", "0", "100");
+
+        assertVsConverterEq(eqFile, "VSC_3", null);
+        assertVsConverterSsh(sshFile, "VSC_3", MODE_KIND_REACTIVE_PCC, "22.5", "22.5", "0");
+
+        assertVsConverterEq(eqFile, "VSC_4", "T_ACL_1");
+        assertVsConverterSsh(sshFile, "VSC_4", MODE_KIND_REACTIVE_PCC, "30", "-30.5", "0");
+    }
+
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {
         assertNotNull(gen);
         assertLocalTargets(gen.getLocalTargetQ(), gen.getLocalTargetV(), localTargetQ, localTargetV);
@@ -463,6 +545,11 @@ class VoltageRegulationTest extends AbstractSerDeTest {
     private void assertLocalTargets(VoltageSourceConverter svc, double localTargetQ, double localTargetV) {
         assertNotNull(svc);
         assertLocalTargets(svc.getLocalTargetQ(), svc.getLocalTargetV(), localTargetQ, localTargetV);
+    }
+
+    private void assertLocalTargets(VscConverterStation vsc, double localTargetQ, double localTargetV) {
+        assertNotNull(vsc);
+        assertLocalTargets(vsc.getLocalTargetQ(), vsc.getLocalTargetV(), localTargetQ, localTargetV);
     }
 
     private void assertLocalTargets(double actualTargetQ, double actualTargetV, double expectedTargetQ, double expectedTargetV) {

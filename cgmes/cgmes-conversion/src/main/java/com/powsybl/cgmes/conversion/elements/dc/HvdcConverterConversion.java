@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements.dc;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -53,7 +52,6 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
                     .setLossFactor((float) DEFAULT_LOSS_FACTOR);
             identify(adder);
             connectWithOnlyEq(adder);
-            RegulatingControlMappingForVscConverters.initialize(adder);
             VscConverterStation c = adder.add();
 
             addAliasesAndProperties(c);
@@ -112,44 +110,45 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     static void update(VscConverterStation vscConverter, PropertyBag cgmesDataConverter, double lossFactor, Context context) {
         vscConverter.setLossFactor((float) lossFactor);
 
-        RegulationMode vscRegulation = getVscRegulation(cgmesDataConverter, vscConverter, context);
-        Optional<Terminal> remoteTerminal = Optional.ofNullable(vscConverter.getVoltageRegulation()).map(VoltageRegulation::getTerminal);
-        if (vscRegulation == RegulationMode.VOLTAGE) {
+        double defaultLocalTargetQ = getDefaultValue(null, vscConverter.getLocalTargetQ(), Double.NaN, Double.NaN, context);
+        double localTargetQ = -cgmesDataConverter.asDouble("q");
+        localTargetQ = Double.isNaN(localTargetQ) ? defaultLocalTargetQ : localTargetQ;
+        vscConverter.setLocalTargetQ(localTargetQ);
+
+        double defaultLocalTargetV = getDefaultLocalTargetV(vscConverter, context);
+
+        Optional<Terminal> regulatingTerminal = Optional.ofNullable(vscConverter.getVoltageRegulation()).map(VoltageRegulation::getTerminal);
+        RegulationMode mode = getVscRegulationMode(cgmesDataConverter, vscConverter, context);
+        if (mode == RegulationMode.VOLTAGE) {
             double defaultTargetV = getDefaultTargetV(vscConverter, context);
             double targetV = findTargetV(cgmesDataConverter, TARGET_UPCC, defaultTargetV, DefaultValueUse.NOT_DEFINED);
             if (isValidTargetV(targetV)) {
                 // TargetV must be valid before enabling regulation,
-                VoltageRegulationBuilder voltageRegulationBuilder = vscConverter.newVoltageRegulation().withMode(RegulationMode.VOLTAGE);
-                vscConverter.setLocalTargetQ(0.0);
-                if (remoteTerminal.isPresent()) {
-                    voltageRegulationBuilder.withTerminal(remoteTerminal.get())
+                VoltageRegulationBuilder voltageRegulationBuilder = vscConverter.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE);
+                if (regulatingTerminal.isPresent() && regulatingTerminal.get() != vscConverter.getTerminal()) {
+                    voltageRegulationBuilder
+                        .withTerminal(regulatingTerminal.get())
                         .withTargetValue(targetV);
+                    vscConverter.setLocalTargetV(defaultLocalTargetV);
                 } else {
                     vscConverter.setLocalTargetV(targetV);
                 }
                 voltageRegulationBuilder.build();
-                return;
             }
-        }
-
-        // Regulation must be turned off before assigning potentially invalid values,
-        // to ensure consistency with the applied checks
-        double targetQ = getValidTargetQ(cgmesDataConverter, vscConverter, context);
-        vscConverter.setLocalTargetV(0.0);
-        // if we have a remote terminal we will create a voltageRegulation with the mode ReactivePowerSetPoint
-        if (remoteTerminal.isPresent()) {
+        } else if (mode == RegulationMode.REACTIVE_POWER) {
+            double targetQ = getValidTargetQ(cgmesDataConverter, vscConverter, context);
             vscConverter.newVoltageRegulation()
                 .withMode(RegulationMode.REACTIVE_POWER)
-                .withTerminal(remoteTerminal.get())
+                // always set the terminal in case of reactive power regulation
+                .withTerminal(regulatingTerminal.orElse(vscConverter.getTerminal()))
                 .withTargetValue(targetQ)
                 .build();
-        } else {
-            vscConverter.setLocalTargetQ(targetQ);
-            vscConverter.removeVoltageRegulation();
+            vscConverter.setLocalTargetV(defaultLocalTargetV);
         }
     }
 
-    private static RegulationMode getVscRegulation(PropertyBag cgmesDataConverter, VscConverterStation vscConverter, Context context) {
+    private static RegulationMode getVscRegulationMode(PropertyBag cgmesDataConverter, VscConverterStation vscConverter, Context context) {
         String qPccControl = cgmesDataConverter.getLocal("qPccControl");
         if (qPccControl != null) {
             if (qPccControl.endsWith(VOLTAGE_PCC)) {
@@ -158,16 +157,20 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
                 return RegulationMode.REACTIVE_POWER;
             }
         }
-        return getDefaultVscRegulation(vscConverter, context);
+        return getDefaultVscRegulationMode(vscConverter, context);
     }
 
-    private static RegulationMode getDefaultVscRegulation(VscConverterStation vscConverter, Context context) {
+    private static RegulationMode getDefaultVscRegulationMode(VscConverterStation vscConverter, Context context) {
         boolean defaultVoltageRegulationOn = getDefaultVoltageRegulationOn(vscConverter, context);
         return defaultVoltageRegulationOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
     }
 
     private static boolean getDefaultVoltageRegulationOn(VscConverterStation vscConverter, Context context) {
         return getDefaultValue(false, vscConverter.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
+    }
+
+    private static double getDefaultLocalTargetV(VscConverterStation vscConverter, Context context) {
+        return getDefaultValue(null, vscConverter.getLocalTargetV(), Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetV(VscConverterStation vscConverter, Context context) {

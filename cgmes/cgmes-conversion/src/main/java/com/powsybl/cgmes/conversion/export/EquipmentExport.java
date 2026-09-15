@@ -1524,7 +1524,7 @@ public final class EquipmentExport {
     }
 
     private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, CgmesExportContext context) {
-        if (converterStation.getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)) {
+        if (converterStation instanceof VscConverterStation vsc && vsc.getRegulatingTerminal() != vsc.getTerminal()) {
             return getTerminalId(((VscConverterStation) converterStation).getRegulatingTerminal(), context);
         }
         return null;
