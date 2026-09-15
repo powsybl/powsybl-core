@@ -36,7 +36,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                 double targetP, double localTargetQ, double localTargetV,
-                VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
                 double minP, double maxP) {
         super(ref, id, name, fictitious);
 
@@ -337,7 +337,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
      * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, Battery.class, getNetwork().getRef(), attributes);
         } else {

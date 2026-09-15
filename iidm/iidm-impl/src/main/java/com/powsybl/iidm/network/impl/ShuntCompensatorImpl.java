@@ -41,7 +41,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          Integer sectionCount, Integer solvedSectionCount,
                          double localTargetV,
-                         VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+                         VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         super(network, id, name, fictitious);
         this.network = network;
         this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, ShuntCompensator.class, network, voltageRegulationAttributes);
@@ -375,7 +375,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
      * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
      * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, ShuntCompensator.class, getNetwork().getRef(), attributes);
         } else {

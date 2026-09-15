@@ -31,7 +31,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     private double localTargetV = Double.NaN;
 
-    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -72,7 +72,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         return this;
     }
 
-    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 

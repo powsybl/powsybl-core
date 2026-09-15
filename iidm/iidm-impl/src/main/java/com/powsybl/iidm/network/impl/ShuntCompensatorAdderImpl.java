@@ -35,7 +35,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     private boolean voltageRegulatorOn = false;
 
@@ -223,7 +223,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         return this;
     }
 
-    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 

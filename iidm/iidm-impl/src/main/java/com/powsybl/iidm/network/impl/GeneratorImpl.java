@@ -45,7 +45,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
-                  VoltageRegulation.AttributesWithTerminal attributes,
+                  VoltageRegulation.VoltageRegulationAttributes attributes,
                   double targetP, double localTargetQ, double localTargetV,
                   double ratedS, boolean isCondenser) {
         super(network, id, name, fictitious);
@@ -435,7 +435,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
      * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
      * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, Generator.class, getNetwork().getRef(), attributes);
         } else {

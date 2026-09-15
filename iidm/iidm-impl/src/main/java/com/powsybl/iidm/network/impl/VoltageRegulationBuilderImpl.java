@@ -19,13 +19,13 @@ import java.util.function.Function;
  */
 class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
 
-    private final Function<VoltageRegulation.AttributesWithTerminal, VoltageRegulationExt> voltageRegulationSetter;
+    private final Function<VoltageRegulation.VoltageRegulationAttributes, VoltageRegulationExt> voltageRegulationSetter;
 
     VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                         Validable validable,
                                         VoltageRegulationHolder<?> holder,
                                         Ref<NetworkImpl> network,
-                                        Function<VoltageRegulation.AttributesWithTerminal, VoltageRegulationExt> voltageRegulationSetter) {
+                                        Function<VoltageRegulation.VoltageRegulationAttributes, VoltageRegulationExt> voltageRegulationSetter) {
         super(holderClass, validable, holder, network);
         this.voltageRegulationSetter = voltageRegulationSetter;
     }
@@ -37,7 +37,7 @@ class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuild
 
     @Override
     public VoltageRegulation build() {
-        VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = checkAndGetVoltageRegulationAttributes();
+        VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = checkAndGetVoltageRegulationAttributes();
         ValidationUtil.checkLocalTargetQandV(validable,
             classHolder,
             holder.getLocalTargetV(),

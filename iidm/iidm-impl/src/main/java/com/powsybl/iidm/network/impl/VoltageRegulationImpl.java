@@ -80,7 +80,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                                                                   VoltageRegulationHolder<?> holder,
                                                                   Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                                   Ref<NetworkImpl> network,
-                                                                  VoltageRegulation.AttributesWithTerminal attributes) {
+                                                                  VoltageRegulationAttributes attributes) {
         return attributes != null ? new VoltageRegulationImpl(validable, holder, classHolder, network, attributes) : null;
     }
 
@@ -88,7 +88,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                                     VoltageRegulationHolder<?> holder,
                                     Class<? extends VoltageRegulationHolder<?>> classHolder,
                                     Ref<NetworkImpl> network,
-                                    VoltageRegulation.AttributesWithTerminal attributes) {
+                                    VoltageRegulationAttributes attributes) {
         this.validable = validable;
         this.holder = holder;
         this.classHolder = classHolder;
@@ -129,7 +129,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         this.regulationMode.set(currentVariantIndex, regulationModeIndex != null ? regulationModeIndex : UNDEFINED_REGULATION_MODE);
     }
 
-    private void checkAttributes(AttributesWithTerminal newAttributes) {
+    private void checkAttributes(VoltageRegulationAttributes newAttributes) {
         NetworkImpl n = network.get();
         ValidationUtil.checkVoltageRegulation(validable, newAttributes, n, classHolder,
             n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
@@ -150,7 +150,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public VoltageRegulation setTargetValue(double newTargetValue) {
-        AttributesWithTerminal newAttributes = this.getAttributes().withTargetValue(newTargetValue);
+        VoltageRegulationAttributes newAttributes = this.getAttributes().withTargetValue(newTargetValue);
         checkAttributes(newAttributes);
         setTargetValueOnCurrentVariant(newTargetValue);
         return this;
@@ -175,7 +175,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public VoltageRegulation setTargetDeadband(double newTargetDeadband) {
-        AttributesWithTerminal newAttributes = this.getAttributes().withTargetDeadband(newTargetDeadband);
+        VoltageRegulationAttributes newAttributes = this.getAttributes().withTargetDeadband(newTargetDeadband);
         checkAttributes(newAttributes);
         setTargetDeadbandOnCurrentVariant(newTargetDeadband);
         return this;
@@ -200,7 +200,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public VoltageRegulation setSlope(double newSlope) {
-        AttributesWithTerminal newAttributes = this.getAttributes().withSlope(newSlope);
+        VoltageRegulationAttributes newAttributes = this.getAttributes().withSlope(newSlope);
         checkAttributes(newAttributes);
         setSlopeOnCurrentVariant(newSlope);
         return this;
@@ -224,7 +224,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (this.network.get().getVariantManager().getVariantCount() > 1) {
             throw new PowsyblException(this.validable.getMessageHeader() + "Cannot set terminal when there are multiple variants");
         }
-        AttributesWithTerminal newAttributes = this.getAttributes().withTerminalAndTargetValue(newTerminal, newTargetValue);
+        VoltageRegulationAttributes newAttributes = this.getAttributes().withTerminalAndTargetValue(newTerminal, newTargetValue);
         checkAttributes(newAttributes);
         if (newTerminal == null) {
             ValidationUtil.checkLocalTargetQandV(validable,
@@ -251,7 +251,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public VoltageRegulation setMode(RegulationMode newMode) {
-        AttributesWithTerminal newAttributes = getAttributes().withMode(newMode);
+        VoltageRegulationAttributes newAttributes = getAttributes().withMode(newMode);
         checkAttributes(newAttributes);
         ValidationUtil.checkLocalTargetQandV(validable,
             classHolder,
@@ -287,7 +287,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public VoltageRegulation setRegulating(boolean newRegulating) {
-        AttributesWithTerminal newAttributes = this.getAttributes().withRegulating(newRegulating);
+        VoltageRegulationAttributes newAttributes = this.getAttributes().withRegulating(newRegulating);
         if (holder instanceof RatioTapChanger ratioTapChanger && validable instanceof RatioTapChangerParent parent) {
             ValidationUtil.checkRatioTapChangerRegulation(parent, newAttributes,
                 ratioTapChanger.hasLoadTapChangingCapabilities(),
@@ -389,7 +389,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     @Override
-    public void setAttributesOnCurrentVariant(AttributesWithTerminal attributes) {
+    public void setAttributesOnCurrentVariant(VoltageRegulationAttributes attributes) {
         checkAttributes(attributes);
         this.setModeOnCurrentVariant(attributes.mode());
         this.setSlopeOnCurrentVariant(attributes.slope());

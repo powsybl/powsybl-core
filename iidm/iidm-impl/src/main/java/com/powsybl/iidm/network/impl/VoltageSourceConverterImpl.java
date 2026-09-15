@@ -36,7 +36,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
                                double minP, double maxP,
                                double idleLoss, double switchingLoss, double resistiveLoss,
                                TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
-                               double localTargetQ, double localTargetV, VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+                               double localTargetQ, double localTargetV, VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         super(ref, id, name, fictitious, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -288,7 +288,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
      * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
      * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VoltageSourceConverter.class, getNetwork().getRef(), attributes);
         } else {

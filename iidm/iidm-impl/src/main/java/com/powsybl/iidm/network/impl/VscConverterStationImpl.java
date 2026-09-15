@@ -32,7 +32,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     private VoltageRegulationExt voltageRegulation;
 
     VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
-                            double localTargetQ, double localTargetV, VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+                            double localTargetQ, double localTargetV, VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         super(ref, id, name, fictitious, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.localTargetQ = new TDoubleArrayList(variantArraySize);
@@ -295,7 +295,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
      * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
      * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VscConverterStation.class, getNetwork().getRef(), attributes);
         } else {

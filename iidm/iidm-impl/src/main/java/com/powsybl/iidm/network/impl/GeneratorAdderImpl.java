@@ -26,7 +26,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     private Boolean voltageRegulatorOn;
 
@@ -119,7 +119,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         return this;
     }
 
-    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 

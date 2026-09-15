@@ -81,10 +81,10 @@ abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulati
         return self();
     }
 
-    VoltageRegulation.AttributesWithTerminal checkAndGetVoltageRegulationAttributes() {
+    VoltageRegulation.VoltageRegulationAttributes checkAndGetVoltageRegulationAttributes() {
         // VALIDATION
         checkVoltageRegulationAttributes();
-        return new VoltageRegulation.AttributesWithTerminal(targetValue, targetDeadband, slope, mode, regulating, terminal);
+        return new VoltageRegulation.VoltageRegulationAttributes(targetValue, targetDeadband, slope, mode, regulating, terminal);
     }
 
     private void checkVoltageRegulationAttributes() {

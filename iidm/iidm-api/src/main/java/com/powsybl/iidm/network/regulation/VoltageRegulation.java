@@ -130,8 +130,8 @@ public interface VoltageRegulation {
      */
     VoltageRegulation setRegulating(boolean regulating);
 
-    default AttributesWithTerminal getAttributes() {
-        return new AttributesWithTerminal(
+    default VoltageRegulationAttributes getAttributes() {
+        return new VoltageRegulationAttributes(
             getTargetValue(),
             getTargetDeadband(),
             getSlope(),
@@ -144,74 +144,45 @@ public interface VoltageRegulation {
     /**
      * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
      */
-    record Attributes(
+    record VoltageRegulationAttributes(
         double targetValue,
         double targetDeadband,
         double slope,
         RegulationMode mode,
-        boolean isRegulating
-    ) {
-    }
-
-    /**
-     * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
-     */
-    record AttributesWithTerminal(
-        Attributes attributes,
+        boolean isRegulating,
         Terminal terminal
     ) {
-        public AttributesWithTerminal(
+        public VoltageRegulationAttributes(
             double targetValue,
             double targetDeadband,
             double slope,
             RegulationMode mode,
-            boolean isRegulating,
-            Terminal terminal) {
-            this(new Attributes(targetValue, targetDeadband, slope, mode, isRegulating), terminal);
+            boolean isRegulating) {
+            this(targetValue, targetDeadband, slope, mode, isRegulating, null);
         }
 
-        public double targetValue() {
-            return attributes.targetValue();
+        public VoltageRegulationAttributes withMode(RegulationMode newMode) {
+            return new VoltageRegulationAttributes(targetValue(), targetDeadband(), slope(), newMode, isRegulating(), terminal());
         }
 
-        public double targetDeadband() {
-            return attributes.targetDeadband();
+        public VoltageRegulationAttributes withRegulating(boolean newRegulating) {
+            return new VoltageRegulationAttributes(targetValue(), targetDeadband(), slope(), mode(), newRegulating, terminal());
         }
 
-        public double slope() {
-            return attributes.slope();
+        public VoltageRegulationAttributes withTerminalAndTargetValue(Terminal newTerminal, double newTargetValue) {
+            return new VoltageRegulationAttributes(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), newTerminal);
         }
 
-        public RegulationMode mode() {
-            return attributes.mode();
+        public VoltageRegulationAttributes withTargetValue(double newTargetValue) {
+            return new VoltageRegulationAttributes(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), terminal());
         }
 
-        public boolean isRegulating() {
-            return attributes.isRegulating();
+        public VoltageRegulationAttributes withTargetDeadband(double newTargetDeadband) {
+            return new VoltageRegulationAttributes(targetValue(), newTargetDeadband, slope(), mode(), isRegulating(), terminal());
         }
 
-        public AttributesWithTerminal withMode(RegulationMode newMode) {
-            return new AttributesWithTerminal(targetValue(), targetDeadband(), slope(), newMode, isRegulating(), terminal());
-        }
-
-        public AttributesWithTerminal withRegulating(boolean newRegulating) {
-            return new AttributesWithTerminal(targetValue(), targetDeadband(), slope(), mode(), newRegulating, terminal());
-        }
-
-        public AttributesWithTerminal withTerminalAndTargetValue(Terminal newTerminal, double newTargetValue) {
-            return new AttributesWithTerminal(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), newTerminal);
-        }
-
-        public AttributesWithTerminal withTargetValue(double newTargetValue) {
-            return new AttributesWithTerminal(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), terminal());
-        }
-
-        public AttributesWithTerminal withTargetDeadband(double newTargetDeadband) {
-            return new AttributesWithTerminal(targetValue(), newTargetDeadband, slope(), mode(), isRegulating(), terminal());
-        }
-
-        public AttributesWithTerminal withSlope(double newSlope) {
-            return new AttributesWithTerminal(targetValue(), targetDeadband(), newSlope, mode(), isRegulating(), terminal());
+        public VoltageRegulationAttributes withSlope(double newSlope) {
+            return new VoltageRegulationAttributes(targetValue(), targetDeadband(), newSlope, mode(), isRegulating(), terminal());
         }
     }
 }

@@ -374,7 +374,7 @@ public final class ValidationUtil {
                                                         Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                         double localTargetV,
                                                         double localTargetQ,
-                                                        VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                                                        VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
                                                         ValidationLevel validationLevel,
                                                         ReportNode reportNode) {
         boolean regulating = false;
@@ -652,7 +652,7 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable,
-                                                                 VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                                                                 VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
                                                                  boolean loadTapChangingCapabilities, Network network,
                                                                  ValidationLevel minValidationLevel, ReportNode reportNode) {
         return checkRatioTapChangerRegulation(validable, voltageRegulationAttributes, loadTapChangingCapabilities, network,
@@ -660,7 +660,7 @@ public final class ValidationUtil {
     }
 
     private static ValidationLevel checkRatioTapChangerRegulation(Validable validable,
-                                                                 VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                                                                 VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
                                                                  boolean loadTapChangingCapabilities, Network network,
                                                                   ActionOnError actionOnError, ReportNode reportNode) {
         boolean regulating = voltageRegulationAttributes != null && voltageRegulationAttributes.isRegulating();
@@ -933,7 +933,7 @@ public final class ValidationUtil {
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
 
-        VoltageRegulation.AttributesWithTerminal attributes = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getAttributes() : null;
+        VoltageRegulation.VoltageRegulationAttributes attributes = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getAttributes() : null;
         validationLevel = ValidationLevel.min(validationLevel,
                 checkRatioTapChangerRegulation(validable, attributes, rtc.hasLoadTapChangingCapabilities(), network, actionOnError, reportNode));
         return validationLevel;
@@ -1101,7 +1101,7 @@ public final class ValidationUtil {
     }
 
     public static void checkVoltageRegulation(@NonNull Validable owner,
-                                              VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                                              VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
                                               Network network,
                                               Class<? extends VoltageRegulationHolder<?>> classHolder,
                                               ValidationLevel minValidationLevel,
@@ -1124,7 +1124,7 @@ public final class ValidationUtil {
     }
 
     private static ValidationLevel checkVoltageRegulation(@NonNull Validable owner,
-                                                          VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                                                          VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
                                                           Network network,
                                                           Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                           ActionOnError actionOnError,

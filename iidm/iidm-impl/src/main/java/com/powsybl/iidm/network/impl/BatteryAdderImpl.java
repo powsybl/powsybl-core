@@ -31,7 +31,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -82,7 +82,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
-    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 

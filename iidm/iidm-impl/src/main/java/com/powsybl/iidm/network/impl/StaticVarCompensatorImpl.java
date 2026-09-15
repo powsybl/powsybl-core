@@ -35,7 +35,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     private final TDoubleArrayList localTargetV;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax,
-                             VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes, Ref<NetworkImpl> ref, double localTargetQ, double localTargetV) {
+                             VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes, Ref<NetworkImpl> ref, double localTargetQ, double localTargetV) {
         super(ref, id, name, fictitious);
         this.bMin = bMin;
         this.bMax = bMax;
@@ -306,7 +306,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
      * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
      * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, StaticVarCompensator.class, getNetwork().getRef(), attributes);
         } else {

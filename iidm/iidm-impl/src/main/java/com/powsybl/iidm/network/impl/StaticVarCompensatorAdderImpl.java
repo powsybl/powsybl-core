@@ -39,7 +39,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private Boolean regulating;
 
-    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.voltageLevel = Objects.requireNonNull(vl);
@@ -79,7 +79,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         return this;
     }
 
-    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 

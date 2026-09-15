@@ -23,7 +23,7 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
     private double reactivePowerSetpoint = Double.NaN;
     private double localTargetQ = Double.NaN;
     private double localTargetV = Double.NaN;
-    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     VoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -56,7 +56,7 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         return this;
     }
 
-    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 

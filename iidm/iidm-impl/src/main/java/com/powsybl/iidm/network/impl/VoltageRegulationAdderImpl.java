@@ -18,13 +18,13 @@ import java.util.function.Consumer;
  */
 class VoltageRegulationAdderImpl<T extends VoltageRegulationHolderAdder<T>> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
     private final T equipmentAdder;
-    private final Consumer<VoltageRegulation.AttributesWithTerminal> voltageRegulationAttributesConsumer;
+    private final Consumer<VoltageRegulation.VoltageRegulationAttributes> voltageRegulationAttributesConsumer;
 
     VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                       Validable validable,
                                       T equipmentAdder,
                                       Ref<NetworkImpl> network,
-                                      Consumer<VoltageRegulation.AttributesWithTerminal> voltageRegulationAttributesConsumer) {
+                                      Consumer<VoltageRegulation.VoltageRegulationAttributes> voltageRegulationAttributesConsumer) {
         super(holderClass, validable, null, network);
         this.equipmentAdder = equipmentAdder;
         this.voltageRegulationAttributesConsumer = voltageRegulationAttributesConsumer;

@@ -27,7 +27,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, boolean loadTapChangingCapabilities,
-                        Integer tapPosition, Integer solvedTapPosition, VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+                        Integer tapPosition, Integer solvedTapPosition, VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         super(parent, lowTapPosition, steps, loadTapChangingCapabilities, tapPosition, solvedTapPosition, "ratio tap changer");
         this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(parent, this, RatioTapChanger.class, getNetwork().getRef(), voltageRegulationAttributes);
     }
@@ -64,7 +64,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         NetworkImpl n = getNetwork();
-        VoltageRegulation.AttributesWithTerminal attributes = getAttributes(a -> a.withRegulating(regulating));
+        VoltageRegulation.VoltageRegulationAttributes attributes = getAttributes(a -> a.withRegulating(regulating));
         ValidationUtil.checkRatioTapChangerRegulation(parent, attributes,
                 loadTapChangingCapabilities,
                 n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
@@ -104,7 +104,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
         NetworkImpl n = getNetwork();
-        VoltageRegulation.AttributesWithTerminal attributes = voltageRegulation != null ? voltageRegulation.getAttributes() : null;
+        VoltageRegulation.VoltageRegulationAttributes attributes = voltageRegulation != null ? voltageRegulation.getAttributes() : null;
         ValidationUtil.checkRatioTapChangerRegulation(parent, attributes,
                 loadTapChangingCapabilities,
                 n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
@@ -121,7 +121,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         String variantId = n.getVariantManager().getVariantId(variantIndex);
-        VoltageRegulation.AttributesWithTerminal attributes = getAttributes(a -> a.withTargetValue(targetV).withMode(RegulationMode.VOLTAGE));
+        VoltageRegulation.VoltageRegulationAttributes attributes = getAttributes(a -> a.withTargetValue(targetV).withMode(RegulationMode.VOLTAGE));
         ValidationUtil.checkRatioTapChangerRegulation(parent, attributes,
                 loadTapChangingCapabilities,
                 n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
@@ -205,7 +205,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         String variantId = n.getVariantManager().getVariantId(variantIndex);
-        VoltageRegulation.AttributesWithTerminal attributes = getAttributes(a -> a.withTerminalAndTargetValue(regulationTerminal, getRegulationValue()));
+        VoltageRegulation.VoltageRegulationAttributes attributes = getAttributes(a -> a.withTerminalAndTargetValue(regulationTerminal, getRegulationValue()));
         ValidationUtil.checkRatioTapChangerRegulation(parent, attributes,
                 loadTapChangingCapabilities,
                 n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
@@ -322,7 +322,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         }
     }
 
-    private VoltageRegulation.AttributesWithTerminal getAttributes(UnaryOperator<VoltageRegulation.AttributesWithTerminal> modifier) {
+    private VoltageRegulation.VoltageRegulationAttributes getAttributes(UnaryOperator<VoltageRegulation.VoltageRegulationAttributes> modifier) {
         return voltageRegulation != null ? modifier.apply(voltageRegulation.getAttributes()) : null;
     }
 
@@ -343,7 +343,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
      * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
      * @return The updated or newly created voltageRegulation.
      */
-    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull AttributesWithTerminal attributes) {
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(parent, this, RatioTapChanger.class, getNetwork().getRef(), attributes);
         } else {

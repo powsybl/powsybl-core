@@ -27,7 +27,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     private double targetDeadband = Double.NaN;
     private TerminalExt regulationTerminal;
     private RegulationMode regulationMode = null;
-    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     class StepAdderImpl extends AbstractBasePropertiesHolder implements RatioTapChangerAdder.StepAdder {
 
@@ -146,7 +146,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         return this;
     }
 
-    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
