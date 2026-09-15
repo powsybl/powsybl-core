@@ -1224,7 +1224,13 @@ class TransformerConverter extends AbstractConverter {
         } else {
             double baskv1 = t2w.getTerminal1().getVoltageLevel().getNominalV();
             double nomV1 = getNomV(psseTransformer.getWinding1(), t2w.getTerminal1().getVoltageLevel());
-            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
+
+            double baskv2 = t2w.getTerminal2().getVoltageLevel().getNominalV();
+            double nomV2 = getNomV(psseTransformer.getWinding2(), t2w.getTerminal2().getVoltageLevel());
+            double w2 = defineRatio(psseTransformer.getWinding2().getWindv(), baskv2, nomV2, psseTransformer.getCw());
+
+            double ratio = getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()) * w2;
+            psseTransformer.getWinding1().setWindv(defineWindV(ratio, baskv1, nomV1, psseTransformer.getCw()));
             psseTransformer.getWinding1().setAng(getAngle(t2w.getPhaseTapChanger()));
 
             psseTransformer.setStat(getUpdatedStatus(t2w.getTerminal1(), t2w.getTerminal2()));
