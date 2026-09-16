@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
@@ -80,7 +81,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         //minP
         //maxP
         //mode générateur / condenser
-        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml");
+        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
         Generator g1 = network.getGenerator("SM");
         assertEquals(50.0, g1.getMinP());
         assertEquals(200.0, g1.getMaxP());
@@ -95,7 +96,19 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         // - terminal régulé
         // - activation
         // - targetQ
-        assertTrue(true);
+        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+        Generator g1 = network.getGenerator("SM");
+
+        System.out.println("Generator = " + g1.getId());
+        System.out.println("Voltage regulator = " + g1.isVoltageRegulatorOn());
+        System.out.println("TargetV = " + g1.getTargetV());
+        System.out.println("Regulating terminal = " + g1.getRegulatingTerminal());
+
+        RemoteReactivePowerControl ext = g1.getExtension(RemoteReactivePowerControl.class);
+        assertNotNull(ext);
+        assertEquals(115.5, ext.getTargetQ(), 0.0);
+        assertTrue(ext.isEnabled());
+        assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), ext.getRegulatingTerminal());
     }
 
     @Test

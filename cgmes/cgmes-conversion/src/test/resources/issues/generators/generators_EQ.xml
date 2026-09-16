@@ -1,8 +1,8 @@
 <rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
- <md:FullModel rdf:about="urn:uuid:ModelID">
+ <md:FullModel rdf:about="urn:uuid:ModelID_EQ">
     <md:Model.scenarioTime>2026-08-25T21:55:00Z</md:Model.scenarioTime>
     <md:Model.created>2026-08-25T21:55:00Z</md:Model.created>
-    <md:Model.description>Generator properties</md:Model.description>
+    <md:Model.description>Generator properties EQ</md:Model.description>
     <md:Model.version>001</md:Model.version>
     <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
     <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
@@ -51,10 +51,13 @@
  <cim:SynchronousMachine rdf:ID="_SM">
     <cim:IdentifiedObject.name>Synchronous Machine</cim:IdentifiedObject.name>
     <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+  		<cim:SynchronousMachine.qPercent>50.000000</cim:SynchronousMachine.qPercent>
     <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
     <cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+		 <cim:RotatingMachine.ratedS>300.000000</cim:RotatingMachine.ratedS>    
     <cim:SynchronousMachine.InitialReactiveCapabilityCurve rdf:resource="#_RCC"/>
     <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GU"/>
+    <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC"/>
  </cim:SynchronousMachine>
  <cim:GeneratingUnit rdf:ID="_GU">
     <cim:IdentifiedObject.name>Generating Unit</cim:IdentifiedObject.name>
@@ -70,7 +73,6 @@
  <cim:Curve.y1Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
  <cim:Curve.y2Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
  </cim:ReactiveCapabilityCurve>
-
  <cim:CurveData rdf:ID="_51AB-2E-F1-031323239373533303630">
  <cim:CurveData.xvalue>-100.000000</cim:CurveData.xvalue>
  <cim:CurveData.y1value>-200.000000</cim:CurveData.y1value>
@@ -89,5 +91,48 @@
  <cim:CurveData.y2value>200.000000</cim:CurveData.y2value>
  <cim:CurveData.Curve rdf:resource="#_59ff1e53-0e1a-44c0-ada5-7a0b3a660170"/>
  </cim:CurveData>
+
+ <cim:RegulatingControl rdf:ID="_RC">
+  <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.reactivePower"/>
+  <cim:RegulatingControl.Terminal rdf:resource="#_PT1_T2"/>
+  <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+ </cim:RegulatingControl>
+
+ <cim:PowerTransformer rdf:ID="_PT1">
+     <cim:IdentifiedObject.name>PT1</cim:IdentifiedObject.name>
+     <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+ </cim:PowerTransformer>
+ <cim:PowerTransformerEnd rdf:ID="_PTE1">
+     <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT1"/>
+     <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV"/>
+     <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+		   <cim:PowerTransformerEnd.r>0e+000</cim:PowerTransformerEnd.r>
+		   <cim:PowerTransformerEnd.x>0e+000</cim:PowerTransformerEnd.x>
+		   <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+     <cim:PowerTransformerEnd.ratedU>110.000000</cim:PowerTransformerEnd.ratedU>
+     <cim:TransformerEnd.Terminal rdf:resource="#_PT1_T1"/>
+     <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+ </cim:PowerTransformerEnd>
+ <cim:PowerTransformerEnd rdf:ID="_PTE2">
+     <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT1"/>
+     <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV"/>
+     <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+		   <cim:PowerTransformerEnd.r>0e+000</cim:PowerTransformerEnd.r>
+		   <cim:PowerTransformerEnd.x>0e+000</cim:PowerTransformerEnd.x>
+		   <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+     <cim:PowerTransformerEnd.ratedU>110.000000</cim:PowerTransformerEnd.ratedU>
+     <cim:TransformerEnd.Terminal rdf:resource="#_PT1_T2"/>
+     <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+ </cim:PowerTransformerEnd>
+ <cim:Terminal rdf:ID="_PT1_T1">
+     <cim:Terminal.ConductingEquipment rdf:resource="#_PT1"/>
+     <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+ </cim:Terminal>
+ <cim:Terminal rdf:ID="_PT1_T2">
+     <cim:Terminal.ConductingEquipment rdf:resource="#_PT1"/>
+     <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+     <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+ </cim:Terminal>
  
 </rdf:RDF>
