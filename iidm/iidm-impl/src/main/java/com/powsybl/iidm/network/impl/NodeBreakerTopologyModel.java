@@ -1578,7 +1578,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             Integer edge = switches.remove(id);
             switches.put(newId, edge);
         } else {
-            throw new PowsyblException("Switch with id " + id + "does not exist");
+            throw new PowsyblException("Switch with id " + id + " does not exist");
         }
     }
 }
