@@ -615,22 +615,19 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
         String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
         String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
-        String updatedBeTpXml = Files.readString(tmpDir.resolve(basename + "_BE_TP.xml"));
-        String updatedNlTpXml = Files.readString(tmpDir.resolve(basename + "_NL_TP.xml"));
+        String updatedTpXml = Files.readString(tmpDir.resolve(basename + "_TP.xml"));
 
         // Scenario time should be the same for all models
         assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedBeSshXml, REGEX_SCENARIO_TIME));
         assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedNlSshXml, REGEX_SCENARIO_TIME));
         assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedCgmSvXml, REGEX_SCENARIO_TIME));
-        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedBeTpXml, REGEX_SCENARIO_TIME));
-        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedNlTpXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedTpXml, REGEX_SCENARIO_TIME));
 
         // Profiles should be consistent with the instance files
         assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedBeSshXml, REGEX_PROFILE));
         assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedNlSshXml, REGEX_PROFILE));
         assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getFirstMatch(updatedCgmSvXml, REGEX_PROFILE));
-        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedBeTpXml, REGEX_PROFILE));
-        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedNlTpXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedTpXml, REGEX_PROFILE));
 
         // Dependency check
         // The updated TPs should depend on the original EQ model and on the original TP_BD model
@@ -640,20 +637,22 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String originalNlEqId = "urn:uuid:Network_NL_N_EQUIPMENT_2021-02-03T04:30:00Z_1_1D__FM";
         String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
-        Set<String> expectedDependenciesBeTp = Set.of(originalBeEqId, explicitTpBdId.orElse(originalBeTpBdId));
-        assertEquals(expectedDependenciesBeTp, getUniqueMatches(updatedBeTpXml, REGEX_DEPENDENT_ON));
-        Set<String> expectedDependenciesNlTp = Set.of(originalNlEqId, explicitTpBdId.orElse(originalNlTpBdId));
-        assertEquals(expectedDependenciesNlTp, getUniqueMatches(updatedNlTpXml, REGEX_DEPENDENT_ON));
-        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
-        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
-        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedBeTpId));
-        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedNlTpId));
+        Set<String> expectedDependenciesTp = new HashSet<>(Set.of(originalBeEqId, originalNlEqId));
+        if (explicitTpBdId.isEmpty()) {
+            expectedDependenciesTp.add(originalBeTpBdId);
+            expectedDependenciesTp.add(originalNlTpBdId);
+        } else {
+            expectedDependenciesTp.add(explicitTpBdId.get());
+        }
+        assertEquals(expectedDependenciesTp, getUniqueMatches(updatedTpXml, REGEX_DEPENDENT_ON));
+        String updatedTpId = "urn:uuid:Network_BE+Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedTpId));
 
         // TP should supersede the original model
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        assertEquals(originalBeTpId, getFirstMatch(updatedBeTpXml, REGEX_SUPERSEDES));
-        assertEquals(originalNlTpId, getFirstMatch(updatedNlTpXml, REGEX_SUPERSEDES));
+        Set<String> expectedSupersedesTp = new HashSet<>(Set.of(originalBeTpId, originalNlTpId));
+        assertEquals(expectedSupersedesTp, getUniqueMatches(updatedTpXml, REGEX_SUPERSEDES));
     }
 
     private static final Map<Country, String> TSO_BY_COUNTRY = Map.of(

@@ -8,7 +8,7 @@ In both cases, the metadata model information in the exported files is built fro
 Information received through parameters takes precedence over information available from original metadata models.
 
 For a quick CGM export, the user may rely on the parameter **iidm.export.cgmes.cgm_export** to write in a single export multiple updated SSH files (one for each IGM) and a single SV for the whole common grid model. 
-It is also possible to export a TP (Topology) profile file for each IGM during a CGM quick export. This is controlled by the parameter **iidm.export.cgmes.cgm-export-with-tp**. 
+It is also possible to export a TP (Topology) profile file for the CGM during a quick export. This is controlled by the parameter **iidm.export.cgmes.cgm-export-with-tp**. 
 Specifics about these options are explained in the section [below](#cgm-common-grid-model-quick-export).
 If you need complete control over the exported files in a CGM scenario, you may prefer to iterate through the subnetworks and make multiple calls to the export function. This is described in detail in the section [below](#cgm-common-grid-model-manual-export).
 
@@ -33,8 +33,8 @@ The output filenames will follow the pattern `<baseName>_<profile>.xml`. The bas
 When exporting a CGM, we need an IIDM network (CGM) that contains multiple subnetworks (one for each IGM).
 By default, only the CGMES instance files corresponding to SSH and SV profiles are exported:
 an updated SSH file for every subnetwork (for every IGM) and a single SV file for the main network that represents the CGM.
-Optionally, a TP file can also be exported for each IGM by setting the parameter **iidm.export.cgmes.cgm-export-with-tp** to `true`. This can be useful when the voltage levels of the CGM 
-have a `NODE_BREAKER` topology as the TP profiles are an output of the topology processing.
+Optionally, a TP file can also be exported for the whole CGM by setting the parameter **iidm.export.cgmes.cgm-export-with-tp** to `true`. This can be useful when the voltage levels of the CGM 
+have a `NODE_BREAKER` topology as the CGM TP profile are an output of the topology processing.
 
 When exporting, it is verified that the main network and all subnetworks have the same scenario time (network case date). If they are different, an error is logged.
 
@@ -44,7 +44,7 @@ The quick CGM export will always write updated SSH files for IGMs and a single S
 
 If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
 * Updated SSH for IGMs supersedes the original ones and depends on the original EQ from IGMs.
-* Updated TP for IGMs supersedes the original ones and depends on the original EQ from IGMs and TP_BD.
+* Updated TP for the CGM depends on the original EQ from IGMs and TP_BD.
 * Updated SV for the CGM depends on the updated SSH from IGMs and on the original TP and TP_BD from IGMs.
 
 The filenames of the exported instance files will follow the pattern:
