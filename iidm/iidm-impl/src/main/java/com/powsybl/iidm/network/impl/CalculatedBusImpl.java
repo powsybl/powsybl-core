@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import gnu.trove.list.array.TIntArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -22,6 +24,8 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CalculatedBusImpl.class);
 
     private boolean valid = true;
 
@@ -382,17 +386,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public CalculatedBus setId(String id) {
-        // CalculatedBus is an identifiable not stored in the network index
-        // Same pattern as abstract setId, but without caring about the index
-        if (!this.id.equals(id)) {
-            NetworkIndex.checkId(id);
-            if (getNetwork().getIndex().get(id) != null) {
-                throw new PowsyblException("Object with id (" + id + ") already exists");
-            }
-            String oldId = this.id;
-            this.id = id;
-            getNetwork().getListeners().notifyUpdate(this, "id", oldId, id);
-        }
+        // Nothing to do
+        LOG.warn("Updating id of a calculated bus is not supported");
         return this;
     }
 }

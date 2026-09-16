@@ -8,13 +8,12 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,5 +61,64 @@ public abstract class AbstractIdentifiableTest {
         for (Bus bus : network.getBusBreakerView().getBusStream().toList()) {
             bus.setId(String.valueOf(count++));
         }
+    }
+
+    @Test
+    public void testSetIdBusUpdatesConnectableBusOfTerminals() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Bus nhv1 = network.getBusBreakerView().getBus("NHV1");
+        List<String> connectedEquipmentIds = nhv1.getConnectedTerminalStream()
+                .map(t -> t.getConnectable().getId())
+                .sorted()
+                .toList();
+        assertTrue(connectedEquipmentIds.size() > 1, "NHV1 is expected to have several terminals connected");
+
+        nhv1.setId("NEW_NHV1");
+
+        assertNull(network.getBusBreakerView().getBus("NHV1"));
+        Bus renamed = network.getBusBreakerView().getBus("NEW_NHV1");
+        assertNotNull(renamed);
+        assertEquals(connectedEquipmentIds, renamed.getConnectedTerminalStream()
+                .map(t -> t.getConnectable().getId())
+                .sorted()
+                .toList());
+        renamed.getConnectedTerminalStream().forEach(t ->
+                assertEquals("NEW_NHV1", t.getBusBreakerView().getConnectableBus().getId()));
+    }
+
+    @Test
+    public void testSetIdBusAlreadyExists() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Bus nhv1 = network.getBusBreakerView().getBus("NHV1");
+        assertThrows(PowsyblException.class, () -> nhv1.setId("NHV2"));
+    }
+
+    @Test
+    public void testSetIdSwitch() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        VoltageLevel vl = network.getVoltageLevel("S1VL1");
+        Switch sw = vl.getNodeBreakerView().getSwitchStream().findFirst().orElseThrow();
+        String oldId = sw.getId();
+        int node1 = vl.getNodeBreakerView().getNode1(oldId);
+        int node2 = vl.getNodeBreakerView().getNode2(oldId);
+        boolean open = sw.isOpen();
+
+        sw.setId("NEW_SWITCH_ID");
+
+        assertNull(vl.getNodeBreakerView().getSwitch(oldId));
+        assertSame(sw, vl.getNodeBreakerView().getSwitch("NEW_SWITCH_ID"));
+        assertEquals(node1, vl.getNodeBreakerView().getNode1("NEW_SWITCH_ID"));
+        assertEquals(node2, vl.getNodeBreakerView().getNode2("NEW_SWITCH_ID"));
+        sw.setOpen(!open);
+        assertEquals(!open, vl.getNodeBreakerView().getSwitch("NEW_SWITCH_ID").isOpen());
+    }
+
+    @Test
+    public void testSetIdSwitchAlreadyExists() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        VoltageLevel vl = network.getVoltageLevel("S1VL1");
+        List<Switch> switches = vl.getNodeBreakerView().getSwitchStream().toList();
+        assertTrue(switches.size() > 1, "test network must have at least two switches in S1VL1");
+        assertThrows(PowsyblException.class, () -> switches.get(0).setId(switches.get(1).getId()));
     }
 }
