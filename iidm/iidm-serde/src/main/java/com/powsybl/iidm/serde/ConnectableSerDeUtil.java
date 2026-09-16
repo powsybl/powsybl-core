@@ -428,6 +428,8 @@ public final class ConnectableSerDeUtil {
                 writer.writeStringAttribute("name", tl.name);
                 writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tl.duration, Integer.MAX_VALUE);
                 if (tl.originalLimit != null) {
+                    //this means we don't write any value for the last temporary of a converted low -> high, but it would have
+                    //a limit value of MAX_VALUE which is not written anyway
                     writer.writeDoubleAttribute(VALUE_KEY, tl.originalLimit.getValue(), Double.MAX_VALUE);
                     writer.writeBooleanAttribute(FICTITIOUS_KEY, tl.originalLimit.isFictitious(), false);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl.originalLimit, writer, nsUri, exportOptions));

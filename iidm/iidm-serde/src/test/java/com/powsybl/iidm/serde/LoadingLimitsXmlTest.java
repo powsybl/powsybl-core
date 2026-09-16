@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.time.ZonedDateTime;
 import java.util.function.Supplier;
 
@@ -333,6 +334,41 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
             .add();
         line.setSelectedOperationalLimitsGroup1("low limit to high limit");
         allFormatsRoundTripFromMinToMaxVersionTest(network, "eurostag-tutorial-export_low_as_high.xml", IidmVersion.V_1_5, IidmVersion.V_1_18);
+    }
+
+    @Test
+    void checkExportLowLimitAsHighLimitSortByName() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.newOperationalLimitsGroup1("low limit to high limit").newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setValue(500)
+            .setAcceptableDuration(40 * 60)
+            .setName("c")
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setValue(800)
+            .setAcceptableDuration(20 * 60)
+            .setName("a")
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setValue(1200)
+            .setAcceptableDuration(10 * 60)
+            .setName("b")
+            .endTemporaryLimit()
+            .add();
+        line.setSelectedOperationalLimitsGroup1("low limit to high limit");
+        ExportOptions options = new ExportOptions().setSorted(true);
+        testForAllVersionsBetween(IidmVersion.V_1_5, IidmVersion.V_1_17, version -> {
+                try {
+                    allFormatsRoundTripTest(network, "eurostag-tutorial-export_low_as_high_sorted.xml", version, options);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }
+        );
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier, String permanentLimitName) {
