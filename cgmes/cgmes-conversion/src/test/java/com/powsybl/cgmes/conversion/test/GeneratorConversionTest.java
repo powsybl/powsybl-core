@@ -106,6 +106,11 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
         RemoteReactivePowerControl ext = g1.getExtension(RemoteReactivePowerControl.class);
         assertNotNull(ext);
+
+        System.out.println("ext.getTargetQ = " + ext.getTargetQ());
+        System.out.println("ext.isEnabled = " + ext.isEnabled());
+        System.out.println("ext.getRegulatingTerminal = " + ext.getRegulatingTerminal());
+
         assertEquals(115.5, ext.getTargetQ(), 0.0);
         assertTrue(ext.isEnabled());
         assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), ext.getRegulatingTerminal());

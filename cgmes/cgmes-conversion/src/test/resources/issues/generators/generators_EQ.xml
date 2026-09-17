@@ -73,23 +73,23 @@
  <cim:Curve.y1Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
  <cim:Curve.y2Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
  </cim:ReactiveCapabilityCurve>
- <cim:CurveData rdf:ID="_51AB-2E-F1-031323239373533303630">
+ <cim:CurveData rdf:ID="_CD1">
  <cim:CurveData.xvalue>-100.000000</cim:CurveData.xvalue>
  <cim:CurveData.y1value>-200.000000</cim:CurveData.y1value>
  <cim:CurveData.y2value>200.000000</cim:CurveData.y2value>
- <cim:CurveData.Curve rdf:resource="#_59ff1e53-0e1a-44c0-ada5-7a0b3a660170"/>
+ <cim:CurveData.Curve rdf:resource="#_RCC"/>
  </cim:CurveData>
- <cim:CurveData rdf:ID="_51AB-2E-F1-131323239373533303630">
+ <cim:CurveData rdf:ID="_CD2">
  <cim:CurveData.xvalue>0e+000</cim:CurveData.xvalue>
  <cim:CurveData.y1value>-300.000000</cim:CurveData.y1value>
  <cim:CurveData.y2value>300.000000</cim:CurveData.y2value>
- <cim:CurveData.Curve rdf:resource="#_59ff1e53-0e1a-44c0-ada5-7a0b3a660170"/>
+ <cim:CurveData.Curve rdf:resource="#_RCC"/>
  </cim:CurveData>
- <cim:CurveData rdf:ID="_51AB-2E-F1-231323239373533303630">
+ <cim:CurveData rdf:ID="_CD3">
  <cim:CurveData.xvalue>100.000000</cim:CurveData.xvalue>
  <cim:CurveData.y1value>-200.000000</cim:CurveData.y1value>
  <cim:CurveData.y2value>200.000000</cim:CurveData.y2value>
- <cim:CurveData.Curve rdf:resource="#_59ff1e53-0e1a-44c0-ada5-7a0b3a660170"/>
+ <cim:CurveData.Curve rdf:resource="#_RCC"/>
  </cim:CurveData>
 
  <cim:RegulatingControl rdf:ID="_RC">
@@ -111,7 +111,6 @@
 		   <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
      <cim:PowerTransformerEnd.ratedU>110.000000</cim:PowerTransformerEnd.ratedU>
      <cim:TransformerEnd.Terminal rdf:resource="#_PT1_T1"/>
-     <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
  </cim:PowerTransformerEnd>
  <cim:PowerTransformerEnd rdf:ID="_PTE2">
      <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT1"/>
@@ -122,7 +121,6 @@
 		   <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
      <cim:PowerTransformerEnd.ratedU>110.000000</cim:PowerTransformerEnd.ratedU>
      <cim:TransformerEnd.Terminal rdf:resource="#_PT1_T2"/>
-     <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
  </cim:PowerTransformerEnd>
  <cim:Terminal rdf:ID="_PT1_T1">
      <cim:Terminal.ConductingEquipment rdf:resource="#_PT1"/>
