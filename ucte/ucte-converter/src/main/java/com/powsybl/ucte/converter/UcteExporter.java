@@ -56,6 +56,8 @@ public class UcteExporter implements Exporter {
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
 
+    public static final int NOMINAL_POWER_NOVALUE = 99999;
+
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public UcteExporter() {
@@ -668,10 +670,9 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        double nominalPower = Double.NaN;
-        if (twoWindingsTransformer.hasProperty(NOMINAL_POWER_KEY)) {
-            nominalPower = Double.parseDouble(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
-        }
+
+        double nominalPower;
+        nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer, context);
 
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
@@ -688,6 +689,36 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addTransformer(ucteTransformer);
 
         convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context.withCombinePhaseAngleRegulation());
+    }
+
+    /**
+     * Extract a nominal power value from the provided transformer. It should be present in the dedicated
+     * {@link TwoWindingsTransformer} as the {@code ratedS} field. For retro-compatibility, if ratedS is {@code NaN},
+     * also look in the {@code nomimalPower}" property (now deprecated).
+     * <br>
+     * If both are absent, return default value {@code 99999} and log + report a warning
+     * @param twoWindingsTransformer a transformer
+     * @return The nominal power of the transformer
+     */
+    private static double extractNominalPowerFromTransformer(TwoWindingsTransformer twoWindingsTransformer,
+                                                             UcteExporterContext context) {
+        if (!Double.isNaN(twoWindingsTransformer.getRatedS())) {
+            return twoWindingsTransformer.getRatedS();
+        }
+        String legacyNominalPowerProperty = twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null);
+        if (legacyNominalPowerProperty != null) {
+            double legacyNominalPower = Double.parseDouble(legacyNominalPowerProperty);
+            if (!Double.isNaN(legacyNominalPower)) {
+                return legacyNominalPower;
+            }
+        }
+        LOGGER.warn("Transformer {}: No nominal power provided. Defaulting to {}",
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        UcteExporterReports.nominalPowerMissing(context.getReportNode(),
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        return NOMINAL_POWER_NOVALUE;
     }
 
     /**
@@ -794,15 +825,18 @@ public class UcteExporter implements Exporter {
     }
 
     private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw, UcteExporterContext context) {
+        boolean wasSet = false;
         if (sw.hasProperty(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
-            } catch (NumberFormatException exception) {
-                ucteLine.setCurrentLimit(null);
-                LOGGER.warn("Switch {}: No current limit provided", sw.getId());
-                UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
+                wasSet = true;
+            } catch (NumberFormatException e) {
+                LOGGER.debug("Couldn't parse number '{}': {}",
+                        sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY),
+                        e.getMessage());
             }
-        } else {
+        }
+        if (!wasSet) {
             ucteLine.setCurrentLimit(null);
             LOGGER.warn("Switch {}: No current limit provided", sw.getId());
             UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
