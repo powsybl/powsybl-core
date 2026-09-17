@@ -728,7 +728,20 @@ public final class SteadyStateHypothesisExport {
         writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+        writer.writeCharacters(Boolean.toString(false));
         writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, "AsynchronousMachine.asynchronousMachineType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "AsynchronousMachineKind." + obtainAsynchronousMachineKind(p));
+        writer.writeEndElement();
+    }
+
+    private static String obtainAsynchronousMachineKind(double p) {
+        if (p < 0) {
+            return "generator";
+        } else {
+            return "motor";
+        }
     }
 
     private static void writeEnergySource(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
