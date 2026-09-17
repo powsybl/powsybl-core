@@ -299,16 +299,16 @@ public class UcteExporter implements Exporter {
         ucteNode.setPowerPlantType(powerPlantType);
         ucteNode.setTypeCode(nodeType);
         // FIXME(mathbagu): to be changed in UcteImporter?
-        if (minP != -DEFAULT_POWER_LIMIT) {
+        if (!isUndefinedMinLimit(minP)) {
             ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
         }
-        if (maxP != DEFAULT_POWER_LIMIT) {
+        if (!isUndefinedMaxLimit(maxP)) {
             ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
         }
-        if (minQ != -DEFAULT_POWER_LIMIT) {
+        if (!isUndefinedMinLimit(minQ)) {
             ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
         }
-        if (maxQ != DEFAULT_POWER_LIMIT) {
+        if (!isUndefinedMaxLimit(maxQ)) {
             ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
         }
     }
@@ -339,19 +339,27 @@ public class UcteExporter implements Exporter {
             double maxP = boundaryLine.getGeneration().getMaxP();
             double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
             double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
-            if (minP != -DEFAULT_POWER_LIMIT) {
+            if (!isUndefinedMinLimit(minP)) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }
-            if (maxP != DEFAULT_POWER_LIMIT) {
+            if (!isUndefinedMaxLimit(maxP)) {
                 ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
             }
-            if (minQ != -DEFAULT_POWER_LIMIT) {
+            if (!isUndefinedMinLimit(minQ)) {
                 ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
             }
-            if (maxQ != DEFAULT_POWER_LIMIT) {
+            if (!isUndefinedMaxLimit(maxQ)) {
                 ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
             }
         }
+    }
+
+    private static boolean isUndefinedMinLimit(double value) {
+        return value == -DEFAULT_POWER_LIMIT || value == -Double.MAX_VALUE;
+    }
+
+    private static boolean isUndefinedMaxLimit(double value) {
+        return value == DEFAULT_POWER_LIMIT || value == Double.MAX_VALUE;
     }
 
     /**
