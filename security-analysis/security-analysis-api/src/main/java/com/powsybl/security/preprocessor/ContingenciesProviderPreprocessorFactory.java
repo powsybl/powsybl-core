@@ -16,7 +16,7 @@ import java.util.Objects;
  * A factory which creates preprocessors that read contingencies according to a
  * {@link ContingenciesProviderFactory}
  *
- * @deprecated This interface will be removed on later versions, avoid new usages of it.
+ * @deprecated This class will be removed on later versions, avoid new usages of it.
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 @Deprecated(forRemoval = true, since = "7.4.0")
