@@ -50,7 +50,7 @@ When set to `false`, a reactive capability curve point with `minQ > maxQ` is con
 When set to `true`, the importer automatically swaps the values so that `minQ <= maxQ`, allowing the import to succeed.<br>
 
 ```{note}
-The `repair-invalid-reactive-curve-limits` should normally be left at its default value. Earlier versions of PowSyBl accepted invalid ordered minQ/maxQ limits. Change this parameter only if you need to import older IIDM files that contain such invalid values.
+The `iidm.import.repair-invalid-reactive-curve-limits` property should normally be left at its default value. Earlier versions of PowSyBl accepted invalid ordered minQ/maxQ limits. Change this parameter only if you need to import older IIDM files that contain such invalid values.
 ```
 
 ### Deprecated properties
