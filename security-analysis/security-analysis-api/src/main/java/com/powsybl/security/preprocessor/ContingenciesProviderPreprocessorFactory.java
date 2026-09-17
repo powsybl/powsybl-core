@@ -9,8 +9,6 @@ package com.powsybl.security.preprocessor;
 
 import com.google.common.io.ByteSource;
 import com.powsybl.contingency.ContingenciesProviderFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -24,15 +22,9 @@ import java.util.Objects;
 @Deprecated(forRemoval = true, since = "7.4.0")
 public class ContingenciesProviderPreprocessorFactory implements SecurityAnalysisPreprocessorFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ContingenciesProviderPreprocessorFactory.class);
-    private static final String DEPRECATED_WARNING_MSG =
-            "Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated and will be removed in a future version." +
-            " Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.";
-
     private final ContingenciesProviderFactory contingenciesProviderFactory;
 
     public ContingenciesProviderPreprocessorFactory(ContingenciesProviderFactory contingenciesProviderFactory) {
-        LOG.warn(DEPRECATED_WARNING_MSG);
         this.contingenciesProviderFactory = Objects.requireNonNull(contingenciesProviderFactory);
     }
 
@@ -43,7 +35,6 @@ public class ContingenciesProviderPreprocessorFactory implements SecurityAnalysi
 
     @Override
     public SecurityAnalysisPreprocessor newPreprocessor(ByteSource configSource) {
-        LOG.warn(DEPRECATED_WARNING_MSG);
         return SecurityAnalysisPreprocessors.contingenciesPreprocessor(contingenciesProviderFactory, configSource);
     }
 }

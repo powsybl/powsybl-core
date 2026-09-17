@@ -14,8 +14,6 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.security.SecurityAnalysisConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,11 +33,6 @@ import static java.util.Objects.requireNonNull;
 @Deprecated(forRemoval = true, since = "7.4.0")
 public final class SecurityAnalysisPreprocessors {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityAnalysisPreprocessors.class);
-    private static final String DEPRECATED_WARNING_MSG =
-            "Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated and will be removed in a future version." +
-            " Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.";
-
     private SecurityAnalysisPreprocessors() {
     }
 
@@ -51,7 +44,6 @@ public final class SecurityAnalysisPreprocessors {
      * @return the factory corresponding to the specified name.
      */
     public static SecurityAnalysisPreprocessorFactory factoryForName(String name) {
-        LOG.warn(DEPRECATED_WARNING_MSG);
         requireNonNull(name);
         List<SecurityAnalysisPreprocessorFactory> factories = new ServiceLoaderCache<>(SecurityAnalysisPreprocessorFactory.class).getServices();
         return factories.stream()
@@ -88,7 +80,6 @@ public final class SecurityAnalysisPreprocessors {
      * @return The preprocessor factory as defined in default platform config.
      */
     public static Optional<SecurityAnalysisPreprocessorFactory> configuredFactory(SecurityAnalysisConfig config) {
-        LOG.warn(DEPRECATED_WARNING_MSG);
         return config.getPreprocessorName()
                 .map(SecurityAnalysisPreprocessors::factoryForName);
     }
@@ -116,7 +107,6 @@ public final class SecurityAnalysisPreprocessors {
      */
     public static SecurityAnalysisPreprocessor contingenciesPreprocessor(ContingenciesProviderFactory factory,
                                                                    ByteSource source) {
-        LOG.warn(DEPRECATED_WARNING_MSG);
         requireNonNull(factory);
         requireNonNull(source);
         return configuration -> configuration.setContingencies(newContingenciesProvider(factory, source));
