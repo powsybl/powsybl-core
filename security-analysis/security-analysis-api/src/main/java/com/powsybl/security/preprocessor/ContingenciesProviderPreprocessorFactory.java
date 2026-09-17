@@ -25,7 +25,9 @@ import java.util.Objects;
 public class ContingenciesProviderPreprocessorFactory implements SecurityAnalysisPreprocessorFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContingenciesProviderPreprocessorFactory.class);
-    private static final String DEPRECATED_WARNING_MSG = "Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated and will be removed in a future version. Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.";
+    private static final String DEPRECATED_WARNING_MSG =
+            "Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated and will be removed in a future version." +
+            " Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.";
 
     private final ContingenciesProviderFactory contingenciesProviderFactory;
 
