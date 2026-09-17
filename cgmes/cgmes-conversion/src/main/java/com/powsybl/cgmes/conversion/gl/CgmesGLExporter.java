@@ -68,9 +68,15 @@ public class CgmesGLExporter {
 
     public void exportData(DataSource dataSource) {
         Objects.requireNonNull(dataSource);
+        exportData(dataSource, dataSource.getBaseName());
+    }
+
+    public void exportData(DataSource dataSource, String baseName) {
+        Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(baseName);
         ExportContext context = new ExportContext();
-        context.setBasename(dataSource.getBaseName());
-        context.setGlContext(CgmesGLUtils.contextNameFor(CgmesSubset.GEOGRAPHICAL_LOCATION, tripleStore, dataSource.getBaseName()));
+        context.setBasename(baseName);
+        context.setGlContext(CgmesGLUtils.contextNameFor(CgmesSubset.GEOGRAPHICAL_LOCATION, tripleStore, baseName));
         addNamespaces(context);
         addModel(context);
         addCoordinateSystem(context);

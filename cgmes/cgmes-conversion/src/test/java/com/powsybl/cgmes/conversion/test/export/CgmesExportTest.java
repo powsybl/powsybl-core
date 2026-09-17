@@ -36,6 +36,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
@@ -534,6 +535,29 @@ class CgmesExportTest {
     @Test
     void testCim100ExporGLProfle() throws IOException {
         testGLProfileExport("100", CgmesNamespace.CIM_100_GL_PROFILE);
+    }
+
+    @Test
+    void testExportGLProfileToZipArchive() throws IOException {
+        Network network = NetworkTest1Factory.create("minimal-network");
+        Substation substation1 = network.getSubstation("nminimal-network_substation1");
+        substation1.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation1, SUBSTATION_1));
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ,GL");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, exportParams, zip);
+
+            assertTrue(zip.exists("output_EQ.xml"));
+            assertTrue(zip.exists("output_GL.xml"));
+            String gl;
+            try (InputStream is = zip.newInputStream("output_GL.xml")) {
+                gl = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            }
+            assertTrue(gl.contains("md:Model.profile>" + CgmesNamespace.CIM_16_GL_PROFILE));
+            assertTrue(gl.contains("cim:PositionPoint.xPosition>0.5492960214614868"));
+        }
     }
 
     void testGLProfileExport(String cimVersion, String expectedProfile) throws IOException {
