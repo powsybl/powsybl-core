@@ -423,16 +423,16 @@ public final class ConnectableSerDeUtil {
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
 
-            for (FormattedTemporaryLimit tl : formattedLimits.sortedTemporaryLimits(exportOptions)) {
+            for (FormattedTemporaryLimit fl : formattedLimits.sortedTemporaryLimits(exportOptions)) {
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                writer.writeStringAttribute("name", tl.name);
-                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, tl.duration, Integer.MAX_VALUE);
-                if (tl.originalLimit != null) {
-                    //this means we don't write any value for the last temporary of a converted low -> high, but it would have
-                    //a limit value of MAX_VALUE which is not written anyway
-                    writer.writeDoubleAttribute(VALUE_KEY, tl.originalLimit.getValue(), Double.MAX_VALUE);
-                    writer.writeBooleanAttribute(FICTITIOUS_KEY, tl.originalLimit.isFictitious(), false);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl.originalLimit, writer, nsUri, exportOptions));
+                writer.writeStringAttribute("name", fl.name);
+                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, fl.duration, Integer.MAX_VALUE);
+                writer.writeDoubleAttribute(VALUE_KEY, fl.value, Double.MAX_VALUE);
+                writer.writeBooleanAttribute(FICTITIOUS_KEY, fl.fictitious, false);
+                if (fl.propertiesHolder != null) {
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version,
+                        () -> PropertiesSerDe.write(fl.propertiesHolder, writer, nsUri, exportOptions)
+                    );
                 }
                 writer.writeEndNode();
             }
@@ -478,7 +478,7 @@ public final class ConnectableSerDeUtil {
         });
     }
 
-    private record FormattedTemporaryLimit(LoadingLimits.TemporaryLimit originalLimit, int duration, String name) { }
+    private record FormattedTemporaryLimit(double value, int duration, String name, boolean fictitious, PropertiesHolder propertiesHolder) { }
 
     private record FormattedLimits(List<FormattedTemporaryLimit> formattedTemporaryLimits) {
         FormattedLimits(LoadingLimits limits, IidmVersion version) {
@@ -496,7 +496,7 @@ public final class ConnectableSerDeUtil {
                 LoadingLimits.TemporaryLimit tl = tempLimits.get(limitIndex);
                 String name = tempLimits.get(durationIndex).getName();
                 int duration = tempLimits.get(durationIndex).getAcceptableDuration();
-                formattedTemporaryLimits.add(new FormattedTemporaryLimit(tl, duration, name));
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(tl.getValue(), duration, name, tl.isFictitious(), tl));
                 ++limitIndex;
             }
             if (shiftLowToHigh) {
@@ -506,7 +506,7 @@ public final class ConnectableSerDeUtil {
                 String name = tl.getName();
                 int duration = tl.getAcceptableDuration();
                 //the other values inside the temp limit are not relevant to the last created limit
-                formattedTemporaryLimits.add(new FormattedTemporaryLimit(null, duration, name));
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(Double.MAX_VALUE, duration, name, false, tl));
             }
             return formattedTemporaryLimits;
         }
