@@ -113,21 +113,23 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * @param ignoreAlreadyPresent should an extension to transfer be ignored if already present in {@code to}?
      */
     protected static void transferExtensions(Network from, Network to, boolean ignoreAlreadyPresent) {
-        // Only well-defined extensions (with an interface) are transferred
-        new ArrayList<Extension<?>>(from.getExtensions()).forEach(e ->
-            Arrays.stream(e.getClass().getInterfaces())
-                    .filter(c -> Objects.nonNull(from.getExtension(c)))
-                    .forEach(clazz -> {
-                        if (ignoreAlreadyPresent && to.getExtension(clazz) != null) {
-                            LOGGER.warn("Extension of class \"{}\" was not transferred from \"{}\" to \"{}\": " +
-                                            "an extension of this same class already exists in the destination network.",
-                                    clazz.getName(), from.getId(), to.getId());
-                        } else {
-                            ((AbstractIdentifiable<Network>) from).removeExtension((Class<? extends Extension<Network>>) clazz, false);
-                            to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
-                        }
-                    })
-        );
+        if (from.hasExtensions()) {
+            // Only well-defined extensions (with an interface) are transferred
+            new ArrayList<Extension<?>>(from.getExtensions()).forEach(e ->
+                    Arrays.stream(e.getClass().getInterfaces())
+                            .filter(c -> Objects.nonNull(from.getExtension(c)))
+                            .forEach(clazz -> {
+                                if (ignoreAlreadyPresent && to.getExtension(clazz) != null) {
+                                    LOGGER.warn("Extension of class \"{}\" was not transferred from \"{}\" to \"{}\": " +
+                                                    "an extension of this same class already exists in the destination network.",
+                                            clazz.getName(), from.getId(), to.getId());
+                                } else {
+                                    ((AbstractIdentifiable<Network>) from).removeExtension((Class<? extends Extension<Network>>) clazz, false);
+                                    to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
+                                }
+                            })
+            );
+        }
     }
 
     /**
@@ -146,15 +148,17 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * @param ignoreAlreadyPresent should a property to transfer be ignored if already present in {@code toNetwork}?
      */
     protected static void transferProperties(AbstractNetwork fromNetwork, AbstractNetwork toNetwork, boolean ignoreAlreadyPresent) {
-        fromNetwork.getProperties().forEach((key, value) -> {
-            if (ignoreAlreadyPresent && toNetwork.hasProperty(key.toString())) {
-                LOGGER.warn("Property \"{}\" was not transferred from \"{}\" to \"{}\": it already exists in the destination network.",
-                        key, fromNetwork.getId(), toNetwork.getId());
-            } else {
-                toNetwork.setProperty(key.toString(), value.toString());
-                fromNetwork.removeProperty(key.toString());
-            }
-        });
+        if (fromNetwork.hasProperty()) {
+            fromNetwork.getProperties().forEach((key, value) -> {
+                if (ignoreAlreadyPresent && toNetwork.hasProperty(key.toString())) {
+                    LOGGER.warn("Property \"{}\" was not transferred from \"{}\" to \"{}\": it already exists in the destination network.",
+                            key, fromNetwork.getId(), toNetwork.getId());
+                } else {
+                    toNetwork.setProperty(key.toString(), value.toString());
+                    fromNetwork.removeProperty(key.toString());
+                }
+            });
+        }
     }
 
     abstract class AbstractBusBreakerViewImpl implements BusBreakerView {
