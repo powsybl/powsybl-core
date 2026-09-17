@@ -728,7 +728,7 @@ public final class SteadyStateHypothesisExport {
         writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+        writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
         writer.writeCharacters(Boolean.toString(false));
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "AsynchronousMachine.asynchronousMachineType");
@@ -738,9 +738,9 @@ public final class SteadyStateHypothesisExport {
 
     private static String obtainAsynchronousMachineKind(double p) {
         if (p < 0) {
-            return "generator";
+            return OPERATING_MODE_GENERATOR;
         } else {
-            return "motor";
+            return OPERATING_MODE_MOTOR;
         }
     }
 
