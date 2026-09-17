@@ -153,6 +153,11 @@ public final class XmlUtil {
         return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
     }
 
+    public static String readStringAttribute(XMLStreamReader reader, String name, String defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? attributeValue : defaultValue;
+    }
+
     public static Boolean readBooleanAttribute(XMLStreamReader reader, String name) {
         String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Boolean.valueOf(attributeValue) : null;

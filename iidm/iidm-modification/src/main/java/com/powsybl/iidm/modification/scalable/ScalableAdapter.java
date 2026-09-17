@@ -19,17 +19,17 @@ class ScalableAdapter extends AbstractScalable {
     private Double minValue = null;
     private Double maxValue = null;
 
-    public ScalableAdapter(String id, double minValue, double maxValue) {
+    ScalableAdapter(String id, double minValue, double maxValue) {
         this.id = Objects.requireNonNull(id);
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
 
-    public ScalableAdapter(String id) {
+    ScalableAdapter(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
-    public ScalableAdapter(Injection<?> injection) {
+    ScalableAdapter(Injection<?> injection) {
         Objects.requireNonNull(injection);
         this.id = injection.getId();
     }

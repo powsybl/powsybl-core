@@ -200,7 +200,9 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
      * @param side Side of the coupling device on which to connect the bars
      * @return List of the busbar sections on which a connection was made
      */
-    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSection bbs, NamingStrategy namingStrategy, boolean bbsOnSameSection, int breakerNode, boolean avoidLastBar, int side) {
+    private List<BusbarSection> computeBbsListAndCreateTopology(VoltageLevel voltageLevel, BusbarSection bbs,
+                                                                NamingStrategy namingStrategy, boolean bbsOnSameSection,
+                                                                int breakerNode, boolean avoidLastBar, int side) {
 
         // Position of the bar
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);

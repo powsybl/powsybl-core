@@ -55,8 +55,7 @@ public class LinePositionImporter {
         Identifiable<?> lineOrBoundaryLine = getLineOrBoundaryLine(lineId);
         if (lineOrBoundaryLine != null) {
             lineOrBoundaryLineCoordinates.computeIfAbsent(lineOrBoundaryLine, k -> new TreeMap<>())
-                    .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
-                    // y <=> lat, x <=> lon
+                    .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x"))); // y <=> lat, x <=> lon
         } else {
             if (LOG.isWarnEnabled()) {
                 String name = linePositionData.get("name");

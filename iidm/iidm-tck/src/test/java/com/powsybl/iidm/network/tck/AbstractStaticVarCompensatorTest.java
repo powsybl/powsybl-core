@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,12 +75,7 @@ public abstract class AbstractStaticVarCompensatorTest {
     @Test
     public void changeRegulationModeErrorTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
-        try {
-            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, () -> svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER));
     }
 
     @Test
@@ -89,6 +85,23 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
         assertEquals(200.0, svc.getReactivePowerSetpoint(), 0.0);
         assertSame(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
+    }
+
+    @Test
+    public void undefinedRegulatingWithEquipmentValidationLevel() {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        StaticVarCompensator svc = network.getVoltageLevel("VL2").newStaticVarCompensator()
+                .setId("SVC3")
+                .setConnectableBus("B2")
+                .setBus("B2")
+                .setBmin(0.0002)
+                .setBmax(0.0008)
+                .setReactivePowerSetpoint(1.0)
+                .add();
+
+        assertFalse(svc.isRegulating());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 
     @Test
@@ -167,12 +180,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            svc.getReactivePowerSetpoint();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, svc::getReactivePowerSetpoint);
     }
 
     private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, StaticVarCompensator.RegulationMode regulationMode) {

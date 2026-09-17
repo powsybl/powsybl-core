@@ -1364,27 +1364,38 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double minP = battery.getMinP();
         double maxP = battery.getMaxP();
 
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-            .writeCell(vlNum)
-            .writeCell(battery.getTargetP())
-            .writeCell(battery.getTargetQ())
-            .writeCell(minP)
-            .writeCell(maxP)
-            .writeCell(battery.getReactiveLimits().getMinQ(maxP))
-            .writeCell(battery.getReactiveLimits().getMinQ(0))
-            .writeCell(battery.getReactiveLimits().getMinQ(minP))
-            .writeCell(battery.getReactiveLimits().getMaxQ(maxP))
-            .writeCell(battery.getReactiveLimits().getMaxQ(0))
-            .writeCell(battery.getReactiveLimits().getMaxQ(minP))
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(id)
-            .writeCell(battery.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell(busNum)
+            .addCell(conBusNum != -1 ? conBusNum : busNum)
+            .addCell(vlNum)
+            .addCell(battery.getTargetP())
+            .addCell(battery.getTargetQ())
+            .addCell(minP)
+            .addCell(maxP)
+            .addCell(battery.getReactiveLimits().getMinQ(maxP))
+            .addCell(battery.getReactiveLimits().getMinQ(0))
+            .addCell(battery.getReactiveLimits().getMinQ(minP))
+            .addCell(battery.getReactiveLimits().getMaxQ(maxP))
+            .addCell(battery.getReactiveLimits().getMaxQ(0))
+            .addCell(battery.getReactiveLimits().getMaxQ(minP))
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(id)
+            .addCell(battery.getNameOrId())
+            .addCell(t.getP())
+            .addCell(t.getQ());
+
+        // Add cells if necessary
+        addAdditionalCellsBattery(formatterHelper, battery);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsBattery(TableFormatterHelper formatterHelper, Battery battery) {
+        // Nothing to do here
     }
 
     @Override

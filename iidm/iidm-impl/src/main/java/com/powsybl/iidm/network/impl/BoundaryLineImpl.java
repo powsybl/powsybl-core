@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
@@ -183,6 +183,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         }
 
         @Override
+        public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+            return new ReactiveCapabilityShapeAdderImpl(this);
+        }
+
+        @Override
         public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
             return new MinMaxReactiveLimitsAdderImpl<>(this);
         }
@@ -279,14 +284,6 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new BoundaryLineBoundaryImplExt(this);
         this.generation = generation != null ? generation.attach(this) : null;
-    }
-
-    @Override
-    void replaceId(String newId) {
-        NetworkIndex.checkId(newId);
-        network.get().getIndex().remove(this);
-        id = newId;
-        network.get().getIndex().checkAndAdd(this);
     }
 
     void setTieLine(TieLineImpl tieLine) {
@@ -497,7 +494,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
         return operationalLimitsGroups.getAllSelectedOperationalLimitsGroups();
     }
 

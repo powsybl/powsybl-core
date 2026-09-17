@@ -22,8 +22,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.OperatorStrategyList;
 import com.powsybl.iidm.network.ImportConfig;
@@ -48,7 +48,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.readProperties;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -228,7 +230,7 @@ public class SensitivityAnalysisTool implements Tool {
             }
         }
 
-        SensitivityFactorJsonReader factorsReader = new SensitivityFactorJsonReader(factorsFile);
+        SensitivityFactorJsonReader factorsReader = new SensitivityFactorJsonReader(factorsFile, network);
 
         context.getOutputStream().println("Running analysis...");
         Stopwatch stopwatch = Stopwatch.createStarted();

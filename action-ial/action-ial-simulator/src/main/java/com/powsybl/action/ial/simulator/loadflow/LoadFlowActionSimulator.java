@@ -13,14 +13,14 @@ import com.powsybl.action.ial.simulator.ActionSimulator;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationFilter;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.contingency.violations.LimitViolationFilter;
-import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -294,6 +294,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Every kind of exception is rethrown as a PowsyblException
     private boolean next(ActionDb actionDb, RunningContext context) {
         observers.forEach(o -> o.roundBegin(context));
 
@@ -390,6 +391,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Every kind of exception is rethrown as a PowsyblException
     private LoadFlowResult runTest(RunningContext context, Network networkForTry, Action action) {
         String actionId = action.getId();
         LOGGER.info("Test action '{}'", actionId);

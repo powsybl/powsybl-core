@@ -625,7 +625,8 @@ class PsseRawDataTest extends AbstractSerDeTest {
         PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee24Raw35(), "raw", context);
         assertNotNull(rawData);
 
-        String[] expectedSwitchedShuntDataReadFields = new String[]{STR_I, STR_ID, STR_MODSW, STR_ADJM, STR_ST, STR_VSWHI, STR_VSWLO, STR_SWREG, STR_NREG, STR_RMPCT, STR_RMIDNT, STR_BINIT, STR_S1, STR_N1, STR_B1};
+        String[] expectedSwitchedShuntDataReadFields = new String[]{STR_I, STR_ID, STR_MODSW, STR_ADJM, STR_ST,
+            STR_VSWHI, STR_VSWLO, STR_SWREG, STR_NREG, STR_RMPCT, STR_RMIDNT, STR_BINIT, STR_S1, STR_N1, STR_B1};
         String[] actualSwitchedShuntDataReadFields = context.getFieldNames(SWITCHED_SHUNT);
         assertArrayEquals(expectedSwitchedShuntDataReadFields, actualSwitchedShuntDataReadFields);
     }
@@ -644,7 +645,8 @@ class PsseRawDataTest extends AbstractSerDeTest {
         PssePowerFlowModel rawXData35 = new PowerFlowRawxData35().read(ieee24Rawx35(), "rawx", context);
         assertNotNull(rawXData35);
 
-        String[] expectedSwitchedShuntDataReadFields = new String[]{STR_IBUS, STR_SHNTID, STR_MODSW, STR_ADJM, STR_STAT, STR_VSWHI, STR_VSWLO, STR_SWREG, STR_NREG, STR_RMPCT, STR_RMIDNT, STR_BINIT, STR_S1, STR_N1, STR_B1};
+        String[] expectedSwitchedShuntDataReadFields = new String[]{STR_IBUS, STR_SHNTID, STR_MODSW, STR_ADJM, STR_STAT,
+            STR_VSWHI, STR_VSWLO, STR_SWREG, STR_NREG, STR_RMPCT, STR_RMIDNT, STR_BINIT, STR_S1, STR_N1, STR_B1};
         String[] actualSwitchedShuntDataReadFields = context.getFieldNames(SWITCHED_SHUNT);
         assertArrayEquals(expectedSwitchedShuntDataReadFields, actualSwitchedShuntDataReadFields);
     }

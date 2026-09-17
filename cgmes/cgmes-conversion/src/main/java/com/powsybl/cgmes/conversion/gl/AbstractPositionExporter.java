@@ -8,9 +8,9 @@
 package com.powsybl.cgmes.conversion.gl;
 
 import com.powsybl.cgmes.model.CgmesNamespace.Cim;
+import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.iidm.network.extensions.Coordinate;
 
 import java.util.Arrays;
 import java.util.Collections;

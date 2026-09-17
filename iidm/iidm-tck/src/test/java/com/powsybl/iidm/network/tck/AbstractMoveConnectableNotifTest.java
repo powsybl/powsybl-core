@@ -25,7 +25,7 @@ public abstract class AbstractMoveConnectableNotifTest {
     public void nodeBreakerTest() {
         var network = FictitiousSwitchFactory.create();
         MutableObject<Object> obj = new MutableObject<>();
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 obj.setValue(newValue);
@@ -45,7 +45,7 @@ public abstract class AbstractMoveConnectableNotifTest {
     public void busBreakerTest() {
         var network = EurostagTutorialExample1Factory.create();
         MutableObject<Object> obj = new MutableObject<>();
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 obj.setValue(newValue);

@@ -9,8 +9,9 @@ At the moment, there are:
 - The `BasicAmplExporter` (associated with the `AmplExportVersion` `V1_0`);
 - The `ExtendedAmplExporter` (associated with the `AmplExportVersion` `V1_1`) that inherits from the `BasicAmplExporter`.
 - The `ExtendedAmplExporterV2` (associated with the `AmplExportVersion` `V1_2`) that inherits from the `ExtendedAmplExporter`.
+- The `ExtendedAmplExporterV3` (associated with the `AmplExportVersion` `V1_3`) that inherits from the `ExtendedAmplExporterV2`.
 
-The default version is the `V1_2`.
+The default version is the `V1_3`.
 
 Exporters define the information written in text files and fed to AMPL regarding:
 
@@ -48,6 +49,15 @@ This exporter adds the following information to the `ExtendedAmplExporter`:
 - In HVDC line tables, the AC emulation parameters, along with a boolean to indicate whether AC emulation is active.
 
 This exporter also corrects the unit of the load target Q (MVar) in the battery tables.
+
+### The `ExtendedAmplExporterV3`
+
+This exporter adds the following information to the `ExtendedAmplExporterV2` in the battery tables:
+
+- A boolean indicating if the battery is regulating voltage;
+- A double containing the targetV of the battery;
+- An integer representing the bus where the regulating terminal is connected. A value of -1 means that the battery is not regulating or that its regulating terminal is not connected.
+
 
 (ampl-export-options)=
 ## Options

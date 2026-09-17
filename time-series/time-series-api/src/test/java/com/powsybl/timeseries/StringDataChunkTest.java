@@ -79,7 +79,7 @@ class StringDataChunkTest {
     }
 
     @Test
-    void compressTest() throws IOException {
+    void compressTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "bbb", "bbb", "ccc"});
         StringDataChunk maybeCompressedChunk = chunk.tryToCompress();
         assertInstanceOf(CompressedStringDataChunk.class, maybeCompressedChunk);
@@ -112,13 +112,13 @@ class StringDataChunkTest {
     }
 
     @Test
-    void compressFailureTest() throws IOException {
+    void compressFailureTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "ccc"});
         assertSame(chunk, chunk.tryToCompress());
     }
 
     @Test
-    void splitTest() throws IOException {
+    void splitTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[]{"a", "b", "c"});
         try {
             chunk.splitAt(1);
@@ -142,7 +142,7 @@ class StringDataChunkTest {
     }
 
     @Test
-    void compressedSplitTest() throws IOException {
+    void compressedSplitTest() {
         // index  0   1   2   3   4   5
         // value  NaN a   a   b   b   b
         //            [-------]   [---]
@@ -244,5 +244,77 @@ class StringDataChunkTest {
         assertEquals(1, stringChunks.size());
         assertInstanceOf(UncompressedStringDataChunk.class, stringChunks.get(0));
         assertArrayEquals(new String[] {"a", null, null}, ((UncompressedStringDataChunk) stringChunks.get(0)).getValues());
+    }
+
+    @Test
+    void testCompressedStringDataChunkWhenSplitOnBoundaryOffsetStartsZero() {
+        // index  0   1   2   3   4   5
+        // value  a   a   a   b   b   b
+        // Chunks [--------]   [-------]
+        //        [3 * a]      [3 * b]
+        CompressedStringDataChunk compressedChunk = new CompressedStringDataChunk(0, 6, new String[]{"a", "b"}, new int[]{3, 3});
+        // When split index equal to stepLengths[step] + index (index initialized to offset)
+        DataChunk.Split<StringPoint, StringDataChunk> split = compressedChunk.splitAt(3);
+        // Then
+        CompressedStringDataChunk chunk1 = (CompressedStringDataChunk) split.getChunk1();
+        CompressedStringDataChunk chunk2 = (CompressedStringDataChunk) split.getChunk2();
+
+        // chunk1 [3 * "a"]
+        assertEquals(0, chunk1.getOffset());
+        assertEquals(3, chunk1.getLength());
+        String expectedChunk1Result = """
+            {
+              "offset" : 0,
+              "uncompressedLength" : 3,
+              "stepValues" : [ "a" ],
+              "stepLengths" : [ 3 ]
+            }""".replaceAll("\n", System.lineSeparator());
+        assertEquals(expectedChunk1Result, JsonUtil.toJson(chunk1::writeJson));
+        // chunk2 [3 * "b"]
+        assertEquals(3, chunk2.getOffset());
+        assertEquals(3, chunk2.getLength());
+        String expectedChunk2Result = """
+            {
+              "offset" : 3,
+              "uncompressedLength" : 3,
+              "stepValues" : [ "b" ],
+              "stepLengths" : [ 3 ]
+            }""".replaceAll("\n", System.lineSeparator());
+        assertEquals(expectedChunk2Result, JsonUtil.toJson(chunk2::writeJson));
+    }
+
+    @Test
+    void testCompressedDataChunkWhenSplitOnBoundaryOffsetDifferentToZero() {
+        // index  0   1   2   3   4   5
+        // value  NaN a   a   a   b   b
+        //            [---]  [---------]
+        CompressedStringDataChunk chunk = new CompressedStringDataChunk(1, 5, new String[] {"a", "b"}, new int[] {3, 2});
+        // When split index equal to stepLengths[step] + index (index initialized to offset)
+        DataChunk.Split<StringPoint, StringDataChunk> split = chunk.splitAt(3);
+        CompressedStringDataChunk chunk1 = (CompressedStringDataChunk) split.getChunk1();
+        CompressedStringDataChunk chunk2 = (CompressedStringDataChunk) split.getChunk2();
+
+        // chunk1 [2 * 1]
+        assertEquals(1, chunk1.getOffset());
+        assertEquals(2, chunk1.getLength());
+        String expectedChunk1Result = """
+            {
+              "offset" : 1,
+              "uncompressedLength" : 2,
+              "stepValues" : [ "a" ],
+              "stepLengths" : [ 2 ]
+            }""".replaceAll("\n", System.lineSeparator());
+        assertEquals(expectedChunk1Result, JsonUtil.toJson(chunk1::writeJson));
+        // chunk2 [1 * a, 2 * b]
+        assertEquals(3, chunk2.getOffset());
+        assertEquals(3, chunk2.getLength());
+        String expectedChunk2Result = """
+            {
+              "offset" : 3,
+              "uncompressedLength" : 3,
+              "stepValues" : [ "a", "b" ],
+              "stepLengths" : [ 1, 2 ]
+            }""".replaceAll("\n", System.lineSeparator());
+        assertEquals(expectedChunk2Result, JsonUtil.toJson(chunk2::writeJson));
     }
 }

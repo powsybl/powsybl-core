@@ -42,18 +42,14 @@ class RuleTest {
     void testInvalid() {
         Condition condition = Mockito.mock(Condition.class);
 
-        testInvalid(null, null, -1, null);
-        testInvalid("id", null, -1, null);
-        testInvalid("id", condition, -1, null);
-        testInvalid("id", condition, 0, null);
+        testInvalid(null, null, -1, null, IllegalArgumentException.class);
+        testInvalid("id", null, -1, null, IllegalArgumentException.class);
+        testInvalid("id", condition, -1, null, IllegalArgumentException.class);
+        testInvalid("id", condition, 0, null, NullPointerException.class);
     }
 
-    private void testInvalid(String id, Condition condition, int life, List<String> actions) {
-        try {
-            new Rule(id, condition, life, actions);
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+    private void testInvalid(String id, Condition condition, int life, List<String> actions, Class<? extends Throwable> clazz) {
+        assertThrows(clazz, () -> new Rule(id, condition, life, actions));
     }
 
 }

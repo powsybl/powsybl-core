@@ -7,17 +7,16 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.TwoSides;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

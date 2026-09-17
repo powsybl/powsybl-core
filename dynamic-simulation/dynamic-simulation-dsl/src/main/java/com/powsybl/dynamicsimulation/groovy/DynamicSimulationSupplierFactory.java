@@ -8,9 +8,9 @@
 package com.powsybl.dynamicsimulation.groovy;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.dynamicsimulation.OutputVariablesSupplier;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
+import com.powsybl.dynamicsimulation.OutputVariablesSupplier;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.InputStream;

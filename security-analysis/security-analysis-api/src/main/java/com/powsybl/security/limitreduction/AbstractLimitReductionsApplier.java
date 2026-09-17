@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.limitmodification.AbstractLimitsComputerWithCache;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
-import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.security.limitreduction.computation.AbstractLimitsReducer;
 import com.powsybl.security.limitreduction.computation.AbstractLimitsReducerCreator;
 

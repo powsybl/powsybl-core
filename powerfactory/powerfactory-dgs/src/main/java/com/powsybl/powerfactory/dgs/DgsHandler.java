@@ -7,12 +7,11 @@
  */
 package com.powsybl.powerfactory.dgs;
 
-import java.util.List;
-
+import com.powsybl.powerfactory.model.DataAttributeType;
 import com.powsybl.powerfactory.model.DataObjectRefKey;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import com.powsybl.powerfactory.model.DataAttributeType;
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

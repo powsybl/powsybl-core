@@ -9,8 +9,8 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.shortcircuit.tools.ShortCircuitAnalysisTool;
 import com.powsybl.tools.CommandLineTools;
-import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -68,32 +68,38 @@ class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Test
     void checkFailsWhenInputFileNotFound() {
-        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "wrongFile.txt", "--case-file", "network.xiidm"}, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
+        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "wrongFile.txt", "--case-file", "network.xiidm"},
+            "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
     void checkFailsWhenNetworkFileNotFound() {
-        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "wrongFile.uct"}, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist");
+        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "wrongFile.uct"},
+            "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist");
     }
 
     @Test
     void checkThrowsWhenOutputFileAndNoFormat() {
-        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct", "--output-file", "out.txt"}, CommandLineTools.INVALID_COMMAND_STATUS, "error: Missing required option: output-format");
+        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct", "--output-file", "out.txt"}, CommandLineTools.INVALID_COMMAND_STATUS,
+            "error: Missing required option: output-format");
     }
 
     @Test
     void checkThrowsWhenNetworkFileIsEmpty() {
-        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct"}, "com.powsybl.commons.PowsyblException: Unsupported file format or invalid file.");
+        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct"},
+            "com.powsybl.commons.PowsyblException: Unsupported file format or invalid file.");
     }
 
     @Test
     void checkFailsWhenParametersFileNotFound() {
-        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"}, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
+        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"},
+            "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
     void checkFailsWhenFaultParametersFileNotFound() {
-        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"}, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
+        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"},
+            "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
@@ -113,6 +119,8 @@ class ShortCircuitAnalysisToolTest extends AbstractToolTest {
                 +----+---------------+---------+--------------+------------+-------+-------+
                 """;
 
-        assertCommandSuccessful(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "parameters.json", "--fault-parameters-file", "faultParameters.json"}, expectedOut);
+        assertCommandSuccessful(new String[] {
+            COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "parameters.json", "--fault-parameters-file", "faultParameters.json"},
+            expectedOut);
     }
 }

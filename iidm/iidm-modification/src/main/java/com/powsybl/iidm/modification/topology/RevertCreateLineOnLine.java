@@ -130,20 +130,30 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
                 lineToBeMerged2.getTerminal(newLineSide2).getVoltageLevel().getId(),
                 network, lineToBeMerged1, lineToBeMerged2);
 
-        attachLine(lineToBeMerged1.getTerminal(newLineSide1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(lineToBeMerged2.getTerminal(newLineSide2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        attachLine(lineToBeMerged1.getTerminal(newLineSide1), lineAdder,
+            (bus, adder) -> adder.setConnectableBus1(bus.getId()),
+            (bus, adder) -> adder.setBus1(bus.getId()),
+            (node, adder) -> adder.setNode1(node));
+        attachLine(lineToBeMerged2.getTerminal(newLineSide2), lineAdder,
+            (bus, adder) -> adder.setConnectableBus2(bus.getId()),
+            (bus, adder) -> adder.setBus2(bus.getId()),
+            (node, adder) -> adder.setNode2(node));
 
         // get lineToBeMerged1 limits
         TwoSides lineToBeMerged1Side1 = newLineSide1;
         TwoSides lineToBeMerged1Side2 = newLineSide1 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        LoadingLimitsBags limitsLineToBeMerged1Side1 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(lineToBeMerged1Side1), () -> lineToBeMerged1.getApparentPowerLimits(lineToBeMerged1Side1), () -> lineToBeMerged1.getCurrentLimits(lineToBeMerged1Side1));
-        LoadingLimitsBags limitsLineToBeMerged1Side2 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(lineToBeMerged1Side2), () -> lineToBeMerged1.getApparentPowerLimits(lineToBeMerged1Side2), () -> lineToBeMerged1.getCurrentLimits(lineToBeMerged1Side2));
+        LoadingLimitsBags limitsLineToBeMerged1Side1 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(lineToBeMerged1Side1),
+            () -> lineToBeMerged1.getApparentPowerLimits(lineToBeMerged1Side1), () -> lineToBeMerged1.getCurrentLimits(lineToBeMerged1Side1));
+        LoadingLimitsBags limitsLineToBeMerged1Side2 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(lineToBeMerged1Side2),
+            () -> lineToBeMerged1.getApparentPowerLimits(lineToBeMerged1Side2), () -> lineToBeMerged1.getCurrentLimits(lineToBeMerged1Side2));
 
         // get lineToBeMerged2 limits
         TwoSides lineToBeMerged2Side2 = newLineSide2;
         TwoSides lineToBeMerged2Side1 = newLineSide2 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        LoadingLimitsBags limitsLineToBeMerged2Side1 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(lineToBeMerged2Side1), () -> lineToBeMerged2.getApparentPowerLimits(lineToBeMerged2Side1), () -> lineToBeMerged2.getCurrentLimits(lineToBeMerged2Side1));
-        LoadingLimitsBags limitsLineToBeMerged2Side2 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(lineToBeMerged2Side2), () -> lineToBeMerged2.getApparentPowerLimits(lineToBeMerged2Side2), () -> lineToBeMerged2.getCurrentLimits(lineToBeMerged2Side2));
+        LoadingLimitsBags limitsLineToBeMerged2Side1 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(lineToBeMerged2Side1),
+            () -> lineToBeMerged2.getApparentPowerLimits(lineToBeMerged2Side1), () -> lineToBeMerged2.getCurrentLimits(lineToBeMerged2Side1));
+        LoadingLimitsBags limitsLineToBeMerged2Side2 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(lineToBeMerged2Side2),
+            () -> lineToBeMerged2.getApparentPowerLimits(lineToBeMerged2Side2), () -> lineToBeMerged2.getCurrentLimits(lineToBeMerged2Side2));
 
         // Remove the three existing lines
         lineToBeMerged1.remove();

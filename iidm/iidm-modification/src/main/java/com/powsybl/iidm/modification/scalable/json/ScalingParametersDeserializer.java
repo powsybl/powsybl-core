@@ -50,6 +50,11 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     parser.nextToken();
                     parameters.setScalingConvention(JsonUtil.readValue(context, parser, Scalable.ScalingConvention.class));
                 }
+                case "scalingType" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: scalingType", version, "1.3");
+                    parser.nextToken();
+                    parameters.setScalingType(JsonUtil.readValue(context, parser, ScalingParameters.ScalingType.class));
+                }
                 case "constantPowerFactor" -> {
                     parser.nextToken();
                     parameters.setConstantPowerFactor(parser.readValueAs(Boolean.class));

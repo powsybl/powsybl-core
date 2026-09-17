@@ -10,8 +10,9 @@ package com.powsybl.ucte.converter;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.ucte.network.UcteCountryCode;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu BAGUE {@literal <mathieu.bague at rte-france.com>}

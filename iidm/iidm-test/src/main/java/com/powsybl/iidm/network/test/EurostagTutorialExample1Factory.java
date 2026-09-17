@@ -650,6 +650,54 @@ public final class EurostagTutorialExample1Factory {
     }
 
     /**
+     * On {@link #NHV1_NHV2_1} a line, side 2
+     * <pre>
+     *      activated_2_1 (HIGH)    activated_2_2 (LOW)
+     *      |                       ---- IT5 1200 (300s)
+     *      | ---- IT10 1000 (600s)
+     *      |                       ---- IT10 900 (600s)
+     *      | ---- ITP 600
+     *      |                       ---- IT40 500 (2400s)
+     * </pre>
+     */
+    public static Network createWithHighAndLowCurrentLimits() {
+        Network network = create(NetworkFactory.findDefault());
+        Line line = network.getLine(NHV1_NHV2_1);
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
+            .setPermanentLimit(600)
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(1000)
+            .endTemporaryLimit()
+            .add();
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO).newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(60 * 40)
+            .setValue(500)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(900)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("5'")
+            .setAcceptableDuration(60 * 5)
+            .setValue(1200)
+            .endTemporaryLimit()
+            .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
+
+        return network;
+    }
+
+    /**
      * Selected limits:
      * On {@link #NGEN_V2_NHV1}, a three-winding transformer, side 3 (also has a {@link #NOT_ACTIVATED} group)
      * <pre>

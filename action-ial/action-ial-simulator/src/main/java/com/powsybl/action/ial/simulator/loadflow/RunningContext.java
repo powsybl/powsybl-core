@@ -7,8 +7,8 @@
  */
 package com.powsybl.action.ial.simulator.loadflow;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

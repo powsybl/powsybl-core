@@ -28,7 +28,7 @@ class BusbarSectionUpdateTest {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml");
         assertEquals(1, network.getBusbarSectionCount());
 
-        assertEq(network);
+        assertEq(network, "2024-02-21T11:00Z");
     }
 
     @Test
@@ -36,28 +36,28 @@ class BusbarSectionUpdateTest {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
         // BusbarSections terminals are always considered connected, regardless of their state.
         // Therefore, fictitious switches used in other equipment to simulate disconnected terminals are not created.
-        assertEq(network);
+        assertEq(network, "2024-02-21T12:00Z");
     }
 
     @Test
     void importEqAndSshTest() {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml");
         assertEquals(1, network.getBusbarSectionCount());
-        assertEq(network);
+        assertEq(network, "2024-02-21T11:00Z");
 
         readCgmesResources(network, DIR, "busbarSection_SSH.xml");
-        assertEq(network);
+        assertEq(network, "2024-02-21T12:00Z");
     }
 
     @Test
     void usePreviousValuesTest() {
         Network network = readCgmesResources(DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
-        assertEq(network);
+        assertEq(network, "2024-02-21T12:00Z");
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
-        assertEq(network);
+        assertEq(network, "2024-02-21T11:00Z");
     }
 
     @Test
@@ -79,10 +79,11 @@ class BusbarSectionUpdateTest {
         assertEquals(expected, network.getBusbarSectionStream().allMatch(busbarSection -> busbarSection.getAliases().isEmpty()));
     }
 
-    private static void assertEq(Network network) {
+    private static void assertEq(Network network, String scenarioTime) {
         BusbarSection busbarSection = network.getBusbarSection("BusbarSection");
         assertNotNull(busbarSection);
         assertNotNull(busbarSection.getTerminal());
         assertTrue(busbarSection.getTerminal().isConnected());
+        assertEquals(scenarioTime, network.getCaseDate().toString());
     }
 }

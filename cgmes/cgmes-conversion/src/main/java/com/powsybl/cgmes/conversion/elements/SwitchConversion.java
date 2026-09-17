@@ -8,14 +8,13 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 

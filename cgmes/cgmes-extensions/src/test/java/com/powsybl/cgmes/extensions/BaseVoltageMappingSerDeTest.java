@@ -53,29 +53,31 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
                 .addBaseVoltage("id_380", 380, Source.BOUNDARY)
                 .add();
 
-        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
-            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
-            // When Export (with anonymized option)
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
-            // Then check anonymized id != original ids
-            String anonymizedId400 = anonymizer.anonymizeString("id_400");
-            String anonymizedId380 = anonymizer.anonymizeString("id_380");
-            assertNotEquals("id_400", anonymizedId400);
-            assertNotEquals("id_380", anonymizedId380);
-            // Then check xml content (contain only anonymized id)
-            String xmlContent = os.toString(StandardCharsets.UTF_8);
-            assertTrue(xmlContent.contains("id=\"" + anonymizedId400 + "\""));
-            assertTrue(xmlContent.contains("id=\"" + anonymizedId380 + "\""));
-            assertFalse(xmlContent.contains("id=\"id_400\""));
-            assertFalse(xmlContent.contains("id=\"id_380\""));
-            // Then check import without anonymizer
-            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            assertWhenImport(importedNetwork1, anonymizedId400, anonymizedId380);
-            // Then check import with anonymizer
-            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
-            assertWhenImport(importedNetwork2, "id_400", "id_380");
-        });
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> testAnonymizedBaseVoltageIdsWhenExported(version, network));
+    }
+
+    private void testAnonymizedBaseVoltageIdsWhenExported(IidmVersion version, Network network) {
+        ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+        // When Export (with anonymized option)
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+        // Then check anonymized id != original ids
+        String anonymizedId400 = anonymizer.anonymizeString("id_400");
+        String anonymizedId380 = anonymizer.anonymizeString("id_380");
+        assertNotEquals("id_400", anonymizedId400);
+        assertNotEquals("id_380", anonymizedId380);
+        // Then check xml content (contain only anonymized id)
+        String xmlContent = os.toString(StandardCharsets.UTF_8);
+        assertTrue(xmlContent.contains("id=\"" + anonymizedId400 + "\""));
+        assertTrue(xmlContent.contains("id=\"" + anonymizedId380 + "\""));
+        assertFalse(xmlContent.contains("id=\"id_400\""));
+        assertFalse(xmlContent.contains("id=\"id_380\""));
+        // Then check import without anonymizer
+        Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+        assertWhenImport(importedNetwork1, anonymizedId400, anonymizedId380);
+        // Then check import with anonymizer
+        Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+        assertWhenImport(importedNetwork2, "id_400", "id_380");
     }
 
     private void assertWhenImport(Network importedNetwork, String expectedId400, String expectedId380) {

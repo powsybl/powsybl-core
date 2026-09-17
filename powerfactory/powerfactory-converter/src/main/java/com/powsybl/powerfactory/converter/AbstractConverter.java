@@ -7,8 +7,11 @@
  */
 package com.powsybl.powerfactory.converter;
 
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -76,6 +79,12 @@ public abstract class AbstractConverter {
             .add();
     }
 
+    void mapConnectedObj(VoltageLevel vl, int node, int busIndexIn, DataObject staCubic, DataObject connectedObj) {
+        importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
+                .add(new NodeRef(vl.getId(), node, busIndexIn));
+        importContext.staCubicToConnectedObj.put(staCubic, new ConnectedObjRef(connectedObj, busIndexIn));
+    }
+
     Optional<NodeRef> findNodeFromElmTerm(DataObject elmTerm) {
         return Optional.ofNullable(importContext.elmTermIdToNode.get(elmTerm.getId()));
     }
@@ -102,6 +111,33 @@ public abstract class AbstractConverter {
         return nodeRefs;
     }
 
+    static Terminal findTerminalNode(Network network, String voltageLevelId, int node) {
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        return voltageLevel != null ? findTerminalNode(voltageLevel, node) : null;
+    }
+
+    static Terminal findTerminalNode(VoltageLevel voltageLevel, int node) {
+        return voltageLevel.getNodeBreakerView().getOptionalTerminal(node)
+                .orElseGet(() -> Networks.getEquivalentTerminal(voltageLevel, node));
+    }
+
+    Terminal findConnectableTerminal(Network network, DataObject staCubic) {
+        ConnectedObjRef connectedObjRef = importContext.staCubicToConnectedObj.get(staCubic);
+        if (connectedObjRef == null) {
+            return null;
+        }
+        Connectable<?> connectable = network.getConnectable(connectedObjRef.connectedObject().getLocName());
+        if (connectable == null) {
+            return null;
+        }
+        List<? extends Terminal> terminals = connectable.getTerminals();
+        int index = connectedObjRef.busIndexIn();
+        if (index < 0 || index >= terminals.size()) {
+            return null;
+        }
+        return terminals.get(index);
+    }
+
     static class NodeRef {
 
         final String voltageLevelId;
@@ -120,6 +156,9 @@ public abstract class AbstractConverter {
                     ", node=" + node +
                     ')';
         }
+    }
+
+    record ConnectedObjRef(DataObject connectedObject, int busIndexIn) {
     }
 
     static Double float2Double(Float f) {

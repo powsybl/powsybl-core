@@ -127,7 +127,7 @@ public abstract class AbstractTieLineTest {
         BoundaryLine boundaryLine2 = tieLine.getBoundaryLine2();
 
         // Check notification on BoundaryLine changes
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
         // Apply changes on boundary lines
