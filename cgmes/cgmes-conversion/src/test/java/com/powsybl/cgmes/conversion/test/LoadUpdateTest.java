@@ -7,20 +7,15 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class LoadUpdateTest {
+class LoadUpdateTest extends AbstractSerDeTest {
 
     private static final String DIR = "/update/load/";
 
@@ -109,7 +104,7 @@ class LoadUpdateTest {
     }
 
     @Test
-    void asynchronousMachineSetpointsRoundTripTest() throws IOException {
+    void asynchronousMachineSetpointsRoundTripTest() {
         Network network = readCgmesResources("/update/load/", "load_EQ.xml", "load_SSH.xml");
 
         Load asynchronousMachine = network.getLoad("AsynchronousMachine");
@@ -127,24 +122,21 @@ class LoadUpdateTest {
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
 
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            String baseName = "async";
-            network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+        String baseName = "async";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
 
-            asynchronousMachine.setP0(0.0).setQ0(0.0);
-            energyConsumer.setP0(0.0).setQ0(0.0);
+        asynchronousMachine.setP0(0.0).setQ0(0.0);
+        energyConsumer.setP0(0.0).setQ0(0.0);
 
-            Properties importParameters = new Properties();
-            importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
-            network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+        Properties importParameters = new Properties();
+        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
-            assertEquals(200.5, asynchronousMachine.getP0(), 1e-7);
-            assertEquals(50.5, asynchronousMachine.getQ0(), 1e-7);
+        assertEquals(200.5, asynchronousMachine.getP0(), 1e-7);
+        assertEquals(50.5, asynchronousMachine.getQ0(), 1e-7);
 
-            assertEquals(10.5, energyConsumer.getP0(), 1e-7);
-            assertEquals(5.5, energyConsumer.getQ0(), 1e-7);
-        }
+        assertEquals(10.5, energyConsumer.getP0(), 1e-7);
+        assertEquals(5.5, energyConsumer.getQ0(), 1e-7);
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
