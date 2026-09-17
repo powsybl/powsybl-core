@@ -3,21 +3,20 @@
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
 into its UCTE-DEF equivalent and written to a file using the [`SECOND`](format_specification.md) format version.
 
-The export fails with a `UcteException` if the network contains any of the following elements, which have no UCTE-DEF
-equivalent: shunt compensators, static VAR compensators, batteries, LCC or VSC converter stations, HVDC lines, or
-three-winding transformers.
+**Supported equipments**: The export fails with a `UcteException` if the network contains any of the following elements,
+which have no UCTE-DEF equivalent: shunt compensators, static VAR compensators, batteries, LCC or VSC converter
+stations, HVDC lines, or three-winding transformers.
 
 ## Limitations
 
-**Follows UCTE-DEF import**: Note that updated export is available, that is, export is possible if the file was imported
-with the same format. For instance, if you import a UCTE-DEF file in powsybl, you can update some elements and then
-export it back to UCTE-DEF format, but you cannot export to UCTE-DEF format a file imported from another format.
+**Follows UCTE-DEF import**: Export is possible if the file was imported with the same format. For instance, if you
+import a UCTE-DEF file in powsybl, you can update some elements and then export it back to UCTE-DEF format, but you
+cannot export to UCTE-DEF format a file imported from another format.
 
-**Sum of loads and generators**: If the bus has one or several [loads](../../grid_model/network_subnetwork.md#load),
-their active and reactive powers are summed to initialize the node's active and reactive load. If the bus has one or
-several [generators](../../grid_model/network_subnetwork.md#generator), their active and reactive target powers are
-summed to initialize the node's active and reactive power generation, and their minimum/maximum active and reactive
-power limits are used to initialize the node's permissible power generation range.
+**At most one load and one generator per bus**: The export fails with a `UcteException` if a bus has more than one
+[load](../../grid_model/network_subnetwork.md#load) or more than one [generator](../../grid_model/network_subnetwork.md#generator)
+connected to it. See [node conversion](#node-conversion) below for how the node's load and generation attributes are
+sourced from the load and the generator.
 
 ## Options
 
@@ -48,23 +47,46 @@ Its default value is `false`.
 ### Node conversion
 
 Every bus of the network's [bus/breaker view](../../grid_model/network_subnetwork.md#voltage-level) is converted into a
-UCTE node, using the naming strategy to compute its UCTE node code.
+UCTE node, using the naming strategy to compute its UCTE node code. The export fails with a `UcteException` if more than
+one load, or more than one generator, is connected to the bus.
 
-**Node status**: Derived from the bus "fictitiousness". Follows the convention for node status in UCTE-DEF 
-specification: 
-- 0 = Real node
-- 1 = Equivalent node
+The table below maps every UCTE-DEF node attribute to its source in IIDM. Unless stated otherwise, an attribute with no
+IIDM source is left undefined in the exported node.
 
-**Node type**: Derived from the bus behavior and follows the node type convention in UCTE-DEF 
-specification:
-- 0 = P and Q constant (PQ node);
-- 1 = Q and θ constant,
-- 2 = P and U constant (PU node),
-- 3 = U and θ constant (global slack node, only one in the whole network))
+| UCTE-DEF attribute                                   | Source in IIDM                                                                       | Computation                                                                                                                                                                                                                                               |
+|------------------------------------------------------|--------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Node code                                            | Bus                                                                                  | Computed by the [naming strategy](#options).                                                                                                                                                                                                              |
+| Geographical name                                    | Bus `geographicalName` property                                                      | Used as-is.                                                                                                                                                                                                                                               |
+| Node status                                          | Bus fictitiousness                                                                   | `0` (real node) if the bus is not fictitious, `1` (equivalent node) otherwise, following the [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s node status convention. |
+| Node type                                            | Connected generator's voltage regulation; whether the bus is the network's slack bus | Derived from the connected generator's voltage regulation and whether the bus is the network's slack bus. Further information in [Node type](#node-type).                                                                                                 |
+| Voltage reference (kV)                               | Connected generator's target voltage (`targetV`)                                     | Used as-is; left undefined if there is no generator, or its `targetV` is undefined.                                                                                                                                                                       |
+| Active load (MW)                                     | Connected load's `P0`                                                                | Used as-is; `0` if there is no load.                                                                                                                                                                                                                      |
+| Reactive load (MVar)                                 | Connected load's `Q0`                                                                | Used as-is; `0` if there is no load.                                                                                                                                                                                                                      |
+| Active power generation (MW)                         | Connected generator's target active power (`targetP`)                                | Opposite of `targetP` (UCTE-DEF convention: generation is negative); `0` if there is no generator, or its `targetP` is undefined.                                                                                                                         |
+| Reactive power generation (MVar)                     | Connected generator's target reactive power (`targetQ`)                              | Opposite of `targetQ`; `0` if there is no generator, or its `targetQ` is undefined.                                                                                                                                                                       |
+| Minimum permissible active power generation (MW)     | Connected generator's `minP`                                                         | Opposite of `minP`; left undefined if `minP` is equal to `-9999` MW (the exporter's sentinel value for "undefined").                                                                                                                                      |
+| Maximum permissible active power generation (MW)     | Connected generator's `maxP`                                                         | Opposite of `maxP`; left undefined if `maxP` is equal to `9999` MW.                                                                                                                                                                                       |
+| Minimum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the minimum reactive limit; left undefined if it is equal to `-9999` MVar.                                                                                                                                                                    |
+| Maximum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the maximum reactive limit; left undefined if it is equal to `9999` MVar.                                                                                                                                                                     |
+| Static of primary control (%)                        | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
+| Nominal power for primary control (MW)               | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
+| Three-phase short-circuit power (MVA)                | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
+| X/R ratio                                            | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
+| Power plant type                                     | Connected generator's `powerPlantType` property, or its energy source                | Derived from the connected generator's `powerPlantType` property or its energy source. Further information in [Power plant type](#power-plant-type).                                                                                                      |
 
-The energy source of the generator is converted to a UCTE power plant type according to the following table, unless the
-generator has a `powerPlantType` property (typically set at import time), in which case this property's value is used
-directly:
+#### Node type
+
+The node type is `0` (PQ node) by default. It is set to `2` (PU node) if the bus has a connected generator with voltage
+regulation on. It is set to `3` (global slack node) if the bus is the network's
+[slack bus](../../grid_model/extensions.md#slack-terminal), which takes precedence over the PU case. `1` (Q and θ
+constant) is never produced by the export. See the
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)
+for the full node type convention.
+
+#### Power plant type
+
+The `powerPlantType` property of the connected generator (typically set at import time) is used if present; otherwise,
+the energy source of the generator is converted to a UCTE power plant type according to the following table:
 
 | IIDM Energy source | UCTE Power plant type |
 |:------------------:|:---------------------:|
@@ -74,7 +96,8 @@ directly:
 |        Wind        |           W           |
 |   Other sources    |           F           |
 
-Follows the convention for power plant types in UCTE-DEF specification:
+Follows the convention for power plant types in the
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf):
 - H: hydro
 - N: nuclear
 - L: lignite
@@ -86,54 +109,118 @@ Follows the convention for power plant types in UCTE-DEF specification:
 
 ### Line conversion
 
-#### Busbar coupler conversion
+Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) (as a busbar coupler), [line](../../grid_model/network_subnetwork.md#line),
+unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line), and [tie line](../../grid_model/network_subnetwork.md#tie-line)
+of the network is converted into one or more UCTE lines, using the naming strategy to compute each line's node codes and
+order code. A boundary line or a tie line additionally creates an [X-node](#x-nodes).
 
-Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) of the network's bus/breaker view is converted into
-a UCTE busbar coupler (a UCTE line with resistance, reactance and susceptance set to `0`). Its status is derived from
-the open/closed state of the original switch and follows the convention in UCTE-DEF specification:
-- 2: busbar coupler _IN_ operation (closed)
-- 7: busbar coupler _OUT_ of operation (open) 
+The table below maps every UCTE-DEF line attribute to its source in IIDM. Unless stated otherwise, an attribute with no
+IIDM source is left undefined in the exported line.
 
-If the switch has a `currentLimit` property that can be parsed as an integer, it is used as the current limit of the
-coupler. Otherwise, no current limit is set, and a warning is [reported](#reporting).
+| UCTE-DEF attribute               | Source in IIDM                                                                                                         | Computation                                                                                                                         |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| Node codes (1, 2) and order code | Id of the switch, line, or boundary line (each side's boundary line id, for a tie line)                                | Computed by the [naming strategy](#options) from the element's id.                                                                  |
+| Status                           | Switch open/closed state; branch/boundary line fictitiousness and connection state; boundary line `isCoupler` property | See [Line status](#line-status) below.                                                                                              |
+| Resistance R (Ω)                 | Line's/boundary line's `r`                                                                                             | Used as-is; `0` for a busbar coupler (switch).                                                                                      |
+| Reactance X (Ω)                  | Line's/boundary line's `x`                                                                                             | Used as-is; `0` for a busbar coupler (switch).                                                                                      |
+| Susceptance B (μS)               | Line's `b1`/`b2`; boundary line's `b`                                                                                  | `0` for a busbar coupler (switch); sum of `b1` and `b2` for a line; the boundary line's `b` for a boundary line or a tie line side. |
+| Current limit I (A)              | Switch's `currentLimit` property; line's/transformer's/boundary line's permanent current limit(s)                      | See [Current limit](#current-limit) below.                                                                                          |
+| Element name                     | `elementName` property                                                                                                 | Used as-is; left undefined if the property is absent.                                                                               |
 
-#### Boundary line conversion
+#### Line status
 
-Every unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line) of the network is converted into an
-X-node and a UCTE line connecting it to the corresponding real node. The status of the X-node is `EQUIVALENT` if the
-boundary line's `status_XNode` property is set to `EQUIVALENT`, `REAL` otherwise. The X-node's active and reactive load
-are set from the boundary line's `P0` and `Q0`. If the boundary line's generation part regulates voltage, the X-node
-type is set to `PU` and its voltage reference and permissible power generation range are set from the generation part,
-otherwise its active and reactive power generation are set from the generation part's target powers. See
-[node conversion](#node-conversion) above for the corresponding raw codes.
+The status follows the
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s
+convention for element status:
+- `0`: real element in operation
+- `8`: real element out of operation
+- `1`: equivalent element in operation
+- `9`: equivalent element out of operation
+- `2`: busbar coupler in operation
+- `7`: busbar coupler out of operation
 
-The UCTE line is created with the boundary line's resistance, reactance, susceptance and permanent current limit (if
-defined).
+It is derived as follows:
+- **Switch**: `2` if closed, `7` if open.
+- **Line**, **two-winding transformer**, and each side of a **tie line**: `0`/`8` (real) if not fictitious, `1`/`9`
+  (equivalent) if fictitious; the `_IN_OPERATION` variant if the branch's two terminals (or the tie line side's single
+  terminal) are connected, the `_OUT_OF_OPERATION` variant otherwise.
+- **Boundary line**: if its `isCoupler` property is `true`, it is exported as a busbar coupler, `2` if its terminal is
+  connected, `7` otherwise; if not, it follows the same real/equivalent convention as a line, based on its
+  fictitiousness and terminal connection state.
 
-#### Line conversion
+#### Current limit
 
-Every [line](../../grid_model/network_subnetwork.md#line) of the network is converted into a UCTE line, with the same
-resistance and reactance, and a susceptance equal to the sum of the line's `B1` and `B2`. If a permanent current limit
-is defined on both sides of the line, the smaller of the two is used; otherwise, the one that is defined is used, if
-any.
+- **Switch**: taken from the `currentLimit` property if it can be parsed as an integer; otherwise left undefined, and a
+  warning is [reported](#reporting).
+- **Line** and **two-winding transformer**: if a permanent current limit is defined on both sides, the smaller of the
+  two is used; otherwise, the one that is defined is used, if any; left undefined if neither side has one.
+- **Boundary line** (and each side of a tie line): the boundary line's own permanent current limit, if defined; left
+  undefined otherwise.
 
-#### Tie line conversion
+#### X-nodes
 
-Every [tie line](../../grid_model/network_subnetwork.md#tie-line) of the network is converted into an X-node and two
-UCTE lines, one for each side, using the same rules as for a standalone boundary line above. The X-node's geographical
-name and status are derived from the corresponding property of the two boundary lines composing the tie line: if both
-sides agree, that value is used; if only one side has a value, that value is used; if the two sides disagree, the
-property is left empty on the X-node.
+An unpaired boundary line is converted into an X-node and a UCTE line connecting it to the corresponding real node. A
+tie line is converted into an X-node and two UCTE lines, one for each side, using the same rules as for a standalone
+boundary line.
+
+The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following
+the same conventions as [node conversion](#node-conversion) above.
+
+| UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                       |
+|--------------------------------------------------------|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Node code                                              | Boundary line's pairing key, or id if it has none (tie line: pairing key) | Computed by the [naming strategy](#options).                                                                                                                                      |
+| Geographical name                                      | Boundary line's `geographicalName` property                               | Used as-is; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                     |
+| Node status                                            | Boundary line's `status_XNode` property                                   | `EQUIVALENT` if set to `EQUIVALENT`, `REAL` otherwise; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                          |
+| Node type                                              | Unpaired boundary line's generation part voltage regulation               | `PU` if the generation part regulates voltage, `PQ` otherwise; always `PQ` for a tie line's X-node.                                                                               |
+| Voltage reference (kV)                                 | Unpaired boundary line's generation part target voltage                   | Used as-is, only if the generation part regulates voltage; left undefined otherwise, and always for a tie line's X-node.                                                          |
+| Active load (MW)                                       | Unpaired boundary line's `P0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                          |
+| Reactive load (MVar)                                   | Unpaired boundary line's `Q0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                          |
+| Active power generation (MW)                           | Unpaired boundary line's generation part target active power              | Opposite sign; `0` if undefined, or for a tie line's X-node.                                                                                                                      |
+| Reactive power generation (MVar)                       | Unpaired boundary line's generation part target reactive power            | Opposite sign; `0` if undefined, or for a tie line's X-node.                                                                                                                      |
+| Min./max. permissible active/reactive power generation | Unpaired boundary line's generation part min/max limits                   | Same sign and sentinel-based undefined rules as [node conversion](#node-conversion); only set if the generation part regulates voltage; always undefined for a tie line's X-node. |
+| Static of primary control (%)                          | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
+| Nominal power for primary control (MW)                 | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
+| Three-phase short-circuit power (MVA)                  | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
+| X/R ratio                                              | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
+| Power plant type                                       | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
+
+#### Tie line properties
+
+A tie line originating from 2 boundary lines, there can be inconsistencies for the geographical name and the node
+status.
+
+- If both boundary lines have the same `geographicalName`, this value is used as the exported tie line geographical name
+- If one of the boundary lines has an empty `geographicalName`, the other boundary line's value is used.
+- If both boundary lines have different `geographicalName` values, the exported tie line geographical name remains empty
+
+The same logic is used for node status (sourced from boundary lines `status_XNode` properties).
 
 ### Two-winding transformer conversion
 
 Every [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer) of the network is
 converted into a UCTE transformer.
 
-The nominal power is taken from the transformer's `nomimalPower` property.
+The table below maps every UCTE-DEF transformer attribute to its source in IIDM.
 
-If a permanent current limit is defined on both sides of the transformer, the smaller of the two is used; otherwise, the
-one that is defined is used, if any.
+| UCTE-DEF attribute                          | Source in IIDM                                       | Computation                                                                                             |
+|---------------------------------------------|------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| Node codes (1, 2) and order code            | Transformer id                                      | Computed by the [naming strategy](#options) from the transformer's id.                                 |
+| Status                                      | Transformer fictitiousness and connection state     | See [Line status](#line-status).                                                                       |
+| Resistance R (Ω)                            | Transformer's `r`                                   | Used as-is.                                                                                             |
+| Reactance X (Ω)                             | Transformer's `x`                                   | Used as-is.                                                                                             |
+| Susceptance B (μS)                          | Transformer's `b`                                   | Used as-is.                                                                                             |
+| Current limit I (A)                         | Transformer's permanent current limits (both sides) | See [Current limit](#current-limit).                                                                    |
+| Element name                                 | `elementName` property                              | Used as-is; left undefined if the property is absent.                                                   |
+| Rated voltage 1 (kV, non-regulated winding) | Transformer's `ratedU2`                             | Used as-is; swapped with rated voltage 2, see [Rated voltages](#rated-voltages).                        |
+| Rated voltage 2 (kV, regulated winding)     | Transformer's `ratedU1`                             | Used as-is; swapped with rated voltage 1, see [Rated voltages](#rated-voltages).                        |
+| Nominal power (MVA)                         | `nomimalPower` property                             | Parsed as a double; left undefined if the property is absent, and a warning is [reported](#reporting).  |
+| Conductance G (μS)                          | Transformer's `g`                                   | Used as-is.                                                                                              |
+
+#### Rated voltages
+
+Because UCTE-DEF has the regulated winding on side 2, while IIDM has it on side 1, the rated voltages are swapped on
+export: the UCTE transformer's rated voltage 1 (non-regulated winding) is the transformer's `ratedU2`, and its rated
+voltage 2 (regulated winding) is its `ratedU1`.
 
 If the transformer has a ratio and/or a phase tap changer, a regulation is exported.
 
@@ -167,8 +254,9 @@ $$
   option is enabled and the transformer also has a ratio tap changer, the computed δu (%) is divided by the ρ of the 
   ratio tap changer's current step.
 
-**Note:** the sign of α is inverted in both cases, because the phase tap changer is on side 2 in UCTE-DEF, and on side 1
-in IIDM.
+**Note:** the sign of α is inverted in both cases, because the phase tap changer is on side 2 in the
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf),
+and on side 1 in IIDM.
 
 ## Reporting
 
@@ -176,6 +264,6 @@ When a [ReportNode](../../user/functional_logs/index.md) is provided to the expo
 conversion step (buses and switches, boundary lines, lines, tie lines, transformers) and per exported file, and the
 following situations are reported with a `WARN` severity:
 
-- a switch has no usable `currentLimit` property (see [busbar coupler conversion](#busbar-coupler-conversion)),
+- a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
 - a two-winding transformer has no usable nominal power
   (see [two-winding transformer conversion](#two-winding-transformer-conversion)).
