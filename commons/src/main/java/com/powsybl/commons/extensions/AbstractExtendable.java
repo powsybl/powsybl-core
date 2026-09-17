@@ -84,6 +84,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return extensionsByName.values();
     }
 
+    @Override
     public Stream<Extension<T>> getExtensionsStream() {
         if (extensionsByName == null) {
             return Stream.empty();
