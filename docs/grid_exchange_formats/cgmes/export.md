@@ -13,7 +13,8 @@ If you need complete control over the exported files in a CGM scenario, you may 
 Please note that when exporting equipment, PowSyBl always uses the CGMES node/breaker level of detail, without considering the topology
 level of the PowSyBl network.
 
-The user can specify the profiles to be exported using the parameter **iidm.export.cgmes.profiles**. The list of currently supported export instance files are: EQ, SSH, SV, TP.
+The user can specify the profiles to be exported using the parameter **iidm.export.cgmes.profiles**. The list of currently supported export instance files are: EQ, SSH, SV, TP, GL.
+The GL (Geographical Location) instance file is not part of the default export, it has to be requested explicitly. It is built from the [SubstationPosition](../../grid_model/extensions.md#substation-position) and [LinePosition](../../grid_model/extensions.md#line-position) extensions: substations and lines without these extensions are skipped, a warning being logged for each of them.
 
 If the IIDM network has at least one voltage level with node/breaker topology level, and the SSH or SV is requested in the export, and the TP is not requested, an error will be logged, as there could be missing references in the SSH, SV files to Topological Nodes calculated automatically by IIDM that are not present in the output.
 
@@ -584,8 +585,8 @@ a `NamingStrategyProvider` that can be automatically discovered. Then in this pa
 Optional property related to the naming strategy specified in `iidm.export.cgmes.naming-strategy`. When new CGMES IDs have to be generated, a mechanism that ensures creation of new, stable identifiers based on IIDM IDs is used (see [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122)). These new IDs are guaranteed to be unique inside a namespace given by this UUID. By default, it is the name-based UUID fo the text "powsybl.org" in the empty namespace.
 
 **iidm.export.cgmes.profiles**<br>
-Optional property that determines which instance files will be exported.
-By default, it is a full CGMES export: the instance files for the profiles EQ, TP, SSH and SV are exported.
+Optional property that determines which instance files will be exported. Allowed values are: `EQ`, `TP`, `SSH`, `SV` and `GL`.
+By default, it is a full CGMES export: the instance files for the profiles EQ, TP, SSH and SV are exported. The GL profile is never exported unless explicitly requested.
 
 **iidm.export.cgmes.topology-kind**<br>
 Optional property that defines the topology kind of the export. Allowed values are: `NODE_BREAKER` and `BUS_BRANCH`.
