@@ -333,7 +333,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
             .endTemporaryLimit()
             .add();
         line.setSelectedOperationalLimitsGroup1("low limit to high limit");
-        allFormatsRoundTripFromMinToMaxVersionTest(network, "eurostag-tutorial-export_low_as_high.xml", IidmVersion.V_1_5, IidmVersion.V_1_18);
+        allFormatsRoundTripFromMinToMaxVersionTest(network, "eurostag-tutorial-export_low_as_high.xml", IidmVersion.V_1_0, IidmVersion.V_1_18);
     }
 
     @Test
@@ -361,7 +361,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
             .add();
         line.setSelectedOperationalLimitsGroup1("low limit to high limit");
         ExportOptions options = new ExportOptions().setSorted(true);
-        testForAllVersionsBetween(IidmVersion.V_1_5, IidmVersion.V_1_17, version -> {
+        testForAllVersionsBetween(IidmVersion.V_1_0, IidmVersion.V_1_17, version -> {
                 try {
                     allFormatsRoundTripTest(network, "eurostag-tutorial-export_low_as_high_sorted.xml", version, options);
                 } catch (IOException e) {
