@@ -8,7 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <svg
    width="1050.5425"
-   height="398.5"
+   height="470"
    version="1.1"
    id="svg119"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,7 +23,7 @@ text {font-size:13.75px;font-family:sans-serif;fill:#000000}
 ]]></style>
   <g
      id="g117"
-     transform="translate(-4.0434503,-89.5)">
+     transform="translate(-4.0434503,-23.5)">
     <text
        x="4.2694869"
        y="171.99632"
@@ -89,6 +89,11 @@ text {font-size:13.75px;font-family:sans-serif;fill:#000000}
        class="arrow"
        d="m 596.80902,128.41448 5,-10 5,10 z"
        id="path87-6"
+       style="fill:#000000;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter" />
+    <path
+       class="arrow"
+       d="m 605.34586,58.086848 10.00787,4.984226 -9.99211,5.015761 z"
+       id="path87-6-1"
        style="fill:#000000;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter" />
     <path
        class="line"
@@ -173,7 +178,7 @@ text {font-size:13.75px;font-family:sans-serif;fill:#000000}
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
        d="m 491.89522,409.37948 92.3197,-0.12752"
-       id="path39227"/>
+       id="path39227" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:13.3333px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none"
@@ -184,5 +189,35 @@ text {font-size:13.75px;font-family:sans-serif;fill:#000000}
          x="493.29727"
          y="429.75937"
          style="font-size:13.3333px">same value</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:3.20125984;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 605.14388,63.05483 H 423.75086"
+       id="path19588" />
+    <text
+       xml:space="preserve"
+       transform="translate(79.523852,-110.37297)"
+       id="text37478"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect37480);fill:#000000;fill-opacity:1;stroke:none"><tspan
+         x="393.4043"
+         y="165.58984"
+         id="tspan41833"><tspan
+           style="font-size:16px"
+           id="tspan41831">Conversion</tspan></tspan></text>
   </g>
+  <text
+     xml:space="preserve"
+     id="text4738"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect4740);fill:#000000;fill-opacity:1;stroke:none"
+     transform="translate(76)"><tspan
+       x="83.890625"
+       y="47.1875"
+       id="tspan41835">Low Limit</tspan></text>
+  <text
+     xml:space="preserve"
+     id="text4738-9"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect4740-2);fill:#000000;fill-opacity:1;stroke:none"
+     transform="translate(610.93073,0.004125)"><tspan
+       x="83.890625"
+       y="47.1875"
+       id="tspan41837">High Limit</tspan></text>
 </svg>
