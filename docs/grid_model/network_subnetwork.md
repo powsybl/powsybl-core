@@ -243,6 +243,7 @@ In the grid model, the following metadata is included for loads:
     - `UNDEFINED`
     - `AUXILIARY`
     - `FICTITIOUS`
+
 By default, it is `UNDEFINED`.
 - The load model, which can be:
     - `ZIP` (or polynomial), following equations:
