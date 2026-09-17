@@ -180,4 +180,22 @@ class ShortCircuitAnalysisTest {
         assertEquals(ThreeSides.ONE, feederResult.getSide());
         assertEquals(TwoSides.ONE, feederResult.getSideAsTwoSides());
     }
+
+    @Test
+    void testFortescueWithEquivalentImpedance() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createFortescueResultWithEquivalentImpedance();
+        FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id1");
+        assertEquals(2.0, faultResult.getEquivalentR());
+        assertEquals(3.0, faultResult.getEquivalentRZero());
+        assertEquals(4.0, faultResult.getEquivalentX());
+        assertEquals(5.0, faultResult.getEquivalentXZero());
+    }
+
+    @Test
+    void testMagnitudeWithEquivalentImpedance() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createMagnitudeResultWithEquivalentImpedance();
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id1");
+        assertEquals(4, faultResult.getEquivalentR());
+        assertEquals(5, faultResult.getEquivalentX());
+    }
 }
