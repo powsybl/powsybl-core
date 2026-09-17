@@ -168,7 +168,19 @@ also have the side where the violation has been detected.
 The pre-contingency results also contain the network results based on given state monitors. A network result groups
 branch results, bus results and three-winding transformer results. All elementary results are fully extendable.
 
+The pre-contingency results may also contain the list of phase shifter results. Each phase shifter result identifies a
+transformer whose tap position has been moved during the security analysis, giving the transformer ID, the initial tap
+position before optimization and the new tap position after optimization.
+
 ### Post-contingency results
+
+The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
+them the violations detected. To limit information to the user, only new violations or worsened violations can be
+listed.
+
+The post-contingency results also contain the network results based on given state monitors. The post-contingency
+results may also contain the list of phase shifter results, available through the `phaseShifterResults` map of each
+`PostContingencyResult`, queried by transformer ID via `getPhaseShifterResult(transformerId)`.
 
 The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
 them the violations detected. To limit information to the user, only new violations or worsened violations can be
@@ -194,6 +206,28 @@ Pre-contingency, post-contingency, and operator strategy results all report the 
   - losses changes,
   - injections (generators, loads, ...) changes by the operator strategy actions, if any, such as disconnections, reconnections, or setpoint modifications.
 
+### Phase Shifter Results
+
+The security analysis can report the tap position changes of phase shifters that have been moved during the
+computation. A `MovedPhaseShifterResult` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase shifter on a three-winding transformer, the initial tap position before optimization
+and the new tap position after optimization. The side is required for three-winding transformers because they can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. For two-winding transformers the side is omitted (`null`). The record is validated on construction: the transformer ID must not be `null`, and the tap position must have actually changed.
+
+These phase shifter results are exposed through the `phaseShifterResults` map, available both in the
+`PreContingencyResult` and in each `PostContingencyResult`. The map key is compound (`transformerId + "_" + side` for 3-winding; just `transformerId` for 2-winding). It can be queried by `getPhaseShifterResult(transformerId)` for two-winding transformers, or `getPhaseShifterResult(transformerId, side)` for three-winding transformers.
+
+When serialized to JSON, the phase shifter results are written as a `phaseShifterResults` array of objects with the
+following fields:
+
+| Field            | Type    | Description                                       |
+|------------------|---------|---------------------------------------------------|
+| `transformerId`  | String  | ID of the phase shifter transformer               |
+| `side`           | String  | Optional side of a three-winding transformer (`ONE`, `TWO`, `THREE`); omitted for two-winding transformers |
+| `initialTap`     | int     | Tap position before optimization                  |
+| `newTap`         | int     | Tap position after optimization                   |
+
+The serialized entries are sorted by `transformerId` for deterministic output. When no phase shifter has been moved,
+the `phaseShifterResults` field is omitted from the JSON output.
+
 ### Extensions
 
 The results of a security analysis are extendable, meaning you can have additional information attached to the network,
@@ -205,7 +239,7 @@ The following example is a result of a security analysis with remedial action, e
 
 ```json
 {
-  "version" : "1.9",
+  "version" : "1.10",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -269,7 +303,12 @@ The following example is a result of a security analysis with remedial action, e
         "i3" : 3.2
       } ]
     },
-    "distributedActivePower" : 1.23
+    "distributedActivePower" : 1.23,
+    "phaseShifterResults" : [ {
+      "transformerId" : "T1",
+      "initialTap" : 2,
+      "newTap" : 4
+    } ]
   },
   "postContingencyResults" : [ {
     "contingency" : {
