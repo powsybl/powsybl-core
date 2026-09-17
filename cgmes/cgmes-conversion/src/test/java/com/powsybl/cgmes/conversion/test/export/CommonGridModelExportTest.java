@@ -36,9 +36,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -724,44 +724,40 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         network.getSubnetwork("Network_BE").write("CGMES", exportParams, tmpDir.resolve(basenameBeEq));
         network.getSubnetwork("Network_NL").write("CGMES", exportParams, tmpDir.resolve(basenameNlEq));
 
-        String beEqXml = Files.readString(tmpDir.resolve(basenameBeEq + "_EQ.xml"));
-        String nlEqXml = Files.readString(tmpDir.resolve(basenameNlEq + "_EQ.xml"));
+        String beEqXml = writeCgmesProfile(network.getSubnetwork("Network_BE"), "EQ", tmpDir, exportParams);
+        String nlEqXml = writeCgmesProfile(network.getSubnetwork("Network_NL"), "EQ", tmpDir, exportParams);
 
         // Each EQ file must contain exactly one NonConformLoadGroup
-        Pattern regexNonConformLoadGroup = Pattern.compile("cim:NonConformLoadGroup rdf:ID=\"(_[^\"]*)\"");
-        Set<String> beLoadGroupIds = getUniqueMatches(beEqXml, regexNonConformLoadGroup);
-        Set<String> nlLoadGroupIds = getUniqueMatches(nlEqXml, regexNonConformLoadGroup);
-        assertEquals(1, beLoadGroupIds.size());
-        assertEquals(1, nlLoadGroupIds.size());
+        Set<String> beLoadGroups = getElements(beEqXml, "NonConformLoadGroup");
+        Set<String> nlLoadGroups = getElements(nlEqXml, "NonConformLoadGroup");
+        assertEquals(1, beLoadGroups.size());
+        assertEquals(1, nlLoadGroups.size());
 
         // Each EQ file must contain one OperationalLimitType for the PATL and two OperationalLimitType for the TATL
-        // CGMES OperationalLimitType IDs have the following shape (from the naming strategy):
-        // "_PATL_OLT_Network_BE" or "_TATL_OLT_Network_BE".
-        //
-        // The ID part of the regex after PATL or TATL, "\"(_[^\"]*)\"", matches:
-        //   "_" -> the literal underscore at the beginning of the ID
-        //   [^"]* -> zero or more characters that are not a double quote,
-        //            allowing us to match the rest of the ID until the closing quote.
-        //
-        // PATL and TATL are matched separately to filter the IDs into their respective lists.
-        String patlRegex = "cim:OperationalLimitType rdf:ID=\"(_PATL_[^\"]*)\"";
-        String tatlRegex = "cim:OperationalLimitType rdf:ID=\"(_TATL_[^\"]*)\"";
+        Set<String> beOpLimitTypes = getElements(beEqXml, "OperationalLimitType");
+        Set<String> bePatlOpLimitTypes = beOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("PATL_"))
+                .collect(Collectors.toSet());
+        Set<String> beTatlOpLimitTypes = beOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("TATL_"))
+                .collect(Collectors.toSet());
+        Set<String> nlOpLimitTypes = getElements(nlEqXml, "OperationalLimitType");
+        Set<String> nlPatlOpLimitTypes = nlOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("PATL_"))
+                .collect(Collectors.toSet());
+        Set<String> nlTatlOpLimitTypes = nlOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("TATL_"))
+                .collect(Collectors.toSet());
 
-        Pattern regexPatlOperationalLimitType = Pattern.compile(patlRegex);
-        Pattern regexTatlOperationalLimitType = Pattern.compile(tatlRegex);
-        Set<String> bePatlOpLimitTypeIds = getUniqueMatches(beEqXml, regexPatlOperationalLimitType);
-        Set<String> beTatlOpLimitTypeIds = getUniqueMatches(beEqXml, regexTatlOperationalLimitType);
-        Set<String> nlPatlOpLimitTypeIds = getUniqueMatches(nlEqXml, regexPatlOperationalLimitType);
-        Set<String> nlTatlOpLimitTypeIds = getUniqueMatches(nlEqXml, regexTatlOperationalLimitType);
-        assertEquals(1, bePatlOpLimitTypeIds.size());
-        assertEquals(2, beTatlOpLimitTypeIds.size());
-        assertEquals(1, nlPatlOpLimitTypeIds.size());
-        assertEquals(2, nlTatlOpLimitTypeIds.size());
+        assertEquals(1, bePatlOpLimitTypes.size());
+        assertEquals(2, beTatlOpLimitTypes.size());
+        assertEquals(1, nlPatlOpLimitTypes.size());
+        assertEquals(2, nlTatlOpLimitTypes.size());
 
         // The LoadGroup IDs and OperationalLimitType IDs must be different between the two IGMs
-        assertTrue(Collections.disjoint(beLoadGroupIds, nlLoadGroupIds));
-        assertTrue(Collections.disjoint(bePatlOpLimitTypeIds, nlPatlOpLimitTypeIds));
-        assertTrue(Collections.disjoint(beTatlOpLimitTypeIds, nlTatlOpLimitTypeIds));
+        assertTrue(Collections.disjoint(beLoadGroups, nlLoadGroups));
+        assertTrue(Collections.disjoint(bePatlOpLimitTypes, nlPatlOpLimitTypes));
+        assertTrue(Collections.disjoint(beTatlOpLimitTypes, nlTatlOpLimitTypes));
     }
 
     private Network networkWithLoadsAndLimits2Subnetworks() {
