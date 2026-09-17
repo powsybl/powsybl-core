@@ -60,7 +60,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS = "iidm.import.only-selected-operational-limits-groups";
 
-    public static final String REPAIR_INVALID_REACTIVE_CURVE_LIMITS = "iidm.import.xml.repair-invalid-reactive-curve-limits";
+    public static final String REPAIR_INVALID_REACTIVE_CURVE_LIMITS = "iidm.import.repair-invalid-reactive-curve-limits";
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
