@@ -426,6 +426,26 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
+    public void testVoltageSourceConverterAdderWithoutVoltageRegulatorOnWithEquipmentValidationLevel() {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        VoltageSourceConverter voltageSourceConverter = createVscAdder(vla)
+                .setId("converterWithDefaultVoltageRegulator")
+                .setBus1(b1a.getId())
+                .setBus2(b2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setDcConnected1(true)
+                .setDcConnected2(true)
+                .setPccTerminal(lineax.getTerminal1())
+                .setReactivePowerSetpoint(0.0)
+                .add();
+
+        assertFalse(voltageSourceConverter.isVoltageRegulatorOn());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
+
+    @Test
     public void testCreateDuplicate() {
         acDcConverterA = createLccA(vla);
 
