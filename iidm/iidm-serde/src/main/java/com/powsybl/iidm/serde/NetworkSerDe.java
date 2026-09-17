@@ -1252,12 +1252,12 @@ public final class NetworkSerDe {
     /**
      * Deep copy of the network using XML converter.
      *
-     * @param network the network to copy
-     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures, has a low impact on performance.
+     * @param network        the network to copy
+     * @param networkFactory the network factory to use for the copy
      * @return the copy of the network
      */
-    public static Network copy(Network network, boolean useConnectableCreationOrder) {
-        return copy(network, NetworkFactory.findDefault(), ForkJoinPool.commonPool(), TreeDataFormat.JSON, useConnectableCreationOrder);
+    public static Network copy(Network network, NetworkFactory networkFactory) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool());
     }
 
     /**
@@ -1265,10 +1265,11 @@ public final class NetworkSerDe {
      *
      * @param network        the network to copy
      * @param networkFactory the network factory to use for the copy
+     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures, has a low impact on performance.
      * @return the copy of the network
      */
-    public static Network copy(Network network, NetworkFactory networkFactory) {
-        return copy(network, networkFactory, ForkJoinPool.commonPool());
+    public static Network copy(Network network, NetworkFactory networkFactory, boolean useConnectableCreationOrder) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), TreeDataFormat.JSON, useConnectableCreationOrder);
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
