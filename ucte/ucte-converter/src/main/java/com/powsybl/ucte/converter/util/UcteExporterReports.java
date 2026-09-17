@@ -22,52 +22,78 @@ public final class UcteExporterReports {
 
     public static ReportNode networkCreation(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.networkCreation")
-                .add();
+                         .withMessageTemplate("core.ucte.export.networkCreation")
+                         .add();
     }
 
     public static ReportNode busesAndSwitches(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.busesAndSwitches")
-                .add();
+                         .withMessageTemplate("core.ucte.export.busesAndSwitches")
+                         .add();
     }
 
     public static ReportNode boundaryLines(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.boundaryLines")
-                .add();
+                         .withMessageTemplate("core.ucte.export.boundaryLines")
+                         .add();
     }
 
     public static ReportNode lines(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.lines")
-                .add();
+                         .withMessageTemplate("core.ucte.export.lines")
+                         .add();
     }
 
     public static ReportNode tieLines(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.tieLines")
-                .add();
+                         .withMessageTemplate("core.ucte.export.tieLines")
+                         .add();
     }
 
     public static ReportNode transformers(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.transformers")
-                .add();
+                         .withMessageTemplate("core.ucte.export.transformers")
+                         .add();
     }
 
     public static void fileWritten(ReportNode reportNode, String fileName) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.fileWritten")
-                .withUntypedValue("fileName", fileName)
-                .add();
+                  .withMessageTemplate("core.ucte.export.fileWritten")
+                  .withUntypedValue("fileName", fileName)
+                  .add();
     }
 
     public static void switchCurrentLimitMissing(ReportNode reportNode, String switchId) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.ucte.export.switchCurrentLimitMissing")
-                .withUntypedValue("switchId", switchId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
+                  .withMessageTemplate("core.ucte.export.switchCurrentLimitMissing")
+                  .withUntypedValue("switchId", switchId)
+                  .withSeverity(TypedValue.WARN_SEVERITY)
+                  .add();
+    }
+
+    public static void tapChangerModelDeviation(ReportNode reportNode, String tapChangerType, String equipmentId) {
+        reportNode.newReportNode()
+                  .withMessageTemplate("core.ucte.tapChangerModelDeviation")
+                  .withUntypedValue("equipmentId", equipmentId)
+                  .withUntypedValue("tapChangerType", tapChangerType)
+                  .withSeverity(TypedValue.WARN_SEVERITY)
+                  .add();
+    }
+
+    public static void tapPositionRangeExtended(ReportNode reportNode,
+                                                String equipmentId,
+                                                String tapChangerType,
+                                                String extendedSide,
+                                                int lowSpan,
+                                                int highSpan) {
+        reportNode.newReportNode()
+                  .withMessageTemplate("core.ucte.tapPositionRangeExtended")
+                  .withUntypedValue("equipmentId", equipmentId)
+                  .withUntypedValue("tapChangerType", tapChangerType)
+                  .withUntypedValue("extendedSide", extendedSide)
+                  .withUntypedValue("lowSpan", lowSpan)
+                  .withUntypedValue("highSpan", highSpan)
+                  .withSeverity(TypedValue.WARN_SEVERITY)
+                  .add();
     }
 }

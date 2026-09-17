@@ -13,13 +13,21 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.ucte.network.UcteElementId;
+import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UctePhaseRegulation;
+import com.powsybl.ucte.network.io.UcteReader;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -260,5 +268,54 @@ class UcteExporterTest extends AbstractSerDeTest {
         parameters.put("ucte.export.combine-phase-angle-regulation", "true");
         Network network = loadNetworkFromResourceFile("/expectedExport5.uct", parameters);
         testExporter(network, "/expectedExport5.uct", parameters);
+    }
+
+    @Test
+    void testExportRatioTapChangerNonUcteShape() throws IOException {
+        Network network = NetworkFactory.findDefault().createNetwork("test", "test");
+        Substation substation = network.newSubstation().setId("S").setCountry(Country.FR).add();
+        VoltageLevel voltageLevel1 = substation.newVoltageLevel()
+                .setId("VL1").setNominalV(380.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        voltageLevel1.getBusBreakerView().newBus().setId("FFFFFF11").add();
+        VoltageLevel voltageLevel2 = substation.newVoltageLevel()
+                .setId("VL2").setNominalV(380.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        voltageLevel2.getBusBreakerView().newBus().setId("FFFFFF12").add();
+
+        TwoWindingsTransformer twt = substation.newTwoWindingsTransformer()
+                .setId("FFFFFF11 FFFFFF12 1")
+                .setVoltageLevel1("VL1").setConnectableBus1("FFFFFF11").setBus1("FFFFFF11")
+                .setVoltageLevel2("VL2").setConnectableBus2("FFFFFF12").setBus2("FFFFFF12")
+                .setRatedU1(380.0).setRatedU2(380.0)
+                .setR(1.0).setX(10.0).setG(0.0).setB(0.0)
+                .add();
+
+        twt.newRatioTapChanger()
+                .setLoadTapChangingCapabilities(false)
+                .setLowTapPosition(1)
+                .setTapPosition(3)
+                .setRegulating(false)
+                .beginStep().setRho(0.90).setR(0.0).setX(40.0).setG(0.0).setB(0.0).endStep() // 1
+                .beginStep().setRho(0.95).setR(0.0).setX(40.0).setG(0.0).setB(0.0).endStep() // 2
+                .beginStep().setRho(1.05).setR(0.0).setX(40.0).setG(0.0).setB(0.0).endStep() // 3 (current tap)
+                .beginStep().setRho(0.98).setR(0.0).setX(40.0).setG(0.0).setB(0.0).endStep() // 4 (neutral)
+                .beginStep().setRho(1.10).setR(0.0).setX(40.0).setG(0.0).setB(0.0).endStep() // 5
+                .add();
+
+        Properties parameters = new Properties();
+        parameters.put("ucte.export.naming-strategy", "Default");
+        MemDataSource dataSource = new MemDataSource();
+        new UcteExporter().export(network, parameters, dataSource);
+
+        UcteNetwork ucteNetwork;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                dataSource.newInputStream(null, "uct"), StandardCharsets.UTF_8))) {
+            ucteNetwork = new UcteReader().read(reader, ReportNode.NO_OP);
+        }
+        UcteElementId elementId = UcteElementId.parseUcteElementId("FFFFFF11 FFFFFF12 1")
+                .orElseThrow(() -> new AssertionError("Not a valid UCTE element id"));
+        UctePhaseRegulation phaseRegulation = ucteNetwork.getRegulation(elementId).getPhaseRegulation();
+
+        assertEquals(3, phaseRegulation.getN());
+        assertEquals(-1, phaseRegulation.getNp());
     }
 }

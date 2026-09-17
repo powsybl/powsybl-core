@@ -136,6 +136,7 @@ public class UcteExporter implements Exporter {
      *
      * @param network the IIDM network to convert
      * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
+     * @param reportNode the reportNode used for functional logs
      * @return the UcteNetwork corresponding to the IIDM network
      */
     private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation, ReportNode reportNode) {
@@ -687,7 +688,7 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getG());
         ucteNetwork.addTransformer(ucteTransformer);
 
-        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context.withCombinePhaseAngleRegulation());
+        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context);
     }
 
     /**
@@ -698,13 +699,14 @@ public class UcteExporter implements Exporter {
      * @param ucteNetwork The target UcteNetwork
      * @param ucteElementId The UcteElementId corresponding to the TwoWindingsTransformer
      * @param twoWindingsTransformer The TwoWindingTransformer we want to convert
+     * @param context The context used to store temporary data during the conversion
      */
-    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
+    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         if (twoWindingsTransformer.hasRatioTapChanger() || twoWindingsTransformer.hasPhaseTapChanger()) {
             UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
-                    .map(rtc -> convertRatioTapChanger(twoWindingsTransformer)).orElse(null);
+                    .map(rtc -> convertRatioTapChanger(twoWindingsTransformer, context.getReportNode())).orElse(null);
             UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
-                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, combinePhaseAngleRegulation)).orElse(null);
+                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, context.withCombinePhaseAngleRegulation(), context.getReportNode())).orElse(null);
             UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
             ucteNetwork.addRegulation(ucteRegulation);
         }
@@ -714,20 +716,35 @@ public class UcteExporter implements Exporter {
      * Creates the {@link UcteRegulation} linked to the twoWindingsTransformer
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the RatioTapChanger we want to convert
+     * @param reportNode the reportNode used for functional logs
      * @return the UctePhaseRegulation needed to create a {@link UcteRegulation}
      * @see UcteConverterHelper#calculatePhaseDu(TwoWindingsTransformer)
      */
-    private static UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+    private static UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer, ReportNode reportNode) {
         LOGGER.trace("Converting iidm ratio tap changer of transformer {}", twoWindingsTransformer.getId());
 
+        RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
         double du = calculatePhaseDu(twoWindingsTransformer);
+        int neutralPosition = findNeutralTapPosition(ratioTapChanger);
+        warnIfTapPositionRangeExtended(
+                ratioTapChanger.getLowTapPosition(),
+                ratioTapChanger.getHighTapPosition(),
+                neutralPosition,
+                twoWindingsTransformer.getId(),
+                "ratio tap changer",
+                reportNode
+        );
+        UcteConverterHelper.TapPositionRange range = computeTapPositionRange(
+                ratioTapChanger.getLowTapPosition(), ratioTapChanger.getHighTapPosition(),
+                ratioTapChanger.getTapPosition(), neutralPosition);
+        checkRatioTapChangerDeviation(ratioTapChanger, du, neutralPosition, twoWindingsTransformer.getId(), reportNode);
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
-                twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
-                twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
+                range.n(),
+                range.np(),
                 Double.NaN);
-        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
-            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
+        if (!Double.isNaN(ratioTapChanger.getTargetV())) {
+            uctePhaseRegulation.setU(ratioTapChanger.getTargetV());
         }
         return uctePhaseRegulation;
     }
@@ -736,28 +753,93 @@ public class UcteExporter implements Exporter {
      * Determines the UcteAngleRegulationType and depending on it, creates the UcteAngleRegulation
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the PhaseTapChanger we want to convert
+     * @param reportNode the reportNode used for functional logs
      * @return the UcteAngleRegulation needed to create a {@link UcteRegulation}
      * @see UcteAngleRegulation
      * @see UcteExporter#findRegulationType(TwoWindingsTransformer)
      */
-    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
+    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer,
+                                                              boolean combinePhaseAngleRegulation,
+                                                              ReportNode reportNode) {
         LOGGER.trace("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
+        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
+        int neutralPosition = findNeutralTapPosition(phaseTapChanger);
+        warnIfTapPositionRangeExtended(
+                phaseTapChanger.getLowTapPosition(),
+                phaseTapChanger.getHighTapPosition(),
+                neutralPosition,
+                twoWindingsTransformer.getId(),
+                "phase tap changer",
+                reportNode
+        );
+        UcteConverterHelper.TapPositionRange range = computeTapPositionRange(
+                phaseTapChanger.getLowTapPosition(),
+                phaseTapChanger.getHighTapPosition(),
+                phaseTapChanger.getTapPosition(),
+                neutralPosition
+        );
         UcteAngleRegulationType ucteAngleRegulationType = findRegulationType(twoWindingsTransformer);
         if (ucteAngleRegulationType == UcteAngleRegulationType.SYMM) {
-            return new UcteAngleRegulation(calculateSymmAngleDu(twoWindingsTransformer),
+            double du = calculateSymmAngleDu(twoWindingsTransformer);
+            checkSymmAngleTapChangerDeviation(phaseTapChanger, du, neutralPosition, twoWindingsTransformer.getId(), reportNode);
+            return new UcteAngleRegulation(du,
                     90,
-                    twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+                    range.n(),
+                    range.np(),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
             Complex duAndAngle = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation);
-            return new UcteAngleRegulation(duAndAngle.abs(),
-                    Math.toDegrees(duAndAngle.getArgument()),
-                    twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+            double absDu = duAndAngle.abs();
+            double angle = duAndAngle.getArgument();
+            // the deviation check must use the geometric (pre-division) absDu: the actual IIDM tap steps march at
+            // that value even when combinePhaseAngleRegulation divides absDu by the RTC's rho0 for the UCTE record
+            double geometricAbsDu = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, false).abs();
+            checkAsymmAngleTapChangerDeviation(phaseTapChanger, geometricAbsDu, angle, twoWindingsTransformer.getId(), reportNode);
+            return new UcteAngleRegulation(absDu,
+                    Math.toDegrees(angle),
+                    range.n(),
+                    range.np(),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
+        }
+    }
+
+    /**
+     * Logs a warning, and reports it, if the declared tap position range isn't symmetric around the neutral tap
+     * position, i.e. if {@link UcteConverterHelper#computeTapPositionRange} had to extend it to stay symmetric.
+     *
+     * @param lowTapPosition  the tap changer's low tap position
+     * @param highTapPosition the tap changer's high tap position
+     * @param neutralPosition the neutral tap position, as found by {@code findNeutralTapPosition}
+     * @param equipmentId     the id of the two windings transformer, used in the warning message
+     * @param tapChangerType  type of the tap changer
+     * @param reportNode      the reportNode used for functional logs
+     */
+    private static void warnIfTapPositionRangeExtended(int lowTapPosition,
+                                                       int highTapPosition,
+                                                       int neutralPosition,
+                                                       String equipmentId,
+                                                       String tapChangerType,
+                                                       ReportNode reportNode) {
+        int offsetLow = lowTapPosition - neutralPosition;
+        int offsetHigh = highTapPosition - neutralPosition;
+        if (offsetLow != -offsetHigh) {
+            String extendedSide = Math.abs(offsetLow) > Math.abs(offsetHigh) ? "high" : "low";
+            LOGGER.warn(
+                    "Two windings transformer {}: tap position range extended on the {} side to stay symmetric " +
+                            "(low side spans {} positions, high side spans {})",
+                    equipmentId,
+                    extendedSide,
+                    Math.abs(offsetLow),
+                    Math.abs(offsetHigh)
+            );
+            UcteExporterReports.tapPositionRangeExtended(reportNode,
+                    equipmentId,
+                    tapChangerType,
+                    extendedSide,
+                    Math.abs(offsetLow),
+                    Math.abs(offsetHigh));
         }
     }
 
