@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
@@ -107,7 +108,7 @@ class HvdcUpdateTest {
     }
 
     @Test
-    void vscReactivePowerSetpointRoundTripFlipsSign() throws IOException {
+    void vscReactivePowerSetpointRoundTripFlipsSignLegacy() throws IOException {
         Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
 
         HvdcLine senderLine = network.getHvdcLine("DCLineSegment-Vsc");
@@ -125,9 +126,49 @@ class HvdcUpdateTest {
             String baseName = "vsc-q-roundtrip";
             network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
 
+            // The legacy version assumes that the IIDM model uses the generator sign convention
+            // and converts it to the load sign convention during the export process,
+            // which is the standard convention in CGMES
+            String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+            assertTrue(sshXml.contains("<cim:VsConverter.targetQpcc>-30"));
+
             vsc.setReactivePowerSetpoint(0.0);
 
             Properties importParameters = new Properties();
+            importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+            network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+            assertEquals(30.0, vsc.getReactivePowerSetpoint(), 1e-7);
+        }
+    }
+
+    @Test
+    void vscReactivePowerSetpointRoundTripFlipsSignDetailed() throws IOException {
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network network = readCgmesResources(importParameters, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("DCLineSegment-Vsc-VscConverter-2");
+        //assertEquals(0.0, vsc.getReactivePowerSetpoint(), 1e-7);
+
+        vsc.setReactivePowerSetpoint(30.0);
+        vsc.setVoltageRegulatorOn(false);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            String baseName = "vsc-q-roundtrip";
+            network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+            // The detailed version assumes that the IIDM model uses the load sign convention and exports it directly,
+            // as this is the standard convention in CGMES
+            String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+            assertTrue(sshXml.contains("<cim:VsConverter.targetQpcc>30"));
+
+            vsc.setReactivePowerSetpoint(0.0);
+
             importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
             network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
