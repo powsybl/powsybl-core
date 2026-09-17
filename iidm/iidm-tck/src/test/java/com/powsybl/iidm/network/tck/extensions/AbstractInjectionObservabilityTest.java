@@ -44,35 +44,43 @@ public abstract class AbstractInjectionObservabilityTest {
         injectionObservability.setObservable(false);
         assertFalse(injectionObservability.isObservable());
 
-        assertEquals(0.02d, injectionObservability.getQualityP().getStandardDeviation(), 0d);
-        injectionObservability.getQualityP().setStandardDeviation(0.03d);
-        assertEquals(0.03d, injectionObservability.getQualityP().getStandardDeviation(), 0d);
+        assertTrue(injectionObservability.getQualityP().isPresent());
+        assertTrue(injectionObservability.getQualityQ().isPresent());
+        assertTrue(injectionObservability.getQualityV().isPresent());
 
-        assertTrue(injectionObservability.getQualityP().isRedundant().isPresent());
-        assertTrue(injectionObservability.getQualityP().isRedundant().get());
-        injectionObservability.getQualityP().setRedundant(false);
-        assertTrue(injectionObservability.getQualityP().isRedundant().isPresent());
-        assertFalse(injectionObservability.getQualityP().isRedundant().get());
+        assertEquals(injectionObservability.getNullableQualityP(), injectionObservability.getQualityP().orElse(null));
+        assertEquals(injectionObservability.getNullableQualityQ(), injectionObservability.getQualityQ().orElse(null));
+        assertEquals(injectionObservability.getNullableQualityV(), injectionObservability.getQualityV().orElse(null));
 
-        assertEquals(0.5d, injectionObservability.getQualityQ().getStandardDeviation(), 0d);
-        injectionObservability.getQualityQ().setStandardDeviation(0.6d);
-        assertEquals(0.6d, injectionObservability.getQualityQ().getStandardDeviation(), 0d);
+        assertEquals(0.02d, injectionObservability.getNullableQualityP().getStandardDeviation(), 0d);
+        injectionObservability.getNullableQualityP().setStandardDeviation(0.03d);
+        assertEquals(0.03d, injectionObservability.getNullableQualityP().getStandardDeviation(), 0d);
 
-        assertTrue(injectionObservability.getQualityQ().isRedundant().isPresent());
-        assertTrue(injectionObservability.getQualityQ().isRedundant().get());
-        injectionObservability.getQualityQ().setRedundant(false);
-        assertTrue(injectionObservability.getQualityQ().isRedundant().isPresent());
-        assertFalse(injectionObservability.getQualityQ().isRedundant().get());
+        assertTrue(injectionObservability.getNullableQualityP().isRedundant().isPresent());
+        assertTrue(injectionObservability.getNullableQualityP().isRedundant().get());
+        injectionObservability.getNullableQualityP().setRedundant(false);
+        assertTrue(injectionObservability.getNullableQualityP().isRedundant().isPresent());
+        assertFalse(injectionObservability.getNullableQualityP().isRedundant().get());
 
-        assertEquals(0.0d, injectionObservability.getQualityV().getStandardDeviation(), 0d);
-        injectionObservability.getQualityV().setStandardDeviation(0.01d);
-        assertEquals(0.01d, injectionObservability.getQualityV().getStandardDeviation(), 0d);
+        assertEquals(0.5d, injectionObservability.getNullableQualityQ().getStandardDeviation(), 0d);
+        injectionObservability.getNullableQualityQ().setStandardDeviation(0.6d);
+        assertEquals(0.6d, injectionObservability.getNullableQualityQ().getStandardDeviation(), 0d);
 
-        assertTrue(injectionObservability.getQualityV().isRedundant().isPresent());
-        assertTrue(injectionObservability.getQualityV().isRedundant().get());
-        injectionObservability.getQualityV().setRedundant(false);
-        assertTrue(injectionObservability.getQualityV().isRedundant().isPresent());
-        assertFalse(injectionObservability.getQualityV().isRedundant().get());
+        assertTrue(injectionObservability.getNullableQualityQ().isRedundant().isPresent());
+        assertTrue(injectionObservability.getNullableQualityQ().isRedundant().get());
+        injectionObservability.getNullableQualityQ().setRedundant(false);
+        assertTrue(injectionObservability.getNullableQualityQ().isRedundant().isPresent());
+        assertFalse(injectionObservability.getNullableQualityQ().isRedundant().get());
+
+        assertEquals(0.0d, injectionObservability.getNullableQualityV().getStandardDeviation(), 0d);
+        injectionObservability.getNullableQualityV().setStandardDeviation(0.01d);
+        assertEquals(0.01d, injectionObservability.getNullableQualityV().getStandardDeviation(), 0d);
+
+        assertTrue(injectionObservability.getNullableQualityV().isRedundant().isPresent());
+        assertTrue(injectionObservability.getNullableQualityV().isRedundant().get());
+        injectionObservability.getNullableQualityV().setRedundant(false);
+        assertTrue(injectionObservability.getNullableQualityV().isRedundant().isPresent());
+        assertFalse(injectionObservability.getNullableQualityV().isRedundant().get());
     }
 
     @Test
@@ -86,39 +94,43 @@ public abstract class AbstractInjectionObservabilityTest {
         assertEquals("injectionObservability", injectionObservability.getName());
         assertEquals("BAT", injectionObservability.getExtendable().getId());
 
-        assertNull(injectionObservability.getQualityP());
-        assertNull(injectionObservability.getQualityQ());
-        assertNull(injectionObservability.getQualityV());
+        assertFalse(injectionObservability.getQualityP().isPresent());
+        assertFalse(injectionObservability.getQualityQ().isPresent());
+        assertFalse(injectionObservability.getQualityV().isPresent());
+
+        assertNull(injectionObservability.getNullableQualityP());
+        assertNull(injectionObservability.getNullableQualityQ());
+        assertNull(injectionObservability.getNullableQualityV());
 
         assertSame(injectionObservability, injectionObservability.setQualityP(0.03d));
-        assertEquals(0.03d, injectionObservability.getQualityP().getStandardDeviation(), 0d);
+        assertEquals(0.03d, injectionObservability.getNullableQualityP().getStandardDeviation(), 0d);
         assertSame(injectionObservability, injectionObservability.setQualityP(0.04d));
-        assertEquals(0.04d, injectionObservability.getQualityP().getStandardDeviation(), 0d);
+        assertEquals(0.04d, injectionObservability.getNullableQualityP().getStandardDeviation(), 0d);
 
-        assertFalse(injectionObservability.getQualityP().isRedundant().isPresent());
-        injectionObservability.getQualityP().setRedundant(true);
-        assertTrue(injectionObservability.getQualityP().isRedundant().isPresent());
-        assertTrue(injectionObservability.getQualityP().isRedundant().get());
+        assertFalse(injectionObservability.getNullableQualityP().isRedundant().isPresent());
+        injectionObservability.getNullableQualityP().setRedundant(true);
+        assertTrue(injectionObservability.getNullableQualityP().isRedundant().isPresent());
+        assertTrue(injectionObservability.getNullableQualityP().isRedundant().get());
 
         assertSame(injectionObservability, injectionObservability.setQualityQ(0.6d));
-        assertEquals(0.6d, injectionObservability.getQualityQ().getStandardDeviation(), 0d);
+        assertEquals(0.6d, injectionObservability.getNullableQualityQ().getStandardDeviation(), 0d);
         assertSame(injectionObservability, injectionObservability.setQualityQ(0.61d));
-        assertEquals(0.61d, injectionObservability.getQualityQ().getStandardDeviation(), 0d);
+        assertEquals(0.61d, injectionObservability.getNullableQualityQ().getStandardDeviation(), 0d);
 
-        assertFalse(injectionObservability.getQualityQ().isRedundant().isPresent());
-        injectionObservability.getQualityQ().setRedundant(true);
-        assertTrue(injectionObservability.getQualityQ().isRedundant().isPresent());
-        assertTrue(injectionObservability.getQualityQ().isRedundant().get());
+        assertFalse(injectionObservability.getNullableQualityQ().isRedundant().isPresent());
+        injectionObservability.getNullableQualityQ().setRedundant(true);
+        assertTrue(injectionObservability.getNullableQualityQ().isRedundant().isPresent());
+        assertTrue(injectionObservability.getNullableQualityQ().isRedundant().get());
 
         assertSame(injectionObservability, injectionObservability.setQualityV(0.01d));
-        assertEquals(0.01d, injectionObservability.getQualityV().getStandardDeviation(), 0d);
+        assertEquals(0.01d, injectionObservability.getNullableQualityV().getStandardDeviation(), 0d);
         assertSame(injectionObservability, injectionObservability.setQualityV(0.02d));
-        assertEquals(0.02d, injectionObservability.getQualityV().getStandardDeviation(), 0d);
+        assertEquals(0.02d, injectionObservability.getNullableQualityV().getStandardDeviation(), 0d);
 
-        assertFalse(injectionObservability.getQualityV().isRedundant().isPresent());
-        injectionObservability.getQualityV().setRedundant(true);
-        assertTrue(injectionObservability.getQualityV().isRedundant().isPresent());
-        assertTrue(injectionObservability.getQualityV().isRedundant().get());
+        assertFalse(injectionObservability.getNullableQualityV().isRedundant().isPresent());
+        injectionObservability.getNullableQualityV().setRedundant(true);
+        assertTrue(injectionObservability.getNullableQualityV().isRedundant().isPresent());
+        assertTrue(injectionObservability.getNullableQualityV().isRedundant().get());
     }
 
     @Test
@@ -131,10 +143,10 @@ public abstract class AbstractInjectionObservabilityTest {
                 .withStandardDeviationQ(0.2)
                 .add();
         InjectionObservability injectionObservability = network.getLoad("LOAD").getExtension(InjectionObservability.class);
-        assertNull(injectionObservability.getQualityP());
-        assertFalse((Boolean) injectionObservability.getQualityV().isRedundant().get());
-        assertEquals(0.5, injectionObservability.getQualityV().getStandardDeviation(), 0.01);
-        assertFalse(injectionObservability.getQualityQ().isRedundant().isPresent());
-        assertEquals(0.2, injectionObservability.getQualityQ().getStandardDeviation(), 0.01);
+        assertNull(injectionObservability.getNullableQualityP());
+        assertFalse((Boolean) injectionObservability.getNullableQualityV().isRedundant().get());
+        assertEquals(0.5, injectionObservability.getNullableQualityV().getStandardDeviation(), 0.01);
+        assertFalse(injectionObservability.getNullableQualityQ().isRedundant().isPresent());
+        assertEquals(0.2, injectionObservability.getNullableQualityQ().getStandardDeviation(), 0.01);
     }
 }
