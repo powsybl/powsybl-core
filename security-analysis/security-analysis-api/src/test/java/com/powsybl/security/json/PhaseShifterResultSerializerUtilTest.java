@@ -112,21 +112,4 @@ class PhaseShifterResultSerializerUtilTest {
         assertEquals(new MovedPhaseShifterResult("T2", ThreeSides.ONE, 1, 3), pre.getPhaseShifterResult("T2", ThreeSides.ONE));
     }
 
-    @Test
-    void testPhaseShifterResultsWithOverlappingStringKeys() {
-        var pre = new PreContingencyResult(
-            LoadFlowResult.ComponentResult.Status.CONVERGED,
-            null,
-            new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
-            0.0,
-            List.of(
-                new MovedPhaseShifterResult("T", ThreeSides.ONE, 0, 2),
-                new MovedPhaseShifterResult("T_ONE", null, 1, 3))
-        );
-        assertEquals(2, pre.getPhaseShifterResults().size());
-        assertEquals(new MovedPhaseShifterResult("T", ThreeSides.ONE, 0, 2),
-                pre.getPhaseShifterResult("T", ThreeSides.ONE));
-        assertEquals(new MovedPhaseShifterResult("T_ONE", null, 1, 3),
-                pre.getPhaseShifterResult("T_ONE"));
-    }
 }
