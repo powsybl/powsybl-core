@@ -15,9 +15,9 @@ import com.powsybl.triplestore.api.QueryCatalog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16;
-
 import java.util.Objects;
+
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16;
 
 /**
  *
