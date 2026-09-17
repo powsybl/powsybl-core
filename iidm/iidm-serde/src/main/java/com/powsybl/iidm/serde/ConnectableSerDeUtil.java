@@ -466,7 +466,7 @@ public final class ConnectableSerDeUtil {
                 if (kind == DetectionKind.HIGH) {
                     writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
                 } else {
-                    //convert low limit to high limit by using first temporary as permanent
+                    // Convert low limit to high limit by using first temporary as permanent
                     writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getTemporaryLimits().iterator().next().getValue());
                 }
             }
@@ -489,7 +489,7 @@ public final class ConnectableSerDeUtil {
             List<LoadingLimits.TemporaryLimit> tempLimits = limits.getTemporaryLimits().stream().toList();
             List<FormattedTemporaryLimit> formattedTemporaryLimits = new ArrayList<>();
             boolean shiftLowToHigh = limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0;
-            //the first temp limit was used as the permanent limit of the high limit, ignore it if shifting low to high limit
+            // The first temp limit was used as the permanent limit of the high limit, ignore it if shifting low to high limit
             int startingLimitIndex = shiftLowToHigh ? 1 : 0;
             int limitIndex = startingLimitIndex;
             for (int durationIndex = 0; durationIndex < tempLimits.size() - startingLimitIndex; ++durationIndex) {
@@ -500,12 +500,12 @@ public final class ConnectableSerDeUtil {
                 ++limitIndex;
             }
             if (shiftLowToHigh) {
-                //since we skip the first temp limit when converting a low limit to a high limit (because it becomes the high limit), the last limit
-                //of the high limit should have a default name, the max value, and its duration is the duration of the last temp limit of the low limit
+                // Since we skip the first temp limit when converting a low limit to a high limit (because it becomes the high limit), the last limit
+                // of the high limit should have a default name, the max value, and its duration is the duration of the last temp limit of the low limit
                 LoadingLimits.TemporaryLimit tl = tempLimits.getLast();
                 String name = tl.getName();
                 int duration = tl.getAcceptableDuration();
-                //the other values inside the temp limit are not relevant to the last created limit
+                // The other values inside the temp limit are not relevant to the last created limit
                 formattedTemporaryLimits.add(new FormattedTemporaryLimit(Double.MAX_VALUE, duration, name, false, tl));
             }
             return formattedTemporaryLimits;
