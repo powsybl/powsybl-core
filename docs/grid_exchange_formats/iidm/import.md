@@ -25,17 +25,6 @@ The `iidm.import.xml.with-automation-systems` property is an optional property t
 
 By default, the value is `true`, the overload management systems are imported when deserializing a network.
 
-**iidm.import.repair-invalid-reactive-curve-limits**<br>
-The `iidm.import.repair-invalid-reactive-curve-limits` property is an optional property that enables the IIDM importer to detect `minQ > maxQ` values in `ReactiveCapabilityCurve` points and automatically reorder them before validation.
-
-By default, the value is `false`.<br>
-When set to `false`, a reactive capability curve point with `minQ > maxQ` is considered invalid and the import fails with a validation error.<br>
-When set to `true`, the importer automatically swaps the values so that `minQ <= maxQ`, allowing the import to succeed.<br>
-
-```{note}
-This parameter should normally be left at its default value. Earlier versions of PowSyBl accepted invalid ordered minQ/maxQ limits. Change this parameter only if you need to import older IIDM files that contain such invalid values.
-```
-
 **iidm.import.xml.missing-permanent-limit-percentage**<br>
 The `iidm.import.xml.missing-permanent-limit-percentage` property is an optional property that defines the percentage applied to the lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only).
 
@@ -52,6 +41,17 @@ The `iidm.import.only-selected-operational-limits-groups` property is an optiona
 Using this will result in a smaller in-memory network.
 
 By default, this is set to `false`, all groups are imported.
+
+**iidm.import.repair-invalid-reactive-curve-limits**<br>
+The `iidm.import.repair-invalid-reactive-curve-limits` property is an optional property that enables the IIDM importer to detect `minQ > maxQ` values in `ReactiveCapabilityCurve` points and automatically reorder them before validation.
+
+By default, the value is `false`.<br>
+When set to `false`, a reactive capability curve point with `minQ > maxQ` is considered invalid and the import fails with a validation error.<br>
+When set to `true`, the importer automatically swaps the values so that `minQ <= maxQ`, allowing the import to succeed.<br>
+
+```{note}
+The `repair-invalid-reactive-curve-limits` should normally be left at its default value. Earlier versions of PowSyBl accepted invalid ordered minQ/maxQ limits. Change this parameter only if you need to import older IIDM files that contain such invalid values.
+```
 
 ### Deprecated properties
 
