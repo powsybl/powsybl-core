@@ -50,7 +50,9 @@ public abstract class AbstractIdentifiableTest {
         Network network = EurostagTutorialExample1Factory.create();
         int count = 0;
         for (Bus bus : network.getBusBreakerView().getBusStream().toList()) {
-            bus.setId(String.valueOf(count++));
+            String newId = String.valueOf(count++);
+            bus.setId(newId);
+            assertEquals(newId, bus.getId());
         }
     }
 
@@ -90,7 +92,8 @@ public abstract class AbstractIdentifiableTest {
     public void testSetIdBusAlreadyExists() {
         Network network = EurostagTutorialExample1Factory.create();
         Bus nhv1 = network.getBusBreakerView().getBus("NHV1");
-        assertThrows(PowsyblException.class, () -> nhv1.setId("NHV2"));
+        Exception e = assertThrows(PowsyblException.class, () -> nhv1.setId("NHV2"));
+        assertEquals("Object with id (NHV2) already exists", e.getMessage());
     }
 
     @Test
@@ -119,6 +122,7 @@ public abstract class AbstractIdentifiableTest {
         VoltageLevel vl = network.getVoltageLevel("S1VL1");
         List<Switch> switches = vl.getNodeBreakerView().getSwitchStream().toList();
         assertTrue(switches.size() > 1, "test network must have at least two switches in S1VL1");
-        assertThrows(PowsyblException.class, () -> switches.get(0).setId(switches.get(1).getId()));
+        Exception e = assertThrows(PowsyblException.class, () -> switches.get(0).setId(switches.get(1).getId()));
+        assertEquals("Object with id (S1VL1_LD1_BREAKER) already exists", e.getMessage());
     }
 }

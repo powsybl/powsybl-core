@@ -50,7 +50,7 @@ class TestAbstractTopologyModel {
 
         PowsyblException e = assertThrows(PowsyblException.class,
                 () -> topologyModel.updateBusId("UNKNOWN_BUS", "NEW_ID"));
-        assertTrue(e.getMessage().contains("UNKNOWN_BUS"));
+        assertEquals("Bus with id UNKNOWN_BUS does not exists in the voltage level bus breaker topology model", e.getMessage());
     }
 
     @Test
@@ -60,6 +60,6 @@ class TestAbstractTopologyModel {
 
         PowsyblException e = assertThrows(PowsyblException.class,
                 () -> topologyModel.updateSwitchId("UNKNOWN_SWITCH", "NEW_ID"));
-        assertTrue(e.getMessage().contains("UNKNOWN_SWITCH"));
+        assertEquals("Switch with id UNKNOWN_SWITCH does not exist", e.getMessage());
     }
 }
