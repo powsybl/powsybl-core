@@ -719,11 +719,6 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         exportParams.put(CgmesExport.CGM_EXPORT, false);
         exportParams.put(CgmesExport.PROFILES, List.of("EQ"));
 
-        String basenameBeEq = "test_loads_limits_be";
-        String basenameNlEq = "test_loads_limits_nl";
-        network.getSubnetwork("Network_BE").write("CGMES", exportParams, tmpDir.resolve(basenameBeEq));
-        network.getSubnetwork("Network_NL").write("CGMES", exportParams, tmpDir.resolve(basenameNlEq));
-
         String beEqXml = writeCgmesProfile(network.getSubnetwork("Network_BE"), "EQ", tmpDir, exportParams);
         String nlEqXml = writeCgmesProfile(network.getSubnetwork("Network_NL"), "EQ", tmpDir, exportParams);
 
