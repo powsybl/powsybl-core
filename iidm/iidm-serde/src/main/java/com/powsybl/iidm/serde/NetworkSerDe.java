@@ -1252,6 +1252,17 @@ public final class NetworkSerDe {
     /**
      * Deep copy of the network using XML converter.
      *
+     * @param network the network to copy
+     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures, has a low impact on performance.
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, boolean useConnectableCreationOrder) {
+        return copy(network, NetworkFactory.findDefault(), ForkJoinPool.commonPool(), TreeDataFormat.JSON, useConnectableCreationOrder);
+    }
+
+    /**
+     * Deep copy of the network using XML converter.
+     *
      * @param network        the network to copy
      * @param networkFactory the network factory to use for the copy
      * @return the copy of the network
@@ -1261,7 +1272,7 @@ public final class NetworkSerDe {
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
-        return copy(network, networkFactory, executor, TreeDataFormat.JSON);
+        return copy(network, networkFactory, executor, TreeDataFormat.JSON, true);
     }
 
     /**
@@ -1284,11 +1295,21 @@ public final class NetworkSerDe {
      * @return the copy of the network
      */
     public static Network copy(Network network, NetworkFactory networkFactory, TreeDataFormat format) {
-        return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), format, true);
     }
 
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network                     the network to copy
+     * @param networkFactory              the network factory to use for the copy
+     * @param executor                    the executor service to use for the copy
+     * @param format                      the converter to use to export/import the network
+     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures, has a low impact on performance.
+     * @return the copy of the network
+     */
     @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
-    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format, boolean useConnectableCreationOrder) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
@@ -1296,7 +1317,7 @@ public final class NetworkSerDe {
             Pipe pipe = Pipe.open();
             executor.execute(() -> {
                 try (Pipe.SinkChannel sinkChannel = pipe.sink()) {
-                    write(network, new ExportOptions().setFormat(format).setConnectableCreationOrder(true), Channels.newOutputStream(sinkChannel));
+                    write(network, new ExportOptions().setFormat(format).setConnectableCreationOrder(useConnectableCreationOrder), Channels.newOutputStream(sinkChannel));
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
