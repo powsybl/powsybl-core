@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16;
+
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -54,6 +56,14 @@ public class CgmesGLExporter {
 
     public CgmesGLExporter(Network network, Cim cimModel) {
         this(network, cimModel, TripleStoreFactory.create());
+    }
+
+    public CgmesGLExporter(Network network, TripleStore tripleStore) {
+        this(network, CIM_16, tripleStore);
+    }
+
+    public CgmesGLExporter(Network network) {
+        this(network, CIM_16, TripleStoreFactory.create());
     }
 
     public void exportData(DataSource dataSource) {

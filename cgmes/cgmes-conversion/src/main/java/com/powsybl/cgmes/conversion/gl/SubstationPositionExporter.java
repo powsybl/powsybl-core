@@ -14,8 +14,6 @@ import com.powsybl.triplestore.api.TripleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16;
-
 import java.util.Objects;
 
 /**
@@ -25,10 +23,6 @@ import java.util.Objects;
 public class SubstationPositionExporter extends AbstractPositionExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubstationPositionExporter.class);
-
-    public SubstationPositionExporter(TripleStore tripleStore, ExportContext context) {
-        this(tripleStore, context, CIM_16);
-    }
 
     public SubstationPositionExporter(TripleStore tripleStore, ExportContext context, Cim cimModel) {
         super(tripleStore, context, cimModel);
