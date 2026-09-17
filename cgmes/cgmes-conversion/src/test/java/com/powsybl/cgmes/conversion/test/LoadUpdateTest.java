@@ -128,8 +128,6 @@ class LoadUpdateTest {
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
 
-        network.write("CGMES", null, Paths.get(String.format("/work/tmp/load")));
-
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
             String baseName = "async";
