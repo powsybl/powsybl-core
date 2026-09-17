@@ -1,6 +1,6 @@
 # Configuration
 
-> Warning : since version 7.4.0, the `security-analysis` is deprecated and will be removed on later versions, avoid new usages of it.
+> **Warning:** Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated and will be removed in a future version. Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.
 
 The `security-analysis` module is used to configure the execution of the [security-analysis](../../user/itools/security-analysis.md) command and simulation.
 
