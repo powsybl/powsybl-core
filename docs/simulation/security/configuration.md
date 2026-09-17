@@ -1,12 +1,12 @@
 # Configuration
 
-> **Warning:** Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated and will be removed in a future version. Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.
-
 The `security-analysis` module is used to configure the execution of the [security-analysis](../../user/itools/security-analysis.md) command and simulation.
 
 ## Implementation
 
 **preprocessor**<br>
+> **Warning:** Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated and will be removed in a future version. Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.
+
 The `preprocessor` property is an optional property which requires that the `SecurityAnalysisPreprocessor` with specified
 name is used to preprocess inputs, based on the contingency file, before actually running the security analysis.
 
