@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:dcterms="http://purl.org/dc/terms/#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:prov="http://www.w3.org/ns/prov#">
+    <md:FullModel rdf:about="urn:uuid:er-power-transfer-corridor">
+        <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/EquipmentReliability-EU/2.4</dcterms:Model.conformsTo>
+        <prov:generatedAtTime>2024-01-01T00:00:00Z</prov:generatedAtTime>
+        <dcat:startDate>2029-01-09T22:30:00Z</dcat:startDate>
+        <dcat:endDate>2029-01-10T22:30:00Z</dcat:endDate>
+        <dcat:keyword>ER</dcat:keyword>
+        <dcat:version>1</dcat:version>
+    </md:FullModel>
+    <nc:OrdinaryPowerTransferCorridor rdf:ID="_power-transfer-corridor-1">
+        <cim:IdentifiedObject.mRID>power-transfer-corridor-1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Test power transfer corridor</cim:IdentifiedObject.name>
+        <nc:PowerTransferCorridor.normalEnabled>true</nc:PowerTransferCorridor.normalEnabled>
+    </nc:OrdinaryPowerTransferCorridor>
+
+    <cim:OperationalLimitType rdf:ID="_infeed-limit-type-minimum">
+        <cim:IdentifiedObject.mRID>infeed-limit-type-minimum</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Minimum infeed limit type</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue"/>
+        <nc:OperationalLimitType.isMinimum>true</nc:OperationalLimitType.isMinimum>
+    </cim:OperationalLimitType>
+    <cim:OperationalLimitSet rdf:about="#_minimum-infeed-limit-set">
+        <cim:IdentifiedObject.mRID>minimum-infeed-limit-set</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Minimum infeed limit set</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_minimum-main-terminal"/>
+        <nc:OperationalLimitSet.PowerTransferCorridor rdf:resource="#_power-transfer-corridor-1"/>
+    </cim:OperationalLimitSet>
+    <nc:InfeedLimit rdf:ID="_infeed-limit-minimum">
+        <cim:IdentifiedObject.mRID>infeed-limit-minimum</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Minimum infeed limit</cim:IdentifiedObject.name>
+        <nc:InfeedLimit.normalValueW>0</nc:InfeedLimit.normalValueW>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_infeed-limit-type-minimum"/>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_minimum-infeed-limit-set"/>
+    </nc:InfeedLimit>
+    <nc:InfeedTerminal rdf:ID="_minimum-infeed-terminal-1">
+        <nc:InfeedTerminal.mRID>minimum-infeed-terminal-1</nc:InfeedTerminal.mRID>
+        <nc:InfeedTerminal.InfeedConstraint rdf:resource="#_infeed-limit-minimum"/>
+        <nc:InfeedTerminal.ACDCTerminal rdf:resource="#_minimum-terminal-1"/>
+    </nc:InfeedTerminal>
+    <nc:InfeedTerminal rdf:ID="_minimum-infeed-terminal-2">
+        <nc:InfeedTerminal.mRID>minimum-infeed-terminal-2</nc:InfeedTerminal.mRID>
+        <nc:InfeedTerminal.InfeedConstraint rdf:resource="#_infeed-limit-minimum"/>
+        <nc:InfeedTerminal.ACDCTerminal rdf:resource="#_minimum-terminal-2"/>
+    </nc:InfeedTerminal>
+
+    <cim:OperationalLimitSet rdf:about="#_maximum-infeed-limit-set">
+        <cim:IdentifiedObject.mRID>maximum-infeed-limit-set</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Maximum infeed limit set</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_maximum-main-terminal"/>
+        <nc:OperationalLimitSet.PowerTransferCorridor rdf:resource="#_power-transfer-corridor-1"/>
+    </cim:OperationalLimitSet>
+    <cim:OperationalLimitType rdf:ID="_infeed-limit-type-maximum">
+        <cim:IdentifiedObject.mRID>infeed-limit-type-maximum</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Maximum infeed limit type</cim:IdentifiedObject.name>
+        <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue"/>
+        <nc:OperationalLimitType.isMinimum>false</nc:OperationalLimitType.isMinimum>
+    </cim:OperationalLimitType>
+    <nc:InfeedLimit rdf:ID="_infeed-limit-maximum">
+        <cim:IdentifiedObject.mRID>infeed-limit-maximum</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Maximum infeed limit</cim:IdentifiedObject.name>
+        <nc:InfeedLimit.normalValueW>700</nc:InfeedLimit.normalValueW>
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_infeed-limit-type-maximum"/>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_maximum-infeed-limit-set"/>
+    </nc:InfeedLimit>
+    <nc:InfeedTerminal rdf:ID="_maximum-infeed-terminal-1">
+        <nc:InfeedTerminal.mRID>maximum-infeed-terminal-1</nc:InfeedTerminal.mRID>
+        <nc:InfeedTerminal.InfeedConstraint rdf:resource="#_infeed-limit-maximum"/>
+        <nc:InfeedTerminal.ACDCTerminal rdf:resource="#_maximum-terminal-1"/>
+    </nc:InfeedTerminal>
+    <nc:InfeedTerminal rdf:ID="_maximum-infeed-terminal-2">
+        <nc:InfeedTerminal.mRID>maximum-infeed-terminal-2</nc:InfeedTerminal.mRID>
+        <nc:InfeedTerminal.InfeedConstraint rdf:resource="#_infeed-limit-maximum"/>
+        <nc:InfeedTerminal.ACDCTerminal rdf:resource="#_maximum-terminal-2"/>
+    </nc:InfeedTerminal>
+</rdf:RDF>
