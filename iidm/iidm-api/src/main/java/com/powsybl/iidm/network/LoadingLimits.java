@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -91,7 +91,7 @@ public interface LoadingLimits extends OperationalLimits {
      * Get a list of temporary limits ordered by descending duration.
      * @return a list of temporary limits ordered by descending duration
      */
-    Collection<TemporaryLimit> getTemporaryLimits();
+    List<TemporaryLimit> getTemporaryLimits();
 
     /**
      * Get a temporary limit from its acceptable duration. Return null if there is non temporary limit with this

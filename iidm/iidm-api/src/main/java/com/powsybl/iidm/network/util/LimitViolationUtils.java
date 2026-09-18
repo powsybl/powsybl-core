@@ -246,7 +246,7 @@ public final class LimitViolationUtils {
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
             return null;
         }
-        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
+        List<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
         String previousLimitName = limitsContainer.getLimits().getPermanentLimitName();
         double previousLimit = permanentLimit;
         int previousAcceptableDuration = 0; // never mind initialisation it will be overridden with first loop
@@ -269,7 +269,7 @@ public final class LimitViolationUtils {
     }
 
     private static OverloadImpl getOverloadLow(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
-        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
+        List<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
         LoadingLimits.TemporaryLimit previousTemporaryLimit = null;
         //iterate on ascending values until i is not above a temporary limit
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) {
