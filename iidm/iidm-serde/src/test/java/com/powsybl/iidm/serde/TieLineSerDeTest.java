@@ -8,6 +8,7 @@
 
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -17,6 +18,9 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 
 import static com.powsybl.iidm.network.test.EurostagTutorialExample1Factory.NHV1_NHV2_1;
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,4 +69,28 @@ class TieLineSerDeTest extends AbstractIidmSerDeTest {
         });
     }
 
+    @Test
+    void tieLineOperationalLimitsGroupsShouldBeRejectedFromV112() {
+        String xml = readVersionedXml("tieline.xml", IidmVersion.V_1_12).replace(
+            "<iidm:tieLine id=\"NHV1_NHV2_1\" danglingLineId1=\"NHV1_NHV2_1.1\" danglingLineId2=\"NHV1_NHV2_1.2\"/>",
+            """
+            <iidm:tieLine id="NHV1_NHV2_1" danglingLineId1="NHV1_NHV2_1.1" danglingLineId2="NHV1_NHV2_1.2">
+                <iidm:operationalLimitsGroup1 id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="111.0"/>
+                </iidm:operationalLimitsGroup1>
+            </iidm:tieLine>"""
+        );
+
+        PowsyblException e = assertThrows(PowsyblException.class,
+            () -> NetworkSerDe.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))));
+        assertTrue(e.getMessage().contains("operationalLimitsGroup1"));
+    }
+
+    private String readVersionedXml(String fileName, IidmVersion version) {
+        try (InputStream inputStream = getVersionedNetworkAsStream(fileName, version)) {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }
