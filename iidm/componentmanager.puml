@@ -95,6 +95,7 @@ package network-store-iidm-impl {
         void ensureConnectedComponentsUpToDate(boolean isBusView)
         void ensureSynchronousComponentsUpToDate(boolean isBusView)
         void update(ComponentType componentType, boolean isBusView)
+        void invalidateComponents()
     }
 
     enum ComponentType {
@@ -109,11 +110,20 @@ package network-store-iidm-impl {
         ComponentImpl connectedComponent
         ComponentImpl synchronousComponent
         CalculatedBusAttributes getAttributes()
+        int getConnectedComponentNum()
+        void setConnectedComponentNum(int num)
+        int getSynchronousComponentNum()
+        void setSynchronousComponentNum(int num)
     }
 
     class CalculatedBusAttributes {
         Integer connectedComponentNumber
         Integer synchronousComponentNumber
+    }
+
+    class NetworkAttributes {
+        boolean connectedComponentsValid
+        boolean synchronousComponentsValid
     }
 
     class ConfiguredBusImpl {
