@@ -1,0 +1,174 @@
+@startuml
+
+package iidm-api {
+    interface Network$BusView {
+        Collection<Component> getConnectedComponents()
+        Collection<Component> getSynchronousComponents()
+    }
+
+    interface Network {
+        Collection<Component> getDcComponents()
+        void setGraphConnectivity(ComponentType compType, GraphConnectivity<Identifiable<?>, Identifiable<?>> connectivity)
+    }
+
+    interface Bus {
+        Component getConnectedComponent()
+        Component getSynchronousComponent()
+    }
+
+    interface DcBus {
+        Component getConnectedComponent()
+        Component getDcComponent()
+    }
+
+    interface Component {
+        int getNum()
+        int getSize()
+        Iterable<Bus> getBuses()
+        Stream<Bus> getBusStream()
+        Iterable<DcBus> getDcBuses()
+        Stream<DcBus> getDcBusStream()
+    }
+
+    enum ComponentType {
+        SYNCHRONOUS
+        DC
+        CONNECTED
+    }
+}
+
+package iidm-impl {
+    class NetworkImpl {
+        AbstractComponentsManager connectedComponentManager
+        AbstractComponentsManager synchronousComponentManager
+        AbstractComponentsManager dcComponentManager
+    }
+
+    class AbstractComponentsManager<C extends Component> {
+        List<C> components
+        GraphConnectivity<Identifiable<?>, Identifiable<?>> connectivity
+        void invalidate()
+        void update()
+        List<C> getConnectedComponents()
+        C getComponent(int num)
+    }
+
+    interface BusExt {
+        void setConnectedComponentNumber(int connectedComponentNumber)
+        void setSynchronousComponentNumber(int componentNumber)
+    }
+
+    class MergedBus {
+    }
+
+    class ConfiguredBusImpl {
+        TIntArrayList connectedComponentNumber
+        TIntArrayList synchronousComponentNumber
+    }
+
+    class CalculatedBusImpl {
+        void setConnectedComponentNumber(int num)
+    }
+
+    class NodeTerminal {
+        TIntArrayList connectedComponentNumber
+        TIntArrayList synchronousComponentNumber
+    }
+
+    class DcBusImpl {
+        void setConnectedComponentNumber(int connectedComponentNumber)
+        void setDcComponentNumber(int dcComponentNumber)
+    }
+
+    class DcNodeImpl {
+        TIntArrayList connectedComponentNumber
+        TIntArrayList dcComponentNumber
+    }
+
+    BusExt -|> Bus
+
+    BusExt <|-- CalculatedBusImpl
+    ConfiguredBusImpl --|> BusExt
+    MergedBus -|> BusExt
+
+    DcBusImpl -|> DcBus
+
+    MergedBus -o "*" ConfiguredBusImpl
+    CalculatedBusImpl -o "*" NodeTerminal
+    DcBusImpl --o "*" DcNodeImpl
+}
+
+package network-store-iidm-impl {
+    class NetworkImpl {
+        void ensureConnectedComponentsUpToDate(boolean isBusView)
+        void ensureSynchronousComponentsUpToDate(boolean isBusView)
+        void update(ComponentType componentType, boolean isBusView)
+    }
+
+    enum ComponentType {
+        CONNECTED
+        SYNCHRONOUS
+    }
+
+    interface BaseBus {
+    }
+
+    class CalculatedBus {
+        ComponentImpl connectedComponent
+        ComponentImpl synchronousComponent
+        CalculatedBusAttributes getAttributes()
+    }
+
+    class CalculatedBusAttributes {
+        Integer connectedComponentNumber
+        Integer synchronousComponentNumber
+    }
+
+    class ConfiguredBusImpl {
+        Optional<Bus> getMergedBus()
+    }
+
+    note right of ConfiguredBusImpl::getMergedBus
+        renvoit un CalculatedBus
+    end note
+
+    CalculatedBus --|> BaseBus
+    ConfiguredBusImpl --|> BaseBus
+    BaseBus --|> Bus
+}
+
+package graph {
+    interface GraphConnectivity<V, E> {
+        boolean connected(V v1, V v2)
+        Component<V> getConnectedComponent(V vertex)
+        Component<V> getLargestConnectedComponent()
+        List<Component<V>> getConnectedComponents()
+    }
+
+    interface GraphConnectivityFactory<V, E> {
+        GraphConnectivity<V, E> create()
+    }
+
+    interface Component<V> extends Iterable<V> {
+        int getNum()
+        int size()
+        boolean contains(V vertex)
+        Stream<V> stream()
+        Set<V> asSet()
+    }
+}
+
+package openloadflow {
+    class LfNetwork {
+    }
+    class OpenSecurityAnalysisProvider {
+    }
+    graph.GraphConnectivityFactory <-- OpenSecurityAnalysisProvider : "utilise"
+    graph.GraphConnectivity <-- LfNetwork : "connectivity"
+}
+
+"iidm-api" --[hidden]- "iidm-impl"
+"network-store-iidm-impl" -[hidden]-- "iidm-api"
+graph -[hidden]-- openloadflow
+
+@enduml
