@@ -1240,7 +1240,7 @@ public final class NetworkSerDe {
     }
 
     /**
-     * Deep copy of the network using XML converter.
+     * Deep copy of the network using serialization/deserialization.
      *
      * @param network the network to copy
      * @return the copy of the network
@@ -1250,7 +1250,7 @@ public final class NetworkSerDe {
     }
 
     /**
-     * Deep copy of the network using XML converter.
+     * Deep copy of the network using serialization/deserialization.
      *
      * @param network        the network to copy
      * @param networkFactory the network factory to use for the copy
@@ -1261,15 +1261,15 @@ public final class NetworkSerDe {
     }
 
     /**
-     * Deep copy of the network using XML converter.
+     * Deep copy of the network using serialization/deserialization.
      *
      * @param network        the network to copy
      * @param networkFactory the network factory to use for the copy
-     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures, has a low impact on performance.
+     * @param preserveConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures. If you are aiming for performance, consider setting it to false.
      * @return the copy of the network
      */
-    public static Network copy(Network network, NetworkFactory networkFactory, boolean useConnectableCreationOrder) {
-        return copy(network, networkFactory, ForkJoinPool.commonPool(), TreeDataFormat.JSON, useConnectableCreationOrder);
+    public static Network copy(Network network, NetworkFactory networkFactory, boolean preserveConnectableCreationOrder) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), TreeDataFormat.JSON, preserveConnectableCreationOrder);
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
@@ -1306,11 +1306,11 @@ public final class NetworkSerDe {
      * @param networkFactory              the network factory to use for the copy
      * @param executor                    the executor service to use for the copy
      * @param format                      the converter to use to export/import the network
-     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures. If you are aiming for performance, consider setting it to false.
+     * @param preserveConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures. If you are aiming for performance, consider setting it to false.
      * @return the copy of the network
      */
     @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
-    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format, boolean useConnectableCreationOrder) {
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format, boolean preserveConnectableCreationOrder) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
@@ -1318,7 +1318,7 @@ public final class NetworkSerDe {
             Pipe pipe = Pipe.open();
             executor.execute(() -> {
                 try (Pipe.SinkChannel sinkChannel = pipe.sink()) {
-                    write(network, new ExportOptions().setFormat(format).setConnectableCreationOrder(useConnectableCreationOrder), Channels.newOutputStream(sinkChannel));
+                    write(network, new ExportOptions().setFormat(format).setConnectableCreationOrder(preserveConnectableCreationOrder), Channels.newOutputStream(sinkChannel));
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
