@@ -90,7 +90,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
         // WHEN
         ShuntCompensator shuntCompensator = shuntCompensatorAdder.add();
         // THEN
-        assertTrue(Double.isNaN(shuntCompensator.getLocalTargetQ()));
+        assertTrue(Double.isNaN(shuntCompensator.getLocalTargetQ())); // No local target Q for shunt compensators => always NaN
         assertFalse(shuntCompensator.isRegulating());
     }
 
@@ -233,7 +233,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
         // THEN
         VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
         assertNotNull(voltageRegulation);
-        assertTrue(Double.isNaN(shuntCompensator.getLocalTargetQ()));
+        assertTrue(Double.isNaN(shuntCompensator.getLocalTargetQ())); // Always NaN for shunt compensators
         assertTrue(Double.isNaN(voltageRegulation.getTargetValue()));
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertFalse(voltageRegulation.isWithTerminal());
@@ -386,7 +386,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
     private ShuntCompensator createShuntCompensator(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator) {
         ShuntCompensatorAdder shuntCompensatorAdder = newShuntCompensatorAdder(dataVoltageRegulationHolderCreator.id())
             .setLocalTargetV(dataVoltageRegulationHolderCreator.localTargetV())
-            .setLocalTargetQ(dataVoltageRegulationHolderCreator.localTargetQ());
+            .setLocalTargetQ(dataVoltageRegulationHolderCreator.localTargetQ()); // Has no effect for shunt compensators
         if (dataVoltageRegulationHolderCreator.mode() != null) {
             shuntCompensatorAdder.newVoltageRegulation()
                 .withRegulating(dataVoltageRegulationHolderCreator.regulating())

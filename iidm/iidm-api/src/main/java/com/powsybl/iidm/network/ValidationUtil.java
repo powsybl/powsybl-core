@@ -1306,8 +1306,8 @@ public final class ValidationUtil {
                 String allowedModesString = allowedModes.stream().map(RegulationMode::name).collect(Collectors.joining(", "));
                 String message;
                 if (regulating) {
-                    message = String.format("The current regulationMode is %s but allowed modes are [%s] when isRemote = %s",
-                            mode, allowedModesString, isRemote);
+                    message = String.format("The current regulationMode is %s but allowed modes are [%s] when the terminal is %s.",
+                            mode, allowedModesString, isRemote ? "set" : "not set");
                 } else {
                     message = String.format("The current regulationMode is %s but allowed modes are [%s] when not regulating.",
                             mode, allowedModesString);

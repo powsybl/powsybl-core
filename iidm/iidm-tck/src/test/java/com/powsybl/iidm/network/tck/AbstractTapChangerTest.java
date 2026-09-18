@@ -843,7 +843,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void nullRegulatingTerminal() {
         ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null));
-        assertEquals("2 windings transformer 'twt': The current regulationMode is VOLTAGE but allowed modes are [] when isRemote = false", e.getMessage());
+        assertEquals("2 windings transformer 'twt': The current regulationMode is VOLTAGE but allowed modes are [] when the terminal is not set.", e.getMessage());
     }
 
     @Test

@@ -143,7 +143,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("2 windings transformer 'T1': The current regulationMode is VOLTAGE but allowed modes are [] when isRemote = false",
+        assertEquals("2 windings transformer 'T1': The current regulationMode is VOLTAGE but allowed modes are [] when the terminal is not set.",
             validationException.getMessage());
     }
 
@@ -357,19 +357,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
             400,
             2,
             true);
-        DataVoltageRegulationHolderCreator regulatingRemoteVoltageWithTargetQ = new DataVoltageRegulationHolderCreator("regulatingRemoteVoltageWithTargetQ",
-            RegulationMode.VOLTAGE,
-            true,
-            400,
-            2,
-            true);
         DataVoltageRegulationHolderCreator regulatingRemoteReactiveP = new DataVoltageRegulationHolderCreator("regulatingRemoteReactiveP",
-            RegulationMode.REACTIVE_POWER,
-            true,
-            100,
-            2,
-            true);
-        DataVoltageRegulationHolderCreator regulatingRemoteReactivePWithTargetQ = new DataVoltageRegulationHolderCreator("regulatingRemoteReactivePWithTargetQ",
             RegulationMode.REACTIVE_POWER,
             true,
             100,
@@ -377,9 +365,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
             true);
         return Stream.of(
             addArgumentSet(regulatingRemoteVoltage, false),
-            addArgumentSet(regulatingRemoteVoltageWithTargetQ, false),
-            addArgumentSet(regulatingRemoteReactiveP, false),
-            addArgumentSet(regulatingRemoteReactivePWithTargetQ, false)
+            addArgumentSet(regulatingRemoteReactiveP, false)
         );
     }
 

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-record DataVoltageRegulationHolderCreator(
+public record DataVoltageRegulationHolderCreator(
     String id,
     RegulationMode mode,
     boolean remoteTerminal,
