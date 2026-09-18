@@ -277,23 +277,33 @@ class SimpleComponentsManager implements ComponentsManager {
     public Component getComponent(BusExt bus) {
         update();
         int index = ac && dc ? bus.getQuickConnectedComponentNumber() : bus.getQuickSynchronousComponentNumber();
-        return components.get(index);
+        if (index >= 0 && index < components.size()) {
+            return components.get(index);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean isInMainComponent(BusExt bus) {
-        return getComponent(bus).getNum() == ComponentConstants.MAIN_NUM;
+        Component component = getComponent(bus);
+        return component != null && component.getNum() == ComponentConstants.MAIN_NUM;
     }
 
     @Override
     public Component getComponent(DcBusImpl bus) {
         update();
         int index = ac && dc ? bus.getQuickConnectedComponentNumber() : bus.getQuickDcConnectedComponentNumber();
-        return components.get(index);
+        if (index >= 0 && index < components.size()) {
+            return components.get(index);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean isInMainComponent(DcBusImpl bus) {
-        return getComponent(bus).getNum() == ComponentConstants.MAIN_NUM;
+        Component component = getComponent(bus);
+        return component != null && component.getNum() == ComponentConstants.MAIN_NUM;
     }
 }
