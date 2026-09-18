@@ -358,9 +358,13 @@ public class Comparison {
             compare("voltageRegulation.targetDeadband",
                 expected.getVoltageRegulation().getTargetDeadband(),
                 actual.getVoltageRegulation().getTargetDeadband());
-            compare("voltageRegulation.terminal",
-                expected.getVoltageRegulation().getTerminal().getConnectable().getId(),
-                actual.getVoltageRegulation().getTerminal().getConnectable().getId());
+            if (expected.getVoltageRegulation().getTerminal() != null) {
+                compare("voltageRegulation.terminal",
+                    expected.getVoltageRegulation().getTerminal().getConnectable().getId(),
+                    actual.getVoltageRegulation().getTerminal().getConnectable().getId());
+            } else {
+                compare("voltageRegulation.terminal", null, actual.getVoltageRegulation().getTerminal());
+            }
             compare("voltageRegulation.isRegulating",
                 expected.getVoltageRegulation().isRegulating(),
                 actual.getVoltageRegulation().isRegulating());
