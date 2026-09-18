@@ -10,7 +10,9 @@ package com.powsybl.security.results;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -20,11 +22,23 @@ public class PreContingencyResult extends AbstractContingencyResult {
     private final LoadFlowResult.ComponentResult.Status status;
 
     public PreContingencyResult() {
-        this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, NetworkResult.empty(), Double.NaN);
+        this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, NetworkResult.empty(), Double.NaN,
+                Collections.emptyList());
     }
 
-    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, double distributedActivePower) {
-        super(limitViolationsResult, networkResult, distributedActivePower);
+    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status,
+                                LimitViolationsResult limitViolationsResult,
+                                NetworkResult networkResult,
+                                double distributedActivePower) {
+        this(status, limitViolationsResult, networkResult, distributedActivePower, Collections.emptyList());
+    }
+
+    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status,
+                                LimitViolationsResult limitViolationsResult,
+                                NetworkResult networkResult,
+                                double distributedActivePower,
+                                List<MovedPhaseShifterResult> phaseShifterResults) {
+        super(limitViolationsResult, networkResult, distributedActivePower, phaseShifterResults);
         this.status = Objects.requireNonNull(status);
     }
 

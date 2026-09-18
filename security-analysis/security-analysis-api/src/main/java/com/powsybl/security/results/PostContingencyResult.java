@@ -11,7 +11,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian@ at rte-france.com>}
@@ -30,8 +31,9 @@ public class PostContingencyResult extends AbstractContingencyResult {
                                  LimitViolationsResult limitViolationsResult,
                                  NetworkResult networkResult,
                                  ConnectivityResult connectivityResult,
-                                 double distributedActivePower) {
-        super(limitViolationsResult, networkResult, distributedActivePower);
+                                 double distributedActivePower,
+                                 List<MovedPhaseShifterResult> phaseShifterResults) {
+        super(limitViolationsResult, networkResult, distributedActivePower, phaseShifterResults);
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);
         this.connectivityResult = Objects.requireNonNull(connectivityResult);
