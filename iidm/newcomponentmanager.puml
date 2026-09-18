@@ -38,19 +38,31 @@ package iidm-api {
 }
 
 package iidm-impl {
-    class NetworkImpl {
-        AbstractComponentsManager connectedComponentManager
-        AbstractComponentsManager synchronousComponentManager
-        AbstractComponentsManager dcComponentManager
+    interface ComponentsManager {
+        void invalidate()
+        void invalidate(VoltageLevel voltageLevel)
+        List<Component> getConnectedComponents()
+        Component getComponent(Bus bus)
+        boolean isInMainComponent(Bus bus)
+        Component getComponent(DcBus bus)
+        boolean isInMainComponent(DcBus bus)
     }
 
-    class AbstractComponentsManager<C extends Component> {
-        List<C> components
+    interface NetworkListener { }
+
+    NetworkListener <|.. ComponentsManager
+
+    class SimpleComponentsManager extends ComponentsManager {
+    }
+
+    class GraphConnectivityComponentsManager extends ComponentsManager {
         GraphConnectivity<Identifiable<?>, Identifiable<?>> connectivity
-        void invalidate()
-        void update()
-        List<C> getConnectedComponents()
-        C getComponent(int num)
+    }
+
+    class NetworkImpl {
+        ComponentsManager connectedComponentManager
+        ComponentsManager synchronousComponentManager
+        ComponentsManager dcComponentManager
     }
 
     interface BusExt {
