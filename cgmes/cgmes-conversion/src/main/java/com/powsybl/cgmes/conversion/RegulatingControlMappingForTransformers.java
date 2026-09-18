@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,9 +135,11 @@ public class RegulatingControlMappingForTransformers {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
-
-        rtc.setRegulationTerminal(regulatingTerminal.get())
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        rtc.newVoltageRegulation()
+            .withTerminal(regulatingTerminal.get())
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
         return true;
     }
 

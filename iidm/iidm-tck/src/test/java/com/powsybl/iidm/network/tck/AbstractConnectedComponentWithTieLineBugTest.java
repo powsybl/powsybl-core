@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,8 +38,8 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setBus("b1")
                 .setConnectableBus("b1")
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();

@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conformity;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,9 +150,13 @@ public final class CgmesConformity1NetworkCatalog {
                 .add()
             .add();
         shBrussels110.getTerminal().setQ(-330.75);
-        shBrussels110.setTargetV(110.0);
-        shBrussels110.setTargetDeadband(0.5);
-        shBrussels110.setVoltageRegulatorOn(false);
+        shBrussels110.newVoltageRegulation()
+            .withTargetValue(110.0)
+            .withTerminal(shBrussels110.getTerminal())
+            .withTargetDeadband(0.5)
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
             .setId("f96d552a-618d-4d0c-a39a-2dea3c411dee")
             .setName("BE-Busbar_5")
@@ -198,11 +203,15 @@ public final class CgmesConformity1NetworkCatalog {
                 .setGPerSection(7.0e-6)
                 .setMaximumSectionCount(1)
                 .add()
-            .setTargetV(380.0)
-            .setTargetDeadband(0.5)
-            .setVoltageRegulatorOn(false)
             .add();
         shBrussels380.getTerminal().setQ(-59.058144);
+        shBrussels380.newVoltageRegulation()
+            .withTargetDeadband(0.5)
+            .withTargetValue(380.0)
+            .withTerminal(shBrussels380.getTerminal())
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
         BoundaryLine be3 = vlBrussels380.newBoundaryLine()
             .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
             .setName("BE-Line_3")
@@ -451,9 +460,11 @@ public final class CgmesConformity1NetworkCatalog {
             .setMinP(50)
             .setMaxP(200)
             .setTargetP(-p)
-            .setTargetQ(targetQ)
-            .setTargetV(21.987)
-            .setVoltageRegulatorOn(true)
+            .setLocalTargetQ(targetQ)
+            .setLocalTargetV(21.987)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add()
             .setRatedS(300)
             .add();
         genBrussels21.newMinMaxReactiveLimits()
@@ -476,12 +487,15 @@ public final class CgmesConformity1NetworkCatalog {
             .setMinP(50)
             .setMaxP(200)
             .setTargetP(-p)
-            .setTargetQ(targetQ)
-            .setTargetV(115.5)
-            .setVoltageRegulatorOn(true)
-            // This generator regulates one end point of a power transformer
-            // (110 kV side of BE-TR2_1)
-            .setRegulatingTerminal(txBE21.getTerminal(TwoSides.TWO))
+            .setLocalTargetQ(targetQ)
+            .setLocalTargetV(115.5)
+            .newVoltageRegulation()
+                .withTargetValue(115.5)
+                .withMode(RegulationMode.VOLTAGE)
+                // This generator regulates one end point of a power transformer
+                // (110 kV side of BE-TR2_1)
+                .withTerminal(txBE21.getTerminal(TwoSides.TWO))
+                .add()
             .setRatedS(300)
             .add();
         ReactiveCapabilityCurveAdder rcca = genBrussels10.newReactiveCapabilityCurve();
@@ -593,14 +607,16 @@ public final class CgmesConformity1NetworkCatalog {
         TwoSides side = TwoSides.TWO;
         RatioTapChangerAdder rtca = tx.newRatioTapChanger()
             .setLowTapPosition(low)
-            .setTapPosition(14)
-            .setTargetDeadband(0.5);
+            .setTapPosition(14);
         addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setTargetV(10.815)
-            // TODO Set the right regulation terminal
-            .setRegulationTerminal(tx.getTerminal(side));
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                // TODO Set the right regulation terminal
+                .withTerminal(tx.getTerminal(side))
+                .withTargetValue(10.815)
+                .withTargetDeadband(0.5)
+                .add();
         rtca.add();
     }
 
@@ -661,10 +677,13 @@ public final class CgmesConformity1NetworkCatalog {
             .setTapPosition(10);
         addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(false)
-            .setTargetV(0.0)
-            .setTargetDeadband(0.5)
-            .setRegulationTerminal(txBE22.getTerminal2());
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetValue(0.0)
+                .withTargetDeadband(0.5)
+                .withTerminal(txBE22.getTerminal2())
+                .add();
         rtca.add();
 
     }
@@ -838,9 +857,13 @@ public final class CgmesConformity1NetworkCatalog {
             .setTapPosition(position);
         addTapSteps(rtca, TwoSides.ONE, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(false)
-            .setTargetV(0.0)
-            .setTargetDeadband(0.5);
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetValue(0.0)
+                .withTerminal(txBETR3.getLeg2().getTerminal())
+                .withTargetDeadband(0.5)
+                .add();
         rtca.add();
     }
 
@@ -962,17 +985,18 @@ public final class CgmesConformity1NetworkCatalog {
             .setAngle(-17.412200);
 
         VoltageLevel vlAnvers220 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_2);
-        vlAnvers220.newStaticVarCompensator()
-            .setId("3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
-            .setName("SVC-1230797516")
-            .setBus(BUS_ID_1)
-            .setConnectableBus(BUS_ID_1)
-            .setBmax(1 / 5062.5)
-            .setBmin(1 / (-5062.5))
-            .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-            .setRegulating(true)
-            .setVoltageSetpoint(229.5)
-            .add();
+        StaticVarCompensator staticVarCompensator = vlAnvers220.newStaticVarCompensator()
+                .setId("3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
+                .setName("SVC-1230797516")
+                .setBus(BUS_ID_1)
+                .setConnectableBus(BUS_ID_1)
+                .setBmax(1 / 5062.5)
+                .setBmin(1 / (-5062.5))
+                .setLocalTargetV(229.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
+                .add();
+        staticVarCompensator.getVoltageRegulation().setTerminal(staticVarCompensator.getTerminal(), 229.5);
+        staticVarCompensator.setLocalTargetV(Double.NaN);
 
         setGeneratorValues(network, "550ebe0d-f2b2-48c1-991f-cebea43a21aa", -118.0, -85.603401, 18.720301);
         setGeneratorValues(network, "3a3b27be-b18b-4385-b557-6735d733baf0", -90.0, 84.484905, 100.256);
@@ -1084,39 +1108,38 @@ public final class CgmesConformity1NetworkCatalog {
             .setQ0(67.377544);
 
         network.getShuntCompensator(SHUNT_ID_1).remove();
-        network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
-            .newShuntCompensator()
-            .setId(SHUNT_ID_1)
-            .setName("BE_S2")
-            .setConnectableBus(busBrussels380.getId())
-            .setBus(busBrussels380.getId())
-            .setSectionCount(1)
-            .newNonLinearModel()
-                .beginSection()
-                    .setB(3.46e-4)
-                    .setG(7.0e-6)
-                    .endSection()
-                .beginSection()
-                    .setB(5.19E-4)
-                    .setG(9.0E-6)
-                    .endSection()
-                .beginSection()
-                    .setB(6.58E-4)
-                    .setG(9.999999999999999E-6)
-                    .endSection()
-                .beginSection()
-                    .setB(7.27E-4)
-                    .setG(1.06E-5)
-                    .endSection()
-                .beginSection()
-                    .setB(7.620000000000001E-4)
-                    .setG(1.09E-5)
-                    .endSection()
-                .add()
-            .setTargetV(380.0)
-            .setTargetDeadband(0.5)
-            .setVoltageRegulatorOn(false)
-            .add();
+        ShuntCompensator shuntCompensatorBeS2 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
+                .newShuntCompensator()
+                    .setId(SHUNT_ID_1)
+                    .setName("BE_S2")
+                    .setConnectableBus(busBrussels380.getId())
+                    .setBus(busBrussels380.getId())
+                    .setSectionCount(1)
+                    .newNonLinearModel()
+                        .beginSection()
+                            .setB(3.46e-4)
+                            .setG(7.0e-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(5.19E-4)
+                            .setG(9.0E-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(6.58E-4)
+                            .setG(9.999999999999999E-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(7.27E-4)
+                            .setG(1.06E-5)
+                        .endSection()
+                        .beginSection()
+                            .setB(7.620000000000001E-4)
+                            .setG(1.09E-5)
+                        .endSection()
+                    .add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380.0).withTargetDeadband(0.5).withRegulating(false).add()
+                .add();
+        shuntCompensatorBeS2.getVoltageRegulation().setTerminal(shuntCompensatorBeS2.getTerminal(), 380.0);
         return network;
     }
 
@@ -1124,7 +1147,7 @@ public final class CgmesConformity1NetworkCatalog {
         Generator genBrussels10 = network
             .getGenerator(generatorId)
             .setTargetP(-p)
-            .setTargetQ(targetQ);
+            .setLocalTargetQ(targetQ);
         genBrussels10.getTerminal().setP(p).setQ(q);
     }
 

@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,8 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     private static final String SHUNT_LINEAR_MODEL = "shuntLinearModel";
     private static final String SHUNT_NON_LINEAR_MODEL = "shuntNonLinearModel";
     private static final String SECTION_COUNT = "sectionCount";
+    private static final String TARGET_V = "targetV";
+    private static final String LOCAL_TARGET_V = "localTargetV";
 
     private final String rootElementName;
     private final IidmVersion minVersionInclusive;
@@ -59,16 +62,15 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     @Override
     protected void readRootElementAttributes(ShuntCompensatorAdder adder, VoltageLevel parent, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
         assertReadCompatibility(context);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
             double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
             int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
             int sectionCount = context.getReader().readIntAttribute("currentSectionCount");
             adder.setSectionCount(sectionCount);
             adder.newLinearModel()
-                    .setBPerSection(bPerSection)
-                    .setMaximumSectionCount(maximumSectionCount)
-                    .add();
+                .setBPerSection(bPerSection)
+                .setMaximumSectionCount(maximumSectionCount)
+                .add();
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             OptionalInt sectionCount = context.getReader().readOptionalIntAttribute(SECTION_COUNT);
@@ -78,13 +80,23 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             OptionalInt solvedSectionCount = context.getReader().readOptionalIntAttribute("solvedSectionCount");
             solvedSectionCount.ifPresent(adder::setSolvedSectionCount);
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_2, IidmVersion.V_1_17, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
-            double targetV = context.getReader().readDoubleAttribute("targetV");
+            double targetV = context.getReader().readDoubleAttribute(TARGET_V);
             double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
-            adder.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband)
-                    .setVoltageRegulatorOn(voltageRegulatorOn);
+            adder.newVoltageRegulation()
+                .withTargetDeadband(targetDeadband)
+                .withRegulating(voltageRegulatorOn)
+                .withMode(RegulationMode.VOLTAGE)
+                .add();
+            adder.setLocalTargetV(targetV);
+            toApply.add(sc ->
+                context.addExtraProperties(sc, new NetworkDeserializerContext.ExtraPropertiesData(targetV,
+                    () -> sc.setLocalTargetV(Double.NaN))));
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            double targetV = context.getReader().readDoubleAttribute(LOCAL_TARGET_V);
+            adder.setLocalTargetV(targetV);
         });
         readNodeOrBus(adder, context, parent.getTopologyKind());
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_8, context, () -> {
@@ -150,12 +162,17 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     }
 
     private static void writeRegulationAttributes(String rootElementName, ShuntCompensator sc, NetworkSerializerContext context) {
-        IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(rootElementName, "voltageRegulatorOn",
-            sc.isVoltageRegulatorOn(), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetV", sc.getTargetV(),
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(rootElementName, "voltageRegulatorOn",
+                sc.isRegulatingWithMode(RegulationMode.VOLTAGE), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
+            IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, TARGET_V, sc.getRegulatingTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetDeadband",
-                sc.getTargetDeadband(), IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
+            double targetDeadband = sc.getVoltageRegulation() != null ? sc.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+            IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetDeadband",
+                targetDeadband, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context,
+            () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, sc.getLocalTargetV()));
     }
 
     private static void writePowerAttributes(ShuntCompensator sc, NetworkSerializerContext context) {
@@ -182,8 +199,9 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> writeModel(sc, context));
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmSerDeUtil.assertMinimumVersion(rootElementName, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_2, IidmVersion.V_1_17, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
         }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(sc.getVoltageRegulation(), context));
     }
 
     @Override
@@ -223,18 +241,16 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case REGULATING_TERMINAL -> readRegulatingTerminal(toApply, context);
+                case REGULATING_TERMINAL -> {
+                    IidmSerDeUtil.assertMaximumVersion(rootElementName, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_17, context);
+                    VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                }
                 case SHUNT_LINEAR_MODEL -> readShuntLinearModel(adder, context);
                 case SHUNT_NON_LINEAR_MODEL -> readShuntNonLinearModel(id, adder, context);
+                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
                 default -> readSubElement(elementName, id, toApply, context);
             }
         });
-    }
-
-    private static void readRegulatingTerminal(List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
-        TerminalRefSerDe.TerminalData data = TerminalRefSerDe.readTerminalData(context);
-        toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
-                () -> sc.setRegulatingTerminal(TerminalRefSerDe.resolve(data.id(), data.side(), data.number(), sc.getNetwork()))));
     }
 
     private void readShuntNonLinearModel(String id, ShuntCompensatorAdder adder, NetworkDeserializerContext context) {

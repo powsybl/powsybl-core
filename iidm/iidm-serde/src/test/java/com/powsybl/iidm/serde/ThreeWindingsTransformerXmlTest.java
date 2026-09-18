@@ -36,7 +36,6 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         twt.getLeg1().setRatedS(1.0);
 
         twt.getLeg1().newRatioTapChanger()
-                .setRegulating(false)
                 .setLoadTapChangingCapabilities(false)
                 .setTapPosition(0)
                 .beginStep()

@@ -10,7 +10,10 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.jspecify.annotations.NonNull;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS;
@@ -25,6 +28,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
 
     static final String ROOT_ELEMENT_NAME = "battery";
     static final String ARRAY_ELEMENT_NAME = "batteries";
+    public static final String LOCAL_TARGET_V = "localTargetV";
 
     @Override
     protected String getRootElementName() {
@@ -35,8 +39,9 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8),
                 b.getTargetP());
-        context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8),
-                b.getTargetQ());
+        context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", getTargetQName(context), context.getVersion(), IidmVersion.V_1_8),
+                b.getLocalTargetQ());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, b.getLocalTargetV()));
         context.getWriter().writeDoubleAttribute("minP", b.getMinP());
         context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
         writeNodeOrBus(null, b.getTerminal(), context);
@@ -44,8 +49,20 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     }
 
     @Override
+    protected void addExtinctExtensions(Battery b, NetworkSerializerContext context) {
+        if (com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe.isExtensionNeededAndExportable(b, context)) {
+            VoltageRegulationExtension extension = new VoltageRegulationExtension(b,
+                    b.getVoltageRegulation().getTerminal(),
+                    b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
+                    b.getRegulatingTargetV());
+            context.addExtinctExtensionsToSerialize(b.getId(), extension);
+        }
+    }
+
+    @Override
     protected void writeSubElements(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         ReactiveLimitsSerDe.INSTANCE.write(b, context);
+        VoltageRegulationSerDe.writeVoltageRegulation(b.getVoltageRegulation(), context);
     }
 
     @Override
@@ -58,12 +75,13 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
         double targetP = context.getReader().readDoubleAttribute(
                 IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8));
         double targetQ = context.getReader().readDoubleAttribute(
-                IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8));
+                IidmSerDeUtil.getAttributeName("q0", getTargetQName(context), context.getVersion(), IidmVersion.V_1_8));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V)));
         double minP = context.getReader().readDoubleAttribute("minP");
         double maxP = context.getReader().readDoubleAttribute("maxP");
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         Battery b = adder.setTargetP(targetP)
-                .setTargetQ(targetQ)
+                .setLocalTargetQ(targetQ)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .add();
@@ -77,8 +95,13 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
             switch (elementName) {
                 case ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(b, context);
                 case ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(b, context);
+                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(b, context, b.getNetwork());
                 default -> readSubElement(elementName, b, context);
             }
         });
+    }
+
+    private static <T extends AbstractOptions<T>> @NonNull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
+        return context.getVersion().compareTo(IidmVersion.V_1_18) < 0 ? "targetQ" : "localTargetQ";
     }
 }

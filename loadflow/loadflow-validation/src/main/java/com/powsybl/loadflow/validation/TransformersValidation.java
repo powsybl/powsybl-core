@@ -90,11 +90,11 @@ public final class TransformersValidation extends AbstractTransformersValidation
         double rho = ratioTapChanger.getCurrentStep().getRho();
         double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
         double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
-        double targetV = ratioTapChanger.getTargetV();
+        double targetV = ratioTapChanger.getRegulatingTargetV();
         TwoSides regulatedSide;
-        if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {
+        if (twt.getTerminal1().equals(ratioTapChanger.getRegulatingTerminal())) {
             regulatedSide = TwoSides.ONE;
-        } else if (twt.getTerminal2().equals(ratioTapChanger.getRegulationTerminal())) {
+        } else if (twt.getTerminal2().equals(ratioTapChanger.getRegulatingTerminal())) {
             regulatedSide = TwoSides.TWO;
         } else {
             LOGGER.warn("{} {}: {}: Unexpected regulation terminal (side 1 or 2 of transformer is expected), skipping validation",
@@ -107,7 +107,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
             }
             return true;
         }
-        TerminalState terminalState = getTerminalState(ratioTapChanger.getRegulationTerminal());
+        TerminalState terminalState = getTerminalState(ratioTapChanger.getRegulatingTerminal());
         return checkTransformer(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                  targetV, regulatedSide, terminalState, config, twtsWriter);
     }

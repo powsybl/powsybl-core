@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
@@ -130,8 +131,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setConnectableBus1(bus1.getId())
                 .setControlMode(AcDcConverter.ControlMode.V_DC)
                 .setTargetVdc(502.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(12.3)
+                .setLocalTargetQ(12.3)
                 .add();
         vsc1.setProperty("prop name", "prop value");
         vsc1.addAlias("someAlias");
@@ -152,9 +152,9 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(2.0)
                 .setSwitchingLoss(0.2)
                 .setResistiveLoss(2e-6)
-                .setVoltageRegulatorOn(true)
-                .setReactivePowerSetpoint(12.3)
-                .setVoltageSetpoint(387.)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetQ(12.3)
+                .setLocalTargetV(387.)
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-200.).setMaxQ(+210.).add();
         vsc2.getDcTerminal1().setP(-100.).setI(-200.);
@@ -184,8 +184,8 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(3.0)
                 .setSwitchingLoss(0.3)
                 .setResistiveLoss(3e-6)
-                .setVoltageRegulatorOn(true)
-                .setVoltageSetpoint(397.)
+                .setLocalTargetV(397.)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         vsc3.newReactiveCapabilityCurve()
                 .beginPoint().setP(-200.).setMinQ(-190.).setMaxQ(192.).endPoint()
@@ -217,8 +217,8 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setConnectableBus1("bus")
                 .setControlMode(AcDcConverter.ControlMode.V_DC)
                 .setTargetVdc(500.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .setLocalTargetQ(0.)
                 .setMaxP(500.)
                 .add();
         return network;

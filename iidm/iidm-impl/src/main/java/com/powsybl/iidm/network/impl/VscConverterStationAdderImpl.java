@@ -7,10 +7,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -25,6 +26,12 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     private double voltageSetpoint = Double.NaN;
 
     private TerminalExt regulatingTerminal;
+
+    private double localTargetQ = Double.NaN;
+
+    private double localTargetV = Double.NaN;
+
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -60,18 +67,55 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     }
 
     @Override
+    public VscConverterStationAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
+    }
+
+    @Override
+    public VscConverterStationAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
+    }
+
+    @Override
+    public VoltageRegulationAdder<VscConverterStationAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(VscConverterStation.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
+    }
+
+    @Override
     public VscConverterStationImpl add() {
         NetworkImpl network = getNetwork();
-        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
-            voltageRegulatorOn = false;
+
+        // Backward compatibility
+        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
+            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
+        } else {
+            // In the case of a vsc converter station with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
+            if (!Double.isNaN(voltageSetpoint) && Double.isNaN(localTargetV)) {
+                this.setLocalTargetV(voltageSetpoint);
+            }
+            if (!Double.isNaN(reactivePowerSetpoint) && Double.isNaN(localTargetQ)) {
+                this.setLocalTargetQ(reactivePowerSetpoint);
+            }
         }
+
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
-        VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetworkRef(),
-                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, regulatingTerminal);
+        VscConverterStationImpl converterStation = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(),
+                getNetworkRef(), localTargetQ, localTargetV, voltageRegulationAttributes);
         converterStation.addTerminal(terminal);
         getVoltageLevel().getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(converterStation);
@@ -83,9 +127,12 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     protected void validate() {
         super.validate();
         NetworkImpl network = getNetwork();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
-                reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+                VscConverterStation.class,
+                localTargetV,
+                localTargetQ,
+                voltageRegulationAttributes,
+                network.getMinValidationLevel(),
+                network.getReportNodeContext().getReportNode()));
     }
-
 }

@@ -23,6 +23,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
@@ -245,19 +247,24 @@ public class UcteImporter implements Importer {
 
         double generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
         double generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
+        boolean regulatingVoltage = ucteNode.isRegulatingVoltage();
 
-        Generator generator = voltageLevel.newGenerator()
+        GeneratorAdder adder = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setEnergySource(energySource)
                 .setBus(bus.getId())
                 .setConnectableBus(bus.getId())
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
-                .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
                 .setTargetP(generatorP)
-                .setTargetQ(generatorQ)
-                .setTargetV(ucteNode.getVoltageReference())
+                .setLocalTargetQ(generatorQ)
+                .setLocalTargetV(ucteNode.getVoltageReference());
+        if (regulatingVoltage) {
+            adder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
                 .add();
+        }
+        Generator generator = adder.add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())
@@ -490,10 +497,13 @@ public class UcteImporter implements Importer {
                 .setLoadTapChangingCapabilities(!Double.isNaN(uctePhaseRegulation.getU()));
         if (!Double.isNaN(uctePhaseRegulation.getU())) {
             rtca.setLoadTapChangingCapabilities(true)
-                    .setRegulating(true)
-                    .setTargetV(uctePhaseRegulation.getU())
-                    .setTargetDeadband(0.0)
-                    .setRegulationTerminal(transformer.getTerminal1());
+                .newVoltageRegulation()
+                    .withRegulating(true)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(uctePhaseRegulation.getU())
+                    .withTargetDeadband(0.0)
+                    .withTerminal(transformer.getTerminal1())
+                    .add();
         }
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             double rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100);
@@ -598,7 +608,10 @@ public class UcteImporter implements Importer {
 
         createRatioTapChangerAdder(uctePhaseRegulation, transformer)
                 .add();
-        transformer.getRatioTapChanger().setRegulating(false);
+        VoltageRegulation voltageRegulation = transformer.getRatioTapChanger().getVoltageRegulation();
+        if (voltageRegulation != null) {
+            voltageRegulation.setRegulating(false);
+        }
         double currentRatioTapChangerRho = transformer.getRatioTapChanger().getCurrentStep().getRho();
         createPhaseTapChangerAdder(ucteAngleRegulation, transformer, currentRatioTapChangerRho)
                 .add();

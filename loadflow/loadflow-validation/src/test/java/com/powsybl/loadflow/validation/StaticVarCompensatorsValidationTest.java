@@ -10,10 +10,11 @@ package com.powsybl.loadflow.validation;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,12 +74,17 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         when(svcTerminal.getVoltageLevel()).thenReturn(voltageLevel);
 
         svc = mock(StaticVarCompensator.class);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
         when(svc.getId()).thenReturn("svc");
         when(svc.getTerminal()).thenReturn(svcTerminal);
-        when(svc.getReactivePowerSetpoint()).thenReturn(reactivePowerSetpoint);
-        when(svc.getVoltageSetpoint()).thenReturn(voltageSetpoint);
-        when(svc.getRegulationMode()).thenReturn(regulationMode);
-        when(svc.isRegulating()).thenReturn(regulating);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
+        when(voltageRegulation.getTargetValue()).thenReturn(reactivePowerSetpoint); // regulationMode = REACTIVE_POWER
+        when(svc.getRegulatingTargetV()).thenReturn(voltageSetpoint);
+        when(svc.getRegulatingTargetQ()).thenReturn(reactivePowerSetpoint);
+        when(svc.getLocalTargetQ()).thenReturn(Double.NaN);
+        when(svc.getLocalTargetV()).thenReturn(voltageSetpoint);
+        when(voltageRegulation.getMode()).thenReturn(regulationMode);
+        when(voltageRegulation.isRegulating()).thenReturn(regulating);
         when(svc.getBmin()).thenReturn(bMin);
         when(svc.getBmax()).thenReturn(bMax);
     }
@@ -238,10 +244,10 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         // non-zero setpoint with missing p/q => KO
         when(svcTerminal.getP()).thenReturn(Double.NaN);
         when(svcTerminal.getQ()).thenReturn(Double.NaN);
-        when(svc.getReactivePowerSetpoint()).thenReturn(5.0);
+        when(svc.getRegulatingTargetQ()).thenReturn(5.0);
         assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVC(svc, strictConfig, NullWriter.INSTANCE));
         // zero setpoint with missing p/q => OK
-        when(svc.getReactivePowerSetpoint()).thenReturn(0.0);
+        when(svc.getRegulatingTargetQ()).thenReturn(0.0);
         assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVC(svc, strictConfig, NullWriter.INSTANCE));
     }
 
@@ -249,11 +255,15 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     void checkSVCReactivePowerModeMissingInputs() {
         // Given regulation enabled, and regulationMode is REACTIVE_POWER
-        when(svc.getRegulationMode()).thenReturn(RegulationMode.REACTIVE_POWER);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
+        when(voltageRegulation.getTargetValue()).thenReturn(reactivePowerSetpoint); // regulationMode = REACTIVE_POWER
+        when(voltageRegulation.getMode()).thenReturn(RegulationMode.REACTIVE_POWER);
+        when(voltageRegulation.isRegulating()).thenReturn(true);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
         when(svc.isRegulating()).thenReturn(true);
         // Given Rule1, Rule2 (OK)
         when(svcTerminal.getP()).thenReturn(0.0);
-        when(svc.getReactivePowerSetpoint()).thenReturn(Double.NaN);
+        when(svc.getRegulatingTargetQ()).thenReturn(Double.NaN);
         // When
         strictConfig.setOkMissingValues(false);
         // Then
@@ -268,11 +278,15 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     void checkSVCReactivePowerModeQMustMatchSetpoint() {
         // Given regulation enabled, and regulationMode is REACTIVE_POWER
-        when(svc.getRegulationMode()).thenReturn(RegulationMode.REACTIVE_POWER);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
+        when(voltageRegulation.getTargetValue()).thenReturn(3.0);
+        when(voltageRegulation.getMode()).thenReturn(RegulationMode.REACTIVE_POWER);
+        when(voltageRegulation.isRegulating()).thenReturn(true);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
         when(svc.isRegulating()).thenReturn(true);
 
         when(svcTerminal.getP()).thenReturn(0.0);
-        when(svc.getReactivePowerSetpoint()).thenReturn(3.0);
+        when(svc.getRegulatingTargetQ()).thenReturn(3.0);
         // When
         when(svcTerminal.getQ()).thenReturn(3.01);
         // Then
@@ -287,11 +301,15 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     void checkSVCVoltageModeMissingInputs() {
         // Given regulation enabled, and regulationMode is VOLTAGE
-        when(svc.getRegulationMode()).thenReturn(RegulationMode.VOLTAGE);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
+        when(voltageRegulation.getTargetValue()).thenReturn(Double.NaN);
+        when(voltageRegulation.getMode()).thenReturn(RegulationMode.VOLTAGE);
+        when(voltageRegulation.isRegulating()).thenReturn(true);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
         when(svc.isRegulating()).thenReturn(true);
         // Given Rule1, Rule 2 (OK)
         when(svcTerminal.getQ()).thenReturn(0.0);
-        when(svc.getVoltageSetpoint()).thenReturn(Double.NaN);
+        when(svc.getRegulatingTargetV()).thenReturn(Double.NaN);
         // When
         strictConfig.setOkMissingValues(false);
         // Then
@@ -306,13 +324,17 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     void checkSVCVoltageModeVLowerThanSetpoint() {
         // Given regulation enabled, and regulationMode is VOLTAGE
-        when(svc.getRegulationMode()).thenReturn(RegulationMode.VOLTAGE);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
+        when(voltageRegulation.getTargetValue()).thenReturn(380.0);
+        when(voltageRegulation.getMode()).thenReturn(RegulationMode.VOLTAGE);
+        when(voltageRegulation.isRegulating()).thenReturn(true);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
         when(svc.isRegulating()).thenReturn(true);
         when(svcTerminal.getP()).thenReturn(0.0);
         // Given V controlled < V setpoint
         Terminal regulatingTerminal = regulatingTerminalWithVoltage(360.0); // V controlled = 360.0
         when(svc.getRegulatingTerminal()).thenReturn(regulatingTerminal);
-        when(svc.getVoltageSetpoint()).thenReturn(380.0); // V setpoint 380.0
+        when(svc.getRegulatingTargetV()).thenReturn(380.0); // V setpoint 380.0
         double expectedQmax = -bMin * v * v;
         assertEquals(1444.0, expectedQmax);
         // Given q matching Qmax
@@ -327,13 +349,17 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     void checkSVCVoltageModeVHigherThanSetpoint() {
         // Given regulation enabled, and regulationMode is VOLTAGE
-        when(svc.getRegulationMode()).thenReturn(RegulationMode.VOLTAGE);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
+        when(voltageRegulation.getTargetValue()).thenReturn(380.0);
+        when(voltageRegulation.getMode()).thenReturn(RegulationMode.VOLTAGE);
+        when(voltageRegulation.isRegulating()).thenReturn(true);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
         when(svc.isRegulating()).thenReturn(true);
         when(svcTerminal.getP()).thenReturn(0.0);
         // Given V controlled > V setpoint
         Terminal regulatingTerminal = regulatingTerminalWithVoltage(400.0); // V controlled = 400.0
         when(svc.getRegulatingTerminal()).thenReturn(regulatingTerminal);
-        when(svc.getVoltageSetpoint()).thenReturn(380.0); // V setpoint 380.0
+        when(svc.getRegulatingTargetV()).thenReturn(380.0); // V setpoint 380.0
         double expectedQmin = -bMax * v * v;
         assertEquals(-14440.0, expectedQmin);
         // Given q matching Qmin
@@ -348,13 +374,17 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     void checkSVCVoltageModeVAtSetpoint() {
         // Given regulation enabled, and regulationMode is VOLTAGE
-        when(svc.getRegulationMode()).thenReturn(RegulationMode.VOLTAGE);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
+        when(voltageRegulation.getTargetValue()).thenReturn(380.0);
+        when(voltageRegulation.getMode()).thenReturn(RegulationMode.VOLTAGE);
+        when(voltageRegulation.isRegulating()).thenReturn(true);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
         when(svc.isRegulating()).thenReturn(true);
         when(svcTerminal.getP()).thenReturn(0.0);
         // Given V controlled ~ V setpoint
         Terminal regulatingTerminal = regulatingTerminalWithVoltage(380.0); // V controlled = 380.0.0
         when(svc.getRegulatingTerminal()).thenReturn(regulatingTerminal);
-        when(svc.getVoltageSetpoint()).thenReturn(380.0); // V setpoint 380.0
+        when(svc.getRegulatingTargetV()).thenReturn(380.0); // V setpoint 380.0
         double expectedQmax = -bMin * v * v;
         assertEquals(1444.0, expectedQmax);
         double expectedQmin = -bMax * v * v;
@@ -370,7 +400,11 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     @DisplayName("Rule: regulationMode = VOLTAGE, if regulating is false then reactive power (Q) should be equal to 0 ")
     @Test
     void checkSVCWhenNoRegulatingQShouldBeZero() {
-        when(svc.getRegulationMode()).thenReturn(RegulationMode.VOLTAGE);
+        VoltageRegulation voltageRegulation = mock(VoltageRegulation.class);
+        when(voltageRegulation.getTargetValue()).thenReturn(380.0);
+        when(voltageRegulation.getMode()).thenReturn(RegulationMode.VOLTAGE);
+        when(voltageRegulation.isRegulating()).thenReturn(false);
+        when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
         when(svc.isRegulating()).thenReturn(false);
         when(svcTerminal.getP()).thenReturn(0.0);
         when(svcTerminal.getQ()).thenReturn(0.009); // ~ threshold => invalid result

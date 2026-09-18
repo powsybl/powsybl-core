@@ -6,6 +6,7 @@ import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -469,9 +470,9 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMinP(200.0)
                 .setMaxP(900.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(900.0)
-                .setTargetV(380.0);
+                .setLocalTargetV(380.0);
     }
 
     private static TwoWindingsTransformerAdder createTwoWindingsTransformerAdder(Substation substation, String name, String voltageLevel1, String voltageLevel2) {

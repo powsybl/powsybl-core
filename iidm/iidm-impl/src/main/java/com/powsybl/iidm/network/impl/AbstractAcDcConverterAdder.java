@@ -179,7 +179,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
     }
 
-    private boolean hasTwoAcTerminals() {
+    public boolean hasTwoAcTerminals() {
         return bus2 != null || connectableBus2 != null || node2 != null;
     }
 
