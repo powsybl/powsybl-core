@@ -561,6 +561,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 } else {
                     network.getListeners().notifyPropertyRemoved(voltageLevel, INTERNAL_CONNECTION, null);
                 }
+                invalidateCache();
             }
 
             @Override
