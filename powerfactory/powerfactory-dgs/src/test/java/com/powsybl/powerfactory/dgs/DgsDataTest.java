@@ -74,6 +74,13 @@ class DgsDataTest extends AbstractSerDeTest {
     }
 
     @Test
+    void matrixOversizedRowsTest() {
+        // A matrix row declaring far more values than it carries must not allocate a matrix of that size.
+        StudyCase studyCase = assertDoesNotThrow(() -> loadCase("/MatrixOversizedRows.dgs"));
+        assertNotNull(studyCase);
+    }
+
+    @Test
     void v6ErrorTest() {
         assertThrows(PowerFactoryException.class, () -> loadCase("/ascii_v6.dgs"));
     }
