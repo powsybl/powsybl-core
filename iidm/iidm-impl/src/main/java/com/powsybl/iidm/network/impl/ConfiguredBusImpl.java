@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -176,10 +176,13 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
     }
 
     @Override
+    public int getQuickConnectedComponentNumber() {
+        return connectedComponentNumber.get(network.get().getVariantIndex());
+    }
+
+    @Override
     public Component getConnectedComponent() {
-        NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
-        ccm.update();
-        return ccm.getComponent(connectedComponentNumber.get(network.get().getVariantIndex()));
+        return getNetwork().getConnectedComponentsManager().getComponent(this);
     }
 
     @Override
@@ -191,10 +194,13 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
     }
 
     @Override
+    public int getQuickSynchronousComponentNumber() {
+        return synchronousComponentNumber.get(network.get().getVariantIndex());
+    }
+
+    @Override
     public Component getSynchronousComponent() {
-        NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
-        scm.update();
-        return scm.getComponent(synchronousComponentNumber.get(network.get().getVariantIndex()));
+        return getNetwork().getSynchronousComponentsManager().getComponent(this);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
+ * Copyright (c) 2025-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -128,10 +128,8 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
         networkRef.get().getListeners().notifyUpdate(this, "connectedComponentNumber", variantId, oldValue, connectedComponentNumber);
     }
 
-    public Component getConnectedComponent() {
-        NetworkImpl.ConnectedComponentsManager ccm = networkRef.get().getConnectedComponentsManager();
-        ccm.update();
-        return ccm.getComponent(connectedComponentNumber.get(networkRef.get().getVariantIndex()));
+    public int getQuickConnectedComponentNumber() {
+        return connectedComponentNumber.get(networkRef.get().getVariantIndex());
     }
 
     public void setDcComponentNumber(int componentNumber) {
@@ -141,10 +139,8 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
         networkRef.get().getListeners().notifyUpdate(this, "dcComponentNumber", variantId, oldValue, dcComponentNumber);
     }
 
-    public Component getDcComponent() {
-        NetworkImpl.DcComponentsManager dcm = networkRef.get().getDcComponentsManager();
-        dcm.update();
-        return dcm.getComponent(dcComponentNumber.get(networkRef.get().getVariantIndex()));
+    public int getQuickDcConnectedComponentNumber() {
+        return dcComponentNumber.get(networkRef.get().getVariantIndex());
     }
 
     @Override

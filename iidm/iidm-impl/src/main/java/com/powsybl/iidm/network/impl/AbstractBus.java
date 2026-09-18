@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
+abstract class AbstractBus extends AbstractIdentifiable<Bus> implements BusExt {
 
     protected VoltageLevelExt voltageLevel;
 
@@ -34,14 +34,12 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
     @Override
     public boolean isInMainConnectedComponent() {
-        Component cc = getConnectedComponent();
-        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
+        return getNetwork().getConnectedComponentsManager().isInMainComponent(this);
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        Component sc = getSynchronousComponent();
-        return sc != null && sc.getNum() == ComponentConstants.MAIN_NUM;
+        return getNetwork().getSynchronousComponentsManager().isInMainComponent(this);
     }
 
     @Override
