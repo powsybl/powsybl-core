@@ -9,7 +9,11 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
@@ -30,15 +34,27 @@ import java.util.function.Supplier;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> {
+public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> implements ContextualDeserializer {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
     public static final String VIOLATION_LOCATION_SUPPORT = "violationLocationSupport";
     private static final String CONTEXT_NAME = "limit-violation";
 
+    private final transient JsonDeserializer<Object> violationLocationDeserializer;
+
     public LimitViolationDeserializer() {
+        this(null);
+    }
+
+    public LimitViolationDeserializer(JsonDeserializer<Object> violationLocationDeserializer) {
         super(LimitViolation.class);
+        this.violationLocationDeserializer = violationLocationDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new LimitViolationDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, ViolationLocation.class));
     }
 
     @Override
@@ -73,8 +89,8 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "limitType":
-                    parser.nextToken();
-                    limitType = JsonUtil.readValue(deserializationContext, parser, LimitViolationType.class);
+                    //TODO should we add a JsonUtil.readEnum to manage the case where the text value is null?
+                    limitType = LimitViolationType.valueOf(parser.nextTextValue());
                     break;
 
                 case "limitName":
@@ -102,8 +118,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "side":
-                    parser.nextToken();
-                    side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
+                    side = ThreeSides.valueOf(parser.nextTextValue());
                     break;
 
                 case "extensions":
@@ -117,7 +132,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     }
 
                     parser.nextToken();
-                    violationLocation = JsonUtil.readValue(deserializationContext, parser, ViolationLocation.class);
+                    violationLocation = JsonUtil.readValue(violationLocationDeserializer, deserializationContext, parser, ViolationLocation.class);
                     break;
 
                 default:

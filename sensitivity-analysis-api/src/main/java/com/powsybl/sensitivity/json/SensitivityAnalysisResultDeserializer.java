@@ -9,7 +9,11 @@ package com.powsybl.sensitivity.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
@@ -23,12 +27,43 @@ import java.util.List;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityAnalysisResultDeserializer extends StdDeserializer<SensitivityAnalysisResult> {
+public class SensitivityAnalysisResultDeserializer extends StdDeserializer<SensitivityAnalysisResult> implements ContextualDeserializer {
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
+    private final transient JsonDeserializer<Object> factorsDeserializer;
+    private final transient JsonDeserializer<Object> sensitivityValuesDeserializer;
+    private final transient JsonDeserializer<Object> stateStatusDeserializer;
+    //TODO both are deserializer on strings, could we use the same ?
+    private final transient JsonDeserializer<Object> contingencyIdsDeserializer;
+    private final transient JsonDeserializer<Object> operatorStrategyIdsDeserializer;
+
     protected SensitivityAnalysisResultDeserializer() {
+        this(null, null, null, null, null);
+    }
+
+    protected SensitivityAnalysisResultDeserializer(JsonDeserializer<Object> factorsDeserializer,
+                                                    JsonDeserializer<Object> sensitivityValuesDeserializer,
+                                                    JsonDeserializer<Object> stateStatusDeserializer,
+                                                    JsonDeserializer<Object> contingencyIdsDeserializer,
+                                                    JsonDeserializer<Object> operatorStrategyIdsDeserializer) {
         super(SensitivityAnalysisResult.class);
+        this.factorsDeserializer = factorsDeserializer;
+        this.sensitivityValuesDeserializer = sensitivityValuesDeserializer;
+        this.stateStatusDeserializer = stateStatusDeserializer;
+        this.contingencyIdsDeserializer = contingencyIdsDeserializer;
+        this.operatorStrategyIdsDeserializer = operatorStrategyIdsDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new SensitivityAnalysisResultDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, SensitivityFactor.class),
+            JsonUtil.buildListDeserializer(ctxt, property, SensitivityValue.class),
+            JsonUtil.buildListDeserializer(ctxt, property, SensitivityAnalysisResult.SensitivityStateStatus.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class)
+        );
     }
 
     @Override
@@ -49,36 +84,36 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
 
                 case "sensitivityFactors":
                     parser.nextToken();
-                    factors = JsonUtil.readList(deserializationContext, parser, SensitivityFactor.class);
+                    factors = JsonUtil.readList(factorsDeserializer, deserializationContext, parser, SensitivityFactor.class);
                     break;
 
                 case "sensitivityValues":
                     parser.nextToken();
-                    sensitivityValues = JsonUtil.readList(deserializationContext, parser, SensitivityValue.class);
+                    sensitivityValues = JsonUtil.readList(sensitivityValuesDeserializer, deserializationContext, parser, SensitivityValue.class);
                     break;
 
                 case "contingencyStatus":
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
                     parser.nextToken();
-                    stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
+                    stateStatus = JsonUtil.readList(stateStatusDeserializer, deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
                     break;
 
                 case "stateStatus":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: stateStatus", version, "1.1");
                     parser.nextToken();
-                    stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
+                    stateStatus = JsonUtil.readList(stateStatusDeserializer, deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
                     break;
 
                 case "contingencyIds":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyIds", version, "1.1");
                     parser.nextToken();
-                    contingencyIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                    contingencyIds = JsonUtil.readList(contingencyIdsDeserializer, deserializationContext, parser, String.class);
                     break;
 
                 case "operatorStrategyIds":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: operatorStrategyIds", version, "1.1");
                     parser.nextToken();
-                    operatorStrategyIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                    operatorStrategyIds = JsonUtil.readList(operatorStrategyIdsDeserializer, deserializationContext, parser, String.class);
                     break;
 
                 default:

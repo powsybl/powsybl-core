@@ -9,7 +9,11 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.ConnectivityResult;
@@ -21,10 +25,22 @@ import java.util.Set;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> {
+public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> implements ContextualDeserializer {
+
+    private final transient JsonDeserializer<Object> disconnectedElementsDeserializer;
 
     public ConnectivityResultDeserializer() {
+        this(null);
+    }
+
+    public ConnectivityResultDeserializer(JsonDeserializer<Object> disconnectedElementsDeserializer) {
         super(ConnectivityResult.class);
+        this.disconnectedElementsDeserializer = disconnectedElementsDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new ConnectivityResultDeserializer(JsonUtil.buildSetDeserializer(ctxt, property, String.class));
     }
 
     @Override
@@ -56,7 +72,7 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
                     break;
                 case "disconnectedElements":
                     parser.nextToken();
-                    disconnectedElements = JsonUtil.readSet(deserializationContext, parser, String.class);
+                    disconnectedElements = JsonUtil.readSet(disconnectedElementsDeserializer, deserializationContext, parser, String.class);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());

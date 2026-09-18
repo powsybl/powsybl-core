@@ -9,7 +9,11 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
@@ -23,10 +27,22 @@ import java.io.IOException;
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class FeederResultDeserializer extends StdDeserializer<FeederResult> {
+class FeederResultDeserializer extends StdDeserializer<FeederResult> implements ContextualDeserializer {
+
+    private final transient JsonDeserializer<Object> fortescueDeserializer;
 
     FeederResultDeserializer() {
+        this(null);
+    }
+
+    FeederResultDeserializer(JsonDeserializer<Object> fortescueDeserializer) {
         super(FeederResult.class);
+        this.fortescueDeserializer = fortescueDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new FeederResultDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, FortescueValue.class));
     }
 
     @Override
@@ -44,16 +60,13 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
                 }
                 case "current" -> {
                     parser.nextToken();
-                    current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
+                    current = JsonUtil.readValue(fortescueDeserializer, deserializationContext, parser, FortescueValue.class);
                 }
                 case "currentMagnitude" -> {
                     parser.nextToken();
                     currentMagnitude = parser.readValueAs(Double.class);
                 }
-                case "side" -> {
-                    parser.nextToken();
-                    side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
-                }
+                case "side" -> side = ThreeSides.valueOf(parser.nextTextValue());
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
