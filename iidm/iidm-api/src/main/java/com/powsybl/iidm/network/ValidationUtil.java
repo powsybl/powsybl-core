@@ -716,25 +716,54 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
-                                                     ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkLoadingLimits(validable, permanentLimit, detectionKind, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
+    /**
+     * This function checks that the permanent limit name is not specified for a limit of detection kind LOW.
+     * @param detectionKind the kind of the limit
+     * @param permanentLimitName the name of the permanent limit (can be null)
+     */
+    public static void checkPermanentLimitName(Validable validable, DetectionKind detectionKind, String permanentLimitName) {
+        if (detectionKind == DetectionKind.LOW && permanentLimitName != null && !permanentLimitName.isEmpty()) {
+            throw new ValidationException(
+                validable,
+                String.format(
+                    "The permanent limit name '%s' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
+                    permanentLimitName
+                ));
+        }
     }
 
-    private static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
-                                                      ActionOnError actionOnError, ReportNode reportNode) {
+    /**
+     * Check that the provided limit has correct values.
+     * @param validable used to get the error message header in case the limit is invalid
+     * @param permanentLimit the value of the permanent limit. Must be strictly positive.
+     * @param permanentLimitName the name of the permanent limit. Must be empty if the detection kind is LOW.
+     * @param detectionKind the kind of the limit
+     * @param temporaryLimits all the temporary limits. Each one must be higher than the permanent limit,
+     *                        and each limit's value must be higher than the previous one.
+     * @param validationLevel the level of validation of the network
+     * @param reportNode to report and log errors
+     * @return the new validation level after checking the limit.
+     */
+    public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, String permanentLimitName, DetectionKind detectionKind,
+                                                     Collection<LoadingLimits.TemporaryLimit> temporaryLimits, ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkLoadingLimits(validable, permanentLimit, permanentLimitName, detectionKind, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    private static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, String permanentLimitName, DetectionKind detectionKind,
+                                                      Collection<LoadingLimits.TemporaryLimit> temporaryLimits, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationUtil.checkPermanentLimit(validable, permanentLimit, detectionKind, temporaryLimits, actionOnError, reportNode);
+        ValidationUtil.checkPermanentLimitName(validable, detectionKind, permanentLimitName);
         ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits);
         return validationLevel;
     }
 
-    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
-                                                      ValidationLevel validationLevel, ReportNode reportNode) {
+    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, DetectionKind detectionKind,
+                                                      Collection<LoadingLimits.TemporaryLimit> temporaryLimits, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkPermanentLimit(validable, permanentLimit, detectionKind, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
-                                                       ActionOnError actionOnError, ReportNode reportNode) {
+    private static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, DetectionKind detectionKind,
+                                                       Collection<LoadingLimits.TemporaryLimit> temporaryLimits, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (detectionKind == DetectionKind.HIGH) {
             if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty()) {
@@ -752,7 +781,12 @@ public final class ValidationUtil {
             }
         } else {
             if (!Double.isNaN(permanentLimit)) {
-                throw new ValidationException(validable, "permanent limit cannot be set if DetectionKind is LOW");
+                throw new ValidationException(
+                    validable,
+                    String.format(
+                        "A permanent limit of value '%.2f' is specified, but the detection kind is LOW. There is no permanent limit for such a kind.",
+                        permanentLimit
+                    ));
             }
         }
         return validationLevel;
@@ -961,7 +995,7 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkLoadingLimits(Validable validable, LoadingLimits limits, ValidationLevel validationLevel,
                                                       ActionOnError actionOnError, ReportNode reportNode) {
-        return ValidationLevel.min(validationLevel, checkLoadingLimits(validable, limits.getPermanentLimit(),
+        return ValidationLevel.min(validationLevel, checkLoadingLimits(validable, limits.getPermanentLimit(), limits.getPermanentLimitName(),
             limits.getDetectionKind(), limits.getTemporaryLimits(), actionOnError, reportNode));
     }
 
