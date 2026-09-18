@@ -1273,7 +1273,7 @@ public final class NetworkSerDe {
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
-        return copy(network, networkFactory, executor, TreeDataFormat.JSON, true);
+        return copy(network, networkFactory, executor, TreeDataFormat.JSON, false);
     }
 
     /**
@@ -1296,7 +1296,7 @@ public final class NetworkSerDe {
      * @return the copy of the network
      */
     public static Network copy(Network network, NetworkFactory networkFactory, TreeDataFormat format) {
-        return copy(network, networkFactory, ForkJoinPool.commonPool(), format, true);
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), format, false);
     }
 
     /**
