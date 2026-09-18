@@ -28,6 +28,9 @@ import static com.powsybl.cgmes.conversion.Conversion.*;
  */
 public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final String FROM_END_ISO_CODE = "fromEndIsoCode";
+    private static final String TO_END_ISO_CODE = "toEndIsoCode";
+
     public NodeConversion(String nodeTypeName, PropertyBag n, Context context) {
         super(nodeTypeName, n, context);
     }
@@ -76,20 +79,20 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private Country boundaryCountryCode() {
         // Selection of country code when ENTSO-E extensions are present
-        return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
-                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
+        return CountryConversion.fromIsoCode(p.getLocal(FROM_END_ISO_CODE))
+                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal(TO_END_ISO_CODE))
                         .orElseGet(() -> {
                             Supplier<String> countryCodes = () -> String.format("Country. ISO codes %s %s",
-                                    p.getLocal("fromEndIsoCode"),
-                                    p.getLocal("toEndIsoCode"));
+                                    p.getLocal(FROM_END_ISO_CODE),
+                                    p.getLocal(TO_END_ISO_CODE));
                             ignored(countryCodes);
                             return null;
                         }));
     }
 
     public static Country boundaryCountryCode(PropertyBag p) {
-        return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
-                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
+        return CountryConversion.fromIsoCode(p.getLocal(FROM_END_ISO_CODE))
+                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal(TO_END_ISO_CODE))
                         .orElse(null));
     }
 
@@ -101,8 +104,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (localCountry == null) {
             return null;
         }
-        Optional<Country> from = CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"));
-        Optional<Country> to = CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"));
+        Optional<Country> from = CountryConversion.fromIsoCode(p.getLocal(FROM_END_ISO_CODE));
+        Optional<Country> to = CountryConversion.fromIsoCode(p.getLocal(TO_END_ISO_CODE));
 
         if (from.isPresent() && to.isPresent()) {
             if (from.get() == localCountry) {
