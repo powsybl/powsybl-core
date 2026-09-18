@@ -153,6 +153,53 @@ And the file `manualExampleBasename_SV.xml` will contain:
 
 Remember that, in addition to setting the info for metadata models in the IIDM extensions, you could also rely on parameters passed to the export methods.
 
+(cgmes-partial-ssh-export)=
+## Partial SSH export from recorded changes
+
+The exports described above always write the complete state of the network. When two processes already share the same base model and only need to exchange small changes to that base model, writing and reading a full grid model is unnecessary. `PartialSshExport` writes a *partial* SSH instance file, containing only the objects
+affected by a list of changes recorded on the network:
+
+```java
+NetworkEventRecorder recorder = new NetworkEventRecorder();
+network.addListener(recorder);
+
+network.getGenerator("GEN").setTargetP(120.0);
+network.getSwitch("BREAKER").setOpen(true);
+
+// to a file
+PartialSshExport.write(network, recorder.getEvents(), Path.of("update_SSH.xml"),
+        UnsupportedChangeBehavior.FAIL);
+// or to a string, for an in-memory exchange
+String ssh = PartialSshExport.toString(network, recorder.getEvents(),
+        UnsupportedChangeBehavior.FAIL);
+```
+
+The result is a regular SSH instance file that the receiving side applies through the usual update workflow:
+
+```java
+Properties parameters = new Properties();
+parameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+receiver.update(new GenericReadOnlyDataSource(directory, "update"), parameters);
+```
+
+Setting `iidm.import.cgmes.use-previous-values-during-update` is required: it tells the import to keep its current value for everything the partial file does not mention.
+
+### Supported changes
+
+| Equipment | Change |
+| --- | --- |
+| `Switch` | open or closed state |
+| `DcSwitch` | open or closed state, written as the connection status of its DC terminals |
+| `Load` | active and reactive setpoint |
+| `Generator` | active, reactive and voltage target, voltage regulation on or off |
+| `TwoWindingsTransformer`, `ThreeWindingsTransformer` | phase and ratio tap changer position |
+| `ShuntCompensator` | section count, voltage target, voltage regulation on or off |
+| `StaticVarCompensator` | voltage and reactive power setpoint |
+| `HvdcLine` | active power setpoint |
+| `VscConverterStation` | voltage setpoint |
+
+Anything else, in particular the creation or the removal of equipment and changes of terminal connection status has no representation in the SSH profile. Every export method takes an `UnsupportedChangeBehavior` saying what to do with such a change: `FAIL` rejects it, so that it is never silently lost, and `IGNORE` logs a warning and leaves it out of the file. Using the `write` endpoints return value, you can obtain a log of changes that made it to the file for tracking the effect of `IGNORE`.
+
 ## Topology kind
 
 The elements written in the exported files depend on the topology kind of the export and on the CIM version.
