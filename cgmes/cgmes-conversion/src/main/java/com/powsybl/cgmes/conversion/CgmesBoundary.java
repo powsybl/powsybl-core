@@ -54,6 +54,8 @@ public class CgmesBoundary {
 
         nodes.add(cn);
         nodes.add(tn);
+        nodesPropertyBags.put(cn, node);
+        nodesPropertyBags.put(tn, node);
         nodesName.put(cn, node.get("name"));
         String tnName = node.get("topologicalNodeName");
         nodesName.put(tn, tnName);
@@ -137,7 +139,12 @@ public class CgmesBoundary {
         return topologicalNodes.keySet();
     }
 
+    public Optional<PropertyBag> getXNode(String nodeId) {
+        return Optional.ofNullable(nodesPropertyBags.get(nodeId));
+    }
+
     private final Set<String> nodes;
+    private final Map<String, PropertyBag> nodesPropertyBags = new HashMap<>();
     private final Map<String, List<BoundaryEquipment>> nodesEquipment;
     private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
     private final Map<String, String> nodesName;

@@ -48,4 +48,30 @@ public interface Boundary {
     default VoltageLevel getNetworkSideVoltageLevel() {
         return getBoundaryLine().getTerminal().getVoltageLevel();
     }
+
+    /**
+     * Get the country of the network side.
+     * @return the local country or null if not defined
+     */
+    default Country getCountry() {
+        return getNetworkSideVoltageLevel().getSubstation().flatMap(Substation::getCountry).orElse(null);
+    }
+
+    /**
+     * Get the country at the other side of the boundary.
+     * @return the remote country or null if not defined
+     */
+    default Country getCountryTo() {
+        return getBoundaryLine().getCountryTo();
+    }
+
+    /**
+     * Set the country at the other side of the boundary.
+     * @param countryTo the remote country
+     * @return the boundary itself
+     */
+    default Boundary setCountryTo(Country countryTo) {
+        getBoundaryLine().setCountryTo(countryTo);
+        return this;
+    }
 }

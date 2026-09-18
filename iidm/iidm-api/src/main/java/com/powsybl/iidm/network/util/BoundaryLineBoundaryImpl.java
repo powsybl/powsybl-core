@@ -110,6 +110,17 @@ public class BoundaryLineBoundaryImpl implements Boundary {
         return parent.getTerminal().getVoltageLevel();
     }
 
+    @Override
+    public Country getCountryTo() {
+        return parent.getCountryTo();
+    }
+
+    @Override
+    public Boundary setCountryTo(Country countryTo) {
+        parent.setCountryTo(countryTo);
+        return this;
+    }
+
     private static double getV(Bus b) {
         return b == null ? Double.NaN : b.getV();
     }

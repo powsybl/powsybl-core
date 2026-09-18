@@ -12,10 +12,7 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -264,6 +261,8 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     private final TDoubleArrayList q0;
 
+    private final ArrayList<Country> countryTo;
+
     private final BoundaryLineBoundaryImplExt boundary;
 
     BoundaryLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
@@ -272,9 +271,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);
         this.q0 = new TDoubleArrayList(variantArraySize);
+        this.countryTo = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.p0.add(p0);
             this.q0.add(q0);
+            this.countryTo.add(null);
         }
         this.r = r;
         this.x = x;
@@ -352,6 +353,22 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("q0", variantId, oldValue, q0);
+        return this;
+    }
+
+    @Override
+    public Country getCountryTo() {
+        return countryTo.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public BoundaryLineImpl setCountryTo(Country countryTo) {
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        Country oldValue = this.countryTo.set(variantIndex, countryTo);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("countryTo", variantId, oldValue, countryTo);
         return this;
     }
 
@@ -540,9 +557,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         p0.ensureCapacity(p0.size() + number);
         q0.ensureCapacity(q0.size() + number);
+        countryTo.ensureCapacity(countryTo.size() + number);
         for (int i = 0; i < number; i++) {
             p0.add(p0.get(sourceIndex));
             q0.add(q0.get(sourceIndex));
+            countryTo.add(countryTo.get(sourceIndex));
         }
         if (generation != null) {
             generation.extendVariantArraySize(number, sourceIndex);
@@ -554,6 +573,9 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         super.reduceVariantArraySize(number);
         p0.remove(p0.size() - number, number);
         q0.remove(q0.size() - number, number);
+        for (int i = 0; i < number; i++) {
+            countryTo.remove(countryTo.size() - 1);
+        }
         if (generation != null) {
             generation.reduceVariantArraySize(number);
         }
@@ -571,6 +593,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         for (int index : indexes) {
             p0.set(index, p0.get(sourceIndex));
             q0.set(index, q0.get(sourceIndex));
+            countryTo.set(index, countryTo.get(sourceIndex));
         }
         if (generation != null) {
             generation.allocateVariantArrayElement(indexes, sourceIndex);

@@ -45,7 +45,12 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * Return an input stream of the test resource IIDM-XML file with a given file name in a given IIDM version.
      */
     protected InputStream getVersionedNetworkAsStream(String fileName, IidmVersion version) {
-        return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
+        InputStream is = getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
+        if (is == null && version == IidmVersion.V_1_19) {
+            // New IIDM versions can be added before all versioned reference files are created.
+            is = getClass().getResourceAsStream(getVersionedNetworkPath(fileName, CURRENT_IIDM_VERSION));
+        }
+        return is;
     }
 
     /**

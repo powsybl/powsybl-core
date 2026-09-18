@@ -41,6 +41,8 @@ public interface BoundaryLineAdder extends InjectionAdder<BoundaryLine, Boundary
 
     BoundaryLineAdder setB(double b);
 
+    BoundaryLineAdder setCountryTo(Country countryTo);
+
     BoundaryLineAdder setPairingKey(String pairingKey);
 
     default GenerationAdder newGeneration() {

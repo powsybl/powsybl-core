@@ -208,13 +208,21 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t);
         }
 
+        Country localCountry = voltageLevel(modelSide)
+                .flatMap(VoltageLevel::getSubstation)
+                .flatMap(Substation::getCountry)
+                .orElse(null);
+
         BoundaryLineAdder blAdder = voltageLevel(modelSide).map(vl -> vl.newBoundaryLine()
                         .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                         .setR(r)
                         .setX(x)
                         .setG(gch)
                         .setB(bch)
-                        .setPairingKey(findPairingKey(boundaryNode)))
+                        .setPairingKey(findPairingKey(boundaryNode))
+                        .setCountryTo(context.boundary().getXNode(boundaryNode)
+                                .map(node -> NodeConversion.boundaryCountryToCode(node, localCountry))
+                                .orElse(null)))
                 .orElseThrow(() -> new CgmesModelException("Boundary line " + id + " has no container"));
         identify(blAdder);
         connectWithOnlyEq(blAdder, modelSide);
