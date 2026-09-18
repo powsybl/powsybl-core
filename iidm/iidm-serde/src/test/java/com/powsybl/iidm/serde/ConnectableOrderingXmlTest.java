@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -57,13 +58,13 @@ class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testCopy() {
+    void testCopyPreserveConnectableCreationOrderParameter() {
         Network network = Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm"));
-        Network exportNetwork = NetworkSerDe.copy(network);
+        Network exportNetwork = NetworkSerDe.copy(network, NetworkFactory.findDefault(), true);
         assertEquals(network.getTwoWindingsTransformers().toString(), exportNetwork.getTwoWindingsTransformers().toString());
 
         network = Network.read("/twtOrderingSorted.xiidm", getNetworkAsStream("/twtOrderingSorted.xiidm"));
-        exportNetwork = NetworkSerDe.copy(network);
+        exportNetwork = NetworkSerDe.copy(network, NetworkFactory.findDefault(), true);
         assertEquals(network.getTwoWindingsTransformers().toString(), exportNetwork.getTwoWindingsTransformers().toString());
     }
 }
