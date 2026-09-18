@@ -9,9 +9,13 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -37,5 +41,25 @@ class TestAbstractTopologyModel {
 
             assertEquals(5, AbstractTopologyModel.loadNodeIndexLimit(platformConfig));
         }
+    }
+
+    @Test
+    void updateBusIdThrowsWhenBusDoesNotExist() {
+        Network network = EurostagTutorialExample1Factory.create();
+        TopologyModel topologyModel = ((VoltageLevelExt) network.getVoltageLevel("VLGEN")).getTopologyModel();
+
+        PowsyblException e = assertThrows(PowsyblException.class,
+                () -> topologyModel.updateBusId("UNKNOWN_BUS", "NEW_ID"));
+        assertEquals("Bus with id UNKNOWN_BUS does not exists in the voltage level bus breaker topology model", e.getMessage());
+    }
+
+    @Test
+    void updateSwitchIdThrowsWhenSwitchDoesNotExist() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TopologyModel topologyModel = ((VoltageLevelExt) network.getVoltageLevel("S1VL1")).getTopologyModel();
+
+        PowsyblException e = assertThrows(PowsyblException.class,
+                () -> topologyModel.updateSwitchId("UNKNOWN_SWITCH", "NEW_ID"));
+        assertEquals("Switch with id UNKNOWN_SWITCH does not exist", e.getMessage());
     }
 }
