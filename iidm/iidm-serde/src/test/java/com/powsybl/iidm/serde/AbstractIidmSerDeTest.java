@@ -245,6 +245,19 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Get all versions that are equal or more recent than the <code>minVersionIncluded</code> and strictly inferior to a given <code>maxVersionExcluded</code>
+     * @param minVersionIncluded the minimum version (included)
+     * @param maxVersionExcluded the maximum version (excluded)
+     * @return an array containing all versions more recent than <code>minVersionIncluded</code> (equal or more recent) and older than <code>maxVersionExcluded</code>
+     * (strictly older)
+     */
+    private static IidmVersion[] allBetweenVersions(IidmVersion minVersionIncluded, IidmVersion maxVersionExcluded) {
+        return Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersionIncluded) >= 0 && v.compareTo(maxVersionExcluded) < 0)
+            .toArray(IidmVersion[]::new);
+    }
+
+    /**
      * All-formats round trip from given network with reference xml file:
      * <ul>
      *     <li>write given network to a JSON file</li>
@@ -295,6 +308,21 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     public void allFormatsRoundTripFromMinVersionTest(Network network, String filename, IidmVersion minVersionIncluded) throws IOException {
         for (IidmVersion version : allFollowingVersions(minVersionIncluded)) {
+            allFormatsRoundTripTest(network, filename, version);
+        }
+    }
+
+    /**
+     * Serialize and deserialize the given network in all serialized IIDM formats (see {@link #allFormatsRoundTripTest(Network, String)}, for all versions
+     * that are more recent than the given <code>minVersionIncluded</code> (included) and older than the given <code>maxVersionExcluded</code> (excluded)
+     * @param network the network to serialize
+     * @param filename the filename of the reference versioned file resource (to compare the serialized network with)
+     * @param minVersionIncluded the minimum version (included)
+     * @param maxVersionExcluded the maximum version (excluded)
+     * @throws IOException if the network file cannot be read or written (or the same for the reference file)
+     */
+    public void allFormatsRoundTripFromMinToMaxVersionTest(Network network, String filename, IidmVersion minVersionIncluded, IidmVersion maxVersionExcluded) throws IOException {
+        for (IidmVersion version : allBetweenVersions(minVersionIncluded, maxVersionExcluded)) {
             allFormatsRoundTripTest(network, filename, version);
         }
     }
