@@ -87,6 +87,34 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                         }));
     }
 
+    public static Country boundaryCountryCode(PropertyBag p) {
+        return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
+                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
+                        .orElse(null));
+    }
+
+    public static Country boundaryCountryToCode(PropertyBag p) {
+        return boundaryCountryToCode(p, boundaryCountryCode(p));
+    }
+
+    public static Country boundaryCountryToCode(PropertyBag p, Country localCountry) {
+        if (localCountry == null) {
+            return null;
+        }
+        Optional<Country> from = CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"));
+        Optional<Country> to = CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"));
+
+        if (from.isPresent() && to.isPresent()) {
+            if (from.get() == localCountry) {
+                return to.get();
+            }
+            if (to.get() == localCountry) {
+                return from.get();
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean valid() {
         if (voltageLevel() == null) {

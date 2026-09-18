@@ -10,12 +10,16 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.cgmes.conversion.CountryConversion;
+import com.powsybl.cgmes.conversion.elements.NodeConversion;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.triplestore.api.PropertyBag;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -58,5 +62,36 @@ class CountryConversionTest {
                 .forEach((name, country) -> assertEquals(country,
                         CountryConversion.fromSubregionName(name).get()));
         assertEquals(Optional.empty(), CountryConversion.fromSubregionName("XYZ"));
+    }
+
+    @Test
+    void boundaryCountryToUsesLocalCountry() {
+        PropertyBag p = new PropertyBag(Arrays.asList("fromEndIsoCode", "toEndIsoCode"), true);
+        p.put("fromEndIsoCode", "FR");
+        p.put("toEndIsoCode", "ES");
+
+        assertEquals(Country.ES, NodeConversion.boundaryCountryToCode(p, Country.FR));
+        assertEquals(Country.FR, NodeConversion.boundaryCountryToCode(p, Country.ES));
+        assertNull(NodeConversion.boundaryCountryToCode(p, Country.GB));
+    }
+
+    @Test
+    void boundaryCountryToHandlesMissingOrUnknownCountries() {
+        PropertyBag complete = new PropertyBag(Arrays.asList("fromEndIsoCode", "toEndIsoCode"), true);
+        complete.put("fromEndIsoCode", "FR");
+        complete.put("toEndIsoCode", "ES");
+
+        PropertyBag missingFrom = new PropertyBag(Arrays.asList("fromEndIsoCode", "toEndIsoCode"), true);
+        missingFrom.put("toEndIsoCode", "ES");
+        assertNull(NodeConversion.boundaryCountryToCode(missingFrom, Country.FR));
+
+        PropertyBag missingTo = new PropertyBag(Arrays.asList("fromEndIsoCode", "toEndIsoCode"), true);
+        missingTo.put("fromEndIsoCode", "FR");
+        assertNull(NodeConversion.boundaryCountryToCode(missingTo, Country.FR));
+
+        PropertyBag noCountry = new PropertyBag(Arrays.asList("fromEndIsoCode", "toEndIsoCode"), true);
+        assertNull(NodeConversion.boundaryCountryToCode(noCountry, Country.FR));
+
+        assertNull(NodeConversion.boundaryCountryToCode(complete, null));
     }
 }
