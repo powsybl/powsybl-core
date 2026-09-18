@@ -22,6 +22,9 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Coordinate;
+import com.powsybl.iidm.network.extensions.SubstationPosition;
+import com.powsybl.iidm.network.impl.extensions.SubstationPositionImpl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -33,6 +36,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
@@ -48,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CgmesExportTest {
 
     private Properties importParams;
+    private static final Coordinate SUBSTATION_1 = new Coordinate(51.380348205566406, 0.5492960214614868);
 
     @BeforeEach
     void setUp() {
@@ -519,6 +524,59 @@ class CgmesExportTest {
 
             String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
             assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
+        }
+    }
+
+    @Test
+    void testExporGLProfle() throws IOException {
+        testGLProfileExport("16", CgmesNamespace.CIM_16_GL_PROFILE);
+    }
+
+    @Test
+    void testCim100ExporGLProfle() throws IOException {
+        testGLProfileExport("100", CgmesNamespace.CIM_100_GL_PROFILE);
+    }
+
+    @Test
+    void testExportGLProfileToZipArchive() throws IOException {
+        Network network = NetworkTest1Factory.create("minimal-network");
+        Substation substation1 = network.getSubstation("nminimal-network_substation1");
+        substation1.addExtension(SubstationPosition.class, new SubstationPositionImpl(substation1, SUBSTATION_1));
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ,GL");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, exportParams, zip);
+
+            assertTrue(zip.exists("output_EQ.xml"));
+            assertTrue(zip.exists("output_GL.xml"));
+            String gl;
+            try (InputStream is = zip.newInputStream("output_GL.xml")) {
+                gl = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            }
+            assertTrue(gl.contains("md:Model.profile>" + CgmesNamespace.CIM_16_GL_PROFILE));
+            assertTrue(gl.contains("cim:PositionPoint.xPosition>0.5492960214614868"));
+        }
+    }
+
+    void testGLProfileExport(String cimVersion, String expectedProfile) throws IOException {
+        Network network = NetworkTest1Factory.create("minimal-network");
+        Substation substation1 = network.getSubstation("nminimal-network_substation1");
+        SubstationPosition substationPosition1 = new SubstationPositionImpl(substation1, SUBSTATION_1);
+        substation1.addExtension(SubstationPosition.class, substationPosition1);
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectories(fileSystem.getPath("/work"));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "GL");
+            exportParams.put(CgmesExport.CIM_VERSION, cimVersion);
+            DataSource exportDatasource = new DirectoryDataSource(tmpDir, network.getNameOrId());
+            new CgmesExport().export(network, exportParams, exportDatasource);
+            String gl = Files.readString(tmpDir.resolve(network.getNameOrId() + "_GL.xml"));
+            assertTrue(gl.contains("md:Model.profile>" + expectedProfile));
+            assertTrue(gl.contains("cim:CoordinateSystem.crsUrn>urn:ogc:def:crs:EPSG::4326"));
+            assertTrue(gl.contains("cim:PositionPoint.xPosition>0.5492960214614868"));
+            assertTrue(gl.contains("cim:PositionPoint.yPosition>51.380348205566406"));
         }
     }
 

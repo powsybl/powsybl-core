@@ -241,7 +241,7 @@ public class CgmesExport implements Exporter {
 
     /**
      * Individual Grid Model export.
-     * This consists in providing the requested subsets among EQ, TP, SSH, SV.
+     * This consists in providing the requested subsets among EQ, TP, SSH, SV, GL.
      * @param network The network to export.
      * @param dataSource The dataSource used by the export.
      * @param context The context that stores relevant data for the export.
@@ -438,13 +438,22 @@ public class CgmesExport implements Exporter {
     /**
      * Export a CGMES subset of a network.
      * @param network The network whose subset is to be exported.
-     * @param subset The CGMES subset to export (accepted values are: EQ, TP, SSH, SV).
-     * @param fileName The name of the exported file.
+     * @param subset The CGMES subset to export (accepted values are: EQ, TP, SSH, SV, GL).
+     * @param fileName The name of the exported file. Ignored for the GL subset, which names its own file.
      * @param dataSource The data source used by the export.
      * @param context The context used by the export.
-     * @param model The model (= metadata information) to use.
+     * @param model The model (= metadata information) to use. Ignored for the GL subset, which builds its own metadata.
      */
     private void subsetExport(Network network, CgmesSubset subset, String fileName, DataSource dataSource, CgmesExportContext context, CgmesMetadataModel model) {
+        if (subset == CgmesSubset.GEOGRAPHICAL_LOCATION) {
+            // The GL instance file is not written through an XML writer, but through a triple store
+            // that writes on the data source by itself, naming the file after the base name.
+            // Opening an output stream here would leave an unused, empty one on the same file:
+            // harmless for a directory data source, but it corrupts an archive data source,
+            // where both streams would write the same archive entry.
+            GeographicalLocationExport.write(network, context, dataSource, getBaseName(context, dataSource, network));
+            return;
+        }
         try (OutputStream out = new BufferedOutputStream(dataSource.newOutputStream(fileName, false))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
             switch (subset) {
@@ -461,7 +470,7 @@ public class CgmesExport implements Exporter {
                     StateVariablesExport.write(network, writer, context, model);
                     break;
                 default:
-                    throw new IllegalArgumentException("Invalid subset, one of the following value is expected: EQ/TP/SSH/SV.");
+                    throw new IllegalArgumentException("Invalid subset, one of the following value is expected: EQ/TP/SSH/SV/GL.");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -646,7 +655,7 @@ public class CgmesExport implements Exporter {
             ParameterType.STRING_LIST,
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
-            List.of("EQ", "TP", "SSH", "SV"));
+            List.of("EQ", "TP", "SSH", "SV", "GL"));
     private static final Parameter TOPOLOGY_KIND_PARAMETER = new Parameter(
             TOPOLOGY_KIND,
             ParameterType.STRING,
