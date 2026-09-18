@@ -14,6 +14,8 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Double.NaN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -91,48 +94,49 @@ class StoredDoubleTimeSeriesTest {
         assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
     }
 
-    @Test
-    void splitTest() {
-        doSplitTest(3, 10);
-    }
-
-    @Test
-    void splitTestHuge() {
-        doSplitTest(100000003, 100000010);
-    }
-
-    private void doSplitTest(int chunkposition, int totalsize) {
+    /**
+     * <pre>
+     *  Cases: offset/total
+     *       test case 1: offset = 3 , total = 10
+     *       test case 2: offset = 100000003 , total = 100000010
+     *
+     *  test case 1:
+     *  index    0   1   2   3   4   5   6   7   8   9
+     *  chunk1   NAN NaN NaN 0   0   0   0   0   NAN NaN
+     *  => split 2
+     *                      [----]  [----]  [--]
+     *                      [2*0]   [2*0]   [1*0]
+     *
+     * </pre>
+     */
+    @ParameterizedTest(name = "offset/totalSize={1}/{0} => expectedStartPosition={2}")
+    @CsvSource({"10, 3, 3", "100000010, 100000003, 100000003"})
+    void splitShouldReturnChunksWithExpectedStartPosition(int totalSize, int offset, int expectedStartPosition) {
+        // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
-        Mockito.when(index.getPointCount()).thenReturn(totalsize);
+        Mockito.when(index.getPointCount()).thenReturn(totalSize);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
-        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(chunkposition,
-            new double[] {0d, 0d, 0d, 0d, 0d });
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(offset, new double[] {0d, 0d, 0d, 0d, 0d });
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk);
+        // When
         List<DoubleTimeSeries> split = timeSeries.split(2);
-
+        // Then
         // check there is 3 new chunks
         assertEquals(3, split.size());
+        assertChunk(split.get(0), expectedStartPosition, 2);
+        assertChunk(split.get(1), expectedStartPosition + 2, 2);
+        assertChunk(split.get(2), expectedStartPosition + 4, 1);
+    }
 
-        // check first chunk
-        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(0));
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().size());
-        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0));
-        assertEquals(chunkposition, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getOffset());
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getLength());
-
-        // check second chunk
-        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().size());
-        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0));
-        assertEquals(chunkposition + 1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getOffset());
-        assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getLength());
-
-        // check third chunk
-        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(2));
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().size());
-        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0));
-        assertEquals(chunkposition + 3, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getOffset());
-        assertEquals(2, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
+    private static void assertChunk(DoubleTimeSeries ts, int expectedOffset, int expectedLength) {
+        StoredDoubleTimeSeries timeSeries = assertInstanceOf(StoredDoubleTimeSeries.class, ts);
+        assertEquals(1, timeSeries.getChunks().size());
+        DoubleDataChunk dataChunk = timeSeries.getChunks().getFirst();
+        assertAll(
+                () -> assertInstanceOf(UncompressedDoubleDataChunk.class, dataChunk),
+                () -> assertEquals(expectedOffset, dataChunk.getOffset()),
+                () -> assertEquals(expectedLength, dataChunk.getLength())
+        );
     }
 
     private void doSplitTestByRanges(Range<@NonNull Integer> firstRange, Range<@NonNull Integer> secondRange, int chunkLength) {
@@ -446,6 +450,7 @@ class StoredDoubleTimeSeriesTest {
         double[] tsCompactArray2 = chunks.get(1).toCompactArray();
 
         // Then
+        assertEquals(2, chunks.size());
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesCompactArray, 0d);
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, tsCompactArray1, 0d);
         assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, tsCompactArray2, 0d);
@@ -461,6 +466,45 @@ class StoredDoubleTimeSeriesTest {
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d, NaN}, timeSeries.toArray());
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
+    }
+
+    @ParameterizedTest(name = "tsSize={0}, newChunkSize={1} => chunkCount={2}")
+    @CsvSource({"100000, 100000, 1", "200000, 200000, 1", "200000, 60000, 4"})
+    void splitManyMultiChunkTimeSeriesTest(int tsSize, int newChunkSize, int expectedChunkCount) {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(tsSize);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        DoubleDataChunk[] chunks = new DoubleDataChunk[tsSize];
+        for (int i = 0; i < chunks.length; i++) {
+            chunks[i] = new UncompressedDoubleDataChunk(i, new double[] {i});
+        }
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunks);
+        List<List<DoubleTimeSeries>> split = TimeSeries.split(Collections.singletonList(timeSeries), newChunkSize);
+        assertThat(split).hasSize(expectedChunkCount);
+    }
+
+    @Test
+    void shouldNotThrowWhenSplittingListOverGap() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        List<List<DoubleTimeSeries>> timeSeriesSplitList = assertDoesNotThrow(() -> TimeSeries.split(Collections.singletonList(timeSeries), 2));
+        assertDoesNotThrow(() -> TimeSeries.split(Collections.singletonList(timeSeries), 3));
+        assertDoesNotThrow(() -> TimeSeries.split(Collections.singletonList(timeSeries), 4));
+
+        assertEquals(4, timeSeriesSplitList.size());
+        assertEquals(1, timeSeriesSplitList.get(0).size());
+        assertEquals(1, timeSeriesSplitList.get(1).size());
+        assertEquals(1, timeSeriesSplitList.get(2).size());
+        assertEquals(1, timeSeriesSplitList.get(3).size());
+
+        assertArrayEquals(new double[]{1d, 2d}, timeSeriesSplitList.get(0).getFirst().toCompactArray(), 0d);
+        assertArrayEquals(new double[]{3d, NaN}, timeSeriesSplitList.get(1).getFirst().toCompactArray(), 0d);
+        assertArrayEquals(new double[]{}, timeSeriesSplitList.get(2).getFirst().toCompactArray(), 0d); // empty serie: gap
+        assertArrayEquals(new double[]{7d, 8d}, timeSeriesSplitList.get(3).getFirst().toCompactArray(), 0d);
     }
 
 }
