@@ -7,9 +7,13 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
@@ -22,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class HvdcUpdateTest {
+class HvdcUpdateTest extends AbstractSerDeTest {
 
     private static final String DIR = "/update/hvdc/";
 
@@ -95,6 +99,31 @@ class HvdcUpdateTest {
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    @Test
+    void hvdcZeroActivePowerSetpointTest() {
+        Network network = readCgmesResources("/update/hvdc/", "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        assertEquals(300.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
+
+        // we export 0.0
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(0.0);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "zero-active-power-stepoint";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // we restore the initial active power setpoint before the update
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(300.0);
+
+        Properties importParameters = new Properties();
+        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
