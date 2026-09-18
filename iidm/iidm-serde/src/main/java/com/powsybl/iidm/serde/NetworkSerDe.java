@@ -1306,7 +1306,7 @@ public final class NetworkSerDe {
      * @param networkFactory              the network factory to use for the copy
      * @param executor                    the executor service to use for the copy
      * @param format                      the converter to use to export/import the network
-     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures, has a low impact on performance.
+     * @param useConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures. If you are aiming for performance, consider setting it to false.
      * @return the copy of the network
      */
     @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
