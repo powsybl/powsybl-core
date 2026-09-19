@@ -16,7 +16,11 @@ import gnu.trove.list.array.TIntArrayList;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
 
 /**
  * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a> format.
@@ -448,18 +452,15 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
     }
 
     @Override
-    public void print(PrintStream out) {
-        print(out, null, null);
-    }
-
-    @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
-        out.println("values=" + values);
+        getFormatter(config).ifPresentOrElse(
+                decimalFormat -> out.println("values=" + formatValues(decimalFormat)),
+                () -> out.println("values=" + values));
     }
 
     @Override
@@ -522,4 +523,11 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
             throw new UncheckedIOException(e);
         }
     }
+
+    public String formatValues(DecimalFormat decimalFormat) {
+        return Arrays.stream(getValues())
+                .mapToObj(decimalFormat::format)
+                .collect(Collectors.joining(", ", "{", "}"));
+    }
+
 }
