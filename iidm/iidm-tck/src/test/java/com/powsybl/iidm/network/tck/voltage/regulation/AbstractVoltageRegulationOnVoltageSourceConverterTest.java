@@ -241,10 +241,6 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
                 .withTerminal(dataVoltageRegulationHolderCreator.remoteTerminal() ? remoteTerminal : null)
                 .add();
         }
-        // TODO MSA useless ?
-        if (dataVoltageRegulationHolderCreator.remoteTerminal()) {
-            adder.setPccTerminal(remoteTerminal);
-        }
         return adder.add();
     }
 }

@@ -51,4 +51,14 @@ public class LineCommutatedConverterSerDe extends AbstractAcDcConverterSerDe<Lin
             .setPowerFactor(powerFactor);
         super.readRootElementPqiAttributes(toApply, adder, context);
     }
+
+    @Override
+    protected void readSubElement(String elementName, String id, List<Consumer<LineCommutatedConverter>> toApply, NetworkDeserializerContext context) {
+        if (PCC_TERMINAL.equals(elementName)) {
+            TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+            postponeSetPccTerminal(toApply, context, terminalData);
+        } else {
+            super.readSubElement(elementName, id, toApply, context);
+        }
+    }
 }

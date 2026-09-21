@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
@@ -128,24 +127,17 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(toApply, context);
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
                 case PCC_TERMINAL -> {
-                    IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
-                        setPccTerminalFromPrevious117(toApply, context));
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
-                        super.readSubElement(elementName, id, toApply, context));
+                    TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+                    IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> setPccTerminalFromPrevious117(toApply, context, terminalData));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> postponeSetPccTerminal(toApply, context, terminalData));
                 }
                 default -> super.readSubElement(elementName, id, toApply, context);
             }
         });
     }
 
-    private static void setPccTerminalFromPrevious117(List<Consumer<VoltageSourceConverter>> toApply, NetworkDeserializerContext context) {
-        // We read the terminal once
-        TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
-
-        VoltageRegulationSerDe.addSetTerminalToToApply(toApply, context, terminalData);
-        toApply.add(converter -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
-            Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), converter.getNetwork());
-            converter.setPccTerminal(terminal);
-        }));
+    private static void setPccTerminalFromPrevious117(List<Consumer<VoltageSourceConverter>> toApply, NetworkDeserializerContext context, TerminalRefSerDe.TerminalData terminalData) {
+        VoltageRegulationSerDe.postponeSetTerminal(toApply, context, terminalData);
+        postponeSetPccTerminal(toApply, context, terminalData);
     }
 }

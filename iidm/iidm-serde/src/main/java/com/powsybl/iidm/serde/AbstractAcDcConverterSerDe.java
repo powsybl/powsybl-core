@@ -152,17 +152,18 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
 
     @Override
     protected void readSubElement(String elementName, String id, List<Consumer<T>> toApply, NetworkDeserializerContext context) {
-        if (PCC_TERMINAL.equals(elementName)) {
-            TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
-            toApply.add(converter -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
-                Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), converter.getNetwork());
-                converter.setPccTerminal(terminal);
-            }));
-        } else if (DroopCurveSerDe.ELEM_DROOP_CURVE.equals(elementName)) {
+        if (DroopCurveSerDe.ELEM_DROOP_CURVE.equals(elementName)) {
             DroopCurveSerDe.INSTANCE.read(toApply, context);
         } else {
             super.readSubElement(elementName, id, toApply, context);
         }
+    }
+
+    static <T extends AcDcConverter<T>> void postponeSetPccTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context, TerminalRefSerDe.TerminalData terminalData) {
+        toApply.add(converter -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
+            Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), converter.getNetwork());
+            converter.setPccTerminal(terminal);
+        }));
     }
 
     @Override
