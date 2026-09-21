@@ -36,15 +36,15 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     void removeVoltageRegulation();
 
     /**
-     * Gets the terminal associated
+     * Gets the local terminal of this holder
      *
-     * @return the terminal
+     * @return the local terminal
      */
     Terminal getTerminal();
 
     /**
      * <p>
-     *  Sets the local target voltage value in kV at the equipment's terminal.
+     *  Sets the local target voltage value in kV at the holder's terminal.
      * </p>
      * <p>Depends on the working variant.</p>
      * @param targetV the target voltage value to set
@@ -148,8 +148,9 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     }
 
     /**
-     * Gets the terminal used for regulation
-     *
+     * <p>Gets the terminal used for regulation</p>
+     * <p>If voltage regulation is configured with an explicit terminal, that terminal is returned.
+     * Otherwise, this method returns the holder's local terminal {@link #getTerminal()}</p>
      * @return the terminal used for regulation
      */
     default Terminal getRegulatingTerminal() {
@@ -162,10 +163,11 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
 
     /**
      * <p>Checks if the regulation is performed remotely</p>
-     * <p>Note that this method also returns <code>true</code> when {@link VoltageRegulation#getTerminal()}
-     * is the local terminal of the holder.</p>
+     * <p>Note that this method also returns <code>true</code> when the configured
+     * regulating terminal is the holder's local terminal</p>
      * @return true if regulating remotely, false otherwise
      */
+    // TODO MSA other method name: hasRemoteRegulatingTerminal, isRegulatingTerminalSet,
     default boolean isRemoteRegulating() {
         return getVoltageRegulation() != null && getVoltageRegulation().isWithTerminal();
     }
@@ -176,7 +178,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * </p>
      * <p>
      *     In all cases, the local target reactive power value is set to the negated reactive power
-     *     value at the equipment's terminal
+     *     value at the holder's terminal
      * </p>
      * <p>
      *     If the reactive power regulation mode is enabled and regulation is performed remotely,
@@ -203,7 +205,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      *     Updates the target voltage value in both local and remote regulation scenarios
      * </p>
      * <p>
-     *     In all cases, the local target voltage value is set to the voltage value at the equipment's terminal
+     *     In all cases, the local target voltage value is set to the voltage value at the holder's terminal
      * </p>
      * <p>
      *     If the voltage regulation mode is enabled and regulation is performed remotely,
