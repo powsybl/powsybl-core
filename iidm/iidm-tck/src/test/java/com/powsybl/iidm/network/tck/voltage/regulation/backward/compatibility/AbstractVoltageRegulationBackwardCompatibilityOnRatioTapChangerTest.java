@@ -82,4 +82,58 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnRatioTapCh
         assertTrue(ratioTapChanger.isRegulating());
     }
 
+    @Test
+    public void testRatioTapChangeRegulatingOff() {
+        // GIVEN
+        int targetValue = 120;
+        double targetDeadband = 5.0;
+        boolean regulating = false;
+
+        TwoWindingsTransformer t2wt = network.getSubstation("P1").newTwoWindingsTransformer()
+            .setId("twoWindingsTransformer_backwardCompatibility")
+            .setVoltageLevel1("VLGEN")
+            .setVoltageLevel2("VLGEN")
+            .setConnectableBus1(LOCAL_BUS)
+            .setConnectableBus2(LOCAL_BUS)
+            .setR(2)
+            .setX(1)
+            .add();
+        RatioTapChangerAdder adder = t2wt.newRatioTapChanger()
+            .setTapPosition(0)
+            .beginStep().setRho(1).endStep()
+            .setLoadTapChangingCapabilities(true)
+            .setRegulating(regulating)
+            .setRegulationMode(RegulationMode.VOLTAGE)
+            .setTargetDeadband(targetDeadband)
+            .setRegulationValue(targetValue);
+        // WHEN
+        RatioTapChanger ratioTapChanger = adder.add();
+        // THEN
+        assertNotNull(ratioTapChanger);
+        VoltageRegulationAttributesToCheck expectedAttributes = new VoltageRegulationAttributesToCheck(
+            Double.NaN,
+            Double.NaN,
+            targetValue,
+            targetDeadband,
+            Double.NaN,
+            RegulationMode.VOLTAGE,
+            regulating,
+            null,
+            true);
+        checkVoltageRegulationAttributes(expectedAttributes, ratioTapChanger);
+
+        assertNull(ratioTapChanger.getTerminal());
+        assertNull(ratioTapChanger.getRegulatingTerminal());
+
+        assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetV()));
+        assertEquals(targetValue, ratioTapChanger.getTargetV());
+        assertTrue(Double.isNaN(ratioTapChanger.getRegulatingTargetV()));
+        assertEquals(targetValue, ratioTapChanger.getVoltageRegulation().getTargetValue());
+
+        assertTrue(Double.isNaN(ratioTapChanger.getLocalTargetQ()));
+        assertTrue(Double.isNaN(ratioTapChanger.getRegulatingTargetQ()));
+
+        assertEquals(regulating, ratioTapChanger.isRegulating());
+    }
+
 }

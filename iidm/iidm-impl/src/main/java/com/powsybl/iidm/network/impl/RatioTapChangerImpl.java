@@ -131,7 +131,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
                 voltageRegulation.setMode(RegulationMode.VOLTAGE);
                 notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", variantId, oldMode, RegulationMode.VOLTAGE);
             }
-            if (isWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
+            if (isWithMode(RegulationMode.VOLTAGE)) {
                 oldValue = voltageRegulation.getTargetValue();
                 voltageRegulation.setTargetValue(targetV);
             }
@@ -196,7 +196,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public double getTargetV() {
-        return getRegulatingTargetV();
+        return isWithMode(RegulationMode.VOLTAGE) ? getVoltageRegulation().getTargetValue() : Double.NaN;
     }
 
     @Override
