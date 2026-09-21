@@ -1120,8 +1120,15 @@ hence a PowerFactor of 0.89443.
 
 **Specifications**
 
-- The terminal used for regulation is the Point of Common Coupling terminal, for both voltage and reactive power control modes.
-- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `VoltageRegulation.Terminal` is not set, and the regulation is enabled (`regulating` = true).
+- The terminal used for regulation is the Point of Common Coupling terminal (pccTerminal), for both voltage and reactive power control modes.  
+The `pccTerminal` and the `voltage regulation terminal` are kept consistent according to the following rules:
+  - When `pccTerminal` is set:
+    - if the new terminal is the local terminal, the `voltage regulation terminal` is unset
+    - otherwise the `voltage regulation terminal` is updated to the same terminal.
+Keep in mind that the `targetValue` is mandatory when a `voltage regulation terminal` is set and the regulating is true.
+  - When the `voltage regulation terminal` is set to a non-null terminal, `pccTerminal` is updated to the same terminal.
+  - When the `voltage regulation terminal` is unset, for example to configure local regulation, `pccTerminal` is updated to the local terminal.
+- The `LocalTargetV` is required when the regulation mode is set to `VOLTAGE`, `voltage regulation terminal` is not set, and the regulation is enabled (`regulating` = true).
 - The `LocalTargetQ` is required when the regulation is not set, or when the regulation is disabled (`regulating` = false).
 - The `LocalTargetQ` (in MVar) is in passive sign convention: a positive value of `LocalTargetQ` means withdrawal from the bus.
 - A set of reactive limits can be associated to a VSC converter. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
