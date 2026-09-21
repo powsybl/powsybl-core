@@ -134,13 +134,13 @@ public class DCLinkUpdate {
     }
 
     private void computeActivePowers() {
-        // targetP is AC active power on rectifier side.
 
         double targetPpccRectifier = getTargetPpccRectifier();
         boolean isTargetPpccRectifierDefined = isTargetPpccDefined(targetPpccRectifier);
         double targetPpccInverter = getTargetPpccInverter();
         boolean isTargetPpccInverterDefined = isTargetPpccDefined(targetPpccInverter);
 
+        // targetP is AC active power on rectifier side.
         if (isTargetPpccRectifierDefined && targetPpccRectifier != 0.0) {
             targetP = targetPpccRectifier;
         } else if (isTargetPpccInverterDefined && targetPpccInverter != 0.0) {
