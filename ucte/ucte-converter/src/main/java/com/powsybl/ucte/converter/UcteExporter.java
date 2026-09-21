@@ -19,6 +19,7 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.converter.util.UcteExporterReports;
 import com.powsybl.ucte.network.*;
@@ -299,16 +300,16 @@ public class UcteExporter implements Exporter {
         ucteNode.setPowerPlantType(powerPlantType);
         ucteNode.setTypeCode(nodeType);
         // FIXME(mathbagu): to be changed in UcteImporter?
-        if (!isUndefinedMinLimit(minP)) {
+        if (isMinLimitInbounds(minP)) {
             ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
         }
-        if (!isUndefinedMaxLimit(maxP)) {
+        if (isMaxLimitInbounds(maxP)) {
             ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
         }
-        if (!isUndefinedMinLimit(minQ)) {
+        if (isMinLimitInbounds(minQ)) {
             ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
         }
-        if (!isUndefinedMaxLimit(maxQ)) {
+        if (isMaxLimitInbounds(maxQ)) {
             ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
         }
     }
@@ -339,27 +340,43 @@ public class UcteExporter implements Exporter {
             double maxP = boundaryLine.getGeneration().getMaxP();
             double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
             double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
-            if (!isUndefinedMinLimit(minP)) {
+            if (isMinLimitInbounds(minP)) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }
-            if (!isUndefinedMaxLimit(maxP)) {
+            if (isMaxLimitInbounds(maxP)) {
                 ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
             }
-            if (!isUndefinedMinLimit(minQ)) {
+            if (isMinLimitInbounds(minQ)) {
                 ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
             }
-            if (!isUndefinedMaxLimit(maxQ)) {
+            if (isMaxLimitInbounds(maxQ)) {
                 ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
             }
         }
     }
 
-    private static boolean isUndefinedMinLimit(double value) {
-        return value == -DEFAULT_POWER_LIMIT || value == -Double.MAX_VALUE;
+    /**
+     * Generator min power limits must be strictly grater than -9999 (see
+     * {@link UcteConverterConstants#DEFAULT_POWER_LIMIT}). Values that are out of bounds must be ignored and exported
+     * blank.
+     *
+     * @param value a generator min power limit
+     * @return whether this max power limit should be exported
+     */
+    private static boolean isMinLimitInbounds(double value) {
+        return value > -DEFAULT_POWER_LIMIT;
     }
 
-    private static boolean isUndefinedMaxLimit(double value) {
-        return value == DEFAULT_POWER_LIMIT || value == Double.MAX_VALUE;
+    /**
+     * Generator max power limits must be strictly smaller than 9999 (see
+     * {@link UcteConverterConstants#DEFAULT_POWER_LIMIT}). Values that are out of bounds must be ignored and exported
+     * blank.
+     *
+     * @param value a generator max power limit
+     * @return whether this max power limit should be exported
+     */
+    private static boolean isMaxLimitInbounds(double value) {
+        return value < DEFAULT_POWER_LIMIT;
     }
 
     /**

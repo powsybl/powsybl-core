@@ -242,13 +242,15 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testExportGeneratorWithOutOfRangeLimitStillThrows() {
+    void testExportGeneratorWithOutOfRangeLimitIsBlank() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         Generator generator = network.getGenerator("B_SU1_21_generator");
         generator.setMaxP(50_000_000);
         generator.setMinP(-50_000_000);
 
-        assertThrows(IllegalArgumentException.class, () -> exportToString(network));
+        String nodeLine = findNodeLine(exportToString(network), "B_SU1_21");
+        assertEquals("       ", nodeLine.substring(65, 72));
+        assertEquals("       ", nodeLine.substring(73, 80));
     }
 
     @Test
