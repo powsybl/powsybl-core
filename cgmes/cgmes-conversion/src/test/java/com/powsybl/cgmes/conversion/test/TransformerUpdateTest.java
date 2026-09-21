@@ -7,12 +7,18 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
@@ -23,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class TransformerUpdateTest {
+class TransformerUpdateTest extends AbstractSerDeTest {
 
     private static final String DIR = "/update/transformer/";
 
@@ -140,6 +146,37 @@ class TransformerUpdateTest {
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "transformer_EQ.xml", "transformer_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    @Test
+    void preserveSymmetricalTapPositionOnUpdateTest() {
+        ReadOnlyDataSource ds = CgmesConformity3Catalog.microGridBaseCaseBE().dataSource();
+        Network network = Network.read(ds, new Properties());
+
+        TwoWindingsTransformer asymmetrical = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
+        TwoWindingsTransformer symmetrical = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+
+        assertEquals(10, asymmetrical.getPhaseTapChanger().getTapPosition());
+        assertEquals(10, symmetrical.getPhaseTapChanger().getTapPosition());
+
+        asymmetrical.getPhaseTapChanger().setTapPosition(11);
+        symmetrical.getPhaseTapChanger().setTapPosition(11);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "symmetrical";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        asymmetrical.getPhaseTapChanger().setTapPosition(10);
+        symmetrical.getPhaseTapChanger().setTapPosition(10);
+
+        Properties importParameters = new Properties();
+        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(11, asymmetrical.getPhaseTapChanger().getTapPosition());
+        assertEquals(11, symmetrical.getPhaseTapChanger().getTapPosition());
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
