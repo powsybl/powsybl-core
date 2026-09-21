@@ -139,12 +139,30 @@ Note that, following this modeling, in general, the last temporary limit (the hi
 If temporary limits are modeled, the permanent limit becomes mandatory.
 If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
 
+To create a high loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("group").newCurrentLimits()
+    .setPermanentLimit(600)
+    .beginTemporaryLimit()
+    .setName("10'")
+    .setAcceptableDuration(60 * 10)
+    .setValue(1000)
+    .endTemporaryLimit()
+    .add();
+```
+The detection kind is high by default, there is no need to specify it.
+
 ### Low loading limits
 
 ```{note}
-Currently, this model is in BETA and only available in the IIDM representation. There is no import or export of this kind of limit with any
-exchange format.
-The model is subject to change and support for downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.) may vary.
+Import / export of low limits is available starting from IIDM 1.18 (PowSyBl 7.4.0). Networks that contain low limits
+can only be exported to IIDM 1.17 or earlier by forcing the export to ignore the low limits.
+Be aware that exporting such network may result in an incomplete set of limits for some equipment.
+
+Low limits might not yet be supported by downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.).
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
 
 If you're unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html)
@@ -159,6 +177,32 @@ Please look at this scheme to fully understand the modeling (the following examp
 
 ![Loading limits model](img/current-limits-low.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits-low.svg){width="50%" align=center class="only-dark"}
+
+To create a low loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("low limit").newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(60 * 40)
+            .setValue(500)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(900)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("5'")
+            .setAcceptableDuration(60 * 5)
+            .setValue(1200)
+            .endTemporaryLimit()
+            .add();
+```
+The detection kind is high by default, we need to specify that we want a low limit.
 
 (limit-group-collection)=
 ### Limit group collection
