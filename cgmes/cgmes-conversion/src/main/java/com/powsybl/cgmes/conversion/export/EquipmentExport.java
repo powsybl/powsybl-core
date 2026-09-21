@@ -174,9 +174,27 @@ public final class EquipmentExport {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
                 // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
                 // we only export as retained a switch if it will be exported with different TNs at both ends
-                boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
-                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(),
-                    context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), exportAsRetained, cimNamespace, writer, context);
+                switch (switchType) {
+                    case "ACLineSegment" -> {
+                        String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
+                        AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0,
+                                0.0, 0.0, cimNamespace, writer, context);
+                    }
+                    case "EquivalentBranch" -> {
+                        String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
+                        EquivalentBranchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, cimNamespace, writer, context);
+                    }
+                    case "SeriesCompensator" -> {
+                        String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
+                        SeriesCompensatorEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, false,
+                                0.0, 0.0, cimNamespace, writer, context);
+                    }
+                    case null, default -> {
+                        boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
+                        SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(),
+                                context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), exportAsRetained, cimNamespace, writer, context);
+                    }
+                }
             }
         }
     }
