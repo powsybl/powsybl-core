@@ -184,7 +184,7 @@ public final class VoltageRegulationSerDe {
                     Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
                     double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
                     voltageRegulation.setTerminal(terminal, targetValue);
-                    extraProperties.ifPresent(p -> p.actionOnHolder().accept(holder));
+                    extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(holder));
                     context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
                 }
             }));

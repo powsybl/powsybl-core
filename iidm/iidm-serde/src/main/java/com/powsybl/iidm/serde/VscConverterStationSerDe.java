@@ -96,10 +96,9 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
         adder.setLossFactor(lossFactor);
         double p = context.getReader().readDoubleAttribute("p");
         double q = context.getReader().readDoubleAttribute("q");
-        toApply.add(vscConverterStation -> vscConverterStation.getTerminal().setP(p).setQ(q));
         toApply.add(vscConverterStation -> {
-            Consumer<VscConverterStation> actionOnRemoteTerminal = holder -> holder.setLocalTargetV(Double.NaN);
-            VoltageRegulationSerDe.storeExtraProperties(vscConverterStation, voltageSetpoint.get(), actionOnRemoteTerminal, context);
+            vscConverterStation.getTerminal().setP(p).setQ(q);
+            VoltageRegulationSerDe.storeExtraProperties(vscConverterStation, voltageSetpoint.get(), holder -> holder.setLocalTargetV(Double.NaN), context);
         });
     }
 

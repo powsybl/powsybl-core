@@ -147,10 +147,8 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         readPQ(toApply, context.getReader());
         toApply.add(generator -> {
             double targetValueDouble = Double.isNaN(targetV) ? equivalentLocalTargetV.get() : targetV;
-            Consumer<Generator> actionOnRemoteTerminal;
-            if (!Double.isNaN(targetV) && !Double.isNaN(equivalentLocalTargetV.get())) {
-                actionOnRemoteTerminal = holder -> { };
-            } else {
+            Consumer<Generator> actionOnRemoteTerminal = null;
+            if (Double.isNaN(targetV) || Double.isNaN(equivalentLocalTargetV.get())) {
                 actionOnRemoteTerminal = holder -> holder.setLocalTargetV(Double.NaN);
             }
             VoltageRegulationSerDe.storeExtraProperties(generator, targetValueDouble, actionOnRemoteTerminal, context);
