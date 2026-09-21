@@ -64,11 +64,11 @@
       } ]
     },
     "distributedActivePower" : 1.23,
-    "phaseShifterResults" : [ {
+    "changedPhaseShifters" : [ {
       "transformerId" : "T1",
       "side" : "ONE",
       "initialTap" : 2,
-      "newTap" : 4
+      "finalTap" : 4
     } ]
   },
   "postContingencyResults" : [ {

@@ -18,20 +18,12 @@ import java.util.Optional;
  * @param transformerId The ID of the phase shifter transformer
  * @param side The side of the phase shifter on a three-winding transformer, or {@code null} for a two-winding transformer
  * @param initialTap The tap position before optimization
- * @param newTap The tap position after optimization
- *
- * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
+ * @param finalTap The tap position after optimization
  */
-public record MovedPhaseShifterResult(String transformerId, ThreeSides side, int initialTap, int newTap) {
+public record ChangedPhaseTapChanger(String transformerId, ThreeSides side, int initialTap, int finalTap) {
 
-    /**
-     * Compact constructor for validation.
-     */
-    public MovedPhaseShifterResult {
+    public ChangedPhaseTapChanger {
         Objects.requireNonNull(transformerId, "Transformer ID cannot be null");
-        if (initialTap == newTap) {
-            throw new IllegalArgumentException("The tap position has not been changed (initialTap = newTap = " + initialTap + ")");
-        }
     }
 
     public Optional<ThreeSides> getSide() {

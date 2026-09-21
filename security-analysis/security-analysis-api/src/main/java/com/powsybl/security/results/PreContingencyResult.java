@@ -37,8 +37,8 @@ public class PreContingencyResult extends AbstractContingencyResult {
                                 LimitViolationsResult limitViolationsResult,
                                 NetworkResult networkResult,
                                 double distributedActivePower,
-                                List<MovedPhaseShifterResult> phaseShifterResults) {
-        super(limitViolationsResult, networkResult, distributedActivePower, phaseShifterResults);
+                                List<ChangedPhaseTapChanger> changedPhaseShifters) {
+        super(limitViolationsResult, networkResult, distributedActivePower, changedPhaseShifters);
         this.status = Objects.requireNonNull(status);
     }
 

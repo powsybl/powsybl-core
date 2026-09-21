@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.results.MovedPhaseShifterResult;
+import com.powsybl.security.results.ChangedPhaseTapChanger;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -21,28 +21,28 @@ import java.util.List;
 /**
  * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
  */
-public final class PhaseShifterResultSerializerUtil {
+public final class ChangedPhaseTapChangerSerializerUtil {
 
-    private PhaseShifterResultSerializerUtil() {
+    private ChangedPhaseTapChangerSerializerUtil() {
         // utility class
     }
 
-    public static List<MovedPhaseShifterResult> readPhaseShifterResults(
+    public static List<ChangedPhaseTapChanger> readChangedPhaseShifters(
             JsonParser parser, DeserializationContext deserializationContext) {
-        return JsonUtil.readList(deserializationContext, parser, MovedPhaseShifterResult.class);
+        return JsonUtil.readList(deserializationContext, parser, ChangedPhaseTapChanger.class);
     }
 
-    public static void write(Collection<MovedPhaseShifterResult> phaseShifterResults, JsonGenerator jsonGenerator) throws IOException {
-        if (!phaseShifterResults.isEmpty()) {
-            jsonGenerator.writeFieldName("phaseShifterResults");
+    public static void write(Collection<ChangedPhaseTapChanger> changedPhaseShifters, JsonGenerator jsonGenerator) throws IOException {
+        if (!changedPhaseShifters.isEmpty()) {
+            jsonGenerator.writeFieldName("changedPhaseShifters");
             jsonGenerator.writeStartArray();
-            for (var psr : phaseShifterResults.stream()
-                    .sorted(Comparator.comparing(MovedPhaseShifterResult::transformerId)).toList()) {
+            for (var psr : changedPhaseShifters.stream()
+                    .sorted(Comparator.comparing(ChangedPhaseTapChanger::transformerId)).toList()) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("transformerId", psr.transformerId());
                 JsonUtil.writeOptionalEnum(jsonGenerator, "side", psr.getSide());
                 jsonGenerator.writeNumberField("initialTap", psr.initialTap());
-                jsonGenerator.writeNumberField("newTap", psr.newTap());
+                jsonGenerator.writeNumberField("finalTap", psr.finalTap());
                 jsonGenerator.writeEndObject();
             }
             jsonGenerator.writeEndArray();

@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.PostContingencyComputationStatus;
+import com.powsybl.security.results.ChangedPhaseTapChanger;
 import com.powsybl.security.results.ConnectivityResult;
-import com.powsybl.security.results.MovedPhaseShifterResult;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
 
@@ -39,7 +39,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         Contingency contingency = null;
         PostContingencyComputationStatus status = null;
         ConnectivityResult connectivityResult = null;
-        List<MovedPhaseShifterResult> phaseShifterResults = Collections.emptyList();
+        List<ChangedPhaseTapChanger> changedPhaseShifters = Collections.emptyList();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                         () -> new NetworkResult(commonParsingContext.branchResults,
                                 commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
                 parsingContext.connectivityResult, commonParsingContext.distributedActivePower,
-                parsingContext.phaseShifterResults);
+                parsingContext.changedPhaseShifters);
     }
 
     private boolean parsePostContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
@@ -100,11 +100,11 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                         CONTEXT_NAME, "Tag: connectivityResult", finalVersion, "1.4");
                 parsingContext.connectivityResult = JsonUtil.readValue(deserializationContext, parser, ConnectivityResult.class);
                 return true;
-            case "phaseShifterResults":
+            case "changedPhaseShifters":
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(
-                        CONTEXT_NAME, "Tag: phaseShifterResults", finalVersion, "1.10");
-                parsingContext.phaseShifterResults = PhaseShifterResultSerializerUtil.readPhaseShifterResults(parser, deserializationContext);
+                        CONTEXT_NAME, "Tag: changedPhaseShifters", finalVersion, "1.10");
+                parsingContext.changedPhaseShifters = ChangedPhaseTapChangerSerializerUtil.readChangedPhaseShifters(parser, deserializationContext);
                 return true;
             default:
                 return false;

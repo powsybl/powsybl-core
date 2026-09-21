@@ -159,7 +159,7 @@ class ExporterTest extends AbstractSerDeTest {
         SecurityAnalysisResult result = new SecurityAnalysisResult(
                 new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult,
                     new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23,
-                    List.of(new MovedPhaseShifterResult("T1", ThreeSides.ONE, 2, 4))),
+                    List.of(new ChangedPhaseTapChanger("T1", ThreeSides.ONE, 2, 4))),
                 Collections.singletonList(postContingencyResult), operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;

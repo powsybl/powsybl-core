@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.security.results.MovedPhaseShifterResult;
+import com.powsybl.security.results.ChangedPhaseTapChanger;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PreContingencyResult;
 import org.junit.jupiter.api.Test;
@@ -25,21 +25,21 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PhaseShifterResultSerializerUtilTest {
+class ChangedPhaseTapChangerSerializerUtilTest {
 
     @Test
     void testWriteSortedByTransformerId() throws IOException {
         StringWriter writer = new StringWriter();
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
-        PhaseShifterResultSerializerUtil.write(List.of(
-            new MovedPhaseShifterResult("B", ThreeSides.TWO, 1, 2),
-            new MovedPhaseShifterResult("A", ThreeSides.ONE, 3, 4)), generator);
+        ChangedPhaseTapChangerSerializerUtil.write(List.of(
+            new ChangedPhaseTapChanger("B", ThreeSides.TWO, 1, 2),
+            new ChangedPhaseTapChanger("A", ThreeSides.ONE, 3, 4)), generator);
         generator.writeEndObject();
         generator.close();
 
         String result = writer.toString();
-        assertTrue(result.contains("\"phaseShifterResults\""));
+        assertTrue(result.contains("\"changedPhaseShifters\""));
         assertTrue(result.indexOf("A") < result.indexOf("B"));
     }
 
@@ -48,7 +48,7 @@ class PhaseShifterResultSerializerUtilTest {
         StringWriter writer = new StringWriter();
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
-        PhaseShifterResultSerializerUtil.write(List.of(), generator);
+        ChangedPhaseTapChangerSerializerUtil.write(List.of(), generator);
         generator.writeEndObject();
         generator.close();
 
@@ -57,8 +57,8 @@ class PhaseShifterResultSerializerUtilTest {
 
     @Test
     void testRecordValidation() {
-        assertNotNull(new MovedPhaseShifterResult("T1", ThreeSides.ONE, 2, 4).transformerId());
-        assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult(null, ThreeSides.ONE, 0, 1));
+        assertNotNull(new ChangedPhaseTapChanger("T1", ThreeSides.ONE, 2, 4).transformerId());
+        assertThrows(NullPointerException.class, () -> new ChangedPhaseTapChanger(null, ThreeSides.ONE, 0, 1));
     }
 
     @Test
@@ -66,8 +66,8 @@ class PhaseShifterResultSerializerUtilTest {
         StringWriter writer = new StringWriter();
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
-        PhaseShifterResultSerializerUtil.write(
-                List.of(new MovedPhaseShifterResult("T1", ThreeSides.THREE, 0, 2)), generator);
+        ChangedPhaseTapChangerSerializerUtil.write(
+                List.of(new ChangedPhaseTapChanger("T1", ThreeSides.THREE, 0, 2)), generator);
         generator.writeEndObject();
         generator.close();
 
@@ -75,7 +75,7 @@ class PhaseShifterResultSerializerUtilTest {
         assertTrue(result.contains("\"transformerId\":\"T1\""));
         assertTrue(result.contains("\"side\":\"THREE\""));
         assertTrue(result.contains("\"initialTap\":0"));
-        assertTrue(result.contains("\"newTap\":2"));
+        assertTrue(result.contains("\"finalTap\":2"));
     }
 
     @Test
@@ -83,33 +83,33 @@ class PhaseShifterResultSerializerUtilTest {
         StringWriter writer = new StringWriter();
         JsonGenerator generator = new JsonFactory().createGenerator(writer);
         generator.writeStartObject();
-        PhaseShifterResultSerializerUtil.write(
-                List.of(new MovedPhaseShifterResult("T1", null, 0, 2)), generator);
+        ChangedPhaseTapChangerSerializerUtil.write(
+                List.of(new ChangedPhaseTapChanger("T1", null, 0, 2)), generator);
         generator.writeEndObject();
         generator.close();
 
         JsonNode json = JsonUtil.createObjectMapper().readTree(writer.toString());
-        JsonNode phaseShifterResult = json.path("phaseShifterResults").get(0);
-        assertFalse(phaseShifterResult.has("side"));
+        JsonNode changedPhaseShifter = json.path("changedPhaseShifters").get(0);
+        assertFalse(changedPhaseShifter.has("side"));
 
-        MovedPhaseShifterResult deserialized = JsonUtil.createObjectMapper()
-                .readValue(phaseShifterResult.toString(), MovedPhaseShifterResult.class);
-        assertEquals(new MovedPhaseShifterResult("T1", null, 0, 2), deserialized);
+        ChangedPhaseTapChanger deserialized = JsonUtil.createObjectMapper()
+                .readValue(changedPhaseShifter.toString(), ChangedPhaseTapChanger.class);
+        assertEquals(new ChangedPhaseTapChanger("T1", null, 0, 2), deserialized);
     }
 
     @Test
-    void testGetPhaseShifterResultBothGetters() {
+    void testGetChangedPhaseShifterBothGetters() {
         var pre = new PreContingencyResult(
             LoadFlowResult.ComponentResult.Status.CONVERGED,
             null,
             new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
             0.0,
             List.of(
-                new MovedPhaseShifterResult("T1", null, 0, 2),
-                new MovedPhaseShifterResult("T2", ThreeSides.ONE, 1, 3))
+                new ChangedPhaseTapChanger("T1", null, 0, 2),
+                new ChangedPhaseTapChanger("T2", ThreeSides.ONE, 1, 3))
         );
-        assertEquals(new MovedPhaseShifterResult("T1", null, 0, 2), pre.getPhaseShifterResult("T1"));
-        assertEquals(new MovedPhaseShifterResult("T2", ThreeSides.ONE, 1, 3), pre.getPhaseShifterResult("T2", ThreeSides.ONE));
+        assertEquals(new ChangedPhaseTapChanger("T1", null, 0, 2), pre.getChangedPhaseShifter("T1"));
+        assertEquals(new ChangedPhaseTapChanger("T2", ThreeSides.ONE, 1, 3), pre.getChangedPhaseShifter("T2", ThreeSides.ONE));
     }
 
 }
