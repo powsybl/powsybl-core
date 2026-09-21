@@ -509,7 +509,7 @@ The values `Regulating` and `Mode` are always required. `TargetValue` is require
 
 `Terminal` is optional. If not set, the local terminal of the connectable will be used.  
 Once a `Terminal` has been set, it is considered a `Remote` terminal even if it is the connectable Terminal (local).  
-For the [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter), the `Terminal` when is set must be the same as the `PccTerminal` 
+For the [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter), the `Terminal`, when set, must be the same as the `PccTerminal`. 
 `TargetValue` is used only when the `Terminal` is set. Otherwise, the local target voltage or reactive value is used.
 
 Regulation `Mode` has the following values : 

@@ -88,17 +88,11 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
 
         toApply.add(vsc -> {
             if (voltageRegulationData != null) {
-                Runnable actionOnRemoteTerminal;
-                double targetValue;
                 RegulationMode regulationMode = voltageRegulationData.regulationMode();
                 if (RegulationMode.VOLTAGE.equals(regulationMode)) {
-                    targetValue = vsc.getLocalTargetV();
-                    actionOnRemoteTerminal = () -> vsc.setLocalTargetV(Double.NaN);
-                    context.addExtraProperties(vsc, new NetworkDeserializerContext.ExtraPropertiesData(targetValue, actionOnRemoteTerminal));
+                    VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetV(), holder -> holder.setLocalTargetV(Double.NaN), context);
                 } else if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
-                    targetValue = vsc.getLocalTargetQ();
-                    actionOnRemoteTerminal = () -> vsc.setLocalTargetQ(Double.NaN);
-                    context.addExtraProperties(vsc, new NetworkDeserializerContext.ExtraPropertiesData(targetValue, actionOnRemoteTerminal));
+                    VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
                 }
             }
         });
