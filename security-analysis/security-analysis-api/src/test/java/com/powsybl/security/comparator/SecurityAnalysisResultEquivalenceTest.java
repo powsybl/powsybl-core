@@ -42,7 +42,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side1()
             .build();
@@ -50,7 +50,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100.09)
             .side(TwoSides.ONE)
             .build();
@@ -58,7 +58,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1101)
             .side(TwoSides.ONE)
             .build();
@@ -66,7 +66,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(950.09)
             .side1()
             .build();
@@ -75,7 +75,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side2()
             .build();
@@ -83,7 +83,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100.09)
             .side(TwoSides.TWO)
             .build();
@@ -91,7 +91,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1101)
             .side(TwoSides.TWO)
             .build();
@@ -100,7 +100,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -108,7 +108,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100.09)
             .side1()
             .build();
@@ -116,7 +116,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(950.09)
             .side1()
             .build();
@@ -124,7 +124,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_3")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side1()
             .build();
@@ -132,7 +132,7 @@ class SecurityAnalysisResultEquivalenceTest {
             .subject("NHV1_NHV2_3")
             .type(LimitViolationType.CURRENT)
             .limit(1000)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100.09)
             .side1()
             .build();

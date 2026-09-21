@@ -526,15 +526,15 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean isOverloaded(double limitReductionValue) {
-        return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT)
-                || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT)
-                || checkPermanentLimit3(limitReductionValue, LimitType.CURRENT);
+    public boolean isOverloaded(double limitScalingValue) {
+        return checkPermanentLimit1(limitScalingValue, LimitType.CURRENT)
+                || checkPermanentLimit2(limitScalingValue, LimitType.CURRENT)
+                || checkPermanentLimit3(limitScalingValue, LimitType.CURRENT);
     }
 
     @Override
-    public boolean checkPermanentLimit(ThreeSides side, double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, side, limitReductionValue, type);
+    public boolean checkPermanentLimit(ThreeSides side, double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, side, limitScalingValue, type);
     }
 
     @Override
@@ -543,8 +543,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean checkPermanentLimit1(double limitReductionValue, LimitType type) {
-        return checkPermanentLimit(ThreeSides.ONE, limitReductionValue, type);
+    public boolean checkPermanentLimit1(double limitScalingValue, LimitType type) {
+        return checkPermanentLimit(ThreeSides.ONE, limitScalingValue, type);
     }
 
     @Override
@@ -553,8 +553,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean checkPermanentLimit2(double limitReductionValue, LimitType type) {
-        return checkPermanentLimit(ThreeSides.TWO, limitReductionValue, type);
+    public boolean checkPermanentLimit2(double limitScalingValue, LimitType type) {
+        return checkPermanentLimit(ThreeSides.TWO, limitScalingValue, type);
     }
 
     @Override
@@ -563,8 +563,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean checkPermanentLimit3(double limitReductionValue, LimitType type) {
-        return checkPermanentLimit(ThreeSides.THREE, limitReductionValue, type);
+    public boolean checkPermanentLimit3(double limitScalingValue, LimitType type) {
+        return checkPermanentLimit(ThreeSides.THREE, limitScalingValue, type);
     }
 
     @Override
@@ -573,8 +573,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, side, limitReductionValue, type);
+    public Overload checkTemporaryLimits(ThreeSides side, double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, side, limitScalingValue, type);
     }
 
     @Override
@@ -583,8 +583,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits1(double limitReductionValue, LimitType type) {
-        return checkTemporaryLimits(ThreeSides.ONE, limitReductionValue, type);
+    public Overload checkTemporaryLimits1(double limitScalingValue, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.ONE, limitScalingValue, type);
     }
 
     @Override
@@ -593,8 +593,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits2(double limitReductionValue, LimitType type) {
-        return checkTemporaryLimits(ThreeSides.TWO, limitReductionValue, type);
+    public Overload checkTemporaryLimits2(double limitScalingValue, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.TWO, limitScalingValue, type);
     }
 
     @Override
@@ -603,8 +603,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits3(double limitReductionValue, LimitType type) {
-        return checkTemporaryLimits(ThreeSides.THREE, limitReductionValue, type);
+    public Overload checkTemporaryLimits3(double limitScalingValue, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.THREE, limitScalingValue, type);
     }
 
     @Override
@@ -613,7 +613,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, type);
+    public Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitScalingValue, type);
     }
 }
