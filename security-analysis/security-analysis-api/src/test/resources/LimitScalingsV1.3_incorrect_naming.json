@@ -1,0 +1,17 @@
+{
+  "version" : "1.3",
+  "limitReductions" : [ {
+    "value" : 0.9,
+    "limitType" : "CURRENT",
+    "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "SPECIFIC",
+      "contingencyId" : "contingency1"
+    },
+    "equipmentCriteria" : [ {
+      "type" : "identifierCriterion",
+      "version" : "1.1",
+      "identifiers" : [ "NHV1_NHV2_1" ]
+    }]
+  }]
+}
