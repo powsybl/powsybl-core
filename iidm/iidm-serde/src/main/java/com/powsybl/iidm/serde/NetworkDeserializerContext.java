@@ -30,9 +30,8 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private final TreeDataReader reader;
 
     private final List<DeserializationEndTask> endTasks = new ArrayList<>();
-    private final ImportOptions options;
-
     private final Map<Identifiable<?>, ExtraProperties> extraPropertiesByIdentifiable = new HashMap<>();
+    private final ImportOptions options;
 
     private final Map<String, String> extensionVersions;
     private final EnumSet<DeserializationEndTask.Step> processedEndTasksSteps = EnumSet.noneOf(DeserializationEndTask.Step.class);
@@ -128,18 +127,37 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         return getVersion().compareTo(version) >= 0 ? getAnonymizer().deanonymizeString(val) : val;
     }
 
-    public Optional<ExtraProperties> getExtraProperties(Identifiable<?> id) {
-        return Optional.ofNullable(extraPropertiesByIdentifiable.get(id));
-    }
-
-    public void removeExtraProperties(Identifiable<?> identifiable) {
-        this.extraPropertiesByIdentifiable.remove(identifiable);
-    }
-
+    /**
+     * <p>Define extra properties for the given identifiable.</p>
+     * <p>Extra properties can be used to pass additional data required by the end tasks.</p>
+     * @param identifiable the identifiable which extra properties are used for
+     * @param extraProperties the extra properties to store
+     */
     public void setExtraProperties(Identifiable<?> identifiable, ExtraProperties extraProperties) {
         this.extraPropertiesByIdentifiable.put(identifiable, extraProperties);
     }
 
+    /**
+     * <p>Get the extra properties associated to the given identifiable.</p>
+     * @param identifiable the identifiable
+     * @return the associated extra properties
+     */
+    public Optional<ExtraProperties> getExtraProperties(Identifiable<?> identifiable) {
+        return Optional.ofNullable(extraPropertiesByIdentifiable.get(identifiable));
+    }
+
+    /**
+     * <p>remove the extra properties associated to the given identifiable.</p>
+     * @param identifiable the identifiable
+     */
+    public void removeExtraProperties(Identifiable<?> identifiable) {
+        this.extraPropertiesByIdentifiable.remove(identifiable);
+    }
+
+    /**
+     * <p>Record containing the map of the extra properties of an identifiable.</p>
+     * @param extraPropertiesMapping the mapping
+     */
     public record ExtraProperties(Map<String, Object> extraPropertiesMapping) {
         public Object getExtraProperty(String key) {
             return extraPropertiesMapping.get(key);
