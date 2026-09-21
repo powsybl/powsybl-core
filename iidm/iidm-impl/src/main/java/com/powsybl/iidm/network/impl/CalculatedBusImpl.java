@@ -207,7 +207,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public int getQuickConnectedComponentNumber() {
-        return terminalRef.getConnectedComponentNumber();
+        return terminalRef == null ? -1 : terminalRef.getConnectedComponentNumber();
     }
 
     @Override
@@ -226,7 +226,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public int getQuickSynchronousComponentNumber() {
-        return terminalRef.getSynchronousComponentNumber();
+        return terminalRef == null ? -1 : terminalRef.getSynchronousComponentNumber();
     }
 
     @Override
