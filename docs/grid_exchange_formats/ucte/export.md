@@ -41,7 +41,8 @@ norm. It does not do any ID modification.
 **ucte.export.combine-phase-angle-regulation**<br>
 The `ucte.export.combine-phase-angle-regulation` property is an optional property that defines, for a two-winding
 transformer that has both a ratio and a phase tap changer, whether the ratio tap changer's current step should be folded
-into the exported angle regulation δu. See [angle regulation](#angle-regulation) below.
+into the exported angle regulation δu. This only applies to `ASYM` angle regulations. See
+[angle regulation](#angle-regulation) below.
 
 Its default value is `false`.
 
@@ -247,13 +248,14 @@ angle regulation.
 
 The table below maps every UCTE-DEF angle regulation attribute to its source in IIDM.
 
-| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                                 |
-|-------------------------|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| Regulation type         | Phase tap changer's tap steps' ρ          | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                                      |
-| δu (%) and angle θ (°)  | Phase tap changer's tap steps' α and/or ρ | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula) |
-| n (number of taps)      | Phase tap changer's high tap position     | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.           |
-| n' (tap position)       | Phase tap changer's current tap position  | Used as-is. Same assumption as above.                                                                                                       |
-| Regulation power P (MW) | Phase tap changer's `regulationValue`     | Opposite of `regulationValue`.                                                                                                              |
+| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                        |
+|-------------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| Regulation type         | Phase tap changer's tap steps' ρ           | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                              |
+| δu (%)                  | Phase tap changer's tap steps' α and/or ρ  | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
+| Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ  | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.               |
+| n (number of taps)      | Phase tap changer's high tap position      | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.  |
+| n' (tap position)       | Phase tap changer's current tap position   | Used as-is. Same assumption as above.                                                                                              |
+| Regulation power P (MW) | Phase tap changer's `regulationValue`      | Opposite of `regulationValue`.                                                                                                      |
 
 ##### SYMM regulation δu formula
 For a `SYMM` regulation, the angle is fixed at `90°` and the δu (%) is computed from the α of the two extreme taps:
