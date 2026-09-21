@@ -90,9 +90,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                 .withMode(RegulationMode.VOLTAGE)
                 .add();
             adder.setLocalTargetV(targetV);
-            toApply.add(sc ->
-                context.addExtraProperties(sc, new NetworkDeserializerContext.ExtraPropertiesData(targetV,
-                    () -> sc.setLocalTargetV(Double.NaN))));
+            toApply.add(sc -> VoltageRegulationSerDe.storeExtraProperties(sc, targetV, holder -> holder.setLocalTargetV(Double.NaN), context));
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             double targetV = context.getReader().readDoubleAttribute(LOCAL_TARGET_V);

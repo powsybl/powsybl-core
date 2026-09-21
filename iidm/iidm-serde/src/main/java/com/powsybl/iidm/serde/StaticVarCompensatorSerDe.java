@@ -183,13 +183,13 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         double q = context.getReader().readDoubleAttribute("q");
         toApply.add(svc -> svc.getTerminal().setP(p).setQ(q));
         toApply.add(svc -> {
-            Runnable actionOnTerminalRemote;
+            Consumer<StaticVarCompensator> actionOnTerminalRemote;
             if (RegulationMode.REACTIVE_POWER.equals(regulationModeRef.get())) {
-                actionOnTerminalRemote = () -> svc.setLocalTargetQ(Double.NaN);
+                actionOnTerminalRemote = holder -> holder.setLocalTargetQ(Double.NaN);
             } else {
-                actionOnTerminalRemote = () -> svc.setLocalTargetV(Double.NaN);
+                actionOnTerminalRemote = holder -> holder.setLocalTargetV(Double.NaN);
             }
-            context.addExtraProperties(svc, new NetworkDeserializerContext.ExtraPropertiesData(targetValueDoubleToUseInVoltageRegulationIfRemote.get(), actionOnTerminalRemote));
+            VoltageRegulationSerDe.storeExtraProperties(svc, targetValueDoubleToUseInVoltageRegulationIfRemote.get(), actionOnTerminalRemote, context);
         });
     }
 

@@ -32,7 +32,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private final List<DeserializationEndTask> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
-    private final Map<Identifiable<?>, ExtraPropertiesData> extraProperties = new HashMap<>(); // TODO MSA name ? ContextProperties ?
+    private final Map<Identifiable<?>, ExtraProperties> extraPropertiesByIdentifiable = new HashMap<>();
 
     private final Map<String, String> extensionVersions;
     private final EnumSet<DeserializationEndTask.Step> processedEndTasksSteps = EnumSet.noneOf(DeserializationEndTask.Step.class);
@@ -128,19 +128,23 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         return getVersion().compareTo(version) >= 0 ? getAnonymizer().deanonymizeString(val) : val;
     }
 
-    public Optional<ExtraPropertiesData> getExtraProperties(Identifiable<?> id) {
-        return Optional.ofNullable(extraProperties.get(id));
+    public Optional<ExtraProperties> getExtraProperties(Identifiable<?> id) {
+        return Optional.ofNullable(extraPropertiesByIdentifiable.get(id));
     }
 
     public void removeExtraProperties(Identifiable<?> identifiable) {
-        this.extraProperties.remove(identifiable);
+        this.extraPropertiesByIdentifiable.remove(identifiable);
     }
 
-    public void addExtraProperties(Identifiable<?> identifiable, ExtraPropertiesData extraPropertiesData) {
-        this.extraProperties.put(identifiable, extraPropertiesData);
+    public void setExtraProperties(Identifiable<?> identifiable, ExtraProperties extraProperties) {
+        this.extraPropertiesByIdentifiable.put(identifiable, extraProperties);
     }
 
-    public record ExtraPropertiesData(Object value, Runnable action) { }
+    public record ExtraProperties(Map<String, Object> extraPropertiesMapping) {
+        public Object getExtraProperty(String key) {
+            return extraPropertiesMapping.get(key);
+        }
+    }
 
     private record IdentifiableIdSide(String identifiableId, ThreeSides side) { }
 

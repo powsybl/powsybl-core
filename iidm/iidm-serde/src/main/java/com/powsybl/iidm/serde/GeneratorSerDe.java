@@ -101,9 +101,9 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             if (g.getVoltageRegulation() != null
-                && g.getVoltageRegulation().getTerminal() != null
-                && g != g.getVoltageRegulation().getTerminal().getConnectable()
-                && g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
+                    && g.getVoltageRegulation().getTerminal() != null
+                    && g != g.getVoltageRegulation().getTerminal().getConnectable()
+                    && g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
                 TerminalRefSerDe.writeTerminalRef(g.getVoltageRegulation().getTerminal(), context, REGULATING_TERMINAL);
             }
         });
@@ -147,13 +147,13 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         readPQ(toApply, context.getReader());
         toApply.add(generator -> {
             double targetValueDouble = Double.isNaN(targetV) ? equivalentLocalTargetV.get() : targetV;
-            Runnable actionOnRemoteTerminal;
+            Consumer<Generator> actionOnRemoteTerminal;
             if (!Double.isNaN(targetV) && !Double.isNaN(equivalentLocalTargetV.get())) {
-                actionOnRemoteTerminal = () -> { };
+                actionOnRemoteTerminal = holder -> { };
             } else {
-                actionOnRemoteTerminal = () -> generator.setLocalTargetV(Double.NaN);
+                actionOnRemoteTerminal = holder -> holder.setLocalTargetV(Double.NaN);
             }
-            context.addExtraProperties(generator, new NetworkDeserializerContext.ExtraPropertiesData(targetValueDouble, actionOnRemoteTerminal));
+            VoltageRegulationSerDe.storeExtraProperties(generator, targetValueDouble, actionOnRemoteTerminal, context);
         });
     }
 
