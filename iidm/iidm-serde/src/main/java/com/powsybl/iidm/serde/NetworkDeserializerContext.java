@@ -30,7 +30,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private final TreeDataReader reader;
 
     private final List<DeserializationEndTask> endTasks = new ArrayList<>();
-    private final Map<Identifiable<?>, ExtraProperties> extraPropertiesByIdentifiable = new HashMap<>();
+    private final Map<ExtraPropertiesKey, Object> extraPropertiesByIdentifiable = new HashMap<>();
     private final ImportOptions options;
 
     private final Map<String, String> extensionVersions;
@@ -128,39 +128,40 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     }
 
     /**
-     * <p>Define extra properties for the given identifiable.</p>
+     * <p>Define extra properties for the given identifiable and process key.</p>
      * <p>Extra properties can be used to pass additional data required by the end tasks.</p>
      * @param identifiable the identifiable which extra properties are used for
+     * @param processKey an additional key to indicate which operation is processed
      * @param extraProperties the extra properties to store
      */
-    public void setExtraProperties(Identifiable<?> identifiable, ExtraProperties extraProperties) {
-        this.extraPropertiesByIdentifiable.put(identifiable, extraProperties);
+    public void setExtraProperties(Identifiable<?> identifiable, String processKey, Object extraProperties) {
+        this.extraPropertiesByIdentifiable.put(new ExtraPropertiesKey(identifiable, processKey), extraProperties);
     }
 
     /**
-     * <p>Get the extra properties associated to the given identifiable.</p>
+     * <p>Get the extra properties associated to the given identifiable and process key.</p>
+     * <p>The result is cast to respect the given clazz.</p>
      * @param identifiable the identifiable
+     * @param processKey an additional key to indicate which operation is processed
+     * @param clazz the class of the object to retrieve
      * @return the associated extra properties
+     * @param <T> The type of the extra properties object
      */
-    public Optional<ExtraProperties> getExtraProperties(Identifiable<?> identifiable) {
-        return Optional.ofNullable(extraPropertiesByIdentifiable.get(identifiable));
+    public <T> Optional<T> getExtraProperties(Identifiable<?> identifiable, String processKey, Class<T> clazz) {
+        return Optional.ofNullable(extraPropertiesByIdentifiable.get(new ExtraPropertiesKey(identifiable, processKey))).map(clazz::cast);
     }
 
     /**
-     * <p>remove the extra properties associated to the given identifiable.</p>
+     * <p>Remove the extra properties associated to the given identifiable and process key.</p>
      * @param identifiable the identifiable
      */
-    public void removeExtraProperties(Identifiable<?> identifiable) {
-        this.extraPropertiesByIdentifiable.remove(identifiable);
+    public void removeExtraProperties(Identifiable<?> identifiable, String processKey) {
+        this.extraPropertiesByIdentifiable.remove(new ExtraPropertiesKey(identifiable, processKey));
     }
 
-    /**
-     * <p>Record containing the map of the extra properties of an identifiable.</p>
-     * @param extraPropertiesMapping the mapping
-     */
-    public record ExtraProperties(Map<String, Object> extraPropertiesMapping) {
-        public Object getExtraProperty(String key) {
-            return extraPropertiesMapping.get(key);
+    private record ExtraPropertiesKey(String identifiableId, String processKey) {
+        ExtraPropertiesKey(Identifiable<?> identifiable, String processKey) {
+            this(identifiable.getId(), processKey);
         }
     }
 

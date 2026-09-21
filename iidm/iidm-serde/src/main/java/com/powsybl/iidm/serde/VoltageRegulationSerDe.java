@@ -19,7 +19,6 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -40,8 +39,7 @@ public final class VoltageRegulationSerDe {
     // SubElements
     public static final String TERMINAL = "terminalRef";
 
-    private static final String EXTRA_PROPERTY_TARGET_VALUE = "targetValue";
-    private static final String EXTRA_PROPERTY_ACTION_ON_HOLDER = "actionOnHolder";
+    private static final String EXTRA_PROPERTIES_PROCESS_KEY = "Voltage regulation";
 
     private VoltageRegulationSerDe() {
     }
@@ -160,9 +158,7 @@ public final class VoltageRegulationSerDe {
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void storeExtraProperties(T voltageRegulationHolder,
                                                                                                      double targetValue, Consumer<T> actionOnHolder,
                                                                                                      NetworkDeserializerContext context) {
-        context.setExtraProperties(voltageRegulationHolder, new NetworkDeserializerContext.ExtraProperties(Map.of(
-                EXTRA_PROPERTY_TARGET_VALUE, targetValue,
-                EXTRA_PROPERTY_ACTION_ON_HOLDER, actionOnHolder)));
+        context.setExtraProperties(voltageRegulationHolder, EXTRA_PROPERTIES_PROCESS_KEY, new ExtraProperties<>(targetValue, actionOnHolder));
     }
 
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
@@ -185,11 +181,11 @@ public final class VoltageRegulationSerDe {
                         .build();
                     holder.setLocalTargetQ(Double.NaN);
                 } else {
-                    Optional<NetworkDeserializerContext.ExtraProperties> extraProperties = context.getExtraProperties(holder);
-                    double targetValue = (double) extraProperties.map(p -> p.getExtraProperty(EXTRA_PROPERTY_TARGET_VALUE)).orElse(Double.NaN);
+                    Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
+                    double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
                     voltageRegulation.setTerminal(terminal, targetValue);
-                    extraProperties.ifPresent(p -> ((Consumer<T>) p.getExtraProperty(EXTRA_PROPERTY_ACTION_ON_HOLDER)).accept(holder));
-                    context.removeExtraProperties(holder);
+                    extraProperties.ifPresent(p -> p.actionOnHolder().accept(holder));
+                    context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
                 }
             }));
     }
@@ -233,4 +229,5 @@ public final class VoltageRegulationSerDe {
         });
     }
 
+    public record ExtraProperties<T extends VoltageRegulationHolder<?> & Identifiable<T>>(Double targetValue, Consumer<T> actionOnHolder) { }
 }
