@@ -1,22 +1,28 @@
 # Export
 
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
-into its UCTE-DEF equivalent and written to a file using the [`SECOND`](format_specification.md) format version.
+into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF 
+[format specification](format_specification.md).
+
+## Limitations
 
 **Supported equipments**: The export fails with a `UcteException` if the network contains any of the following elements,
 which have no UCTE-DEF equivalent: shunt compensators, static VAR compensators, batteries, LCC or VSC converter
 stations, HVDC lines, or three-winding transformers.
 
-## Limitations
-
 **Follows UCTE-DEF import**: Export is possible if the file was imported with the same format. For instance, if you
-import a UCTE-DEF file in powsybl, you can update some elements and then export it back to UCTE-DEF format, but you
-cannot export to UCTE-DEF format a file imported from another format.
+import a UCTE-DEF file in PowSyBl, you can update some elements and then export it back to UCTE-DEF format. However,
+exporting to UCTE-DEF format a file imported from another format most often leads at best to incorrect file content, at
+worst to an exporter failure. Some examples are listed here after.
 
 **At most one load and one generator per bus**: The export fails with a `UcteException` if a bus has more than one
 [load](../../grid_model/network_subnetwork.md#load) or more than one [generator](../../grid_model/network_subnetwork.md#generator)
 connected to it. See [node conversion](#node-conversion) below for how the node's load and generation attributes are
 sourced from the load and the generator.
+
+**Transformers Tap Changers**: UCTE-DEF format assumes neutral tap position to be centered at position zero. If your IIDM
+model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will be
+incorrect without warning.
 
 ## Options
 
@@ -31,9 +37,6 @@ export.
 Default naming strategy (`Default`) expects the network elements' ID to be totally compatible with UCTE-DEF norm (e.g.,
 a network initially imported from a UCTE-DEF file), and throws an exception if any network element does not respect the
 norm. It does not do any ID modification.
-
-Other naming strategies can be defined, as long as they are provided as services implementing `NamingStrategy`. A
-working example is the class `CounterNamingStrategy`.
 
 **ucte.export.combine-phase-angle-regulation**<br>
 The `ucte.export.combine-phase-angle-regulation` property is an optional property that defines, for a two-winding
@@ -90,22 +93,14 @@ the energy source of the generator is converted to a UCTE power plant type accor
 
 | IIDM Energy source | UCTE Power plant type |
 |:------------------:|:---------------------:|
-|       Hydro        |           H           |
-|      Nuclear       |           N           |
-|      Thermal       |           C           |
-|        Wind        |           W           |
-|   Other sources    |           F           |
+|       Hydro        |      `H` (hydro)      |
+|      Nuclear       |     `N` (nuclear)     |
+|      Thermal       |      `C` (Coal)       |
+|        Wind        |      `W` (Wind)       |
+|   Other sources    |     `F` (further)     |
 
-Follows the convention for power plant types in the
+See the convention for power plant types in
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf):
-- H: hydro
-- N: nuclear
-- L: lignite
-- C: hard coal
-- G: gas
-- O: oil
-- W: wind
-- F: further
 
 ### Line conversion
 
@@ -186,14 +181,13 @@ the same conventions as [node conversion](#node-conversion) above.
 
 #### Tie line properties
 
-A tie line originating from 2 boundary lines, there can be inconsistencies for the geographical name and the node
-status.
+A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by 
+custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although 
+we expect both sides of the line to carry the same value for the same property, there can be discrepancies.
 
-- If both boundary lines have the same `geographicalName`, this value is used as the exported tie line geographical name
-- If one of the boundary lines has an empty `geographicalName`, the other boundary line's value is used.
-- If both boundary lines have different `geographicalName` values, the exported tie line geographical name remains empty
-
-The same logic is used for node status (sourced from boundary lines `status_XNode` properties).
+- If both boundary lines have the same value, it is used in the exported tie line.
+- If one of the boundary lines has an empty value, the other boundary line's value is used.
+- If both boundary lines have different values, the exported tie line field remains empty.
 
 ### Two-winding transformer conversion
 
@@ -202,19 +196,19 @@ converted into a UCTE transformer.
 
 The table below maps every UCTE-DEF transformer attribute to its source in IIDM.
 
-| UCTE-DEF attribute                          | Source in IIDM                                       | Computation                                                                                             |
-|---------------------------------------------|------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| UCTE-DEF attribute                          | Source in IIDM                                      | Computation                                                                                            |
+|---------------------------------------------|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | Node codes (1, 2) and order code            | Transformer id                                      | Computed by the [naming strategy](#options) from the transformer's id.                                 |
 | Status                                      | Transformer fictitiousness and connection state     | See [Line status](#line-status).                                                                       |
-| Resistance R (Ω)                            | Transformer's `r`                                   | Used as-is.                                                                                             |
-| Reactance X (Ω)                             | Transformer's `x`                                   | Used as-is.                                                                                             |
-| Susceptance B (μS)                          | Transformer's `b`                                   | Used as-is.                                                                                             |
-| Current limit I (A)                         | Transformer's permanent current limits (both sides) | See [Current limit](#current-limit).                                                                    |
-| Element name                                 | `elementName` property                              | Used as-is; left undefined if the property is absent.                                                   |
-| Rated voltage 1 (kV, non-regulated winding) | Transformer's `ratedU2`                             | Used as-is; swapped with rated voltage 2, see [Rated voltages](#rated-voltages).                        |
-| Rated voltage 2 (kV, regulated winding)     | Transformer's `ratedU1`                             | Used as-is; swapped with rated voltage 1, see [Rated voltages](#rated-voltages).                        |
-| Nominal power (MVA)                         | `nomimalPower` property                             | Parsed as a double; left undefined if the property is absent, and a warning is [reported](#reporting).  |
-| Conductance G (μS)                          | Transformer's `g`                                   | Used as-is.                                                                                              |
+| Resistance R (Ω)                            | Transformer's `r`                                   | Used as-is.                                                                                            |
+| Reactance X (Ω)                             | Transformer's `x`                                   | Used as-is.                                                                                            |
+| Susceptance B (μS)                          | Transformer's `b`                                   | Used as-is.                                                                                            |
+| Current limit I (A)                         | Transformer's permanent current limits (both sides) | See [Current limit](#current-limit).                                                                   |
+| Element name                                | `elementName` property                              | Used as-is; left undefined if the property is absent.                                                  |
+| Rated voltage 1 (kV, non-regulated winding) | Transformer's `ratedU2`                             | Used as-is; swapped with rated voltage 2, see [Rated voltages](#rated-voltages).                       |
+| Rated voltage 2 (kV, regulated winding)     | Transformer's `ratedU1`                             | Used as-is; swapped with rated voltage 1, see [Rated voltages](#rated-voltages).                       |
+| Nominal power (MVA)                         | `nomimalPower` property                             | Parsed as a double; left undefined if the property is absent, and a warning is [reported](#reporting). |
+| Conductance G (μS)                          | Transformer's `g`                                   | Used as-is.                                                                                            |
 
 #### Rated voltages
 
@@ -227,9 +221,18 @@ If the transformer has a ratio and/or a phase tap changer, a regulation is expor
 #### Phase regulation
 
 If the transformer has a [ratio tap changer](../../grid_model/additional.md#ratio-tap-changer), it is converted into a
-phase regulation. If the ratio tap changer has a target voltage, it is exported as the regulation's voltage set point.
-The δu (%) of the regulation is computed from the ρ of the two extreme taps:
+phase regulation.
 
+The table below maps every UCTE-DEF phase regulation attribute to its source in IIDM.
+
+| UCTE-DEF attribute       | Source in IIDM                                 | Computation                                                                                                                       |
+|--------------------------|------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| δu (%)                   | Ratio tap changer's tap steps' ρ               | Computed from the ρ of the two extreme taps, see formula in [δu formula](#δu-formula).                                            |
+| n (number of taps)       | Ratio tap changer's high tap position          | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation. |
+| n' (tap position)        | Ratio tap changer's current tap position       | Used as-is. Same assumption as above.                                                                                             |
+| Voltage set point U (kV) | Ratio tap changer's target voltage (`targetV`) | Used as-is; left undefined if the ratio tap changer has no target voltage.                                                        |
+
+##### δu formula
 $$
 \delta u = 100 \times \left (\dfrac{1}{\rho_{max}} - \dfrac{1}{\rho_{min}}\right) / (n - 1)
 $$
@@ -240,19 +243,32 @@ position.
 #### Angle regulation
 
 If the transformer has a [phase tap changer](../../grid_model/additional.md#phase-tap-changer), it is converted into an
-angle regulation, with a regulation power $P = -RegulationValue$. The regulation type is `SYMM` if the ρ of every tap is
-`1`, `ASYM` otherwise.
+angle regulation.
 
-- For a `SYMM` regulation, the angle is fixed at `90°` and the δu (%) is computed from the α of the two extreme taps:
+The table below maps every UCTE-DEF angle regulation attribute to its source in IIDM.
+
+| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                                 |
+|-------------------------|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Regulation type         | Phase tap changer's tap steps' ρ          | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                                      |
+| δu (%) and angle θ (°)  | Phase tap changer's tap steps' α and/or ρ | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula) |
+| n (number of taps)      | Phase tap changer's high tap position     | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.           |
+| n' (tap position)       | Phase tap changer's current tap position  | Used as-is. Same assumption as above.                                                                                                       |
+| Regulation power P (MW) | Phase tap changer's `regulationValue`     | Opposite of `regulationValue`.                                                                                                              |
+
+##### SYMM regulation δu formula
+For a `SYMM` regulation, the angle is fixed at `90°` and the δu (%) is computed from the α of the two extreme taps:
 
 $$
 \delta u = 100 \times 2 \times \left (\tan\left (\dfrac{\alpha_{max}}{2}\right) - \tan\left (\dfrac{\alpha_{min}}{2}\right)\right) / (n - 1)
 $$
 
-- For an `ASYM` regulation, the δu (%) and the angle are computed from the distance, in the complex plane, between the
-  points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps. If the [`ucte.export.combine-phase-angle-regulation`](#options)
-  option is enabled and the transformer also has a ratio tap changer, the computed δu (%) is divided by the ρ of the 
-  ratio tap changer's current step.
+##### ASYM regulation δu formula
+
+For an `ASYM` regulation, the δu (%) and the angle are computed from the distance, in the complex plane, between the
+points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps. If the [
+`ucte.export.combine-phase-angle-regulation`](#options)
+option is enabled and the transformer also has a ratio tap changer, the computed δu (%) is divided by the ρ of the ratio
+tap changer's current step.
 
 **Note:** the sign of α is inverted in both cases, because the phase tap changer is on side 2 in the
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf),
