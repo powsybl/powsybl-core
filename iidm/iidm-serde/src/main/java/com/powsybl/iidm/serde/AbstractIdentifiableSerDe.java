@@ -38,9 +38,6 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<T>, A extends Id
         context.getWriter().writeStringAttribute("name", identifiable.getOptionalName().map(context.getAnonymizer()::anonymizeString).orElse(null));
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> context.getWriter().writeBooleanAttribute("fictitious", identifiable.isFictitious(), false));
-        if (identifiable instanceof Connectable<?> connectable) {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeBooleanAttribute("equivalent", connectable.isEquivalent(), false));
-        }
 
         writeRootElementAttributes(identifiable, parent, context);
 
@@ -72,12 +69,6 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<T>, A extends Id
                 adder.setFictitious(fictitious);
             }
         });
-        if (adder instanceof ConnectableAdder<?, ?> connectableAdder) {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-                boolean equivalent = context.getReader().readBooleanAttribute("equivalent", false);
-                connectableAdder.setEquivalent(equivalent);
-            });
-        }
         return id;
     }
 }

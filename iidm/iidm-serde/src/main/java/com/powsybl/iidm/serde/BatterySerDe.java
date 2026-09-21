@@ -33,6 +33,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
 
     @Override
     protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(b, context);
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8),
                 b.getTargetP());
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8),
@@ -55,6 +56,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
 
     @Override
     protected Battery readRootElementAttributes(BatteryAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         double targetP = context.getReader().readDoubleAttribute(
                 IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8));
         double targetQ = context.getReader().readDoubleAttribute(

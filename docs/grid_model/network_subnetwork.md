@@ -188,7 +188,7 @@ A generator is a piece of equipment that injects or consumes active power, and i
 | $VoltageRegulatorOn$     |      | True if the generator regulates voltage                                             |
 | $EnergySource$           |      | The energy source harnessed to turn the generator                                   |
 | $IsCondenser$            |      | True if the generator may behave as a condenser                                     |
-| $equivalent$             | -    | Indicates if the generator is an equivalent, from a network reduction for instance  | 
+| $Equivalent$             | -    | Indicates if the generator is an equivalent, from a network reduction for instance  | 
 
 **Specifications**
 
@@ -231,7 +231,7 @@ A load is a passive equipment representing a delivery point that consumes or pro
 |--------------|------|-------------------------------------------------------------------------------|
 | $P0$         | MW   | The active power setpoint                                                     |
 | $Q0$         | MVar | The reactive power setpoint                                                   |
-| $equivalent$ | -    | Indicates if the load is an equivalent, from a network reduction for instance | 
+| $Equivalent$ | -    | Indicates if the load is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -293,7 +293,7 @@ battery side and vice versa. The power flow is bidirectional, and it is controll
 | $MinP$           | MW   | The Minimal active power (charging limit)                                        |
 | $MaxP$           | MW   | The Maximum active power (discharging limit)                                     |
 | $ReactiveLimits$ | MVar | Operational limits of the battery (P/Q/V diagram)                                |
-| $equivalent$     | -    | Indicates if the battery is an equivalent, from a network reduction for instance | 
+| $Equivalent$     | -    | Indicates if the battery is an equivalent, from a network reduction for instance | 
 
 The values `TargetP`, `TargetQ`, `MinP`, `MaxP`, are required.
 
@@ -357,7 +357,7 @@ Optional:
 | $TargetQ$            | MVAr | The reactive power target                                                              |
 | $TargetV$            | kV   | The voltage target                                                                     |
 | $VoltageRegulatorOn$ |      | True if the generation part regulates voltage                                          |
-| $equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance | 
+| $Equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -425,7 +425,7 @@ Shunt compensators follow a passive-sign convention:
 | $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls                                    |
 | $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated                                |
 | $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage                                            |
-| $equivalent$          | -    | Indicates if the shunt compensator is an equivalent, from a network reduction for instance | 
+| $Equivalent$          | -    | Indicates if the shunt compensator is an equivalent, from a network reduction for instance | 
 
 - For Linear Shunt Compensators
 
@@ -491,7 +491,7 @@ Static VAR compensators follow a passive-sign convention:
 | $Bmax$                  | S    | The maximum susceptance                                                                         |
 | $VoltageSetpoint$       | kV   | The voltage setpoint                                                                            |
 | $ReactivePowerSetpoint$ | MVar | The reactive power setpoint                                                                     |
-| $equivalent$            | -    | Indicates if the Static VAR compensator is an equivalent, from a network reduction for instance | 
+| $Equivalent$            | -    | Indicates if the Static VAR compensator is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -571,7 +571,7 @@ $$
 | $B1$         | S        | The first side shunt susceptance                                               |
 | $G2$         | S        | The second side shunt conductance                                              |
 | $B2$         | S        | The second side shunt susceptance                                              |
-| $equivalent$ | -        | Indicates if the line is an equivalent, from a network reduction for instance. |
+| $Equivalent$ | -        | Indicates if the line is an equivalent, from a network reduction for instance. |
 
 **Specifications**
 
@@ -615,7 +615,6 @@ $G2$ (resp. $B2$) is equal to the second boundary line's $G2$ (resp. $B2$).
 | $B1$         | S        | The first side shunt susceptance                                                  |
 | $G2$         | S        | The second side shunt conductance                                                 |
 | $B2$         | S        | The second side shunt susceptance                                                 |
-| $equivalent$ | -        | Indicates if the tie line is an equivalent, from a network reduction for instance | 
 
 A tie line is not a connectable. It is just a container of two underlying boundary lines with the same pairing key. When connected together, each boundary line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free boundary lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
 
@@ -679,7 +678,7 @@ $$
 | $V_{1\ nom}$ | kV       | The rated voltage at side 1                                                           |
 | $V_{2\ nom}$ | kV       | The rated voltage at side 2                                                           |
 | $RatedS$     | MVA      | The normal apparent power                                                             |
-| $equivalent$ | -        | Indicates if the transformer is an equivalent, from a network reduction for instance. | 
+| $Equivalent$ | -        | Indicates if the transformer is an equivalent, from a network reduction for instance. | 
 
 **Specifications**
 
@@ -722,7 +721,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 | Attribute    | Unit | Description                                                                          |
 |--------------|------|--------------------------------------------------------------------------------------|
 | $RatedU0$    | kV   | The rated voltage at the star bus                                                    |
-| $equivalent$ | -    | Indicates if the transformer is an equivalent, from a network reduction for instance | 
+| $Equivalent$ | -    | Indicates if the transformer is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -839,7 +838,7 @@ Electronic converters for HVDC are divided into two main categories: line-commut
 |--------------|------------|------|----------|---------------|--------------------------------------------------------------------------------------------|
 | HvdcType     | `HvdcType` | -    | yes      | -             | The HVDC type                                                                              |
 | LossFactor   | float      | %    | yes      | -             | The loss factor                                                                            |
-| $equivalent$ | boolean    | -    | no       | false         | Indicates if the converter station is an equivalent, from a network reduction for instance |
+| $Equivalent$ | boolean    | -    | no       | false         | Indicates if the converter station is an equivalent, from a network reduction for instance |
 
 The LossFactor should be greater than 0.
 
@@ -1020,13 +1019,13 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                                   |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                                   |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                                         |
-| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or DC_DROOP                           |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or DC_DROOP                              |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention              |
 | $TargetVdc$     | kV       | DC voltage target                                                                  |
 | $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention             |
 | $MaxP$          | MW       | Maximum active power at point of common coupling, load sign convention             |
 | $DroopCurve$    |          | Droop curve for droop control mode                                                 |
-| $equivalent$    | -        | Indicates if the converter is an equivalent, from a network reduction for instance | 
+| $Equivalent$    | -        | Indicates if the converter is an equivalent, from a network reduction for instance | 
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:

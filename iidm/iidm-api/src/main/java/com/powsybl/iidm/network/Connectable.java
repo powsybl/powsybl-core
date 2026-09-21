@@ -90,7 +90,7 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     }
 
     /**
-     * Returns true is the connectable is an equivalent, from a network reduction for instance.
+     * Returns true if the connectable is an equivalent, from a network reduction, for instance.
      */
     boolean isEquivalent();
 }
