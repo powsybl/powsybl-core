@@ -17,9 +17,10 @@ public class RevertConnectVoltageLevelOnLineBuilder {
 
     private String lineId = null;
     private String lineName = null;
+    private boolean forceRemoveIsolatedVoltageLevel;
 
     public RevertConnectVoltageLevelOnLine build() {
-        return new RevertConnectVoltageLevelOnLine(line1Id, line2Id, lineId, lineName);
+        return new RevertConnectVoltageLevelOnLine(line1Id, line2Id, lineId, lineName, forceRemoveIsolatedVoltageLevel);
     }
 
     /**
@@ -51,6 +52,11 @@ public class RevertConnectVoltageLevelOnLineBuilder {
      */
     public RevertConnectVoltageLevelOnLineBuilder withLineName(String lineName) {
         this.lineName = lineName;
+        return this;
+    }
+
+    public RevertConnectVoltageLevelOnLineBuilder withForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
+        this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
         return this;
     }
 }

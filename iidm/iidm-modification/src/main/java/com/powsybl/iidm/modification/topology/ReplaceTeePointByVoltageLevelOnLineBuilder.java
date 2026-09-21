@@ -20,10 +20,11 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
     private String newLine1Name = null;
     private String newLine2Id = null;
     private String newLine2Name = null;
+    private boolean forceRemoveIsolatedVoltageLevel = false;
 
     public ReplaceTeePointByVoltageLevelOnLine build() {
         return new ReplaceTeePointByVoltageLevelOnLine(teePointLine1, teePointLine2, teePointLineToRemove, bbsOrBusId,
-                newLine1Id, newLine1Name, newLine2Id, newLine2Name);
+                newLine1Id, newLine1Name, newLine2Id, newLine2Name, forceRemoveIsolatedVoltageLevel);
     }
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withTeePointLine1(String teePointLine1) {
@@ -69,6 +70,11 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine2Name(String newLine2Name) {
         this.newLine2Name = newLine2Name;
+        return this;
+    }
+
+    public ReplaceTeePointByVoltageLevelOnLineBuilder setForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
+        this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
         return this;
     }
 }
