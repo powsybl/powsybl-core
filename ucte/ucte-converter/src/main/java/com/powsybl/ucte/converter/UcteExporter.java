@@ -300,6 +300,26 @@ public class UcteExporter implements Exporter {
         ucteNode.setPowerPlantType(powerPlantType);
         ucteNode.setTypeCode(nodeType);
         // FIXME(mathbagu): to be changed in UcteImporter?
+        setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
+    }
+
+    /**
+     * If provided generator power limits are permissible, set the ucteNode corresponding active and reactive power
+     * generation limits. Max limit is valid if it is lower than {@code 9999} and min limit is valid of it is greater
+     * than {@code -9999}. See {@link UcteConverterConstants#DEFAULT_POWER_LIMIT} that defines the special "no value" in
+     * UCTE import. Invalid values are simply not exported (cell left empty in the export file)
+     *
+     * @param ucteNode an exported node
+     * @param minP min active power
+     * @param maxP max active power
+     * @param minQ min reactive power
+     * @param maxQ max reactive power
+     */
+    private static void setNodePowerGenerationLimits(UcteNode ucteNode,
+                                                     double minP,
+                                                     double maxP,
+                                                     double minQ,
+                                                     double maxQ) {
         if (isMinLimitInbounds(minP)) {
             ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
         }
@@ -340,18 +360,7 @@ public class UcteExporter implements Exporter {
             double maxP = boundaryLine.getGeneration().getMaxP();
             double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
             double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
-            if (isMinLimitInbounds(minP)) {
-                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
-            }
-            if (isMaxLimitInbounds(maxP)) {
-                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
-            }
-            if (isMinLimitInbounds(minQ)) {
-                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
-            }
-            if (isMaxLimitInbounds(maxQ)) {
-                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
-            }
+            setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
         }
     }
 
