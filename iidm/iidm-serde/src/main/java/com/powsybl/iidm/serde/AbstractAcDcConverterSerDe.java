@@ -27,6 +27,7 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends AcDcConverterAdder<T, A>> extends AbstractComplexIdentifiableSerDe<T, A, VoltageLevel> {
 
     private static final String ATTR_CONTROL_MODE = "controlMode";
+    static final String PCC_TERMINAL = "pccTerminal";
 
     /**
      * Serialized shape of {@link AcDcConverter.ControlMode} for IIDM versions up to V1_17, where the droop
@@ -115,7 +116,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
 
     @Override
     protected void writeSubElements(T converter, VoltageLevel vl, NetworkSerializerContext context) {
-        TerminalRefSerDe.writeTerminalRef(converter.getPccTerminal(), context, "pccTerminal");
+        TerminalRefSerDe.writeTerminalRef(converter.getPccTerminal(), context, PCC_TERMINAL);
         DroopCurveSerDe.INSTANCE.write(converter, context);
         super.writeSubElements(converter, vl, context);
     }
@@ -151,7 +152,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
 
     @Override
     protected void readSubElement(String elementName, String id, List<Consumer<T>> toApply, NetworkDeserializerContext context) {
-        if ("pccTerminal".equals(elementName)) {
+        if (PCC_TERMINAL.equals(elementName)) {
             TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
             toApply.add(converter -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
                 Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), converter.getNetwork());

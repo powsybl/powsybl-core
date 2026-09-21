@@ -98,6 +98,12 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
             }
         }
 
+        if (voltageRegulationAttributes != null
+                && voltageRegulationAttributes.terminal() != null
+                && !voltageRegulationAttributes.terminal().equals(pccTerminal)) {
+            throw new ValidationException(this, "pccTerminal and voltageRegulation.terminal must refer to the same terminal");
+        }
+
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
                 VoltageSourceConverter.class,
                 localTargetV,

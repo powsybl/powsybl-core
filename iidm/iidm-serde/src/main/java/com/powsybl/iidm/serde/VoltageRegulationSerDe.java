@@ -147,6 +147,12 @@ public final class VoltageRegulationSerDe {
 
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+        addSetTerminalToToApply(toApply, context, terminalData);
+    }
+
+    public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void addSetTerminalToToApply(List<Consumer<T>> toApply,
+                                                                                                        NetworkDeserializerContext context,
+                                                                                                        TerminalRefSerDe.TerminalData terminalData) {
         toApply.add(holder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
             () -> {
                 Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), holder.getNetwork());

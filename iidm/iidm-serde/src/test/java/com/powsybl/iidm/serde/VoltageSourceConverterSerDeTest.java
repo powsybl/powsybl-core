@@ -152,9 +152,12 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(2.0)
                 .setSwitchingLoss(0.2)
                 .setResistiveLoss(2e-6)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(lineBb.getTerminal1())
+                    .withTargetValue(387.)
+                    .add()
                 .setLocalTargetQ(12.3)
-                .setLocalTargetV(387.)
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-200.).setMaxQ(+210.).add();
         vsc2.getDcTerminal1().setP(-100.).setI(-200.);
@@ -184,8 +187,11 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(3.0)
                 .setSwitchingLoss(0.3)
                 .setResistiveLoss(3e-6)
-                .setLocalTargetV(397.)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(lineNb.getTerminal2())
+                    .withTargetValue(397.)
+                    .add()
                 .add();
         vsc3.newReactiveCapabilityCurve()
                 .beginPoint().setP(-200.).setMinQ(-190.).setMaxQ(192.).endPoint()

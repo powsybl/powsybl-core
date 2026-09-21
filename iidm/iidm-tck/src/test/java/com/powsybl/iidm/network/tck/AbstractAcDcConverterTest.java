@@ -1282,6 +1282,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setTargetP(100.0)
                 .setTargetVdc(500.0)
                 .setLocalTargetQ(50.0)
+                .setPccTerminal(terminal)
                 .newVoltageRegulation()
                     .withMode(regulationMode)
                     .withTargetValue(targetValue)

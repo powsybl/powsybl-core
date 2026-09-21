@@ -54,9 +54,39 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
-    public VoltageSourceConverter setPccTerminal(Terminal pccTerminal) {
-        super.setPccTerminal(pccTerminal);
+    public VoltageSourceConverter setPccTerminal(Terminal newPccTerminal) {
+        // As the pccTerminal must be the same as the voltageRegulation terminal,
+        // before setting the pccTerminal we check that the voltageRegulation terminal can be set to the newPccTerminal
+        Terminal newVoltageRegulationTerminal;
+        if (newPccTerminal.equals(getTerminal1())) {
+            newVoltageRegulationTerminal = null;
+        } else {
+            newVoltageRegulationTerminal = newPccTerminal;
+        }
+        double targetValue = newVoltageRegulationTerminal != null ? voltageRegulation.getTargetValue() : Double.NaN;
+        // Validates the new voltage regulation before updating the terminals
+        if (voltageRegulation != null) {
+            ((VoltageRegulationImpl) voltageRegulation).checkNewTerminal(newVoltageRegulationTerminal, targetValue);
+        }
+        // Now we can set the terminals
+        super.setPccTerminal(newPccTerminal);
+        if (voltageRegulation != null) {
+            voltageRegulation.setTerminal(newVoltageRegulationTerminal, targetValue);
+        } else {
+            newVoltageRegulation()
+                .withTerminal(newVoltageRegulationTerminal)
+                .withRegulating(false)
+                .build();
+        }
         return this;
+    }
+
+    void updatePccTerminalFromVoltageRegulation(Terminal newPccTerminal) {
+        if (newPccTerminal == null) {
+            super.setPccTerminal(getTerminal1());
+        } else if (getPccTerminal() != newPccTerminal) {
+            super.setPccTerminal(newPccTerminal);
+        }
     }
 
     @Override

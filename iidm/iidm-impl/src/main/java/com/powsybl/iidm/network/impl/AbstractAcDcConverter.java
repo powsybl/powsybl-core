@@ -415,5 +415,10 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         this.droopCurve = Objects.requireNonNull(droopCurve);
     }
 
+    protected void setDefaultPccTerminal() {
+        // default to use terminal1 as pccTerminal
+        setPccTerminal(getTerminal1());
+    }
+
     protected abstract I self();
 }

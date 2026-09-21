@@ -192,8 +192,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         dcConverter.addTerminal(terminal1);
         voltageLevel.getTopologyModel().attach(terminal1, false);
         if (pccTerminal == null) {
-            // default to use terminal1 as pccTerminal
-            dcConverter.setPccTerminal(terminal1);
+            dcConverter.setDefaultPccTerminal();
         }
         terminal2.ifPresent(terminal -> {
             dcConverter.addTerminal(terminal);

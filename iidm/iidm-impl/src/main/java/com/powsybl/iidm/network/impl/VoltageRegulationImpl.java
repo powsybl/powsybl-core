@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.powsybl.iidm.network.impl.AbstractAcDcConverter.PCC_TERMINAL;
 import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 
 /**
@@ -221,6 +222,19 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public VoltageRegulation setTerminal(Terminal newTerminal, double newTargetValue) {
+        checkNewTerminal(newTerminal, newTargetValue);
+        // The voltageSourceConverter pccTerminal must be synchronized with the voltageRegulation terminal
+        if (holder instanceof VoltageSourceConverterImpl voltageSourceConverter && !voltageSourceConverter.getTerminals().isEmpty()) {
+            ValidationUtil.checkModifyOfRemovedEquipment(voltageSourceConverter.getId(), voltageSourceConverter.removed, PCC_TERMINAL);
+            ValidationUtil.checkAcDcConverterPccTerminal(voltageSourceConverter, newTerminal, voltageSourceConverter.getTerminal1().getVoltageLevel());
+            voltageSourceConverter.updatePccTerminalFromVoltageRegulation(newTerminal);
+        }
+        this.updateTerminal(newTerminal);
+        this.setTargetValueOnCurrentVariant(newTargetValue);
+        return this;
+    }
+
+    protected void checkNewTerminal(Terminal newTerminal, double newTargetValue) {
         if (this.network.get().getVariantManager().getVariantCount() > 1) {
             throw new PowsyblException(this.validable.getMessageHeader() + "Cannot set terminal when there are multiple variants");
         }
@@ -238,9 +252,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                 network.get().getMinValidationLevel(),
                 network.get().getReportNodeContext().getReportNode());
         }
-        this.updateTerminal(newTerminal);
-        this.setTargetValueOnCurrentVariant(newTargetValue);
-        return this;
     }
 
     @Override

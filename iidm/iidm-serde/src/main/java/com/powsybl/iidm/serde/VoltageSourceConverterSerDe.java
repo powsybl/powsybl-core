@@ -7,11 +7,13 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.VoltageRegulationUtils;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils.VoltageRegulationData;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.List;
@@ -82,28 +84,46 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
             adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
         });
 
-        readVoltageRegulationPrevious118(adder, context, voltageRegulatorOnRef, voltageSetpoint, reactivePowerSetpoint);
+        VoltageRegulationData voltageRegulationData = readVoltageRegulationPrevious118(adder, context, voltageRegulatorOnRef, voltageSetpoint, reactivePowerSetpoint);
 
+        toApply.add(vsc -> {
+            if (voltageRegulationData != null) {
+                Runnable actionOnRemoteTerminal;
+                double targetValue;
+                RegulationMode regulationMode = voltageRegulationData.regulationMode();
+                if (RegulationMode.VOLTAGE.equals(regulationMode)) {
+                    targetValue = vsc.getLocalTargetV();
+                    actionOnRemoteTerminal = () -> vsc.setLocalTargetV(Double.NaN);
+                    context.addExtraProperties(vsc, new NetworkDeserializerContext.ExtraPropertiesData(targetValue, actionOnRemoteTerminal));
+                } else if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
+                    targetValue = vsc.getLocalTargetQ();
+                    actionOnRemoteTerminal = () -> vsc.setLocalTargetQ(Double.NaN);
+                    context.addExtraProperties(vsc, new NetworkDeserializerContext.ExtraPropertiesData(targetValue, actionOnRemoteTerminal));
+                }
+            }
+        });
         super.readRootElementPqiAttributes(toApply, adder, context);
     }
 
-    private static void readVoltageRegulationPrevious118(VoltageSourceConverterAdder adder,
-                                                         NetworkDeserializerContext context,
-                                                         AtomicReference<Boolean> voltageRegulatorOnRef,
-                                                         AtomicReference<Double> voltageSetpoint,
-                                                         AtomicReference<Double> reactivePowerSetpoint) {
+    private static VoltageRegulationData readVoltageRegulationPrevious118(VoltageSourceConverterAdder adder,
+                                                                                                 NetworkDeserializerContext context,
+                                                                                                 AtomicReference<Boolean> voltageRegulatorOnRef,
+                                                                                                 AtomicReference<Double> voltageSetpoint,
+                                                                                                 AtomicReference<Double> reactivePowerSetpoint) {
+        AtomicReference<VoltageRegulationData> voltageRegulationData = new AtomicReference<>(null);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
-            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(),
+            voltageRegulationData.set(VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(),
                 voltageSetpoint.get(),
-                reactivePowerSetpoint.get());
-            adder.setLocalTargetV(voltageRegulationData.targetV());
-            adder.setLocalTargetQ(voltageRegulationData.targetQ());
-            if (voltageRegulationData.regulationMode() != null) {
+                reactivePowerSetpoint.get()));
+            adder.setLocalTargetV(voltageRegulationData.get().targetV());
+            adder.setLocalTargetQ(voltageRegulationData.get().targetQ());
+            if (voltageRegulationData.get().regulationMode() != null) {
                 adder.newVoltageRegulation()
-                    .withMode(voltageRegulationData.regulationMode())
+                    .withMode(voltageRegulationData.get().regulationMode())
                     .add();
             }
         });
+        return voltageRegulationData.get();
     }
 
     @Override
@@ -113,8 +133,25 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(toApply, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(toApply, context);
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
+                case PCC_TERMINAL -> {
+                    IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+                        setPccTerminalFromPrevious117(toApply, context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+                        super.readSubElement(elementName, id, toApply, context));
+                }
                 default -> super.readSubElement(elementName, id, toApply, context);
             }
         });
+    }
+
+    private static void setPccTerminalFromPrevious117(List<Consumer<VoltageSourceConverter>> toApply, NetworkDeserializerContext context) {
+        // We read the terminal once
+        TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+
+        VoltageRegulationSerDe.addSetTerminalToToApply(toApply, context, terminalData);
+        toApply.add(converter -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
+            Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), converter.getNetwork());
+            converter.setPccTerminal(terminal);
+        }));
     }
 }
