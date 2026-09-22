@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Represents the result of a phase shifter tap position change during security analysis.
+ * Represents the result of a phase tap changer's tap position change during security analysis.
  *
  * @param transformerId The ID of the phase shifter transformer
  * @param side The side of the phase shifter on a three-winding transformer, or {@code null} for a two-winding transformer

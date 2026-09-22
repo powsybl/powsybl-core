@@ -170,9 +170,7 @@ also have the side where the violation has been detected.
 The pre-contingency results also contain the network results based on given state monitors. A network result groups
 branch results, bus results and three-winding transformer results. All elementary results are fully extendable.
 
-The pre-contingency results may also contain the list of changed phase tap changer results. Each changed phase tap changer result identifies a
-transformer whose tap position has been moved during the security analysis, giving the transformer ID, the initial tap
-position before optimization and the new tap position after optimization.
+The pre-contingency results may also contain the list of the changed phase tap changers. Each changed phase tap changer result identifies a transformer whose tap position has been moved during the security analysis, giving the transformer ID, the side for the three-winding transformers, the initial tap position (before optimization) and the final tap position (after optimization).
 
 ### Post-contingency results
 
@@ -180,9 +178,9 @@ The post-contingency results contain the complete list of the contingencies that
 them the violations detected. To limit information to the user, only new violations or worsened violations can be
 listed.
 
-The post-contingency results also contain the network results based on given state monitors. The post-contingency
-results may also contain the list of changed phase tap changers, available through the `changedPhaseTapChangers` map of each
-`PostContingencyResult`, queried by transformer ID via `getChangedPhaseTapChanger(transformerId)`.
+The post-contingency results also contain the network results based on given state monitors.
+
+They may also contain the list of the changed phase tap changers. Each changed phase tap changer result identifies a transformer whose tap position has been moved during the security analysis, giving the transformer ID, the side for the three-winding transformers, the initial tap position (before optimization) and the final tap position (after optimization).
 
 The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
 them the violations detected. To limit information to the user, only new violations or worsened violations can be
@@ -208,26 +206,23 @@ Pre-contingency, post-contingency, and operator strategy results all report the 
   - losses changes,
   - injections (generators, loads, ...) changes by the operator strategy actions, if any, such as disconnections, reconnections, or setpoint modifications.
 
-### Changed Phase Shifters
+### Changed Phase Changers
 
-The security analysis can report the tap position changes of phase shifters that have been moved during the
-computation. A `ChangedPhaseTapChanger` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase shifter on a three-winding transformer, the initial tap position before optimization
+The security analysis can report the tap position changes of phase tap changers that have been moved during the
+computation. A `ChangedPhaseTapChanger` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase tap changer on a three-winding transformer, the initial tap position before optimization
 and the new tap position after optimization. The side is required for three-winding transformers because they can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. For two-winding transformers the side is omitted (`null`). The record is validated on construction: the transformer ID must not be `null`.
-
-These changed phase tap changers are exposed through the `changedPhaseTapChangers` map, available both in the
-`PreContingencyResult` and in each `PostContingencyResult`. The map key is compound (`transformerId + "_" + side` for 3-winding; just `transformerId` for 2-winding). It can be queried by `getChangedPhaseTapChanger(transformerId)` for two-winding transformers, or `getChangedPhaseTapChanger(transformerId, side)` for three-winding transformers.
 
 When serialized to JSON, the changed phase tap changers are written as a `changedPhaseTapChangers` array of objects with the
 following fields:
 
 | Field            | Type    | Description                                       |
 |------------------|---------|---------------------------------------------------|
-| `transformerId`  | String  | ID of the phase shifter transformer               |
+| `transformerId`  | String  | ID of the phase tap changer's transformer               |
 | `side`           | String  | Optional side of a three-winding transformer (`ONE`, `TWO`, `THREE`); omitted for two-winding transformers |
 | `initialTap`     | int     | Tap position before optimization                  |
 | `finalTap`         | int     | Tap position after optimization                   |
 
-The serialized entries are sorted by `transformerId` for deterministic output. When no phase shifter has been moved,
+The serialized entries are sorted by `transformerId` for deterministic output. When no phase tap changer has been moved,
 the `changedPhaseTapChangers` field is omitted from the JSON output.
 
 ### Extensions
