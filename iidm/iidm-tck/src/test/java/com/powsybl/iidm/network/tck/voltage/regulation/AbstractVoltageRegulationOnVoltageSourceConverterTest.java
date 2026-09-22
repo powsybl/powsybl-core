@@ -90,13 +90,13 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         voltageSourceConverter.setPccTerminal(lineTerminal);
         voltageSourceConverter.getVoltageRegulation().setRegulating(true);
         // THEN pccTerminal = remoteTerminal and voltageRegulation.terminal = remoteTerminal
-        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, voltageSourceConverter, targetValue);
+        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, targetValue, voltageSourceConverter);
 
         // WHEN setting a new remote terminal on the pccTerminal
         Terminal newRemoteTerminal = voltageSourceConverter.getTerminal2().get();
         voltageSourceConverter.setPccTerminal(newRemoteTerminal);
         // THEN pccTerminal = remoteTerminal and voltageRegulation.terminal = remoteTerminal
-        assertPccTerminalAndVoltageRegulationTerminal(newRemoteTerminal, voltageSourceConverter, targetValue);
+        assertPccTerminalAndVoltageRegulationTerminal(newRemoteTerminal, targetValue, voltageSourceConverter);
 
         // WHEN setting the local terminal on the pccTerminal
         voltageSourceConverter.setPccTerminal(voltageSourceConverter.getTerminal1());
@@ -104,6 +104,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         assertLocalPccTerminalAndVoltageRegulationTerminalNull(terminal1, voltageSourceConverter);
 
         // WHEN setting the local terminal (null) on the voltageRegulation terminal
+        voltageSourceConverter.setPccTerminal(newRemoteTerminal);
         voltageSourceConverter.getVoltageRegulation().setTerminal(null, Double.NaN);
         // THEN pccTerminal = terminal1 and voltageRegulation.terminal = null
         assertLocalPccTerminalAndVoltageRegulationTerminalNull(terminal1, voltageSourceConverter);
@@ -111,22 +112,17 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         // WHEN setting the remote terminal on the voltageRegulation terminal
         voltageSourceConverter.getVoltageRegulation().setTerminal(lineTerminal, targetValue);
         // THEN pccTerminal = remoteTerminal and voltageRegulation.terminal = remoteTerminal
-        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, voltageSourceConverter, targetValue);
+        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, targetValue, voltageSourceConverter);
 
         // WHEN setting the new remote terminal on the voltageRegulation terminal
         voltageSourceConverter.getVoltageRegulation().setTerminal(newRemoteTerminal, targetValue);
         // THEN pccTerminal = newRemoteTerminal and voltageRegulation.terminal = newRemoteTerminal
-        assertPccTerminalAndVoltageRegulationTerminal(newRemoteTerminal, voltageSourceConverter, targetValue);
+        assertPccTerminalAndVoltageRegulationTerminal(newRemoteTerminal, targetValue, voltageSourceConverter);
 
         // WHEN setting the explicit local terminal on the voltageRegulation terminal
         voltageSourceConverter.getVoltageRegulation().setTerminal(terminal1, targetValue);
         // THEN pccTerminal = terminal1 and voltageRegulation.terminal = terminal1
-        assertPccTerminalAndVoltageRegulationTerminal(terminal1, voltageSourceConverter, targetValue);
-
-        // WHEN setting the local terminal (null) on the voltageRegulation terminal
-        voltageSourceConverter.getVoltageRegulation().setTerminal(null, Double.NaN);
-        // THEN pccTerminal = terminal1 and voltageRegulation.terminal = null
-        assertLocalPccTerminalAndVoltageRegulationTerminalNull(terminal1, voltageSourceConverter);
+        assertPccTerminalAndVoltageRegulationTerminal(terminal1, targetValue, voltageSourceConverter);
     }
 
     @Test
@@ -197,14 +193,13 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         // WHEN
         VoltageSourceConverter voltageSourceConverter = adder.add();
         // THEN
-        assertEquals(lineTerminal, voltageSourceConverter.getPccTerminal());
-        assertNull(voltageSourceConverter.getVoltageRegulation().getTerminal());
+        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, 20, voltageSourceConverter);
     }
 
-    private static void assertPccTerminalAndVoltageRegulationTerminal(Terminal terminal1, VoltageSourceConverter voltageSourceConverter, int targetValue) {
-        assertEquals(terminal1, voltageSourceConverter.getPccTerminal());
-        assertEquals(terminal1, voltageSourceConverter.getVoltageRegulation().getTerminal());
-        assertEquals(targetValue, voltageSourceConverter.getVoltageRegulation().getTargetValue());
+    private static void assertPccTerminalAndVoltageRegulationTerminal(Terminal expectedTerminal, int expectedTargetValue, VoltageSourceConverter voltageSourceConverter) {
+        assertEquals(expectedTerminal, voltageSourceConverter.getPccTerminal());
+        assertEquals(expectedTerminal, voltageSourceConverter.getVoltageRegulation().getTerminal());
+        assertEquals(expectedTargetValue, voltageSourceConverter.getVoltageRegulation().getTargetValue());
     }
 
     private static void assertLocalPccTerminalAndVoltageRegulationTerminalNull(Terminal expectedTerminal, VoltageSourceConverter voltageSourceConverter) {

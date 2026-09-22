@@ -69,52 +69,53 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
                                              List<Consumer<VoltageSourceConverter>> toApply,
                                              final NetworkDeserializerContext context) {
         super.readRootElementCommonAttributes(adder, parent, context);
+
         AtomicReference<Boolean> voltageRegulatorOnRef = new AtomicReference<>(null);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
-
         AtomicReference<Double> voltageSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> voltageSetpoint.set(context.getReader().readDoubleAttribute("voltageSetpoint")));
-
         AtomicReference<Double> reactivePowerSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint")));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn"));
+            voltageSetpoint.set(context.getReader().readDoubleAttribute("voltageSetpoint"));
+            reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint"));
+        });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V, Double.NaN));
             adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
         });
 
-        VoltageRegulationData voltageRegulationData = readVoltageRegulationPrevious118(adder, context, voltageRegulatorOnRef, voltageSetpoint, reactivePowerSetpoint);
+        VoltageRegulationData voltageRegulationData = readVoltageRegulationPrevious118(adder, context,
+                voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
 
-        toApply.add(vsc -> {
-            if (voltageRegulationData != null) {
-                RegulationMode regulationMode = voltageRegulationData.regulationMode();
-                if (RegulationMode.VOLTAGE.equals(regulationMode)) {
+        if (voltageRegulationData != null) {
+            RegulationMode regulationMode = voltageRegulationData.regulationMode();
+            toApply.add(vsc -> {
+                if (regulationMode == RegulationMode.VOLTAGE) {
                     VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetV(), holder -> holder.setLocalTargetV(Double.NaN), context);
-                } else if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
+                } else if (regulationMode == RegulationMode.REACTIVE_POWER) {
                     VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
                 }
-            }
-        });
+            });
+        }
         super.readRootElementPqiAttributes(toApply, adder, context);
     }
 
     private static VoltageRegulationData readVoltageRegulationPrevious118(VoltageSourceConverterAdder adder,
-                                                                                                 NetworkDeserializerContext context,
-                                                                                                 AtomicReference<Boolean> voltageRegulatorOnRef,
-                                                                                                 AtomicReference<Double> voltageSetpoint,
-                                                                                                 AtomicReference<Double> reactivePowerSetpoint) {
+                                                                          NetworkDeserializerContext context,
+                                                                          Boolean voltageRegulatorOnRef,
+                                                                          Double voltageSetpoint,
+                                                                          Double reactivePowerSetpoint) {
         AtomicReference<VoltageRegulationData> voltageRegulationData = new AtomicReference<>(null);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
-            voltageRegulationData.set(VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(),
-                voltageSetpoint.get(),
-                reactivePowerSetpoint.get()));
-            adder.setLocalTargetV(voltageRegulationData.get().targetV());
-            adder.setLocalTargetQ(voltageRegulationData.get().targetQ());
-            if (voltageRegulationData.get().regulationMode() != null) {
+            VoltageRegulationData data = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef, voltageSetpoint, reactivePowerSetpoint);
+            adder.setLocalTargetV(data.targetV());
+            adder.setLocalTargetQ(data.targetQ());
+            if (data.regulationMode() != null) {
                 adder.newVoltageRegulation()
-                    .withMode(voltageRegulationData.get().regulationMode())
+                    .withMode(data.regulationMode())
                     .add();
             }
+            voltageRegulationData.set(data);
         });
         return voltageRegulationData.get();
     }
