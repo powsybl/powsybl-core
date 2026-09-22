@@ -59,10 +59,8 @@ public abstract class AbstractIdentifiableTest {
     @Test
     public void testSetIdBusesNodeBreaker() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        int count = 0;
-        for (Bus bus : network.getBusBreakerView().getBusStream().toList()) {
-            bus.setId(String.valueOf(count++));
-        }
+        PowsyblException e = assertThrows(PowsyblException.class, () -> network.getBusBreakerView().getBusStream().toList().getFirst().setId("0"));
+        assertEquals("Updating the id of a calculated bus is not supported.", e.getMessage());
     }
 
     @Test
