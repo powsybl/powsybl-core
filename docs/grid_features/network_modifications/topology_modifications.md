@@ -640,7 +640,7 @@ It takes as input:
 - The ID of the existing bus or busbar section in the tapped voltage level where the new lines will be connected.
 - The IDs for the two new lines.
 - Optionally, names for the two new lines.
-- Optionally, a boolean indicating to force remove the voltage level if it no longer contains any branches and still contains other equipments.
+- Optionally, a boolean to force the removal of the voltage level if it no longer contains any branches but still contains other equipment.
 
 When applied, the three lines and the tee point are removed, and two new lines are created connecting the two original ends to the formerly tapped voltage level.
 
