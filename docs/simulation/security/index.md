@@ -170,7 +170,7 @@ also have the side where the violation has been detected.
 The pre-contingency results also contain the network results based on given state monitors. A network result groups
 branch results, bus results and three-winding transformer results. All elementary results are fully extendable.
 
-The pre-contingency results may also contain the list of phase shifter results. Each phase shifter result identifies a
+The pre-contingency results may also contain the list of changed phase tap changer results. Each changed phase tap changer result identifies a
 transformer whose tap position has been moved during the security analysis, giving the transformer ID, the initial tap
 position before optimization and the new tap position after optimization.
 
@@ -181,8 +181,8 @@ them the violations detected. To limit information to the user, only new violati
 listed.
 
 The post-contingency results also contain the network results based on given state monitors. The post-contingency
-results may also contain the list of changed phase shifters, available through the `changedPhaseShifters` map of each
-`PostContingencyResult`, queried by transformer ID via `getChangedPhaseShifter(transformerId)`.
+results may also contain the list of changed phase tap changers, available through the `changedPhaseTapChangers` map of each
+`PostContingencyResult`, queried by transformer ID via `getChangedPhaseTapChanger(transformerId)`.
 
 The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
 them the violations detected. To limit information to the user, only new violations or worsened violations can be
@@ -214,10 +214,10 @@ The security analysis can report the tap position changes of phase shifters that
 computation. A `ChangedPhaseTapChanger` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase shifter on a three-winding transformer, the initial tap position before optimization
 and the new tap position after optimization. The side is required for three-winding transformers because they can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. For two-winding transformers the side is omitted (`null`). The record is validated on construction: the transformer ID must not be `null`.
 
-These changed phase shifters are exposed through the `changedPhaseShifters` map, available both in the
-`PreContingencyResult` and in each `PostContingencyResult`. The map key is compound (`transformerId + "_" + side` for 3-winding; just `transformerId` for 2-winding). It can be queried by `getChangedPhaseShifter(transformerId)` for two-winding transformers, or `getChangedPhaseShifter(transformerId, side)` for three-winding transformers.
+These changed phase tap changers are exposed through the `changedPhaseTapChangers` map, available both in the
+`PreContingencyResult` and in each `PostContingencyResult`. The map key is compound (`transformerId + "_" + side` for 3-winding; just `transformerId` for 2-winding). It can be queried by `getChangedPhaseTapChanger(transformerId)` for two-winding transformers, or `getChangedPhaseTapChanger(transformerId, side)` for three-winding transformers.
 
-When serialized to JSON, the changed phase shifters are written as a `changedPhaseShifters` array of objects with the
+When serialized to JSON, the changed phase tap changers are written as a `changedPhaseTapChangers` array of objects with the
 following fields:
 
 | Field            | Type    | Description                                       |
@@ -225,10 +225,10 @@ following fields:
 | `transformerId`  | String  | ID of the phase shifter transformer               |
 | `side`           | String  | Optional side of a three-winding transformer (`ONE`, `TWO`, `THREE`); omitted for two-winding transformers |
 | `initialTap`     | int     | Tap position before optimization                  |
-| `newTap`         | int     | Tap position after optimization                   |
+| `finalTap`         | int     | Tap position after optimization                   |
 
 The serialized entries are sorted by `transformerId` for deterministic output. When no phase shifter has been moved,
-the `changedPhaseShifters` field is omitted from the JSON output.
+the `changedPhaseTapChangers` field is omitted from the JSON output.
 
 ### Extensions
 
@@ -306,10 +306,10 @@ The following example is a result of a security analysis with remedial action, e
       } ]
     },
     "distributedActivePower" : 1.23,
-    "changedPhaseShifters" : [ {
+    "changedPhaseTapChangers" : [ {
       "transformerId" : "T1",
       "initialTap" : 2,
-      "newTap" : 4
+      "finalTap" : 4
     } ]
   },
   "postContingencyResults" : [ {

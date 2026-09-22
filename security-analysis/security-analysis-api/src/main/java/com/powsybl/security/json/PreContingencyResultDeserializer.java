@@ -31,7 +31,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
 
     private static final class ParsingContext {
         LoadFlowResult.ComponentResult.Status status = null;
-        List<ChangedPhaseTapChanger> changedPhaseShifters = Collections.emptyList();
+        List<ChangedPhaseTapChanger> changedPhaseTapChangers = Collections.emptyList();
     }
 
     public PreContingencyResultDeserializer() {
@@ -63,7 +63,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
                         () -> new NetworkResult(commonParsingContext.branchResults,
                                 commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
                 commonParsingContext.distributedActivePower,
-                parsingContext.changedPhaseShifters);
+                parsingContext.changedPhaseTapChangers);
     }
 
     private boolean parsePreContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
@@ -81,11 +81,11 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
             parsingContext.status = JsonUtil.readValue(deserializationContext, parser,
                     LoadFlowResult.ComponentResult.Status.class);
             return true;
-        } else if ("changedPhaseShifters".equals(parser.currentName())) {
+        } else if ("changedPhaseTapChangers".equals(parser.currentName())) {
             parser.nextToken();
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(
-                    CONTEXT_NAME, "Tag: changedPhaseShifters", finalVersion, "1.10");
-            parsingContext.changedPhaseShifters = ChangedPhaseTapChangerSerializerUtil.readChangedPhaseShifters(parser, deserializationContext);
+                    CONTEXT_NAME, "Tag: changedPhaseTapChangers", finalVersion, "1.10");
+            parsingContext.changedPhaseTapChangers = ChangedPhaseTapChangerSerializerUtil.readChangedPhaseTapChangers(parser, deserializationContext);
             return true;
         }
         return false;

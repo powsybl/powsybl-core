@@ -27,16 +27,16 @@ public final class ChangedPhaseTapChangerSerializerUtil {
         // utility class
     }
 
-    public static List<ChangedPhaseTapChanger> readChangedPhaseShifters(
+    public static List<ChangedPhaseTapChanger> readChangedPhaseTapChangers(
             JsonParser parser, DeserializationContext deserializationContext) {
         return JsonUtil.readList(deserializationContext, parser, ChangedPhaseTapChanger.class);
     }
 
-    public static void write(Collection<ChangedPhaseTapChanger> changedPhaseShifters, JsonGenerator jsonGenerator) throws IOException {
-        if (!changedPhaseShifters.isEmpty()) {
-            jsonGenerator.writeFieldName("changedPhaseShifters");
+    public static void write(Collection<ChangedPhaseTapChanger> changedPhaseTapChangers, JsonGenerator jsonGenerator) throws IOException {
+        if (!changedPhaseTapChangers.isEmpty()) {
+            jsonGenerator.writeFieldName("changedPhaseTapChangers");
             jsonGenerator.writeStartArray();
-            for (var psr : changedPhaseShifters.stream()
+            for (var psr : changedPhaseTapChangers.stream()
                     .sorted(Comparator.comparing(ChangedPhaseTapChanger::transformerId)).toList()) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("transformerId", psr.transformerId());

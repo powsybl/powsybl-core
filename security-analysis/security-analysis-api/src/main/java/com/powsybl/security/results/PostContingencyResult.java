@@ -32,8 +32,8 @@ public class PostContingencyResult extends AbstractContingencyResult {
                                  NetworkResult networkResult,
                                  ConnectivityResult connectivityResult,
                                  double distributedActivePower,
-                                 List<ChangedPhaseTapChanger> changedPhaseShifters) {
-        super(limitViolationsResult, networkResult, distributedActivePower, changedPhaseShifters);
+                                 List<ChangedPhaseTapChanger> changedPhaseTapChangers) {
+        super(limitViolationsResult, networkResult, distributedActivePower, changedPhaseTapChangers);
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);
         this.connectivityResult = Objects.requireNonNull(connectivityResult);

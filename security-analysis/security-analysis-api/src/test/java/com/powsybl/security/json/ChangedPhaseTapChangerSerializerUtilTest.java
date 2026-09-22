@@ -42,7 +42,7 @@ class ChangedPhaseTapChangerSerializerUtilTest {
         generator.close();
 
         String result = writer.toString();
-        assertTrue(result.contains("\"changedPhaseShifters\""));
+        assertTrue(result.contains("\"changedPhaseTapChangers\""));
         assertTrue(result.indexOf("A") < result.indexOf("B"));
     }
 
@@ -92,16 +92,16 @@ class ChangedPhaseTapChangerSerializerUtilTest {
         generator.close();
 
         JsonNode json = JsonUtil.createObjectMapper().readTree(writer.toString());
-        JsonNode changedPhaseShifter = json.path("changedPhaseShifters").get(0);
-        assertFalse(changedPhaseShifter.has("side"));
+        JsonNode changedPhaseTapChanger = json.path("changedPhaseTapChangers").get(0);
+        assertFalse(changedPhaseTapChanger.has("side"));
 
         ChangedPhaseTapChanger deserialized = JsonUtil.createObjectMapper()
-                .readValue(changedPhaseShifter.toString(), ChangedPhaseTapChanger.class);
+                .readValue(changedPhaseTapChanger.toString(), ChangedPhaseTapChanger.class);
         assertEquals(new ChangedPhaseTapChanger("T1", null, 0, 2), deserialized);
     }
 
     @Test
-    void testGetChangedPhaseShifterBothGetters() {
+    void testGetChangedPhaseTapChangerBothGetters() {
         var pre = new PreContingencyResult(
             LoadFlowResult.ComponentResult.Status.CONVERGED,
             null,
@@ -111,8 +111,8 @@ class ChangedPhaseTapChangerSerializerUtilTest {
                 new ChangedPhaseTapChanger("T1", null, 0, 2),
                 new ChangedPhaseTapChanger("T2", ThreeSides.ONE, 1, 3))
         );
-        assertEquals(new ChangedPhaseTapChanger("T1", null, 0, 2), pre.getChangedPhaseShifter("T1"));
-        assertEquals(new ChangedPhaseTapChanger("T2", ThreeSides.ONE, 1, 3), pre.getChangedPhaseShifter("T2", ThreeSides.ONE));
+        assertEquals(new ChangedPhaseTapChanger("T1", null, 0, 2), pre.getChangedPhaseTapChanger("T1"));
+        assertEquals(new ChangedPhaseTapChanger("T2", ThreeSides.ONE, 1, 3), pre.getChangedPhaseTapChanger("T2", ThreeSides.ONE));
     }
 
 }

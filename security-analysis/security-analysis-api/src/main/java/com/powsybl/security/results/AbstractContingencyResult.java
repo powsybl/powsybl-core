@@ -25,25 +25,25 @@ public abstract class AbstractContingencyResult {
     private final LimitViolationsResult limitViolationsResult;
     private final NetworkResult networkResult;
     private final double distributedActivePower;
-    private final Map<ChangedPhaseShifterKey, ChangedPhaseTapChanger> changedPhaseShifters;
+    private final Map<ChangedPhaseTapChangerKey, ChangedPhaseTapChanger> changedPhaseTapChangers;
 
-    private record ChangedPhaseShifterKey(String transformerId, ThreeSides side) {
-        private ChangedPhaseShifterKey(ChangedPhaseTapChanger changedPhaseShifter) {
-            this(changedPhaseShifter.transformerId(), changedPhaseShifter.side());
+    private record ChangedPhaseTapChangerKey(String transformerId, ThreeSides side) {
+        private ChangedPhaseTapChangerKey(ChangedPhaseTapChanger changedPhaseTapChanger) {
+            this(changedPhaseTapChanger.transformerId(), changedPhaseTapChanger.side());
         }
     }
 
     protected AbstractContingencyResult(LimitViolationsResult limitViolationsResult,
                                         NetworkResult networkResult,
                                         double distributedActivePower,
-                                        List<ChangedPhaseTapChanger> changedPhaseShifters) {
+                                        List<ChangedPhaseTapChanger> changedPhaseTapChangers) {
         this.limitViolationsResult = limitViolationsResult;
         this.networkResult = Objects.requireNonNull(networkResult);
         this.distributedActivePower = distributedActivePower;
-        this.changedPhaseShifters = changedPhaseShifters != null && !changedPhaseShifters.isEmpty()
-                ? Collections.unmodifiableMap(changedPhaseShifters.stream()
+        this.changedPhaseTapChangers = changedPhaseTapChangers != null && !changedPhaseTapChangers.isEmpty()
+                ? Collections.unmodifiableMap(changedPhaseTapChangers.stream()
                         .collect(Collectors.toMap(
-                                ChangedPhaseShifterKey::new,
+                                ChangedPhaseTapChangerKey::new,
                                 Function.identity())))
                 : Collections.emptyMap();
     }
@@ -60,15 +60,15 @@ public abstract class AbstractContingencyResult {
         return distributedActivePower;
     }
 
-    public Collection<ChangedPhaseTapChanger> getChangedPhaseShifters() {
-        return changedPhaseShifters.values();
+    public Collection<ChangedPhaseTapChanger> getChangedPhaseTapChangers() {
+        return changedPhaseTapChangers.values();
     }
 
-    public ChangedPhaseTapChanger getChangedPhaseShifter(String transformerId) {
-        return changedPhaseShifters.get(new ChangedPhaseShifterKey(transformerId, null));
+    public ChangedPhaseTapChanger getChangedPhaseTapChanger(String transformerId) {
+        return changedPhaseTapChangers.get(new ChangedPhaseTapChangerKey(transformerId, null));
     }
 
-    public ChangedPhaseTapChanger getChangedPhaseShifter(String transformerId, ThreeSides side) {
-        return changedPhaseShifters.get(new ChangedPhaseShifterKey(transformerId, side));
+    public ChangedPhaseTapChanger getChangedPhaseTapChanger(String transformerId, ThreeSides side) {
+        return changedPhaseTapChangers.get(new ChangedPhaseTapChangerKey(transformerId, side));
     }
 }

@@ -39,7 +39,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         Contingency contingency = null;
         PostContingencyComputationStatus status = null;
         ConnectivityResult connectivityResult = null;
-        List<ChangedPhaseTapChanger> changedPhaseShifters = Collections.emptyList();
+        List<ChangedPhaseTapChanger> changedPhaseTapChangers = Collections.emptyList();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                         () -> new NetworkResult(commonParsingContext.branchResults,
                                 commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
                 parsingContext.connectivityResult, commonParsingContext.distributedActivePower,
-                parsingContext.changedPhaseShifters);
+                parsingContext.changedPhaseTapChangers);
     }
 
     private boolean parsePostContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
@@ -100,11 +100,11 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                         CONTEXT_NAME, "Tag: connectivityResult", finalVersion, "1.4");
                 parsingContext.connectivityResult = JsonUtil.readValue(deserializationContext, parser, ConnectivityResult.class);
                 return true;
-            case "changedPhaseShifters":
+            case "changedPhaseTapChangers":
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(
-                        CONTEXT_NAME, "Tag: changedPhaseShifters", finalVersion, "1.10");
-                parsingContext.changedPhaseShifters = ChangedPhaseTapChangerSerializerUtil.readChangedPhaseShifters(parser, deserializationContext);
+                        CONTEXT_NAME, "Tag: changedPhaseTapChangers", finalVersion, "1.10");
+                parsingContext.changedPhaseTapChangers = ChangedPhaseTapChangerSerializerUtil.readChangedPhaseTapChangers(parser, deserializationContext);
                 return true;
             default:
                 return false;

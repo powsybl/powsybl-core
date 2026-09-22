@@ -64,7 +64,7 @@
       } ]
     },
     "distributedActivePower" : 1.23,
-    "changedPhaseShifters" : [ {
+    "changedPhaseTapChangers" : [ {
       "transformerId" : "T1",
       "side" : "ONE",
       "initialTap" : 2,
