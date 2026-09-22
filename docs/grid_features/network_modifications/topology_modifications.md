@@ -542,7 +542,7 @@ It takes as input:
 - The IDs of the two lines to be merged.
 - The ID for the new merged line.
 - Optionally, a name for the new merged line.
-- Optionally, a boolean indicating to force remove the voltage level if it no longer contains any branches and still contains other equipments.
+- Optionally, a boolean to force the removal of the voltage level if it no longer contains any branches but still contains other equipment.
 
 When applied, the two lines are removed and replaced by a single line connecting the two outer voltage levels. 
 The common switching voltage level is removed if it no longer contains any equipment (except for buses or busbar sections).
