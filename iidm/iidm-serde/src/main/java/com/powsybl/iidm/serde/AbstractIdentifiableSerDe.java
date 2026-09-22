@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.ConnectableAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;

@@ -558,6 +558,7 @@ public final class ConnectableSerDeUtil {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             boolean equivalent = context.getReader().readBooleanAttribute("equivalent", false);
             connectableAdder.setEquivalent(equivalent);
-        });    }
+        });
+    }
 
 }
