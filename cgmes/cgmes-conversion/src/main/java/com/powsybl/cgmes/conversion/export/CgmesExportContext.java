@@ -641,11 +641,19 @@ public class CgmesExportContext {
         return network;
     }
 
+    /**
+     * Sets the CGM quick export parameter allowing to export the TP profile, either for all IGMs or for the CGM.
+     *
+     * @param cgmExportWithTp "IGM" or "CGM" to export the TP profile, empty otherwise
+     */
     public CgmesExportContext setCgmExportWithTp(String cgmExportWithTp) {
         this.cgmExportWithTp = cgmExportWithTp;
         return this;
     }
 
+    /**
+     * Indicates whether the CGM quick export should export the TP profile, either for all IGMs or for the CGM.
+     */
     public String getCgmExportWithTp() {
         return cgmExportWithTp;
     }
