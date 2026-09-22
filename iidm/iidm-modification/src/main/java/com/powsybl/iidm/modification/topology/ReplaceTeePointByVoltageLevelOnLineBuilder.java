@@ -73,7 +73,10 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder setForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
+    /**
+     * @param forceRemoveIsolatedVoltageLevel     a parameter that forces the removal of isolated voltage level (with no branches left)
+     */
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
         this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
         return this;
     }

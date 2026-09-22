@@ -55,6 +55,9 @@ public class RevertConnectVoltageLevelOnLineBuilder {
         return this;
     }
 
+    /**
+     * @param forceRemoveIsolatedVoltageLevel     a parameter that forces the removal of isolated voltage level (with no branches left)
+     */
     public RevertConnectVoltageLevelOnLineBuilder withForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
         this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
         return this;

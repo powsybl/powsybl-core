@@ -64,7 +64,10 @@ public class RevertCreateLineOnLineBuilder {
         return this;
     }
 
-    public RevertCreateLineOnLineBuilder setForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
+    /**
+     * @param forceRemoveIsolatedVoltageLevel     a parameter that forces the removal of isolated voltage level (with no branches left)
+     */
+    public RevertCreateLineOnLineBuilder withForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
         this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
         return this;
     }
