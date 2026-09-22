@@ -37,7 +37,7 @@ public final class LimitViolationDetection {
      *
      * @param network           The network on which physical values must be checked.
      * @param currentLimitTypes The current limit type to consider.
-     * @param limitsComputer    The computer of the limit reductions to apply.
+     * @param limitsComputer    The computer of the limit scalings to apply.
      * @param consumer          Will be fed with possibly created limit violations.
      */
     public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
@@ -59,7 +59,7 @@ public final class LimitViolationDetection {
      * @param network             The network on which physical values must be checked.
      * @param dcPowerFactor       The DC power factor used to convert the active power into current.
      * @param currentLimitTypes   The current limit type to consider.
-     * @param limitsComputer      The computer of the limit reductions to apply.
+     * @param limitsComputer      The computer of the limit scalings to apply.
      * @param consumer            Will be fed with possibly created limit violations.
      */
     public static void checkAllDc(Network network, double dcPowerFactor, Set<LoadingLimitType> currentLimitTypes,
@@ -134,7 +134,7 @@ public final class LimitViolationDetection {
                                 overload.getPreviousLimitName(),
                                 overload.getTemporaryLimit().getAcceptableDuration(),
                                 overload.getPreviousLimit(),
-                                overload.getLimitReductionCoefficient(),
+                                overload.getLimitScalingCoefficient(),
                                 value,
                                 side.toThreeSides(),
                                 null
@@ -161,7 +161,7 @@ public final class LimitViolationDetection {
                             permanentLimitCheckResult.permanentLimitName(),
                             Integer.MAX_VALUE,
                             permanentLimitCheckResult.permanentLimitValue(),
-                            permanentLimitCheckResult.limitReductionValue(),
+                            permanentLimitCheckResult.limitScalingValue(),
                             value,
                             side.toThreeSides(),
                             null
@@ -228,7 +228,7 @@ public final class LimitViolationDetection {
                             overload.getPreviousLimitName(),
                             overload.getTemporaryLimit().getAcceptableDuration(),
                             overload.getPreviousLimit(),
-                            overload.getLimitReductionCoefficient(),
+                            overload.getLimitScalingCoefficient(),
                             value,
                             side,
                             null
@@ -255,7 +255,7 @@ public final class LimitViolationDetection {
                                 permanentLimitCheckResult.permanentLimitName(),
                                 Integer.MAX_VALUE,
                                 permanentLimitCheckResult.permanentLimitValue(),
-                                permanentLimitCheckResult.limitReductionValue(),
+                                permanentLimitCheckResult.limitScalingValue(),
                                 value,
                                 side,
                                 null
