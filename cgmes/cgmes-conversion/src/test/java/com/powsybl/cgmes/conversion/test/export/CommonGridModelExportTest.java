@@ -580,29 +580,29 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testCgmExportWithTpProfile() throws IOException {
+    void testCgmExportWithTpProfileForCGM() throws IOException {
         // Create a node breaker network with two subnetworks
         Network network = nodeBreakerNetwork2Subnetworks();
 
-        // Perform a CGM export with TP profile enabled and check the exported files
+        // Perform a CGM export with TP profile export for the CGM enabled and check the exported files
         Properties exportParamsTp = new Properties();
         exportParamsTp.put(CgmesExport.CGM_EXPORT, true);
-        exportParamsTp.put(CgmesExport.CGM_EXPORT_WITH_TP, true);
+        exportParamsTp.put(CgmesExport.CGM_EXPORT_WITH_TP, "CGM");
         String basenameTp = "test_cgm_with_tp";
         network.write("CGMES", exportParamsTp, tmpDir.resolve(basenameTp));
-        checkCGMExportWithTp(basenameTp, Optional.empty());
+        checkCGMExportWithCGMTp(basenameTp, Optional.empty());
 
-        // Perform a CGM export with TP profile enabled and explicit boundary TP id and read the exported files
+        // Perform a CGM export with TP profile enabled for the CGM and explicit boundary TP id and read the exported files
         String explicitBoundaryTpBdId = "myBoundaryTpId";
         Properties exportParamsTpTpBdExplicit = new Properties();
         exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT, true);
-        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT_WITH_TP, true);
+        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT_WITH_TP, "CGM");
         exportParamsTpTpBdExplicit.put(CgmesExport.BOUNDARY_TP_ID, explicitBoundaryTpBdId);
         String basenameTpTpBdExplicit = "test_cgm_with_tp_and_tp_bd_explicit";
         network.write("CGMES", exportParamsTpTpBdExplicit, tmpDir.resolve(basenameTpTpBdExplicit));
-        checkCGMExportWithTp(basenameTpTpBdExplicit, Optional.of(explicitBoundaryTpBdId));
+        checkCGMExportWithCGMTp(basenameTpTpBdExplicit, Optional.of(explicitBoundaryTpBdId));
 
-        // When CGM_EXPORT_WITH_TP is false (the default), no TP files should be exported
+        // When CGM_EXPORT_WITH_TP is empty (the default), no TP files should be exported
         Properties exportParamsNoTp = new Properties();
         exportParamsNoTp.put(CgmesExport.CGM_EXPORT, true);
         String basenameNoTp = "test_cgm_without_tp";
@@ -611,7 +611,39 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertFalse(Files.exists(tmpDir.resolve(basenameNoTp + "_NL_TP.xml")));
     }
 
-    private void checkCGMExportWithTp(String basename, Optional<String> explicitTpBdId) throws IOException {
+    @Test
+    void testCgmExportWithTpProfileForEachIGM() throws IOException {
+        // Create a node breaker network with two subnetworks
+        Network network = nodeBreakerNetwork2Subnetworks();
+
+        // Perform a CGM export with TP profile export for the CGM enabled and check the exported files
+        Properties exportParamsTp = new Properties();
+        exportParamsTp.put(CgmesExport.CGM_EXPORT, true);
+        exportParamsTp.put(CgmesExport.CGM_EXPORT_WITH_TP, "IGM");
+        String basenameTp = "test_cgm_with_tp";
+        network.write("CGMES", exportParamsTp, tmpDir.resolve(basenameTp));
+        checkCGMExportWithIGMTp(basenameTp, Optional.empty());
+
+        // Perform a CGM export with TP profile enabled for the CGM and explicit boundary TP id and read the exported files
+        String explicitBoundaryTpBdId = "myBoundaryTpId";
+        Properties exportParamsTpTpBdExplicit = new Properties();
+        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT, true);
+        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT_WITH_TP, "IGM");
+        exportParamsTpTpBdExplicit.put(CgmesExport.BOUNDARY_TP_ID, explicitBoundaryTpBdId);
+        String basenameTpTpBdExplicit = "test_cgm_with_tp_and_tp_bd_explicit";
+        network.write("CGMES", exportParamsTpTpBdExplicit, tmpDir.resolve(basenameTpTpBdExplicit));
+        checkCGMExportWithIGMTp(basenameTpTpBdExplicit, Optional.of(explicitBoundaryTpBdId));
+
+        // When CGM_EXPORT_WITH_TP is empty (the default), no TP files should be exported
+        Properties exportParamsNoTp = new Properties();
+        exportParamsNoTp.put(CgmesExport.CGM_EXPORT, true);
+        String basenameNoTp = "test_cgm_without_tp";
+        network.write("CGMES", exportParamsNoTp, tmpDir.resolve(basenameNoTp));
+        assertFalse(Files.exists(tmpDir.resolve(basenameNoTp + "_BE_TP.xml")));
+        assertFalse(Files.exists(tmpDir.resolve(basenameNoTp + "_NL_TP.xml")));
+    }
+
+    private void checkCGMExportWithCGMTp(String basename, Optional<String> explicitTpBdId) throws IOException {
         String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
         String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
         String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
@@ -647,12 +679,51 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertEquals(expectedDependenciesTp, getUniqueMatches(updatedTpXml, REGEX_DEPENDENT_ON));
         String updatedTpId = "urn:uuid:Network_BE+Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
         assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedTpId));
+    }
+
+    private void checkCGMExportWithIGMTp(String basename, Optional<String> explicitTpBdId) throws IOException {
+        String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
+        String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
+        String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
+        String updatedBeTpXml = Files.readString(tmpDir.resolve(basename + "_BE_TP.xml"));
+        String updatedNlTpXml = Files.readString(tmpDir.resolve(basename + "_NL_TP.xml"));
+
+        // Scenario time should be the same for all models
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedCgmSvXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedBeTpXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedNlTpXml, REGEX_SCENARIO_TIME));
+
+        // Profiles should be consistent with the instance files
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedNlSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getFirstMatch(updatedCgmSvXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedBeTpXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedNlTpXml, REGEX_PROFILE));
+
+        // Dependency check
+        // The updated TPs should depend on the original EQ model and on the original TP_BD model
+        // The updated SV model should depend on the updated TP models
+        // Here the version number part of the id 1 for original models and 2 for updated ones
+        String originalBeEqId = "urn:uuid:Network_BE_N_EQUIPMENT_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlEqId = "urn:uuid:Network_NL_N_EQUIPMENT_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        Set<String> expectedDependenciesBeTp = Set.of(originalBeEqId, explicitTpBdId.orElse(originalBeTpBdId));
+        assertEquals(expectedDependenciesBeTp, getUniqueMatches(updatedBeTpXml, REGEX_DEPENDENT_ON));
+        Set<String> expectedDependenciesNlTp = Set.of(originalNlEqId, explicitTpBdId.orElse(originalNlTpBdId));
+        assertEquals(expectedDependenciesNlTp, getUniqueMatches(updatedNlTpXml, REGEX_DEPENDENT_ON));
+        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedBeTpId));
+        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedNlTpId));
 
         // TP should supersede the original model
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        Set<String> expectedSupersedesTp = new HashSet<>(Set.of(originalBeTpId, originalNlTpId));
-        assertEquals(expectedSupersedesTp, getUniqueMatches(updatedTpXml, REGEX_SUPERSEDES));
+        assertEquals(originalBeTpId, getFirstMatch(updatedBeTpXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlTpId, getFirstMatch(updatedNlTpXml, REGEX_SUPERSEDES));
     }
 
     private static final Map<Country, String> TSO_BY_COUNTRY = Map.of(

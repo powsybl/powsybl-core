@@ -82,7 +82,7 @@ public class CgmesExport implements Exporter {
 
         // Export the network
         if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
-            boolean exportTP = context.isCgmExportWithTp();
+            String exportTP = context.getCgmExportWithTp();
             exportCGM(network, dataSource, context, exportTP);
         } else {
             exportIGM(network, dataSource, context);
@@ -201,20 +201,35 @@ public class CgmesExport implements Exporter {
     /**
      * Common Grid Model export.
      * This consists in providing updated SSH for the IGMs (subnetworks) and an updated SV for the CGM (network).
-     * An option also allows exporting updated TP for the IGMs (subnetworks).
+     * An option also allows exporting one updated TP for the IGMs (subnetworks) or a common TP for the CGM (network).
      * @param network The network to export. This is the parent network that contains the subnetworks.
      * @param dataSource The dataSource used by the export.
      * @param context The context that stores relevant data for the export.
      */
-    private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context, boolean exportTP) {
+    private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context, String exportTP) {
         checkCgmConsistency(network, context);
 
+        Map<Network, IgmModelsForCgm> igmModels = initializeIgmModels(network, context);
+        CgmesMetadataModel updatedCgmSvModel = initializeModelForExport(network, CgmesSubset.STATE_VARIABLES, context, true, true);
+        CgmesMetadataModel updatedCgmTpModel = initializeModelForExport(network, CgmesSubset.TOPOLOGY, context, true, true);
+
+        if (context.updateDependencies()) {
+            updateDependenciesCGM(igmModels.values(), updatedCgmSvModel, updatedCgmTpModel, context.getBoundaryTpId(), exportTP);
+        }
+
+        String baseName = getBaseName(context, dataSource, network);
+        exportIgmSubsets(igmModels, baseName, dataSource, context, exportTP);
+        exportCgmSubsets(network, updatedCgmSvModel, updatedCgmTpModel, baseName, dataSource, context, exportTP);
+    }
+
+    private Map<Network, IgmModelsForCgm> initializeIgmModels(Network network, CgmesExportContext context) {
         // Initialize models for export. The original IGM EQ, SSH, TP and TP_BD don't get exported,
         // but we need to init their models to retrieve their IDs when building the dependencies.
         Map<Network, IgmModelsForCgm> igmModels = new HashMap<>();
         for (Network subnetwork : network.getSubnetworks()) {
             IgmModelsForCgm igmModelsForCgm = new IgmModelsForCgm(
                     initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, true),
+                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, true),
                     initializeModelForExport(subnetwork, CgmesSubset.EQUIPMENT, context, false, false),
                     initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, false),
                     initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, false),
@@ -222,29 +237,45 @@ public class CgmesExport implements Exporter {
             );
             igmModels.put(subnetwork, igmModelsForCgm);
         }
-        CgmesMetadataModel updatedCgmSvModel = initializeModelForExport(network, CgmesSubset.STATE_VARIABLES, context, true, true);
+        return igmModels;
+    }
 
-        CgmesMetadataModel updatedCgmTpModel = initializeModelForExport(network, CgmesSubset.TOPOLOGY, context, true, true);
-
-        // Update dependencies
-        if (context.updateDependencies()) {
-            updateDependenciesCGM(igmModels.values(), updatedCgmSvModel, updatedCgmTpModel, context.getBoundaryTpId(), exportTP);
-        }
-
-        // Export the SSH for the IGMs and the SV and optionnally the TP for the CGM
-        String baseName = getBaseName(context, dataSource, network);
-        for (Network subnetwork : network.getSubnetworks()) {
+    private void exportIgmSubsets(Map<Network, IgmModelsForCgm> igmModels, String baseName, DataSource dataSource,
+                                  CgmesExportContext context, String exportTP) {
+        // Export the SSH for the IGMs and optionally the TP
+        for (Map.Entry<Network, IgmModelsForCgm> entry : igmModels.entrySet()) {
+            Network subnetwork = entry.getKey();
+            IgmModelsForCgm models = entry.getValue();
             String country = getCountry(subnetwork);
             String igmName = country != null ? country : subnetwork.getNameOrId();
-            String igmSshFileName = baseName + "_" + igmName + "_" + CgmesSubset.STEADY_STATE_HYPOTHESIS.getIdentifier() + ".xml";
-            subsetExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, igmSshFileName, dataSource, context, igmModels.get(subnetwork).updatedSsh);
+
+            String igmSshFileName = formatFileName(baseName, igmName, CgmesSubset.STEADY_STATE_HYPOTHESIS);
+            subsetExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, igmSshFileName, dataSource, context, models.updatedSsh);
+
+            if ("IGM".equals(exportTP)) {
+                String igmTpFileName = formatFileName(baseName, igmName, CgmesSubset.TOPOLOGY);
+                subsetExport(subnetwork, CgmesSubset.TOPOLOGY, igmTpFileName, dataSource, context, models.updatedTp);
+            }
         }
-        if (exportTP) {
-            String igmTpFileName = baseName + "_" + CgmesSubset.TOPOLOGY.getIdentifier() + ".xml";
-            subsetExport(network, CgmesSubset.TOPOLOGY, igmTpFileName, dataSource, context, updatedCgmTpModel);
+    }
+
+    private void exportCgmSubsets(Network network, CgmesMetadataModel updatedCgmSvModel, CgmesMetadataModel updatedCgmTpModel,
+                                  String baseName, DataSource dataSource, CgmesExportContext context, String exportTP) {
+        // Export the SV for the CGM and optionally the TP
+        if ("CGM".equals(exportTP)) {
+            String cgmTpFileName = formatFileName(baseName, CgmesSubset.TOPOLOGY);
+            subsetExport(network, CgmesSubset.TOPOLOGY, cgmTpFileName, dataSource, context, updatedCgmTpModel);
         }
-        String cgmSvFileName = baseName + "_" + CgmesSubset.STATE_VARIABLES.getIdentifier() + ".xml";
+        String cgmSvFileName = formatFileName(baseName, CgmesSubset.STATE_VARIABLES);
         subsetExport(network, CgmesSubset.STATE_VARIABLES, cgmSvFileName, dataSource, context, updatedCgmSvModel);
+    }
+
+    private static String formatFileName(String baseName, CgmesSubset subset) {
+        return baseName + "_" + subset.getIdentifier() + ".xml";
+    }
+
+    private static String formatFileName(String baseName, String qualifier, CgmesSubset subset) {
+        return baseName + "_" + qualifier + "_" + subset.getIdentifier() + ".xml";
     }
 
     /**
@@ -341,7 +372,7 @@ public class CgmesExport implements Exporter {
      * @param updatedCgmSvModel The SV model for the CGM.
      * @param boundaryTpId The model id for the TP_BD subset.
      */
-    private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel, CgmesMetadataModel updatedCgmTpModel, String boundaryTpId, boolean exportTp) {
+    private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel, CgmesMetadataModel updatedCgmTpModel, String boundaryTpId, String exportTp) {
         // Each updated SSH model depends on the original EQ model
         igmModels.forEach(m -> m.updatedSsh.addDependentOn(m.originalEq.getId()));
 
@@ -349,14 +380,18 @@ public class CgmesExport implements Exporter {
         igmModels.forEach(m -> m.updatedSsh.clearSupersedes());
         igmModels.forEach(m -> m.updatedSsh.addSupersedes(m.originalSsh.getId()));
 
-        // Updated TP model supersedes the original one
-        igmModels.forEach(m -> updatedCgmTpModel.clearSupersedes());
-        igmModels.forEach(m -> updatedCgmTpModel.addSupersedes(m.originalTp.getId()));
+        // Updated IGM TP model supersedes the original one
+        if ("IGM".equals(exportTp)) {
+            igmModels.forEach(m -> m.updatedTp.clearSupersedes());
+            igmModels.forEach(m -> m.updatedTp.addSupersedes(m.originalTp.getId()));
+        }
 
         // Updated SV model depends on updated SSH models, original TP_BD models and original or updated TP models
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.updatedSsh.getId()).collect(Collectors.toSet()));
-        if (exportTp) {
+        if ("CGM".equals(exportTp)) {
             updatedCgmSvModel.addDependentOn(updatedCgmTpModel.getId());
+        } else if ("IGM".equals(exportTp)) {
+            updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.updatedTp.getId()).collect(Collectors.toSet()));
         } else {
             updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTp.getId()).collect(Collectors.toSet()));
         }
@@ -367,11 +402,20 @@ public class CgmesExport implements Exporter {
         }
 
         // Updated TP model depends on the original EQ model and on the original TP_BD model
-        igmModels.forEach(m -> updatedCgmTpModel.addDependentOn(m.originalEq.getId()));
-        if (boundaryTpId != null) {
-            updatedCgmTpModel.addDependentOn(boundaryTpId);
+        if ("CGM".equals(exportTp)) {
+            igmModels.forEach(m -> updatedCgmTpModel.addDependentOn(m.originalEq.getId()));
+            if (boundaryTpId != null) {
+                updatedCgmTpModel.addDependentOn(boundaryTpId);
+            } else {
+                updatedCgmTpModel.addDependentOn(igmModels.stream().map(m -> m.originalTpBd.getId()).collect(Collectors.toSet()));
+            }
         } else {
-            updatedCgmTpModel.addDependentOn(igmModels.stream().map(m -> m.originalTpBd.getId()).collect(Collectors.toSet()));
+            igmModels.forEach(m -> m.updatedTp.addDependentOn(m.originalEq.getId()));
+            if (boundaryTpId != null) {
+                igmModels.forEach(m -> m.updatedTp.addDependentOn(boundaryTpId));
+            } else {
+                igmModels.forEach(m -> m.updatedTp.addDependentOn(m.originalTpBd.getId()));
+            }
         }
     }
 
@@ -558,7 +602,7 @@ public class CgmesExport implements Exporter {
                 Parameter.readString(getFormat(), params, TOPOLOGY_KIND_PARAMETER, defaultValueConfig),
                 Parameter.readString(getFormat(), params, BOUNDARY_EQ_ID_PARAMETER, defaultValueConfig),
                 Parameter.readString(getFormat(), params, BOUNDARY_TP_ID_PARAMETER, defaultValueConfig),
-                Parameter.readBoolean(getFormat(), params, CGM_EXPORT_WITH_TP_PARAMETER, defaultValueConfig)
+                Parameter.readString(getFormat(), params, CGM_EXPORT_WITH_TP_PARAMETER, defaultValueConfig)
         );
     }
 
@@ -585,14 +629,16 @@ public class CgmesExport implements Exporter {
      */
     private static class IgmModelsForCgm {
         CgmesMetadataModel updatedSsh;
+        CgmesMetadataModel updatedTp;
         CgmesMetadataModel originalEq;
         CgmesMetadataModel originalSsh;
         CgmesMetadataModel originalTp;
         CgmesMetadataModel originalTpBd;
 
-        IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel originalEq, CgmesMetadataModel originalSsh,
+        IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel updatedTp, CgmesMetadataModel originalEq, CgmesMetadataModel originalSsh,
                         CgmesMetadataModel originalTp, CgmesMetadataModel originalTpBd) {
             this.updatedSsh = updatedSsh;
+            this.updatedTp = updatedTp;
             this.originalEq = originalEq;
             this.originalSsh = originalSsh;
             this.originalTp = originalTp;
@@ -774,9 +820,9 @@ public class CgmesExport implements Exporter {
 
     private static final Parameter CGM_EXPORT_WITH_TP_PARAMETER = new Parameter(
             CGM_EXPORT_WITH_TP,
-            ParameterType.BOOLEAN,
-            "True to export TP profile in CGM export, False otherwise",
-            CgmesExportContext.CGM_EXPORT_WITH_TP_DEFAULT_VALUE);
+            ParameterType.STRING,
+            "Empty to not export the TP, \"CGM\" to export the TP for the whole CGM, \"IGM\" to export one TP for each IGM",
+            "");
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
@@ -824,7 +870,7 @@ public class CgmesExport implements Exporter {
             String topologyKind,
             String boundaryEqId,
             String boundaryTpId,
-            boolean cgmExportWithTp) {
+            String cgmExportWithTp) {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
