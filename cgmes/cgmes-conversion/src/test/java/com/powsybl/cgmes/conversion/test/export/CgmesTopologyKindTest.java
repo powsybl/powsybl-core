@@ -138,8 +138,8 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
             assertEquals(1, getElementCount(eqFile, "GroundDisconnector"));
             assertEquals(1, getElementCount(eqFile, "LoadArea"));
             assertEquals(1, getElementCount(eqFile, "SubLoadArea"));
-            assertTrue(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
-            assertTrue(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
+            assertTrue(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
+            assertTrue(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
             assertTrue(getElement(eqFile, "ControlArea", "Interchange").contains("cim:ControlArea.EnergyArea"));
             assertEquals(1, getElementCount(sshFile, "StationSupply"));
             assertEquals(1, getElementCount(sshFile, "GroundDisconnector"));
@@ -152,8 +152,8 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
             assertEquals(0, getElementCount(eqFile, "GroundDisconnector"));
             assertEquals(0, getElementCount(eqFile, "LoadArea"));
             assertEquals(0, getElementCount(eqFile, "SubLoadArea"));
-            assertFalse(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
-            assertFalse(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG").contains("cim:LoadGroup.SubLoadArea"));
+            assertFalse(getElement(eqFile, "ConformLoadGroup", "ConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
+            assertFalse(getElement(eqFile, "NonConformLoadGroup", "NonConformLoad_LG_network").contains("cim:LoadGroup.SubLoadArea"));
             assertFalse(getElement(eqFile, "ControlArea", "Interchange").contains("cim:ControlArea.EnergyArea"));
             assertEquals(0, getElementCount(sshFile, "StationSupply"));
             assertEquals(0, getElementCount(sshFile, "GroundDisconnector"));

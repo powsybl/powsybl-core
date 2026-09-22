@@ -70,7 +70,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                 case "status" -> {
                     parser.nextToken();
                     String tempStatus = parser.getValueAsString();
-                    if (version.compareTo("1.4") < 0 && "SOLVER_FAILED".equals(tempStatus)) {
+                    if (JsonUtil.compareVersions(version, "1.4") < 0 && "SOLVER_FAILED".equals(tempStatus)) {
                         // SOLVER_FAILED removed in v1.4, translated to FAILED, information kept in statusText which didn't exist before v1.4
                         statusText = tempStatus;
                         tempStatus = LoadFlowResult.ComponentResult.Status.FAILED.name();
@@ -121,7 +121,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         }
 
         if (connectedComponentNum == null) {
-            if (version.compareTo("1.2") < 0) {
+            if (JsonUtil.compareVersions(version, "1.2") < 0) {
                 connectedComponentNum = 0;
             } else {
                 throw new IllegalStateException("Connected component number field not found.");
@@ -135,13 +135,13 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             throw new IllegalStateException("Iteration count field not found.");
         }
         if (distributedActivePower == null) {
-            if (version.compareTo("1.3") < 0) {
+            if (JsonUtil.compareVersions(version, "1.3") < 0) {
                 distributedActivePower = Double.NaN;
             } else {
                 throw new IllegalStateException("Distributed active power field not found.");
             }
         }
-        if (version.compareTo("1.4") < 0) {
+        if (JsonUtil.compareVersions(version, "1.4") < 0) {
             if (slackBusId == null) {
                 throw new IllegalStateException("Slack bus id field not found.");
             }
