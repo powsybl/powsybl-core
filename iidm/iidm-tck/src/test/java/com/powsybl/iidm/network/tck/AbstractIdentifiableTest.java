@@ -59,7 +59,8 @@ public abstract class AbstractIdentifiableTest {
     @Test
     public void testSetIdBusesNodeBreaker() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> network.getBusBreakerView().getBusStream().toList().getFirst().setId("0"));
+        var calculatedBus = network.getBusBreakerView().getBusStream().toList().getFirst();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> calculatedBus.setId("0"));
         assertEquals("Updating the id of a calculated bus is not supported.", e.getMessage());
     }
 
@@ -120,7 +121,9 @@ public abstract class AbstractIdentifiableTest {
         VoltageLevel vl = network.getVoltageLevel("S1VL1");
         List<Switch> switches = vl.getNodeBreakerView().getSwitchStream().toList();
         assertTrue(switches.size() > 1, "test network must have at least two switches in S1VL1");
-        Exception e = assertThrows(PowsyblException.class, () -> switches.get(0).setId(switches.get(1).getId()));
+        var firstSwitch = switches.getFirst();
+        var secondSwitchId = switches.get(1).getId();
+        Exception e = assertThrows(PowsyblException.class, () -> firstSwitch.setId(secondSwitchId));
         assertEquals("Object with id (S1VL1_LD1_BREAKER) already exists", e.getMessage());
     }
 }
