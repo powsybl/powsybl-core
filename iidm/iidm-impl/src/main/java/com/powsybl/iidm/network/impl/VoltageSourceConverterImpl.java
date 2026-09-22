@@ -72,7 +72,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         super.setPccTerminal(newPccTerminal);
         if (voltageRegulation != null) {
             voltageRegulation.setTerminal(newVoltageRegulationTerminal, targetValue);
-        } else if (newVoltageRegulationTerminal != null) {
+        } else { // if (newVoltageRegulationTerminal != null) {
             newVoltageRegulation()
                 .withTerminal(newVoltageRegulationTerminal)
                 .withRegulating(false)
