@@ -612,7 +612,7 @@ It takes as input:
 - The ID of the line to be removed (the one connecting to the tapped voltage level).
 - The ID for the new merged line.
 - Optionally, a name for the new merged line.
-- Optionally, a boolean indicating to force remove the voltage level if it no longer contains any branches and still contains other equipments.
+- Optionally, a boolean to force the removal of the voltage level if it no longer contains any branches but still contains other equipment.
 
 When applied, the three lines are removed and replaced by a single line. The tee point voltage level and the tapped voltage level 
 are removed if they become empty (except for buses or busbar sections).
