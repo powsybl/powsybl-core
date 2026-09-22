@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,6 +55,27 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         assertEquals(lineTerminal, voltageSourceConverter.getPccTerminal());
         assertEquals(lineTerminal, voltageSourceConverter.getVoltageRegulation().getTerminal());
         assertFalse(voltageSourceConverter.getVoltageRegulation().isRegulating());
+    }
+
+    @Test
+    void shouldUpdatePccTerminalWhenVoltageRegulationIsMissingAndSettingPccTerminalOnLocalTerminal() {
+        // GIVEN
+        String vscId = "vsc_setPccTerminal";
+        double localTargetQ = 10.0;
+        DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(vscId,
+            null,
+            false,
+            Double.NaN,
+            Double.NaN,
+            localTargetQ,
+            false);
+        VoltageSourceConverter voltageSourceConverter = createVoltageSourceConverter(dataVoltageRegulationHolderCreator);
+        // WHEN
+        Terminal localTerminal = voltageSourceConverter.getTerminal1();
+        voltageSourceConverter.setPccTerminal(localTerminal);
+        // THEN
+        assertEquals(localTerminal, voltageSourceConverter.getPccTerminal());
+        assertNull(voltageSourceConverter.getVoltageRegulation());
     }
 
     @Test
@@ -185,8 +205,6 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
             validationException.getMessage());
     }
 
-    //TODO Fix the code to respect this test... or assert that an exception is thrown?
-    @Disabled
     @Test
     void shouldSetPccTerminalWhenUsingTheVoltageSourceConverterAdderWithOnlyPccTerminal() {
         // GIVEN
@@ -198,9 +216,32 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
             .withMode(RegulationMode.VOLTAGE)
             .add();
         // WHEN
-        VoltageSourceConverter voltageSourceConverter = adder.add();
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, 20, voltageSourceConverter);
+        assertEquals("AC/DC Voltage Source Converter 'vsc_id': pccTerminal and voltageRegulation.terminal must refer to the same terminal",
+            validationException.getMessage());
+    }
+
+    @Test
+    void shouldSetPccTerminalAndVoltageRegulationTerminalWhenSettingPccTerminal() {
+        // GIVEN
+        VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
+        adder.setPccTerminal(lineTerminal);
+        VoltageSourceConverter voltageSourceConverter = adder.newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(lineTerminal)
+                .withTargetValue(10)
+                .add()
+            .add();
+        // WHEN
+        Terminal localTerminal = voltageSourceConverter.getTerminal1();
+        voltageSourceConverter.setPccTerminal(localTerminal);
+        // THEN
+        assertTrue(voltageSourceConverter.isRemoteRegulating());
+        assertTrue(voltageSourceConverter.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertEquals(localTerminal, voltageSourceConverter.getRegulatingTerminal());
+        assertEquals(voltageSourceConverter.getPccTerminal(), voltageSourceConverter.getRegulatingTerminal());
     }
 
     private static void assertPccTerminalAndVoltageRegulationTerminal(Terminal expectedTerminal, int expectedTargetValue, VoltageSourceConverter voltageSourceConverter) {

@@ -334,7 +334,7 @@ class GeneratorModificationTest {
         assertEquals(301.0, generator.getLocalTargetQ());
         assertEquals(120.0, generator.getLocalTargetV());
         assertEquals(120.0, generator.getRegulatingTargetV());
-        assertTrue(generator.isRegulating());
+        assertFalse(generator.isRegulating());
     }
 
     @Test
@@ -355,7 +355,7 @@ class GeneratorModificationTest {
         assertEquals(301.0, generator.getLocalTargetQ());
         assertEquals(130.0, generator.getLocalTargetV());
         assertEquals(130.0, generator.getRegulatingTargetV());
-        assertTrue(generator.isRegulating());
+        assertFalse(generator.isRegulating());
     }
 
     @ParameterizedTest

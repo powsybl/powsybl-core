@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -105,19 +104,20 @@ class ConnectGeneratorTest {
 
     @Test
     void testConnectGeneratorWithNoNetworkInformation() {
-        g2.getVoltageRegulation().setRegulating(false);
         g3.getVoltageRegulation().setRegulating(false);
-        g2.getVoltageRegulation().setTerminal(g3.getTerminal(), 43);
+        g2.getVoltageRegulation().setRegulating(false);
+        g2.getVoltageRegulation().setTerminal(g3.getTerminal(), Double.NaN);
         g2.setLocalTargetV(Double.NaN);
-        g2.getVoltageRegulation().setTargetValue(123.45);
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE); // no targetV provided!
+        modifs.setRegulating(true);
         modifs.setConnected(true);
         new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getLocalTargetV(), 0.01);
-        assertEquals(g2.getLocalTargetV(), g2.getRegulatingTargetV());
-        assertNotEquals(123.45, g2.getRegulatingTargetV());
+        assertTrue(g2.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        double expectedTargetV = g2.getRegulatingTerminal().getBusView().getBus().getV();
+        assertEquals(expectedTargetV, g2.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(g2.getLocalTargetV()));
     }
 
     @Test
