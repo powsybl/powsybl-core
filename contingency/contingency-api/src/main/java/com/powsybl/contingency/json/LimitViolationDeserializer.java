@@ -39,6 +39,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
     public static final String VIOLATION_LOCATION_SUPPORT = "violationLocationSupport";
+    public static final String LIMIT_REDUCTION_BACKWARD_COMPAT = "limitReductionBackwardCompat";
     private static final String CONTEXT_NAME = "limit-violation";
 
     private final transient JsonDeserializer<Object> violationLocationDeserializer;
@@ -60,6 +61,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
     @Override
     public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Boolean voltageLocationSupport = (Boolean) deserializationContext.getAttribute(VIOLATION_LOCATION_SUPPORT);
+        Boolean limitReductionBackwardCompat = (Boolean) deserializationContext.getAttribute(LIMIT_REDUCTION_BACKWARD_COMPAT);
         String subjectId = null;
         String subjectName = null;
         String operationalLimitsGroupId = null;
@@ -67,7 +69,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         String limitName = null;
         int acceptableDuration = Integer.MAX_VALUE;
         double limit = Double.NaN;
-        double limitReduction = Double.NaN;
+        double limitScaling = Double.NaN;
         double value = Double.NaN;
         ThreeSides side = null;
         ViolationLocation violationLocation = null;
@@ -107,9 +109,21 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     limit = parser.readValueAs(Double.class);
                     break;
 
-                case "limitReduction":
+                // limitReduction for retro-compatibility before V1.10 of SecurityAnalysisResult
+                case "limitScaling":
+                    if (Boolean.TRUE.equals(limitReductionBackwardCompat)) {
+                        throwInvalidFieldForVersion("limitScaling");
+                    }
                     parser.nextToken();
-                    limitReduction = parser.readValueAs(Float.class);
+                    limitScaling = parser.readValueAs(Float.class);
+                    break;
+
+                case "limitReduction":
+                    if (Boolean.FALSE.equals(limitReductionBackwardCompat)) {
+                        throwInvalidFieldForVersion("limitReduction");
+                    }
+                    parser.nextToken();
+                    limitScaling = parser.readValueAs(Float.class);
                     break;
 
                 case "value":
@@ -128,7 +142,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "violationLocation":
                     if (Boolean.FALSE.equals(voltageLocationSupport)) {
-                        throw new PowsyblException(String.format("%s. %s is not valid for this version ", CONTEXT_NAME, "violationLocation"));
+                        throwInvalidFieldForVersion("violationLocation");
                     }
 
                     parser.nextToken();
@@ -140,9 +154,13 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
             }
         }
         LimitViolation violation = new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, limitType, limitName, acceptableDuration,
-            limit, limitReduction, value, side, violationLocation);
+            limit, limitScaling, value, side, violationLocation);
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
+    }
+
+    private static void throwInvalidFieldForVersion(String fieldName) {
+        throw new PowsyblException(String.format("%s. %s is not valid for this version ", CONTEXT_NAME, fieldName));
     }
 }

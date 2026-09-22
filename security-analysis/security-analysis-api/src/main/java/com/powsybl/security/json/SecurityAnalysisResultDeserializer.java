@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.contingency.json.LimitViolationDeserializer.LIMIT_REDUCTION_BACKWARD_COMPAT;
 import static com.powsybl.contingency.json.LimitViolationDeserializer.VIOLATION_LOCATION_SUPPORT;
 
 /**
@@ -99,7 +100,8 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(ctx, version, SOURCE_VERSION_ATTRIBUTE);
-                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, version.compareTo("1.7") >= 0);
+                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, JsonUtil.compareVersions(version, "1.7") >= 0);
+                    ctx.setAttribute(LIMIT_REDUCTION_BACKWARD_COMPAT, JsonUtil.compareVersions(version, "1.9") <= 0);
                     break;
 
                 case "network":
@@ -109,7 +111,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "preContingencyResult":
                     parser.nextToken();
-                    if ("1.0".equals(version)) {
+                    if (JsonUtil.compareVersions(version, "1.0") == 0) {
                         limitViolationsResult = JsonUtil.readValue(limitViolationsResultDeserializer, ctx, parser, LimitViolationsResult.class);
                     } else {
                         preContingencyResult = JsonUtil.readValue(preContingencyResultDeserializer, ctx, parser, PreContingencyResult.class);
@@ -139,7 +141,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         SecurityAnalysisResult result = null;
         if (preContingencyResult == null) {
             LoadFlowResult.ComponentResult.Status status = null;
-            if (limitViolationsResult != null && "1.0".equals(version)) {
+            if (limitViolationsResult != null && JsonUtil.compareVersions(version, "1.0") == 0) {
                 status = limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
             } else {
                 status = LoadFlowResult.ComponentResult.Status.CONVERGED;
