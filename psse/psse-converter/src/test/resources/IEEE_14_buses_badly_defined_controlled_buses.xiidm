@@ -84,13 +84,13 @@
                 <iidm:step rho="8.626078259782473"/>
             </iidm:ratioTapChanger3>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="422.5534578851609"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="422.5534578851609"/>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="840.9232181674985"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="840.9232181674985"/>
             </iidm:operationalLimitsGroup2>
             <iidm:operationalLimitsGroup3 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="1259.292978449836"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="1259.292978449836"/>
             </iidm:operationalLimitsGroup3>
         </iidm:threeWindingsTransformer>
     </iidm:substation>

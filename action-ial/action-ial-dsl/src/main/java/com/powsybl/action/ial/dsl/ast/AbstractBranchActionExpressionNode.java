@@ -17,24 +17,24 @@ public abstract class AbstractBranchActionExpressionNode extends AbstractActionE
 
     private final List<String> branchIds;
 
-    private final double limitReduction;
+    private final double limitScaling;
 
-    public AbstractBranchActionExpressionNode(List<String> branchIds, double limitReduction) {
+    protected AbstractBranchActionExpressionNode(List<String> branchIds, double limitScaling) {
         this.branchIds = Objects.requireNonNull(branchIds);
         if (branchIds.isEmpty()) {
             throw new IllegalArgumentException("The list of branch Ids should not be empty");
         }
-        if (limitReduction < 0) {
-            throw new IllegalArgumentException("Limit reduction is not valid");
+        if (limitScaling < 0) {
+            throw new IllegalArgumentException("Limit scaling should be positive");
         }
-        this.limitReduction = limitReduction;
+        this.limitScaling = limitScaling;
     }
 
     public List<String> getBranchIds() {
         return branchIds;
     }
 
-    public double getLimitReduction() {
-        return limitReduction;
+    public double getLimitScaling() {
+        return limitScaling;
     }
 }
