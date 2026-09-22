@@ -1,0 +1,364 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.security.limitscaling;
+
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.IdentifiableCriterion;
+import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
+import com.powsybl.iidm.criteria.VoltageInterval;
+import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
+ */
+class DefaultLimitScalingsApplierTest {
+    private static DefaultLimitScalingsApplier applier;
+    private static Network network;
+    private static LimitScaling scaling1;
+    private static LimitScaling scaling2;
+    private static LimitScaling scaling3;
+    private static LimitScaling scaling4;
+    private static LimitScaling scaling5;
+    private static LimitScaling scaling6;
+
+    @BeforeAll
+    static void setup() {
+        scaling1 = LimitScaling.builder(LimitType.CURRENT, 0.9)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency1"))
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .withLimitDurationCriteria(new PermanentDurationCriterion())
+                .build();
+        scaling2 = LimitScaling.builder(LimitType.CURRENT, 0.5)
+                .withMonitoringOnly(false)
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
+                .build();
+        scaling3 = LimitScaling.builder(LimitType.CURRENT, 0.1)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency3"))
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
+                .build();
+        scaling4 = LimitScaling.builder(LimitType.CURRENT, 0.75)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency4"))
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
+                .build();
+        scaling5 = LimitScaling.builder(LimitType.CURRENT, 0.1)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency5"))
+                // Applicable only for the 2 winding transformer NHV2_NLOAD on Side 2
+                .withNetworkElementCriteria(new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
+                        VoltageInterval.between(150., 160., true, true))))
+                .build();
+        scaling6 = LimitScaling.builder(LimitType.CURRENT, 0.2)
+                .withMonitoringOnly(true)
+                .build();
+    }
+
+    @BeforeEach
+    void init() {
+        network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        applier = new DefaultLimitScalingsApplier(List.of(scaling1, scaling2, scaling3, scaling4, scaling5, scaling6));
+    }
+
+    @Test
+    void applyScalingsTest() {
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.newOperationalLimitsGroup2(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).newCurrentLimits()
+            .setPermanentLimit(800)
+            .beginTemporaryLimit()
+            .setName("20'")
+            .setAcceptableDuration(20 * 60)
+            .setValue(950)
+            .endTemporaryLimit()
+            .add();
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
+        // pre-contingency
+        applier.setWorkingContingency(null);
+        // - No scalings apply for "NHV1_NHV2_1"
+        computeAndCheckLimitsOnLine1WithoutScalings();
+        // - Some scalings apply for "NHV1_NHV2_2"
+        computeAndCheckLimitsOnLine2(0.5, false);
+        computeAndCheckLimitsOnLine2(0.2, true);
+
+        // contingency0
+        applier.setWorkingContingency("contingency0");
+        // - Same scalings as before apply for both network elements => the cache is used.
+        computeAndCheckLimitsOnLine1WithoutScalings();
+        computeAndCheckLimitsOnLine2(0.5, false);
+        computeAndCheckLimitsOnLine2(0.2, true);
+
+        // contingency1
+        applier.setWorkingContingency("contingency1");
+        // - Some scalings apply for "NHV1_NHV2_1", but only for permanent limits
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(450, container.getLimits().getPermanentLimit(), 0.01);
+        limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        Assertions.assertThat(limits)
+            .extracting(
+                LimitsContainer::getLimits
+            )
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                l -> l.getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getValue).toList()
+            )
+            .containsExactlyInAnyOrder(
+                new Tuple(990., List.of(1200., 1500., Double.MAX_VALUE)),
+                new Tuple(720., List.of(950.))
+            );
+
+        // - Same scalings as before apply for "NHV1_NHV2_2"
+        computeAndCheckLimitsOnLine2(0.5, false);
+        computeAndCheckLimitsOnLine2(0.2, true);
+    }
+
+    private static void computeAndCheckLimitsOnLine1WithoutScalings() {
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(500, container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(500, container.getOriginalLimits().getPermanentLimit(), 0.01);
+
+        limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        Map<String, LimitsContainer<LoadingLimits>> containerByGroupId = limits.stream()
+            .collect(Collectors.toMap(
+                LimitsContainer::getOperationalLimitsGroupId,
+                Function.identity()
+            ));
+        checkOriginalLimitsDefaultOnLine1(containerByGroupId.get("DEFAULT").getLimits());
+        checkOriginalLimitsDefaultOnLine1(containerByGroupId.get("DEFAULT").getOriginalLimits());
+        checkOriginalLimitsActivatedTwoOneOnLine1(containerByGroupId.get(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).getLimits());
+        checkOriginalLimitsActivatedTwoOneOnLine1(containerByGroupId.get(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).getOriginalLimits());
+        assertFalse(containerByGroupId.get("DEFAULT").isDistinct());
+    }
+
+    private static void checkOriginalLimitsDefaultOnLine1(LoadingLimits limits) {
+        assertEquals(1100, limits.getPermanentLimit(), 0.01);
+        assertEquals(1200, limits.getTemporaryLimitValue(10 * 60), 0.01);
+        assertEquals(1500, limits.getTemporaryLimitValue(60), 0.01);
+        assertEquals(Double.MAX_VALUE, limits.getTemporaryLimitValue(0), 0.01);
+    }
+
+    private static void checkOriginalLimitsActivatedTwoOneOnLine1(LoadingLimits limits) {
+        assertEquals(800, limits.getPermanentLimit(), 0.01);
+        assertEquals(950, limits.getTemporaryLimitValue(20 * 60), 0.01);
+    }
+
+    private static void checkOriginalLimitsOnLine2(LoadingLimits limits) {
+        assertEquals(1100, limits.getPermanentLimit(), 0.01);
+        assertEquals(1200, limits.getTemporaryLimitValue(20 * 60), 0.01);
+        assertEquals(Double.MAX_VALUE, limits.getTemporaryLimitValue(60), 0.01);
+    }
+
+    private static void computeAndCheckLimitsOnLine2(double expectedScaling, boolean monitoringOnly) {
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE, monitoringOnly);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        LoadingLimits scaledLimits = container.getLimits();
+        assertEquals(1100 * expectedScaling, scaledLimits.getPermanentLimit(), 0.01);
+        assertEquals(1200 * expectedScaling, scaledLimits.getTemporaryLimitValue(20 * 60), 0.01);
+        assertEquals(Double.MAX_VALUE, scaledLimits.getTemporaryLimitValue(60), 0.01);
+        checkOriginalLimitsOnLine2(container.getOriginalLimits());
+        assertTrue(container.isDistinct());
+
+        limits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO, monitoringOnly);
+        assertFalse(limits.isEmpty());
+        container = limits.stream().findFirst().orElseThrow();
+        assertEquals(500 * expectedScaling, container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(500, container.getOriginalLimits().getPermanentLimit(), 0.01);
+        assertTrue(container.isDistinct());
+    }
+
+    @Test
+    void severalApplicableScalingsTest() {
+        applier.setWorkingContingency("contingency3");
+        // Several scalings apply for line2 (with 0.5 and 0.1 scalings), only the last is used.
+        computeAndCheckLimitsOnLine2(0.1, false);
+    }
+
+    @Test
+    void temporaryLimitToRemoveTest() {
+        applier.setWorkingContingency("contingency4");
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        LoadingLimits scaledLimits = container.getLimits();
+        assertEquals(1100, scaledLimits.getPermanentLimit(), 0.01);
+        assertTrue(Double.isNaN(scaledLimits.getTemporaryLimitValue(10 * 60))); // removed since the 1' limit's scaled value is < 1200
+        assertEquals(1125, scaledLimits.getTemporaryLimitValue(60), 0.01);
+        assertEquals(Double.MAX_VALUE, scaledLimits.getTemporaryLimitValue(0), 0.01);
+        checkOriginalLimitsDefaultOnLine1(container.getOriginalLimits());
+        assertTrue(container.isDistinct());
+    }
+
+    @Test
+    void noLimitsToScaleTest() {
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getTwoWindingsTransformer("NGEN_NHV1"),
+                LimitType.CURRENT, ThreeSides.ONE, false);
+        // There are no limits on "NGEN_NHV1" => no scaled limits.
+        assertTrue(limits.isEmpty());
+    }
+
+    @Test
+    void scaleOnOneSideOnlyTest() {
+        applier.setWorkingContingency("contingency5");
+        TwoWindingsTransformer nhv2Nload = network.getTwoWindingsTransformer("NHV2_NLOAD");
+        nhv2Nload.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setValue(1200.)
+                    .setAcceptableDuration(60)
+                    .setName("60'")
+                .endTemporaryLimit()
+                .add();
+        nhv2Nload.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setValue(1200.)
+                    .setAcceptableDuration(60)
+                    .setName("60'")
+                .endTemporaryLimit()
+                .add();
+        // The scaling only applies on side 2 for NHV2_NLOAD
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(nhv2Nload,
+                LimitType.CURRENT, ThreeSides.ONE, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(1000., container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(1200., container.getLimits().getTemporaryLimitValue(60), 0.01);
+        assertFalse(container.isDistinct());
+
+        // The scaling only applies on side 1 for NHV2_NLOAD
+        limits = applier.computeLimits(nhv2Nload, LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        container = limits.stream().findFirst().orElseThrow();
+        assertEquals(1000., container.getOriginalLimits().getPermanentLimit(), 0.01);
+        assertEquals(100., container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(1200., container.getOriginalLimits().getTemporaryLimitValue(60), 0.01);
+        assertEquals(120., container.getLimits().getTemporaryLimitValue(60), 0.01);
+        assertTrue(container.isDistinct());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getNoChangesComputers")
+    void noChangesTest(String desc, DefaultLimitScalingsApplier noChangesComputer) {
+        // In this test, no effective scalings were defined (either no scalings were used in the computer or
+        // their values are all equal to 1.0).
+        Collection<LimitsContainer<LoadingLimits>> limits = noChangesComputer.computeLimits(network.getLine("NHV1_NHV2_1"),
+                LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        checkOriginalLimitsDefaultOnLine1(container.getLimits());
+        checkOriginalLimitsDefaultOnLine1(container.getOriginalLimits());
+    }
+
+    static Stream<Arguments> getNoChangesComputers() {
+        DefaultLimitScalingsApplier noScalingComputer = new DefaultLimitScalingsApplier(Collections.emptyList());
+        LimitScaling scaling1 = LimitScaling.builder(LimitType.CURRENT, 1.)
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .build();
+        LimitScaling scaling2 = LimitScaling.builder(LimitType.CURRENT, 1.)
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .build();
+        DefaultLimitScalingsApplier scalingsTo1Computer = new DefaultLimitScalingsApplier(List.of(scaling1, scaling2));
+        return Stream.of(
+                Arguments.of("No scalings", noScalingComputer),
+                Arguments.of("Scalings to 1.0", scalingsTo1Computer)
+        );
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getContingencyContextListsData")
+    void isContingencyContextListApplicableTest(String desc, ContingencyContext contingencyContext,
+                                                boolean applicableForPreContingency,
+                                                boolean applicableForContingency1, boolean applicableForContingency2) {
+        assertEquals(applicableForPreContingency, AbstractLimitScalingsApplier.isContingencyInContingencyContext(contingencyContext, null));
+        assertEquals(applicableForContingency1, AbstractLimitScalingsApplier.isContingencyInContingencyContext(contingencyContext, "contingency1"));
+        assertEquals(applicableForContingency2, AbstractLimitScalingsApplier.isContingencyInContingencyContext(contingencyContext, "contingency2"));
+    }
+
+    static Stream<Arguments> getContingencyContextListsData() {
+        ContingencyContext c1 = ContingencyContext.specificContingency("contingency1");
+        ContingencyContext c2 = ContingencyContext.specificContingency("contingency2");
+        return Stream.of(
+                Arguments.of("(empty)", null, true, true, true),
+                Arguments.of("all", ContingencyContext.all(), true, true, true),
+                Arguments.of("none", ContingencyContext.none(), true, false, false),
+                Arguments.of("only contingencies", ContingencyContext.onlyContingencies(), false, true, true),
+                Arguments.of("c1", c1, false, true, false),
+                Arguments.of("c2", c2, false, false, true)
+        );
+    }
+
+    @Test
+    void checkPermanentLimitNameOnScaledLimits() {
+        Network n = FourSubstationsNodeBreakerFactory.create();
+        Line lineS2S3 = n.getLine("LINE_S2S3");
+        OperationalLimitsGroup group1 = lineS2S3.getOrCreateSelectedOperationalLimitsGroup1("Set 1");
+        group1.newActivePowerLimits()
+                .setPermanentLimit(100)
+                .setPermanentLimitName("Permanent active power limit")
+                .add();
+        group1.newApparentPowerLimits()
+                .setPermanentLimit(100)
+                .setPermanentLimitName("Permanent apparent power limit")
+                .add();
+        group1.newCurrentLimits()
+                .setPermanentLimit(100)
+                .setPermanentLimitName("Permanent current power limit")
+                .add();
+
+        LimitScaling scalingActive = LimitScaling.builder(LimitType.ACTIVE_POWER, 0.1).build();
+        LimitScaling scalingApparent = LimitScaling.builder(LimitType.APPARENT_POWER, 0.1).build();
+        LimitScaling scalingCurrent = LimitScaling.builder(LimitType.CURRENT, 0.1).build();
+        var limitScalingApplier = new DefaultLimitScalingsApplier(List.of(scalingActive, scalingApparent, scalingCurrent));
+
+        assertScaledPermanentLimitName("Permanent active power limit",
+                limitScalingApplier.computeLimits(lineS2S3, LimitType.ACTIVE_POWER, ThreeSides.ONE, false));
+        assertScaledPermanentLimitName("Permanent apparent power limit",
+                limitScalingApplier.computeLimits(lineS2S3, LimitType.APPARENT_POWER, ThreeSides.ONE, false));
+        assertScaledPermanentLimitName("Permanent current power limit",
+                limitScalingApplier.computeLimits(lineS2S3, LimitType.CURRENT, ThreeSides.ONE, false));
+    }
+
+    void assertScaledPermanentLimitName(String expectedName, Collection<LimitsContainer<LoadingLimits>> limits) {
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(expectedName, container.getLimits().getPermanentLimitName());
+        // Check that the scaling was indeed applied
+        assertEquals(10., container.getLimits().getPermanentLimit(), 0.1);
+        assertTrue(container.isDistinct());
+    }
+
+}

@@ -20,7 +20,6 @@ import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -187,27 +186,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             case TWO -> line.getOperationalLimitsGroups2().size();
         };
         assertEquals(0, allGroupsSize - line.getAllSelectedOperationalLimitsGroups(side).size());
-    }
-
-    @Test
-    void checkNoExportOfLowLimits() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
-        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
-            .newOperationalLimitsGroup1("low limits")
-            .newApparentPowerLimits()
-            .setDetectionKind(DetectionKind.LOW)
-            .beginTemporaryLimit()
-            .setValue(1000)
-            .setAcceptableDuration(60)
-            .setName("1'")
-            .endTemporaryLimit()
-            .add();
-        String referenceFilename = getVersionedNetworkPath("eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17);
-        assertThrows(NotImplementedException.class, () -> writeXmlTest(network,
-            (n, p) -> NetworkSerDe.write(n, new ExportOptions().setVersion(IidmVersion.V_1_17.toString(".")), p),
-            referenceFilename
-            ));
-        allFormatsRoundTripTest(network, "eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17, new ExportOptions().setForceExportNetworkWithBetaFeatures(true));
     }
 
     @ParameterizedTest
@@ -570,7 +548,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testValidateByVersionWhenInSupportedEnumValue() throws IOException {
         try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/gen_enum_not_supported.xml"))) {
-            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_17))
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, CURRENT_IIDM_VERSION))
                     .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
                     .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
                             "'[HYDRO, NUCLEAR, WIND, THERMAL, SOLAR, OTHER]'. It must be a value from the enumeration.");
