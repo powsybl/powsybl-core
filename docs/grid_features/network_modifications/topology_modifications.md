@@ -542,6 +542,7 @@ It takes as input:
 - The IDs of the two lines to be merged.
 - The ID for the new merged line.
 - Optionally, a name for the new merged line.
+- Optionally, a boolean indicating to force remove the voltage level if it no longer contains any branches and still contains other equipments.
 
 When applied, the two lines are removed and replaced by a single line connecting the two outer voltage levels. 
 The common switching voltage level is removed if it no longer contains any equipment (except for buses or busbar sections).
@@ -552,6 +553,7 @@ new RevertConnectVoltageLevelOnLineBuilder()
         .withLine1Id("line1Id")
         .withLine2Id("line2Id")
         .withLineId("newLineId")
+        .withForceRemoveIsolatedVoltageLevel(true)
         .build()
         .apply(network);
 ```
@@ -610,6 +612,7 @@ It takes as input:
 - The ID of the line to be removed (the one connecting to the tapped voltage level).
 - The ID for the new merged line.
 - Optionally, a name for the new merged line.
+- Optionally, a boolean indicating to force remove the voltage level if it no longer contains any branches and still contains other equipments.
 
 When applied, the three lines are removed and replaced by a single line. The tee point voltage level and the tapped voltage level 
 are removed if they become empty (except for buses or busbar sections).
@@ -621,6 +624,7 @@ new RevertCreateLineOnLineBuilder()
         .withLineToBeMerged2Id("line2Id")
         .withLineToBeDeletedId("lineToBeDeletedId")
         .withMergedLineId("mergedLineId")
+        .withForceRemoveIsolatedVoltageLevel(true)
         .build()
         .apply(network);
 ```
@@ -636,6 +640,7 @@ It takes as input:
 - The ID of the existing bus or busbar section in the tapped voltage level where the new lines will be connected.
 - The IDs for the two new lines.
 - Optionally, names for the two new lines.
+- Optionally, a boolean indicating to force remove the voltage level if it no longer contains any branches and still contains other equipments.
 
 When applied, the three lines and the tee point are removed, and two new lines are created connecting the two original ends to the formerly tapped voltage level.
 
@@ -648,6 +653,7 @@ new ReplaceTeePointByVoltageLevelOnLineBuilder()
         .withBbsOrBusId("bbsId")
         .withNewLine1Id("newLine1Id")
         .withNewLine2Id("newLine2Id")
+        .withForceRemoveIsolatedVoltageLevel(true)
         .build()
         .apply(network);
 ```
