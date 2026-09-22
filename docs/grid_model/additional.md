@@ -129,7 +129,8 @@ to specific operational durations.
 A temporary limit thus has an **acceptable duration**.
 
 The component on which the current limits are applied can safely remain
-between the preceding limit (it could be another temporary limit or a permanent limit) and this limit for a duration up to the acceptable duration.
+between the preceding limit (it could be another temporary limit or a permanent limit) and the limit __directly above__ for a duration up to the acceptable duration
+of the limit __directly above__.
 Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all high loading limits):
 
 ![Loading limits model](img/current-limits.svg){width="50%" align=center class="only-light"}
@@ -139,26 +140,95 @@ Note that, following this modeling, in general, the last temporary limit (the hi
 If temporary limits are modeled, the permanent limit becomes mandatory.
 If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
 
+To create a high loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("group").newCurrentLimits()
+    .setPermanentLimit(600)
+    .beginTemporaryLimit()
+    .setName("10'")
+    .setAcceptableDuration(60 * 10)
+    .setValue(1000)
+    .endTemporaryLimit()
+    .add();
+```
+The detection kind is high by default, there is no need to specify it.
+
 ### Low loading limits
 
 ```{note}
-Currently, this model is in BETA and only available in the IIDM representation. There is no import or export of this kind of limit with any
-exchange format.
-The model is subject to change and support for downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.) may vary.
+Import / export of low limits is available starting from IIDM 1.18 (PowSyBl 7.4.0). Networks that contain low limits
+can be exported to IIDM 1.17 or earlier, but the low limits are converted to high limits. See 
+[converting low limits to high limits](#converting-low-limits-to-high-limits) for details.
+
+Low limits might not yet be supported by downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.).
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
 
 If you're unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html)
 ```
 
-Low loading limits are defined by one or more temporary limits. Contrary to high loading limits, low loading limits
+Low loading limits are defined by one or more temporary limits (each having an __acceptable duration__). Contrary to high loading limits, low loading limits
 do not have a permanent limit.
 
 The component on which the current limits are applied can safely remain
-at a given level for a duration up to the acceptable duration of the limit directly below the given level.
+at a given level (between the preceding limit and the limit above) for a duration up to the acceptable duration of the limit __directly below__ the given level (
+contrary to high limit where it's the acceptable duration of the limit __directly above__).
 Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all low loading limits):
 
 ![Loading limits model](img/current-limits-low.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits-low.svg){width="50%" align=center class="only-dark"}
+
+To create a low loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("low limit").newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(60 * 40)
+            .setValue(500)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(900)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("5'")
+            .setAcceptableDuration(60 * 5)
+            .setValue(1200)
+            .endTemporaryLimit()
+            .add();
+```
+The detection kind is high by default, we need to specify that we want a low limit.
+
+(converting-low-limits-to-high-limits)=
+### Converting low limits to high limits
+
+When converting a low limit to a high limit, the goal is that querying the acceptable duration for a given value in the limit
+should yield the same acceptable duration and name of the limit after converting the low limit to the high limit.
+
+That means, with $V$ the set of all possible values
+for the equipment having the limit, with $L$ the function that gives the acceptable duration for a value $v \in V$ on the set of low limits, $H$ the function
+that gives the acceptable duration for a value $v \in V$ on the set of high limits (converted from low limits), then
+
+$$\forall v \in V, L(v) = H(v)$$
+
+Here is a scheme to represent the conversion:
+
+![Low to high limit](img/current-limits-low_to_high_conversion.svg){width="100%" align=center class="only-light"}
+![Low to high limit](img/dark_mode/current-limits-low_to_high_conversion.svg){width="100%" align=center class="only-dark"}
+
+The first temporary of the low limit is used as the permanent limit of the high limit. Then each temporary limit is
+built as such:
+- 1st temporary limit of the high: value of the 2nd temporary of the low + name and duration of 1st temporary of the low
+- 2nd temporary of the high: value of the 3rd temporary of the low + name and duration of the 2nd temporary of the low
+- etc...
+- last temporary of the high: value at infinity + name and duration of the last temporary of the low
 
 (limit-group-collection)=
 ### Limit group collection

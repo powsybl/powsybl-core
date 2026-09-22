@@ -41,7 +41,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
             .subject("violation")
             .type(LimitViolationType.HIGH_VOLTAGE)
             .limit(420)
-            .reduction(0.1)
+            .scaling(0.1)
             .value(500)
             .build();
         LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
@@ -76,7 +76,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
             .subject("violation")
             .type(LimitViolationType.HIGH_VOLTAGE)
             .limit(420)
-            .reduction(0.1f)
+            .scaling(0.1f)
             .value(500)
             .build();
         LimitViolation violation2 = new LimitViolation("subject_id", LimitViolationType.HIGH_VOLTAGE, 420,
