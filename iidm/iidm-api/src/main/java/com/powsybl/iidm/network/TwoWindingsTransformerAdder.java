@@ -22,6 +22,12 @@ public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTran
                 .setRatedU2(twoWindingsTransformer.getRatedU2());
     }
 
+    /**
+     * Set the resistance of the transformer in &#937. Since this can be an equivalent model, calculations can lead to the value being negative.
+     * Therefore, a negative value is allowed.
+     * @param r the value of the resistance of the transformer in &#937
+     * @return this adder, for chaining
+     */
     TwoWindingsTransformerAdder setR(double r);
 
     TwoWindingsTransformerAdder setX(double x);
