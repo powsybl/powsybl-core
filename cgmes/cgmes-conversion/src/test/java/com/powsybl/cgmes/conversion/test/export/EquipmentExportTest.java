@@ -1244,7 +1244,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createDisabledLocalLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, shuntRcId, "", "");
+            testRcEqRcWithAttribute(eq, shuntRcId, localTerminalId, "voltage");
 
             network = ShuntTestCaseFactory.createDisabledRemoteLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1273,7 +1273,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createLocalNonLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, shuntRcId, "", "");
+            testRcEqRcWithAttribute(eq, shuntRcId, localTerminalId, "voltage");
 
             network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);

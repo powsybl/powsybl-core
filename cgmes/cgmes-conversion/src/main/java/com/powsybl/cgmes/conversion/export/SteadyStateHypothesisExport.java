@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -16,9 +15,12 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,7 @@ import java.util.*;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
+import static com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -268,7 +271,11 @@ public final class SteadyStateHypothesisExport {
         }
 
         writeTapChanger(type, tapChangerId, tc, cimNamespace, writer, context);
-        addRegulatingControlView(tc, tapChangerControlId, regulatingControlViews);
+        if (tc instanceof RatioTapChanger rtc) {
+            addRegulatingControlView(rtc, tapChangerControlId, regulatingControlViews, context);
+        } else if (tc instanceof PhaseTapChanger ptc) {
+            addRegulatingControlView(ptc, tapChangerControlId, regulatingControlViews);
+        }
 
         // If we are exporting equipment definitions the hidden tap changer will not be exported
         // because it has been included in the model for the only tap changer left in IIDM
@@ -292,7 +299,7 @@ public final class SteadyStateHypothesisExport {
                 case LINEAR -> "Linear";
                 case NON_LINEAR -> "Nonlinear";
             };
-            boolean controlEnabled = s.isRegulatingWithMode(RegulationMode.VOLTAGE);
+            boolean controlEnabled = s.isRegulating();
 
             CgmesExportUtil.writeStartAbout(shuntType + "ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
@@ -302,25 +309,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeEndElement();
-            addRegulatingControlView(s, regulatingControlViews, context);
-        }
-    }
 
-    private static void addRegulatingControlView(ShuntCompensator s, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (hasRegulatingControlCapability(s)) {
-            // PowSyBl has considered the control as discrete, with a certain targetDeadband
-            // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, PROPERTY_REGULATING_CONTROL);
-            double targetDeadband = s.getVoltageRegulation() != null ? s.getVoltageRegulation().getTargetDeadband() : Double.NaN;
-            double targetValue = s.getRegulatingTargetV();
-            RegulatingControlView rcv = new RegulatingControlView(rcid,
-                RegulatingControlType.REGULATING_CONTROL,
-                true,
-                s.isRegulatingWithMode(RegulationMode.VOLTAGE),
-                targetDeadband,
-                targetValue,
-                "k");
-            regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
+            addRegulatingControlView(s, getRegulatingControlId(s, context), regulatingControlViews, context);
         }
     }
 
@@ -339,13 +329,13 @@ public final class SteadyStateHypothesisExport {
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), controlEnabled,
                             -g.getTargetP(), -g.getLocalTargetQ(), ReferencePriority.get(g),
                             cimNamespace, writer, context);
-                    addRegulatingControlView(g, regulatingControlViews, context);
+                    addRegulatingControlView(g, getRegulatingControlId(g, context), regulatingControlViews, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), controlEnabled,
                             -g.getTargetP(), -g.getLocalTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
-                    addRegulatingControlView(g, regulatingControlViews, context);
+                    addRegulatingControlView(g, getRegulatingControlId(g, context), regulatingControlViews, context);
                     break;
                 default:
                     throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
@@ -440,40 +430,6 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void addRegulatingControlView(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (hasRegulatingControlCapability(g)) {
-            // PowSyBl has considered the control as continuous and with targetDeadband of size 0
-            // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, PROPERTY_REGULATING_CONTROL);
-
-            double targetDeadband = 0;
-            double target;
-            String targetValueUnitMultiplier;
-            boolean enabled = g.isRegulating();
-            String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g);
-            if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                // We use the targetValue from voltageRegulation (not null because hasRegulatingControlCapability) for remote regulation, which is not null
-                target = -g.getVoltageRegulation().getTargetValue();
-                targetValueUnitMultiplier = "M";
-            } else {
-                target = g.getRegulatingTargetV();
-                if (context.isExportGeneratorsInLocalRegulationMode()) {
-                    double remoteNominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
-                    double localNominalV = g.getTerminal().getVoltageLevel().getNominalV();
-                    if (localNominalV != remoteNominalV) {
-                        // This check prevents potential rounding variations of target when both voltages are equals
-                        target = localNominalV * target / remoteNominalV;
-                    }
-                }
-                targetValueUnitMultiplier = "k";
-            }
-
-            RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                enabled, targetDeadband, target, targetValueUnitMultiplier);
-            regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
-        }
-    }
-
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
@@ -487,32 +443,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(CgmesExportUtil.format(svc.getLocalTargetQ()));
             writer.writeEndElement();
             writer.writeEndElement();
-            addRegulatingControlView(svc, regulatingControlViews, context);
-        }
-    }
 
-    private static void addRegulatingControlView(StaticVarCompensator svc, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (hasRegulatingControlCapability(svc)) {
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, PROPERTY_REGULATING_CONTROL);
-            double targetDeadband = 0;
-            // Regulating control could be reactive power or voltage
-            double targetValue;
-            String multiplier;
-            String svcMode = CgmesExportUtil.getSvcMode(svc);
-            if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_VOLTAGE)) {
-                targetValue = svc.getRegulatingTargetV();
-                multiplier = "k";
-            } else if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                targetValue = svc.getRegulatingTargetQ();
-                multiplier = "M";
-            } else {
-                targetValue = 0;
-                multiplier = "k";
-            }
-            boolean controlEnabled = svc.getVoltageRegulation() != null && svc.getVoltageRegulation().isRegulating();
-            RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                controlEnabled, targetDeadband, targetValue, multiplier);
-            regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
+            addRegulatingControlView(svc, getRegulatingControlId(svc, context), regulatingControlViews, context);
         }
     }
 
@@ -532,62 +464,22 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void addRegulatingControlView(TapChanger<?, ?, ?, ?> tc, String controlId, Map<String, List<RegulatingControlView>> regulatingControlViews) {
+    private static void addRegulatingControlView(PhaseTapChanger ptc, String controlId, Map<String, List<RegulatingControlView>> regulatingControlViews) {
         // Multiple tap changers can be stored at the same equipment
         // We use the tap changer id as part of the key for storing the tap changer control id
-        if (tc instanceof RatioTapChanger rtc && tapChangerControlIsDefined(rtc)
-            || tc instanceof PhaseTapChanger ptc && tapChangerControlIsDefined(ptc)) {
-            RegulatingControlView rcv = null;
-            if (tc instanceof RatioTapChanger ratioTapChanger
-                    && tapChangerControlIsDefined(ratioTapChanger)) {
-                String controlMode = CgmesExportUtil.getTcMode(ratioTapChanger);
-                String unitMultiplier = switch (controlMode) {
-                    case RegulatingControlEq.REGULATING_CONTROL_VOLTAGE -> "k";
-                    case RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER -> "M";
-                    default -> "none";
-                };
-                double regulationValue = ratioTapChanger.getVoltageRegulation() != null ? ratioTapChanger.getVoltageRegulation().getTargetValue() : Double.NaN;
-                double targetDeadband = ratioTapChanger.getVoltageRegulation() != null ? ratioTapChanger.getVoltageRegulation().getTargetDeadband() : Double.NaN;
-                rcv = new RegulatingControlView(controlId,
-                        RegulatingControlType.TAP_CHANGER_CONTROL,
-                        true,
-                        ratioTapChanger.isRegulating(),
-                        targetDeadband,
-                        regulationValue,
-                        unitMultiplier);
-            } else if (tc instanceof PhaseTapChanger phaseTapChanger
-                    && tapChangerControlIsDefined(phaseTapChanger)) {
-                boolean valid;
-                String unitMultiplier = switch (phaseTapChanger.getRegulationMode()) {
-                    case PhaseTapChanger.RegulationMode.CURRENT_LIMITER -> {
-                        // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
-                        valid = true;
-                        yield "none";
-                    }
-                    case PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL -> {
-                        // Unit multiplier is M, regulation value is an active power flow in MW
-                        valid = true;
-                        yield "M";
-                    }
-                    default -> {
-                        valid = false;
-                        yield "none";
-                    }
-                };
-                if (valid) {
-                    boolean isActivePowerControlMode = phaseTapChanger.getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL;
-                    rcv = new RegulatingControlView(controlId,
-                            RegulatingControlType.TAP_CHANGER_CONTROL,
-                            true,
-                            isActivePowerControlMode && phaseTapChanger.isRegulating(),
-                            isActivePowerControlMode ? phaseTapChanger.getTargetDeadband() : 0.0,
-                            isActivePowerControlMode ? phaseTapChanger.getRegulationValue() : 0.0,
-                            unitMultiplier);
-                }
-            }
-            if (rcv != null) {
-                regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
-            }
+        if (hasTapChangerControlCapability(ptc)) {
+            RegulatingControlView rcv;
+            PhaseTapChanger.RegulationMode mode = ptc.getRegulationMode();
+            rcv = switch (mode) {
+                case PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL ->
+                    new RegulatingControlView(controlId, RegulatingControlType.TAP_CHANGER_CONTROL,
+                        true, ptc.isRegulating(), ptc.getTargetDeadband(), ptc.getRegulationValue(), "M");
+                case PhaseTapChanger.RegulationMode.CURRENT_LIMITER ->
+                    new RegulatingControlView(controlId, RegulatingControlType.TAP_CHANGER_CONTROL,
+                        true, false, 0.0, 0.0, "M");
+            };
+
+            regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
         }
     }
 
@@ -596,6 +488,58 @@ public final class SteadyStateHypothesisExport {
         writeTapChanger(Optional.ofNullable(cgmesTc.getType()).orElse(defaultType), cgmesTc.getId(), false,
                 cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId())),
                 cimNamespace, writer, context);
+    }
+
+    private static String getRegulatingControlId(Identifiable<?> identifiable, CgmesExportContext context) {
+        return context.getNamingStrategy().getCgmesIdFromProperty(identifiable, PROPERTY_REGULATING_CONTROL);
+    }
+
+    private static void addRegulatingControlView(VoltageRegulationHolder<?> regulationHolder, String regulatingControlId,
+                                                 Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
+        VoltageRegulation voltageRegulation = regulationHolder.getVoltageRegulation();
+        if (voltageRegulation != null) {
+            boolean enabled = voltageRegulation.isRegulating();
+
+            // Only discrete regulation holders can have a non-zero deadband
+            boolean discrete = false;
+            double targetDeadband = 0.0;
+            if (regulationHolder instanceof ShuntCompensator || regulationHolder instanceof RatioTapChanger) {
+                discrete = true;
+                targetDeadband = voltageRegulation.getTargetDeadband();
+            }
+
+            // VoltageRegulation Terminal can be left null to force the use of local target instead of the remote one,
+            // thus targets should be determined with VoltageRegulationHolder.getRegulatingTargetQ/V
+            double targetValue;
+            String targetValueUnitMultiplier;
+            String mode = getRegulatingControlMode(voltageRegulation);
+            if (REGULATING_CONTROL_REACTIVE_POWER.equals(mode)) {
+                // Generator are in generator sign convention in IIDM and load sign convention in CGMES
+                targetValue = regulationHolder.getRegulatingTargetQ();
+                if (regulationHolder instanceof Generator) {
+                    targetValue = -targetValue;
+                }
+                targetValueUnitMultiplier = "M";
+            } else if (REGULATING_CONTROL_VOLTAGE.equals(mode)) {
+                targetValue = regulationHolder.getRegulatingTargetV();
+                if (regulationHolder instanceof Generator && context.isExportGeneratorsInLocalRegulationMode()) {
+                    targetValue = regulationHolder.getLocalTargetV();
+                }
+                targetValueUnitMultiplier = "k";
+            } else {
+                throw new IllegalStateException("Unexpected regulation mode: " + mode);
+            }
+
+            // RatioTapChanger VoltageRegulation is exported to a specialized class
+            RegulatingControlType regulatingControlType = RegulatingControlType.REGULATING_CONTROL;
+            if (regulationHolder instanceof RatioTapChanger) {
+                regulatingControlType = RegulatingControlType.TAP_CHANGER_CONTROL;
+            }
+
+            RegulatingControlView rcv = new RegulatingControlView(regulatingControlId, regulatingControlType,
+                discrete, enabled, targetDeadband, targetValue, targetValueUnitMultiplier);
+            regulatingControlViews.computeIfAbsent(regulatingControlId, k -> new ArrayList<>()).add(rcv);
+        }
     }
 
     private static void writeRegulatingControls(Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace,

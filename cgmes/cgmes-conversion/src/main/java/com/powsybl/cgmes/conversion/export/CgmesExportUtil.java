@@ -335,18 +335,14 @@ public final class CgmesExportUtil {
     }
 
     public static <C extends Connectable<C>> String getPhaseTapChangerType(C transformer, String cgmesTapChangerId) {
-        return getCgmesTapChanger(transformer, cgmesTapChangerId).map(CgmesTapChanger::getType).orElse(CgmesNames.PHASE_TAP_CHANGER_TABULAR);
+        return getCgmesTapChanger(transformer, cgmesTapChangerId)
+            .map(CgmesTapChanger::getType)
+            .orElse(CgmesNames.PHASE_TAP_CHANGER_TABULAR);
     }
 
-    static boolean tapChangerControlIsDefined(RatioTapChanger rtc) {
-        return rtc.getVoltageRegulation() != null && !Double.isNaN(rtc.getVoltageRegulation().getTargetValue())
-                && rtc.getRegulatingTerminal() != null;
-    }
-
-    static boolean tapChangerControlIsDefined(PhaseTapChanger ptc) {
-        return !Double.isNaN(ptc.getRegulationValue())
-                && !Double.isNaN(ptc.getTargetDeadband())
-                && ptc.getRegulationTerminal() != null;
+    static boolean hasTapChangerControlCapability(PhaseTapChanger ptc) {
+        return ptc.hasLoadTapChangingCapabilities()
+                && ptc.getRegulationMode() != null;
     }
 
     static <C extends Connectable<C>> String getTapChangerControlId(C transformer, Part part, int endNumber, String cgmesTapChangerId, CgmesExportContext context) {
@@ -527,87 +523,17 @@ public final class CgmesExportUtil {
         return "generatorOrMotor";
     }
 
-    public static boolean isValidVoltageSetpoint(double v) {
-        return Double.isFinite(v) && v > 0;
-    }
-
-    public static boolean isValidReactivePowerSetpoint(double q) {
-        return Double.isFinite(q);
-    }
-
-    public static String getGeneratorRegulatingControlMode(Generator generator) {
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (voltageRegulation == null) {
-            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        }
+    public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
         return switch (regulationMode) {
-            case REACTIVE_POWER ->
-                RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            case VOLTAGE ->
-                RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-            case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
-        };
-    }
-
-    public static String getSvcMode(StaticVarCompensator svc) {
-        if (svc.isWithMode(RegulationMode.VOLTAGE)) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (svc.isWithMode(RegulationMode.REACTIVE_POWER)) {
-            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        } else {
-            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getRegulatingTargetV());
-            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getRegulatingTargetQ());
-            if (validReactiveSetpoint && !validVoltageSetpoint) {
-                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            }
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        }
-    }
-
-    public static String getTcMode(RatioTapChanger rtc) {
-        if (rtc.getVoltageRegulation() == null || rtc.getVoltageRegulation().getMode() == null) {
-            throw new PowsyblException("Regulation mode not defined for RTC.");
-        }
-        return switch (rtc.getVoltageRegulation().getMode()) {
-            case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            default -> throw new PowsyblException("Regulation mode not defined for RTC.");
+            case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
         };
     }
 
     public static boolean isMinusOrMaxValue(double value) {
         return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
-    }
-
-    public static boolean hasRegulatingControlCapability(Connectable<?> connectable) {
-        if (connectable.hasProperty(PROPERTY_REGULATING_CONTROL)) {
-            return true;
-        } else if (connectable instanceof Generator generator) {
-            return generator.getVoltageRegulation() != null && hasReactiveCapability(generator);
-        } else if (connectable instanceof ShuntCompensator shuntCompensator) {
-            return CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getRegulatingTargetV())
-                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable());
-        } else if (connectable instanceof StaticVarCompensator staticVarCompensator) {
-            return CgmesExportUtil.isValidReactivePowerSetpoint(staticVarCompensator.getRegulatingTargetQ())
-                || CgmesExportUtil.isValidVoltageSetpoint(staticVarCompensator.getRegulatingTargetV())
-                || !Objects.equals(staticVarCompensator, staticVarCompensator.getRegulatingTerminal().getConnectable());
-        }
-        return false;
-    }
-
-    private static boolean hasReactiveCapability(Generator generator) {
-        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
-        if (reactiveLimits == null) {
-            return false;
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
-            ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) reactiveLimits;
-            return rcc.getPoints().stream().anyMatch(p -> p.getMaxQ() != p.getMinQ());
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
-            MinMaxReactiveLimits mmrl = (MinMaxReactiveLimits) reactiveLimits;
-            return mmrl.getMaxQ() != mmrl.getMinQ();
-        }
-        return false;
     }
 
     static String getEffectivePairingKey(BoundaryLine bl) {
