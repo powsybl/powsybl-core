@@ -53,9 +53,6 @@ public class GeneratorModification extends AbstractNetworkModification {
         if (modifs.getMaxP() != null) {
             g.setMaxP(modifs.getMaxP());
         }
-        if (modifs.getTargetV() != null) {
-            g.setLocalTargetV(modifs.getTargetV());
-        }
         if (modifs.getTargetQ() != null) {
             g.setLocalTargetQ(modifs.getTargetQ());
         }
@@ -64,7 +61,16 @@ public class GeneratorModification extends AbstractNetworkModification {
             changeConnectionState(g, modifs.getConnected());
             skipOtherConnectionChange = true;
         }
+
         changeVoltageRegulation(g);
+
+        if (modifs.getTargetV() != null) {
+            if (g.isRegulatingWithMode(RegulationMode.VOLTAGE) && g.isRemoteRegulating()) {
+                g.getVoltageRegulation().setTargetValue(modifs.getTargetV());
+            } else {
+                g.setLocalTargetV(modifs.getTargetV());
+            }
+        }
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
             applyTargetP(g, skipOtherConnectionChange);
         }
@@ -72,13 +78,8 @@ public class GeneratorModification extends AbstractNetworkModification {
 
     private void changeVoltageRegulation(Generator g) {
         RegulationMode voltageRegulationMode = modifs.getVoltageRegulationMode();
-        if (modifs.getRegulating() == null && voltageRegulationMode == null) {
-            return;
-        }
         if (voltageRegulationMode != null && !RegulationMode.VOLTAGE.equals(voltageRegulationMode)) {
-            throw new IllegalStateException(
-                    "Unexpected value: " + voltageRegulationMode + " not yet implemented"
-            );
+            throw new IllegalStateException("Unexpected value: " + voltageRegulationMode + " not yet implemented");
         }
 
         boolean regulating = modifs.getRegulating() != null ? modifs.getRegulating() : g.isRegulating();
