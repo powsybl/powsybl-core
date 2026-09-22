@@ -8,18 +8,19 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
+import com.powsybl.ucte.converter.util.UcteExporterReports;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
 import org.apache.commons.math3.complex.Complex;
@@ -30,7 +31,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -56,9 +56,6 @@ public class UcteExporter implements Exporter {
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
 
-    private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
-            = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices());
-
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public UcteExporter() {
@@ -80,17 +77,25 @@ public class UcteExporter implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties parameters, DataSource dataSource) {
+    public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
 
         String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
+        // a new instance is requested from the ServiceLoader for each export, instead of caching and
+        // reusing one across exports, so that concurrent exports don't share (and corrupt) the same
+        // NamingStrategy's internal id-mapping state
+        List<NamingStrategy> namingStrategies = ServiceLoader.load(NamingStrategy.class, UcteExporter.class.getClassLoader())
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
         namingStrategy.initializeNetwork(network);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation);
+        ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation, networkCreationReportNode);
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
@@ -98,6 +103,8 @@ public class UcteExporter implements Exporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, "uct"));
     }
 
     @Override
@@ -131,7 +138,7 @@ public class UcteExporter implements Exporter {
      * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
+    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation, ReportNode reportNode) {
 
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
@@ -144,25 +151,34 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation);
+        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
 
+        UcteExporterContext busesAndSwitchesContext = context.withReportNode(UcteExporterReports.busesAndSwitches(reportNode));
         network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
             voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
                 if (isYNode(bus)) {
                     LOGGER.warn("Ignoring YNode {}", bus.getId());
                 } else {
-                    convertBus(ucteNetwork, bus, context);
+                    convertBus(ucteNetwork, bus, busesAndSwitchesContext);
                 }
             });
-            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, context));
+            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
         }));
-        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, context));
-        network.getLines().forEach(line -> convertLine(ucteNetwork, line, context));
-        network.getTieLines().forEach(tieLine -> convertTieLine(ucteNetwork, tieLine, context));
-        network.getTwoWindingsTransformers().forEach(transformer -> convertTwoWindingsTransformer(ucteNetwork, transformer, context));
+
+        UcteExporterContext boundaryLinesContext = context.withReportNode(UcteExporterReports.boundaryLines(reportNode));
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, boundaryLinesContext));
+
+        UcteExporterContext linesContext = context.withReportNode(UcteExporterReports.lines(reportNode));
+        network.getLines().forEach(line -> convertLine(ucteNetwork, line, linesContext));
+
+        UcteExporterContext tieLinesContext = context.withReportNode(UcteExporterReports.tieLines(reportNode));
+        network.getTieLines().forEach(tieLine -> convertTieLine(ucteNetwork, tieLine, tieLinesContext));
+
+        UcteExporterContext transformersContext = context.withReportNode(UcteExporterReports.transformers(reportNode));
+        network.getTwoWindingsTransformers().forEach(transformer -> convertTwoWindingsTransformer(ucteNetwork, transformer, transformersContext));
 
         ucteNetwork.getComments().add("Generated by powsybl, " + ZonedDateTime.now());
         ucteNetwork.getComments().add("Case date: " + network.getCaseDate());
@@ -407,7 +423,7 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine = new UcteLine(ucteElementId, status, 0, 0, 0, null, elementName);
         ucteNetwork.addLine(ucteLine);
 
-        setSwitchCurrentLimit(ucteLine, sw);
+        setSwitchCurrentLimit(ucteLine, sw, context);
     }
 
     /**
@@ -777,17 +793,19 @@ public class UcteExporter implements Exporter {
         return true;
     }
 
-    private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw) {
+    private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw, UcteExporterContext context) {
         if (sw.hasProperty(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
                 ucteLine.setCurrentLimit(null);
                 LOGGER.warn("Switch {}: No current limit provided", sw.getId());
+                UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
             }
         } else {
             ucteLine.setCurrentLimit(null);
             LOGGER.warn("Switch {}: No current limit provided", sw.getId());
+            UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
         }
     }
 
@@ -824,8 +842,8 @@ public class UcteExporter implements Exporter {
 
         if (namingStrategies.size() == 1 && name == null) {
             // no information to select the implementation but only one naming strategy, so we can use it by default
-            // (that is be the most common use case)
-            return namingStrategies.get(0);
+            // (that is the most common use case)
+            return namingStrategies.getFirst();
         } else {
             if (namingStrategies.size() > 1 && name == null) {
                 // several naming strategies and no information to select which one to choose, we can only throw
