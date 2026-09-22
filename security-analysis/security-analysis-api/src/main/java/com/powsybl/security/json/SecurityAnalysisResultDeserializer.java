@@ -67,7 +67,6 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(ctx, version, SOURCE_VERSION_ATTRIBUTE);
                     ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, JsonUtil.compareVersions(version, "1.7") >= 0);
-                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, JsonUtil.compareVersions(version, "1.7") >= 0);
                     ctx.setAttribute(LIMIT_REDUCTION_BACKWARD_COMPAT, JsonUtil.compareVersions(version, "1.9") <= 0);
                     break;
 

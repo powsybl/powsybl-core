@@ -25,6 +25,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
+ */
 class ChangedPhaseTapChangerSerializerUtilTest {
 
     @Test

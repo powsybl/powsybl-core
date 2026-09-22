@@ -19,6 +19,8 @@ import java.util.Optional;
  * @param side The side of the phase shifter on a three-winding transformer, or {@code null} for a two-winding transformer
  * @param initialTap The tap position before optimization
  * @param finalTap The tap position after optimization
+ *
+ * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
  */
 public record ChangedPhaseTapChanger(String transformerId, ThreeSides side, int initialTap, int finalTap) {
 
