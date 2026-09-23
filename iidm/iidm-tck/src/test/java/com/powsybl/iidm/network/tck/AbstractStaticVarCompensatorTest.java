@@ -43,6 +43,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(0.0008, svc.getBmax(), 0.0);
         assertSame(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
+        assertFalse(svc.isEquivalent());
     }
 
     @Test
