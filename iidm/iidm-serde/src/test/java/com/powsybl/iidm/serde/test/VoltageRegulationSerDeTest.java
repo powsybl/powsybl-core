@@ -53,8 +53,9 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void test() throws IOException {
-        Network network2 = allFormatsRoundTripTest(network, "voltageRegulationRoundTripRef.xml", IidmVersion.V_1_16);
+    void testWithExpiredExtension() throws IOException {
+        // 1.17: last version before the extension "removal"
+        Network network2 = allFormatsRoundTripTest(network, "voltageRegulationRoundTripRef.xml", IidmVersion.V_1_17);
         assertRemovedExtension(network2);
     }
 
