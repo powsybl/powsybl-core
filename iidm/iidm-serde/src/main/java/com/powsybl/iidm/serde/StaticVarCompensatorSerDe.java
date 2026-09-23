@@ -55,8 +55,10 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         });
         writeVoltageSetpoint(svc, context, voltageSetpointName[0]);
         writeReactivePowerSetpoint(svc, context, reactivePowerSetpointName[0]);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, svc.getLocalTargetQ()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, svc.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, svc.getLocalTargetQ());
+            context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, svc.getLocalTargetV());
+        });
 
         // If SVC is not regulating in versions < 1.14, then its regulation mode should be exported as OFF (as it means that it has been imported with a "OFF" or null regulation mode)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
@@ -80,23 +82,27 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
     }
 
     private static void writeVoltageSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String voltageSetpointName) {
-        double voltageSetpoint;
-        if (svc.isWithMode(RegulationMode.VOLTAGE) && svc.isRemoteRegulating()) {
-            voltageSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
-        } else {
-            voltageSetpoint = svc.getLocalTargetV();
-        }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(voltageSetpointName, voltageSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            double voltageSetpoint;
+            if (svc.isWithMode(RegulationMode.VOLTAGE) && svc.isRemoteRegulating()) {
+                voltageSetpoint = svc.getVoltageRegulation().getTargetValue();
+            } else {
+                voltageSetpoint = svc.getLocalTargetV();
+            }
+            context.getWriter().writeDoubleAttribute(voltageSetpointName, voltageSetpoint);
+        });
     }
 
     private static void writeReactivePowerSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String reactivePowerSetpointName) {
-        double reactivePowerSetpoint;
-        if (svc.isWithMode(RegulationMode.REACTIVE_POWER) && svc.isRemoteRegulating()) {
-            reactivePowerSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
-        } else {
-            reactivePowerSetpoint = svc.getLocalTargetQ();
-        }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(reactivePowerSetpointName, reactivePowerSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            double reactivePowerSetpoint;
+            if (svc.isWithMode(RegulationMode.REACTIVE_POWER) && svc.isRemoteRegulating()) {
+                reactivePowerSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
+            } else {
+                reactivePowerSetpoint = svc.getLocalTargetQ();
+            }
+            context.getWriter().writeDoubleAttribute(reactivePowerSetpointName, reactivePowerSetpoint);
+        });
     }
 
     @Override
@@ -148,12 +154,13 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
         AtomicReference<Double> voltageSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> voltageSetpoint.set(context.getReader().readDoubleAttribute(voltageSetpointName[0])));
         AtomicReference<Double> reactivePowerSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute(reactivePowerSetpointName[0])));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            voltageSetpoint.set(context.getReader().readDoubleAttribute(voltageSetpointName[0]));
+            reactivePowerSetpoint.set(context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]));
+        });
 
-        adder.setBmin(bMin)
-                .setBmax(bMax);
+        adder.setBmin(bMin).setBmax(bMax);
 
         AtomicReference<RegulationMode> regulationModeRef = new AtomicReference<>();
         AtomicBoolean regulatingRef = new AtomicBoolean(false);
@@ -169,14 +176,29 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
             regulatingRef.set(context.getReader().readBooleanAttribute(REGULATING, false));
         });
 
+        AtomicReference<Double> targetValueDoubleToUseInVoltageRegulationIfRemote = new AtomicReference<>(Double.NaN);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context,
+            () -> {
+                RegulationMode mode = regulationModeRef.get();
+                if (mode == null) {
+                    if (!Double.isNaN(voltageSetpoint.get())) {
+                        mode = RegulationMode.VOLTAGE;
+                    } else if (!Double.isNaN(reactivePowerSetpoint.get())) {
+                        mode = RegulationMode.REACTIVE_POWER;
+                    } else {
+                        mode = RegulationMode.VOLTAGE;
+                    }
+                }
+                regulationModeRef.set(mode);
+                Double targetVal = configureVoltageRegulationBackwardCompatibility(adder, regulationModeRef.get(),
+                        voltageSetpoint.get(), reactivePowerSetpoint.get(), regulatingRef.get());
+                targetValueDoubleToUseInVoltageRegulationIfRemote.set(targetVal);
+            });
+
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
             adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V, Double.NaN));
         });
-        AtomicReference<Double> targetValueDoubleToUseInVoltageRegulationIfRemote = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17,
-            context,
-            () -> readVoltageRegulationBackwardCompatibility(adder, regulationModeRef, voltageSetpoint, reactivePowerSetpoint, regulatingRef, targetValueDoubleToUseInVoltageRegulationIfRemote));
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         double p = context.getReader().readDoubleAttribute("p");
@@ -184,7 +206,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         toApply.add(svc -> svc.getTerminal().setP(p).setQ(q));
         toApply.add(svc -> {
             Consumer<StaticVarCompensator> actionOnTerminalRemote;
-            if (RegulationMode.REACTIVE_POWER.equals(regulationModeRef.get())) {
+            if (regulationModeRef.get() == RegulationMode.REACTIVE_POWER) {
                 actionOnTerminalRemote = holder -> holder.setLocalTargetQ(Double.NaN);
             } else {
                 actionOnTerminalRemote = holder -> holder.setLocalTargetV(Double.NaN);
@@ -193,33 +215,22 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         });
     }
 
-    private static void readVoltageRegulationBackwardCompatibility(StaticVarCompensatorAdder adder,
-                                                                   AtomicReference<RegulationMode> regulationModeRef,
-                                                                   AtomicReference<Double> voltageSetpoint,
-                                                                   AtomicReference<Double> reactivePowerSetpoint,
-                                                                   AtomicBoolean regulatingRef,
-                                                                   AtomicReference<Double> targetValueDoubleToUseInVoltageRegulationIfRemote) {
-        if (regulationModeRef.get() == null) {
-            if (!Double.isNaN(voltageSetpoint.get())) {
-                regulationModeRef.set(RegulationMode.VOLTAGE);
-            } else if (!Double.isNaN(reactivePowerSetpoint.get())) {
-                regulationModeRef.set(RegulationMode.REACTIVE_POWER);
-            } else {
-                regulationModeRef.set(RegulationMode.VOLTAGE);
-            }
-        }
-        adder.setLocalTargetV(voltageSetpoint.get());
-        adder.setLocalTargetQ(reactivePowerSetpoint.get());
-        if (RegulationMode.VOLTAGE.equals(regulationModeRef.get())) {
-            boolean regulating = regulatingRef.get();
+    // Return the targetValue to use if a regulating terminal is found later (remote voltage regulation)
+    private static Double configureVoltageRegulationBackwardCompatibility(StaticVarCompensatorAdder adder,
+                                                                        RegulationMode regulationMode,
+                                                                        Double voltageSetpoint,
+                                                                        Double reactivePowerSetpoint,
+                                                                        boolean regulating) {
+        adder.setLocalTargetV(voltageSetpoint);
+        adder.setLocalTargetQ(reactivePowerSetpoint);
+        if (RegulationMode.VOLTAGE == regulationMode) {
             adder.newVoltageRegulation()
-                .withMode(regulationModeRef.get())
+                .withMode(regulationMode)
                 .withRegulating(regulating)
                 .add();
-            targetValueDoubleToUseInVoltageRegulationIfRemote.set(voltageSetpoint.get());
-        } else {
-            targetValueDoubleToUseInVoltageRegulationIfRemote.set(reactivePowerSetpoint.get());
+            return voltageSetpoint;
         }
+        return reactivePowerSetpoint;
     }
 
     @Override
@@ -227,8 +238,8 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case REGULATING_TERMINAL -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_16, context);
+                    IidmSerDeUtil.assertInBetweenTwoVersions(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED,
+                            IidmVersion.V_1_1, IidmVersion.V_1_16, context);
                     VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
                 }
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);

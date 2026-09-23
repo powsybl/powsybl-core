@@ -176,6 +176,9 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         // VOLTAGE REGULATION
         // version < V_1_18
         // Terminal null because remote terminal information come from subElements regulatingTerminal
+        // TargetV and targetQ are set to NaN here:
+        // - if there's no terminal, VoltageRegulation.targetValue must be set to NaN
+        // - If there is a terminal, the target value will be set after the terminal is added (see the extra-properties usage)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
             createVoltageRegulationBackwardCompatibility(adder, Double.NaN, Double.NaN, voltageRegulatorOn, null));
         // version >= V_1_18 -> voltageRegulation is read with VoltageRegulationSerDe

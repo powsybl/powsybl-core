@@ -55,7 +55,7 @@ public final class VoltageRegulationSerDe {
 
     public static void readVoltageRegulation(VoltageRegulationHolder<?> holder, NetworkDeserializerContext context, Network network) {
         // Read attributes
-        VoltageRegulation.VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
+        VoltageRegulation.VoltageRegulationAttributes attributes = readVoltageRegulationAttributes(context);
         // Create new Voltage Regulation
         VoltageRegulationBuilder voltageRegulationBuilder = holder.newVoltageRegulation()
             .withTargetDeadband(attributes.targetDeadband())
@@ -94,12 +94,14 @@ public final class VoltageRegulationSerDe {
             Function<T, Network> networkProvider) {
 
         VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
-        VoltageRegulation.VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
+        VoltageRegulation.VoltageRegulationAttributes attributes = readVoltageRegulationAttributes(context);
         AtomicBoolean isWithTerminal = new AtomicBoolean(false);
 
         // Read Sub Elements
         context.getReader().readChildNodes(subElementName -> readSubElement(toApply, holderAdder, context, networkProvider, subElementName, isWithTerminal, attributes));
         if (!isWithTerminal.get()) {
+            // When there's a regulating terminal, the VoltageRegulation object's creation is postponed (done when the terminal is read).
+            // Here, no terminal was read. The object is directly created.
             configureAdderOrBuilder(adder, attributes).add();
         }
     }
@@ -161,11 +163,13 @@ public final class VoltageRegulationSerDe {
         context.setExtraProperties(voltageRegulationHolder, EXTRA_PROPERTIES_PROCESS_KEY, new ExtraProperties<>(targetValue, actionOnHolder));
     }
 
+    // Backward-compatibility method: read the regulating terminal element that was directly in the holder (and not in the VoltageRegulation object) for IIDM versions <= 1.17
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
         postponeSetTerminal(toApply, context, terminalData);
     }
 
+    // Backward-compatibility method
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void postponeSetTerminal(List<Consumer<T>> toApply,
                                                                                                     NetworkDeserializerContext context,
                                                                                                     TerminalRefSerDe.TerminalData terminalData) {
@@ -210,7 +214,7 @@ public final class VoltageRegulationSerDe {
         TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
     }
 
-    private static VoltageRegulation.@NonNull VoltageRegulationAttributes getVoltageRegulationAttributes(NetworkDeserializerContext context) {
+    private static VoltageRegulation.@NonNull VoltageRegulationAttributes readVoltageRegulationAttributes(NetworkDeserializerContext context) {
         double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
         double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
         double slope = context.getReader().readDoubleAttribute(SLOPE);
