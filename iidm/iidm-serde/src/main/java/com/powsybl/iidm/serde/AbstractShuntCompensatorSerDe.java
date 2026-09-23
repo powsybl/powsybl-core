@@ -90,6 +90,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                 .withMode(RegulationMode.VOLTAGE)
                 .add();
             adder.setLocalTargetV(targetV);
+            // Backward-compatibility with IIDM versions <= 1.17: store operations that will be performed if a regulating terminal is found later
             toApply.add(sc -> VoltageRegulationSerDe.storeExtraProperties(sc, targetV, holder -> holder.setLocalTargetV(Double.NaN), context));
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {

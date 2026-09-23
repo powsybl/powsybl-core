@@ -87,16 +87,19 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
         VoltageRegulationData voltageRegulationData = readVoltageRegulationPrevious118(adder, context,
                 voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
 
-        if (voltageRegulationData != null) {
-            RegulationMode regulationMode = voltageRegulationData.regulationMode();
-            toApply.add(vsc -> {
-                if (regulationMode == RegulationMode.VOLTAGE) {
-                    VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetV(), holder -> holder.setLocalTargetV(Double.NaN), context);
-                } else if (regulationMode == RegulationMode.REACTIVE_POWER) {
-                    VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
-                }
-            });
-        }
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            // Backward-compatibility with IIDM versions <= 1.17: store operations that will be performed if a regulating terminal is found later
+            if (voltageRegulationData != null) {
+                RegulationMode regulationMode = voltageRegulationData.regulationMode();
+                toApply.add(vsc -> {
+                    if (regulationMode == RegulationMode.VOLTAGE) {
+                        VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetV(), holder -> holder.setLocalTargetV(Double.NaN), context);
+                    } else if (regulationMode == RegulationMode.REACTIVE_POWER) {
+                        VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
+                    }
+                });
+            }
+        });
         super.readRootElementPqiAttributes(toApply, adder, context);
     }
 

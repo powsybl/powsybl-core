@@ -145,13 +145,16 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
 
         readPQ(toApply, context.getReader());
-        toApply.add(generator -> {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            // Backward-compatibility with IIDM versions <= 1.17: store operations that will be performed if a regulating terminal is found later
             double targetValueDouble = Double.isNaN(targetV) ? equivalentLocalTargetV.get() : targetV;
-            Consumer<Generator> actionOnRemoteTerminal = null;
-            if (Double.isNaN(targetV) || Double.isNaN(equivalentLocalTargetV.get())) {
-                actionOnRemoteTerminal = holder -> holder.setLocalTargetV(Double.NaN);
-            }
-            VoltageRegulationSerDe.storeExtraProperties(generator, targetValueDouble, actionOnRemoteTerminal, context);
+            toApply.add(generator -> {
+                Consumer<Generator> actionOnRemoteTerminal = null;
+                if (Double.isNaN(targetV) || Double.isNaN(equivalentLocalTargetV.get())) {
+                    actionOnRemoteTerminal = holder -> holder.setLocalTargetV(Double.NaN);
+                }
+                VoltageRegulationSerDe.storeExtraProperties(generator, targetValueDouble, actionOnRemoteTerminal, context);
+            });
         });
     }
 

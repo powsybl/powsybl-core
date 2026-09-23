@@ -98,10 +98,14 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
         adder.setLossFactor(lossFactor);
         double p = context.getReader().readDoubleAttribute("p");
         double q = context.getReader().readDoubleAttribute("q");
-        toApply.add(vscConverterStation -> {
-            vscConverterStation.getTerminal().setP(p).setQ(q);
-            VoltageRegulationSerDe.storeExtraProperties(vscConverterStation, voltageSetpoint.get(), holder -> holder.setLocalTargetV(Double.NaN), context);
-        });
+        toApply.add(vscConverterStation -> vscConverterStation.getTerminal().setP(p).setQ(q));
+
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+            // Backward-compatibility with IIDM versions <= 1.17: store operations that will be performed if a regulating terminal is found later
+            toApply.add(vscConverterStation ->
+                VoltageRegulationSerDe.storeExtraProperties(vscConverterStation, voltageSetpoint.get(), holder -> holder.setLocalTargetV(Double.NaN), context)
+            )
+        );
     }
 
     private static void readVoltageRegulationPrevious118(VscConverterStationAdder adder, NetworkDeserializerContext context,

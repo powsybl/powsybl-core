@@ -204,14 +204,18 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         double p = context.getReader().readDoubleAttribute("p");
         double q = context.getReader().readDoubleAttribute("q");
         toApply.add(svc -> svc.getTerminal().setP(p).setQ(q));
-        toApply.add(svc -> {
+
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            // Backward-compatibility with IIDM versions <= 1.17: store operations that will be performed if a regulating terminal is found later
             Consumer<StaticVarCompensator> actionOnTerminalRemote;
             if (regulationModeRef.get() == RegulationMode.REACTIVE_POWER) {
                 actionOnTerminalRemote = holder -> holder.setLocalTargetQ(Double.NaN);
             } else {
                 actionOnTerminalRemote = holder -> holder.setLocalTargetV(Double.NaN);
             }
-            VoltageRegulationSerDe.storeExtraProperties(svc, targetValueDoubleToUseInVoltageRegulationIfRemote.get(), actionOnTerminalRemote, context);
+            toApply.add(svc ->
+                VoltageRegulationSerDe.storeExtraProperties(svc, targetValueDoubleToUseInVoltageRegulationIfRemote.get(), actionOnTerminalRemote, context)
+            );
         });
     }
 
