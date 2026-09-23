@@ -25,6 +25,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorTest extends AbstractVoltageRegulationBackwardCompatibilityCommon {
 
     @Test
+    void testGeneratorRemoteVoltageRegulationOff() {
+        // GIVEN
+        double targetV = 220.0;
+        GeneratorAdder adder = voltageLevel.newGenerator()
+            .setId("generator_backwardCompatibility")
+            .setConnectableBus(LOCAL_BUS)
+            .setMinP(0)
+            .setTargetP(20)
+            .setMaxP(100)
+            .setVoltageRegulatorOn(false) // deprecated method
+            .setRegulatingTerminal(remoteTerminal) // deprecated method
+            .setTargetV(targetV) // deprecated method
+            .setTargetQ(0.0); // deprecated method
+        // WHEN
+        Generator generator = adder.add();
+        // THEN
+        assertNotNull(generator.getVoltageRegulation());
+        assertFalse(generator.isRegulating());
+        assertTrue(generator.isWithMode(RegulationMode.VOLTAGE));
+        assertEquals(remoteTerminal, generator.getRegulatingTerminal());
+        assertEquals(targetV, generator.getVoltageRegulation().getTargetValue());
+    }
+
+    @Test
     public void testGeneratorRemoteVoltageRegulation() {
         // GIVEN
         int remoteTargetV = 220;
