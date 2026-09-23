@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 import static org.junit.jupiter.api.Assertions.*;
