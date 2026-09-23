@@ -151,12 +151,11 @@ public final class CgmesConformity1NetworkCatalog {
             .add();
         shBrussels110.getTerminal().setQ(-330.75);
         shBrussels110.newVoltageRegulation()
-            .withTargetValue(110.0)
-            .withTerminal(shBrussels110.getTerminal())
             .withTargetDeadband(0.5)
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false)
             .build();
+        shBrussels110.setLocalTargetV(110.0);
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
             .setId("f96d552a-618d-4d0c-a39a-2dea3c411dee")
             .setName("BE-Busbar_5")
@@ -207,11 +206,10 @@ public final class CgmesConformity1NetworkCatalog {
         shBrussels380.getTerminal().setQ(-59.058144);
         shBrussels380.newVoltageRegulation()
             .withTargetDeadband(0.5)
-            .withTargetValue(380.0)
-            .withTerminal(shBrussels380.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false)
             .build();
+        shBrussels380.setLocalTargetV(380.0);
         BoundaryLine be3 = vlBrussels380.newBoundaryLine()
             .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
             .setName("BE-Line_3")
@@ -985,7 +983,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setAngle(-17.412200);
 
         VoltageLevel vlAnvers220 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_2);
-        StaticVarCompensator staticVarCompensator = vlAnvers220.newStaticVarCompensator()
+        vlAnvers220.newStaticVarCompensator()
                 .setId("3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
                 .setName("SVC-1230797516")
                 .setBus(BUS_ID_1)
@@ -993,10 +991,9 @@ public final class CgmesConformity1NetworkCatalog {
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
                 .setLocalTargetV(229.5)
+                .setLocalTargetQ(-0.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
-        staticVarCompensator.getVoltageRegulation().setTerminal(staticVarCompensator.getTerminal(), 229.5);
-        staticVarCompensator.setLocalTargetV(Double.NaN);
 
         setGeneratorValues(network, "550ebe0d-f2b2-48c1-991f-cebea43a21aa", -118.0, -85.603401, 18.720301);
         setGeneratorValues(network, "3a3b27be-b18b-4385-b557-6735d733baf0", -90.0, 84.484905, 100.256);
@@ -1108,7 +1105,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setQ0(67.377544);
 
         network.getShuntCompensator(SHUNT_ID_1).remove();
-        ShuntCompensator shuntCompensatorBeS2 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
+        network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
                 .newShuntCompensator()
                     .setId(SHUNT_ID_1)
                     .setName("BE_S2")
@@ -1137,9 +1134,9 @@ public final class CgmesConformity1NetworkCatalog {
                             .setG(1.09E-5)
                         .endSection()
                     .add()
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380.0).withTargetDeadband(0.5).withRegulating(false).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetDeadband(0.5).withRegulating(false).add()
+                .setLocalTargetV(380.0)
                 .add();
-        shuntCompensatorBeS2.getVoltageRegulation().setTerminal(shuntCompensatorBeS2.getTerminal(), 380.0);
         return network;
     }
 

@@ -117,14 +117,14 @@ class HvdcUpdateTest {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 360.0, 300.0, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
                 -0.9152494668960571, 0.9340579509735107);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 597.24, 497.7, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
-                 392.54, 392.54, 0.0, RegulationMode.VOLTAGE);
+                 392.54, 392.54, 30.34, RegulationMode.VOLTAGE);
     }
 
     private static void assertSecondSsh(Network network) {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 420.0, 350.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 0.9503694176673889, -0.9194843769073486);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 596.4, 497.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                396.54, 0.0, 30.0, RegulationMode.REACTIVE_POWER);
+                396.54, Double.NaN, 30.0, RegulationMode.REACTIVE_POWER);
     }
 
     private static void assertUnassignedFlows(Network network) {
@@ -198,7 +198,7 @@ class HvdcUpdateTest {
         assertNull(vscConverterStation.getVoltageRegulation());
         assertTrue(vscConverterStation.isWithMode(RegulationMode.REACTIVE_POWER));
         assertFalse(vscConverterStation.isRegulating());
-        assertEquals(0.0, vscConverterStation.getRegulatingTargetQ());
+        assertEquals(Double.NaN, vscConverterStation.getRegulatingTargetQ());
         assertTrue(Double.isNaN(vscConverterStation.getRegulatingTargetV()));
         assertFalse(vscConverterStation.isWithMode(RegulationMode.VOLTAGE));
     }
@@ -228,7 +228,7 @@ class HvdcUpdateTest {
         assertEquals(convertersMode, hvdcLine.getConvertersMode());
 
         assertEquals(HvdcConverterStation.HvdcType.VSC, hvdcLine.getConverterStation1().getHvdcType());
-        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), targetV1, 0.0, RegulationMode.VOLTAGE);
+        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), targetV1, -1.35, RegulationMode.VOLTAGE);
         assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation2(), targetV2, targetQ2, regulationMode2);
     }
 

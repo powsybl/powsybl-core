@@ -405,10 +405,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
             network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "M");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "M");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
@@ -421,18 +421,18 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "M");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "M");
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "M");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "M");
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
@@ -678,8 +678,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         String exportFolder = "/test-gen-rc";
         String baseName = "testGenRc";
         String localTargetV = getFormattedDouble(EurostagTutorialExample1Factory.GENERATOR_LOCAL_TARGET_V);
-        String localTargetQ = getFormattedDouble(EurostagTutorialExample1Factory.GENERATOR_LOCAL_TARGET_Q);
-        String remoteTargetValue = getFormattedDouble(EurostagTutorialExample1Factory.GENERATOR_REMOTE_TARGET_VALUE);
+        String localTargetQ = getFormattedDouble(-EurostagTutorialExample1Factory.GENERATOR_LOCAL_TARGET_Q);
+        String remoteTargetV = getFormattedDouble(EurostagTutorialExample1Factory.GENERATOR_REMOTE_TARGET_VALUE);
+        String remoteTargetQ = getFormattedDouble(-EurostagTutorialExample1Factory.GENERATOR_REMOTE_TARGET_VALUE);
         String genRcId = "GEN_RC";
         String deadband = "0";
         Network network;
@@ -700,10 +701,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator remote voltage
             network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, remoteTargetValue, "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, remoteTargetV, "k");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, remoteTargetValue, "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, remoteTargetV, "k");
 
             // Generator with remote voltage regulation exported in local regulation mode
             Properties exportInLocalRegulationModeParams = new Properties();
@@ -711,7 +712,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             exportInLocalRegulationModeParams.put(CgmesExport.EXPORT_GENERATORS_IN_LOCAL_REGULATION_MODE, true);
             network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportInLocalRegulationModeParams);
-            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, "25.2", "k");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, localTargetV, "k");
 
             // Generator with local reactive
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
@@ -724,10 +725,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator with remote reactive
             network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, remoteTargetValue, "M");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "true", deadband, remoteTargetQ, "M");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, remoteTargetValue, "M");
+            testRcEqRcWithAttribute(ssh, genRcId, "false", "false", deadband, remoteTargetQ, "M");
 
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
