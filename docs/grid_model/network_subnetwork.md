@@ -1190,8 +1190,14 @@ For more details about working with subnetworks, see [Working with subnetworks](
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BusbarSection.html)<br>
 A busbar section is a non impedant element used in a node/breaker substation topology to connect equipment.
 
+**Characteristics**
+
+| Attribute    | Unit | Description                                                                             |
+|--------------|------|-----------------------------------------------------------------------------------------|
+| $Equivalent$ | -    | Indicates if the busbar section is an equivalent, from a network reduction for instance |
+
 <!---
-<span style="color:red"> TODO</span>
+<span style="color:red"> TODO + characteristics to fill up</span>
 -->
 
 **Available extensions**
