@@ -402,4 +402,68 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         modification.apply(network, reportNode);
         testReportNode(reportNode, "/reportNode/create-line-on-line-with-busbreaker-topology.txt");
     }
+
+    @Test
+    void testKeepExistingPosition() {
+        Network network = createNbNetworkWithBusbarSection();
+        VoltageLevel vlM = network.newVoltageLevel().setId("M")
+                .setNominalV(225.0)
+                .setLowVoltageLimit(220.0)
+                .setHighVoltageLimit(245.00002)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        Bus bus = vlM.getBusBreakerView().newBus()
+                .setId("test")
+                .add();
+        Line line = network.getLine("CJ");
+        line.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                    .withName("feeder1")
+                    .withDirection(ConnectablePosition.Direction.TOP)
+                    .withOrder(1)
+                    .add()
+                .newFeeder2()
+                    .withName("feeder2")
+                    .withDirection(ConnectablePosition.Direction.BOTTOM)
+                    .withOrder(3)
+                    .add()
+                .add();
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(bus.getId())
+                .withLine(line)
+                .withLineAdder(adder)
+                .withPositionPercent(40)
+                .withFictitiousVoltageLevelId("FICTVL")
+                .withFictitiousVoltageLevelName("FICTITIOUSVL")
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId("FICTSUB")
+                .withFictitiousSubstationName("FICTITIOUSSUB")
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .withPositionForNewLine(1)
+                .build();
+        modification.apply(network, ReportNode.NO_OP);
+        Line line1 = network.getLine("FICT1L");
+        ConnectablePosition<Line> line1Position = line1.getExtension(ConnectablePosition.class);
+        assertNotNull(line1Position);
+        assertNotNull(line1Position.getFeeder1());
+        assertTrue(line1Position.getFeeder1().getOrder().isPresent());
+        assertEquals(1, line1Position.getFeeder1().getOrder().get());
+        assertTrue(line1Position.getFeeder1().getName().isPresent());
+        assertEquals("feeder1", line1Position.getFeeder1().getName().get());
+        assertEquals(ConnectablePosition.Direction.TOP, line1Position.getFeeder1().getDirection());
+
+        Line line2 = network.getLine("FICT2L");
+        ConnectablePosition<Line> line2Position = line2.getExtension(ConnectablePosition.class);
+        assertNotNull(line2Position);
+        assertNotNull(line2Position.getFeeder2());
+        assertTrue(line2Position.getFeeder2().getOrder().isPresent());
+        assertEquals(3, line2Position.getFeeder2().getOrder().get());
+        assertTrue(line2Position.getFeeder2().getName().isPresent());
+        assertEquals("feeder2", line2Position.getFeeder2().getName().get());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, line2Position.getFeeder2().getDirection());
+    }
 }

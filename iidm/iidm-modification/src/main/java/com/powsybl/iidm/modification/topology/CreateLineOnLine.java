@@ -193,8 +193,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
                     .add();
         }
         if (connectablePositionDataSide2 != null) {
-            line1.newExtension(ConnectablePositionAdder.class)
-                    .newFeeder1()
+            line2.newExtension(ConnectablePositionAdder.class)
+                    .newFeeder2()
                     .withDirection(connectablePositionDataSide2.getDirection())
                     .withOrder(connectablePositionDataSide2.getOrder())
                     .withName(connectablePositionDataSide2.getName())
