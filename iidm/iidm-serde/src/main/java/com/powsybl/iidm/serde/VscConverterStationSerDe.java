@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.VoltageRegulationUtils;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils.VoltageRegulationData;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.List;
@@ -92,7 +93,8 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
             adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
         });
 
-        readVoltageRegulationPrevious118(adder, context, voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
+        VoltageRegulationData voltageRegulationData = readVoltageRegulationPrevious118(adder, context,
+                voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setLossFactor(lossFactor);
@@ -100,27 +102,37 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
         double q = context.getReader().readDoubleAttribute("q");
         toApply.add(vscConverterStation -> vscConverterStation.getTerminal().setP(p).setQ(q));
 
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
-            // Backward-compatibility with IIDM versions <= 1.17: store operations that will be performed if a regulating terminal is found later
-            toApply.add(vscConverterStation ->
-                VoltageRegulationSerDe.storeExtraProperties(vscConverterStation, voltageSetpoint.get(), holder -> holder.setLocalTargetV(Double.NaN), context)
-            )
-        );
-    }
-
-    private static void readVoltageRegulationPrevious118(VscConverterStationAdder adder, NetworkDeserializerContext context,
-                                                         Boolean voltageRegulatorOnRef, Double voltageSetpoint, Double reactivePowerSetpoint) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
-            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef,
-                voltageSetpoint, reactivePowerSetpoint);
-            adder.setLocalTargetV(voltageRegulationData.targetV());
-            adder.setLocalTargetQ(voltageRegulationData.targetQ());
-            if (voltageRegulationData.regulationMode() != null) {
-                adder.newVoltageRegulation()
-                    .withMode(voltageRegulationData.regulationMode())
-                    .add();
+            // Backward-compatibility with IIDM versions <= 1.17: store operations that will be performed if a regulating terminal is found later
+            if (voltageRegulationData != null) {
+                RegulationMode regulationMode = voltageRegulationData.regulationMode();
+                toApply.add(vsc -> {
+                    if (regulationMode == RegulationMode.VOLTAGE) {
+                        VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetV(), holder -> holder.setLocalTargetV(Double.NaN), context);
+                    } else if (regulationMode == RegulationMode.REACTIVE_POWER) {
+                        VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
+                    }
+                });
             }
         });
+    }
+
+    private static VoltageRegulationData readVoltageRegulationPrevious118(VscConverterStationAdder adder, NetworkDeserializerContext context,
+                                                         Boolean voltageRegulatorOnRef, Double voltageSetpoint, Double reactivePowerSetpoint) {
+        AtomicReference<VoltageRegulationData> voltageRegulationData = new AtomicReference<>(null);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            VoltageRegulationData data = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef,
+                voltageSetpoint, reactivePowerSetpoint);
+            adder.setLocalTargetV(data.targetV());
+            adder.setLocalTargetQ(data.targetQ());
+            if (data.regulationMode() != null) {
+                adder.newVoltageRegulation()
+                    .withMode(data.regulationMode())
+                    .add();
+            }
+            voltageRegulationData.set(data);
+        });
+        return voltageRegulationData.get();
     }
 
     @Override

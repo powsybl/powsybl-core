@@ -272,15 +272,6 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     double getTargetQ();
 
     /**
-     * Get the reactive power target in MVAR.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    @Override
-    double getLocalTargetQ();
-
-    /**
      * Set the reactive power target in MVAR.
      * <p>
      * Depends on the working variant.
