@@ -13,6 +13,8 @@ import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +46,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private boolean createFictSubstation;
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
-    private Integer positionForNewLine;
+    private final Integer positionForNewLine;
 
     /**
      * Constructor.
@@ -170,10 +172,36 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         // Remove the existing line
         String originalLineId = line.getId();
+        ConnectablePosition<Line> connectablePosition = line.getExtension(ConnectablePosition.class);
+        ConnectablePositionData connectablePositionDataSide1 = null;
+        ConnectablePositionData connectablePositionDataSide2 = null;
+        if (connectablePosition != null) {
+            connectablePositionDataSide1 = new ConnectablePositionData(connectablePosition.getFeeder1());
+            connectablePositionDataSide2 = new ConnectablePositionData(connectablePosition.getFeeder2());
+        }
         line.remove();
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
+        if (connectablePositionDataSide1 != null) {
+            line1.newExtension(ConnectablePositionAdder.class)
+                    .newFeeder1()
+                    .withDirection(connectablePositionDataSide1.getDirection())
+                    .withOrder(connectablePositionDataSide1.getOrder())
+                    .withName(connectablePositionDataSide1.getName())
+                    .add()
+                    .add();
+        }
+        if (connectablePositionDataSide2 != null) {
+            line1.newExtension(ConnectablePositionAdder.class)
+                    .newFeeder1()
+                    .withDirection(connectablePositionDataSide2.getDirection())
+                    .withOrder(connectablePositionDataSide2.getOrder())
+                    .withName(connectablePositionDataSide2.getName())
+                    .add()
+                    .add();
+        }
+
         //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
         //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
         groupsCopy.applyGroupsToBranch(line1, TwoSides.values());
@@ -241,7 +269,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         Line newLine = lineAdder.add();
 
         // create line position for the new line on the side two which is connected to the existing voltage level
-        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, reportNode, throwException);
+        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, null, reportNode, throwException);
 
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
