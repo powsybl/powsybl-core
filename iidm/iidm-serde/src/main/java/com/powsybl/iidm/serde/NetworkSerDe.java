@@ -440,7 +440,7 @@ public final class NetworkSerDe {
 
     private static void writeExtensions(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         context.getWriter().writeStartNodes();
-        for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n.getIdentifiables(), context.getOptions())) {
+        for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n, n.getIdentifiables(), context.getOptions())) {
             if (ignoreEquipmentAtExport(identifiable, context) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
                 continue;
             }
@@ -631,7 +631,7 @@ public final class NetworkSerDe {
 
     private static void writeDcNodes(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcNode dcNode : IidmSerDeUtil.sorted(n.getDcNodes(), context.getOptions())) {
+        for (DcNode dcNode : IidmSerDeUtil.sorted(n, n.getDcNodes(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcNode, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -643,7 +643,7 @@ public final class NetworkSerDe {
 
     private static void writeDcGrounds(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcGround dcGround : IidmSerDeUtil.sorted(n.getDcGrounds(), context.getOptions())) {
+        for (DcGround dcGround : IidmSerDeUtil.sorted(n, n.getDcGrounds(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcGround, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -655,7 +655,7 @@ public final class NetworkSerDe {
 
     private static void writeDcLines(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcLine dcLine : IidmSerDeUtil.sorted(n.getDcLines(), context.getOptions())) {
+        for (DcLine dcLine : IidmSerDeUtil.sorted(n, n.getDcLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcLine, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -667,7 +667,7 @@ public final class NetworkSerDe {
 
     private static void writeDcSwitches(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcSwitch dcSwitch : IidmSerDeUtil.sorted(n.getDcSwitches(), context.getOptions())) {
+        for (DcSwitch dcSwitch : IidmSerDeUtil.sorted(n, n.getDcSwitches(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcSwitch, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcSwitchSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -679,7 +679,7 @@ public final class NetworkSerDe {
 
     private static void writeSubnetworks(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         context.getWriter().writeStartNodes();
-        for (Network subnetwork : IidmSerDeUtil.sorted(n.getSubnetworks(), context.getOptions())) {
+        for (Network subnetwork : IidmSerDeUtil.sorted(n, n.getSubnetworks(), context.getOptions())) {
             IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME,
                     IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_11, context);
             write(subnetwork, context, extensionsSupplier);
@@ -689,7 +689,7 @@ public final class NetworkSerDe {
 
     private static void writeAreas(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (Area area : IidmSerDeUtil.sorted(n.getAreas(), context.getOptions())) {
+        for (Area area : IidmSerDeUtil.sorted(n, n.getAreas(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(area, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_13, context);
@@ -701,7 +701,7 @@ public final class NetworkSerDe {
 
     private static void writeVoltageLevels(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
+        for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(n, n.getVoltageLevels(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(voltageLevel, n, context) && voltageLevel.getSubstation().isEmpty()) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_6, context);
@@ -713,7 +713,7 @@ public final class NetworkSerDe {
 
     private static void writeSubstations(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (Substation s : IidmSerDeUtil.sorted(n.getSubstations(), context.getOptions())) {
+        for (Substation s : IidmSerDeUtil.sorted(n, n.getSubstations(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(s, n, context)) {
                 SubstationSerDe.INSTANCE.write(s, n, context);
             }
@@ -724,7 +724,7 @@ public final class NetworkSerDe {
     private static void writeLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes();
-        for (Line l : IidmSerDeUtil.sorted(n.getLines(), context.getOptions())) {
+        for (Line l : IidmSerDeUtil.sorted(n, n.getLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 LineSerDe.INSTANCE.write(l, n, context);
             }
@@ -735,7 +735,7 @@ public final class NetworkSerDe {
     private static void writeTieLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes();
-        for (TieLine l : IidmSerDeUtil.sorted(n.getTieLines(), context.getOptions())) {
+        for (TieLine l : IidmSerDeUtil.sorted(n, n.getTieLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 TieLineSerDe.INSTANCE.write(l, n, context);
             }
@@ -746,7 +746,7 @@ public final class NetworkSerDe {
     private static void writeHvdcLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes();
-        for (HvdcLine l : IidmSerDeUtil.sorted(n.getHvdcLines(), context.getOptions())) {
+        for (HvdcLine l : IidmSerDeUtil.sorted(n, n.getHvdcLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
                 HvdcLineSerDe.INSTANCE.write(l, n, context);
             }
@@ -1239,7 +1239,7 @@ public final class NetworkSerDe {
     }
 
     /**
-     * Deep copy of the network using XML converter.
+     * Deep copy of the network using serialization/deserialization.
      *
      * @param network the network to copy
      * @return the copy of the network
@@ -1249,7 +1249,7 @@ public final class NetworkSerDe {
     }
 
     /**
-     * Deep copy of the network using XML converter.
+     * Deep copy of the network using serialization/deserialization.
      *
      * @param network        the network to copy
      * @param networkFactory the network factory to use for the copy
@@ -1259,8 +1259,20 @@ public final class NetworkSerDe {
         return copy(network, networkFactory, ForkJoinPool.commonPool());
     }
 
+    /**
+     * Deep copy of the network using serialization/deserialization.
+     *
+     * @param network        the network to copy
+     * @param networkFactory the network factory to use for the copy
+     * @param preserveConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures. If you are aiming for performance, consider setting it to false.
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, NetworkFactory networkFactory, boolean preserveConnectableCreationOrder) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), TreeDataFormat.JSON, preserveConnectableCreationOrder);
+    }
+
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
-        return copy(network, networkFactory, executor, TreeDataFormat.JSON);
+        return copy(network, networkFactory, executor, TreeDataFormat.JSON, false);
     }
 
     /**
@@ -1283,25 +1295,38 @@ public final class NetworkSerDe {
      * @return the copy of the network
      */
     public static Network copy(Network network, NetworkFactory networkFactory, TreeDataFormat format) {
-        return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), format, false);
     }
 
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network                     the network to copy
+     * @param networkFactory              the network factory to use for the copy
+     * @param executor                    the executor service to use for the copy
+     * @param format                      the converter to use to export/import the network
+     * @param preserveConnectableCreationOrder if `true`, keep connectables in the same ordering in data structures. If you are aiming for performance, consider setting it to false.
+     * @return the copy of the network
+     */
     @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
-    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format, boolean preserveConnectableCreationOrder) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
         try {
             Pipe pipe = Pipe.open();
             executor.execute(() -> {
-                try (Pipe.SinkChannel sinkChannel = pipe.sink()) {
-                    write(network, new ExportOptions().setFormat(format), Channels.newOutputStream(sinkChannel));
+                try (OutputStream tmp = Channels.newOutputStream(pipe.sink());
+                     //using buffered stream is about 20 times more effective for xml
+                     OutputStream os = format == TreeDataFormat.XML ? new BufferedOutputStream(tmp) : tmp) {
+                    write(network, new ExportOptions().setFormat(format).setConnectableCreationOrder(preserveConnectableCreationOrder), os);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
             });
-            try (Pipe.SourceChannel sourceChannel = pipe.source()) {
-                return read(Channels.newInputStream(sourceChannel),
+            try (InputStream is = Channels.newInputStream(pipe.source())) {
+                //using buffered stream for read has little impact, contrary to the write
+                return read(is,
                         new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
             }
         } catch (IOException e) {

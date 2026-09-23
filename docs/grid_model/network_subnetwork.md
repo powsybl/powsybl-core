@@ -238,11 +238,13 @@ A load is a passive equipment representing a delivery point that consumes or pro
     - Consumptions are positive.
 
 **Metadata**
-In the grid model, loads comprise the following metadata:
+In the grid model, the following metadata is included for loads:
 - The load type, which can be:
     - `UNDEFINED`
     - `AUXILIARY`
     - `FICTITIOUS`
+
+By default, it is `UNDEFINED`.
 - The load model, which can be:
     - `ZIP` (or polynomial), following equations:
 
@@ -566,6 +568,11 @@ $$
 | $G2$      | S        | The second side shunt conductance |
 | $B2$      | S        | The second side shunt susceptance |
 
+**Specifications**
+
+Since this can be used for an equivalent model (such as a network equivalent), calculations can lead to the resistance being negative.
+Therefore, a negative value is allowed for $R$.
+
 **Metadata**
 
 - Lines can have [loading limits](./additional.md#loading-limits).
@@ -671,6 +678,8 @@ $$
 
 - A [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer) can be associated with a two-winding power transformer.
 - For a two-winding transformer, the normal apparent power shall be identical at both sides 1 and 2.
+- Since this can be used for an equivalent model (such as a network equivalent), calculations can lead to the resistance being negative.
+Therefore, a negative value is allowed for $R_{nom}$.
 
 **Available extensions**
 
@@ -786,12 +795,12 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 
 **Characteristics**
 
-| Attribute             | Unit     | Description                     |
-|-----------------------|----------|---------------------------------|
-| $R$                   | $\Omega$ | The resistance of the HVDC line |
-| $NominalV$            | kV       | The nominal voltage             |
-| $ActivePowerSetpoint$ | MW       | The active power setpoint       |
-| $MaxP$                | MW       | The maximum active power        |
+| Attribute             | Unit     | Description                                      |
+|-----------------------|----------|--------------------------------------------------|
+| $R$                   | $\Omega$ | The resistance of the HVDC line, always positive |
+| $NominalV$            | kV       | The nominal voltage                              |
+| $ActivePowerSetpoint$ | MW       | The active power setpoint                        |
+| $MaxP$                | MW       | The maximum active power                         |
 
 **Specifications**
 
@@ -802,6 +811,7 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
   The flow sign is thus given by the type of the converter station: the power always flows from the rectifier converter station to the inverter converter station.
   At a terminal on the AC side, `P` and `Q` follow the passive sign convention. `P` is positive on the rectifier side. `P` is negative at the inverter side.
 - The active power setpoint and the maximum active power should always be positive values.
+- Same as the [DC Line of the detailed DC model](#dc-line), a negative value is forbidden for $R$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -940,6 +950,10 @@ A DC Line has two DC Terminals.
 |-----------|----------|----------------------------------------|
 | $R$       | $\Omega$ | The series resistance, always positive |
 
+**Specifications**
+
+The $R$ value can't be negative, because this is a detailed model, it is a direct physical representation, not an equivalent model.
+
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 
@@ -997,7 +1011,7 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or P_PCC_DROOP              |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or DC_DROOP                 |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
 | $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention |
@@ -1015,6 +1029,7 @@ The Point of Common Coupling (PCC) Terminal defines where the AC/DC converter in
 The control mode defines whether the converter:
 - controls active power at Point of Common Coupling
 - or, controls DC voltage at its DC terminals
+- or, controls the relation between DC voltage and active power through a droop curve
 
 When the `ControlMode` of the converter is set to `P_PCC`, the converter controls active power flow at the (AC) Point of common coupling terminal.
 `TargetP` is the desired active power flow at PCC, in passive sign convention, i.e.:
@@ -1046,20 +1061,22 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
 
-When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls active power as in the `P_PCC` control mode
-for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
-$P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
+When the `ControlMode` of the converter is set to `DC_DROOP`, the converter controls the relation between DC voltage and active
+power through a piecewise linear droop curve, anchored in the $(P_{AC}, V_{DC})$ plane at the point $(TargetP, TargetVdc)$:
+$V_{DC} - V_i = k_i \cdot (P_{AC} - P_i)$
 Where:
-- $k$ is the droop coefficient of the actual droop segment.
-- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint.
-It represents the operating point before the security analysis starts.
-- $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
-- $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
-- $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
+- $V_{DC} = V_1 - V_2$ is the DC voltage of the converter, between DC Node 1 and DC Node 2.
+- $P_{AC}$ is the active power of the converter, using the same load sign convention as `TargetP`.
+- $k_i$ is the droop coefficient of the segment containing the operating point, and $(P_i, V_i)$ is that segment's lower bound on the curve.
 
-Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual
-droop segment should be the one which verifies:
-$V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+Only the segment containing the anchor point has a directly known $(P_i, V_i)$, namely $(TargetP, TargetVdc)$. The $(P_i, V_i)$
+of every other segment is derived by walking the curve from the anchor, segment by segment: crossing a segment with droop
+coefficient $k$ between voltages $V_{min}$ and $V_{max}$ shifts $P$ by $(V_{max} - V_{min}) / k$.
+
+Each segment in the `DroopCurve` is defined with a minimal and maximal voltage $V_{min}$ and $V_{max}$, and a droop coefficient $k$. The segment used
+at a given DC voltage is the one which verifies:
+$V_{DC} \in [V_{min}, V_{max})$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+A droop curve must be invertible. This implies that all the droop coefficients $k$ must be non-zero and with the same sign.
 
 `MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
 same load sign convention as `TargetP`.

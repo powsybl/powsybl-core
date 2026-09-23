@@ -24,6 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -89,6 +90,7 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final Network network; // Used for naming strategy of OperationalLimitType and LoadGroups
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
         return fictitiousContainers.get(id.getId());
@@ -98,8 +100,17 @@ public class CgmesExportContext {
         fictitiousContainers.put(id.getId(), containerId);
     }
 
+    /**
+     * Creates an export context that is not bound to any network.
+     *
+     * @deprecated Use {@link #CgmesExportContext(Network)} instead.
+     *             Building a context without parameters is no longer supported:
+     *             all constructors will require at least the network being exported.
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
     public CgmesExportContext() {
         referenceDataProvider = null;
+        network = null;
     }
 
     public CgmesExportContext(Network network) {
@@ -128,6 +139,7 @@ public class CgmesExportContext {
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         scenarioTime = network.getCaseDate();
+        this.network = network;
         addParameters(exportParameters);
         computeCimVersion(exportParameters, network);
         computeTopologyKind(exportParameters, network);
@@ -287,7 +299,9 @@ public class CgmesExportContext {
     }
 
     private void computeBaseVoltageMapping(Network network) {
-        DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##");
+        DecimalFormatSymbols customSymbols = new DecimalFormatSymbols();
+        customSymbols.setDecimalSeparator('.');
+        DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##", customSymbols);
 
         // Retrieve reference BaseVoltage mapping stored in the dedicated extension.
         // This may not match exactly the base voltages used in the network.
@@ -619,6 +633,10 @@ public class CgmesExportContext {
 
     public boolean updateDependencies() {
         return updateDependencies;
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
     record BaseVoltageSource(Double nominalV, String id, Source source) { }
