@@ -124,12 +124,10 @@ public class GeneratorModification extends AbstractNetworkModification {
                 return fromModifs;
             }
         }
-
         double fromGenerator = generator.getLocalTargetV();
         if (!Double.isNaN(fromGenerator)) {
             return fromGenerator;
         }
-
         return getPlausibleTargetV(generator, false);
     }
 
@@ -341,13 +339,13 @@ public class GeneratorModification extends AbstractNetworkModification {
         if (g == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (areValuesEqual(modifs.getMinP(), g.getMinP(), false)
-            && areValuesEqual(modifs.getMaxP(), g.getMaxP(), false)
-            && areValuesEqual(modifs.getTargetV(), g.getLocalTargetV(), false)
-            && areValuesEqual(modifs.getTargetQ(), g.getLocalTargetQ(), false)
-            && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
-            && voltageRegulationHasNoImpactOnNetwork(g)
-            && areValuesEqual(modifs.getTargetP(), g.getTargetP(), false)
-            && areValuesEqual(modifs.getDeltaTargetP(), 0, false)) {
+                && areValuesEqual(modifs.getMaxP(), g.getMaxP(), false)
+                && areValuesEqual(modifs.getTargetV(), g.getRegulatingTargetV(), false)
+                && areValuesEqual(modifs.getTargetQ(), g.getLocalTargetQ(), false)
+                && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
+                && voltageRegulationHasNoImpactOnNetwork(g)
+                && areValuesEqual(modifs.getTargetP(), g.getTargetP(), false)
+                && areValuesEqual(modifs.getDeltaTargetP(), 0, false)) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;
@@ -357,17 +355,15 @@ public class GeneratorModification extends AbstractNetworkModification {
         boolean hasImpact = false;
         if (g.getVoltageRegulation() == null) {
             // The generator has no VoltageRegulation, but the modification will set it in regulation
+            hasImpact |= modifs.getVoltageRegulationMode() != null;
+            hasImpact |= modifs.getRegulating() != null && modifs.getRegulating();
+        } else if (g.getVoltageRegulation().isRegulating() || modifs.getRegulating() != null) {
+            // New regulating value different from actual value
+            hasImpact |= modifs.getRegulating() != null
+                && !modifs.getRegulating().equals(g.getVoltageRegulation().isRegulating());
+            // New RegulationMode value different from actual value
             hasImpact |= modifs.getVoltageRegulationMode() != null
-                && modifs.getRegulating() != null && modifs.getRegulating();
-        } else {
-            if (g.getVoltageRegulation().isRegulating() || modifs.getRegulating() != null) {
-                // New regulating value different from actual value
-                hasImpact |= modifs.getRegulating() != null
-                    && !modifs.getRegulating().equals(g.getVoltageRegulation().isRegulating());
-                // New RegulationMode value different from actual value
-                hasImpact |= modifs.getVoltageRegulationMode() != null
-                    && !g.isRegulatingWithMode(modifs.getVoltageRegulationMode());
-            }
+                && !g.isRegulatingWithMode(modifs.getVoltageRegulationMode());
         }
         return !hasImpact;
     }

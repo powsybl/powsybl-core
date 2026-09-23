@@ -130,7 +130,7 @@ class GeneratorModificationTest {
         modifs = new GeneratorModification.Modifs();
         modifs.setRegulating(true);
         modification = new GeneratorModification("GEN", modifs);
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }
 
     @Test
@@ -142,12 +142,6 @@ class GeneratorModificationTest {
             .withRegulating(true)
             .withMode(RegulationMode.VOLTAGE);
 
-        // mode modification
-        modifs = new GeneratorModification.Modifs();
-        modifs.setRegulating(false);
-        modification = new GeneratorModification("GEN", modifs);
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
-
         // regulating modification
         modifs = new GeneratorModification.Modifs();
         modifs.setRegulating(false);
@@ -155,12 +149,6 @@ class GeneratorModificationTest {
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
 
         generator.getVoltageRegulation().setRegulating(false);
-
-        // mode modification
-        modifs = new GeneratorModification.Modifs();
-        modifs.setRegulating(false);
-        modification = new GeneratorModification("GEN", modifs);
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
 
         // regulating modification
         modifs = new GeneratorModification.Modifs();
@@ -212,6 +200,7 @@ class GeneratorModificationTest {
         modification.apply(network);
         // THEN
         assertNull(generator.getVoltageRegulation());
+        assertEquals(100., generator.getLocalTargetV(), 0.001);
     }
 
     @Test
@@ -226,6 +215,7 @@ class GeneratorModificationTest {
         // THEN
         assertNotNull(generator.getVoltageRegulation());
         assertEquals(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
+        assertTrue(generator.getVoltageRegulation().isRegulating());
     }
 
     @Test
@@ -238,6 +228,7 @@ class GeneratorModificationTest {
         modifs.setRegulating(true);
         GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
         // WHEN
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
         modification.apply(network);
         // THEN
         assertNotNull(generator.getVoltageRegulation());
@@ -254,6 +245,7 @@ class GeneratorModificationTest {
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
         GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
         // WHEN
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
         modification.apply(network);
         // THEN
         assertNotNull(generator.getVoltageRegulation());
@@ -273,6 +265,7 @@ class GeneratorModificationTest {
         modifs.setRegulating(false);
         GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
         // WHEN
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
         modification.apply(network);
         // THEN
         assertNotNull(generator.getVoltageRegulation());
@@ -290,6 +283,7 @@ class GeneratorModificationTest {
         modifs.setTargetQ(140.0);
         GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
         // WHEN
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
         modification.apply(network);
         // THEN
         assertNotNull(generator.getVoltageRegulation());
@@ -303,20 +297,6 @@ class GeneratorModificationTest {
     }
 
     @Test
-    void testGeneratorWithVoltageRegulationModifToAddVoltageRegulationReactiveModeThrowException() {
-        // GIVEN
-        generator.setLocalTargetQ(Double.NaN);
-        generator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).build();
-        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
-        modifs.setVoltageRegulationMode(RegulationMode.REACTIVE_POWER);
-        GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
-        // WHEN
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> modification.apply(network));
-        // THEN
-        assertEquals("Unexpected value: REACTIVE_POWER not yet implemented", exception.getMessage());
-    }
-
-    @Test
     void testGeneratorWithVoltageRegulationModifToAddVoltageRegulationVoltageModeAndValue() {
         // GIVEN
         generator.removeVoltageRegulation();
@@ -325,6 +305,7 @@ class GeneratorModificationTest {
         modifs.setTargetV(120.0);
         GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
         // WHEN
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
         modification.apply(network);
         // THEN
         assertNotNull(generator.getVoltageRegulation());
@@ -334,7 +315,7 @@ class GeneratorModificationTest {
         assertEquals(301.0, generator.getLocalTargetQ());
         assertEquals(120.0, generator.getLocalTargetV());
         assertEquals(120.0, generator.getRegulatingTargetV());
-        assertFalse(generator.isRegulating());
+        assertFalse(generator.isRegulating()); // no setRegulating(true) in the modif => still not regulating
     }
 
     @Test
@@ -346,6 +327,7 @@ class GeneratorModificationTest {
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);
         GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
         // WHEN
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
         modification.apply(network);
         // THEN
         assertNotNull(generator.getVoltageRegulation());
