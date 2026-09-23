@@ -1523,7 +1523,7 @@ public final class EquipmentExport {
 
     private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, CgmesExportContext context) {
         if (converterStation instanceof VscConverterStation vsc && vsc.getRegulatingTerminal() != vsc.getTerminal()) {
-            return getTerminalId(((VscConverterStation) converterStation).getRegulatingTerminal(), context);
+            return getTerminalId(vsc.getRegulatingTerminal(), context);
         }
         return null;
     }
@@ -1673,7 +1673,7 @@ public final class EquipmentExport {
             String converterId = context.getNamingStrategy().getCgmesId(converter);
             String className = converterClassName(converter);
             String pccTerminalId = null;
-            if (converter.getPccTerminal() != converter.getTerminal(TerminalNumber.ONE).orElseThrow()) {
+            if (converter.getPccTerminal() != converter.getTerminal1()) {
                 pccTerminalId = getTerminalId(converter.getPccTerminal(), context);
             }
             String capabilityCurveId = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
