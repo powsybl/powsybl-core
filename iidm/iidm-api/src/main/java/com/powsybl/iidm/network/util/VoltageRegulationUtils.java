@@ -133,24 +133,28 @@ public final class VoltageRegulationUtils {
             }
             vrAdder.add();
             adder.setLocalTargetQ(targetQ);
-            // REMOTE VOLTAGE disabled case
-        } else if (Boolean.FALSE.equals(voltageRegulatorOn) && !Double.isNaN(targetQ) && terminal != null && isGeneratorCase) {
-            adder.newVoltageRegulation()
-                .withMode(VOLTAGE)
-                .withTargetValue(targetV)
-                .withTerminal(terminal)
-                .withRegulating(false)
-                .add();
-            adder.setLocalTargetV(localTargetV);
-            adder.setLocalTargetQ(targetQ);
-            // REACTIVE Power case
-        } else if (Boolean.FALSE.equals(voltageRegulatorOn) && !Double.isNaN(targetQ) && terminal != null && !isGeneratorCase) {
-            adder.newVoltageRegulation()
-                .withMode(RegulationMode.REACTIVE_POWER)
-                .withTargetValue(targetQ)
-                .withTerminal(terminal)
-                .add();
-            adder.setLocalTargetV(targetV);
+            // REMOTE VOLTAGE
+        } else if (Boolean.FALSE.equals(voltageRegulatorOn) && !Double.isNaN(targetQ) && terminal != null) {
+            if (isGeneratorCase) {
+                // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
+                // without using an extension (RemoteReactivePowerControl)
+                // The VoltageRegulation object will be updated later if the extension is discovered.
+                adder.newVoltageRegulation()
+                        .withMode(VOLTAGE)
+                        .withTargetValue(targetV)
+                        .withTerminal(terminal)
+                        .withRegulating(false)
+                        .add();
+                adder.setLocalTargetV(localTargetV);
+                adder.setLocalTargetQ(targetQ);
+            } else {
+                adder.newVoltageRegulation()
+                        .withMode(RegulationMode.REACTIVE_POWER)
+                        .withTargetValue(targetQ)
+                        .withTerminal(terminal)
+                        .add();
+                adder.setLocalTargetV(targetV);
+            }
         } else {
             setLocalTargetV(adder, targetV, localTargetV);
             adder.setLocalTargetQ(targetQ);
