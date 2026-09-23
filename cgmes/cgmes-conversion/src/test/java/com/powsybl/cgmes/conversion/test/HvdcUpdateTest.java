@@ -125,7 +125,8 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         // and converts it to the load sign convention during the export process,
         // which is the standard convention in CGMES
         String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
-        assertTrue(sshXml.contains("<cim:VsConverter.targetQpcc>-30"));
+        String vscSsh = getElement(sshXml, "VsConverter", vsc.getId());
+        assertEquals("-30", getAttribute(vscSsh, "VsConverter.targetQpcc"));
 
         vsc.setReactivePowerSetpoint(0.0);
 
@@ -157,7 +158,8 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         // The detailed version assumes that the IIDM model uses the load sign convention and exports it directly,
         // as this is the standard convention in CGMES
         String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
-        assertTrue(sshXml.contains("<cim:VsConverter.targetQpcc>30"));
+        String vscSsh = getElement(sshXml, "VsConverter", vsc.getId());
+        assertEquals("30", getAttribute(vscSsh, "VsConverter.targetQpcc"));
 
         vsc.setReactivePowerSetpoint(0.0);
 
