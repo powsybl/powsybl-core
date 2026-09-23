@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 /**
  * Business logic for two-pass security analysis: first pass on all contingencies,
- * then second pass on those that did not converge or triggered a phase shifter, results merged.
+ * then second pass on those that did not converge or changed a phase tap changer, results merged.
  *
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
  */
@@ -120,7 +120,7 @@ public class TwoPassSecurityAnalysis {
 
     /**
      * Selects contingencies that should be re-analyzed with the second provider:
-     * those that did not converge or triggered a phase shifter.
+     * those that did not converge or changed a phase tap changer.
      */
     private List<Contingency> selectContingenciesForSecondPass(SecurityAnalysisResult firstResult,
                                                                      List<Contingency> allContingencies) {
@@ -137,10 +137,14 @@ public class TwoPassSecurityAnalysis {
     private boolean requiresSecondPass(PostContingencyResult result) {
         PostContingencyComputationStatus status = result.getStatus();
         boolean diverged = status != PostContingencyComputationStatus.CONVERGED && status != PostContingencyComputationStatus.NO_IMPACT;
-        if (diverged) {
-            LOGGER.debug("Contingency {} diverged (status: {}), scheduling second pass analysis", result.getContingency().getId(), status);
+        boolean hasChangedPhaseTapChanger = !result.getChangedPhaseTapChangers().isEmpty();
+        if (hasChangedPhaseTapChanger) {
+            LOGGER.debug("Contingency {} has changed phase tap changer (status: {}), scheduling second pass analysis", result.getContingency().getId(), status);
         }
-        return diverged;
+        if (diverged) {
+            LOGGER.debug("Contingency {} did not converge (status: {}), scheduling second pass analysis", result.getContingency().getId(), status);
+        }
+        return hasChangedPhaseTapChanger || diverged;
     }
 
     /**
