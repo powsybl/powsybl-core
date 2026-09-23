@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.modification.TestUtils.assertConnectablePositionEquals;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -449,21 +450,11 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Line line1 = network.getLine("FICT1L");
         ConnectablePosition<Line> line1Position = line1.getExtension(ConnectablePosition.class);
         assertNotNull(line1Position);
-        assertNotNull(line1Position.getFeeder1());
-        assertTrue(line1Position.getFeeder1().getOrder().isPresent());
-        assertEquals(1, line1Position.getFeeder1().getOrder().get());
-        assertTrue(line1Position.getFeeder1().getName().isPresent());
-        assertEquals("feeder1", line1Position.getFeeder1().getName().get());
-        assertEquals(ConnectablePosition.Direction.TOP, line1Position.getFeeder1().getDirection());
+        assertConnectablePositionEquals("feeder1", 1, ConnectablePosition.Direction.TOP, line1Position.getFeeder1());
 
         Line line2 = network.getLine("FICT2L");
         ConnectablePosition<Line> line2Position = line2.getExtension(ConnectablePosition.class);
         assertNotNull(line2Position);
-        assertNotNull(line2Position.getFeeder2());
-        assertTrue(line2Position.getFeeder2().getOrder().isPresent());
-        assertEquals(3, line2Position.getFeeder2().getOrder().get());
-        assertTrue(line2Position.getFeeder2().getName().isPresent());
-        assertEquals("feeder2", line2Position.getFeeder2().getName().get());
-        assertEquals(ConnectablePosition.Direction.BOTTOM, line2Position.getFeeder2().getDirection());
+        assertConnectablePositionEquals("feeder2", 3, ConnectablePosition.Direction.BOTTOM, line2Position.getFeeder2());
     }
 }
