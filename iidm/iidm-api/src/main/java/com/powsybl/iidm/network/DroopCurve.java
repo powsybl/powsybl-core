@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * A droop curve to define droop function of a <code>AcDcConverter</code>
- * in <code>P_PCC_DROOP</code> mode.
+ * in <code>DC_DROOP</code> mode.
  * <p>
  * This curve is made of <code>Segment</code> and each segment is defined by its minimum
  * and maximum voltage associated with a droop coefficient.
