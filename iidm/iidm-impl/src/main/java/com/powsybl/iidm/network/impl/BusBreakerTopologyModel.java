@@ -1009,7 +1009,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     @Override
     public void updateBusId(String id, String newId) {
         if (buses.get(id) == null) {
-            throw new PowsyblException("Bus with id " + id + " does not exists in the voltage level bus breaker topology model");
+            throw new PowsyblException("Bus with id " + id + " does not exist in the voltage level bus breaker topology model");
         }
         Integer v = buses.remove(id);
         buses.put(newId, v);
