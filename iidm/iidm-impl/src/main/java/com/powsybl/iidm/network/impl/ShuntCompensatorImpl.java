@@ -246,7 +246,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         int variantIndex = network.get().getVariantIndex();
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         double oldValue = getLocalTargetV();
-        if (voltageRegulation != null && isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
             oldValue = getVoltageRegulation().getTargetValue();
             getVoltageRegulation().setTargetValue(targetV);
         } else {

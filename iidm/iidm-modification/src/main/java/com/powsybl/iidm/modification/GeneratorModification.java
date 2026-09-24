@@ -66,7 +66,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         changeVoltageRegulation(g);
 
         if (modifs.getTargetV() != null) {
-            if (g.isRegulatingWithMode(RegulationMode.VOLTAGE) && g.isRemoteRegulating()) {
+            if (g.isRegulatingWithMode(RegulationMode.VOLTAGE) && g.hasRegulatingTerminal()) {
                 g.getVoltageRegulation().setTargetValue(modifs.getTargetV());
             } else {
                 g.setLocalTargetV(modifs.getTargetV());
@@ -102,7 +102,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         } else {
             VoltageRegulation voltageRegulation = g.getVoltageRegulation();
             RegulationMode mode = modifs.getVoltageRegulationMode() != null ? modifs.getVoltageRegulationMode() : voltageRegulation.getMode();
-            if (!g.isRemoteRegulating()) {
+            if (!g.hasRegulatingTerminal()) {
                 g.setLocalTargetV(localTargetV);
             }
             double targetValue = computeTargetValue(modifs, g);
@@ -118,7 +118,7 @@ public class GeneratorModification extends AbstractNetworkModification {
     }
 
     private double computeLocalTargetV(Modifs modifs, Generator generator) {
-        if (!generator.isRemoteRegulating()) {
+        if (!generator.hasRegulatingTerminal()) {
             Double fromModifs = modifs.getTargetV();
             if (isNotNullAndNotNaN(fromModifs)) {
                 return fromModifs;
@@ -132,7 +132,7 @@ public class GeneratorModification extends AbstractNetworkModification {
     }
 
     private double computeTargetValue(Modifs modifs, Generator generator) {
-        if (generator.isRemoteRegulating()) {
+        if (generator.hasRegulatingTerminal()) {
             Double fromModifs = modifs.getTargetV();
             if (isNotNullAndNotNaN(fromModifs)) {
                 return fromModifs;

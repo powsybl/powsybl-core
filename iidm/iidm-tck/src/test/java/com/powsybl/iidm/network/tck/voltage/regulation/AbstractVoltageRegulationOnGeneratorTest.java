@@ -195,7 +195,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
         assertEquals(remoteTerminal, voltageRegulation.getTerminal());
         assertTrue(voltageRegulation.isWithTerminal());
         assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(generator.isRemoteRegulating());
+        assertTrue(generator.hasRegulatingTerminal());
     }
 
     @Test
@@ -235,7 +235,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
         assertFalse(voltageRegulation.isWithTerminal());
         assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(generator.isWithMode(RegulationMode.VOLTAGE));
-        assertFalse(generator.isRemoteRegulating());
+        assertFalse(generator.hasRegulatingTerminal());
     }
 
     @Test
@@ -277,7 +277,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
         assertTrue(voltageRegulation.isWithTerminal());
         assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(generator.isWithMode(RegulationMode.VOLTAGE));
-        assertTrue(generator.isRemoteRegulating());
+        assertTrue(generator.hasRegulatingTerminal());
     }
 
     @Test

@@ -238,7 +238,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         Terminal localTerminal = voltageSourceConverter.getTerminal1();
         voltageSourceConverter.setPccTerminal(localTerminal);
         // THEN
-        assertTrue(voltageSourceConverter.isRemoteRegulating());
+        assertTrue(voltageSourceConverter.hasRegulatingTerminal());
         assertTrue(voltageSourceConverter.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
         assertEquals(localTerminal, voltageSourceConverter.getRegulatingTerminal());
         assertEquals(voltageSourceConverter.getPccTerminal(), voltageSourceConverter.getRegulatingTerminal());

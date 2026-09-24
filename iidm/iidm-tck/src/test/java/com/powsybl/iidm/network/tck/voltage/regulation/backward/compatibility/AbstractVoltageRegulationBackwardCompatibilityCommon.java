@@ -59,7 +59,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityCommon {
         }
 
         assertEquals(expected.isRegulating(), actual.isRegulating());
-        assertEquals(expected.terminal() != null, actual.isRemoteRegulating());
+        assertEquals(expected.terminal() != null, actual.hasRegulatingTerminal());
 
         if (actual.getVoltageRegulation() != null) {
             assertEquals(expected.targetDeadband(), actual.getVoltageRegulation().getTargetDeadband());

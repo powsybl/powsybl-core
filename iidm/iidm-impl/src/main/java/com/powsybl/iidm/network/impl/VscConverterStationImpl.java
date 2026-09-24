@@ -84,7 +84,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         NetworkImpl n = getNetwork();
         double oldValue;
-        if (voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
+        if (voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) && hasRegulatingTerminal()) {
             oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(voltageSetpoint);
         } else {
@@ -152,7 +152,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         double oldValue;
-        if (voltageRegulation != null && isWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
+        if (voltageRegulation != null && isWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(reactivePowerSetpoint);
         } else {

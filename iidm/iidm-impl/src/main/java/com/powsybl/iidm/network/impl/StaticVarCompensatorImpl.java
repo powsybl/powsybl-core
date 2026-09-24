@@ -107,7 +107,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValueTargetV = getLocalTargetV();
-        if (voltageRegulation != null && isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
             getVoltageRegulation().setTargetValue(voltageSetpoint);
         } else {
             setLocalTargetV(voltageSetpoint);
@@ -164,7 +164,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValueTargetQ = getLocalTargetV();
-        if (voltageRegulation != null && isRemoteRegulating() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
             getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
         } else {
             setLocalTargetQ(reactivePowerSetpoint);

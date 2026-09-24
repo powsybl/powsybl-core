@@ -34,7 +34,7 @@ public class VscConverterStationModification extends AbstractSetpointModificatio
 
     @Override
     protected void setVoltageSetpoint(VscConverterStation networkElement, Double voltageSetpoint) {
-        if (networkElement.getVoltageRegulation() != null && networkElement.isWithMode(RegulationMode.VOLTAGE) && networkElement.isRemoteRegulating()) {
+        if (networkElement.getVoltageRegulation() != null && networkElement.isWithMode(RegulationMode.VOLTAGE) && networkElement.hasRegulatingTerminal()) {
             networkElement.getVoltageRegulation().setTargetValue(voltageSetpoint);
         } else {
             networkElement.setLocalTargetV(voltageSetpoint);

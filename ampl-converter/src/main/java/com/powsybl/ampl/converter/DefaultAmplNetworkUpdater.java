@@ -71,7 +71,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
                 svc.getVoltageRegulation().setRegulating(false);
                 svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
             } else {
-                if (svc.isRemoteRegulating()) {
+                if (svc.hasRegulatingTerminal()) {
                     svc.getVoltageRegulation().setTargetValue(-q);
                 } else {
                     svc.setLocalTargetQ(-q);
@@ -83,7 +83,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         Terminal t = updateTerminalQ(svc.getTerminal(), q);
         double nominalV = svc.getRegulatingTerminal().getVoltageLevel().getNominalV();
         double targetValue = targetV * nominalV;
-        if (svc.isRemoteRegulating()) {
+        if (svc.hasRegulatingTerminal()) {
             svc.getVoltageRegulation().setTargetValue(targetValue);
         } else {
             svc.setLocalTargetV(targetValue);
@@ -193,7 +193,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
 
         double nominalV = holder.getRegulatingTerminal().getVoltageLevel().getNominalV();
         double targetValueV = targetV * nominalV;
-        if (holder.isRemoteRegulating()) {
+        if (holder.hasRegulatingTerminal()) {
             if (holder.isWithMode(RegulationMode.VOLTAGE)) {
                 holder.getVoltageRegulation().setTargetValue(targetValueV);
                 holder.setLocalTargetQ(targetQ);

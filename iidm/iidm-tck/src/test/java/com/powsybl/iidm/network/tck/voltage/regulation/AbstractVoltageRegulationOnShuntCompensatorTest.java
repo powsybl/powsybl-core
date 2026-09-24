@@ -198,7 +198,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
         assertEquals(remoteTerminal, voltageRegulation.getTerminal());
         assertTrue(voltageRegulation.isWithTerminal());
         assertTrue(shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(shuntCompensator.isRemoteRegulating());
+        assertTrue(shuntCompensator.hasRegulatingTerminal());
     }
 
     @Test
@@ -239,7 +239,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
         assertFalse(voltageRegulation.isWithTerminal());
         assertFalse(shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(shuntCompensator.isWithMode(RegulationMode.VOLTAGE));
-        assertFalse(shuntCompensator.isRemoteRegulating());
+        assertFalse(shuntCompensator.hasRegulatingTerminal());
     }
 
     @Test
@@ -288,7 +288,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
         assertTrue(voltageRegulation.isWithTerminal());
         assertFalse(shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(shuntCompensator.isWithMode(RegulationMode.VOLTAGE));
-        assertTrue(shuntCompensator.isRemoteRegulating());
+        assertTrue(shuntCompensator.hasRegulatingTerminal());
     }
 
     @Test
@@ -312,7 +312,7 @@ public abstract class AbstractVoltageRegulationOnShuntCompensatorTest extends Ab
         assertTrue(voltageRegulation.isWithTerminal());
         assertFalse(shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(shuntCompensator.isWithMode(RegulationMode.VOLTAGE));
-        assertTrue(shuntCompensator.isRemoteRegulating());
+        assertTrue(shuntCompensator.hasRegulatingTerminal());
     }
 
     // RemoveTerminal

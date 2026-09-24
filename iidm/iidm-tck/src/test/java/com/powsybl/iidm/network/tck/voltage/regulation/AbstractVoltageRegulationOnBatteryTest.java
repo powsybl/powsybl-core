@@ -199,7 +199,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
         assertEquals(remoteTerminal, voltageRegulation.getTerminal());
         assertTrue(voltageRegulation.isWithTerminal());
         assertTrue(battery.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(battery.isRemoteRegulating());
+        assertTrue(battery.hasRegulatingTerminal());
     }
 
     @Test
@@ -239,7 +239,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
         assertFalse(voltageRegulation.isWithTerminal());
         assertFalse(battery.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(battery.isWithMode(RegulationMode.VOLTAGE));
-        assertFalse(battery.isRemoteRegulating());
+        assertFalse(battery.hasRegulatingTerminal());
     }
 
     @Test
@@ -281,7 +281,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
         assertTrue(voltageRegulation.isWithTerminal());
         assertFalse(battery.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(battery.isWithMode(RegulationMode.VOLTAGE));
-        assertTrue(battery.isRemoteRegulating());
+        assertTrue(battery.hasRegulatingTerminal());
     }
 
     @Test

@@ -242,7 +242,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetV(double targetV) {
         ValidationUtil.checkDoublePositive(this, targetV, "targetV");
-        if (voltageRegulation != null && isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
             int variantIndex = network.get().getVariantIndex();
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             double oldValueTargetV = getTargetV();
@@ -261,7 +261,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         double oldLocalTargetV = getLocalTargetV();
         if (voltageRegulation != null) {
-            if (isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+            if (hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
                 double oldTargetV = getVoltageRegulation().getTargetValue();
                 setLocalTargetV(equivalentLocalTargetV);
                 getVoltageRegulation().setTargetValue(targetV);

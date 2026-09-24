@@ -130,7 +130,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * Gets the regulating target voltage value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#VOLTAGE}
      */
     default double getRegulatingTargetV() {
-        if ((isWithMode(RegulationMode.VOLTAGE) || isWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)) && isRemoteRegulating()) {
+        if ((isWithMode(RegulationMode.VOLTAGE) || isWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)) && hasRegulatingTerminal()) {
             return getVoltageRegulation().getTargetValue();
         }
         return getLocalTargetV();
@@ -138,20 +138,26 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
 
     /**
      * Gets the regulating target reactive power value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#REACTIVE_POWER}
-     * TODO MSA Other possible names : getEffectiveTargetQ / getApplicableTargetQ / resolveTargetQ / determineTargetQ
      */
     default double getRegulatingTargetQ() {
-        if (isWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
+        if (isWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             return getVoltageRegulation().getTargetValue();
         }
         return getLocalTargetQ();
     }
 
     /**
-     * <p>Gets the terminal used for regulation</p>
-     * <p>If voltage regulation is configured with an explicit terminal, that terminal is returned.
-     * Otherwise, this method returns the holder's local terminal {@link #getTerminal()}</p>
-     * @return the terminal used for regulation
+     * Gets the terminal used for voltage regulation
+     * <p>
+     * If voltage regulation has an explicitly configured regulating terminal, this
+     * method returns it. Otherwise, it returns the holder's local terminal as an
+     * implicit fallback
+     * </p>
+     *
+     * @return the explicitly configured regulating terminal, or the holder's local
+     *         terminal if none is configured
+     * @see #getTerminal()
+     * @see #hasRegulatingTerminal()
      */
     default Terminal getRegulatingTerminal() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
@@ -162,13 +168,18 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     }
 
     /**
-     * <p>Checks if the regulation is performed remotely</p>
-     * <p>Note that this method also returns <code>true</code> when the configured
-     * regulating terminal is the holder's local terminal</p>
-     * @return true if regulating remotely, false otherwise
+     * Checks whether voltage regulation has an explicitly configured regulating terminal
+     * <p>
+     * Unlike {@link #getRegulatingTerminal()}, this method does not consider the
+     * holder's local terminal as an implicit fallback. It returns {@code true} only
+     * when a regulating terminal is explicitly set, including when that terminal is
+     * the holder's local terminal
+     * </p>
+     *
+     * @return {@code true} if a regulating terminal is explicitly configured,
+     *         {@code false} otherwise
      */
-    // TODO MSA other method name: hasRemoteRegulatingTerminal, isRegulatingTerminalSet,
-    default boolean isRemoteRegulating() {
+    default boolean hasRegulatingTerminal() {
         return getVoltageRegulation() != null && getVoltageRegulation().isWithTerminal();
     }
 
@@ -187,7 +198,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      */
     default void setTargetQToQ() {
         // If remote reactive power regulation is enabled, the target value is updated
-        if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
+        if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             double remoteQ = getVoltageRegulation().getTerminal().getQ();
             if (!Double.isNaN(remoteQ)) {
                 getVoltageRegulation().setTargetValue(-remoteQ);
@@ -213,7 +224,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * </p>
      */
     default void setTargetVToV() {
-        if (this.isRegulatingWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
+        if (this.isRegulatingWithMode(RegulationMode.VOLTAGE) && hasRegulatingTerminal()) {
             Bus remoteBus = getVoltageRegulation().getTerminal().getBusView().getBus();
             if (remoteBus != null && !Double.isNaN(remoteBus.getV())) {
                 getVoltageRegulation().setTargetValue(remoteBus.getV());

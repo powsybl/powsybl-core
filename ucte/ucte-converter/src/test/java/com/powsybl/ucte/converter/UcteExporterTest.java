@@ -188,7 +188,7 @@ class UcteExporterTest extends AbstractSerDeTest {
         for (Generator gen : network.getGenerators()) {
             if (gen.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
                 double targetV = gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4;
-                if (gen.isRemoteRegulating()) {
+                if (gen.hasRegulatingTerminal()) {
                     gen.getVoltageRegulation().setTargetValue(targetV);
                 } else {
                     gen.setLocalTargetV(targetV);

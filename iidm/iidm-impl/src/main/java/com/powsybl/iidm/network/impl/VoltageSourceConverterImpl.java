@@ -124,7 +124,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     public VoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
         NetworkImpl n = getNetwork();
         double oldValue;
-        if (voltageRegulation != null && isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
             oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(voltageSetpoint);
         } else {
@@ -145,7 +145,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public VoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         double oldValue;
-        if (voltageRegulation != null && isRemoteRegulating() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
             oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(reactivePowerSetpoint);
         } else {

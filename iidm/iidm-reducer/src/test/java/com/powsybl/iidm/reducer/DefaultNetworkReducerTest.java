@@ -280,7 +280,7 @@ class DefaultNetworkReducerTest {
         Generator generator = networkLcc.getGenerator("hvdc_line_with_remote_regulation");
         assertEquals(120, generator.getRegulatingTargetV());
         assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(generator.isRemoteRegulating());
+        assertTrue(generator.hasRegulatingTerminal());
         assertEquals(remoteTerminal, generator.getRegulatingTerminal());
     }
 

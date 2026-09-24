@@ -171,7 +171,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         assertEquals(remoteTerminal, voltageRegulation.getTerminal());
         assertTrue(voltageRegulation.isWithTerminal());
         assertTrue(ratioTapChanger.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertTrue(ratioTapChanger.isRemoteRegulating());
+        assertTrue(ratioTapChanger.hasRegulatingTerminal());
     }
 
     @Test
@@ -211,7 +211,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         assertFalse(voltageRegulation.isWithTerminal());
         assertFalse(ratioTapChanger.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(ratioTapChanger.isWithMode(RegulationMode.VOLTAGE));
-        assertFalse(ratioTapChanger.isRemoteRegulating());
+        assertFalse(ratioTapChanger.hasRegulatingTerminal());
     }
 
     // Cases Regulating false, Terminal present, Mode VOLTAGE
@@ -238,7 +238,7 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         assertTrue(voltageRegulation.isWithTerminal());
         assertFalse(ratioTapChanger.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(ratioTapChanger.isWithMode(RegulationMode.VOLTAGE));
-        assertTrue(ratioTapChanger.isRemoteRegulating());
+        assertTrue(ratioTapChanger.hasRegulatingTerminal());
     }
 
     // RemoveTerminal

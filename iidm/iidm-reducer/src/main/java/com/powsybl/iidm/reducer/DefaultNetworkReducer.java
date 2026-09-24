@@ -319,7 +319,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     private void addVoltageRegulation(GeneratorAdder genAdder, VscConverterStation station) {
         VoltageRegulationAdder<GeneratorAdder> adder = genAdder.newVoltageRegulation();
         adder.withMode(RegulationMode.VOLTAGE);
-        if (station.isRemoteRegulating()) {
+        if (station.hasRegulatingTerminal()) {
             adder.withTargetValue(station.getVoltageRegulation().getTargetValue())
                 .withTerminal(station.getVoltageRegulation().getTerminal());
         }

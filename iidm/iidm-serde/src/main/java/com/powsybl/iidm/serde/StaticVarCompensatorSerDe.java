@@ -84,7 +84,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
     private static void writeVoltageSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String voltageSetpointName) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             double voltageSetpoint;
-            if (svc.isWithMode(RegulationMode.VOLTAGE) && svc.isRemoteRegulating()) {
+            if (svc.isWithMode(RegulationMode.VOLTAGE) && svc.hasRegulatingTerminal()) {
                 voltageSetpoint = svc.getVoltageRegulation().getTargetValue();
             } else {
                 voltageSetpoint = svc.getLocalTargetV();
@@ -96,7 +96,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
     private static void writeReactivePowerSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String reactivePowerSetpointName) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             double reactivePowerSetpoint;
-            if (svc.isWithMode(RegulationMode.REACTIVE_POWER) && svc.isRemoteRegulating()) {
+            if (svc.isWithMode(RegulationMode.REACTIVE_POWER) && svc.hasRegulatingTerminal()) {
                 reactivePowerSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
             } else {
                 reactivePowerSetpoint = svc.getLocalTargetQ();

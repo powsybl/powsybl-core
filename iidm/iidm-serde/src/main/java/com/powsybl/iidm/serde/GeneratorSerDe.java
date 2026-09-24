@@ -57,7 +57,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     private static void writeEquivalentLocalTargetV(Generator g, NetworkSerializerContext context) {
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15, IidmVersion.V_1_17, context, () -> {
             double equivalentTargetV = Double.NaN;
-            if (g.isRemoteRegulating() && g.isWithMode(RegulationMode.VOLTAGE)) {
+            if (g.hasRegulatingTerminal() && g.isWithMode(RegulationMode.VOLTAGE)) {
                 equivalentTargetV = g.getLocalTargetV();
             }
             context.getWriter().writeDoubleAttribute("equivalentLocalTargetV", equivalentTargetV, Double.NaN);
@@ -72,7 +72,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     private static void writeTargetV(Generator g, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             double targetV;
-            if (g.isRemoteRegulating() && g.isWithMode(RegulationMode.VOLTAGE)) {
+            if (g.hasRegulatingTerminal() && g.isWithMode(RegulationMode.VOLTAGE)) {
                 targetV = g.getVoltageRegulation().getTargetValue();
             } else {
                 targetV = g.getLocalTargetV();

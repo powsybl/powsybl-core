@@ -195,7 +195,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
             generator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).build();
         }
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (generator.isRemoteRegulating()) {
+        if (generator.hasRegulatingTerminal()) {
             voltageRegulation.setTargetValue(targetV);
         } else {
             generator.setLocalTargetV(targetV);
