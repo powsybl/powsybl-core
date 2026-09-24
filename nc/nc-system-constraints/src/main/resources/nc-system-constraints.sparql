@@ -1,0 +1,131 @@
+# query: voltageAngleLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <${context}> {
+        ?voltageAngleLimit
+            rdf:type nc:VoltageAngleLimit ;
+            nc:VoltageAngleLimit.normalValue ?normalValue ;
+            nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        OPTIONAL {
+            ?voltageAngleLimit nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
+        }
+    }
+}
+
+# query: voltageAngleLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <${context}> {
+        ?voltageAngleLimit
+            rdf:type nc:VoltageAngleLimit ;
+            nc:VoltageAngleLimit.value ?value .
+    }
+}
+
+# query: powerTransferCorridor
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT DISTINCT *
+{
+    GRAPH <${context}> {
+        VALUES ?corridorType { nc:OrdinaryPowerTransferCorridor nc:ExceptionalPowerTransferCorridor }
+        ?powerTransferCorridor
+            rdf:type ?corridorType ;
+            cim:IdentifiedObject.mRID ?corridorMrid ;
+            cim:IdentifiedObject.name ?corridorName .
+        OPTIONAL { ?powerTransferCorridor nc:PowerTransferCorridor.normalEnabled ?normalEnabled . }
+    }
+}
+
+# query: operationalLimitSet
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT DISTINCT *
+{
+    GRAPH <${context}> {
+        ?operationalLimitSet rdf:type cim:OperationalLimitSet .
+        OPTIONAL { ?operationalLimitSet cim:OperationalLimitSet.Terminal ?terminal . }
+        OPTIONAL { ?operationalLimitSet nc:OperationalLimitSet.PowerTransferCorridor ?powerTransferCorridor . }
+    }
+}
+
+# query: operationalLimitType
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT DISTINCT *
+{
+    GRAPH <${context}> {
+        ?operationalLimitType rdf:type cim:OperationalLimitType .
+        OPTIONAL { ?operationalLimitType cim:OperationalLimitType.direction ?direction . }
+        OPTIONAL { ?operationalLimitType nc:OperationalLimitType.isMinimum ?isMinimum . }
+    }
+}
+
+# query: infeedLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT DISTINCT *
+{
+    GRAPH <${context}> {
+        ?infeedLimit
+            rdf:type nc:InfeedLimit ;
+            cim:IdentifiedObject.mRID ?infeedLimitMrid ;
+            cim:IdentifiedObject.name ?infeedLimitName ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        OPTIONAL { ?infeedLimit nc:InfeedLimit.normalValueW ?normalValueW . }
+        OPTIONAL { ?infeedLimit nc:InfeedLimit.normalValueA ?normalValueA . }
+    }
+}
+
+# query: infeedTerminal
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT DISTINCT *
+{
+    GRAPH <${context}> {
+        ?infeedTerminal
+            rdf:type nc:InfeedTerminal ;
+            (nc:InfeedTerminal.mRID|cim:IdentifiedObject.mRID) ?infeedTerminalMrid ;
+            nc:InfeedTerminal.InfeedConstraint ?infeedLimit ;
+            nc:InfeedTerminal.ACDCTerminal ?terminal .
+    }
+}
+
+# query: powerTransferCorridorOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <${context}> {
+        VALUES ?corridorType { nc:OrdinaryPowerTransferCorridor nc:ExceptionalPowerTransferCorridor }
+        ?powerTransferCorridor
+            rdf:type ?corridorType ;
+            nc:PowerTransferCorridor.enabled ?enabled .
+    }
+}
+
+# query: infeedLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <${context}> {
+        ?infeedLimit rdf:type nc:InfeedLimit .
+        OPTIONAL { ?infeedLimit nc:InfeedLimit.valueW ?valueW . }
+        OPTIONAL { ?infeedLimit nc:InfeedLimit.valueA ?valueA . }
+        FILTER (BOUND(?valueW) || BOUND(?valueA))
+    }
+}

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" >
+  <md:FullModel rdf:about="urn:uuid:126cd132-af5b-420c-9998-a646e338997e">
+    <dcat:version>1.0</dcat:version>
+    <dcat:keyword>AE</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/AssessedElement-EU/2.4</dcterms:Model.conformsTo>
+    <dcat:startDate>2023-01-01T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2100-01-01T00:00:00Z</dcat:endDate>
+    <prov:Model.generatedAtTime>2023-09-04T12:59:43Z</prov:Model.generatedAtTime>
+    <prov:Model.wasInfluencedBy>urn:uuid:816a7e4f-8e78-41e7-9f32-40214675b087</prov:Model.wasInfluencedBy>
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcterms:Model.creator>http://rte-france.fr/CGMES</dcterms:Model.creator>
+    <dcterms:Model.identifier>urn:uuid:126cd132-af5b-420c-9998-a646e338997e</dcterms:Model.identifier>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+    <dcterms:Model.description>This is an example of assessed element profile</dcterms:Model.description>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <!-- AE 1 -->
+  <nc:AssessedElement rdf:ID="_f7708112-b880-4674-98a1-b005a01a61d5">
+    <cim:IdentifiedObject.mRID>f7708112-b880-4674-98a1-b005a01a61d5</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE1</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>true</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR3AA1++FFR5AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_255b2bc1-713b-44c1-bb33-5de7bf539903">
+    <nc:AssessedElementWithContingency.mRID>255b2bc1-713b-44c1-bb33-5de7bf539903</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_co1_fr2_fr3_1"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_f7708112-b880-4674-98a1-b005a01a61d5"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElementWithRemedialAction rdf:ID="_da604b37-bdd7-401f-9448-1fd3629cb919">
+    <nc:AssessedElementWithRemedialAction.mRID>da604b37-bdd7-401f-9448-1fd3629cb919</nc:AssessedElementWithRemedialAction.mRID>
+    <nc:AssessedElementWithRemedialAction.RemedialAction rdf:resource="#_open_be1_be4_cra_ae1"/>
+    <nc:AssessedElementWithRemedialAction.AssessedElement rdf:resource="#_f7708112-b880-4674-98a1-b005a01a61d5"/>
+    <nc:AssessedElementWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithRemedialAction.normalEnabled>true</nc:AssessedElementWithRemedialAction.normalEnabled>
+  </nc:AssessedElementWithRemedialAction>
+  <nc:AssessedElementWithRemedialAction rdf:ID="_4e7d9e59-c9ea-4344-92e8-e09b4867f078">
+    <nc:AssessedElementWithRemedialAction.mRID>4e7d9e59-c9ea-4344-92e8-e09b4867f078</nc:AssessedElementWithRemedialAction.mRID>
+    <nc:AssessedElementWithRemedialAction.RemedialAction rdf:resource="#_open_de3_de4_cra_ae1"/>
+    <nc:AssessedElementWithRemedialAction.AssessedElement rdf:resource="#_f7708112-b880-4674-98a1-b005a01a61d5"/>
+    <nc:AssessedElementWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithRemedialAction.normalEnabled>true</nc:AssessedElementWithRemedialAction.normalEnabled>
+  </nc:AssessedElementWithRemedialAction>
+  <!-- AE 2 -->
+  <nc:AssessedElement rdf:ID="_77320d6c-7880-43b1-ac28-e27a85ebda82">
+    <cim:IdentifiedObject.mRID>77320d6c-7880-43b1-ac28-e27a85ebda82</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE2</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>false</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR2AA1++FFR3AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_b4bab621-ac82-4d69-bc5f-ebfdf9312fcf">
+    <nc:AssessedElementWithContingency.mRID>b4bab621-ac82-4d69-bc5f-ebfdf9312fcf</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_co2_be1_be3_1"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_77320d6c-7880-43b1-ac28-e27a85ebda82"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElementWithRemedialAction rdf:ID="_da60d141-0a2c-4aba-b394-04cab5de06b3">
+    <nc:AssessedElementWithRemedialAction.mRID>da60d141-0a2c-4aba-b394-04cab5de06b3</nc:AssessedElementWithRemedialAction.mRID>
+    <nc:AssessedElementWithRemedialAction.RemedialAction rdf:resource="#_open_be1_be4_cra_ae2"/>
+    <nc:AssessedElementWithRemedialAction.AssessedElement rdf:resource="#_77320d6c-7880-43b1-ac28-e27a85ebda82"/>
+    <nc:AssessedElementWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithRemedialAction.normalEnabled>true</nc:AssessedElementWithRemedialAction.normalEnabled>
+  </nc:AssessedElementWithRemedialAction>
+  <!-- AE 3 -->
+  <nc:AssessedElement rdf:ID="_ae_three_windings_transformer">
+    <cim:IdentifiedObject.mRID>ae_three_windings_transformer</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE 3WT</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>false</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_BBE2AA1++BBE3AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_ae_three_windings_transformer_co3">
+    <nc:AssessedElementWithContingency.mRID>ae_three_windings_transformer_co3</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_co3_three_windings_transformer"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_ae_three_windings_transformer"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElement rdf:ID="_ae_voltage_level">
+    <cim:IdentifiedObject.mRID>ae_voltage_level</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE voltage level</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>false</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR3AA1++FFR5AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_ae_voltage_level_co1">
+    <nc:AssessedElementWithContingency.mRID>ae_voltage_level_co1</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_co1_fr2_fr3_1"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_ae_voltage_level"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+  </nc:AssessedElementWithContingency>
+</rdf:RDF>
