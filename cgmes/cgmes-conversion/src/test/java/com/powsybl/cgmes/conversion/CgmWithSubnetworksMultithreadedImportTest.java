@@ -17,16 +17,22 @@ import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -211,10 +217,95 @@ class CgmWithSubnetworksMultithreadedImportTest {
         assertEquals("CIM Namespace not found", e.getCause().getMessage());
     }
 
+    // This test uses SlowReadOnlyDataSource which itself uses await().pollInSameThread() whose javadoc says:
+    // "For safety you should always combine tests using this feature with a test framework specific timeout."
+    // The test takes about 300ms, hence 2 seconds timeout should be safe.
+    @Test
+    @Timeout(value = 2, unit = TimeUnit.SECONDS)
+    void oneSubnetworkImportFailureWaitsForRunningSubnetworkImports() {
+        AtomicBoolean runningImportStarted = new AtomicBoolean(false);
+        SlowReadOnlyDataSource slowDs = new SlowReadOnlyDataSource(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), runningImportStarted);
+        // The failing data source must come first: its future is the first one awaited
+        Set<ReadOnlyDataSource> dss = new LinkedHashSet<>(List.of(new BrokenReadOnlyDataSource(runningImportStarted), slowDs));
+        CgmesImport cgmesImport = new CgmesImport();
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        Properties importParams = new Properties();
+        assertThrows(PowsyblException.class,
+                () -> cgmesImport.importSubnetworks(dss, networkFactory, importParams, ReportNode.NO_OP, 2));
+        assertTrue(slowDs.finished, "running subnetwork import should have finished before the exception is thrown");
+    }
+
+    /**
+     * A data source that blocks until its import thread is interrupted, then keeps running a little longer
+     * before failing, simulating a subnetwork import that is slow to react to interruption.
+     */
+    private static final class SlowReadOnlyDataSource implements ReadOnlyDataSource {
+        private final ReadOnlyDataSource delegate;
+        private final AtomicBoolean started;
+        private volatile boolean finished = false;
+
+        private SlowReadOnlyDataSource(ReadOnlyDataSource delegate, AtomicBoolean started) {
+            this.delegate = delegate;
+            this.started = started;
+        }
+
+        @Override
+        public String getBaseName() {
+            return delegate.getBaseName();
+        }
+
+        @Override
+        public boolean exists(String suffix, String ext) throws IOException {
+            return delegate.exists(suffix, ext);
+        }
+
+        @Override
+        public boolean exists(String fileName) throws IOException {
+            return delegate.exists(fileName);
+        }
+
+        @Override
+        public boolean isDataExtension(String ext) {
+            return delegate.isDataExtension(ext);
+        }
+
+        @Override
+        public InputStream newInputStream(String suffix, String ext) throws IOException {
+            return delegate.newInputStream(suffix, ext);
+        }
+
+        @Override
+        public InputStream newInputStream(String fileName) throws IOException {
+            return delegate.newInputStream(fileName);
+        }
+
+        @Override
+        public Set<String> listNames(String regex) throws IOException {
+            started.set(true);
+            await().pollInSameThread().atMost(30, TimeUnit.SECONDS).until(Thread.currentThread()::isInterrupted);
+            // Clear the interrupt so that the extra work below is not cut short
+            Thread.interrupted();
+            await().pollDelay(200, TimeUnit.MILLISECONDS).until(() -> true);
+            finished = true;
+            Thread.currentThread().interrupt();
+            throw new InterruptedIOException("Simulated interrupted subnetwork data reading");
+        }
+    }
+
     /**
      * A data source that always fails to read, simulating a subnetwork import failure.
      */
     private static final class BrokenReadOnlyDataSource implements ReadOnlyDataSource {
+        private final AtomicBoolean failAfter;
+
+        private BrokenReadOnlyDataSource() {
+            this(new AtomicBoolean(true));
+        }
+
+        private BrokenReadOnlyDataSource(AtomicBoolean failAfter) {
+            this.failAfter = failAfter;
+        }
+
         @Override
         public String getBaseName() {
             return "broken";
@@ -247,6 +338,7 @@ class CgmWithSubnetworksMultithreadedImportTest {
 
         @Override
         public Set<String> listNames(String regex) {
+            await().atMost(30, TimeUnit.SECONDS).untilTrue(failAfter);
             return new HashSet<>();
         }
     }

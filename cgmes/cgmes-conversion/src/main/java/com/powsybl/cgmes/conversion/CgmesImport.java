@@ -69,6 +69,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
@@ -253,7 +254,20 @@ public class CgmesImport implements Importer {
 
         @Override
         public void close() {
+            // On success all futures are already done, so shutdown() and shutdownNow() are equivalent.
+            // On failure or interruption the whole import fails anyway: shutdownNow() drops the queued subnetwork
+            // imports which gives the fastest failure (instead of running them for nothing as shutdown() would).
             delegate.shutdownNow();
+            // Subnetwork imports do not react to interruption: wait for running ones so that none of them keeps
+            // mutating its ReportNode after the caller has received the result or the exception.
+            // 5 minutes should be more than enough on "normally" sized CGMES inputs.
+            try {
+                if (!delegate.awaitTermination(5, TimeUnit.MINUTES)) {
+                    LOGGER.warn("CGMES subnetwork import threads still running after 5 minutes");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
