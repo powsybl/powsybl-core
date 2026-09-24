@@ -22,11 +22,13 @@ public abstract class AbstractLineDisconnectionModification<M extends AbstractLi
     protected String oldLine1Id;
     protected String oldLine2Id;
     protected String lineToRemoveId;
+    protected boolean forceRemoveIsolatedVoltageLevel;
 
-    protected AbstractLineDisconnectionModification(String oldLine1Id, String oldLine2Id, String lineToRemoveId) {
+    protected AbstractLineDisconnectionModification(String oldLine1Id, String oldLine2Id, String lineToRemoveId, boolean forceRemoveIsolatedVoltageLevel) {
         this.oldLine1Id = Objects.requireNonNull(oldLine1Id);
         this.oldLine2Id = Objects.requireNonNull(oldLine2Id);
         this.lineToRemoveId = Objects.requireNonNull(lineToRemoveId);
+        this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
     }
 
     @Override

@@ -53,8 +53,8 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
      * <p>
      * NB: This constructor is package-private, Please use {@link RevertCreateLineOnLineBuilder} instead.
      */
-    RevertCreateLineOnLine(String lineToBeMerged1Id, String lineToBeMerged2Id, String lineToBeDeletedId, String mergedLineId, String mergedLineName) {
-        super(lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
+    RevertCreateLineOnLine(String lineToBeMerged1Id, String lineToBeMerged2Id, String lineToBeDeletedId, String mergedLineId, String mergedLineName, boolean forceRemoveIsolatedVoltageLevel) {
+        super(lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId, forceRemoveIsolatedVoltageLevel);
         this.mergedLineId = Objects.requireNonNull(mergedLineId);
         this.mergedLineName = mergedLineName;
     }
@@ -178,10 +178,10 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         LOG.info("New line {} created, replacing lines {}, {} and {}", mergedLineId, oldLine1Id, oldLine2Id, lineToRemoveId);
 
         // remove attachment point and attachment point substation, if necessary
-        removeVoltageLevelAndSubstation(teePoint, reportNode);
+        removeVoltageLevelAndSubstation(teePoint, forceRemoveIsolatedVoltageLevel, reportNode);
 
         // remove attached voltage level and attached substation, if necessary
-        removeVoltageLevelAndSubstation(tappedVoltageLevel, reportNode);
+        removeVoltageLevelAndSubstation(tappedVoltageLevel, forceRemoveIsolatedVoltageLevel, reportNode);
     }
 
     public String getLineToBeMerged1Id() {
