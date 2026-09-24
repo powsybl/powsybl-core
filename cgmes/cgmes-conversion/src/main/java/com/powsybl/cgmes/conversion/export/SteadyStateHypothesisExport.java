@@ -393,7 +393,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
+    // Package private so that the partial SSH export writes the same operating mode as the full export
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
         String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Battery || i instanceof Generator gen && gen.isCondenser());
         return obtainOperatingMode(targetP, i, calculatedKind);
     }
@@ -769,10 +770,31 @@ public final class SteadyStateHypothesisExport {
     private static void writeConverterStation(HvdcConverterStation<?> converterStation, String cimNamespace,
                                               XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String converterId = context.getNamingStrategy().getCgmesId(converterStation);
+        ConverterState state = computeConverterState(converterStation);
+
+        if (converterStation instanceof LccConverterStation) {
+            String operatingMode = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "rectifier" : "inverter";
+            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "activePower" : "dcVoltage";
+            writeCsConverter(converterId, state.targetPpcc(), state.targetUdc(), state.p(), state.q(), operatingMode, pPccControl, cimNamespace, writer, context);
+        } else if (converterStation instanceof VscConverterStation vscConverterStation) {
+            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
+            double targetUpcc = vscConverterStation.getVoltageSetpoint();
+            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
+            String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
+            writeVsConverter(converterId, state.targetPpcc(), state.targetUdc(), targetQpcc, targetUpcc, state.p(), state.q(), pPccControl, qPccControl, cimNamespace, writer, context);
+        }
+    }
+
+    record ConverterState(double targetPpcc, double targetUdc, double p, double q) {
+    }
+
+    /**
+     * Compute the AC/DC converter quantities, reused in the partial .SSH export
+     * */
+    static ConverterState computeConverterState(HvdcConverterStation<?> converterStation) {
         double targetPpcc;
         double targetUdc;
         double p;
-        double q;
         if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
             targetPpcc = converterStation.getHvdcLine().getActivePowerSetpoint();
             targetUdc = 0.0;
@@ -790,19 +812,12 @@ public final class SteadyStateHypothesisExport {
         }
 
         if (converterStation instanceof LccConverterStation lccConverterStation) {
-            q = Math.abs(getQfromPowerFactor(p, lccConverterStation.getPowerFactor()));
-            String operatingMode = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "rectifier" : "inverter";
-            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "activePower" : "dcVoltage";
-            writeCsConverter(converterId, targetPpcc, targetUdc, p, q, operatingMode, pPccControl, cimNamespace, writer, context);
+            return new ConverterState(targetPpcc, targetUdc, p, Math.abs(getQfromPowerFactor(p, lccConverterStation.getPowerFactor())));
         } else if (converterStation instanceof VscConverterStation vscConverterStation) {
-            p = vscConverterStation.getRegulatingTerminal().getP();
-            q = vscConverterStation.getRegulatingTerminal().getQ();
-            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
-            double targetUpcc = vscConverterStation.getVoltageSetpoint();
-            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
-            String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
-            writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, q, pPccControl, qPccControl, cimNamespace, writer, context);
+            return new ConverterState(targetPpcc, targetUdc,
+                    vscConverterStation.getRegulatingTerminal().getP(), vscConverterStation.getRegulatingTerminal().getQ());
         }
+        return new ConverterState(targetPpcc, targetUdc, p, Double.NaN);
     }
 
     private static void writeDCTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
