@@ -900,7 +900,7 @@ Its default value is `MODELING_AUTHORITY`.
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to define the number of threads used to import the IGMs of a CGM concurrently.
 Its default value is `1`, meaning IGMs are imported sequentially.
 If there are less IGMs than the number of configured threads, the importer will only use as many threads as there are IGMs.
-The number of threads is also limited to the number of available processors minus one.
+The number of threads is also limited to the number of available logical processors minus one.
 
 **iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**<br>
 Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
