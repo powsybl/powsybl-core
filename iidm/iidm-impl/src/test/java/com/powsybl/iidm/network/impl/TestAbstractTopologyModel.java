@@ -50,7 +50,7 @@ class TestAbstractTopologyModel {
 
         PowsyblException e = assertThrows(PowsyblException.class,
                 () -> topologyModel.updateBusId("UNKNOWN_BUS", "NEW_ID"));
-        assertEquals("Bus with id UNKNOWN_BUS does not exists in the voltage level bus breaker topology model", e.getMessage());
+        assertEquals("Bus with id UNKNOWN_BUS does not exist in the voltage level bus breaker topology model", e.getMessage());
     }
 
     @Test
