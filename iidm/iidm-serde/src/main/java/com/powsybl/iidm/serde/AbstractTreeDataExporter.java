@@ -86,6 +86,11 @@ import static com.powsybl.iidm.serde.ExtensionOptionsUtil.getAndCheckExtensionsT
  *         <td>true or false</td>
  *     </tr>
  *     <tr>
+ *         <td>iidm.export.xml.use-connectable-creation-order</td>
+ *         <td>sort export output file using connectable creation order, has no effect if sorted parameter is true</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
  *         <td>iidm.export.xml.version</td>
  *         <td>version in which files will be generated</td>
  *         <td>1.5 or 1.4 etc</td>
@@ -121,6 +126,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String EXTENSIONS_INCLUDED_LIST = "iidm.export.xml.included.extensions";
     public static final String EXTENSIONS_EXCLUDED_LIST = "iidm.export.xml.excluded.extensions";
     public static final String SORTED = "iidm.export.xml.sorted";
+    public static final String USE_CONNECTABLE_CREATION_ORDER = "iidm.export.xml.use-connectable-creation-order";
     public static final String FLATTEN = "iidm.export.xml.flatten";
     public static final String VERSION = "iidm.export.xml.version";
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.export.xml.with-automation-systems";
@@ -154,6 +160,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             "The list of extensions that will be excluded during export", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
     private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
+    private static final Parameter USE_CONNECTABLE_CREATION_ORDER_PARAMETER = new Parameter(USE_CONNECTABLE_CREATION_ORDER, ParameterType.BOOLEAN,
+            "Sort IIDM objects in export output file using creation order, has no effect if sorted parameter is set to `true`", Boolean.FALSE);
     private static final Parameter FLATTEN_PARAMETER = new Parameter(FLATTEN, ParameterType.BOOLEAN, "Flatten network containing subnetworks", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING,
         "IIDM version in which files will be generated", IidmSerDeConstants.CURRENT_IIDM_VERSION.toString("."),
@@ -174,7 +182,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_INCLUDED_LIST_PARAMETER,
-            EXTENSIONS_EXCLUDED_LIST_PARAMETER, SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER,
+            EXTENSIONS_EXCLUDED_LIST_PARAMETER, SORTED_PARAMETER, USE_CONNECTABLE_CREATION_ORDER_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER,
             VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, FLATTEN_PARAMETER,
             ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES_PARAMETER);
     private final ParameterDefaultValueConfig defaultValueConfig;
@@ -277,7 +285,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                         Parameter.readString(getFormat(), parameters, BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR_PARAMETER, defaultValueConfig)))
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
                 .setOnlySelectedOperationalLimitsGroups(Parameter.readBoolean(getFormat(), parameters, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, defaultValueConfig))
-                .setForceExportNetworkWithBetaFeatures(Parameter.readBoolean(getFormat(), parameters, FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES_PARAMETER, defaultValueConfig));
+                .setForceExportNetworkWithBetaFeatures(Parameter.readBoolean(getFormat(), parameters, FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES_PARAMETER, defaultValueConfig))
+                .setConnectableCreationOrder(Parameter.readBoolean(getFormat(), parameters, USE_CONNECTABLE_CREATION_ORDER_PARAMETER, defaultValueConfig));
         boolean someExtensionsShouldBeIncluded = getAndCheckExtensionsToInclude(parameters, options, getFormat(), defaultValueConfig,
             EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, true);
         if (someExtensionsShouldBeIncluded) {
