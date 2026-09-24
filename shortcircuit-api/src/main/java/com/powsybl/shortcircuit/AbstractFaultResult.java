@@ -102,7 +102,7 @@ abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> imple
                 if (feederResult instanceof FortescueFeederResult fortescueFeederResult) {
                     return fortescueFeederResult.getCurrent().getPositiveMagnitude();
                 } else {
-                    return ((MagnitudeFaultResult) feederResult).getCurrent();
+                    return ((MagnitudeFeederResult) feederResult).getCurrent();
                 }
             }
         }

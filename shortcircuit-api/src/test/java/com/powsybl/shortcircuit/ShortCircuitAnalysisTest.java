@@ -182,6 +182,17 @@ class ShortCircuitAnalysisTest {
     }
 
     @Test
+    void testGetFeederCurrent() {
+        ShortCircuitAnalysisResult magnitudeResult = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
+        assertEquals(1, magnitudeResult.getFaultResult("id").getFeederCurrent("connectableId"));
+        assertTrue(Double.isNaN(magnitudeResult.getFaultResult("id").getFeederCurrent("wrongConnectableId")));
+
+        ShortCircuitAnalysisResult fortescueResult = TestingResultFactory.createFortescueResult();
+        assertEquals(1, fortescueResult.getFaultResult("id").getFeederCurrent("id2"));
+        assertTrue(Double.isNaN(fortescueResult.getFaultResult("id").getFeederCurrent("wrongConnectableId")));
+    }
+
+    @Test
     void testFortescueWithEquivalentImpedance() {
         ShortCircuitAnalysisResult result = TestingResultFactory.createFortescueResultWithEquivalentImpedance();
         FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id1");

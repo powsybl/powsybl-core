@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" xmlns:oa="http://www.powsybl.org/schema/iidm/ext/observability_area/1_0" id="fictitious" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" xmlns:oa="http://www.powsybl.org/schema/iidm/ext/observability_area/1_0" id="fictitious" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="A" country="FR">
         <iidm:voltageLevel id="C" nominalV="225.0" lowVoltageLimit="0.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -98,19 +98,19 @@
                 <iidm:step r="39.78473" x="39.784725" rho="1.0" alpha="42.8"/>
             </iidm:phaseTapChanger>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="931.0"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="931.0"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:line id="CJ" r="0.009999999" x="0.100000024" voltageLevelId1="C" bus1="C_4" connectableBus1="C_4" voltageLevelId2="N" bus2="N_3" connectableBus2="N_3" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0"/>
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0">
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0">
                 <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
                 <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
             </iidm:currentLimits>

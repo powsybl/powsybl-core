@@ -30,7 +30,7 @@
         "busIds" : [ "BBS1" ]
       },
       "limit" : 2000.0,
-      "limitReduction" : 1.0,
+      "limitScaling" : 1.0,
       "value" : 2500.0
     } ]
   } ]
