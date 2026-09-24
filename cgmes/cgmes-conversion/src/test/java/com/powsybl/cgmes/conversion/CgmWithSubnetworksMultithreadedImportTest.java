@@ -162,9 +162,9 @@ class CgmWithSubnetworksMultithreadedImportTest {
         ReportNode parallelReport = newReportNode();
         // More threads than subnetworks must be clamped, not fail
         ReportNode overSubscribedReport = newReportNode();
-        Network sequential = importWithThreadCount(ds, 1, sequentialReport);
-        Network parallel = importWithThreadCount(ds, 2, parallelReport);
-        Network overSubscribed = importWithThreadCount(ds, 8, overSubscribedReport);
+        Network sequential = importSubnetworksWithThreadCount(ds, 1, sequentialReport);
+        Network parallel = importSubnetworksWithThreadCount(ds, 2, parallelReport);
+        Network overSubscribed = importSubnetworksWithThreadCount(ds, 8, overSubscribedReport);
 
         assertEquals(subnetworkIds(sequential), subnetworkIds(parallel));
         assertEquals(subnetworkIds(sequential), subnetworkIds(overSubscribed));
@@ -183,10 +183,10 @@ class CgmWithSubnetworksMultithreadedImportTest {
 
     @Test
     void callingThreadInterruptedDuringParallelImportThrowsPowsyblException() {
-        ReadOnlyDataSource ds = CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource();
+        Set<ReadOnlyDataSource> dss = new LinkedHashSet<>(List.of(new BrokenReadOnlyDataSource(), new BrokenReadOnlyDataSource()));
         Thread.currentThread().interrupt();
         try {
-            PowsyblException e = assertThrows(PowsyblException.class, () -> importWithThreadCount(ds, 2, ReportNode.NO_OP));
+            PowsyblException e = assertThrows(PowsyblException.class, () -> importSubnetworksWithThreadCount(dss, 2, ReportNode.NO_OP));
             assertEquals("Interrupted while importing CGMES subnetworks", e.getMessage());
         } finally {
             assertTrue(Thread.interrupted(), "interrupt status should still be set");
@@ -354,6 +354,19 @@ class CgmWithSubnetworksMultithreadedImportTest {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT, String.valueOf(threadCount));
         return Network.read(ds, importParams, reportNode);
+    }
+
+    /**
+     * Same as {@link CgmesImport#importData} with subnetworks, but bypassing the thread count limit based on available
+     * processors, so that the requested thread count is actually used whatever the machine running the test.
+     */
+    private static Network importSubnetworksWithThreadCount(ReadOnlyDataSource ds, int threadCount, ReportNode reportNode) {
+        Set<ReadOnlyDataSource> dss = new CgmesImport.MultipleGridModelChecker(ds).separate(CgmesImport.SubnetworkDefinedBy.MODELING_AUTHORITY);
+        return importSubnetworksWithThreadCount(dss, threadCount, reportNode);
+    }
+
+    private static Network importSubnetworksWithThreadCount(Set<ReadOnlyDataSource> dss, int threadCount, ReportNode reportNode) {
+        return Network.merge(new CgmesImport().importSubnetworks(dss, NetworkFactory.findDefault(), new Properties(), reportNode, threadCount));
     }
 
     private static List<String> subnetworkIds(Network network) {

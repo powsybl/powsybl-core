@@ -186,7 +186,14 @@ public class CgmesImport implements Importer {
                             p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
             Set<ReadOnlyDataSource> dss = new MultipleGridModelChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
-                int threadCount = Parameter.readInteger(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER, defaultValueConfig);
+                int requestedThreadCount = Parameter.readInteger(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER, defaultValueConfig);
+                // Keep one processor free for the rest of the application
+                // Math.clamp throws if min > max: on a single processor machine, max must not drop to 0
+                int threadCount = Math.clamp(requestedThreadCount, 1, Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+                if (threadCount < requestedThreadCount) {
+                    LOGGER.warn("{} threads requested to import CGMES subnetworks, limited to {} based on available processors",
+                            requestedThreadCount, threadCount);
+                }
                 return Network.merge(importSubnetworks(dss, networkFactory, p, reportNode, threadCount));
             }
         }
@@ -203,8 +210,12 @@ public class CgmesImport implements Importer {
      * Imports every subnetwork data source into its own {@link Network}, optionally concurrently.
      * <p>{@link ReportNode} is not safe for concurrent mutation of the same parent, so every child report node
      * used by the subnetwork imports is created here, sequentially, before any parallel work is dispatched.
+     * Package-private to support unit testing.
      */
     Network[] importSubnetworks(Set<ReadOnlyDataSource> dss, NetworkFactory networkFactory, Properties p, ReportNode reportNode, int threadCount) {
+        if (threadCount < 1) {
+            throw new PowsyblException("Invalid thread count to import CGMES subnetworks: " + threadCount);
+        }
         // dss is sorted deterministically by MultipleGridModelChecker, so import order (and therefore the
         // produced report) does not depend on the thread count used.
         List<ReadOnlyDataSource> dsList = new ArrayList<>(dss);
