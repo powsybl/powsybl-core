@@ -46,6 +46,8 @@ public abstract class AbstractLoadTest {
         load.setLoadType(LoadType.AUXILIARY);
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
         assertFalse(load.isEquivalent());
+        load.setEquivalent(true);
+        assertTrue(load.isEquivalent());
     }
 
     @Test

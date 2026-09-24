@@ -72,6 +72,8 @@ public abstract class AbstractGeneratorTest {
         assertTrue(generator.isVoltageRegulatorOn());
         assertFalse(generator.isCondenser());
         assertFalse(generator.isEquivalent());
+        generator.setEquivalent(true);
+        assertTrue(generator.isEquivalent());
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }

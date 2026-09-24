@@ -93,4 +93,9 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * Returns true if the connectable is an equivalent, from a network reduction, for instance.
      */
     boolean isEquivalent();
+
+    /**
+     * Set the equivalent attribute of the connectable: if {@code true}, then the connectable is an equivalent, from a network reduction, for instance.
+     */
+    Connectable<I> setEquivalent(boolean equivalent);
 }

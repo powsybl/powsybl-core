@@ -81,6 +81,8 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(5.0, shuntLinearModel.getBPerSection(), 0.0);
         assertEquals(4.0, shuntLinearModel.getGPerSection(), 0.0);
         assertFalse(shuntCompensator.isEquivalent());
+        shuntCompensator.setEquivalent(true);
+        assertTrue(shuntCompensator.isEquivalent());
 
         // try get incorrect shunt model
         try {

@@ -60,6 +60,8 @@ public abstract class AbstractBatteryTest {
 
         assertEquals("NBAT", battery.getTerminal().getBusBreakerView().getBus().getId());
         assertFalse(battery.isEquivalent());
+        battery.setEquivalent(true);
+        assertTrue(battery.isEquivalent());
     }
 
     @Test

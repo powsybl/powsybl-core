@@ -184,6 +184,8 @@ public abstract class AbstractAcDcConverterTest {
         assertSame(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, ((LineCommutatedConverter) acDcConverterA).getReactiveModel());
         assertEquals(0.894427191, ((LineCommutatedConverter) acDcConverterA).getPowerFactor(), 1e-4);
         assertFalse(acDcConverterA.isEquivalent());
+        acDcConverterA.setEquivalent(true);
+        assertTrue(acDcConverterA.isEquivalent());
         // explicitly set values
         assertSame(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, ((LineCommutatedConverter) acDcConverterB).getReactiveModel());
         assertEquals(0.6, ((LineCommutatedConverter) acDcConverterB).getPowerFactor());

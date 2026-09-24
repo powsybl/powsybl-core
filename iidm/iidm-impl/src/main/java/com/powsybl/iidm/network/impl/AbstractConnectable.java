@@ -244,4 +244,14 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     public boolean isEquivalent() {
         return equivalent;
     }
+
+    @Override
+    public Connectable<I> setEquivalent(boolean equivalent) {
+        if (this.equivalent != equivalent) {
+            boolean oldValue = this.equivalent;
+            this.equivalent = equivalent;
+            notifyUpdate("equivalent", oldValue, equivalent);
+        }
+        return this;
+    }
 }

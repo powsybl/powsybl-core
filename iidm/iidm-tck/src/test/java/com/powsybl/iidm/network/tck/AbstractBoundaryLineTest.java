@@ -117,6 +117,8 @@ public abstract class AbstractBoundaryLineTest {
         assertEquals(q02, boundaryLine.getQ0(), 0.0);
         boundaryLine.setPairingKey(newPairingKey);
         assertEquals(newPairingKey, boundaryLine.getPairingKey());
+        boundaryLine.setEquivalent(false);
+        assertFalse(boundaryLine.isEquivalent());
 
         boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)

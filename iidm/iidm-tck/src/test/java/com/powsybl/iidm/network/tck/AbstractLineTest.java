@@ -137,6 +137,8 @@ public abstract class AbstractLineTest {
         assertEquals(b1, acLine.getB1(), 0.0);
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
+        acLine.setEquivalent(false);
+        assertFalse(acLine.isEquivalent());
 
         CurrentLimits currentLimits1 = acLine.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100)

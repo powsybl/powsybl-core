@@ -94,6 +94,8 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         double ratedS = 32.0;
         twoWindingsTransformer.setRatedS(ratedS);
         assertEquals(ratedS, twoWindingsTransformer.getRatedS(), 0.0);
+        twoWindingsTransformer.setEquivalent(false);
+        assertFalse(twoWindingsTransformer.isEquivalent());
 
         assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
         VoltageLevel vl1 = network.getVoltageLevel("vl1");
