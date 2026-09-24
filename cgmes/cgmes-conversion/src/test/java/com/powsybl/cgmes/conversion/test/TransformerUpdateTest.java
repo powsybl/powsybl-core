@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -172,7 +173,7 @@ class TransformerUpdateTest extends AbstractSerDeTest {
         symmetrical.getPhaseTapChanger().setTapPosition(10);
 
         Properties importParameters = new Properties();
-        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
         assertEquals(11, asymmetrical.getPhaseTapChanger().getTapPosition());
