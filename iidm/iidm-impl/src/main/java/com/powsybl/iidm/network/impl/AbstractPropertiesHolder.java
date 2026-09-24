@@ -9,8 +9,20 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.util.PropertiesBufferHolder;
 
+import java.util.Properties;
+
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractPropertiesHolder extends PropertiesBufferHolder {
+
+    /**
+     * <p>Returns the properties.</p>
+     * <p>To limit memory usage, it is recommended to use {@link #hasProperty()} before calling this method.</p>
+     * @return the properties
+     */
+    @Override
+    public Properties getProperties() {
+        return super.getProperties();
+    }
 }

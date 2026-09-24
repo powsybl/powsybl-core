@@ -495,7 +495,7 @@ public final class NetworkSerDe {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions =
-                    Stream.concat(identifiable.getExtensions().stream(), context.getExtinctExtensionsToSerialize(identifiable.getId()))
+                    Stream.concat(identifiable.getExtensionsStream(), context.getExtinctExtensionsToSerialize(identifiable.getId()))
                     .filter(e -> {
                         ExtensionSerDe extensionSerializer = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
                         return isExtensionIncluded(extensionSerializer, context.getOptions()) &&
@@ -647,7 +647,7 @@ public final class NetworkSerDe {
         // Extinct extensions won't be retrieved by the following stream: they don't exist anymore, so they cannot be present on the identifiables
         IidmVersion networkVersion = options.getVersion();
         Stream<ExtensionSerDe<?, ?>> classicExtensionSerDes = n.getIdentifiables().stream()
-                .flatMap(identifiable -> identifiable.getExtensions().stream())
+                .flatMap(identifiable -> identifiable.getExtensionsStream())
                 .map(extension -> (ExtensionSerDe<?, ?>) getExtensionSerializer(options, extension, extensionsSupplier));
 
         return Stream.concat(classicExtensionSerDes, extinctExtensionSerDes)

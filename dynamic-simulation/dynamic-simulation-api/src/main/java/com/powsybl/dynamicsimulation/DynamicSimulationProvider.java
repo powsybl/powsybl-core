@@ -36,9 +36,22 @@ public interface DynamicSimulationProvider extends Versionable, PlatformConfigNa
         return Lists.newArrayList(ServiceLoader.load(DynamicSimulationProvider.class, DynamicSimulationProvider.class.getClassLoader()));
     }
 
-    CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
+    /**
+     * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    default CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
                                                    OutputVariablesSupplier outputVariablesSupplier, String workingVariantId,
-                                                   ComputationManager computationManager, DynamicSimulationParameters parameters, ReportNode reportNode);
+                                                   ComputationManager computationManager, DynamicSimulationParameters parameters, ReportNode reportNode) {
+        return run(network, workingVariantId, dynamicModelsSupplier, new DynamicSimulationRunParameters()
+                .setEventModelsSupplier(eventModelsSupplier)
+                .setOutputVariablesSupplier(outputVariablesSupplier)
+                .setParameters(parameters)
+                .setComputationManager(computationManager)
+                .setReportNode(reportNode));
+    }
+
+    CompletableFuture<DynamicSimulationResult> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationRunParameters runParameters);
 
     /**
      * Get specific parameters class.

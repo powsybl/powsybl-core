@@ -32,8 +32,8 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected final PropertiesContainer properties = new PropertiesContainer();
 
-    private final Set<String> aliasesWithoutType = new HashSet<>();
-    private final Map<String, String> aliasesByType = new HashMap<>();
+    private Set<String> aliasesWithoutType = null;
+    private Map<String, String> aliasesByType = null;
     private long creationOrder;
 
     AbstractIdentifiable(String id, String name) {
@@ -88,15 +88,19 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public Set<String> getAliases() {
         Set<String> aliases = new HashSet<>();
-        aliases.addAll(aliasesWithoutType);
-        aliases.addAll(aliasesByType.values());
+        if (aliasesWithoutType != null) {
+            aliases.addAll(aliasesWithoutType);
+        }
+        if (aliasesByType != null) {
+            aliases.addAll(aliasesByType.values());
+        }
         return Collections.unmodifiableSet(aliases);
     }
 
     @Override
     public Optional<String> getAliasType(String alias) {
         Objects.requireNonNull(alias);
-        if (aliasesWithoutType.contains(alias)) {
+        if (aliasesWithoutType != null && aliasesWithoutType.contains(alias) || aliasesByType == null) {
             return Optional.empty();
         }
         return aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
@@ -107,7 +111,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         if (Strings.isNullOrEmpty(aliasType)) {
             throw new PowsyblException("Alias type must not be null or empty");
         }
-        return Optional.ofNullable(aliasesByType.get(aliasType));
+        return aliasesByType != null ? Optional.ofNullable(aliasesByType.get(aliasType)) : Optional.empty();
     }
 
     @Override
@@ -132,13 +136,19 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         if (ensureAliasUnicity) {
             uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
         }
-        if (!Strings.isNullOrEmpty(aliasType) && aliasesByType.containsKey(aliasType)) {
+        if (!Strings.isNullOrEmpty(aliasType) && aliasesByType != null && aliasesByType.containsKey(aliasType)) {
             throw new PowsyblException(id + " already has an alias of type " + aliasType);
         }
         if (getNetwork().getIndex().addAlias(this, uniqueAlias)) {
             if (Strings.isNullOrEmpty(aliasType)) {
+                if (aliasesWithoutType == null) {
+                    aliasesWithoutType = new HashSet<>();
+                }
                 aliasesWithoutType.add(uniqueAlias);
             } else {
+                if (aliasesByType == null) {
+                    aliasesByType = new HashMap<>();
+                }
                 aliasesByType.put(aliasType, uniqueAlias);
             }
         }
@@ -148,9 +158,13 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
-        String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
+        String type = aliasesByType != null
+                ? aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null)
+                : null;
         if (Strings.isNullOrEmpty(type)) {
-            aliasesWithoutType.remove(alias);
+            if (aliasesWithoutType != null) {
+                aliasesWithoutType.remove(alias);
+            }
         } else {
             aliasesByType.remove(type);
         }
@@ -158,7 +172,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public boolean hasAliases() {
-        return !aliasesWithoutType.isEmpty() || !aliasesByType.isEmpty();
+        return aliasesWithoutType != null && !aliasesWithoutType.isEmpty() || aliasesByType != null && !aliasesByType.isEmpty();
     }
 
     @Override
@@ -183,6 +197,11 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return new DefaultMessageHeader(getTypeDescription(), id);
     }
 
+    /**
+     * <p>Returns the properties.</p>
+     * <p>To limit memory usage, it is recommended to use {@link #hasProperty()} before calling this method.</p>
+     * @return the properties
+     */
     public Properties getProperties() {
         return properties.getProperties();
     }
@@ -248,7 +267,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        getExtensions().stream()
+        getExtensionsStream()
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
@@ -256,7 +275,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void reduceVariantArraySize(int number) {
-        getExtensions().stream()
+        getExtensionsStream()
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.reduceVariantArraySize(number));
@@ -264,7 +283,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        getExtensions().stream()
+        getExtensionsStream()
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.deleteVariantArrayElement(index));
@@ -272,10 +291,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
-        getExtensions().stream()
-                .filter(e -> e instanceof MultiVariantObject)
-                .map(e -> (MultiVariantObject) e)
-                .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
+        getExtensionsStream()
+            .filter(e -> e instanceof MultiVariantObject)
+            .map(e -> (MultiVariantObject) e)
+            .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
