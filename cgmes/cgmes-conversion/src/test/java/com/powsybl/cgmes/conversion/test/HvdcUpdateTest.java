@@ -131,7 +131,7 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         vsc.setReactivePowerSetpoint(0.0);
 
         Properties importParameters = new Properties();
-        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
         assertEquals(30.0, vsc.getReactivePowerSetpoint(), 1e-7);
