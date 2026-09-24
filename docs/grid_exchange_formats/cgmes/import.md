@@ -84,6 +84,28 @@ The CGMES model does not guarantee these hierarchical constraints, so the first 
 
 The following sections describe in detail how each supported CGMES network object is converted to PowSyBl network model objects.
 
+(cgmes-subnetwork-import)=
+
+### Subnetwork
+
+When importing a Common Grid Model (CGM) made of several Individual Grid Models (IGMs) merged together, by default each
+IGM is imported into its own PowSyBl [`Subnetwork`](../../grid_model/network_subnetwork.md), and all the subnetworks are
+then merged into a single PowSyBl `Network`. This behavior is controlled by the `iidm.import.cgmes.cgm-with-subnetworks`
+import option, which defaults to `true`. Setting it to `false` disables this separation, so the CGM is imported directly
+as a single flat `Network`.
+
+When subnetwork separation is enabled, the `iidm.import.cgmes.cgm-with-subnetworks-defined-by` import option controls
+how the importer groups CGMES files by IGM, and therefore how it builds each subnetwork:
+
+- `MODELING_AUTHORITY` (the default): files are grouped by the modeling authority declared in the `FullModel` header of
+  each CGMES instance file.
+- `FILENAME`: files are grouped by the `sourcingActor` segment of the CGMES file naming convention (
+  `<effectiveDateTime>_<businessProcess>_<sourcingActor>_<modelPart>_<fileVersion>`).
+
+Subnetworks are imported in a deterministic order, sorted by their grouping key (modeling authority name or sourcing
+actor name). As a result, the subnetworks of the imported `Network`, and the corresponding entries in the import report,
+are always listed in the same, reproducible order.
+
 (cgmes-substation-import)=
 ### Substation
 
@@ -315,6 +337,8 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 - `MaxP` is copied from CGMES `maxP`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, they are set to `0`.
 - `EnergySource` is set as `OTHER`
+
+The [`Reference Priority`](../../grid_model/extensions.md#reference-priorities) extension is created from the `ExternalNetworkInjection.referencePriority` attribute in `SSH`.
 
 <span style="color: red">TODO reactive limits</span>
 

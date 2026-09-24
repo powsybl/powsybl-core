@@ -47,17 +47,19 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
     private final String lineId;
     private final String lineName;
+    private final boolean forceRemoveIsolatedVoltageLevel;
 
     /**
      * Constructor.
      * <p>
      * NB: This constructor is package-private, Please use {@link RevertConnectVoltageLevelOnLineBuilder} instead.
      */
-    RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName) {
+    RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName, boolean forceRemoveIsolatedVoltageLevel) {
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line2Id = Objects.requireNonNull(line2Id);
         this.lineId = Objects.requireNonNull(lineId);
         this.lineName = lineName;
+        this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
     }
 
     @Override
@@ -166,7 +168,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         LOG.info("New line {} created, replacing lines {} and {}", lineId, line1Id, line2Id);
 
         // remove voltage level and substation in common, if necessary
-        removeVoltageLevelAndSubstation(commonVl, reportNode);
+        removeVoltageLevelAndSubstation(commonVl, forceRemoveIsolatedVoltageLevel, reportNode);
     }
 
     @Override
