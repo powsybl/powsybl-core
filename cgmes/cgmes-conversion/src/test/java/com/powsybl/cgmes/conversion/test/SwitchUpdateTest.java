@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
@@ -117,7 +118,7 @@ class SwitchUpdateTest extends AbstractSerDeTest {
         acLineSegment.setOpen(false);
 
         Properties importParameters = new Properties();
-        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
         assertFalse(breaker.isOpen());
