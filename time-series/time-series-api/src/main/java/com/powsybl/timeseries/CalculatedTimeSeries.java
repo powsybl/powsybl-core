@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.DoubleBuffer;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,6 +58,8 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     private TimeSeriesIndex index;
 
+    private final AtomicReference<double[]> toArrayRef = new AtomicReference<>();
+
     public CalculatedTimeSeries(String name, NodeCalc nodeCalc, TimeSeriesNameResolver resolver) {
         this.name = Objects.requireNonNull(name);
         this.nodeCalc = Objects.requireNonNull(nodeCalc);
@@ -76,6 +79,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     @Override
     public void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver) {
         this.resolver = Objects.requireNonNull(resolver);
+        invalidateArrays();
     }
 
     private List<DoubleTimeSeries> loadData() {
@@ -160,6 +164,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
                 throw new UnsupportedOperationException("Not yet implemented");
             }
         }
+        invalidateArrays();
     }
 
     //To remove if we ever get it from somewhere else
@@ -201,9 +206,12 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     @Override
     public double[] toArray() {
-        DoubleBuffer buffer = DoubleBuffer.allocate(metadata.getIndex().getPointCount());
-        fillBuffer(buffer, 0);
-        return buffer.array();
+        if (toArrayRef.get() == null) {
+            DoubleBuffer buffer = DoubleBuffer.allocate(metadata.getIndex().getPointCount());
+            fillBuffer(buffer, 0);
+            toArrayRef.set(buffer.array());
+        }
+        return toArrayRef.get();
     }
 
     @Override
@@ -299,5 +307,9 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
             return name.equals(other.name) && nodeCalc.equals(other.nodeCalc);
         }
         return false;
+    }
+
+    protected void invalidateArrays() {
+        toArrayRef.set(null);
     }
 }
