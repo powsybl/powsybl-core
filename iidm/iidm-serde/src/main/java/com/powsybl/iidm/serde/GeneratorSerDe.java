@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibilityForGenerator;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
@@ -183,7 +183,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         // - if there's no terminal, VoltageRegulation.targetValue must be set to NaN
         // - If there is a terminal, the target value will be set after the terminal is added (see the extra-properties usage)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
-            createVoltageRegulationBackwardCompatibility(adder, Double.NaN, Double.NaN, voltageRegulatorOn, null));
+            createVoltageRegulationBackwardCompatibilityForGenerator(adder, Double.NaN, Double.NaN, Double.NaN, voltageRegulatorOn, null));
         // version >= V_1_18 -> voltageRegulation is read with VoltageRegulationSerDe
         // Nothing to do
     }

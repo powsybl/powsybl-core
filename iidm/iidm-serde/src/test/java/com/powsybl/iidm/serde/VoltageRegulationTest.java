@@ -17,10 +17,18 @@ import java.io.IOException;
 class VoltageRegulationTest extends AbstractIidmSerDeTest {
 
     @Test
-    void test() throws IOException {
+    void remoteVoltageRegulationWithoutLocalTarget() throws IOException {
         allFormatsRoundTripFromVersionedXmlTest("remoteVoltageRegulationWithoutLocalTarget.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // Tests for backward compatibility
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("remoteVoltageRegulationWithoutLocalTarget.xml", IidmVersion.V_1_18);
+    }
+
+    @Test
+    void remoteVoltageRegulationOff() throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest("remoteVoltageRegulationOff.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+
+        // Tests for backward compatibility
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("remoteVoltageRegulationOff.xml", IidmVersion.V_1_17);
     }
 }

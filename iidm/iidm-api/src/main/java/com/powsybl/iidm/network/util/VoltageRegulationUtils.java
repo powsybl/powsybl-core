@@ -169,12 +169,12 @@ public final class VoltageRegulationUtils {
         }
     }
 
-    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
-                                                                                                                double targetV,
-                                                                                                                double localTargetV,
-                                                                                                                double targetQ,
-                                                                                                                Boolean voltageRegulatorOn,
-                                                                                                                Terminal terminal) {
+    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibilityForGenerator(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                            double targetV,
+                                                                                                                            double localTargetV,
+                                                                                                                            double targetQ,
+                                                                                                                            Boolean voltageRegulatorOn,
+                                                                                                                            Terminal terminal) {
         createVoltageRegulationBackwardCompatibility(adder, true, targetV, localTargetV, targetQ, voltageRegulatorOn, terminal, true);
     }
 
