@@ -48,6 +48,19 @@
     <cim:Terminal.ConductingEquipment rdf:resource="#_SM"/>
     <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
  </cim:Terminal>
+  <cim:Terminal rdf:ID="_T_SM2">
+    <cim:IdentifiedObject.name>Terminal SM</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SM2"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+ </cim:Terminal>
+  <cim:Terminal rdf:ID="_T_SM3">
+    <cim:IdentifiedObject.name>Terminal SM</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_SM3"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+ </cim:Terminal>
+
  <cim:SynchronousMachine rdf:ID="_SM">
     <cim:IdentifiedObject.name>Synchronous Machine</cim:IdentifiedObject.name>
     <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
@@ -62,9 +75,44 @@
  <cim:GeneratingUnit rdf:ID="_GU">
     <cim:IdentifiedObject.name>Generating Unit</cim:IdentifiedObject.name>
     <cim:GeneratingUnit.initialP>90.0</cim:GeneratingUnit.initialP>
+    <cim:IdentifiedObject.description>31</cim:IdentifiedObject.description>
     <cim:GeneratingUnit.maxOperatingP>200.0</cim:GeneratingUnit.maxOperatingP>
     <cim:GeneratingUnit.minOperatingP>50.0</cim:GeneratingUnit.minOperatingP>
  </cim:GeneratingUnit>
+
+ <cim:SynchronousMachine rdf:ID="_SM2">
+    <cim:IdentifiedObject.name>Synchronous Machine</cim:IdentifiedObject.name>
+    <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+  		<cim:SynchronousMachine.qPercent>50.000000</cim:SynchronousMachine.qPercent>
+    <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
+    <cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+		  <cim:RotatingMachine.ratedS>300.000000</cim:RotatingMachine.ratedS>    
+    <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GU2"/>
+ </cim:SynchronousMachine>
+ <cim:GeneratingUnit rdf:ID="_GU2">
+    <cim:IdentifiedObject.name>Generating Unit</cim:IdentifiedObject.name>
+    <cim:GeneratingUnit.initialP>90.0</cim:GeneratingUnit.initialP>
+    <cim:IdentifiedObject.description>42</cim:IdentifiedObject.description>
+    <cim:GeneratingUnit.maxOperatingP>200.0</cim:GeneratingUnit.maxOperatingP>
+    <cim:GeneratingUnit.minOperatingP>50.0</cim:GeneratingUnit.minOperatingP>
+ </cim:GeneratingUnit>
+
+  <cim:SynchronousMachine rdf:ID="_SM3">
+    <cim:IdentifiedObject.name>Synchronous Machine</cim:IdentifiedObject.name>
+    <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+  		<cim:SynchronousMachine.qPercent>50.000000</cim:SynchronousMachine.qPercent>
+    <cim:SynchronousMachine.maxQ>0</cim:SynchronousMachine.maxQ>
+    <cim:SynchronousMachine.minQ>0</cim:SynchronousMachine.minQ>
+		  <cim:RotatingMachine.ratedS>300.000000</cim:RotatingMachine.ratedS>    
+    <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GU3"/>
+ </cim:SynchronousMachine>
+ <cim:GeneratingUnit rdf:ID="_GU3">
+    <cim:IdentifiedObject.name>Generating Unit</cim:IdentifiedObject.name>
+    <cim:GeneratingUnit.initialP>90.0</cim:GeneratingUnit.initialP>
+    <cim:GeneratingUnit.maxOperatingP>200.0</cim:GeneratingUnit.maxOperatingP>
+    <cim:GeneratingUnit.minOperatingP>50.0</cim:GeneratingUnit.minOperatingP>
+ </cim:GeneratingUnit>
+
 
  <cim:ReactiveCapabilityCurve rdf:ID="_RCC">
  <cim:IdentifiedObject.name>ReactiveCapabilityCurve</cim:IdentifiedObject.name>

@@ -17,6 +17,22 @@
    <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
  </cim:SynchronousMachine>
 
+  <cim:SynchronousMachine rdf:about="#_SM2">
+   <cim:RotatingMachine.p>-90.000000</cim:RotatingMachine.p>
+   <cim:RotatingMachine.q>-100.256000</cim:RotatingMachine.q>
+   <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineOperatingMode.generator"/>
+   <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+   <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+ </cim:SynchronousMachine>
+
+ <cim:SynchronousMachine rdf:about="#_SM3">
+   <cim:RotatingMachine.p>-90.000000</cim:RotatingMachine.p>
+   <cim:RotatingMachine.q>-100.256000</cim:RotatingMachine.q>
+   <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineOperatingMode.generator"/>
+   <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+   <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+ </cim:SynchronousMachine>
+
  <cim:RegulatingControl rdf:about="#_RC">
    <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
    <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>

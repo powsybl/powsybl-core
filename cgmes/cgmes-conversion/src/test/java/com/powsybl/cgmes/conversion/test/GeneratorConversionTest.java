@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.CgmesImport.POST_PROCESSORS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_WIND_GEN_UNIT_TYPE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,6 +120,16 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
     @Test
     void testGeneratorEntsoeCategory() throws IOException {
+
+        Properties params = new Properties();
+        params.put(POST_PROCESSORS, "EntsoeCategory");
+        Network network = readCgmesResources(params, "/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+        Generator g1 = network.getGenerator("SM");
+        assertEquals(31, g1.getExtension(GeneratorEntsoeCategory.class).getCode());
+        Generator g2 = network.getGenerator("SM2");
+        assertEquals(42, g2.getExtension(GeneratorEntsoeCategory.class).getCode());
+        Generator g3 = network.getGenerator("SM3");
+        assertNull(g3.getExtension(GeneratorEntsoeCategory.class));
         // Ancien test : microGridBaseCaseAssembledEntsoeCategory
         // Vérifier :
         // assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
