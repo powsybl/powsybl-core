@@ -1244,7 +1244,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createDisabledLocalLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, shuntRcId, "", "");
+            testRcEqRcWithAttribute(eq, shuntRcId, localTerminalId, "voltage");
 
             network = ShuntTestCaseFactory.createDisabledRemoteLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1273,7 +1273,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createLocalNonLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, shuntRcId, "", "");
+            testRcEqRcWithAttribute(eq, shuntRcId, localTerminalId, "voltage");
 
             network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1776,6 +1776,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             shuntCompensator.getTerminal().setQ(0.0);
             shuntCompensator.getTerminal().setP(0.0);
             shuntCompensator.setSectionCount(0);
+            shuntCompensator.setLocalTargetV(Double.NaN);
         } else if (identifiable instanceof Generator generator) {
             generator.removeVoltageRegulation();
             generator.setLocalTargetV(Double.NaN);
@@ -1784,6 +1785,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
             generator.getTerminal().setP(0.0).setQ(0.0);
         } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
             staticVarCompensator.removeVoltageRegulation();
+            staticVarCompensator.setLocalTargetV(Double.NaN);
+            staticVarCompensator.setLocalTargetQ(Double.NaN);
             staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
         } else if (identifiable instanceof VscConverterStation converter) {
             converter.removeVoltageRegulation();
