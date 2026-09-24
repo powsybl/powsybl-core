@@ -7,14 +7,12 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
@@ -37,7 +35,7 @@ class TransformerUpdateTest extends AbstractSerDeTest {
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml");
-        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(2, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
         assertEq(network);
@@ -46,7 +44,7 @@ class TransformerUpdateTest extends AbstractSerDeTest {
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
-        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(2, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
         assertFirstSsh(network);
@@ -74,7 +72,7 @@ class TransformerUpdateTest extends AbstractSerDeTest {
     @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml");
-        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(2, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
         assertEq(network);
@@ -95,7 +93,7 @@ class TransformerUpdateTest extends AbstractSerDeTest {
     @Test
     void starBusVoltageTogetherTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml", "transformer_TP.xml", "transformer_SV.xml");
-        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(2, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
@@ -108,7 +106,7 @@ class TransformerUpdateTest extends AbstractSerDeTest {
     @Test
     void starBusVoltageSeparatelyTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml");
-        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(2, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
@@ -124,18 +122,18 @@ class TransformerUpdateTest extends AbstractSerDeTest {
     @Test
     void usePreviousValuesTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml", "transformer_SV.xml");
-        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(2, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
         assertFirstSsh(network);
         assertFlowsAfterSv(network);
-        assertTapChangerStepsAfterSshAndSvTogether(network, 7, 13);
+        assertTapChangerStepsAfterSshAndSvTogether(network, 7, 12, 13);
 
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        properties.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
         assertUnassignedFlows(network);
-        assertTapChangerStepsAfterSshAndSvTogether(network, null, null);
+        assertTapChangerStepsAfterSshAndSvTogether(network, null, null, null);
     }
 
     @Test
@@ -144,23 +142,22 @@ class TransformerUpdateTest extends AbstractSerDeTest {
         assertPropertiesAndAliasesEmpty(network, false);
 
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        properties.put(CgmesImport.REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT, "true");
         network = readCgmesResources(properties, DIR, "transformer_EQ.xml", "transformer_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
     @Test
     void preserveSymmetricalTapPositionOnUpdateTest() {
-        ReadOnlyDataSource ds = CgmesConformity3Catalog.microGridBaseCaseBE().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
 
-        TwoWindingsTransformer asymmetrical = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
-        TwoWindingsTransformer symmetrical = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer linear = network.getTwoWindingsTransformer("T2W");
+        TwoWindingsTransformer symmetrical = network.getTwoWindingsTransformer("T2W-SYMMETRICAL");
 
-        assertEquals(10, asymmetrical.getPhaseTapChanger().getTapPosition());
+        assertEquals(-2, linear.getPhaseTapChanger().getTapPosition());
         assertEquals(10, symmetrical.getPhaseTapChanger().getTapPosition());
 
-        asymmetrical.getPhaseTapChanger().setTapPosition(11);
+        linear.getPhaseTapChanger().setTapPosition(-1);
         symmetrical.getPhaseTapChanger().setTapPosition(11);
 
         Properties exportParameters = new Properties();
@@ -169,14 +166,14 @@ class TransformerUpdateTest extends AbstractSerDeTest {
         String baseName = "symmetrical";
         network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
 
-        asymmetrical.getPhaseTapChanger().setTapPosition(10);
+        linear.getPhaseTapChanger().setTapPosition(-2);
         symmetrical.getPhaseTapChanger().setTapPosition(10);
 
         Properties importParameters = new Properties();
         importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
-        assertEquals(11, asymmetrical.getPhaseTapChanger().getTapPosition());
+        assertEquals(-1, linear.getPhaseTapChanger().getTapPosition());
         assertEquals(11, symmetrical.getPhaseTapChanger().getTapPosition());
     }
 
@@ -203,6 +200,9 @@ class TransformerUpdateTest extends AbstractSerDeTest {
                 new ApparentPowerLimit(990.0, 900, 1000.0),
                 new ApparentPowerLimit(991.0, 900, 1001.0));
 
+        TwoWindingsTransformer t2wSymmetrical = network.getTwoWindingsTransformer("T2W-SYMMETRICAL");
+        assertEq(t2wSymmetrical);
+
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertEq(t3w);
         assertDefinedApparentPowerLimits(t3w,
@@ -218,6 +218,9 @@ class TransformerUpdateTest extends AbstractSerDeTest {
                 new ApparentPowerLimit(995.0, 900, 1005.0),
                 new ApparentPowerLimit(996.0, 900, 1006.0));
 
+        TwoWindingsTransformer t2wSymmetrical = network.getTwoWindingsTransformer("T2W-SYMMETRICAL");
+        assertSsh(t2wSymmetrical, 10, 100.0, 0.2, true);
+
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertSsh(t3w, 8, 225.0, 2.0, true);
         assertDefinedApparentPowerLimits(t3w,
@@ -232,6 +235,9 @@ class TransformerUpdateTest extends AbstractSerDeTest {
         assertDefinedApparentPowerLimits(t2w,
                 new ApparentPowerLimit(996.0, 900, 1006.0),
                 new ApparentPowerLimit(997.0, 900, 1007.0));
+
+        TwoWindingsTransformer t2wSymmetrical = network.getTwoWindingsTransformer("T2W-SYMMETRICAL");
+        assertSsh(t2wSymmetrical, 11, 105.0, 0.4, false);
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertSsh(t3w, 7, 220.0, 2.2, false);
@@ -284,11 +290,16 @@ class TransformerUpdateTest extends AbstractSerDeTest {
         assertEquals(13, t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
     }
 
-    private static void assertTapChangerStepsAfterSshAndSvTogether(Network network, Integer tw2SolvedTapPosition, Integer t3wSolvedTapPosition) {
+    private static void assertTapChangerStepsAfterSshAndSvTogether(Network network, Integer tw2SolvedTapPosition, Integer tw2SymmetricalSolvedTapPosition, Integer t3wSolvedTapPosition) {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
         assertEquals(-2, t2w.getPhaseTapChanger().getTapPosition());
         assertTrue(t2w.getPhaseTapChanger().isRegulating());
         assertEquals(tw2SolvedTapPosition, t2w.getPhaseTapChanger().getSolvedTapPosition());
+
+        TwoWindingsTransformer t2wSymmetrical = network.getTwoWindingsTransformer("T2W-SYMMETRICAL");
+        assertEquals(10, t2wSymmetrical.getPhaseTapChanger().getTapPosition());
+        assertTrue(t2wSymmetrical.getPhaseTapChanger().isRegulating());
+        assertEquals(tw2SymmetricalSolvedTapPosition, t2wSymmetrical.getPhaseTapChanger().getSolvedTapPosition());
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertEquals(8, t3w.getLeg2().getRatioTapChanger().getTapPosition());
