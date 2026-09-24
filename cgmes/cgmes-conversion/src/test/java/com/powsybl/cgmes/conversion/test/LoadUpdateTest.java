@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -129,7 +130,7 @@ class LoadUpdateTest extends AbstractSerDeTest {
         energyConsumer.setP0(0.0).setQ0(0.0);
 
         Properties importParameters = new Properties();
-        importParameters.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
         assertEquals(200.5, asynchronousMachine.getP0(), 1e-7);
