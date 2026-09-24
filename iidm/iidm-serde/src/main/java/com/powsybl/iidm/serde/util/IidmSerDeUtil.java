@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.*;
 import org.slf4j.Logger;
@@ -354,7 +355,19 @@ public final class IidmSerDeUtil {
      * @param runnable what we want to execute
      */
     public static <C extends AbstractNetworkSerDeContext> void runInBetweenTwoVersions(IidmVersion minVersion, IidmVersion maxVersion, C context, Runnable runnable) {
-        if (context.getVersion().compareTo(maxVersion) <= 0 && context.getVersion().compareTo(minVersion) >= 0) {
+        runInBetweenTwoVersions(minVersion, maxVersion, context.getVersion(), runnable);
+    }
+
+    /**
+     * Run a given runnable if the context's IIDM versions is equal or more recent than the minimum version given,
+     * and is equal or older than a given maximum IIDM version
+     * @param minVersion the minimum version from which to run the runnable (included)
+     * @param maxVersion the maximum version until which to run the runnable (included)
+     * @param contextVersion the version of the context of the call
+     * @param runnable what we want to execute
+     */
+    public static void runInBetweenTwoVersions(IidmVersion minVersion, IidmVersion maxVersion, IidmVersion contextVersion, Runnable runnable) {
+        if (contextVersion.compareTo(maxVersion) <= 0 && contextVersion.compareTo(minVersion) >= 0) {
             runnable.run();
         }
     }
@@ -424,24 +437,47 @@ public final class IidmSerDeUtil {
     }
 
     /**
-     * Sort identifiables by their ids.
+     * Sort identifiables by their ids if given export option is activated,
+     * otherwise, by their creation order if the network defines one.
+     * In all other cases, do not change the identifiables order.
      */
-    public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
+    public static <T extends Identifiable<?>> Iterable<T> sorted(Network network, Iterable<T> identifiables, ExportOptions exportOptions) {
         Objects.requireNonNull(identifiables);
         Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
-                .sorted(Comparator.comparing(Identifiable::getId))
-                .collect(Collectors.toList())
-                : identifiables;
+
+        Comparator<Identifiable<?>> comparator;
+        if (exportOptions.isSorted()) {
+            comparator = Comparator.comparing(Identifiable::getId);
+        } else if (exportOptions.isConnectableCreationOrder() && network.getIdentifiableCreationOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableCreationOrderComparator().get();
+        } else {
+            return identifiables;
+        }
+
+        return StreamSupport.stream(identifiables.spliterator(), false)
+                .sorted(comparator)
+                .collect(Collectors.toList());
     }
 
     /**
-     * Sort identifiables by their ids.
+     * Sort identifiables by their ids if given export option is activated,
+     * otherwise, by their creation order if the network defines one.
+     * In all other cases, do not change the identifiables order.
      */
-    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions) {
+    public static <T extends Identifiable<T>> Stream<T> sorted(Network network, Stream<T> stream, ExportOptions exportOptions) {
         Objects.requireNonNull(stream);
         Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? stream.sorted(Comparator.comparing(Identifiable::getId)) : stream;
+
+        Comparator<Identifiable<?>> comparator;
+        if (exportOptions.isSorted()) {
+            comparator = Comparator.comparing(Identifiable::getId);
+        } else if (exportOptions.isConnectableCreationOrder() && network.getIdentifiableCreationOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableCreationOrderComparator().get();
+        } else {
+            return stream;
+        }
+
+        return stream.sorted(comparator);
     }
 
     /**

@@ -60,6 +60,13 @@ public abstract class AbstractHvdcLineTest {
     }
 
     @Test
+    public void testHvdcLineInvalidSetter() {
+        HvdcLine l = network.getHvdcLine("L");
+        ValidationException e = assertThrows(ValidationException.class, () -> l.setR(-1.0));
+        assertTrue(e.getMessage().contains("r is invalid"));
+    }
+
+    @Test
     public void testAdder() {
         HvdcLine hvdcLine = network.newHvdcLine()
                                         .setId("hvdc_line")
@@ -87,9 +94,12 @@ public abstract class AbstractHvdcLineTest {
 
     @Test
     public void invalidR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        ValidationException e1 = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 440.0, 10.0, 20.0, "C1", "C2"));
-        assertTrue(e.getMessage().contains("r is invalid"));
+        assertTrue(e1.getMessage().contains("r is invalid"));
+        ValidationException e2 = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, -1.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+            440.0, 10.0, 20.0, "C1", "C2"));
+        assertTrue(e2.getMessage().contains("r is invalid"));
     }
 
     @Test

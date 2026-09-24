@@ -25,7 +25,7 @@ public final class LimitViolations {
             .thenComparing(LimitViolation::getAcceptableDuration)
             .thenComparing(LimitViolation::getLimit)
             .thenComparing(LimitViolation::getValue)
-            .thenComparing(LimitViolation::getLimitReduction);
+            .thenComparing(LimitViolation::getLimitScaling);
 
     private LimitViolations() {
     }
