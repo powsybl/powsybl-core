@@ -186,28 +186,28 @@ public class CgmesImport implements Importer {
                             p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
             Set<ReadOnlyDataSource> dss = new MultipleGridModelChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
-                int requestedThreadCount = Parameter.readInteger(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER, defaultValueConfig);
-                // Keep one processor free for the rest of the application
-                // Math.clamp throws if min > max: on a single processor machine, max must not drop to 0
-                int threadCount = Math.clamp(requestedThreadCount, 1, Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
-                if (threadCount < requestedThreadCount) {
-                    LOGGER.warn("{} threads requested to import CGMES subnetworks, limited to {} based on available processors",
-                            requestedThreadCount, threadCount);
-                }
-                return Network.merge(importSubnetworks(dss, networkFactory, p, reportNode, threadCount));
+                return Network.merge(importSubnetworks(dss, networkFactory, p, reportNode, subnetworksImportThreadCount(p)));
             }
         }
-        return importData1(ds, networkFactory, p, reportNode);
-    }
-
-    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         ReportNode tripleStoreReportNode = CgmesReports.readingCgmesTriplestoreReport(reportNode);
         ReportNode conversionReportNode = CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName());
-        return importData2(ds, networkFactory, p, tripleStoreReportNode, conversionReportNode);
+        return importNetwork(ds, networkFactory, p, tripleStoreReportNode, conversionReportNode);
+    }
+
+    private int subnetworksImportThreadCount(Properties p) {
+        int requestedThreadCount = Parameter.readInteger(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER, defaultValueConfig);
+        // Keep one processor free for the rest of the application
+        // Math.clamp throws if min > max: on a single processor machine, max must not drop to 0
+        int threadCount = Math.clamp(requestedThreadCount, 1, Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+        if (threadCount < requestedThreadCount) {
+            LOGGER.warn("{} threads requested to import CGMES subnetworks, limited to {} based on available processors",
+                    requestedThreadCount, threadCount);
+        }
+        return threadCount;
     }
 
     /**
-     * Imports every subnetwork data source into its own {@link Network}, optionally concurrently.
+     * Imports every subnetwork data source into its own {@link Network}, concurrently if {@code threadCount > 1}.
      * <p>{@link ReportNode} is not safe for concurrent mutation of the same parent, so every child report node
      * used by the subnetwork imports is created here, sequentially, before any parallel work is dispatched.
      * Package-private to support unit testing.
@@ -226,10 +226,10 @@ public class CgmesImport implements Importer {
             conversionReportNodes.add(CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName()));
         }
 
-        if (threadCount <= 1) {
+        if (threadCount == 1) {
             Network[] networks = new Network[dsList.size()];
             for (int i = 0; i < dsList.size(); i++) {
-                networks[i] = importData2(dsList.get(i), networkFactory, p, tripleStoreReportNodes.get(i), conversionReportNodes.get(i));
+                networks[i] = importNetwork(dsList.get(i), networkFactory, p, tripleStoreReportNodes.get(i), conversionReportNodes.get(i));
             }
             return networks;
         }
@@ -239,7 +239,7 @@ public class CgmesImport implements Importer {
             List<Future<Network>> futures = new ArrayList<>(dsList.size());
             for (int i = 0; i < dsList.size(); i++) {
                 int idx = i;
-                futures.add(executor.get().submit(() -> importData2(dsList.get(idx), networkFactory, p, tripleStoreReportNodes.get(idx), conversionReportNodes.get(idx))));
+                futures.add(executor.get().submit(() -> importNetwork(dsList.get(idx), networkFactory, p, tripleStoreReportNodes.get(idx), conversionReportNodes.get(idx))));
             }
             Network[] networks = new Network[dsList.size()];
             // It is fine to retrieve the result sequentially.
@@ -256,6 +256,20 @@ public class CgmesImport implements Importer {
         } catch (ExecutionException e) {
             throw new PowsyblException("Failed to import CGMES subnetwork", e.getCause() != null ? e.getCause() : e);
         }
+    }
+
+    /**
+     * Reads the CGMES model of a single network (or subnetwork) and converts it to IIDM.
+     * <p>Report nodes are received rather than created from a parent, so that this method can safely run concurrently
+     * for several subnetworks (see {@link #importSubnetworks}).
+     */
+    private Network importNetwork(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode tripleStoreReportNode, ReportNode conversionReportNode) {
+        // Triple store loading and conversion do not check for interruption: at least do not start when interrupted
+        if (Thread.currentThread().isInterrupted()) {
+            throw new PowsyblException("Interrupted while importing CGMES subnetwork " + ds.getBaseName());
+        }
+        CgmesModel cgmes = createCgmesModel(ds, p, tripleStoreReportNode);
+        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
     private record StoppableExecutorService(ExecutorService delegate) implements AutoCloseable {
@@ -280,14 +294,6 @@ public class CgmesImport implements Importer {
                 Thread.currentThread().interrupt();
             }
         }
-    }
-
-    private Network importData2(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode tripleStoreReportNode, ReportNode conversionReportNode) {
-        if (Thread.currentThread().isInterrupted()) {
-            throw new PowsyblException("Interrupted while importing CGMES subnetwork " + ds.getBaseName());
-        }
-        CgmesModel cgmes = createCgmesModel(ds, p, tripleStoreReportNode);
-        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
     @Override
