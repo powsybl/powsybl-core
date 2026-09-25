@@ -447,6 +447,25 @@ public class DataObject {
                 + '.' + dataClass.getName();
     }
 
+    public static void checkValidRealMatrix(int rowCount, int columnCount, int dataSize) {
+        if (rowCount <= 0 || columnCount <= 0) {
+            throw new PowerFactoryException(
+                    "Matrix dimensions must be greater than zero: "
+                            + rowCount + "x" + columnCount);
+        }
+        if (!isDataSufficientForRealMatrix(rowCount, columnCount, dataSize)) {
+            throw new PowerFactoryException(
+                    "Matrix data holds " + dataSize
+                            + " values, less than the declared "
+                            + rowCount + "x" + columnCount);
+        }
+    }
+
+    public static boolean isDataSufficientForRealMatrix(int rowCount, int columnCount, int dataSize) {
+        long expectedData = (long) rowCount * columnCount;
+        return expectedData > 0 && expectedData <= dataSize;
+    }
+
     static class ParsingContext {
         long id = -1;
 
@@ -482,10 +501,7 @@ public class DataObject {
                             throw new PowerFactoryException("Data has to be specified after row and column count");
                         }
                         List<Double> data = JsonUtil.parseDoubleArray(parser);
-                        if (rowCount < 0 || columnCount < 0 || (long) rowCount * columnCount > data.size()) {
-                            throw new PowerFactoryException("Matrix data holds " + data.size()
-                                    + " values, less than the declared " + rowCount + "x" + columnCount);
-                        }
+                        checkValidRealMatrix(rowCount, columnCount, data.size());
                         BlockRealMatrix matrix = new BlockRealMatrix(rowCount, columnCount);
                         for (int row = 0; row < rowCount; row++) {
                             for (int col = 0; col < columnCount; col++) {

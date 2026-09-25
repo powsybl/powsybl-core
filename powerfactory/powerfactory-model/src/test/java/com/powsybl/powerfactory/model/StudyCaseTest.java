@@ -63,7 +63,8 @@ class StudyCaseTest extends AbstractPowerFactoryTest {
     void jsonOversizedMatrixTest() throws IOException {
         String json = new String(getClass().getResourceAsStream("/studyCase.json").readAllBytes(), StandardCharsets.UTF_8)
                 .replace("\"rowCount\" : 2", "\"rowCount\" : 2147483647");
-        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> StudyCase.parseJson(new StringReader(json)));
+        StringReader reader = new StringReader(json);
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> StudyCase.parseJson(reader));
         assertTrue(e.getMessage().contains("less than the declared"));
     }
 
