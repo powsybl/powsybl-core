@@ -77,7 +77,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testGeneratorActivePowerLimits() throws IOException {
+    void testGeneratorActivePowerLimits() {
         Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
         Generator g = network.getGenerator("SM1");
         assertEquals(50.0, g.getMinP());
@@ -86,7 +86,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testGeneratorRemoteReactivePowerControl() throws IOException {
+    void testGeneratorRemoteReactivePowerControl() {
         Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
         Generator g = network.getGenerator("SM1");
         RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
@@ -97,7 +97,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testGeneratorEntsoeCategory() throws IOException {
+    void testGeneratorEntsoeCategory() {
         Properties params = new Properties();
         params.put(POST_PROCESSORS, "EntsoeCategory");
         Network network = readCgmesResources(params, "/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
