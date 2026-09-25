@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import com.powsybl.iidm.serde.util.TopologyLevelUtil;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -29,6 +28,8 @@ import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
 public final class ConnectableSerDeUtil {
 
     static final String VALUE_KEY = "value";
+    static final String ACCEPTABLE_DURATION_KEY = "acceptableDuration";
+    static final String FICTITIOUS_KEY = "fictitious";
     static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME = "temporaryLimits";
     static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NAME = "temporaryLimit";
     static final String PERMANENT_LIMIT_VALUE = "permanentLimit";
@@ -61,6 +62,7 @@ public final class ConnectableSerDeUtil {
     static final String PROPERTY = "property";
     static final String SELECTED_GROUP_ID = "selectedOperationalLimitsGroupId";
     static final String ALL_SELECTED_GROUP_IDS = "selectedOperationalLimitsGroupIds";
+    static final String DETECTION_KIND = "detectionKind";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -253,24 +255,49 @@ public final class ConnectableSerDeUtil {
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimits(String type, A adder, NetworkDeserializerContext context) {
         TreeDataReader reader = context.getReader();
-        IidmVersion iidmVersion = context.getVersion();
         ImportOptions options = context.getOptions();
         ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(context.getNetworkValidationLevel());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
-            adder.setPermanentLimitName(permanentLimitName);
-        });
-        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
-        if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
-            throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
-        }
-        adder.setPermanentLimit(permanentLimit);
+        readLoadingLimitAttributes(type, adder, context, reader, minimalValidationLevel);
         // Read and add the temporary limits
         reader.readChildNodes(elementName -> readLimit(type, adder, context, reader, elementName));
-        if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
-            adder.fixLimits(options.getMissingPermanentLimitPercentage()).add();
-        } else {
-            adder.add();
+        if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS && adder.getDetectionKind() == DetectionKind.HIGH) {
+            adder.fixLimits(options.getMissingPermanentLimitPercentage());
+        }
+        adder.add();
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
+        String type, A adder, NetworkDeserializerContext context,
+        TreeDataReader reader, ValidationLevel minimalValidationLevel) {
+        String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+        String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
+        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
+
+        DetectionKind[] kind = {DetectionKind.HIGH};
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            if (detectionKindString == null) {
+                throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
+            }
+            kind[0] = DetectionKind.valueOf(detectionKindString);
+        });
+        adder.setDetectionKind(kind[0]);
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            String permanentName = kind[0] == DetectionKind.HIGH ?
+                Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME) : permanentLimitName;
+            adder.setPermanentLimitName(permanentName);
+        });
+
+        if (kind[0] == DetectionKind.HIGH) {
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                checkHighLimit(type, minimalValidationLevel, permanentLimit));
+        }
+        adder.setPermanentLimit(permanentLimit);
+    }
+
+    private static void checkHighLimit(String type, ValidationLevel minimalValidationLevel, double permanentLimit) {
+        if (Double.isNaN(permanentLimit) && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
+            throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
         }
     }
 
@@ -281,9 +308,9 @@ public final class ConnectableSerDeUtil {
         switch (elementName) {
             case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
                 String name = reader.readStringAttribute("name");
-                int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
+                int acceptableDuration = reader.readIntAttribute(ACCEPTABLE_DURATION_KEY, Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
-                boolean fictitious = reader.readBooleanAttribute("fictitious", false);
+                boolean fictitious = reader.readBooleanAttribute(FICTITIOUS_KEY, false);
                 LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
                 readProperties(context, tempLimitAdder);
                 tempLimitAdder
@@ -354,39 +381,153 @@ public final class ConnectableSerDeUtil {
         writeLoadingLimits(index, limits, writer, nsUri, version, valid, exportOptions, CURRENT_LIMITS);
     }
 
+    /**
+     * <p>Write a loading limit by taking into account specificities related to the version.</p>
+     * Export low limit as a high limit for versions of IIDM <= 1.17<br>
+     * When writing a low limit as a high limit, the following occurs:
+     * <pre>
+     *     Low limit                    -->    High limit
+     *                                          10' ---- Infinity 3rd temporary
+     *          10'                                 10'
+     *      10' ---- 1200 3rd temporary         20' ---- 1200 2nd temporary
+     *          20'                                 20'
+     *      20' ---- 800 2nd temporary          40' ---- 800 1st temporary
+     *          40' (duration allowed value)        40'
+     *      40' ---- 500 1st temporary              ---- 500 (permanent limit)
+     *      Indefinitely                          Indefinitely
+     * </pre>
+     * The first temporary of the low limit becomes the permanent limit. Then, the temporary limits of the high limit is created as such:
+     * <ul>
+     *     <li>1st temporary: the value of the 2nd temporary of the low, with the duration and name of the 1st temporary of the low</li>
+     *     <li>2nd temporary: the value of the 3rd temporary of the low, with the duration and name of the 2nd temporary of the low</li>
+     *     <li>continues as such for all following limits</li>
+     *     <li>last temporary: infinity value ({@link Double#MAX_VALUE}, with the duration and name of the last temporary of the low</li>
+     * </ul>
+     * This ensures that for any given value, the returned allowed duration will be the same if taken from the original low limit, or from the created high limit.
+     * @param index the index of the element for which we write the limit, related to the context of the call.
+     *              For example, if writing the limits for a connectable on side 1, index is 1, on side 2, it's 2
+     * @param limits the limits to write
+     * @param writer the writer to use to serialize the limit (binary, XML, JSON, etc...)
+     * @param nsUri the URI of the namespace, this is an http path to the schema of the serialized file (and XSD for the XML)
+     * @param version the IIDM version in which to export
+     * @param valid if true, write in SSH, otherwise in equipment mode
+     * @param exportOptions various options for the export
+     * @param type the type of the limit ({@link #CURRENT_LIMITS}, {@link #ACTIVE_POWER_LIMITS}, {@link #APPARENT_POWER_LIMITS})
+     * @param <L> something that is a {@code LoadingLimits}
+     */
     private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
-        if (limits != null) {
-            if (limits.getDetectionKind() == DetectionKind.LOW) {
-                if (!exportOptions.isForceExportNetworkWithBetaFeatures()) {
-                    throw new NotImplementedException("The network contains low limits, export of this kind of limit is not yet supported. " +
-                        "To force the export of the network and ignore those limits, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
-                        "or ExportOptions.setForceExportNetworkWithBetaFeatures");
+        if (limits != null && canWriteLimits(limits)) {
+            FormattedLimits formattedLimits = new FormattedLimits(limits, version);
+            writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type);
+            writer.writeStartNodes();
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
+
+            for (FormattedTemporaryLimit fl : formattedLimits.sortedTemporaryLimits(exportOptions)) {
+                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
+                writer.writeStringAttribute("name", fl.name);
+                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, fl.duration, Integer.MAX_VALUE);
+                writer.writeDoubleAttribute(VALUE_KEY, fl.value, Double.MAX_VALUE);
+                writer.writeBooleanAttribute(FICTITIOUS_KEY, fl.fictitious, false);
+                if (fl.propertiesHolder != null) {
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version,
+                        () -> PropertiesSerDe.write(fl.propertiesHolder, writer, nsUri, exportOptions)
+                    );
                 }
-            } else if (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty()) {
-                writer.writeStartNode(nsUri, type + indexToString(index));
-                writePermanentLimit(limits, writer, version);
-                writer.writeStartNodes();
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
-                for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                    writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                    writer.writeStringAttribute("name", tl.getName());
-                    writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
-                    writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
-                    writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
-                    writer.writeEndNode();
-                }
-                writer.writeEndNodes();
                 writer.writeEndNode();
             }
+            writer.writeEndNodes();
+            writer.writeEndNode();
         }
     }
 
-    private static <L extends LoadingLimits> void writePermanentLimit(L limits, TreeDataWriter writer, IidmVersion version) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
-            () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
-        writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
+    private static <L extends LoadingLimits> boolean canWriteLimits(L limits) {
+        return limits.getDetectionKind() == DetectionKind.HIGH
+            && !Double.isNaN(limits.getPermanentLimit())
+            || !limits.getTemporaryLimits().isEmpty();
+    }
+
+    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
+        writer.writeStartNode(nsUri, type + indexToString(index));
+        DetectionKind kind = limits.getDetectionKind();
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () ->
+            writer.writeStringAttribute(DETECTION_KIND, kind.name())
+        );
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+            () -> {
+                if (kind == DetectionKind.HIGH) {
+                    writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
+                        limits.getPermanentLimitName(),
+                        LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+                }
+            });
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+            () -> {
+                if (kind == DetectionKind.HIGH) {
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
+                } else {
+                    // Convert low limit to high limit by using first temporary as permanent
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getTemporaryLimits().iterator().next().getValue());
+                }
+            }
+        );
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
+            if (kind == DetectionKind.HIGH) {
+                writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
+            }
+        });
+    }
+
+    private record FormattedTemporaryLimit(double value, int duration, String name, boolean fictitious, PropertiesHolder propertiesHolder) { }
+
+    private record FormattedLimits(List<FormattedTemporaryLimit> formattedTemporaryLimits) {
+        FormattedLimits(LoadingLimits limits, IidmVersion version) {
+            this(buildFormattedTemporaryLimits(limits, version));
+        }
+
+        private static List<FormattedTemporaryLimit> buildFormattedTemporaryLimits(LoadingLimits limits, IidmVersion version) {
+            List<LoadingLimits.TemporaryLimit> tempLimits = limits.getTemporaryLimits().stream().toList();
+            List<FormattedTemporaryLimit> formattedTemporaryLimits = new ArrayList<>();
+            boolean shiftLowToHigh = limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0;
+            // The first temp limit was used as the permanent limit of the high limit, ignore it if shifting low to high limit
+            int startingValueIndex = shiftLowToHigh ? 1 : 0;
+            int valueIndex = startingValueIndex;
+            for (int durationIndex = 0; durationIndex < tempLimits.size() - startingValueIndex; ++durationIndex) {
+                LoadingLimits.TemporaryLimit tlValue = tempLimits.get(valueIndex);
+                LoadingLimits.TemporaryLimit tlDuration = tempLimits.get(durationIndex);
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(
+                    tlValue.getValue(),
+                    tlDuration.getAcceptableDuration(),
+                    tlDuration.getName(),
+                    tlDuration.isFictitious(),
+                    tlDuration)
+                );
+                ++valueIndex;
+            }
+            if (shiftLowToHigh) {
+                // Since we skip the first temp limit when converting a low limit to a high limit (because we use the value
+                // of the first temporary of the low for the value of the permanent of the high), there is a shift of 1.
+                // The last limit of the high limit doesn't have any value it can take from the low limits (since we already used all the
+                // limit values), so it should have the max value available for its value instead
+                LoadingLimits.TemporaryLimit tlDuration = tempLimits.getLast();
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(
+                    Double.MAX_VALUE,
+                    tlDuration.getAcceptableDuration(),
+                    tlDuration.getName(),
+                    tlDuration.isFictitious(),
+                    tlDuration)
+                );
+            }
+            return formattedTemporaryLimits;
+        }
+
+        Iterable<FormattedTemporaryLimit> sortedTemporaryLimits(ExportOptions exportOptions) {
+            Objects.requireNonNull(exportOptions);
+            return exportOptions.isSorted() ? formattedTemporaryLimits.stream()
+                        .sorted(Comparator.comparing(FormattedTemporaryLimit::name))
+                        .toList()
+                    : formattedTemporaryLimits;
+        }
     }
 
     static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {
@@ -549,4 +690,16 @@ public final class ConnectableSerDeUtil {
         }
         writer.writeEndNodes();
     }
+
+    public static void writeEquivalent(Connectable<?> connectable, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeBooleanAttribute("equivalent", connectable.isEquivalent(), false));
+    }
+
+    public static void readEquivalent(ConnectableAdder<?, ?> connectableAdder, NetworkDeserializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            boolean equivalent = context.getReader().readBooleanAttribute("equivalent", false);
+            connectableAdder.setEquivalent(equivalent);
+        });
+    }
+
 }

@@ -136,7 +136,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
-                                    id, getName(), isFictitious(), energySource,
+                                    id, getName(), isFictitious(), isEquivalent(), energySource,
                                     minP, maxP,
                                     voltageRegulatorOn, regulatingTerminal,
                                     targetP, targetQ, targetV, equivalentLocalTargetV,

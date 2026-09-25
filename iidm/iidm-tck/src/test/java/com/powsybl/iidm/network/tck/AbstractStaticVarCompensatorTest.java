@@ -43,6 +43,9 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(0.0008, svc.getBmax(), 0.0);
         assertSame(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
+        assertFalse(svc.isEquivalent());
+        svc.setEquivalent(true);
+        assertTrue(svc.isEquivalent());
     }
 
     @Test
@@ -183,7 +186,19 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertThrows(PowsyblException.class, svc::getReactivePowerSetpoint);
     }
 
+    @Test
+    public void testEquivalent() {
+        StaticVarCompensator svc = createSvcAdder("svc", null, StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setEquivalent(true)
+                .add();
+        assertTrue(svc.isEquivalent());
+    }
+
     private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, StaticVarCompensator.RegulationMode regulationMode) {
+        return createSvcAdder(id, regulatingTerminal, regulationMode).add();
+    }
+
+    private StaticVarCompensatorAdder createSvcAdder(String id, Terminal regulatingTerminal, StaticVarCompensator.RegulationMode regulationMode) {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
         return vl2.newStaticVarCompensator()
                 .setId(id)
@@ -195,7 +210,6 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setRegulating(true)
                 .setVoltageSetpoint(390.0)
                 .setReactivePowerSetpoint(1.0)
-                .setRegulatingTerminal(regulatingTerminal)
-                .add();
+                .setRegulatingTerminal(regulatingTerminal);
     }
 }
