@@ -401,6 +401,10 @@ In the SSH profile:
 - For `ConformLoad`, `NonConformLoad` and `EnergyConsumer`, the attributes `EnergyConsumer.p` and `EnergyConsumer.q` are written from the IIDM `P0` and `Q0`.
 - For `EnergySource`, the attributes `EnergySource.activePower` and `EnergySource.reactivePower` are written from the IIDM `P0` and `Q0`.
 - For `AsynchronousMachine`, the attributes `RotatingMachine.p` and `RotatingMachine.q` are written from the IIDM `P0` and `Q0`. 
+  Additionally, the mandatory attributes `controlEnabled` and `asynchronousMachineKind` are also exported.
+  `controlEnabled` is always set to `false`, while `asynchronousMachineKind` is determined by the active power.
+  If it is greater than or equal to 0.0, the machine is considered a `motor`, otherwise, it is considered a `generator`.
+
 NOTE: SSH attributes for active and reactive power of `EnergySource` and `AsynchronousMachine` in CGMES must be given with load sign convention, so no sign change has to be made from IIDM `P0, Q0` values.
 In the SV profile, a `SvPowerFlow` is written for the terminal of the load with the terminal `P` and `Q` values.
 
