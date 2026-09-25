@@ -7,8 +7,8 @@
  */
 package com.powsybl.math.graph.dtree;
 
-import com.powsybl.openloadflow.graph.GraphConnectivity;
-import com.powsybl.openloadflow.graph.GraphConnectivityFactory;
+import com.powsybl.math.graph.GraphConnectivity;
+import com.powsybl.math.graph.GraphConnectivityFactory;
 
 /**
  * @author Valentin Carrez {@literal <valentin.carrez at rte-france.com>}

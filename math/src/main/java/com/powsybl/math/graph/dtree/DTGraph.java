@@ -59,7 +59,11 @@ public class DTGraph<V, E> {
      * @return the root of the tree in which {@code vertex} is.
      */
     DTNode<V, E> rootOf(V vertex) {
-        return getNodeOrThrow(vertex).findRoot();
+        DTNode<V, E> node = vertexToTreeNode.get(vertex);
+        if (node == null) {
+            return null;
+        }
+        return node.findRoot();
     }
 
     void setCurrentModificationsContext(Modifications<V, E> currentModificationsContext) {
@@ -395,7 +399,11 @@ public class DTGraph<V, E> {
     }
 
     public Component<V> componentView(V vertex) {
-        return getNodeOrThrow(vertex).componentView();
+        DTNode<V, E> node = vertexToTreeNode.get(vertex);
+        if (node == null) {
+            return null;
+        }
+        return node.componentView();
     }
 
     DTNode<V, E> getBiggestRoot() {

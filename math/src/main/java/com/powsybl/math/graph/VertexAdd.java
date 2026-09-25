@@ -10,12 +10,7 @@ package com.powsybl.math.graph;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class VertexAdd<V, E> implements GraphModification<V, E> {
-    protected final V v;
-
-    public VertexAdd(V vertex) {
-        this.v = vertex;
-    }
+public record VertexAdd<V, E>(V v) implements GraphModification<V, E> {
 
     @Override
     public void apply(GraphModel<V, E> graph) {

@@ -113,7 +113,9 @@ public class DTreeGraphConnectivity<V, E> implements GraphConnectivity<V, E> {
 
     @Override
     public boolean connected(V v1, V v2) {
-        return graph.rootOf(v1) == graph.rootOf(v2);
+        DTNode<V, E> node1 = graph.rootOf(v1);
+        DTNode<V, E> node2 = graph.rootOf(v2);
+        return node1 != null && node1 == node2;
     }
 
     @Override
@@ -150,10 +152,13 @@ public class DTreeGraphConnectivity<V, E> implements GraphConnectivity<V, E> {
     }
 
     public int getComponentNumber(V vertex) {
-        checkSavedContext();
-        updateComponents();
+        DTNode<V, E> root = graph.rootOf(vertex);
+        if (root == null) {
+            return -1;
+        }
 
-        return graph.rootOf(vertex).getIndex();
+        updateComponents();
+        return root.getIndex();
     }
 
     @Override
@@ -167,20 +172,16 @@ public class DTreeGraphConnectivity<V, E> implements GraphConnectivity<V, E> {
 
     @Override
     public int getNbConnectedComponents() {
-        checkSavedContext();
         return graph.getNbConnectedComponent();
     }
 
     @Override
     public Component<V> getConnectedComponent(V vertex) {
-        checkSavedContext();
         return graph.componentView(vertex);
     }
 
     @Override
     public Component<V> getLargestConnectedComponent() {
-        checkSavedContext();
-
         if (components == null) {
             return getGraph().getBiggestRoot().componentView();
         } else {
@@ -190,7 +191,8 @@ public class DTreeGraphConnectivity<V, E> implements GraphConnectivity<V, E> {
 
     @Override
     public List<Component<V>> getConnectedComponents() {
-        return List.of();
+        updateComponents();
+        return components;
     }
 
     @Override

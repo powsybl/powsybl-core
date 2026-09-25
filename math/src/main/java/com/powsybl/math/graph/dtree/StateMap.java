@@ -7,7 +7,7 @@
  */
 package com.powsybl.math.graph.dtree;
 
-import com.powsybl.openloadflow.graph.GraphConnectivity;
+import com.powsybl.math.graph.GraphConnectivity;
 
 import java.util.HashMap;
 import java.util.Map;

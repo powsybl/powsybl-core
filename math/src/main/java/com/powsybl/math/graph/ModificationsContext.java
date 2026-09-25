@@ -208,7 +208,7 @@ public class ModificationsContext<V, E> {
     }
 
     private Stream<V> getAddedVertexStream() {
-        return modifications.stream().filter(VertexAdd.class::isInstance).map(m -> ((VertexAdd<V, E>) m).v);
+        return modifications.stream().filter(VertexAdd.class::isInstance).map(m -> ((VertexAdd<V, E>) m).v());
     }
 
     public void setMainComponentVertex(V mainComponentVertex) {

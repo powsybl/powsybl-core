@@ -10,6 +10,7 @@ package com.powsybl.math.graph.dtree;
 import com.powsybl.math.graph.Component;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * A set view of a connected component in a graph. A component view is
@@ -56,5 +57,20 @@ public class ComponentView<V, E> implements Component<V> {
 
     void setIndex(int index) {
         node.setIndex(index);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ComponentView<?, ?> that = (ComponentView<?, ?>) o;
+        return Objects.equals(node.findRoot(), that.node.findRoot());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(node.findRoot());
     }
 }
