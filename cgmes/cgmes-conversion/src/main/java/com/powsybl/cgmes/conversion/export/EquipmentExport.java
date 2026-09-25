@@ -56,17 +56,21 @@ public final class EquipmentExport {
     private static final String MONOPOLAR_GROUND_RETURN = "monopolarGroundReturn";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
-    public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+    private final CgmesExportContext context;
+    private final XMLStreamWriter writer;
+
+    public EquipmentExport(XMLStreamWriter writer, CgmesExportContext context) {
+        this.context = context;
+        this.writer = writer;
     }
 
-    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+    public void write(Network network) {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(
                 network, CgmesSubset.EQUIPMENT, context, true, false);
-        write(network, writer, context, model);
+        write(network, model);
     }
 
-    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
+    public void write(Network network, CgmesMetadataModel model) {
         try {
             String cimNamespace = context.getCim().getNamespace();
             String euNamespace = context.getCim().getEuNamespace();
