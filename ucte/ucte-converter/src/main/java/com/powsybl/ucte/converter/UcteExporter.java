@@ -328,17 +328,31 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
         ucteNode.setActiveLoad(boundaryLine.getP0());
         ucteNode.setReactiveLoad(boundaryLine.getQ0());
-        double generatorTargetP = boundaryLine.getGeneration().getTargetP();
+        if (boundaryLine.getGeneration() != null) {
+            applyGenerationToUcteNode(boundaryLine.getGeneration(), ucteNode);
+        }
+    }
+
+    /**
+     * Given a non-null {@link BoundaryLine.Generation} from the original boundary line, apply it to the exported
+     * {@link UcteNode}
+     *
+     * @param generation The {@link BoundaryLine.Generation} associated to the {@link BoundaryLine} at the origin of
+     *                   {@code ucteNode}
+     * @param ucteNode   an {@link UcteNode} to export
+     */
+    private static void applyGenerationToUcteNode(BoundaryLine.Generation generation, UcteNode ucteNode) {
+        double generatorTargetP = generation.getTargetP();
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = boundaryLine.getGeneration().getTargetQ();
+        double generatorTargetQ = generation.getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (boundaryLine.getGeneration().isVoltageRegulationOn()) {
+        if (generation.isVoltageRegulationOn()) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference(boundaryLine.getGeneration().getTargetV());
-            double minP = boundaryLine.getGeneration().getMinP();
-            double maxP = boundaryLine.getGeneration().getMaxP();
-            double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
-            double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
+            ucteNode.setVoltageReference(generation.getTargetV());
+            double minP = generation.getMinP();
+            double maxP = generation.getMaxP();
+            double minQ = generation.getReactiveLimits().getMinQ(generation.getTargetP());
+            double maxQ = generation.getReactiveLimits().getMaxQ(generation.getTargetP());
             if (minP != -DEFAULT_POWER_LIMIT) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }

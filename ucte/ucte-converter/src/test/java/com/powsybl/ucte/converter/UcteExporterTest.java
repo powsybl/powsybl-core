@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -62,6 +63,46 @@ class UcteExporterTest extends AbstractSerDeTest {
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
             assertTxtEquals(expected, actual, Arrays.asList(1, 2));
         }
+    }
+
+    @Test
+    void testExportBoundaryLineWithoutGeneration() throws IOException {
+        Network network = NetworkFactory.findDefault().createNetwork("test", "test");
+        Substation substation = network.newSubstation().setId("S").setCountry(Country.FR).add();
+        VoltageLevel voltageLevel = substation.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(380.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        voltageLevel.getBusBreakerView().newBus().setId("FFFFFF11").add();
+        BoundaryLine boundaryLine = voltageLevel.newBoundaryLine()
+                .setId("FFFFFF11 XXXXXX11 1")
+                .setBus("FFFFFF11")
+                .setR(1.0)
+                .setX(10.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setP0(50.0)
+                .setQ0(30.0)
+                .setPairingKey("XXXXXX11")
+                .add();
+        assertNull(boundaryLine.getGeneration());
+
+        Properties parameters = new Properties();
+        parameters.put("ucte.export.naming-strategy", "Default");
+        MemDataSource dataSource = new MemDataSource();
+        new UcteExporter().export(network, parameters, dataSource);
+
+        String xnodeLine;
+        try (InputStream is = dataSource.newInputStream(null, "uct")) {
+            xnodeLine = new String(is.readAllBytes(), StandardCharsets.UTF_8).lines()
+                    .filter(line -> line.startsWith("XXXXXX11"))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("No line found for X-node XXXXXX11"));
+        }
+        // Active power generation (49-56) and reactive power generation (57-64): zero generation assumed.
+        assertEquals("0.00000", xnodeLine.substring(49, 56));
+        assertEquals("0.00000", xnodeLine.substring(57, 64));
     }
 
     @Test
