@@ -20,5 +20,17 @@ public abstract class AbstractEdgeModification<V, E> implements GraphModificatio
         this.v2 = vertex2;
         this.e = e;
     }
+
+    public E e() {
+        return e;
+    }
+
+    public V v1() {
+        return v1;
+    }
+
+    public V v2() {
+        return v2;
+    }
 }
 
