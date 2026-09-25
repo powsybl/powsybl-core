@@ -20,9 +20,13 @@ worst to an exporter failure. Some examples are listed here after.
 connected to it. See [node conversion](#node-conversion) below for how the node's load and generation attributes are
 sourced from the load and the generator.
 
-**Transformers Tap Changers**: UCTE-DEF format assumes neutral tap position to be centered at position zero. If your IIDM
-model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will be
-incorrect without warning.
+**Transformers Tap Changers**: UCTE-DEF describes a tap changer with a linear model: taps are numbered symmetrically
+around a neutral tap at position `0`, and the voltage (or angle) step between two consecutive taps is constant. IIDM tap
+changers have no such constraints: low and high positions can be any integer and each one is associated to a free value.
+On export, the taps are renumbered around the neutral tap (see
+[Tap numbering](#tap-numbering)), but tap steps that don't follow a linear model can't be represented exactly. In that
+case, the export does not fail, but the tap changer is approximated and a warning is [reported](#reporting) (see
+[Deviation from the linear model](#deviation-from-the-linear-model)).
 
 ## Options
 
@@ -229,17 +233,17 @@ The table below maps every UCTE-DEF phase regulation attribute to its source in 
 | UCTE-DEF attribute       | Source in IIDM                                 | Computation                                                                                                                       |
 |--------------------------|------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | δu (%)                   | Ratio tap changer's tap steps' ρ               | Computed from the ρ of the two extreme taps, see formula in [δu formula](#δu-formula).                                            |
-| n (number of taps)       | Ratio tap changer's high tap position          | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation. |
-| n' (tap position)        | Ratio tap changer's current tap position       | Used as-is. Same assumption as above.                                                                                             |
+| n (number of taps)       | Ratio tap changer's tap positions              | Distance between the neutral tap and the furthest end of the tap range, see [Tap numbering](#tap-numbering).                      |
+| n' (tap position)        | Ratio tap changer's current tap position       | Current tap position, counted from the neutral tap, see [Tap numbering](#tap-numbering).                                          |
 | Voltage set point U (kV) | Ratio tap changer's target voltage (`targetV`) | Used as-is; left undefined if the ratio tap changer has no target voltage.                                                        |
 
 ##### δu formula
 $$
-\delta u = 100 \times \left (\dfrac{1}{\rho_{max}} - \dfrac{1}{\rho_{min}}\right) / (n - 1)
+\delta u = 100 \times \left (\dfrac{1}{\rho_{max}} - \dfrac{1}{\rho_{min}}\right) / (N - 1)
 $$
 
-where $n$ is the number of taps, $\rho_{min}$ the ρ of the lowest tap position and $\rho_{max}$ the ρ of the highest tap
-position.
+where $N$ is the number of steps of the IIDM tap changer, $\rho_{min}$ the ρ of the lowest tap position and $\rho_{max}$
+the ρ of the highest tap position. Note that $N$ and the exported n can differ, see [Tap numbering](#tap-numbering).
 
 #### Angle regulation
 
@@ -253,21 +257,25 @@ The table below maps every UCTE-DEF angle regulation attribute to its source in 
 | Regulation type         | Phase tap changer's tap steps' ρ           | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                              |
 | δu (%)                  | Phase tap changer's tap steps' α and/or ρ  | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
 | Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ  | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.               |
-| n (number of taps)      | Phase tap changer's high tap position      | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.  |
-| n' (tap position)       | Phase tap changer's current tap position   | Used as-is. Same assumption as above.                                                                                              |
+| n (number of taps)      | Phase tap changer's tap positions          | Distance between the neutral tap and the furthest end of the tap range, see [Tap numbering](#tap-numbering).                       |
+| n' (tap position)       | Phase tap changer's current tap position   | Current tap position, counted from the neutral tap, see [Tap numbering](#tap-numbering).                                           |
 | Regulation power P (MW) | Phase tap changer's `regulationValue`      | Opposite of `regulationValue`.                                                                                                      |
 
 ##### SYMM regulation δu formula
 For a `SYMM` regulation, the angle is fixed at `90°` and the δu (%) is computed from the α of the two extreme taps:
 
 $$
-\delta u = 100 \times 2 \times \left (\tan\left (\dfrac{\alpha_{max}}{2}\right) - \tan\left (\dfrac{\alpha_{min}}{2}\right)\right) / (n - 1)
+\delta u = 100 \times 2 \times \left (\tan\left (\dfrac{\alpha_{max}}{2}\right) - \tan\left (\dfrac{\alpha_{min}}{2}\right)\right) / (N - 1)
 $$
+
+where $N$ is the number of steps of the IIDM tap changer, $\alpha_{min}$ the α of the lowest tap position and
+$\alpha_{max}$ the α of the highest tap position.
 
 ##### ASYM regulation δu formula
 
 For an `ASYM` regulation, the δu (%) and the angle are computed from the distance, in the complex plane, between the
-points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps. If the [
+points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps: the δu (%) is $100$ times this distance divided by
+$N - 1$, and the angle θ is the direction of the line joining these two points. If the [
 `ucte.export.combine-phase-angle-regulation`](#options)
 option is enabled and the transformer also has a ratio tap changer, the computed δu (%) is divided by the ρ of the ratio
 tap changer's current step.
@@ -275,6 +283,49 @@ tap changer's current step.
 **Note:** the sign of α is inverted in both cases, because the phase tap changer is on side 2 in the
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf),
 and on side 1 in IIDM.
+
+#### Tap numbering
+
+In UCTE-DEF, the taps of a regulation are numbered from -n to +n, the neutral tap being at position `0`. The UCTE-DEF
+specification calls n the "number of taps": it is the number of taps on each side of the neutral tap, so a regulation
+has 2n + 1 taps in total. In IIDM, the tap positions range from a low to a high tap position, and the neutral tap can be
+anywhere in this range. The taps of each tap changer (ratio and phase, independently) are therefore renumbered on
+export:
+
+1. The neutral tap is found:
+   - for a ratio tap changer, it is the tap whose ρ is equal to `1`, or, if there is none, the tap whose ρ is the
+     closest to `1`;
+   - for a phase tap changer, it is the tap whose ρ is equal to `1` and α is equal to `0°`, or, if there is none, the
+     tap whose α is the closest to `0°`.
+
+   If several taps are equally close, the one closest to the middle of the tap range is chosen.
+2. All the tap positions are shifted, so that the neutral tap is at position `0`.
+3. The number of taps n is the distance between the neutral tap and the furthest end of the tap range, so that the range
+   from -n to +n covers all the IIDM taps.
+4. The tap position n' is the shifted current tap position.
+
+> ##### Examples
+> A ratio tap changer with taps from `1` to `21`:
+> - A neutral tap at position `11` and a current tap at position `14` is exported with n = `10` and n' = `3`.
+> - A neutral tap at position `8` and a current tap at position `14` would be exported with n = `13` (the distance
+    between positions `8` and `21`) and n' = `6`.
+
+When the tap range is not symmetric around the neutral tap, as in the second case, the UCTE-DEF range is larger than the
+IIDM one on the shorter side, and a warning is [reported](#reporting). This does not change the exported δu, nor the
+current tap position.
+
+#### Deviation from the linear model
+
+A UCTE-DEF regulation is a linear model: δu (and the angle θ, for an angle regulation) is computed from the two extreme
+taps only, determining the ρ and α of every tap. Since the IIDM tap changers don't have this linearity constraint (any
+value is possible at each tap position), the taps values can differ between the original tap changer and the exported
+UCTE-DEF tap changer.
+
+After converting a tap changer, the export compares each IIDM tap step with the value implied by the exported
+regulation. If at least one of them differs by more than $10^{-6}$, one warning is [reported](#reporting) for this tap
+changer. The exported values are not modified. For an `ASYM` regulation with the
+[`ucte.export.combine-phase-angle-regulation`](#options) option enabled, the comparison uses the δu (%) before its
+division by the ratio tap changer's ρ.
 
 ## Reporting
 
@@ -284,4 +335,8 @@ following situations are reported with a `WARN` severity:
 
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
 - a two-winding transformer has no usable nominal power
-  (see [two-winding transformer conversion](#two-winding-transformer-conversion)).
+  (see [two-winding transformer conversion](#two-winding-transformer-conversion)),
+- the tap range of a ratio or phase tap changer is not symmetric around its neutral tap, and the exported range is
+  extended on the shorter side (see [Tap numbering](#tap-numbering)),
+- the tap steps of a ratio or phase tap changer differ from the exported linear model
+  (see [Deviation from the linear model](#deviation-from-the-linear-model)).
