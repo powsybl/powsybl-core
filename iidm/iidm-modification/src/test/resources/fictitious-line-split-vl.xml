@@ -118,19 +118,19 @@
                 <iidm:step r="39.78473" x="39.784725" rho="1.0" alpha="42.8"/>
             </iidm:phaseTapChanger>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="931.0"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="931.0"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:line id="CJ_1" r="0.0049999995" x="0.05000001200000001" voltageLevelId1="C" node1="4" voltageLevelId2="VLTEST" node2="1" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0"/>
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0">
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0">
                 <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
                 <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
             </iidm:currentLimits>
@@ -138,10 +138,10 @@
     </iidm:line>
     <iidm:line id="CJ_2" r="0.0049999995" x="0.05000001200000001" voltageLevelId1="VLTEST" node1="4" voltageLevelId2="N" node2="5" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0"/>
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0">
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0">
                 <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
                 <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
             </iidm:currentLimits>
