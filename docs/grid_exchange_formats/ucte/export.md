@@ -208,7 +208,7 @@ The table below maps every UCTE-DEF transformer attribute to its source in IIDM.
 | Element name                                | `elementName` property                              | Used as-is; left undefined if the property is absent.                                                  |
 | Rated voltage 1 (kV, non-regulated winding) | Transformer's `ratedU2`                             | Used as-is; swapped with rated voltage 2, see [Rated voltages](#rated-voltages).                       |
 | Rated voltage 2 (kV, regulated winding)     | Transformer's `ratedU1`                             | Used as-is; swapped with rated voltage 1, see [Rated voltages](#rated-voltages).                       |
-| Nominal power (MVA)                         | `nomimalPower` property                             | Parsed as a double; left undefined if the property is absent, and a warning is [reported](#reporting). |
+| Nominal power (MVA)                         | Transformer's `ratedS`                              | See [Nominal power](#nominal-power).                                                                   |
 | Conductance G (μS)                          | Transformer's `g`                                   | Used as-is.                                                                                            |
 
 #### Rated voltages
@@ -217,7 +217,15 @@ Because UCTE-DEF has the regulated winding on side 2, while IIDM has it on side 
 export: the UCTE transformer's rated voltage 1 (non-regulated winding) is the transformer's `ratedU2`, and its rated
 voltage 2 (regulated winding) is its `ratedU1`.
 
-If the transformer has a ratio and/or a phase tap changer, a regulation is exported.
+#### Nominal power
+
+The nominal power is the transformer's rated apparent power `ratedS`, used as-is. If `ratedS` is undefined
+(`Double.NaN`), the value of the `nomimalPower` property is used instead: the property was set by the UCTE-DEF import in
+older PowSyBl versions, and this is to remain retro-compatible with networks serialized with these older versions.
+
+If both `ratedS` is `NaN` and legacy property `nomimalPower` is absent or null, `99999` MVA is written in the file, and
+a warning is [reported](#reporting). This value is chosen because it cannot be mistaken for the nominal power of a real
+transformer (too large).
 
 #### Phase regulation
 
@@ -283,5 +291,5 @@ conversion step (buses and switches, boundary lines, lines, tie lines, transform
 following situations are reported with a `WARN` severity:
 
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
-- a two-winding transformer has no usable nominal power
-  (see [two-winding transformer conversion](#two-winding-transformer-conversion)).
+- a two-winding transformer has no nominal power, and the default value `99999` is exported instead
+  (see [Nominal power](#nominal-power)).
