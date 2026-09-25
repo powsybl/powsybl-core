@@ -446,7 +446,7 @@ public final class SteadyStateHypothesisExport {
             RemoteReactivePowerControl rrpc = g.getExtension(RemoteReactivePowerControl.class);
             String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g, rrpc);
             if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                target = rrpc.getTargetQ();
+                target = -rrpc.getTargetQ();
                 targetValueUnitMultiplier = "M";
                 enabled = rrpc.isEnabled();
             } else {
