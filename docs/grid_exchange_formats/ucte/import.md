@@ -158,7 +158,8 @@ The element name of the UCTE line is stored in the `elementName` property and th
 ### Two-winding transformer conversion
 The two-winding transformers connected between two real nodes are converted into a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer).
 If the current limits are defined, a permanent limit is created only for the second side.
-The element name of the transformer is stored in the `elementName` property and the nominal power is stored in the `nominalPower` property.
+The element name of the transformer is stored in the `elementName` property and the nominal power is stored in the dedicated transformer field for rated 
+apparent power: `ratedS`.
 
 If a two-winding transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created,
 with a single bus called a Y-node. This new voltage level is created in the same substation as the real node.
