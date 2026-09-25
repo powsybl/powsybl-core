@@ -30,6 +30,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
 
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(g, context);
         context.getWriter().writeEnumAttribute("energySource", g.getEnergySource());
         context.getWriter().writeDoubleAttribute("minP", g.getMinP());
         context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
@@ -61,6 +62,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
 
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         EnergySource energySource = context.getReader().readEnumAttribute("energySource", EnergySource.class);
         double minP = context.getReader().readDoubleAttribute("minP");
         double maxP = context.getReader().readDoubleAttribute("maxP");

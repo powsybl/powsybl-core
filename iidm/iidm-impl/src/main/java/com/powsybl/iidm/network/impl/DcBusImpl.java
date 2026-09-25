@@ -22,11 +22,11 @@ public class DcBusImpl extends AbstractDcTopologyVisitable<DcBus> implements DcB
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
-    private final Set<DcNodeImpl> dcNodes;
+    private final List<DcNodeImpl> dcNodes;
 
     private boolean valid = true;
 
-    DcBusImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, Set<DcNodeImpl> dcNodes) {
+    DcBusImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, List<DcNodeImpl> dcNodes) {
         super(id, name);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;

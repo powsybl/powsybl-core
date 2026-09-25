@@ -325,7 +325,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     // TODO For now, only a few extensions are supported. But a wider mechanism should be developed to support custom extensions.
     private static List<String> copyExtensions(ThreeWindingsTransformer t3w, ThreeT2wsR threeT2w) {
         List<String> lostExtensions = new ArrayList<>();
-        t3w.getExtensions().stream().map(Extension::getName).forEach(extensionName -> {
+        t3w.getExtensionsStream().map(Extension::getName).forEach(extensionName -> {
             boolean copied = copyExtension(extensionName, t3w, threeT2w);
             if (!copied) {
                 lostExtensions.add(extensionName);

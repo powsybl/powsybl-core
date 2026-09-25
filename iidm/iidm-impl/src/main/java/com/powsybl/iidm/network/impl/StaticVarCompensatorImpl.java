@@ -32,9 +32,9 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     private final TDoubleArrayList reactivePowerSetpoint;
 
-    StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax, double voltageSetpoint, double reactivePowerSetpoint,
+    StaticVarCompensatorImpl(String id, String name, boolean fictitious, boolean equivalent, double bMin, double bMax, double voltageSetpoint, double reactivePowerSetpoint,
                              RegulationMode regulationMode, boolean regulating, TerminalExt regulatingTerminal, Ref<NetworkImpl> ref) {
-        super(ref, id, name, fictitious);
+        super(ref, id, name, fictitious, equivalent);
         this.bMin = bMin;
         this.bMax = bMax;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();

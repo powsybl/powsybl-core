@@ -130,7 +130,7 @@ public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
     }
 
     private double getViolationLimit(LimitViolation violation) {
-        return violation.getLimit() * violation.getLimitReduction();
+        return violation.getLimit() * violation.getLimitScaling();
     }
 
     public SecurityAnalysisResultComparisonWriter write(List<String> actions1, List<String> actions2, boolean equivalent) {
