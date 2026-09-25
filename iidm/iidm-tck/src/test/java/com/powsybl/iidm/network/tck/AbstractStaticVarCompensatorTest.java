@@ -49,6 +49,9 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(390.0, svc.getLocalTargetV(), 0.0);
         assertTrue(Double.isNaN(svc.getLocalTargetQ()));
         assertTrue(Double.isNaN(svc.getVoltageRegulation().getTargetValue()));
+        assertFalse(svc.isEquivalent());
+        svc.setEquivalent(true);
+        assertTrue(svc.isEquivalent());
     }
 
     @Test
@@ -295,15 +298,27 @@ public abstract class AbstractStaticVarCompensatorTest {
     }
 
     @Test
+    public void testEquivalent() {
+        StaticVarCompensator svc = createSvcAdder("svc", null, RegulationMode.VOLTAGE)
+                .setEquivalent(true)
+                .add();
+        assertTrue(svc.isEquivalent());
+    }
+
+    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, RegulationMode regulationMode) {
+        return createSvcAdder(id, regulatingTerminal, regulationMode).add();
+    }
+
+    @Test
     public void testNewVoltageRegulationInMonoVariant() {
         // GIVEN
         createSvc("testMonoVariant", null, RegulationMode.VOLTAGE);
 
         StaticVarCompensator svc = network.getStaticVarCompensator("testMonoVariant");
         svc.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(false)
-                .build();
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
         VoltageRegulationBuilder voltageRegulationBuilder = svc.newVoltageRegulation().withRegulating(false);
         // WHEN
         VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
@@ -311,7 +326,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertNotNull(voltageRegulation);
     }
 
-    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, RegulationMode regulationMode) {
+    private StaticVarCompensatorAdder createSvcAdder(String id, Terminal regulatingTerminal, RegulationMode regulationMode) {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
         return vl2.newStaticVarCompensator()
                 .setId(id)
@@ -325,7 +340,6 @@ public abstract class AbstractStaticVarCompensatorTest {
                     .withTerminal(regulatingTerminal)
                     .add()
                 .setLocalTargetV(390.0)
-                .setLocalTargetQ(1.0)
-                .add();
+                .setLocalTargetQ(1.0);
     }
 }

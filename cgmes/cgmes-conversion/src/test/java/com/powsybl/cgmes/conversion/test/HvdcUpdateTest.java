@@ -7,13 +7,20 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class HvdcUpdateTest {
+class HvdcUpdateTest extends AbstractSerDeTest {
 
     private static final String DIR = "/update/hvdc/";
 
@@ -96,6 +103,96 @@ class HvdcUpdateTest {
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    @Test
+    void vscReactivePowerSetpointRoundTripFlipsSignLegacy() throws IOException {
+        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        HvdcLine senderLine = network.getHvdcLine("DCLineSegment-Vsc");
+        VscConverterStation vsc = (VscConverterStation) senderLine.getConverterStation2();
+        assertEquals(30.34, vsc.getRegulatingTargetQ(), 1e-7);
+
+        vsc.removeVoltageRegulation();
+        vsc.setLocalTargetQ(30.0);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "vsc-q-roundtrip";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // The legacy version assumes that the IIDM model uses the generator sign convention
+        // and converts it to the load sign convention during the export process,
+        // which is the standard convention in CGMES
+        String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+        String vscSsh = getElement(sshXml, "VsConverter", vsc.getId());
+        assertEquals("-30", getAttribute(vscSsh, "VsConverter.targetQpcc"));
+
+        vsc.setLocalTargetQ(0.0);
+
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(30.0, vsc.getRegulatingTargetQ(), 1e-7);
+    }
+
+    @Test
+    void vscReactivePowerSetpointRoundTripFlipsSignDetailed() throws IOException {
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network network = readCgmesResources(importParameters, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("DCLineSegment-Vsc-VscConverter-2");
+        assertEquals(-30.34, vsc.getRegulatingTargetQ(), 1e-7);
+
+        vsc.setLocalTargetQ(30.0);
+        vsc.removeVoltageRegulation();
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "vsc-q-roundtrip";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // The detailed version assumes that the IIDM model uses the load sign convention and exports it directly,
+        // as this is the standard convention in CGMES
+        String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+        String vscSsh = getElement(sshXml, "VsConverter", vsc.getId());
+        assertEquals("30", getAttribute(vscSsh, "VsConverter.targetQpcc"));
+
+        vsc.setLocalTargetQ(0.0);
+
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(30.0, vsc.getRegulatingTargetQ(), 1e-7);
+    }
+
+    @Test
+    void hvdcZeroActivePowerSetpointTest() {
+        Network network = readCgmesResources("/update/hvdc/", "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        assertEquals(300.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
+
+        // we export 0.0
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(0.0);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "zero-active-power-stepoint";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // we restore the initial active power setpoint before the update
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(300.0);
+
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {

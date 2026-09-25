@@ -34,9 +34,9 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     private final TDoubleArrayList localTargetQ;
     private final TDoubleArrayList localTargetV;
 
-    StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax,
+    StaticVarCompensatorImpl(String id, String name, boolean fictitious, boolean equivalent, double bMin, double bMax,
                              VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes, Ref<NetworkImpl> ref, double localTargetQ, double localTargetV) {
-        super(ref, id, name, fictitious);
+        super(ref, id, name, fictitious, equivalent);
         this.bMin = bMin;
         this.bMax = bMax;
         this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, StaticVarCompensator.class, ref, voltageRegulationAttributes);

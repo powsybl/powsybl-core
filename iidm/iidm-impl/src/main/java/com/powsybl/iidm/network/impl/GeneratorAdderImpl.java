@@ -175,7 +175,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
-                                    id, getName(), isFictitious(), energySource,
+                                    id, getName(), isFictitious(), isEquivalent(), energySource,
                                     minP, maxP,
                                     voltageRegulationAttributes,
                                     targetP, localTargetQ, localTargetV,

@@ -35,6 +35,7 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
 
     @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkSerializerContext context) {
+        writeEquivalent(l, context);
         context.getWriter().writeDoubleAttribute("r", l.getR());
         context.getWriter().writeDoubleAttribute("x", l.getX());
         writeFormerlyMandatoryDoubleAttribute("g1", l.getG1(), IidmVersion.V_1_17, context);
@@ -70,6 +71,7 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
         double g1 = readFormerlyMandatoryDoubleAttribute("g1", IidmVersion.V_1_17, context);

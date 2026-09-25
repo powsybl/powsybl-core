@@ -35,11 +35,10 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     private VoltageRegulationExt voltageRegulation;
 
     BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
-                double targetP, double localTargetQ, double localTargetV,
+               boolean equivalent, double targetP, double localTargetQ, double localTargetV,
                 VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
                 double minP, double maxP) {
-        super(ref, id, name, fictitious);
-
+        super(ref, id, name, fictitious, equivalent);
         this.minP = minP;
         this.maxP = maxP;
 

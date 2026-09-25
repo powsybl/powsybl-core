@@ -57,6 +57,9 @@ public abstract class AbstractVscTest {
 
         cs1.setLocalTargetV(406.0);
         assertEquals(406.0, cs1.getRegulatingTargetV(), 0.0);
+        assertFalse(cs1.isEquivalent()); // default value
+        cs1.setEquivalent(true);
+        assertTrue(cs1.isEquivalent());
         assertTrue(Double.isNaN(cs1.getRegulatingTargetQ()));
         assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
         assertFalse(cs2.isRegulatingWithMode(RegulationMode.VOLTAGE));

@@ -76,6 +76,9 @@ public abstract class AbstractGeneratorTest {
         generator.getVoltageRegulation().setRegulating(true);
         assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertFalse(generator.isCondenser());
+        assertFalse(generator.isEquivalent());
+        generator.setEquivalent(true);
+        assertTrue(generator.isEquivalent());
 
         // Regulating TargetV / TargetQ
         generator.getVoltageRegulation().setRegulating(true);
@@ -525,8 +528,23 @@ public abstract class AbstractGeneratorTest {
         assertEquals("Generator 'GEN1': invalid value (-17.6) for voltageRegulation.targetValue (must be positive)", e.getMessage());
     }
 
+    @Test
+    void equivalentGenerator() {
+        Generator generator = createGeneratorAdder("testGenerator", EnergySource.OTHER, 20.0, 10., 2.0,
+            15.0, 40.0, true, 2.0)
+            .setEquivalent(true)
+            .add();
+        assertTrue(generator.isEquivalent());
+    }
+
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
                                       double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
+        return createGeneratorAdder(id, source, maxP, minP, ratedS, activePowerSetpoint, reactivePowerSetpoint, regulatorOn, voltageSetpoint)
+            .add();
+    }
+
+    private GeneratorAdder createGeneratorAdder(String id, EnergySource source, double maxP, double minP, double ratedS,
+                                                double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
         return voltageLevel.newGenerator()
             .setId(id)
             .newVoltageRegulation()
@@ -540,8 +558,7 @@ public abstract class AbstractGeneratorTest {
             .setTargetP(activePowerSetpoint)
             .setLocalTargetQ(reactivePowerSetpoint)
             .setNode(1)
-            .setLocalTargetV(voltageSetpoint)
-            .add();
+            .setLocalTargetV(voltageSetpoint);
     }
 
 }

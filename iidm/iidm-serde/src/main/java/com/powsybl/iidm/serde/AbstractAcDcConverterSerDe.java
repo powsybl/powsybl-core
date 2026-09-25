@@ -78,6 +78,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
 
     @Override
     protected void writeRootElementAttributes(final T converter, final VoltageLevel parent, final NetworkSerializerContext context) {
+        writeEquivalent(converter, context);
         DcTerminal dcTerminal1 = converter.getDcTerminal1();
         DcTerminal dcTerminal2 = converter.getDcTerminal2();
         context.getWriter().writeStringAttribute("dcNode1", dcTerminal1.getDcNode().getId());
@@ -122,6 +123,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
     }
 
     protected void readRootElementCommonAttributes(final A adder, final VoltageLevel voltageLevel, final NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         String dcNode1Id = context.getReader().readStringAttribute("dcNode1");
         boolean dcConnected1 = context.getReader().readBooleanAttribute("dcConnected1");
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");

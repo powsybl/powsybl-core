@@ -185,6 +185,9 @@ public abstract class AbstractAcDcConverterTest {
         // default values
         assertSame(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR, ((LineCommutatedConverter) acDcConverterA).getReactiveModel());
         assertEquals(0.894427191, ((LineCommutatedConverter) acDcConverterA).getPowerFactor(), 1e-4);
+        assertFalse(acDcConverterA.isEquivalent());
+        acDcConverterA.setEquivalent(true);
+        assertTrue(acDcConverterA.isEquivalent());
         // explicitly set values
         assertSame(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR, ((LineCommutatedConverter) acDcConverterB).getReactiveModel());
         assertEquals(0.6, ((LineCommutatedConverter) acDcConverterB).getPowerFactor());
@@ -213,6 +216,7 @@ public abstract class AbstractAcDcConverterTest {
         acDcConverterB = createVscB(vlb);
         assertSame(IdentifiableType.VOLTAGE_SOURCE_CONVERTER, acDcConverterB.getType());
         assertEquals(2, network.getVoltageSourceConverterCount());
+        assertFalse(acDcConverterA.isEquivalent());
 
         checkBaseCommonLccVsc();
 
@@ -1301,5 +1305,38 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(regulating, vsc.getVoltageRegulation().isRegulating());
         assertEquals(terminal, vsc.getVoltageRegulation().getTerminal());
         assertEquals(slope, vsc.getVoltageRegulation().getSlope());
+    }
+
+    @Test
+    void equivalentAcDcConverter() {
+        LineCommutatedConverter lccConverterStation = createLccAdder(vla)
+                .setId("acdcConverterA")
+                .setBus1(b1a.getId())
+                .setConnectableBus1(b1a.getId())
+                .setBus2(b2a.getId())
+                .setConnectableBus2(b2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setDcConnected1(true)
+                .setDcConnected2(true)
+                .setPccTerminal(lineax.getTerminal1())
+                .setEquivalent(true)
+                .add();
+        assertTrue(lccConverterStation.isEquivalent());
+
+        VoltageSourceConverter vscConverterStation = createVscAdder(vlb)
+                .setId("acdcConverterB")
+                .setBus1(b1b.getId())
+                .setBus2(b2b.getId())
+                .setDcNode1(dcNode1b.getId())
+                .setDcNode2(dcNode2b.getId())
+                .setDcConnected1(true)
+                .setDcConnected2(true)
+                .setPccTerminal(lineax.getTerminal1())
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
+                .setEquivalent(true)
+                .add();
+        assertTrue(vscConverterStation.isEquivalent());
     }
 }

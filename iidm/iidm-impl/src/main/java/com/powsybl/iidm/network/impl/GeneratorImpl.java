@@ -46,12 +46,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     private final boolean isCondenser;
 
     GeneratorImpl(Ref<NetworkImpl> network,
-                  String id, String name, boolean fictitious, EnergySource energySource,
+                  String id, String name, boolean fictitious, boolean equivalent, EnergySource energySource,
                   double minP, double maxP,
                   VoltageRegulation.VoltageRegulationAttributes attributes,
                   double targetP, double localTargetQ, double localTargetV,
                   double ratedS, boolean isCondenser) {
-        super(network, id, name, fictitious);
+        super(network, id, name, fictitious, equivalent);
         this.network = network;
         this.energySource = energySource;
         this.minP = minP;

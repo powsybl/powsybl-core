@@ -44,6 +44,7 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(cs, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
             context.getWriter().writeBooleanAttribute("voltageRegulatorOn", cs.isRegulatingWithMode(RegulationMode.VOLTAGE)));
         context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
@@ -76,6 +77,7 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
 
     @Override
     protected void readRootElementAttributes(VscConverterStationAdder adder, VoltageLevel voltageLevel, List<Consumer<VscConverterStation>> toApply, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         AtomicReference<Boolean> voltageRegulatorOnRef = new AtomicReference<>(null);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
 

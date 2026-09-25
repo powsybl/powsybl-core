@@ -45,6 +45,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
 
     @Override
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(svc, context);
         context.getWriter().writeDoubleAttribute("bMin", svc.getBmin());
         context.getWriter().writeDoubleAttribute("bMax", svc.getBmax());
         String[] voltageSetpointName = {"voltageSetpoint"};
@@ -144,6 +145,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
 
     @Override
     protected void readRootElementAttributes(StaticVarCompensatorAdder adder, VoltageLevel voltageLevel, List<Consumer<StaticVarCompensator>> toApply, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         double bMin = context.getReader().readDoubleAttribute("bMin");
         double bMax = context.getReader().readDoubleAttribute("bMax");
 

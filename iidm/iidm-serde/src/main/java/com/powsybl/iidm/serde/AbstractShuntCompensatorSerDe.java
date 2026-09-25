@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
 
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readNodeOrBus;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeNodeOrBus;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
  * Abstract class for serializing/deserializing shunt compensator
@@ -62,6 +61,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     @Override
     protected void readRootElementAttributes(ShuntCompensatorAdder adder, VoltageLevel parent, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
         assertReadCompatibility(context);
+        readEquivalent(adder, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
             double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
             int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
@@ -112,6 +112,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkSerializerContext context) {
         assertWriteCompatibility(context);
+        writeEquivalent(sc, context);
         OptionalInt sectionCount = sc.findSectionCount();
         OptionalInt solvedSectionCount = sc.findSolvedSectionCount();
         assertModelCompatibility(rootElementName, sc, context);

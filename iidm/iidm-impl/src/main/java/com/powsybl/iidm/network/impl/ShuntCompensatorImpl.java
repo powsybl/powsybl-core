@@ -38,11 +38,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final ArrayList<Integer> solvedSectionCount;
 
     ShuntCompensatorImpl(Ref<NetworkImpl> network,
-                         String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
+                         String id, String name, boolean fictitious, boolean equivalent, ShuntCompensatorModelExt model,
                          Integer sectionCount, Integer solvedSectionCount,
                          double localTargetV,
                          VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
-        super(network, id, name, fictitious);
+        super(network, id, name, fictitious, equivalent);
         this.network = network;
         this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, ShuntCompensator.class, network, voltageRegulationAttributes);
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();

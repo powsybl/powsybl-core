@@ -12,7 +12,7 @@
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="generator2" energySource="OTHER" minP="0.0" maxP="100.0" targetP="10.0" localTargetV="400.0" node="1">
+            <iidm:generator id="generator2" equivalent="true" energySource="OTHER" minP="0.0" maxP="100.0" targetP="10.0" localTargetV="400.0" node="1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>

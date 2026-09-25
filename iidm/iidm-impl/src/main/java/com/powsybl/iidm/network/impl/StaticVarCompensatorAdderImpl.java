@@ -155,7 +155,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
             network.getMinValidationLevel(),
             network.getReportNodeContext().getReportNode()));
 
-        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageRegulationAttributes, getNetworkRef(), localTargetQ, localTargetV);
+        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), isEquivalent(), bMin, bMax, voltageRegulationAttributes, getNetworkRef(), localTargetQ, localTargetV);
         svc.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(svc);

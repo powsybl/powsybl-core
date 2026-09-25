@@ -62,6 +62,9 @@ public abstract class AbstractBatteryTest {
         assertEquals(IdentifiableType.BATTERY, battery.getType());
 
         assertEquals("NBAT", battery.getTerminal().getBusBreakerView().getBus().getId());
+        assertFalse(battery.isEquivalent());
+        battery.setEquivalent(true);
+        assertTrue(battery.isEquivalent());
     }
 
     @Test
@@ -110,6 +113,7 @@ public abstract class AbstractBatteryTest {
                 .setTargetP(15.0)
                 .setLocalTargetQ(10.0)
                 .setBus("NBAT")
+                .setEquivalent(true)
                 .add();
         Battery battery = network.getBattery(BAT_ID);
         assertNotNull(battery);
@@ -118,6 +122,7 @@ public abstract class AbstractBatteryTest {
         assertEquals(10.0, battery.getMinP(), 0.0);
         assertEquals(15.0, battery.getTargetP(), 0.0);
         assertEquals(10.0, battery.getLocalTargetQ(), 0.0);
+        assertTrue(battery.isEquivalent());
     }
 
     @Test

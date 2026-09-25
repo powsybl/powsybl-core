@@ -283,6 +283,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             id,
             getName(),
             isFictitious(),
+            isEquivalent(),
             modelBuilder.build(),
             sectionCount,
             solvedSectionCount,

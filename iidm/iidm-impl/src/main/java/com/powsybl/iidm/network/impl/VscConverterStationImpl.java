@@ -31,9 +31,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private VoltageRegulationExt voltageRegulation;
 
-    VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
+    VscConverterStationImpl(String id, String name, boolean fictitious, boolean equivalent, float lossFactor, Ref<NetworkImpl> ref,
                             double localTargetQ, double localTargetV, VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
-        super(ref, id, name, fictitious, lossFactor);
+        super(ref, id, name, fictitious, equivalent, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.localTargetQ = new TDoubleArrayList(variantArraySize);
         this.localTargetV = new TDoubleArrayList(variantArraySize);

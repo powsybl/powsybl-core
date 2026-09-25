@@ -125,7 +125,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
             network.getMinValidationLevel(),
             network.getReportNodeContext().getReportNode()));
 
-        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, localTargetQ, localTargetV, voltageRegulationAttributes, minP, maxP);
+        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), isEquivalent(), targetP, localTargetQ, localTargetV, voltageRegulationAttributes, minP, maxP);
         battery.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);

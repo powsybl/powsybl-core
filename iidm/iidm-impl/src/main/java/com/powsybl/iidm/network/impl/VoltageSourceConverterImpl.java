@@ -32,12 +32,12 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     private VoltageRegulationExt voltageRegulation;
 
-    VoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+    VoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent,
                                double minP, double maxP,
                                double idleLoss, double switchingLoss, double resistiveLoss,
                                TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
                                double localTargetQ, double localTargetV, VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
-        super(ref, id, name, fictitious, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
+        super(ref, id, name, fictitious, equivalent, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.localTargetQ = new TDoubleArrayList(variantArraySize);
