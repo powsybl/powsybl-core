@@ -13,7 +13,7 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,17 +49,11 @@ public class ExtendedAmplExporterV3 extends ExtendedAmplExporterV2 {
     public void addAdditionalCellsBattery(TableFormatterHelper formatterHelper, Battery battery) {
         super.addAdditionalCellsBattery(formatterHelper, battery);
 
-        boolean isRegulating = false;
-        double targetV = Double.NaN;
-        int regulatingBusNum = -1;
+        boolean isRegulating = battery.isRegulatingWithMode(RegulationMode.VOLTAGE);
+        double targetV = battery.getRegulatingTargetV();
+        int regulatingBusNum = isRegulating && battery.getRegulatingTerminal().isConnected() ?
+            getMapper().getInt(AmplSubset.BUS, battery.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-        if (voltageRegulation != null) {
-            isRegulating = voltageRegulation.isVoltageRegulatorOn();
-            targetV = voltageRegulation.getTargetV();
-            regulatingBusNum = isRegulating && voltageRegulation.getRegulatingTerminal().isConnected() ?
-                    getMapper().getInt(AmplSubset.BUS, voltageRegulation.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
-        }
         formatterHelper.addCell(isRegulating, BATTERY_V_REGUL_COLUMN_INDEX);
         formatterHelper.addCell(targetV, BATTERY_TARGET_V_COLUMN_INDEX);
         formatterHelper.addCell(regulatingBusNum, GENERATOR_V_REGUL_BUS_COLUMN_INDEX);

@@ -389,7 +389,11 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     }
 
     private static void replaceRegulatedTerminal(ThreeWindingsTransformer.Leg t3wLeg, TwoR twoR) {
-        t3wLeg.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(rtc::setRegulationTerminal));
+        t3wLeg.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulatingTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(terminal -> {
+            if (rtc.getVoltageRegulation() != null) {
+                rtc.getVoltageRegulation().setTerminal(terminal, rtc.getVoltageRegulation().getTargetValue());
+            }
+        }));
         t3wLeg.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(ptc::setRegulationTerminal));
     }
 

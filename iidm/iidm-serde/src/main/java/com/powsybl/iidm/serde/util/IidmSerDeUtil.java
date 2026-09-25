@@ -127,6 +127,15 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Assert that the reader context's IIDM version between two given IIDM versions (which are included).
+     * If not, throw an exception with a given type of error message.
+     */
+    public static void assertInBetweenTwoVersions(String rootElementName, String elementName, ErrorMessage type, IidmVersion minVersion, IidmVersion maxVersion, NetworkDeserializerContext context) {
+        assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
+        assertMaximumVersion(rootElementName, elementName, type, maxVersion, context);
+    }
+
+    /**
      * Assert that the reader context's IIDM version equals or is more recent than a given IIDM version.
      * If not, throw an exception with a given type of error message.
      */

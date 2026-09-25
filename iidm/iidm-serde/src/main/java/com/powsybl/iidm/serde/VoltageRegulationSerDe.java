@@ -1,0 +1,262 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.serde;
+
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.*;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.jspecify.annotations.NonNull;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+/**
+ * @author Matthieu Saur {@literal <matthieu.saur at rte-france.com>}
+ */
+public final class VoltageRegulationSerDe {
+    // GLOBAL
+    public static final String ELEMENT_NAME = "voltageRegulation";
+    // ATTRIBUTES
+    public static final String TARGET_VALUE = "targetValue";
+    public static final String TARGET_DEADBAND = "targetDeadband";
+    public static final String SLOPE = "slope";
+    public static final String MODE = "mode";
+    public static final String REGULATING = "regulating";
+    // SubElements
+    public static final String TERMINAL = "terminalRef";
+
+    private static final String EXTRA_PROPERTIES_PROCESS_KEY = "Voltage regulation";
+
+    private VoltageRegulationSerDe() {
+    }
+
+    public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            if (voltageRegulation != null && voltageRegulation.getMode() != null) {
+                String namespace = context.getVersion().getNamespaceURI(context.isValid());
+                writeVoltageRegulation(voltageRegulation, context, namespace);
+            }
+        });
+    }
+
+    public static void readVoltageRegulation(VoltageRegulationHolder<?> holder, NetworkDeserializerContext context, Network network) {
+        // Read attributes
+        VoltageRegulation.VoltageRegulationAttributes attributes = readVoltageRegulationAttributes(context);
+        // Create new Voltage Regulation
+        VoltageRegulationBuilder voltageRegulationBuilder = holder.newVoltageRegulation()
+            .withTargetDeadband(attributes.targetDeadband())
+            .withSlope(attributes.slope())
+            .withMode(attributes.mode())
+            .withRegulating(attributes.isRegulating());
+        // Local regulation, voltageRegulation is completed
+        if (Double.isNaN(attributes.targetValue())) {
+            voltageRegulationBuilder.build();
+        }
+        // Read Sub Elements
+        readSubElements(context, network, terminal -> voltageRegulationBuilder.withTerminal(terminal)
+            .withTargetValue(attributes.targetValue())
+            .build());
+    }
+
+    public static <T extends VoltageRegulationHolder<?> & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
+            List<Consumer<T>> toApply,
+            VoltageRegulationHolderAdder<A> holderAdder,
+            NetworkDeserializerContext context) {
+        doReadVoltageRegulation(toApply, holderAdder, context, T::getNetwork);
+    }
+
+    public static <T extends VoltageRegulationHolder<?>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
+            List<Consumer<T>> toApply,
+            VoltageRegulationHolderAdder<A> holderAdder,
+            NetworkDeserializerContext context,
+            Network network) {
+        doReadVoltageRegulation(toApply, holderAdder, context, holder -> network);
+    }
+
+    private static <T extends VoltageRegulationHolder<?>, A extends VoltageRegulationHolderAdder<A>> void doReadVoltageRegulation(
+            List<Consumer<T>> toApply,
+            VoltageRegulationHolderAdder<A> holderAdder,
+            NetworkDeserializerContext context,
+            Function<T, Network> networkProvider) {
+
+        VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
+        VoltageRegulation.VoltageRegulationAttributes attributes = readVoltageRegulationAttributes(context);
+        AtomicBoolean isWithTerminal = new AtomicBoolean(false);
+
+        // Read Sub Elements
+        context.getReader().readChildNodes(subElementName -> readSubElement(toApply, holderAdder, context, networkProvider, subElementName, isWithTerminal, attributes));
+        if (!isWithTerminal.get()) {
+            // When there's a regulating terminal, the VoltageRegulation object's creation is postponed (done when the terminal is read).
+            // Here, no terminal was read. The object is directly created.
+            configureAdderOrBuilder(adder, attributes).add();
+        }
+    }
+
+    private static <T extends VoltageRegulationHolder<?>, A extends VoltageRegulationHolderAdder<A>> void readSubElement(List<Consumer<T>> toApply,
+                                                                                                                         VoltageRegulationHolderAdder<A> holderAdder,
+                                                                                                                         NetworkDeserializerContext context,
+                                                                                                                         Function<T, Network> networkProvider,
+                                                                                                                         String subElementName,
+                                                                                                                         AtomicBoolean isWithTerminal,
+                                                                                                                         VoltageRegulation.VoltageRegulationAttributes attributes) {
+        if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
+            isWithTerminal.set(true);
+            // Assign a temporary value to localTargetQ to allow the validation
+            // without the VoltageRegulation object. This one will be created in a post-creation task.
+            // The real value will be restored at the same time.
+            double realLocalTargetQ = holderAdder.getLocalTargetQ();
+            holderAdder.setLocalTargetQ(0.0);
+
+            TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+            toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                () -> {
+                    Terminal terminal = Terminal.getTerminal(networkProvider.apply(voltageRegulationHolder),
+                        terminalData.id(), terminalData.side(), terminalData.number());
+                    configureAdderOrBuilder(voltageRegulationHolder.newVoltageRegulation(), attributes)
+                        .withTerminal(terminal)
+                        .build();
+                    // Restore the real localTargetQ value.
+                    if (!(voltageRegulationHolder instanceof ShuntCompensator) && !(voltageRegulationHolder instanceof RatioTapChanger)) {
+                        voltageRegulationHolder.setLocalTargetQ(realLocalTargetQ);
+                    }
+                }));
+        } else {
+            throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
+        }
+    }
+
+    private static <A extends VoltageRegulationAdderOrBuilder<A>> A configureAdderOrBuilder(A adderOrBuilder,
+                                                                                               VoltageRegulation.VoltageRegulationAttributes attributes) {
+        return adderOrBuilder
+                .withTargetValue(attributes.targetValue())
+                .withTargetDeadband(attributes.targetDeadband())
+                .withSlope(attributes.slope())
+                .withMode(attributes.mode())
+                .withRegulating(attributes.isRegulating());
+    }
+
+    /**
+     * Store the given target value and runnable as extra properties for the holder
+     * @param voltageRegulationHolder The voltage regulation holder (also an {@link Identifiable})
+     * @param targetValue the target value
+     * @param actionOnHolder the action to run on the voltage regulation holder
+     * @param context the deserialization context
+     * @param <T> the class of the voltage regulation holder (at the same time a {@link VoltageRegulationHolder} and an {@link Identifiable})
+     */
+    public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void storeExtraProperties(T voltageRegulationHolder,
+                                                                                                     double targetValue, Consumer<T> actionOnHolder,
+                                                                                                     NetworkDeserializerContext context) {
+        context.setExtraProperties(voltageRegulationHolder, EXTRA_PROPERTIES_PROCESS_KEY, new ExtraProperties<>(targetValue, actionOnHolder));
+    }
+
+    // Backward-compatibility method: read the regulating terminal element that was directly in the holder (and not in the VoltageRegulation object) for IIDM versions <= 1.17
+    public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+        TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+        postponeSetTerminal(toApply, context, terminalData);
+    }
+
+    // Backward-compatibility method
+    public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void postponeSetTerminal(List<Consumer<T>> toApply,
+                                                                                                    NetworkDeserializerContext context,
+                                                                                                    TerminalRefSerDe.TerminalData terminalData) {
+        toApply.add(holder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+            () -> actionToSetTerminal(context, terminalData, holder)));
+    }
+
+    private static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void actionToSetTerminal(NetworkDeserializerContext context, TerminalRefSerDe.TerminalData terminalData, T holder) {
+        Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), holder.getNetwork());
+        VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            if (holder instanceof Generator generator) {
+                // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
+                // without using an extension (RemoteReactivePowerControl)
+                // The VoltageRegulation object will be updated later if the extension is discovered.
+                buildRemoteVoltageRegulationOffForGenerator(context, generator, terminal);
+            } else {
+                holder.newVoltageRegulation()
+                    .withTargetValue(holder.getLocalTargetQ())
+                    .withTerminal(terminal)
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .build();
+                holder.setLocalTargetQ(Double.NaN);
+            }
+        } else {
+            Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
+            double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
+            voltageRegulation.setTerminal(terminal, targetValue);
+            extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(holder));
+            context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
+        }
+    }
+
+    private static void buildRemoteVoltageRegulationOffForGenerator(NetworkDeserializerContext context,
+                                                                    Generator generator,
+                                                                    Terminal terminal) {
+        Optional<ExtraProperties> extraProperties = context.getExtraProperties(generator, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
+        double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
+        extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(generator));
+        context.removeExtraProperties(generator, EXTRA_PROPERTIES_PROCESS_KEY);
+        generator.newVoltageRegulation()
+            .withTargetValue(targetValue)
+            .withTerminal(terminal)
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+    }
+
+    private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace) {
+        TreeDataWriter writer = context.getWriter();
+        writer.writeStartNode(namespace, ELEMENT_NAME);
+        writeVoltageRegulationAttribute(voltageRegulation, writer);
+        writeSubElements(voltageRegulation, context);
+        writer.writeEndNode();
+    }
+
+    private static void writeVoltageRegulationAttribute(VoltageRegulation voltageRegulation, TreeDataWriter writer) {
+        writer.writeDoubleAttribute(TARGET_VALUE, voltageRegulation.getTargetValue());
+        writer.writeDoubleAttribute(TARGET_DEADBAND, voltageRegulation.getTargetDeadband());
+        writer.writeDoubleAttribute(SLOPE, voltageRegulation.getSlope());
+        writer.writeEnumAttribute(MODE, voltageRegulation.getMode());
+        writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
+    }
+
+    private static void writeSubElements(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
+        TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
+    }
+
+    private static VoltageRegulation.@NonNull VoltageRegulationAttributes readVoltageRegulationAttributes(NetworkDeserializerContext context) {
+        double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
+        double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
+        double slope = context.getReader().readDoubleAttribute(SLOPE);
+        RegulationMode mode = context.getReader().readEnumAttribute(MODE, RegulationMode.class);
+        boolean isRegulating = context.getReader().readBooleanAttribute(REGULATING);
+        return new VoltageRegulation.VoltageRegulationAttributes(targetValue, targetDeadband, slope, mode, isRegulating);
+    }
+
+    private static void readSubElements(NetworkDeserializerContext context, Network network, Consumer<Terminal> setTerminal) {
+        context.getReader().readChildNodes(elementName -> {
+            if (elementName.equals(TERMINAL)) {
+                TerminalRefSerDe.readTerminalRef(context, network, setTerminal);
+            } else {
+                throw new PowsyblException("Unknown sub element name '" + elementName + "' in 'voltageRegulation'");
+            }
+        });
+    }
+
+    public record ExtraProperties<T extends VoltageRegulationHolder<?> & Identifiable<T>>(Double targetValue, Consumer<T> actionOnHolder) { }
+}

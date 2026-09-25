@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
+
 /**
  * To create a shunt compensator, from a <code>VoltageLevel</code> instance call
  * the {@link VoltageLevel#newShuntCompensator()} method to get a shunt compensator builder
@@ -25,7 +28,7 @@ package com.powsybl.iidm.network;
  * @see ShuntCompensator
  * @see VoltageLevel
  */
-public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, ShuntCompensatorAdder> {
+public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, ShuntCompensatorAdder>, VoltageRegulationHolderAdder<ShuntCompensatorAdder> {
 
     ShuntCompensatorLinearModelAdder newLinearModel();
 
@@ -35,18 +38,35 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
 
     ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withRegulating(boolean)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetV(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetDeadband(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }

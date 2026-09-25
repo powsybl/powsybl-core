@@ -7,15 +7,33 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageSourceConverter, VoltageSourceConverterAdder> {
+public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageSourceConverter, VoltageSourceConverterAdder>,
+        VoltageRegulationHolderAdder<VoltageSourceConverterAdder> {
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withRegulating(boolean)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     VoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
+    /**
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetV(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     VoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint);
 
+    /**
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetQ(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     VoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
 }
