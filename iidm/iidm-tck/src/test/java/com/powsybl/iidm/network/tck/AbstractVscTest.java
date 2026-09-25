@@ -52,6 +52,9 @@ public abstract class AbstractVscTest {
         assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
         cs1.setVoltageSetpoint(406.0);
         assertEquals(406.0, cs1.getVoltageSetpoint(), 0.0);
+        assertFalse(cs1.isEquivalent()); // default value
+        cs1.setEquivalent(true);
+        assertTrue(cs1.isEquivalent());
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
         assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
         assertFalse(cs2.isVoltageRegulatorOn());

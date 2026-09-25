@@ -464,7 +464,7 @@ public final class SteadyStateHypothesisExport {
             RemoteReactivePowerControl rrpc = g.getExtension(RemoteReactivePowerControl.class);
             String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g, rrpc);
             if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                target = rrpc.getTargetQ();
+                target = -rrpc.getTargetQ();
                 targetValueUnitMultiplier = "M";
                 enabled = rrpc.isEnabled();
             } else {
@@ -746,7 +746,20 @@ public final class SteadyStateHypothesisExport {
         writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
+        writer.writeCharacters(Boolean.toString(false));
         writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, "AsynchronousMachine.asynchronousMachineType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "AsynchronousMachineKind." + obtainAsynchronousMachineKind(p));
+        writer.writeEndElement();
+    }
+
+    private static String obtainAsynchronousMachineKind(double p) {
+        if (p < 0) {
+            return OPERATING_MODE_GENERATOR;
+        } else {
+            return OPERATING_MODE_MOTOR;
+        }
     }
 
     private static void writeEnergySource(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -815,7 +828,7 @@ public final class SteadyStateHypothesisExport {
         } else if (converterStation instanceof VscConverterStation vscConverterStation) {
             p = vscConverterStation.getRegulatingTerminal().getP();
             q = vscConverterStation.getRegulatingTerminal().getQ();
-            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
+            double targetQpcc = -vscConverterStation.getReactivePowerSetpoint(); // To be consistent with the import
             double targetUpcc = vscConverterStation.getVoltageSetpoint();
             String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
             String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
