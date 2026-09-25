@@ -313,7 +313,7 @@
                 </xs:sequence>
                 <xs:attribute name="p0" use="optional" type="xs:double"/>
                 <xs:attribute name="q0" use="optional" type="xs:double"/>
-                <xs:attribute name="loadType" use="required" type="iidm:LoadType"/>
+                <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -374,6 +374,12 @@
         <xs:attribute name="b" use="required" type="xs:double"/>
         <xs:attribute name="g" use="optional" type="xs:double"/>
     </xs:complexType>
+    <xs:simpleType name="LoadingLimitDetectionKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HIGH"/>
+            <xs:enumeration value="LOW"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="LoadingLimit">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
@@ -389,6 +395,7 @@
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
+        <xs:attribute name="detectionKind" use="required" type="iidm:LoadingLimitDetectionKind"/>
         <xs:attribute name="permanentLimitName" use="optional" type="xs:string"/>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>

@@ -70,7 +70,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
         ContingencyContext contingencyContext = new ContingencyContext(context.contingencyId,
                 context.contingencyContextType != null ? context.contingencyContextType : ContingencyContextType.SPECIFIC);
         OperatorStrategy strategy;
-        if (context.version.compareTo("1.1") < 0) {
+        if (JsonUtil.compareVersions(context.version, "1.1") < 0) {
             strategy = new OperatorStrategy(context.id, contingencyContext, context.condition, context.actionIds);
         } else {
             strategy = new OperatorStrategy(context.id, contingencyContext, context.stages);
