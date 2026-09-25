@@ -1973,4 +1973,18 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertNotNull(baseVoltageEq);
         assertEquals(newNominalV, Double.parseDouble(getAttribute(baseVoltageEq, "BaseVoltage.nominalVoltage")));
     }
+
+    @Test
+    void importsSeriesCompensatorEquivalentBranchAndACLineSegmentAsSwitchesFromEqTest() throws IOException, XMLStreamException {
+        Network expected = readCgmesResources("/update/switch/", "switch_EQ.xml");
+        Network actual = exportImportNodeBreakerNoBoundaries(expected);
+        assertTrue(compareNetworksEQdata(expected, actual));
+    }
+
+    @Test
+    void importsSeriesCompensatorEquivalentBranchAndACLineSegmentAsSwitchesFromEqAndSshTest() throws IOException, XMLStreamException {
+        Network expected = readCgmesResources("/update/switch/", "switch_EQ.xml", "switch_SSH.xml");
+        Network actual = exportImportNodeBreakerNoBoundaries(expected);
+        assertTrue(compareNetworksEQdata(expected, actual));
+    }
 }

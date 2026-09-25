@@ -97,7 +97,10 @@ public final class SteadyStateHypothesisExport {
     private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
-                writeSwitch(sw, cimNamespace, writer, context);
+                String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
+                if (!isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(switchType)) {
+                    writeSwitch(sw, cimNamespace, writer, context);
+                }
             }
         }
     }
@@ -105,13 +108,28 @@ public final class SteadyStateHypothesisExport {
     private static void writeTerminalForSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
-                // Terminals for switches are exported as always connected
-                // The status of the switch is "open" if any of the original terminals were not connected
-                // An original "closed" switch with any terminal disconnected
-                // will be exported as "open" with terminals connected
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1), true, cimNamespace, writer, context);
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL2), true, cimNamespace, writer, context);
+                String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
+                boolean connected = isConnected(sw, switchType);
+
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1), connected, cimNamespace, writer, context);
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL2), connected, cimNamespace, writer, context);
             }
+        }
+    }
+
+    private static boolean isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(String switchType) {
+        return "ACLineSegment".equals(switchType) || "EquivalentBranch".equals(switchType) || "SeriesCompensator".equals(switchType);
+    }
+
+    private static boolean isConnected(Switch sw, String switchType) {
+        if (isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(switchType)) {
+            return !sw.isOpen();
+        } else {
+            // Terminals for switches are exported as always connected
+            // The status of the switch is "open" if any of the original terminals were not connected
+            // An original "closed" switch with any terminal disconnected
+            // will be exported as "open" with terminals connected
+            return true;
         }
     }
 
