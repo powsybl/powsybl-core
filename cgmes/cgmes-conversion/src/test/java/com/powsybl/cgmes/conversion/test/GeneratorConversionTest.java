@@ -78,41 +78,19 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
     @Test
     void testGeneratorActivePowerLimits() throws IOException {
-        //Ancien test : microBEFixedMinPMaxP
-        //Vérifier :
-        //minP
-        //maxP
-        //mode générateur / condenser
         Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
-        Generator g1 = network.getGenerator("SM");
-        assertEquals(50.0, g1.getMinP());
-        assertEquals(200.0, g1.getMaxP());
-        assertFalse(g1.isCondenser());
+        Generator g = network.getGenerator("SM1");
+        assertEquals(50.0, g.getMinP());
+        assertEquals(200.0, g.getMaxP());
+        assertFalse(g.isCondenser());
     }
 
     @Test
     void testGeneratorRemoteReactivePowerControl() throws IOException {
-        // Ancien test : microBEReactivePowerGen
-        // Vérifier :
-        // - présence de l'extension
-        // - terminal régulé
-        // - activation
-        // - targetQ
         Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
-        Generator g1 = network.getGenerator("SM");
-
-        System.out.println("Generator = " + g1.getId());
-        System.out.println("Voltage regulator = " + g1.isVoltageRegulatorOn());
-        System.out.println("TargetV = " + g1.getTargetV());
-        System.out.println("Regulating terminal = " + g1.getRegulatingTerminal());
-
-        RemoteReactivePowerControl ext = g1.getExtension(RemoteReactivePowerControl.class);
+        Generator g = network.getGenerator("SM1");
+        RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
         assertNotNull(ext);
-
-        System.out.println("ext.getTargetQ = " + ext.getTargetQ());
-        System.out.println("ext.isEnabled = " + ext.isEnabled());
-        System.out.println("ext.getRegulatingTerminal = " + ext.getRegulatingTerminal());
-
         assertEquals(115.5, ext.getTargetQ(), 0.0);
         assertTrue(ext.isEnabled());
         assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), ext.getRegulatingTerminal());
@@ -120,22 +98,15 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
     @Test
     void testGeneratorEntsoeCategory() throws IOException {
-
         Properties params = new Properties();
         params.put(POST_PROCESSORS, "EntsoeCategory");
         Network network = readCgmesResources(params, "/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
-        Generator g1 = network.getGenerator("SM");
-        assertEquals(31, g1.getExtension(GeneratorEntsoeCategory.class).getCode());
+        Generator g1 = network.getGenerator("SM1");
+        assertNull(g1.getExtension(GeneratorEntsoeCategory.class));
         Generator g2 = network.getGenerator("SM2");
         assertEquals(42, g2.getExtension(GeneratorEntsoeCategory.class).getCode());
         Generator g3 = network.getGenerator("SM3");
-        assertNull(g3.getExtension(GeneratorEntsoeCategory.class));
-        // Ancien test : microGridBaseCaseAssembledEntsoeCategory
-        // Vérifier :
-        // assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
-        // assertEquals(42, g4.getExtension(GeneratorEntsoeCategory.class).getCode());
-        // assertNull(g1.getExtension(GeneratorEntsoeCategory.class));
-        assertTrue(true);
+        assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
     }
 
     @Test
