@@ -18,7 +18,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
+class ThreeWindingsTransformerAdderImpl extends AbstractConnectableAdder<ThreeWindingsTransformerAdderImpl>
     implements ThreeWindingsTransformerAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreeWindingsTransformerAdderImpl.class);
@@ -281,7 +281,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation.getNetworkRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation.getNetworkRef(), id, getName(), isFictitious(), isEquivalent(),
+                leg1, leg2, leg3,
             ratedU0);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);

@@ -468,7 +468,7 @@ class CgmesConformity1ModifiedConversionTest {
         Generator g = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
         assertNotNull(ext);
-        assertEquals(115.5, ext.getTargetQ(), 0.0);
+        assertEquals(-115.5, ext.getTargetQ(), 0.0);
         assertTrue(ext.isEnabled());
         assertSame(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
     }

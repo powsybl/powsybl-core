@@ -67,6 +67,9 @@ public interface Terminal {
          * If the given bus' voltage level topology is not BUS-BREAKER, a runtime exception is thrown.
          */
         void moveConnectable(String busId, boolean connected);
+
+        default void updateConnectableBus(String busId) {
+        }
     }
 
     /**
