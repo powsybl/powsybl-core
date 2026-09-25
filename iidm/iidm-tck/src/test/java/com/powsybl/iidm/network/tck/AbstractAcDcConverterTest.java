@@ -1333,8 +1333,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setDcConnected1(true)
                 .setDcConnected2(true)
                 .setPccTerminal(lineax.getTerminal1())
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.0)
+                .setLocalTargetQ(0.0)
                 .setEquivalent(true)
                 .add();
         assertTrue(vscConverterStation.isEquivalent());
