@@ -698,18 +698,18 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Generator with local reactive
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "-200", "M");
             network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "-200", "M");
 
             // Generator with remote reactive
             network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "-200", "M");
             network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "-200", "M");
 
             // Generator with local reactive and voltage
             network = EurostagTutorialExample1Factory.createWithLocalReactiveAndVoltageGenerator();
@@ -717,7 +717,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
             network.getGenerator("GEN").setVoltageRegulatorOn(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "-200", "M");
             network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
@@ -731,7 +731,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "399", "k");
             network.getGenerator("GEN").setVoltageRegulatorOn(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "-200", "M");
             network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "399", "k");

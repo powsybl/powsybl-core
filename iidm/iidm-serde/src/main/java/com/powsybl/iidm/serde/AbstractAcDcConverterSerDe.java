@@ -11,7 +11,10 @@ import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.AcDcConverterAdder;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.apache.commons.lang3.NotImplementedException;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
@@ -19,6 +22,34 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends AcDcConverterAdder<T, A>> extends AbstractSimpleIdentifiableSerDe<T, A, VoltageLevel> {
+
+    private static final String ATTR_CONTROL_MODE = "controlMode";
+
+    /**
+     * Serialized shape of {@link AcDcConverter.ControlMode} for IIDM versions up to V1_17, where the droop
+     * control mode was still named <code>P_PCC_DROOP</code>.
+     */
+    private enum ControlModeSerDe {
+        P_PCC,
+        V_DC,
+        P_PCC_DROOP;
+
+        static ControlModeSerDe from(AcDcConverter.ControlMode controlMode) {
+            return switch (controlMode) {
+                case P_PCC -> P_PCC;
+                case V_DC -> V_DC;
+                case DC_DROOP -> P_PCC_DROOP;
+            };
+        }
+
+        AcDcConverter.ControlMode toControlMode() {
+            return switch (this) {
+                case P_PCC -> AcDcConverter.ControlMode.P_PCC;
+                case V_DC -> AcDcConverter.ControlMode.V_DC;
+                case P_PCC_DROOP -> AcDcConverter.ControlMode.DC_DROOP;
+            };
+        }
+    }
 
     protected void readRootElementPqiAttributes(T converter, NetworkDeserializerContext context) {
         readPQ(1, converter.getTerminal1(), context.getReader());
@@ -29,6 +60,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
 
     @Override
     protected void writeRootElementAttributes(final T converter, final VoltageLevel parent, final NetworkSerializerContext context) {
+        writeEquivalent(converter, context);
         DcTerminal dcTerminal1 = converter.getDcTerminal1();
         DcTerminal dcTerminal2 = converter.getDcTerminal2();
         context.getWriter().writeStringAttribute("dcNode1", dcTerminal1.getDcNode().getId());
@@ -38,7 +70,10 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         context.getWriter().writeDoubleAttribute("idleLoss", converter.getIdleLoss());
         context.getWriter().writeDoubleAttribute("switchingLoss", converter.getSwitchingLoss());
         context.getWriter().writeDoubleAttribute("resistiveLoss", converter.getResistiveLoss());
-        context.getWriter().writeEnumAttribute("controlMode", converter.getControlMode());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+            context.getWriter().writeEnumAttribute(ATTR_CONTROL_MODE, ControlModeSerDe.from(converter.getControlMode())));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+            context.getWriter().writeEnumAttribute(ATTR_CONTROL_MODE, converter.getControlMode()));
         context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
         context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
         if (converter.getMinP() != -Double.MAX_VALUE && !context.getOptions().isForceExportNetworkWithBetaFeatures()) {
@@ -70,6 +105,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
     }
 
     protected void readRootElementCommonAttributes(final A adder, final VoltageLevel voltageLevel, final NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         String dcNode1Id = context.getReader().readStringAttribute("dcNode1");
         boolean dcConnected1 = context.getReader().readBooleanAttribute("dcConnected1");
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");
@@ -77,7 +113,11 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         double idleLoss = context.getReader().readDoubleAttribute("idleLoss");
         double switchingLoss = context.getReader().readDoubleAttribute("switchingLoss");
         double resistiveLoss = context.getReader().readDoubleAttribute("resistiveLoss");
-        AcDcConverter.ControlMode controlMode = context.getReader().readEnumAttribute("controlMode", AcDcConverter.ControlMode.class);
+        AtomicReference<AcDcConverter.ControlMode> controlMode = new AtomicReference<>();
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+            controlMode.set(context.getReader().readEnumAttribute(ATTR_CONTROL_MODE, ControlModeSerDe.class).toControlMode()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+            controlMode.set(context.getReader().readEnumAttribute(ATTR_CONTROL_MODE, AcDcConverter.ControlMode.class)));
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetVdc = context.getReader().readDoubleAttribute("targetVdc");
         adder
@@ -85,7 +125,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             .setDcConnected1(dcConnected1)
             .setDcNode2(dcNode2Id)
             .setDcConnected2(dcConnected2)
-            .setControlMode(controlMode)
+            .setControlMode(controlMode.get())
             .setTargetP(targetP)
             .setTargetVdc(targetVdc)
             .setIdleLoss(idleLoss)

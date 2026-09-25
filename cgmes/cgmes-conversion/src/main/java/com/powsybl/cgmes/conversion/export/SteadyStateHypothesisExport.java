@@ -446,7 +446,7 @@ public final class SteadyStateHypothesisExport {
             RemoteReactivePowerControl rrpc = g.getExtension(RemoteReactivePowerControl.class);
             String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g, rrpc);
             if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                target = rrpc.getTargetQ();
+                target = -rrpc.getTargetQ();
                 targetValueUnitMultiplier = "M";
                 enabled = rrpc.isEnabled();
             } else {
@@ -810,7 +810,7 @@ public final class SteadyStateHypothesisExport {
         } else if (converterStation instanceof VscConverterStation vscConverterStation) {
             p = vscConverterStation.getRegulatingTerminal().getP();
             q = vscConverterStation.getRegulatingTerminal().getQ();
-            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
+            double targetQpcc = -vscConverterStation.getReactivePowerSetpoint(); // To be consistent with the import
             double targetUpcc = vscConverterStation.getVoltageSetpoint();
             String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
             String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
