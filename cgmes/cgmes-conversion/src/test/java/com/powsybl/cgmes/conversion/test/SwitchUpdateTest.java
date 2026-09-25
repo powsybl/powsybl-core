@@ -121,10 +121,10 @@ class SwitchUpdateTest extends AbstractSerDeTest {
         importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
-        assertFalse(breaker.isOpen());
-        assertTrue(seriesCompensator.isOpen());
-        assertFalse(equivalentBranch.isOpen());
-        assertTrue(acLineSegment.isOpen());
+        assertFalse(network.getSwitch("Breaker").isOpen());
+        assertTrue(network.getSwitch("SeriesCompensator").isOpen());
+        assertFalse(network.getSwitch("EquivalentBranch").isOpen());
+        assertTrue(network.getSwitch("ACLineSegment").isOpen());
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {

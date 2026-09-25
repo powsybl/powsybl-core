@@ -41,7 +41,7 @@
         <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
     </cim:Terminal>
     <cim:Terminal rdf:about="#_ACLineSegment-T2">
-        <cim:ACDCTerminal.connected>fase</cim:ACDCTerminal.connected>
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
     </cim:Terminal>
 
     <cim:Terminal rdf:about="#_EnergyConsumer-T">
