@@ -110,7 +110,7 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setReactivePowerSetpoint(1.0)
+                .setLocalTargetQ(1.0)
                 .add();
 
         assertFalse(svc.isRegulating());

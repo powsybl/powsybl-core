@@ -491,7 +491,8 @@ public abstract class AbstractShuntCompensatorTest {
         assertThrows(PowsyblException.class, shunt::getSectionCount);
         assertThrows(PowsyblException.class, () -> shunt.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertThrows(PowsyblException.class, shunt::getRegulatingTargetV);
-        assertThrows(PowsyblException.class, () -> shunt.getVoltageRegulation().getTargetDeadband());
+        VoltageRegulation voltageRegulation = shunt.getVoltageRegulation();
+        assertThrows(PowsyblException.class, voltageRegulation::getTargetDeadband);
 
         // check we delete a single variant's values
         variantManager.setWorkingVariant("s3");

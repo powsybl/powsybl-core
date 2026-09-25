@@ -118,11 +118,12 @@ public abstract class AbstractGeneratorTest {
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
-                .setTargetQ(40.0)
+                .setLocalTargetQ(40.0)
                 .setNode(1)
                 .add();
 
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertFalse(generator.isRegulating());
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 

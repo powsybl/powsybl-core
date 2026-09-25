@@ -207,12 +207,13 @@ public abstract class AbstractVscTest {
 
         VscConverterStation converterStation = network.getVoltageLevel("VL1").newVscConverterStation()
                 .setId("C4")
-                .setReactivePowerSetpoint(123)
+                .setLocalTargetQ(123)
                 .setConnectableBus("B1")
                 .setLossFactor(1.1f)
                 .add();
 
-        assertFalse(converterStation.isVoltageRegulatorOn());
+        assertFalse(converterStation.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertFalse(converterStation.isRegulating());
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 

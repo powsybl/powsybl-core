@@ -106,10 +106,6 @@ public final class TerminalRefSerDe {
         });
     }
 
-    /**
-     * @deprecated use {@link Terminal#getTerminal(Network, String, ThreeSides, TerminalNumber)} instead
-     */
-    @Deprecated(since = "7.4.0")
     public static Terminal resolve(String id, ThreeSides side, TerminalNumber number, Network network) {
         return Terminal.getTerminal(network, id, side, number);
     }

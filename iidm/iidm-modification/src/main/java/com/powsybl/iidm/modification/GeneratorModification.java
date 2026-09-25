@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.VoltageRegulationUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -280,6 +281,7 @@ public class GeneratorModification extends AbstractNetworkModification {
          * @deprecated use {@link VoltageRegulation#isRegulating()} instead
          */
         @Deprecated(forRemoval = true, since = "7.4.0")
+        @Nullable
         public Boolean getVoltageRegulatorOn() {
             if (this.voltageRegulationMode == null || this.regulating == null) {
                 return null;

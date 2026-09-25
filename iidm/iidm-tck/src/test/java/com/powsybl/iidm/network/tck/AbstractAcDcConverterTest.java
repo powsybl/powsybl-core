@@ -438,10 +438,11 @@ public abstract class AbstractAcDcConverterTest {
                 .setDcConnected1(true)
                 .setDcConnected2(true)
                 .setPccTerminal(lineax.getTerminal1())
-                .setReactivePowerSetpoint(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
 
-        assertFalse(voltageSourceConverter.isVoltageRegulatorOn());
+        assertFalse(voltageSourceConverter.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertFalse(voltageSourceConverter.isRegulating());
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 
