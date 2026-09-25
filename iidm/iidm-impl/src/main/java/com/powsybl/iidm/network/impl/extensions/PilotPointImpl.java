@@ -25,14 +25,17 @@ import java.util.function.UnaryOperator;
  */
 class PilotPointImpl implements PilotPoint {
 
-    private final List<String> busbarSectionsOrBusesIds;
+    private final List<BusRef> buses;
+
+    private final List<String> busbarSectionIds;
 
     private final TDoubleArrayList targetV;
 
     private ControlZoneImpl controlZone;
 
-    PilotPointImpl(List<String> busbarSectionsOrBusesIds, double targetV, VariantManagerHolder variantManagerHolder) {
-        this.busbarSectionsOrBusesIds = new ArrayList<>(Objects.requireNonNull(busbarSectionsOrBusesIds));
+    PilotPointImpl(List<BusRef> buses, List<String> busbarSectionIds, double targetV, VariantManagerHolder variantManagerHolder) {
+        this.buses = new ArrayList<>(Objects.requireNonNull(buses));
+        this.busbarSectionIds = new ArrayList<>(Objects.requireNonNull(busbarSectionIds));
         int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
         this.targetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
@@ -48,20 +51,24 @@ class PilotPointImpl implements PilotPoint {
         return controlZone.getSecondaryVoltageControl().getVariantManagerHolder().getVariantIndex();
     }
 
-    /**
-     * Get pilot point busbar section ID or bus ID of the bus/breaker view.
-     */
     @Override
-    public List<String> getBusbarSectionsOrBusesIds() {
-        return Collections.unmodifiableList(busbarSectionsOrBusesIds);
+    public List<BusRef> getBuses() {
+        return Collections.unmodifiableList(buses);
     }
 
-    protected void updateBusbarSectionsOrBusesIds(UnaryOperator<String> updater) {
-        busbarSectionsOrBusesIds.replaceAll(updater);
+    @Override
+    public List<String> getBusbarSectionIds() {
+        return Collections.unmodifiableList(busbarSectionIds);
     }
 
-    protected void removeBusbarSectionsOrBusesIdIf(Predicate<String> predicate) {
-        busbarSectionsOrBusesIds.removeIf(predicate);
+    protected void updateIds(UnaryOperator<String> updater) {
+        buses.replaceAll(bus -> new BusRef(updater.apply(bus.voltageLevelId()), updater.apply(bus.busId())));
+        busbarSectionIds.replaceAll(updater);
+    }
+
+    protected void removeIdIf(Predicate<String> predicate) {
+        buses.removeIf(bus -> predicate.test(bus.voltageLevelId()) || predicate.test(bus.busId()));
+        busbarSectionIds.removeIf(predicate);
     }
 
     @Override
