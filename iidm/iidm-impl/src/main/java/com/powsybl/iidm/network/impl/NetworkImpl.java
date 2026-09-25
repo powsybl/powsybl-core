@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.math.graph.GraphConnectivity;
+import com.powsybl.math.graph.dtree.DTreeGraphConnectivityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,12 +107,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
         @Override
         public Collection<Component> getConnectedComponents() {
-            return Collections.unmodifiableList(variants.get().connectedComponentsManager2.getConnectedComponents());
+            return Collections.unmodifiableList(variants.get().connectedComponentsManager.getConnectedComponents());
         }
 
         @Override
         public Collection<Component> getSynchronousComponents() {
-            return Collections.unmodifiableList(variants.get().synchronousComponentsManager2.getConnectedComponents());
+            return Collections.unmodifiableList(variants.get().synchronousComponentsManager.getConnectedComponents());
         }
 
         @Override
@@ -1154,9 +1155,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private final class VariantImpl implements Variant {
 
-        private ComponentsManager connectedComponentsManager2 = new SimpleComponentsManager(NetworkImpl.this, "connected", true, true);
-        private ComponentsManager synchronousComponentsManager2 = new SimpleComponentsManager(NetworkImpl.this, "synchronous", true, false);
-        private ComponentsManager dcComponentsManager2 = new SimpleComponentsManager(NetworkImpl.this, "DC", false, true);
+        private ComponentsManager connectedComponentsManager
+                = new SimpleComponentsManager(NetworkImpl.this, "connected", true, true);
+        private ComponentsManager synchronousComponentsManager
+                = new GraphConnectivityComponentsManager(NetworkImpl.this, new DTreeGraphConnectivityFactory<>());
+        // = new SimpleComponentsManager(NetworkImpl.this, "synchronous", true, false);
+        private ComponentsManager dcComponentsManager
+                = new SimpleComponentsManager(NetworkImpl.this, "DC", false, true);
 
         private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
 
@@ -1183,20 +1188,20 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     private final VariantArray<VariantImpl> variants;
 
     ComponentsManager getConnectedComponentsManager() {
-        return variants.get().connectedComponentsManager2;
+        return variants.get().connectedComponentsManager;
     }
 
     ComponentsManager getSynchronousComponentsManager() {
-        return variants.get().synchronousComponentsManager2;
+        return variants.get().synchronousComponentsManager;
     }
 
     ComponentsManager getDcComponentsManager() {
-        return variants.get().dcComponentsManager2;
+        return variants.get().dcComponentsManager;
     }
 
     @Override
     public Collection<Component> getDcComponents() {
-        return Collections.unmodifiableList(variants.get().dcComponentsManager2.getConnectedComponents());
+        return Collections.unmodifiableList(variants.get().dcComponentsManager.getConnectedComponents());
     }
 
     @Override

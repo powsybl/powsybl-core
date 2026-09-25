@@ -18,7 +18,11 @@ interface ComponentsManager extends NetworkListener {
 
     void invalidate();
 
+    void voltageLevelAdded(VoltageLevel voltageLevel);
+
     void invalidate(VoltageLevel voltageLevel);
+
+    void voltageLevelRemoved(VoltageLevel voltageLevel);
 
     List<Component> getConnectedComponents();
 

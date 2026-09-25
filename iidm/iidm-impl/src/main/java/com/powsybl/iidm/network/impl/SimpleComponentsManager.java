@@ -263,8 +263,18 @@ class SimpleComponentsManager implements ComponentsManager {
     }
 
     @Override
+    public void voltageLevelAdded(VoltageLevel voltageLevel) {
+
+    }
+
+    @Override
     public void invalidate(VoltageLevel voltageLevel) {
         components = null;
+    }
+
+    @Override
+    public void voltageLevelRemoved(VoltageLevel voltageLevel) {
+
     }
 
     @Override
