@@ -36,6 +36,7 @@ class VscConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<VscConver
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(cs, context);
         context.getWriter().writeBooleanAttribute("voltageRegulatorOn", cs.isVoltageRegulatorOn());
         context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
         context.getWriter().writeDoubleAttribute("voltageSetpoint", cs.getVoltageSetpoint());
@@ -59,6 +60,7 @@ class VscConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<VscConver
 
     @Override
     protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
         float lossFactor = context.getReader().readFloatAttribute("lossFactor");
         double voltageSetpoint = context.getReader().readDoubleAttribute("voltageSetpoint");
