@@ -188,6 +188,7 @@ A generator is a piece of equipment that injects or consumes active power, and i
 | $VoltageRegulatorOn$     |      | True if the generator regulates voltage                                             |
 | $EnergySource$           |      | The energy source harnessed to turn the generator                                   |
 | $IsCondenser$            |      | True if the generator may behave as a condenser                                     |
+| $Equivalent$             | -    | Indicates if the generator is an equivalent, from a network reduction for instance  | 
 
 **Specifications**
 
@@ -226,10 +227,11 @@ A load is a passive equipment representing a delivery point that consumes or pro
 
 **Characteristics**
 
-| Attribute | Unit | Description                 |
-|-----------|------|-----------------------------|
-| $P0$      | MW   | The active power setpoint   |
-| $Q0$      | MVar | The reactive power setpoint |
+| Attribute    | Unit | Description                                                                   |
+|--------------|------|-------------------------------------------------------------------------------|
+| $P0$         | MW   | The active power setpoint                                                     |
+| $Q0$         | MVar | The reactive power setpoint                                                   |
+| $Equivalent$ | -    | Indicates if the load is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -238,11 +240,13 @@ A load is a passive equipment representing a delivery point that consumes or pro
     - Consumptions are positive.
 
 **Metadata**
-In the grid model, loads comprise the following metadata:
+In the grid model, the following metadata is included for loads:
 - The load type, which can be:
     - `UNDEFINED`
     - `AUXILIARY`
     - `FICTITIOUS`
+
+By default, it is `UNDEFINED`.
 - The load model, which can be:
     - `ZIP` (or polynomial), following equations:
 
@@ -284,13 +288,14 @@ battery side and vice versa. The power flow is bidirectional, and it is controll
 
 **Characteristics**
 
-| Attribute        | Unit | Description                                       |
-|------------------|------|---------------------------------------------------|
-| $TargetP$        | MW   | The active power target                           |
-| $TargetQ$        | MVar | The reactive power target                         |
-| $MinP$           | MW   | The Minimal active power (charging limit)         |
-| $MaxP$           | MW   | The Maximum active power (discharging limit)      |
-| $ReactiveLimits$ | MVar | Operational limits of the battery (P/Q/V diagram) |
+| Attribute        | Unit | Description                                                                      |
+|------------------|------|----------------------------------------------------------------------------------|
+| $TargetP$        | MW   | The active power target                                                          |
+| $TargetQ$        | MVar | The reactive power target                                                        |
+| $MinP$           | MW   | The Minimal active power (charging limit)                                        |
+| $MaxP$           | MW   | The Maximum active power (discharging limit)                                     |
+| $ReactiveLimits$ | MVar | Operational limits of the battery (P/Q/V diagram)                                |
+| $Equivalent$     | -    | Indicates if the battery is an equivalent, from a network reduction for instance | 
 
 The values `TargetP`, `TargetQ`, `MinP`, `MaxP`, are required.
 
@@ -345,15 +350,16 @@ Boundary lines are key objects for merging networks. Merging will be described s
 
 Optional:
 
-| Attribute            | Unit | Description                                               |
-|----------------------|------|-----------------------------------------------------------|
-| $MinP$               | MW   | Minimum generation part active power output               |
-| $MaxP$               | MW   | Maximum generation part active power output               |
-| $ReactiveLimits$     | MVar | Operational limits of the generation part (P/Q/V diagram) |
-| $TargetP$            | MW   | The active power target                                   |
-| $TargetQ$            | MVAr | The reactive power target                                 |
-| $TargetV$            | kV   | The voltage target                                        |
-| $VoltageRegulatorOn$ |      | True if the generation part regulates voltage             |
+| Attribute            | Unit | Description                                                                            |
+|----------------------|------|----------------------------------------------------------------------------------------|
+| $MinP$               | MW   | Minimum generation part active power output                                            |
+| $MaxP$               | MW   | Maximum generation part active power output                                            |
+| $ReactiveLimits$     | MVar | Operational limits of the generation part (P/Q/V diagram)                              |
+| $TargetP$            | MW   | The active power target                                                                |
+| $TargetQ$            | MVAr | The reactive power target                                                              |
+| $TargetV$            | kV   | The voltage target                                                                     |
+| $VoltageRegulatorOn$ |      | True if the generation part regulates voltage                                          |
+| $Equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -410,17 +416,18 @@ Shunt compensators follow a passive-sign convention:
 
 **Characteristics**
 
-| Attribute             | Unit | Description                                                                    |
-|-----------------------|------|--------------------------------------------------------------------------------|
-| $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on                         |
-| $SectionCount$        | -    | The current number of sections that are switched on (input of the calculation) |
-| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     |
-| $B$                   | S    | The susceptance of the shunt compensator in its current state                  |
-| $G$                   | S    | The conductance of the shunt compensator in its current state                  |
-| $TargetV$             | kV   | The voltage target                                                             |
-| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls                        |
-| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated                    |
-| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage                                |
+| Attribute             | Unit | Description                                                                                |
+|-----------------------|------|--------------------------------------------------------------------------------------------|
+| $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on                                     |
+| $SectionCount$        | -    | The current number of sections that are switched on (input of the calculation)             |
+| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)                 |
+| $B$                   | S    | The susceptance of the shunt compensator in its current state                              |
+| $G$                   | S    | The conductance of the shunt compensator in its current state                              |
+| $TargetV$             | kV   | The voltage target                                                                         |
+| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls                                    |
+| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated                                |
+| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage                                            |
+| $Equivalent$          | -    | Indicates if the shunt compensator is an equivalent, from a network reduction for instance | 
 
 - For Linear Shunt Compensators
 
@@ -480,12 +487,13 @@ Static VAR compensators follow a passive-sign convention:
 
 **Characteristics**
 
-| Attribute               | Unit | Description                 |
-|-------------------------|------|-----------------------------|
-| $Bmin$                  | S    | The minimum susceptance     |
-| $Bmax$                  | S    | The maximum susceptance     |
-| $VoltageSetpoint$       | kV   | The voltage setpoint        |
-| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint |
+| Attribute               | Unit | Description                                                                                     |
+|-------------------------|------|-------------------------------------------------------------------------------------------------|
+| $Bmin$                  | S    | The minimum susceptance                                                                         |
+| $Bmax$                  | S    | The maximum susceptance                                                                         |
+| $VoltageSetpoint$       | kV   | The voltage setpoint                                                                            |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint                                                                     |
+| $Equivalent$            | -    | Indicates if the Static VAR compensator is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -557,14 +565,15 @@ $$
 
 **Characteristics**
 
-| Attribute | Unit     | Description                       |
-|-----------|----------|-----------------------------------|
-| $R$       | $\Omega$ | The series resistance             |
-| $X$       | $\Omega$ | The series reactance              |
-| $G1$      | S        | The first side shunt conductance  |
-| $B1$      | S        | The first side shunt susceptance  |
-| $G2$      | S        | The second side shunt conductance |
-| $B2$      | S        | The second side shunt susceptance |
+| Attribute    | Unit     | Description                                                                    |
+|--------------|----------|--------------------------------------------------------------------------------|
+| $R$          | $\Omega$ | The series resistance                                                          |
+| $X$          | $\Omega$ | The series reactance                                                           |
+| $G1$         | S        | The first side shunt conductance                                               |
+| $B1$         | S        | The first side shunt susceptance                                               |
+| $G2$         | S        | The second side shunt conductance                                              |
+| $B2$         | S        | The second side shunt susceptance                                              |
+| $Equivalent$ | -        | Indicates if the line is an equivalent, from a network reduction for instance. |
 
 **Specifications**
 
@@ -600,14 +609,14 @@ $G2$ (resp. $B2$) is equal to the second boundary line's $G2$ (resp. $B2$).
 
 **Characteristics**
 
-| Attribute | Unit     | Description                       |
-|-----------|----------|-----------------------------------|
-| $R$       | $\Omega$ | The series resistance             |
-| $X$       | $\Omega$ | The series reactance              |
-| $G1$      | S        | The first side shunt conductance  |
-| $B1$      | S        | The first side shunt susceptance  |
-| $G2$      | S        | The second side shunt conductance |
-| $B2$      | S        | The second side shunt susceptance |
+| Attribute    | Unit     | Description                                                                       |
+|--------------|----------|-----------------------------------------------------------------------------------|
+| $R$          | $\Omega$ | The series resistance                                                             |
+| $X$          | $\Omega$ | The series reactance                                                              |
+| $G1$         | S        | The first side shunt conductance                                                  |
+| $B1$         | S        | The first side shunt susceptance                                                  |
+| $G2$         | S        | The second side shunt conductance                                                 |
+| $B2$         | S        | The second side shunt susceptance                                                 |
 
 A tie line is not a connectable. It is just a container of two underlying boundary lines with the same pairing key. When connected together, each boundary line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free boundary lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
 
@@ -662,15 +671,16 @@ $$
 
 **Characteristics**
 
-| Attribute    | Unit     | Description                                                          |
-|--------------|----------|----------------------------------------------------------------------|
-| $R_{nom}$    | $\Omega$ | The nominal series resistance at the side 2 of the transformer       |
-| $X_{nom}$    | $\Omega$ | The nominal series reactance at the side 2 of the transformer        |
-| $G_{nom}$    | S        | The nominal magnetizing conductance at the side 2 of the transformer |
-| $B_{nom}$    | S        | The nominal magnetizing susceptance at the side 2 of the transformer |
-| $V_{1\ nom}$ | kV       | The rated voltage at side 1                                          |
-| $V_{2\ nom}$ | kV       | The rated voltage at side 2                                          |
-| $RatedS$     | MVA      | The normal apparent power                                            |
+| Attribute    | Unit     | Description                                                                           |
+|--------------|----------|---------------------------------------------------------------------------------------|
+| $R_{nom}$    | $\Omega$ | The nominal series resistance at the side 2 of the transformer                        |
+| $X_{nom}$    | $\Omega$ | The nominal series reactance at the side 2 of the transformer                         |
+| $G_{nom}$    | S        | The nominal magnetizing conductance at the side 2 of the transformer                  |
+| $B_{nom}$    | S        | The nominal magnetizing susceptance at the side 2 of the transformer                  |
+| $V_{1\ nom}$ | kV       | The rated voltage at side 1                                                           |
+| $V_{2\ nom}$ | kV       | The rated voltage at side 2                                                           |
+| $RatedS$     | MVA      | The normal apparent power                                                             |
+| $Equivalent$ | -        | Indicates if the transformer is an equivalent, from a network reduction for instance. | 
 
 **Specifications**
 
@@ -710,9 +720,10 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 **Characteristics**
 
-| Attribute | Unit | Description                       |
-|-----------|------|-----------------------------------|
-| $RatedU0$ | kV   | The rated voltage at the star bus |
+| Attribute    | Unit | Description                                                                          |
+|--------------|------|--------------------------------------------------------------------------------------|
+| $RatedU0$    | kV   | The rated voltage at the star bus                                                    |
+| $Equivalent$ | -    | Indicates if the transformer is an equivalent, from a network reduction for instance | 
 
 **Specifications**
 
@@ -825,10 +836,11 @@ Electronic converters for HVDC are divided into two main categories: line-commut
 
 **Characteristics**
 
-| Attribute  | Type       | Unit | Required | Default value | Description     |
-|------------|------------|------|----------|---------------|-----------------|
-| HvdcType   | `HvdcType` | -    | yes      | -             | The HVDC type   |
-| LossFactor | float      | %    | yes      | -             | The loss factor |
+| Attribute    | Type       | Unit | Required | Default value | Description                                                                                |
+|--------------|------------|------|----------|---------------|--------------------------------------------------------------------------------------------|
+| HvdcType     | `HvdcType` | -    | yes      | -             | The HVDC type                                                                              |
+| LossFactor   | float      | %    | yes      | -             | The loss factor                                                                            |
+| $Equivalent$ | boolean    | -    | no       | false         | Indicates if the converter station is an equivalent, from a network reduction for instance |
 
 The LossFactor should be greater than 0.
 
@@ -1003,18 +1015,19 @@ LCC and VSC share the following characteristics.
 
 **Characteristics**
 
-| Attribute       | Unit     | Description                                                           |
-|-----------------|----------|-----------------------------------------------------------------------|
-| $IdleLoss$      | MW       | Losses at no load                                                     |
-| $SwitchingLoss$ | MW / A   | Switching losses                                                      |
-| $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
-| $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or P_PCC_DROOP              |
-| $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
-| $TargetVdc$     | kV       | DC voltage target                                                     |
-| $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention |
-| $MaxP$          | MW       | Maximum active power at point of common coupling, load sign convention |
-| $DroopCurve$    |          | Droop curve for droop control mode                                    |
+| Attribute       | Unit     | Description                                                                        |
+|-----------------|----------|------------------------------------------------------------------------------------|
+| $IdleLoss$      | MW       | Losses at no load                                                                  |
+| $SwitchingLoss$ | MW / A   | Switching losses                                                                   |
+| $ResistiveLoss$ | $\Omega$ | Resistive losses                                                                   |
+| $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                                         |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or DC_DROOP                              |
+| $TargetP$       | MW       | Active power target at point of common coupling, load sign convention              |
+| $TargetVdc$     | kV       | DC voltage target                                                                  |
+| $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention             |
+| $MaxP$          | MW       | Maximum active power at point of common coupling, load sign convention             |
+| $DroopCurve$    |          | Droop curve for droop control mode                                                 |
+| $Equivalent$    | -        | Indicates if the converter is an equivalent, from a network reduction for instance | 
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:
@@ -1027,6 +1040,7 @@ The Point of Common Coupling (PCC) Terminal defines where the AC/DC converter in
 The control mode defines whether the converter:
 - controls active power at Point of Common Coupling
 - or, controls DC voltage at its DC terminals
+- or, controls the relation between DC voltage and active power through a droop curve
 
 When the `ControlMode` of the converter is set to `P_PCC`, the converter controls active power flow at the (AC) Point of common coupling terminal.
 `TargetP` is the desired active power flow at PCC, in passive sign convention, i.e.:
@@ -1058,20 +1072,22 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
 
-When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls active power as in the `P_PCC` control mode
-for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
-$P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
+When the `ControlMode` of the converter is set to `DC_DROOP`, the converter controls the relation between DC voltage and active
+power through a piecewise linear droop curve, anchored in the $(P_{AC}, V_{DC})$ plane at the point $(TargetP, TargetVdc)$:
+$V_{DC} - V_i = k_i \cdot (P_{AC} - P_i)$
 Where:
-- $k$ is the droop coefficient of the actual droop segment.
-- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint.
-It represents the operating point before the security analysis starts.
-- $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
-- $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
-- $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
+- $V_{DC} = V_1 - V_2$ is the DC voltage of the converter, between DC Node 1 and DC Node 2.
+- $P_{AC}$ is the active power of the converter, using the same load sign convention as `TargetP`.
+- $k_i$ is the droop coefficient of the segment containing the operating point, and $(P_i, V_i)$ is that segment's lower bound on the curve.
 
-Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual
-droop segment should be the one which verifies:
-$V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+Only the segment containing the anchor point has a directly known $(P_i, V_i)$, namely $(TargetP, TargetVdc)$. The $(P_i, V_i)$
+of every other segment is derived by walking the curve from the anchor, segment by segment: crossing a segment with droop
+coefficient $k$ between voltages $V_{min}$ and $V_{max}$ shifts $P$ by $(V_{max} - V_{min}) / k$.
+
+Each segment in the `DroopCurve` is defined with a minimal and maximal voltage $V_{min}$ and $V_{max}$, and a droop coefficient $k$. The segment used
+at a given DC voltage is the one which verifies:
+$V_{DC} \in [V_{min}, V_{max})$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+A droop curve must be invertible. This implies that all the droop coefficients $k$ must be non-zero and with the same sign.
 
 `MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
 same load sign convention as `TargetP`.
@@ -1176,8 +1192,14 @@ For more details about working with subnetworks, see [Working with subnetworks](
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BusbarSection.html)<br>
 A busbar section is a non impedant element used in a node/breaker substation topology to connect equipment.
 
+**Characteristics**
+
+| Attribute    | Unit | Description                                                                             |
+|--------------|------|-----------------------------------------------------------------------------------------|
+| $Equivalent$ | -    | Indicates if the busbar section is an equivalent, from a network reduction for instance |
+
 <!---
-<span style="color:red"> TODO</span>
+<span style="color:red"> TODO + characteristics to fill up</span>
 -->
 
 **Available extensions**

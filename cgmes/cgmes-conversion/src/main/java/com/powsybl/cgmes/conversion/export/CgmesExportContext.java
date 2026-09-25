@@ -90,6 +90,8 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final Network network; // Used for naming strategy of OperationalLimitType and LoadGroups
+    private String cgmExportWithTp;
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
         return fictitiousContainers.get(id.getId());
@@ -99,8 +101,17 @@ public class CgmesExportContext {
         fictitiousContainers.put(id.getId(), containerId);
     }
 
+    /**
+     * Creates an export context that is not bound to any network.
+     *
+     * @deprecated Use {@link #CgmesExportContext(Network)} instead.
+     *             Building a context without parameters is no longer supported:
+     *             all constructors will require at least the network being exported.
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
     public CgmesExportContext() {
         referenceDataProvider = null;
+        network = null;
     }
 
     public CgmesExportContext(Network network) {
@@ -129,6 +140,7 @@ public class CgmesExportContext {
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         scenarioTime = network.getCaseDate();
+        this.network = network;
         addParameters(exportParameters);
         computeCimVersion(exportParameters, network);
         computeTopologyKind(exportParameters, network);
@@ -156,6 +168,7 @@ public class CgmesExportContext {
             setProfiles(exportParameters.profiles());
             setBaseName(exportParameters.baseName());
             setUpdateDependencies(exportParameters.updateDependencies());
+            setCgmExportWithTp(exportParameters.cgmExportWithTp());
         }
     }
 
@@ -622,6 +635,27 @@ public class CgmesExportContext {
 
     public boolean updateDependencies() {
         return updateDependencies;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    /**
+     * Sets the CGM quick export parameter allowing to export the TP profile, either for all IGMs or for the CGM.
+     *
+     * @param cgmExportWithTp "IGM" or "CGM" to export the TP profile, empty otherwise
+     */
+    public CgmesExportContext setCgmExportWithTp(String cgmExportWithTp) {
+        this.cgmExportWithTp = cgmExportWithTp;
+        return this;
+    }
+
+    /**
+     * Indicates whether the CGM quick export should export the TP profile, either for all IGMs or for the CGM.
+     */
+    public String getCgmExportWithTp() {
+        return cgmExportWithTp;
     }
 
     record BaseVoltageSource(Double nominalV, String id, Source source) { }

@@ -39,6 +39,7 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
 
     @Override
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
+        writeEquivalent(twt, context);
         context.getWriter().writeDoubleAttribute("r1", twt.getLeg1().getR());
         context.getWriter().writeDoubleAttribute("x1", twt.getLeg1().getX());
         writeFormerlyMandatoryDoubleAttribute("g1", twt.getLeg1().getG(), IidmVersion.V_1_17, context);
@@ -138,6 +139,8 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
 
     @Override
     protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, Substation s, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
+
         LegAdder legAdder1 = adder.newLeg1();
         LegAdder legAdder2 = adder.newLeg2();
         LegAdder legAdder3 = adder.newLeg3();
