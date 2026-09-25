@@ -270,6 +270,23 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
      */
     BoundaryLine setB(double b);
 
+    /**
+     * Get the country at the other side of the boundary.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     * @return the remote country or null if not defined
+     */
+    Country getCountryTo();
+
+    /**
+     * Set the country at the other side of the boundary.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     * @param countryTo the remote country
+     * @return the boundary line itself
+     */
+    BoundaryLine setCountryTo(Country countryTo);
+
     default Generation getGeneration() {
         return null;
     }

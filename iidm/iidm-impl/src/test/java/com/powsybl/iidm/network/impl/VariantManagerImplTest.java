@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.jupiter.api.Test;
@@ -500,5 +501,47 @@ class VariantManagerImplTest {
         variantManager.setWorkingVariant("backup");
         assertTrue(b1.isRetained());
         assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
+    }
+
+    @Test
+    void testBoundaryLineCountryToVariantIsolation() {
+        Network network = BoundaryLineNetworkFactory.create();
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
+        VariantManager manager = network.getVariantManager();
+
+        boundaryLine.setCountryTo(Country.GB);
+        assertEquals(Country.GB, boundaryLine.getCountryTo());
+        assertEquals(Country.GB, boundaryLine.getBoundary().getCountryTo());
+
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v1");
+        manager.setWorkingVariant("v1");
+        assertEquals(Country.GB, boundaryLine.getCountryTo());
+
+        boundaryLine.setCountryTo(Country.FR);
+        assertEquals(Country.FR, boundaryLine.getCountryTo());
+        assertEquals(Country.FR, boundaryLine.getBoundary().getCountryTo());
+
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(Country.GB, boundaryLine.getCountryTo());
+        assertEquals(Country.GB, boundaryLine.getBoundary().getCountryTo());
+
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v2");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v3");
+        manager.setWorkingVariant("v3");
+        boundaryLine.setCountryTo(Country.ES);
+        assertEquals(Country.ES, boundaryLine.getCountryTo());
+
+        manager.removeVariant("v2");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v4");
+        manager.setWorkingVariant("v4");
+        assertEquals(Country.GB, boundaryLine.getCountryTo());
+        assertEquals(Country.GB, boundaryLine.getBoundary().getCountryTo());
+
+        manager.setWorkingVariant("v3");
+        assertEquals(Country.ES, boundaryLine.getCountryTo());
+        manager.removeVariant("v3");
+        manager.setWorkingVariant("v4");
+        assertEquals(Country.GB, boundaryLine.getCountryTo());
+        assertEquals(Country.GB, boundaryLine.getBoundary().getCountryTo());
     }
 }

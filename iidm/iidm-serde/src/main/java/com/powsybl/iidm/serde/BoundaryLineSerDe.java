@@ -29,6 +29,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     private static final String GENERATION_TARGET_P = "generationTargetP";
     private static final String GENERATION_TARGET_Q = "generationTargetQ";
     private static final String GENERATION_TARGET_V = "generationTargetV";
+    private static final String COUNTRY_TO = "countryTo";
 
     static final BoundaryLineSerDe INSTANCE = new BoundaryLineSerDe();
 
@@ -89,6 +90,12 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
             writeSelectedGroupId(null, bl.getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter()));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
             writeAllSelectedGroupIds(bl, context.getWriter()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () -> {
+            Country countryTo = bl.getCountryTo();
+            if (countryTo != null) {
+                context.getWriter().writeStringAttribute(COUNTRY_TO, countryTo.name());
+            }
+        });
     }
 
     private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
@@ -166,6 +173,12 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
             .setX(x)
             .setG(g)
             .setB(b);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () -> {
+            String countryTo = context.getReader().readStringAttribute(COUNTRY_TO);
+            if (countryTo != null) {
+                adder.setCountryTo(Country.valueOf(countryTo));
+            }
+        });
     }
 
     @Override
