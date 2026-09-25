@@ -690,4 +690,16 @@ public final class ConnectableSerDeUtil {
         }
         writer.writeEndNodes();
     }
+
+    public static void writeEquivalent(Connectable<?> connectable, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeBooleanAttribute("equivalent", connectable.isEquivalent(), false));
+    }
+
+    public static void readEquivalent(ConnectableAdder<?, ?> connectableAdder, NetworkDeserializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            boolean equivalent = context.getReader().readBooleanAttribute("equivalent", false);
+            connectableAdder.setEquivalent(equivalent);
+        });
+    }
+
 }
