@@ -7,10 +7,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,4 +54,21 @@ class NodeBreakerCleanTest {
         assertEquals(5, topo.getMaximumNodeIndex());
     }
 
+    @Test
+    void removeSwitchInducingSeveralBusesInTopology() {
+        Network network = NetworkTest1Factory.create();
+        VoltageLevel vl = network.newVoltageLevel().setId("VL1").setNominalV(400).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        vl.getNodeBreakerView().newSwitch().setNode1(0).setNode2(1).setId("SW1").setKind(SwitchKind.BREAKER).setOpen(false).add();
+        vl.getNodeBreakerView().newBusbarSection().setNode(0).setId("BBS1").setName("BBS1").add();
+        vl.getNodeBreakerView().newBusbarSection().setNode(1).setId("BBS2").setName("BBS2").add();
+        vl.newLoad().setNode(3).setId("LD1").setP0(100).setQ0(100).add();
+        vl.newLoad().setNode(4).setId("LD2").setP0(100).setQ0(100).add();
+        vl.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(3).add();
+        vl.getNodeBreakerView().newInternalConnection().setNode1(1).setNode2(4).add();
+        assertTrue(vl.getBusView().getBusStream().toList().stream().map(Bus::getId).toList().contains("VL1_0"));
+        assertEquals(1, vl.getBusView().getBusStream().toList().size());
+        vl.getNodeBreakerView().removeSwitch("SW1");
+        assertTrue(vl.getBusView().getBusStream().toList().stream().map(Bus::getId).toList().containsAll(List.of("VL1_0", "VL1_1")));
+        assertEquals(2, vl.getBusView().getBusStream().toList().size());
+    }
 }
