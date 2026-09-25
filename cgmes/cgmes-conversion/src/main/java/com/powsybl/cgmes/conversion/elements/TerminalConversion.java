@@ -13,10 +13,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.getDefaultIsOpen;
@@ -39,18 +36,19 @@ public final class TerminalConversion {
     }
 
     private static boolean createFictitiousSwitch(Network network, String cgmesTerminalId, boolean connected, Context context) {
+        // Terminal id shouldn't be null
+        Objects.requireNonNull(cgmesTerminalId);
+
         // Only create if it's a disconnected terminal of a connectable that's not a busbar section.
         Identifiable<?> identifiable = network.getIdentifiable(cgmesTerminalId);
-        if (cgmesTerminalId == null || connected || identifiable == null || identifiable.getType() == IdentifiableType.BUSBAR_SECTION) {
+        if (connected || identifiable == null || identifiable.getType() == IdentifiableType.BUSBAR_SECTION) {
             return false;
         }
 
         // Check if a fictitious switch has already been created (from a previous update).
-        Optional<Switch> sw = context.network().getSwitchStream()
-            .filter(s -> "true".equals(s.getProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
-                && cgmesTerminalId.equals(s.getProperty(PROPERTY_TERMINAL)))
-            .findFirst();
-        if (sw.isPresent()) {
+        if (network.getSwitchStream()
+            .anyMatch(s -> "true".equals(s.getProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
+                && cgmesTerminalId.equals(s.getProperty(PROPERTY_TERMINAL)))) {
             return false;
         }
 
@@ -147,16 +145,19 @@ public final class TerminalConversion {
     private static void createSwitch(VoltageLevel voltageLevel, String cgmesTerminalId, int node1, int node2, Context context) {
         String switchId = cgmesTerminalId + "_SW_fict";
         // The switch is closed for all variants but the current one.
+        // 2 calls to setOpen() are needed.
         Switch sw = voltageLevel.getNodeBreakerView().newSwitch()
                 .setFictitious(true)
                 .setId(switchId)
                 .setName(cgmesTerminalId)
                 .setNode1(node1)
                 .setNode2(node2)
+                // This makes it closed for all variants.
                 .setOpen(false)
                 .setKind(SwitchKind.BREAKER)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
+        // This makes it open for the current variant.
         sw.setOpen(true);
         sw.setProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
         sw.setProperty(PROPERTY_TERMINAL, cgmesTerminalId);
