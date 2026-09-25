@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -62,6 +63,21 @@ class UcteExporterTest extends AbstractSerDeTest {
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
             assertTxtEquals(expected, actual, Arrays.asList(1, 2));
         }
+    }
+
+    private static String exportToString(Network network) throws IOException {
+        MemDataSource dataSource = new MemDataSource();
+        new UcteExporter().export(network, new Properties(), dataSource);
+        try (InputStream is = dataSource.newInputStream(null, "uct")) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    private static String findNodeLine(String exportedText, String nodeCode) {
+        return exportedText.lines()
+                .filter(line -> line.length() >= 8 && line.substring(0, 8).equals(nodeCode))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No node line found for code " + nodeCode));
     }
 
     @Test
@@ -164,6 +180,77 @@ class UcteExporterTest extends AbstractSerDeTest {
     void testVoltageRegulatingXnode() throws IOException {
         Network network = loadNetworkFromResourceFile("/frVoltageRegulatingXnode.uct");
         testExporter(network, "/frVoltageRegulatingXnode.uct");
+    }
+
+    @Test
+    void testExportGeneratorWithSentinelLimitsIsBlank() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        Generator generator = network.getGenerator("B_SU1_21_generator");
+        generator.setMinP(-9999);
+        generator.setMaxP(9999);
+        generator.newMinMaxReactiveLimits()
+                .setMinQ(-9999)
+                .setMaxQ(9999)
+                .add();
+
+        String nodeLine = findNodeLine(exportToString(network), "B_SU1_21");
+        assertEquals("       ", nodeLine.substring(65, 72));
+        assertEquals("       ", nodeLine.substring(73, 80));
+        assertEquals("       ", nodeLine.substring(81, 88));
+        assertEquals("       ", nodeLine.substring(89, 96));
+    }
+
+    @Test
+    void testExportGeneratorWithMaxValueActivePowerLimitsIsBlank() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        Generator generator = network.getGenerator("B_SU1_21_generator");
+        generator.setMinP(-Double.MAX_VALUE);
+        generator.setMaxP(Double.MAX_VALUE);
+
+        String nodeLine = findNodeLine(exportToString(network), "B_SU1_21");
+        assertEquals("       ", nodeLine.substring(65, 72));
+        assertEquals("       ", nodeLine.substring(73, 80));
+    }
+
+    @Test
+    void testExportGeneratorWithMaxValueReactivePowerLimitsIsBlank() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        Generator generator = network.getGenerator("B_SU1_21_generator");
+        generator.newMinMaxReactiveLimits()
+                .setMinQ(-Double.MAX_VALUE)
+                .setMaxQ(Double.MAX_VALUE)
+                .add();
+
+        String nodeLine = findNodeLine(exportToString(network), "B_SU1_21");
+        assertEquals("       ", nodeLine.substring(81, 88));
+        assertEquals("       ", nodeLine.substring(89, 96));
+    }
+
+    @Test
+    void testExportBoundaryLineWithMaxValueActivePowerLimitsIsBlank() throws IOException {
+        Network network = loadNetworkFromResourceFile("/frVoltageRegulatingXnode.uct");
+        BoundaryLine boundaryLine = network.getBoundaryLine("FFFFFF13 XXXXXX14 1");
+        boundaryLine.getGeneration().setMinP(-Double.MAX_VALUE);
+        boundaryLine.getGeneration().setMaxP(Double.MAX_VALUE);
+
+        String nodeLine = findNodeLine(exportToString(network), "XXXXXX14");
+        assertEquals("       ", nodeLine.substring(65, 72));
+        assertEquals("       ", nodeLine.substring(73, 80));
+        // Reactive limits were not touched: they keep exporting their original, real fixture values.
+        assertEquals("1.00000", nodeLine.substring(81, 88));
+        assertEquals("-1.0000", nodeLine.substring(89, 96));
+    }
+
+    @Test
+    void testExportGeneratorWithOutOfRangeLimitIsBlank() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        Generator generator = network.getGenerator("B_SU1_21_generator");
+        generator.setMaxP(50_000_000);
+        generator.setMinP(-50_000_000);
+
+        String nodeLine = findNodeLine(exportToString(network), "B_SU1_21");
+        assertEquals("       ", nodeLine.substring(65, 72));
+        assertEquals("       ", nodeLine.substring(73, 80));
     }
 
     @Test
