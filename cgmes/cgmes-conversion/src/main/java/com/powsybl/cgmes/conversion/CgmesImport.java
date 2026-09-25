@@ -19,6 +19,7 @@ import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.compress.SafeZipInputStream;
+import com.powsybl.commons.concurrent.CleanableExecutors;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
@@ -65,6 +66,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
@@ -181,18 +186,114 @@ public class CgmesImport implements Importer {
                             p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
             Set<ReadOnlyDataSource> dss = new MultipleGridModelChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
-                return Network.merge(dss.stream()
-                        .map(ds1 -> importData1(ds1, networkFactory, p, reportNode))
-                        .toArray(Network[]::new));
+                return Network.merge(importSubnetworks(dss, networkFactory, p, reportNode, subnetworksImportThreadCount(p)));
             }
         }
-        return importData1(ds, networkFactory, p, reportNode);
+        ReportNode tripleStoreReportNode = CgmesReports.readingCgmesTriplestoreReport(reportNode);
+        ReportNode conversionReportNode = CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName());
+        return importNetwork(ds, networkFactory, p, tripleStoreReportNode, conversionReportNode);
     }
 
-    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
-        CgmesModel cgmes = readCgmes(ds, p, reportNode);
-        ReportNode conversionReportNode = CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName());
+    private int subnetworksImportThreadCount(Properties p) {
+        int requestedThreadCount = Parameter.readInteger(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER, defaultValueConfig);
+        // Keep one processor free for the rest of the application
+        // Math.clamp throws if min > max: on a single processor machine, max must not drop to 0
+        int threadCount = Math.clamp(requestedThreadCount, 1, Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+        if (threadCount < requestedThreadCount) {
+            LOGGER.warn("{} threads requested to import CGMES subnetworks, limited to {} based on available processors",
+                    requestedThreadCount, threadCount);
+        }
+        return threadCount;
+    }
+
+    /**
+     * Imports every subnetwork data source into its own {@link Network}, concurrently if {@code threadCount > 1}.
+     * <p>{@link ReportNode} is not safe for concurrent mutation of the same parent, so every child report node
+     * used by the subnetwork imports is created here, sequentially, before any parallel work is dispatched.
+     * Package-private to support unit testing.
+     */
+    Network[] importSubnetworks(Set<ReadOnlyDataSource> dss, NetworkFactory networkFactory, Properties p, ReportNode reportNode, int threadCount) {
+        if (threadCount < 1) {
+            throw new PowsyblException("Invalid thread count to import CGMES subnetworks: " + threadCount);
+        }
+        // dss is sorted deterministically by MultipleGridModelChecker, so import order (and therefore the
+        // produced report) does not depend on the thread count used.
+        List<ReadOnlyDataSource> dsList = new ArrayList<>(dss);
+        List<ReportNode> tripleStoreReportNodes = new ArrayList<>(dsList.size());
+        List<ReportNode> conversionReportNodes = new ArrayList<>(dsList.size());
+        for (ReadOnlyDataSource ds : dsList) {
+            tripleStoreReportNodes.add(CgmesReports.readingCgmesTriplestoreReport(reportNode));
+            conversionReportNodes.add(CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName()));
+        }
+
+        if (threadCount == 1) {
+            Network[] networks = new Network[dsList.size()];
+            for (int i = 0; i < dsList.size(); i++) {
+                networks[i] = importNetwork(dsList.get(i), networkFactory, p, tripleStoreReportNodes.get(i), conversionReportNodes.get(i));
+            }
+            return networks;
+        }
+
+        try (StoppableExecutorService executor = new StoppableExecutorService(
+                CleanableExecutors.newFixedThreadPool("cgmes-cgm-import", Math.min(threadCount, dsList.size())))) {
+            List<Future<Network>> futures = new ArrayList<>(dsList.size());
+            for (int i = 0; i < dsList.size(); i++) {
+                int idx = i;
+                futures.add(executor.get().submit(() -> importNetwork(dsList.get(idx), networkFactory, p, tripleStoreReportNodes.get(idx), conversionReportNodes.get(idx))));
+            }
+            Network[] networks = new Network[dsList.size()];
+            // It is fine to retrieve the result sequentially.
+            // Futures already run in parallel on the executor, so blocking on them in submission order costs nothing.
+            // An ExecutorCompletionService would only save time here if collecting a finished result were expensive,
+            // which it isn't (we are only putting network objects in the list, this is a cheap operation).
+            for (int i = 0; i < futures.size(); i++) {
+                networks[i] = futures.get(i).get();
+            }
+            return networks;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new PowsyblException("Interrupted while importing CGMES subnetworks", e);
+        } catch (ExecutionException e) {
+            throw new PowsyblException("Failed to import CGMES subnetwork", e.getCause() != null ? e.getCause() : e);
+        }
+    }
+
+    /**
+     * Reads the CGMES model of a single network (or subnetwork) and converts it to IIDM.
+     * <p>Report nodes are received rather than created from a parent, so that this method can safely run concurrently
+     * for several subnetworks (see {@link #importSubnetworks}).
+     */
+    private Network importNetwork(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode tripleStoreReportNode, ReportNode conversionReportNode) {
+        // Triple store loading and conversion do not check for interruption: at least do not start when interrupted
+        if (Thread.currentThread().isInterrupted()) {
+            throw new PowsyblException("Interrupted while importing CGMES subnetwork " + ds.getBaseName());
+        }
+        CgmesModel cgmes = createCgmesModel(ds, p, tripleStoreReportNode);
         return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+    }
+
+    private record StoppableExecutorService(ExecutorService delegate) implements AutoCloseable {
+        ExecutorService get() {
+            return delegate;
+        }
+
+        @Override
+        public void close() {
+            // On success all futures are already done, so shutdown() and shutdownNow() are equivalent.
+            // On failure or interruption the whole import fails anyway: shutdownNow() drops the queued subnetwork
+            // imports which gives the fastest failure (instead of running them for nothing as shutdown() would).
+            delegate.shutdownNow();
+            // Subnetwork imports do not react to interruption: wait for running ones so that none of them keeps
+            // mutating its ReportNode after the caller has received the result or the exception.
+            // 5 minutes should be more than enough on "normally" sized CGMES inputs.
+            try {
+                if (!delegate.awaitTermination(5, TimeUnit.MINUTES)) {
+                    LOGGER.warn("CGMES subnetwork import threads still running after 5 minutes");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     @Override
@@ -467,6 +568,11 @@ public class CgmesImport implements Importer {
     }
 
     public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
+        ReportNode tripleStoreReportNode = CgmesReports.readingCgmesTriplestoreReport(reportNode);
+        return createCgmesModel(ds, p, tripleStoreReportNode);
+    }
+
+    private CgmesModel createCgmesModel(ReadOnlyDataSource ds, Properties p, ReportNode tripleStoreReportNode) {
         TripleStoreOptions options = new TripleStoreOptions();
         String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
         if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
@@ -475,7 +581,6 @@ public class CgmesImport implements Importer {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
         options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
-        ReportNode tripleStoreReportNode = CgmesReports.readingCgmesTriplestoreReport(reportNode);
         return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReportNode, options);
     }
 
@@ -722,6 +827,7 @@ public class CgmesImport implements Importer {
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
+    public static final String IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT = "iidm.import.cgmes.cgm-with-subnetworks-thread-count";
     public static final String CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE = "iidm.import.cgmes.create-fictitious-voltage-level-for-every-node";
     public static final String USE_PREVIOUS_VALUES_DURING_UPDATE = "iidm.import.cgmes.use-previous-values-during-update";
     public static final String REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT = "iidm.import.cgmes.remove-properties-and-aliases-after-import";
@@ -826,6 +932,12 @@ public class CgmesImport implements Importer {
             "Choose how subnetworks from CGM must be imported: defined by filenames or by modeling authority",
             SubnetworkDefinedBy.MODELING_AUTHORITY.name(),
             Arrays.stream(SubnetworkDefinedBy.values()).map(Enum::name).collect(Collectors.toList()));
+    private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER = new Parameter(
+            IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT,
+            ParameterType.INTEGER,
+            "Number of threads used to import subnetworks of a CGM concurrently (1 = sequential import). " +
+                    "Applicable only if iidm.import.cgmes.cgm-with-subnetworks parameter is set to true.",
+            1);
 
     public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(
             MISSING_PERMANENT_LIMIT_PERCENTAGE,
@@ -882,6 +994,7 @@ public class CgmesImport implements Importer {
             DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
+            IMPORT_CGM_WITH_SUBNETWORKS_THREAD_COUNT_PARAMETER,
             MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
             CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
             USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
