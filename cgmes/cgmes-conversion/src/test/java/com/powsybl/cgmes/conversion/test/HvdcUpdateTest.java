@@ -111,10 +111,13 @@ class HvdcUpdateTest extends AbstractSerDeTest {
 
         HvdcLine senderLine = network.getHvdcLine("DCLineSegment-Vsc");
         VscConverterStation vsc = (VscConverterStation) senderLine.getConverterStation2();
-        assertEquals(30.34, vsc.getRegulatingTargetQ(), 1e-7);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(30.34, vsc.getLocalTargetQ(), 1e-7);
 
+        // Switch from local VOLTAGE regulationMode to local REACTIVE_POWER regulationMode
         vsc.removeVoltageRegulation();
         vsc.setLocalTargetQ(30.0);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
 
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
@@ -135,7 +138,9 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
-        assertEquals(30.0, vsc.getRegulatingTargetQ(), 1e-7);
+        assertEquals(30.0, vsc.getLocalTargetQ(), 1e-7);
+        assertEquals(30.0, vsc.getVoltageRegulation().getTargetValue(), 1e-7);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
     }
 
     @Test
@@ -145,10 +150,12 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         Network network = readCgmesResources(importParameters, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
 
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("DCLineSegment-Vsc-VscConverter-2");
-        assertEquals(-30.34, vsc.getRegulatingTargetQ(), 1e-7);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(-30.34, vsc.getLocalTargetQ(), 1e-7);
 
-        vsc.setLocalTargetQ(30.0);
+        // Switch from local VOLTAGE regulationMode to local REACTIVE_POWER regulationMode
         vsc.removeVoltageRegulation();
+        vsc.setLocalTargetQ(30.0);
 
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
@@ -167,7 +174,9 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
-        assertEquals(30.0, vsc.getRegulatingTargetQ(), 1e-7);
+        assertEquals(30.0, vsc.getLocalTargetQ(), 1e-7);
+        assertEquals(30.0, vsc.getVoltageRegulation().getTargetValue(), 1e-7);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
     }
 
     @Test
