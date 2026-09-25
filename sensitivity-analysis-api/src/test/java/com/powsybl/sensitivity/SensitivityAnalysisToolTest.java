@@ -17,6 +17,7 @@ import com.powsybl.contingency.list.DefaultContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.test.AbstractToolTest;
@@ -29,13 +30,13 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.powsybl.sensitivity.SensitivityFunctionType.*;
 import static com.powsybl.sensitivity.SensitivityVariableType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -54,7 +55,6 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        // create network
         Network network = EurostagTutorialExample1Factory.create();
         NetworkSerDe.write(network, fileSystem.getPath("network.xiidm"));
 
@@ -70,7 +70,6 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             objectMapper.writeValue(writer, factors);
         }
 
-        // create contingencies
         ContingencyList contingencyList = new DefaultContingencyList("one contingency list", List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2"))));
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("contingencies.json"), StandardCharsets.UTF_8)) {
             objectMapper.writeValue(writer, contingencyList);
@@ -116,29 +115,50 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--contingencies-file", "contingencies.json",
             "--variable-sets-file", "variableSets.json",
             "--parameters-file", "parameters.json",
-            "--output-file", "output.json"},
+            "--output-file", "output.json",
+            },
                 expectedOut);
 
         assertTrue(Files.exists(fileSystem.getPath("output.json")));
         List<SensitivityValue> values;
-        List<SensitivityAnalysisResult.SensitivityStateStatus> status;
+        List<Map<String, Object>> status;
+        Object computationComplete;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
-            Map<String, List<Object>> map = objectMapper.readValue(reader, new TypeReference<>() { });
+            Map<String, Object> map = objectMapper.readValue(reader, new TypeReference<>() { });
             values = objectMapper.convertValue(map.get("sensitivityValues"), new TypeReference<>() { });
             status = objectMapper.convertValue(map.get("stateStatus"), new TypeReference<>() { });
+            computationComplete = map.get("computationComplete");
         }
         assertEquals(2, values.size());
-        SensitivityValue value0 = values.get(0);
+        SensitivityValue value0 = values.getFirst();
         assertEquals(0, value0.getFactorIndex());
         assertEquals(0, value0.getContingencyIndex());
         SensitivityValue value1 = values.get(1);
         assertEquals(1, value1.getFactorIndex());
         assertEquals(0, value1.getContingencyIndex());
 
-        assertEquals(1, status.size());
-        SensitivityAnalysisResult.SensitivityStateStatus status0 = status.get(0);
-        assertEquals("NHV1_NHV2_2", status0.getState().contingencyId());
-        assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
+        // The mock writes one pre-contingency state status (-1,-1) and one for the contingency.
+        assertEquals(2, status.size());
+        Map<String, Object> preContingencyStatus = status.stream()
+                .filter(s -> !s.containsKey("contingencyId"))
+                .findFirst()
+                .orElseThrow();
+        Map<String, Object> postContingencyStatus = status.stream()
+                .filter(s -> "NHV1_NHV2_2".equals(s.get("contingencyId")))
+                .findFirst()
+                .orElseThrow();
+        var pcStatus = ((ArrayList<?>) postContingencyStatus.get("componentsLoadFlowStatuses")).get(0);
+        assertEquals("CONVERGED", ((HashMap<String, String>) pcStatus).get("loadFlowStatus"));
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> preComponents = (List<Map<String, Object>>) preContingencyStatus.get("componentsLoadFlowStatuses");
+        assertNotNull(preComponents);
+        assertEquals(1, preComponents.size());
+        assertEquals("CONVERGED", preComponents.getFirst().get("loadFlowStatus"));
+        assertEquals("testStatusText", preComponents.getFirst().get("loadFlowStatusDescription"));
+
+        // TODO Check relevance
+        //assertEquals(Boolean.TRUE, computationComplete);
     }
 
     @Test
@@ -168,11 +188,11 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertTrue(Files.exists(outputContingencyStatusCsvFile));
         String outputContingencyStatusCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
                 "Sensitivity analysis status result",
-                "Contingency ID;Operator strategy ID;Status",
-                "NHV1_NHV2_2;;SUCCESS")
+                "Contingency ID;Operator strategy ID;Loadflow Status;Loadflow Status Description;Connected component;Synchronous component",
+                ";;CONVERGED;testStatusText;0;1",
+                "NHV1_NHV2_2;;CONVERGED;;0;0")
                 + System.lineSeparator());
         assertEquals(outputContingencyStatusCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputContingencyStatusCsvFile)));
-
     }
 
     @Test
@@ -257,10 +277,22 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(1, value1.getFactorIndex());
         assertEquals(0, value1.getContingencyIndex());
 
-        assertEquals(1, result.getStateStatuses().size());
-        SensitivityAnalysisResult.SensitivityStateStatus status0 = result.getStateStatuses().get(0);
-        assertEquals("NHV1_NHV2_2", status0.getState().contingencyId());
-        assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
+        assertEquals(2, result.getStateStatuses().size());
+        SensitivityAnalysisResult.SensitivityStateStatus preStatus = result.getStateStatuses().stream()
+                .filter(s -> SensitivityState.PRE_CONTINGENCY.equals(s.getState()))
+                .findFirst()
+                .orElseThrow();
+        SensitivityAnalysisResult.SensitivityStateStatus postStatus = result.getStateStatuses().stream()
+                .filter(s -> "NHV1_NHV2_2".equals(s.getState().contingencyId()))
+                .findFirst()
+                .orElseThrow();
+        assertNull(postStatus.getState().operatorStrategyId());
+        assertEquals(1, preStatus.getComponentsLoadFlowStatusList().size());
+        SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus preComponent = preStatus.getComponentsLoadFlowStatusList().getFirst();
+        assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, preComponent.status().status());
+        assertEquals("testStatusText", preComponent.status().statusText());
+        assertEquals(0, preComponent.numCC());
+        assertEquals(1, preComponent.numSC());
 
         assertEquals(2, result.getFactors().size());
         SensitivityFactor factor0 = result.getFactors().get(0);
