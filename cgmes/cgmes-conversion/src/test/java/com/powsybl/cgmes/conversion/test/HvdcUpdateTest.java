@@ -169,6 +169,31 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         assertEquals(30.0, vsc.getReactivePowerSetpoint(), 1e-7);
     }
 
+    @Test
+    void hvdcZeroActivePowerSetpointTest() {
+        Network network = readCgmesResources("/update/hvdc/", "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        assertEquals(300.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
+
+        // we export 0.0
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(0.0);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "zero-active-power-stepoint";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // we restore the initial active power setpoint before the update
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(300.0);
+
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
+    }
+
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
