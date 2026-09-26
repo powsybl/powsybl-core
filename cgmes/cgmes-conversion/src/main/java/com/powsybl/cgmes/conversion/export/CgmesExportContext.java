@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
-import static com.powsybl.cgmes.conversion.export.EquipmentExport.hasDifferentTNsAtBothEnds;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.hasDifferentTNsAtBothEnds;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
