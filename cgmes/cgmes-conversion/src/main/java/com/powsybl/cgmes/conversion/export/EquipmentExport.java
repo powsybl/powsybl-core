@@ -64,6 +64,8 @@ public final class EquipmentExport {
     private final Set<String> regulatingControlsWritten;
     private final Set<String> exportedLimitTypes;
     private final LoadGroups loadGroups;
+    private final Map<AcDcConverter<?>, DCConverterUnit> dcConvertersToUnit;
+    private final Map<DcNode, DCConverterUnit> dcNodesToUnit;
 
     public EquipmentExport(XMLStreamWriter writer, CgmesExportContext context) {
         this.writer = writer;
@@ -75,6 +77,8 @@ public final class EquipmentExport {
         regulatingControlsWritten = new HashSet<>();
         exportedLimitTypes = new HashSet<>();
         loadGroups = new LoadGroups();
+        dcConvertersToUnit = new HashMap<>();
+        dcNodesToUnit = new HashMap<>();
     }
 
     public void write() {
@@ -112,14 +116,12 @@ public final class EquipmentExport {
             writeBoundaryLines();
             writeHvdcLines();
 
-            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = getAcDcConvertersUnit();
-            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(acDcConvertersUnit);
-            writeDcConverterUnits(dcNodesConverterUnit);
-            writeDcNodes(dcNodesConverterUnit);
+            writeDcConverterUnits();
+            writeDcNodes();
             writeDcSwitches();
             writeDcGrounds();
             writeDcLineSegments();
-            writeAcDcConverters(acDcConvertersUnit);
+            writeAcDcConverters();
 
             writeControlAreas(loadAreaId);
 
@@ -1512,11 +1514,15 @@ public final class EquipmentExport {
         DCTerminalEq.write(className, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
     }
 
-    private void writeDcConverterUnits(Map<DcNode, DCConverterUnit> dcNodesConverterUnit) throws XMLStreamException {
+    private void writeDcConverterUnits() throws XMLStreamException {
+        // Build DCConverterUnit hierarchy
+        getAcDcConvertersUnit();
+        getDcNodesConverterUnit();
+
         // Build DCConverterUnit adjacency.
         // In order to properly populate the DCConverterUnit.operationMode attribute, DCConverterUnit shall not be
         // considered separately but with the possible presence of an adjacent one.
-        Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesConverterUnit.entrySet().stream()
+        Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesToUnit.entrySet().stream()
                 .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
         Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
         List<DCEquipment> dcEquipments = new ArrayList<>();
@@ -1527,7 +1533,7 @@ public final class EquipmentExport {
             dcConverterUnitAdjacency.put(converterUnit, dcNodes.stream()
                     .flatMap(n -> getAdjacentNodes(dcEquipments, n.getId()).stream())
                     .map(network::getDcNode)
-                    .map(dcNodesConverterUnit::get)
+                    .map(dcNodesToUnit::get)
                     .distinct()
                     .toList()));
 
@@ -1555,7 +1561,7 @@ public final class EquipmentExport {
         return MONOPOLAR_GROUND_RETURN;
     }
 
-    private void writeDcNodes(Map<DcNode, DCConverterUnit> dcNodesConverters) throws XMLStreamException {
+    private void writeDcNodes() throws XMLStreamException {
         // DCNodes are:
         // - exported from DcNodes in case of a node-breaker export
         // - exported from DcBuses in case of a CIM100 bus-branch export
@@ -1564,7 +1570,7 @@ public final class EquipmentExport {
             for (DcNode dcNode : network.getDcNodes()) {
                 // node-breaker export
                 String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
-                String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
+                String dcConverterUnitId = dcNodesToUnit.containsKey(dcNode) ? dcNodesToUnit.get(dcNode).id() : null;
                 writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId);
             }
         } else if (!context.isCim16BusBranchExport()) {
@@ -1572,7 +1578,7 @@ public final class EquipmentExport {
                 // CIM100 bus-branch export
                 String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
                 DcNode refDcNode = dcBus.getDcNodeStream().min(Comparator.comparing(DcNode::getId)).orElseThrow();
-                String dcConverterUnitId = dcNodesConverters.containsKey(refDcNode) ? dcNodesConverters.get(refDcNode).id() : null;
+                String dcConverterUnitId = dcNodesToUnit.containsKey(refDcNode) ? dcNodesToUnit.get(refDcNode).id() : null;
                 writeDCNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId);
             }
         }
@@ -1610,9 +1616,9 @@ public final class EquipmentExport {
         }
     }
 
-    private void writeAcDcConverters(Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) throws XMLStreamException {
+    private void writeAcDcConverters() throws XMLStreamException {
         for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
-            String dcConverterUnitId = acDcConvertersUnit.get(converter).id();
+            String dcConverterUnitId = dcConvertersToUnit.get(converter).id();
             String converterId = context.getNamingStrategy().getCgmesId(converter);
             String className = converterClassName(converter);
             String pccTerminalId = null;
@@ -1757,9 +1763,7 @@ public final class EquipmentExport {
 
     private record DCConverterUnit(String id, String name, String substation) { }
 
-    private Map<AcDcConverter<?>, DCConverterUnit> getAcDcConvertersUnit() {
-        Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = new HashMap<>();
-
+    private void getAcDcConvertersUnit() {
         Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
                 .forEach(converter -> {
                     // Multiple ACDCConverter can be contained in the same DCConverterUnit if this property value is common.
@@ -1767,7 +1771,7 @@ public final class EquipmentExport {
                             context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
 
                     // Only create a new DCConverterUnit if it hasn't been created already for another AcDcConverter.
-                    DCConverterUnit dcConverterUnit = acDcConvertersUnit.values().stream()
+                    DCConverterUnit dcConverterUnit = dcConvertersToUnit.values().stream()
                             .filter(u -> u.id().equals(unitId))
                             .findFirst()
                             .orElseGet(() -> new DCConverterUnit(
@@ -1776,13 +1780,11 @@ public final class EquipmentExport {
                                     context.getNamingStrategy().getCgmesId(converter.getTerminal1().getVoltageLevel().getNullableSubstation())
                             ));
 
-                    acDcConvertersUnit.put(converter, dcConverterUnit);
+                    dcConvertersToUnit.put(converter, dcConverterUnit);
                 });
-
-        return acDcConvertersUnit;
     }
 
-    private Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+    private void getDcNodesConverterUnit() {
         // Build the DcNode to AcDcConverter associations by traversing the dc network
         // using breadth first search starting from ACDCConverter DCNodes.
         List<DCEquipment> converters = getDCEquipmentConverters();
@@ -1814,9 +1816,9 @@ public final class EquipmentExport {
         }
 
         // Build the DcNode to DCConverterUnit associations.
-        return dcNodesConverter.entrySet().stream()
+        dcNodesToUnit.putAll(dcNodesConverter.entrySet().stream()
                 .collect(Collectors.toMap(e -> network.getDcNode(e.getKey()),
-                        e -> acDcConvertersUnit.get(getAcDcConverter(e.getValue()))));
+                        e -> dcConvertersToUnit.get(getAcDcConverter(e.getValue())))));
     }
 
     private AcDcConverter<?> getAcDcConverter(String converterId) {
