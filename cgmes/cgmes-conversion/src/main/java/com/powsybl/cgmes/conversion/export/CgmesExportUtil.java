@@ -280,6 +280,13 @@ public final class CgmesExportUtil {
                 && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0);
     }
 
+    public static boolean hasDifferentTNsAtBothEnds(Switch sw) {
+        // The exported Topological Nodes come from IIDM bus/breaker view buses
+        Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
+        Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
+        return bus1 != bus2;
+    }
+
     public static String switchClassname(SwitchKind kind) {
         return switch (kind) {
             case BREAKER -> "Breaker";

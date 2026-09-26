@@ -55,69 +55,73 @@ public final class EquipmentExport {
     private static final String MONOPOLAR_GROUND_RETURN = "monopolarGroundReturn";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
-    private final CgmesExportContext context;
     private final XMLStreamWriter writer;
+    private final CgmesExportContext context;
+    private final Network network;
+    private final String cimNamespace;
+    private final String euNamespace;
+    private final Map<String, String> mapNodeKey2NodeId;
+    private final Set<String> regulatingControlsWritten;
+    private final Set<String> exportedLimitTypes;
+    private final LoadGroups loadGroups;
 
     public EquipmentExport(XMLStreamWriter writer, CgmesExportContext context) {
-        this.context = context;
         this.writer = writer;
+        this.context = context;
+        network = context.getNetwork();
+        cimNamespace = context.getCim().getNamespace();
+        euNamespace = context.getCim().getEuNamespace();
+        mapNodeKey2NodeId = new HashMap<>();
+        regulatingControlsWritten = new HashSet<>();
+        exportedLimitTypes = new HashSet<>();
+        loadGroups = new LoadGroups();
     }
 
-    public void write(Network network) {
+    public void write() {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(
                 network, CgmesSubset.EQUIPMENT, context, true, false);
-        write(network, model);
+        write(model);
     }
 
-    public void write(Network network, CgmesMetadataModel model) {
+    public void write(CgmesMetadataModel model) {
         try {
-            String cimNamespace = context.getCim().getNamespace();
-            String euNamespace = context.getCim().getEuNamespace();
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
+            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, model, context);
 
-            if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, model, context);
-            }
+            writeConnectivityNodes();
+            writeTerminals();
+            writeSwitches();
 
-            Map<String, String> mapNodeKey2NodeId = new HashMap<>();
-            Set<String> regulatingControlsWritten = new HashSet<>();
-            Set<String> exportedLimitTypes = new HashSet<>();
-            LoadGroups loadGroups = new LoadGroups();
+            writeGeographicalRegions();
+            writeSubGeographicalRegions();
+            writeSubstations();
+            writeBaseVoltages();
+            writeVoltageLevels();
+            writeBusbarSections();
+            writeLoads();
+            writeFictitiousInjections();
+            String loadAreaId = writeLoadGroups();
+            writeGenerators();
+            writeBatteries();
+            writeShuntCompensators();
+            writeStaticVarCompensators();
+            writeLines();
+            writeTwoWindingsTransformers();
+            writeThreeWindingsTransformers();
 
-            writeConnectivityNodes(network, mapNodeKey2NodeId, cimNamespace, writer, context);
-            writeTerminals(network, mapNodeKey2NodeId, cimNamespace, writer, context);
-            writeSwitches(network, cimNamespace, writer, context);
+            writeBoundaryLines();
+            writeHvdcLines();
 
-            writeGeographicalRegions(cimNamespace, writer, context);
-            writeSubGeographicalRegions(cimNamespace, writer, context);
-            writeSubstations(network, cimNamespace, writer, context);
-            writeBaseVoltages(cimNamespace, writer, context);
-            writeVoltageLevels(network, cimNamespace, writer, context);
-            writeBusbarSections(network, cimNamespace, writer, context);
-            writeLoads(network, loadGroups, cimNamespace, writer, context);
-            writeFictitiousInjections(network, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
-            String loadAreaId = writeLoadGroups(network, loadGroups.found(), cimNamespace, writer, context);
-            writeGenerators(network, regulatingControlsWritten, cimNamespace, writer, context);
-            writeBatteries(network, cimNamespace, writer, context);
-            writeShuntCompensators(network, regulatingControlsWritten, cimNamespace, writer, context);
-            writeStaticVarCompensators(network, regulatingControlsWritten, cimNamespace, writer, context);
-            writeLines(network, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            writeTwoWindingsTransformers(network, regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            writeThreeWindingsTransformers(network, regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = getAcDcConvertersUnit();
+            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(acDcConvertersUnit);
+            writeDcConverterUnits(dcNodesConverterUnit);
+            writeDcNodes(dcNodesConverterUnit);
+            writeDcSwitches();
+            writeDcGrounds();
+            writeDcLineSegments();
+            writeAcDcConverters(acDcConvertersUnit);
 
-            writeBoundaryLines(network, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            writeHvdcLines(network, cimNamespace, writer, context);
-
-            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = getAcDcConvertersUnit(network, context);
-            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(network, acDcConvertersUnit);
-            writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
-            writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
-            writeDcSwitches(network, cimNamespace, writer, context);
-            writeDcGrounds(network, cimNamespace, writer, context);
-            writeDcLineSegments(network, cimNamespace, writer, context);
-            writeAcDcConverters(network, acDcConvertersUnit, cimNamespace, writer, context);
-
-            writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
+            writeControlAreas(loadAreaId);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -125,8 +129,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeConnectivityNodes(Network network, Map<String, String> mapNodeKey2NodeId, String cimNamespace,
-                                               XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeConnectivityNodes() throws XMLStreamException {
         // ConnectivityNodes are:
         // - always exported, preferably from nodes if present or buses otherwise in case of a node-breaker export
         // - exported from buses in case of a CIM 100 bus-branch export
@@ -135,35 +138,33 @@ public final class EquipmentExport {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 String cgmesVlId = context.getNamingStrategy().getCgmesId(vl);
                 if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
-                    writeNodes(vl, cgmesVlId, getVoltageLevelAdjacencies(vl.getNodeBreakerView(), context), mapNodeKey2NodeId, cimNamespace, writer, context);
+                    writeNodes(vl, cgmesVlId, getVoltageLevelAdjacencies(vl.getNodeBreakerView()));
                 } else {
-                    writeBuses(vl, cgmesVlId, mapNodeKey2NodeId, cimNamespace, writer, context);
+                    writeBuses(vl, cgmesVlId);
                 }
             }
         }
     }
 
-    private static String buildNodeKey(VoltageLevel vl, int node) {
+    private String buildNodeKey(VoltageLevel vl, int node) {
         return vl.getId() + "_" + node;
     }
 
-    private static String buildNodeKey(Bus bus) {
+    private String buildNodeKey(Bus bus) {
         return bus.getId();
     }
 
-    private static void writeNodes(VoltageLevel vl, String cgmesVlId, List<List<Integer>> vlAdjacencies, Map<String, String> mapNodeKey2NodeId, String cimNamespace,
-                                   XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeNodes(VoltageLevel vl, String cgmesVlId, List<List<Integer>> vlAdjacencies) throws XMLStreamException {
         for (List<Integer> nodes : vlAdjacencies) {
-            String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.get(0)), CONNECTIVITY_NODE);
-            ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), cgmesVlId, cimNamespace, writer, context);
+            String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.getFirst()), CONNECTIVITY_NODE);
+            ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.getFirst()), cgmesVlId, cimNamespace, writer, context);
             for (Integer nodeNumber : nodes) {
                 mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), cgmesNodeId);
             }
         }
     }
 
-    private static void writeBuses(VoltageLevel vl, String cgmesVlId, Map<String, String> mapNodeKey2NodeId, String cimNamespace,
-                                   XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeBuses(VoltageLevel vl, String cgmesVlId) throws XMLStreamException {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
             String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(bus), Part.CONNECTIVITY_NODE);
             ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), cgmesVlId, cimNamespace, writer, context);
@@ -171,7 +172,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeSwitches() throws XMLStreamException {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
@@ -203,14 +204,7 @@ public final class EquipmentExport {
         }
     }
 
-    public static boolean hasDifferentTNsAtBothEnds(Switch sw) {
-        // The exported Topological Nodes come from IIDM bus/breaker view buses
-        Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
-        Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
-        return bus1 != bus2;
-    }
-
-    private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys, CgmesExportContext context) {
+    private void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys) {
         if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER) && !context.isBusBranchExport()) {
             nodeKeys[0] = buildNodeKey(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
             nodeKeys[1] = buildNodeKey(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
@@ -220,45 +214,30 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeGeographicalRegions(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private void writeGeographicalRegions() throws XMLStreamException {
         List<CgmesExportContext.Region> igmGeographicalRegions = context.getRegions().stream()
             .filter(r -> r.source() == Source.IGM)
             .sorted(Comparator.comparing(CgmesExportContext.Region::id))
             .toList();
         for (CgmesExportContext.Region igmGeographicalRegion : igmGeographicalRegions) {
-            writeGeographicalRegion(igmGeographicalRegion.id(), igmGeographicalRegion.name(), cimNamespace, writer, context);
+            GeographicalRegionEq.write(igmGeographicalRegion.id(), igmGeographicalRegion.name(), cimNamespace, writer, context);
         }
     }
 
-    private static void writeSubGeographicalRegions(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        context.getSubRegions().forEach(subRegion -> writeSubGeographicalRegion(subRegion.id(), subRegion.name(), subRegion.regionId(), cimNamespace, writer, context));
+    private void writeSubGeographicalRegions() throws XMLStreamException {
+        for (CgmesExportContext.SubRegion subRegion : context.getSubRegions()) {
+            SubGeographicalRegionEq.write(subRegion.id(), subRegion.name(), subRegion.regionId(), cimNamespace, writer, context);
+        }
     }
 
-    private static void writeSubstations(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeSubstations() throws XMLStreamException {
         for (Substation substation : network.getSubstations()) {
             String subRegionId = context.getSubstationSubRegion(substation.getId());
             SubstationEq.write(context.getNamingStrategy().getCgmesId(substation), substation.getNameOrId(), subRegionId, cimNamespace, writer, context);
         }
     }
 
-    private static void writeGeographicalRegion(String geographicalRegionId, String geoName, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        try {
-            GeographicalRegionEq.write(geographicalRegionId, geoName, cimNamespace, writer, context);
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
-    }
-
-    private static void writeSubGeographicalRegion(String subGeographicalRegionId, String subGeographicalRegionName,
-                                                   String geographicalRegionId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        try {
-            SubGeographicalRegionEq.write(subGeographicalRegionId, subGeographicalRegionName, geographicalRegionId, cimNamespace, writer, context);
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
-    }
-
-    private static void writeBaseVoltages(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeBaseVoltages() throws XMLStreamException {
         List<CgmesExportContext.BaseVoltageSource> igmBaseVoltageSources = context.getBaseVoltageSources().stream()
             .filter(bvs -> bvs.source() == Source.IGM)
             .sorted(Comparator.comparing(CgmesExportContext.BaseVoltageSource::id))
@@ -268,7 +247,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeVoltageLevels() throws XMLStreamException {
         String fictSubstationId = null;
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
@@ -276,14 +255,14 @@ public final class EquipmentExport {
             Optional<String> substationId = voltageLevel.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s));
             if (substationId.isEmpty() && fictSubstationId == null) {
                 // create a new fictitious substation inside this network
-                fictSubstationId = writeFictitiousSubstationFor(network, cimNamespace, writer, context);
+                fictSubstationId = writeFictitiousSubstationFor(network);
             }
             VoltageLevelEq.write(context.getNamingStrategy().getCgmesId(voltageLevel), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(),
                     substationId.orElse(fictSubstationId), baseVoltageId, cimNamespace, writer, context);
         }
     }
 
-    private static void writeBusbarSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeBusbarSections() throws XMLStreamException {
         for (BusbarSection bbs : network.getBusbarSections()) {
             BusbarSectionEq.write(context.getNamingStrategy().getCgmesId(bbs), bbs.getNameOrId(),
                     context.getNamingStrategy().getCgmesId(bbs.getTerminal().getVoltageLevel()),
@@ -294,8 +273,7 @@ public final class EquipmentExport {
     // We may receive a warning if we define an empty load group,
     // So we will output only the load groups that have been found during export of loads
     // one load area and one sub load area is created in any case
-    private static String writeLoadGroups(Network network, Collection<LoadGroup> foundLoadGroups, String cimNamespace,
-                                          XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private String writeLoadGroups() throws XMLStreamException {
         // Write one load area and one sub load area for the whole network
         String loadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), LOAD_AREA);
         String subLoadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), SUB_LOAD_AREA);
@@ -304,7 +282,7 @@ public final class EquipmentExport {
             LoadAreaEq.write(loadAreaId, baseName, cimNamespace, writer, context);
             LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, baseName, cimNamespace, writer, context);
         }
-        for (LoadGroup loadGroup : foundLoadGroups) {
+        for (LoadGroup loadGroup : loadGroups.found()) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, writer, context);
             if (!context.isCim16BusBranchExport()) {
                 CgmesExportUtil.writeReference("LoadGroup.SubLoadArea", subLoadAreaId, cimNamespace, writer, context);
@@ -314,19 +292,17 @@ public final class EquipmentExport {
         return loadAreaId;
     }
 
-    private static void writeFictitiousInjections(Network network, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
-                                                  String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeFictitiousInjections() throws XMLStreamException {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
-                writeNodeBreakerFictitiousInjections(vl, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
+                writeNodeBreakerFictitiousInjections(vl);
             } else {
-                writeBusBranchFictitiousInjections(vl, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
+                writeBusBranchFictitiousInjections(vl);
             }
         }
     }
 
-    private static void writeNodeBreakerFictitiousInjections(VoltageLevel vl, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
-                                                   String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeNodeBreakerFictitiousInjections(VoltageLevel vl) throws XMLStreamException {
         VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
         for (int node : nb.getNodes()) {
             double p = nb.getFictitiousP0(node);
@@ -337,13 +313,12 @@ public final class EquipmentExport {
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
                 String cnId = mapNodeKey2NodeId.get(buildNodeKey(vl, node));
 
-                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl, loadGroups, cimNamespace, writer, context);
+                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl);
             }
         }
     }
 
-    private static void writeBusBranchFictitiousInjections(VoltageLevel vl, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
-                                                  String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeBusBranchFictitiousInjections(VoltageLevel vl) throws XMLStreamException {
         for (Bus b : vl.getBusBreakerView().getBuses()) {
             double p = b.getFictitiousP0();
             double q = b.getFictitiousQ0();
@@ -353,17 +328,15 @@ public final class EquipmentExport {
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
                 String cnId = mapNodeKey2NodeId.get(buildNodeKey(b));
 
-                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl, loadGroups, cimNamespace, writer, context);
+                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl);
             }
         }
     }
 
-    private static void writeFictitiousInjection(double p, String loadId, String loadName, String terminalId, String cnId,
-                                                 VoltageLevel vl, LoadGroups loadGroups, String cimNamespace,
-                                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeFictitiousInjection(double p, String loadId, String loadName, String terminalId, String cnId, VoltageLevel vl) throws XMLStreamException {
         String equipmentContainerId = context.getNamingStrategy().getCgmesId(vl);
         if (p <= 0) {
-            writeEnergySource(loadId, loadName, equipmentContainerId, cimNamespace, writer, context);
+            writeEnergySource(loadId, loadName, equipmentContainerId);
         } else {
             String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context);
             EnergyConsumerEq.write(NONCONFORM_LOAD, loadId, loadName, loadGroup, equipmentContainerId, null, cimNamespace, writer, context);
@@ -372,19 +345,19 @@ public final class EquipmentExport {
         TerminalEq.write(terminalId, loadId, cnId, 1, cimNamespace, writer, context);
     }
 
-    private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeLoads() throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
                 String className = CgmesExportUtil.loadClassName(load);
                 String loadId = context.getNamingStrategy().getCgmesId(load);
                 switch (className) {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
-                        writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                        writeAsynchronousMachine(loadId, load.getNameOrId());
                     case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(),
-                        context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                        context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()));
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = loadGroups.groupFor(className, context);
-                        String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load, cimNamespace, writer, context);
+                        String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load);
                         EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup,
                             context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, cimNamespace, writer, context);
                     }
@@ -394,7 +367,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeLoadResponseCharacteristic(Load load, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private String writeLoadResponseCharacteristic(Load load) throws XMLStreamException {
         Optional<LoadModel> optionalLoadModel = load.getModel();
 
         if (optionalLoadModel.isEmpty()) {
@@ -404,26 +377,27 @@ public final class EquipmentExport {
             ExponentialLoadModel exponentialLoadModel = (ExponentialLoadModel) optionalLoadModel.get();
             boolean exponentModel = exponentialLoadModel.getNp() != 0 || exponentialLoadModel.getNq() != 0;
             return writeLoadResponseCharacteristicModel(load, exponentModel,
-                    exponentialLoadModel.getNp(),
-                    exponentialLoadModel.getNq(),
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                    cimNamespace, writer, context);
+                exponentialLoadModel.getNp(), exponentialLoadModel.getNq(),
+                0.0, 0.0,
+                0.0, 0.0,
+                0.0, 0.0);
         } else if (optionalLoadModel.get().getType() == LoadModelType.ZIP) {
             ZipLoadModel zipLoadModel = (ZipLoadModel) optionalLoadModel.get();
-            return writeLoadResponseCharacteristicModel(load, false, 0.0, 0.0,
-                    zipLoadModel.getC0p(), zipLoadModel.getC0q(), zipLoadModel.getC1p(), zipLoadModel.getC1q(), zipLoadModel.getC2p(), zipLoadModel.getC2q(),
-                    cimNamespace, writer, context);
+            return writeLoadResponseCharacteristicModel(load, false,
+                0.0, 0.0,
+                zipLoadModel.getC0p(), zipLoadModel.getC0q(),
+                zipLoadModel.getC1p(), zipLoadModel.getC1q(),
+                zipLoadModel.getC2p(), zipLoadModel.getC2q());
         } else {
             return null;
         }
     }
 
-    private static String writeLoadResponseCharacteristicModel(Load load,
-                                                               boolean exponentModel, double pVoltageExponent, double qVoltageExponent,
+    private String writeLoadResponseCharacteristicModel(Load load, boolean exponentModel,
+                                                               double pVoltageExponent, double qVoltageExponent,
                                                                double pConstantPower, double qConstantPower,
                                                                double pConstantCurrent, double qConstantCurrent,
-                                                               double pConstantImpedance, double qConstantImpedance,
-                                                               String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                                               double pConstantImpedance, double qConstantImpedance) throws XMLStreamException {
         String loadResponseId = context.getNamingStrategy().getCgmesId(refTyped(load), LOAD_RESPONSE_CHARACTERISTICS);
         String loadResponseName = "LRC_" + load.getNameOrId();
 
@@ -436,19 +410,18 @@ public final class EquipmentExport {
         return loadResponseId;
     }
 
-    private static void writeAsynchronousMachine(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeAsynchronousMachine(String id, String name) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(CgmesNames.ASYNCHRONOUS_MACHINE, id, name, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
-    public static void writeEnergySource(String id, String name, String equipmentContainer, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeEnergySource(String id, String name, String equipmentContainer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(CgmesNames.ENERGY_SOURCE, id, name, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
-    private static void writeGenerators(Network network, Set<String> regulatingControlsWritten, String cimNamespace,
-                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeGenerators() throws XMLStreamException {
         // Multiple synchronous machines may be grouped in the same generating unit
         // We have to write each generating unit only once
         Set<String> generatingUnitsWritten = new HashSet<>();
@@ -457,7 +430,7 @@ public final class EquipmentExport {
             String regulatingControlId;
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
-                    String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
+                    String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator);
                     String baseVoltageId = context.getBaseVoltageIdFromNominalV(generator.getTerminal().getVoltageLevel().getNominalV());
                     // Regulation capability is EQ data: it must not depend on the current regulating status
                     boolean regulationCapability = generator.getVoltageRegulation() != null;
@@ -467,17 +440,16 @@ public final class EquipmentExport {
                             cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
-                    regulatingControlId = writeRegulatingControl(generator, regulatingControlsWritten, cimNamespace, writer, context);
+                    regulatingControlId = writeRegulatingControl(generator);
                     ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
                             obtainGeneratorGovernorScd(generator), generator.getMaxP(), getMaxQ(generator), generator.getMinP(), getMinQ(generator),
                             regulatingControlId, cimNamespace, writer, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
-                    regulatingControlId = writeRegulatingControl(generator, regulatingControlsWritten, cimNamespace, writer, context);
-                    writeSynchronousMachine(generator, cimNamespace,
-                            generator.getMinP(), generator.getMaxP(), generator.getTargetP(), generator.getRatedS(), generator.getEnergySource(),
-                            regulatingControlId, writer, context, generatingUnitsWritten);
+                    regulatingControlId = writeRegulatingControl(generator);
+                    writeSynchronousMachine(generator, generator.getMinP(), generator.getMaxP(), generator.getTargetP(),
+                        generator.getRatedS(), generator.getEnergySource(), regulatingControlId, generatingUnitsWritten);
                     break;
                 default:
                     throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
@@ -485,8 +457,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeRegulatingControl(Connectable<?> connectable, Set<String> regulatingControlsWritten,
-                                                 String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private String writeRegulatingControl(Connectable<?> connectable) throws XMLStreamException {
         String regulatingControlId = null;
         if (connectable instanceof VoltageRegulationHolder<?> regulationHolder && regulationHolder.getVoltageRegulation() != null) {
             regulatingControlId = context.getNamingStrategy().getCgmesIdFromProperty(connectable, PROPERTY_REGULATING_CONTROL);
@@ -504,31 +475,30 @@ public final class EquipmentExport {
         return regulatingControlId;
     }
 
-    private static double obtainGeneratorGovernorScd(Generator generator) {
+    private double obtainGeneratorGovernorScd(Generator generator) {
         String governorScd = generator.getProperty(PROPERTY_GOVERNOR_SCD);
         return governorScd == null ? 0.0 : Double.parseDouble(governorScd);
     }
 
-    private static void writeBatteries(Network network, String cimNamespace,
-                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeBatteries() throws XMLStreamException {
         // Multiple synchronous machines may be grouped in the same generating unit
         // We have to write each generating unit only once
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Battery battery : network.getBatteries()) {
-            writeSynchronousMachine(battery, cimNamespace,
-                    battery.getMinP(), battery.getMaxP(), battery.getTargetP(), Double.NaN, EnergySource.HYDRO, null,
-                    writer, context, generatingUnitsWritten);
+            writeSynchronousMachine(battery, battery.getMinP(), battery.getMaxP(), battery.getTargetP(),
+                Double.NaN, EnergySource.HYDRO, null, generatingUnitsWritten);
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, String cimNamespace,
-                                                                                                double minP, double maxP, double targetP, double ratedS,
-                                                                                                EnergySource energySource, String regulatingControlId,
-                                                                                                XMLStreamWriter writer, CgmesExportContext context,
-                                                                                                Set<String> generatingUnitsWritten) throws XMLStreamException {
+    private <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, double minP, double maxP,
+                                                                                         double targetP, double ratedS,
+                                                                                         EnergySource energySource,
+                                                                                         String regulatingControlId,
+                                                                                         Set<String> generatingUnitsWritten)
+        throws XMLStreamException {
         double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
 
-        String reactiveLimitsId = writeReactiveCapabilityCurve(i, cimNamespace, writer, context);
+        String reactiveLimitsId = writeReactiveCapabilityCurve(i);
         String kind = obtainSynchronousMachineKind(i);
         String generatingUnit = "condenser".equals(kind) ? null : context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT);
 
@@ -539,7 +509,7 @@ public final class EquipmentExport {
 
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
 
-            String hydroPowerPlantId = generatingUnitWriteHydroPowerPlantAndFossilFuel(i, cimNamespace, energySource, generatingUnit, writer, context);
+            String hydroPowerPlantId = generatingUnitWriteHydroPowerPlantAndFossilFuel(i, energySource, generatingUnit);
             String windGenUnitType = i.getProperty(PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");  // considered onshore if property missing
 
             // We have not preserved the names of generating units
@@ -552,9 +522,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> String writeReactiveCapabilityCurve(I i, String cimNamespace,
-                                                                                                       XMLStreamWriter writer,
-                                                                                                       CgmesExportContext context) throws XMLStreamException {
+    private <I extends ReactiveLimitsHolder & Injection<I>> String writeReactiveCapabilityCurve(I i) throws XMLStreamException {
         String reactiveLimitsId = null;
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
@@ -573,11 +541,11 @@ public final class EquipmentExport {
         return reactiveLimitsId;
     }
 
-    private static boolean curveMustBeWritten(ReactiveCapabilityCurve curve) {
+    private boolean curveMustBeWritten(ReactiveCapabilityCurve curve) {
         return getCurveMaxQ(curve) > getCurveMinQ(curve);
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMinQ(I i) {
+    private <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMinQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
             if (curveMustBeWritten(curve)) {
@@ -587,7 +555,7 @@ public final class EquipmentExport {
         return getMinQ(i);
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double getMinQ(I i) {
+    private <I extends ReactiveLimitsHolder & Injection<I>> double getMinQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             return getCurveMinQ(i.getReactiveLimits(ReactiveCapabilityCurve.class));
         } else if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
@@ -597,7 +565,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMaxQ(I i) {
+    private <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMaxQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
             if (curveMustBeWritten(curve)) {
@@ -607,7 +575,7 @@ public final class EquipmentExport {
         return getMaxQ(i);
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double getMaxQ(I i) {
+    private <I extends ReactiveLimitsHolder & Injection<I>> double getMaxQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             return getCurveMaxQ(i.getReactiveLimits(ReactiveCapabilityCurve.class));
         } else if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
@@ -617,7 +585,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static double getCurveMinQ(ReactiveCapabilityCurve curve) {
+    private double getCurveMinQ(ReactiveCapabilityCurve curve) {
         return curve.getPoints()
                 .stream()
                 .map(ReactiveCapabilityCurve.Point::getMinQ)
@@ -625,7 +593,7 @@ public final class EquipmentExport {
                 .orElseThrow();
     }
 
-    private static double getCurveMaxQ(ReactiveCapabilityCurve curve) {
+    private double getCurveMaxQ(ReactiveCapabilityCurve curve) {
         return curve.getPoints()
                 .stream()
                 .map(ReactiveCapabilityCurve.Point::getMaxQ)
@@ -633,17 +601,15 @@ public final class EquipmentExport {
                 .orElseThrow();
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i, String cimNamespace,
-                                                                                                                          EnergySource energySource,
-                                                                                                                          String generatingUnit,
-                                                                                                                          XMLStreamWriter writer,
-                                                                                                                          CgmesExportContext context) throws XMLStreamException {
+    private <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i,
+                                                                                                                   EnergySource energySource,
+                                                                                                                   String generatingUnit) throws XMLStreamException {
         String hydroPlantStorageType = i.getProperty(PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
         String hydroPowerPlantId = null;
         if (hydroPlantStorageType != null && energySource.equals(EnergySource.HYDRO)) {
             String hydroPowerPlantName = i.getNameOrId();
             hydroPowerPlantId = context.getNamingStrategy().getCgmesId(ref(i), HYDRO_POWER_PLANT);
-            writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType, cimNamespace, writer, context);
+            writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType);
         }
 
         String fossilFuelType = i.getProperty(PROPERTY_FOSSIL_FUEL_TYPE);
@@ -652,23 +618,21 @@ public final class EquipmentExport {
             for (int j = 0; j < fossilFuelTypeArray.length; j++) {
                 String fossilFuelName = i.getNameOrId();
                 String fossilFuelId = context.getNamingStrategy().getCgmesId(refTyped(i), ref(j), THERMAL_GENERATING_UNIT, FOSSIL_FUEL);
-                writeFossilFuel(fossilFuelId, fossilFuelName, fossilFuelTypeArray[j], generatingUnit, cimNamespace, writer, context);
+                writeFossilFuel(fossilFuelId, fossilFuelName, fossilFuelTypeArray[j], generatingUnit);
             }
         }
 
         return hydroPowerPlantId;
     }
 
-    private static void writeHydroPowerPlant(String id, String name, String hydroPlantStorageType, String cimNamespace,
-                                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeHydroPowerPlant(String id, String name, String hydroPlantStorageType) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("HydroPowerPlant", id, name, cimNamespace, writer, context);
         writer.writeEmptyElement(cimNamespace, "HydroPowerPlant.hydroPlantStorageType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "HydroPlantStorageKind." + hydroPlantStorageType));
         writer.writeEndElement();
     }
 
-    private static void writeFossilFuel(String id, String name, String fuelType, String generatingUnit, String cimNamespace,
-                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeFossilFuel(String id, String name, String fuelType, String generatingUnit) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("FossilFuel", id, name, cimNamespace, writer, context);
         writer.writeEmptyElement(cimNamespace, "FossilFuel.fossilFuelType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "FuelType." + fuelType));
@@ -676,7 +640,7 @@ public final class EquipmentExport {
         writer.writeEndElement();
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double computeDefaultRatedS(I i, double minP, double maxP) {
+    private <I extends ReactiveLimitsHolder & Injection<I>> double computeDefaultRatedS(I i, double minP, double maxP) {
         List<Double> values = new ArrayList<>();
         values.add(Math.abs(minP));
         values.add(Math.abs(maxP));
@@ -695,11 +659,10 @@ public final class EquipmentExport {
             }
         }
         values.sort(Double::compareTo);
-        return values.get(values.size() - 1);
+        return values.getLast();
     }
 
-    private static void writeShuntCompensators(Network network, Set<String> regulatingControlsWritten, String cimNamespace,
-                                               XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeShuntCompensators() throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             if ("true".equals(s.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 // Must have been mapped to a linear shunt compensator with 1 section
@@ -715,7 +678,7 @@ public final class EquipmentExport {
                     bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
                     gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
                 }
-                String regulatingControlId = writeRegulatingControl(s, regulatingControlsWritten, cimNamespace, writer, context);
+                String regulatingControlId = writeRegulatingControl(s);
                 ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(),
                     s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId,
                         context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
@@ -733,10 +696,9 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeStaticVarCompensators(Network network, Set<String> regulatingControlsWritten, String cimNamespace,
-                                                   XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeStaticVarCompensators() throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            String regulatingControlId = writeRegulatingControl(svc, regulatingControlsWritten, cimNamespace, writer, context);
+            String regulatingControlId = writeRegulatingControl(svc);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
             RegulationMode regulationMode = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getMode() : null;
@@ -756,20 +718,17 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeLines(Network network, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes,
-                                   XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeLines() throws XMLStreamException {
         for (Line line : network.getLines()) {
             double baseVoltage = Math.max(line.getTerminal1().getVoltageLevel().getNominalV(), line.getTerminal2().getVoltageLevel().getNominalV());
             String baseVoltageId = context.getBaseVoltageIdFromNominalV(baseVoltage);
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(),
                 line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer, context);
-            writeBranchLimits(line, getTerminalId(line.getTerminal1(), context), getTerminalId(line.getTerminal2(), context), cimNamespace,
-                euNamespace, exportedLimitTypes, writer, context);
+            writeBranchLimits(line, getTerminalId(line.getTerminal1(), context), getTerminalId(line.getTerminal2(), context));
         }
     }
 
-    private static void writeTwoWindingsTransformers(Network network, Set<String> regulatingControlsWritten, String cimNamespace,
-                                                    String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeTwoWindingsTransformers() throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(),
                 twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
@@ -790,19 +749,15 @@ public final class EquipmentExport {
                     twt.getRatedS(), twt.getRatedU2(), getTerminalId(twt.getTerminal2(), context), baseVoltage2Id, cimNamespace, writer, context);
 
             // Export tap changers:
-            // We are exporting the tap changer as it is modelled in IIDM, always at end 1
+            // We are exporting the tap changer as it is modeled in IIDM, always at end 1
             int endNumber = 1;
-            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(),
-                regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(),
-                regulatingControlsWritten, cimNamespace, writer, context);
-            writeBranchLimits(twt, getTerminalId(twt.getTerminal1(), context), getTerminalId(twt.getTerminal2(), context),
-                cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1());
+            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1());
+            writeBranchLimits(twt, getTerminalId(twt.getTerminal1(), context), getTerminalId(twt.getTerminal2(), context));
         }
     }
 
-    private static void writeThreeWindingsTransformers(Network network, Set<String> regulatingControlsWritten, String cimNamespace,
-                                                      String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeThreeWindingsTransformers() throws XMLStreamException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(),
                 twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
@@ -812,16 +767,13 @@ public final class EquipmentExport {
 
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END1);
             writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_1",
-                end1Id, endNumberAssigner.getEndNumberForLeg1(), 1, twt.getLeg1(), ratedU0, getTerminalId(twt.getLeg1().getTerminal(), context),
-                regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+                end1Id, endNumberAssigner.getEndNumberForLeg1(), 1, twt.getLeg1(), ratedU0, getTerminalId(twt.getLeg1().getTerminal(), context));
             String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END2);
             writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_2",
-                end2Id, endNumberAssigner.getEndNumberForLeg2(), 2, twt.getLeg2(), ratedU0, getTerminalId(twt.getLeg2().getTerminal(), context),
-                regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+                end2Id, endNumberAssigner.getEndNumberForLeg2(), 2, twt.getLeg2(), ratedU0, getTerminalId(twt.getLeg2().getTerminal(), context));
             String end3Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END3);
             writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_3",
-                end3Id, endNumberAssigner.getEndNumberForLeg3(), 3, twt.getLeg3(), ratedU0, getTerminalId(twt.getLeg3().getTerminal(), context),
-                regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+                end3Id, endNumberAssigner.getEndNumberForLeg3(), 3, twt.getLeg3(), ratedU0, getTerminalId(twt.getLeg3().getTerminal(), context));
         }
     }
 
@@ -942,11 +894,9 @@ public final class EquipmentExport {
         private final double a02;
     }
 
-    private static void writeThreeWindingsTransformerEnd(ThreeWindingsTransformer twt, String twtId, String twtName, String endId,
+    private void writeThreeWindingsTransformerEnd(ThreeWindingsTransformer twt, String twtId, String twtName, String endId,
                                                          int endNumber, int legNumber, ThreeWindingsTransformer.Leg leg, double ratedU0,
-                                                         String terminalId, Set<String> regulatingControlsWritten, String cimNamespace,
-                                                         String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer,
-                                                         CgmesExportContext context) throws XMLStreamException {
+                                                         String terminalId) throws XMLStreamException {
         // structural ratio at end1
         double a0 = leg.getRatedU() / ratedU0;
         // move structural ratio from end1 to end2
@@ -958,17 +908,13 @@ public final class EquipmentExport {
         String baseVoltageId = context.getBaseVoltageIdFromNominalV(leg.getTerminal().getVoltageLevel().getNominalV());
         PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedS(), leg.getRatedU(), terminalId,
             baseVoltageId, cimNamespace, writer, context);
-        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten,
-            cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten,
-            cimNamespace, writer, context);
-        writeFlowsLimits(leg, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU());
+        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, legNumber, endId, leg.getRatedU());
+        writeFlowsLimits(leg, terminalId);
     }
 
-    private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, int endNumber,
-                                                                        String endId, double neutralU, Set<String> regulatingControlsWritten,
-                                                                        String cimNamespace, String euNamespace, Set<String> exportedLimitTypes,
-                                                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, int endNumber,
+                                                                 String endId, double neutralU) throws XMLStreamException {
         if (ptc != null) {
             String aliasType = switch (endNumber) {
                 case 1 -> ALIAS_PHASE_TAP_CHANGER1;
@@ -1046,10 +992,8 @@ public final class EquipmentExport {
         return CgmesExportUtil.getTerminalId(terminal, context);
     }
 
-    private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber,
-                                                                        String endId, double neutralU, Set<String> regulatingControlsWritten,
-                                                                        String cimNamespace, XMLStreamWriter writer,
-                                                                        CgmesExportContext context) throws XMLStreamException {
+    private <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber,
+                                                                 String endId, double neutralU) throws XMLStreamException {
         if (rtc != null) {
             String aliasType = switch (endNumber) {
                 case 1 -> ALIAS_RATIO_TAP_CHANGER1;
@@ -1110,49 +1054,42 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeBoundaryLines(Network network, String cimNamespace, String euNamespace,
-                                           Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeBoundaryLines() throws XMLStreamException {
         List<String> exported = new ArrayList<>();
 
         for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
-            writeUnpairedOrPairedBoundaryLines(Collections.singletonList(boundaryLine), cimNamespace, euNamespace,
-                    exportedLimitTypes, writer, context, exported);
+            writeUnpairedOrPairedBoundaryLines(Collections.singletonList(boundaryLine), exported);
         }
 
         Map<String, List<BoundaryLine>> boundaryLinesByPairingKey = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED)
             .collect(Collectors.groupingBy(CgmesExportUtil::getEffectivePairingKey));
         for (Map.Entry<String, List<BoundaryLine>> entry : boundaryLinesByPairingKey.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
-            writeUnpairedOrPairedBoundaryLines(entry.getValue(), cimNamespace, euNamespace,
-                    exportedLimitTypes, writer, context, exported);
+            writeUnpairedOrPairedBoundaryLines(entry.getValue(), exported);
         }
 
     }
 
-    private static void writeUnpairedOrPairedBoundaryLines(List<BoundaryLine> boundaryLineList, String cimNamespace, String euNamespace,
-                                                           Set<String> exportedLimitTypes, XMLStreamWriter writer,
-                                                           CgmesExportContext context, List<String> exported) throws XMLStreamException {
+    private void writeUnpairedOrPairedBoundaryLines(List<BoundaryLine> boundaryLineList, List<String> exported) throws XMLStreamException {
 
         double nominalV = boundaryLineList.stream()
             .map(boundaryLine -> boundaryLine.getTerminal().getVoltageLevel().getNominalV())
             .collect(Collectors.toSet()).stream().sorted().findFirst().orElseThrow();
         String baseVoltageId = context.getBaseVoltageIdFromNominalV(nominalV);
-        String connectivityNodeId = writeBoundaryLinesConnectivity(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+        String connectivityNodeId = writeBoundaryLinesConnectivity(boundaryLineList, baseVoltageId);
 
         for (BoundaryLine boundaryLine : boundaryLineList) {
             // New Equivalent Injection
-            writeBoundaryLineEquivalentInjection(boundaryLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
+            writeBoundaryLineEquivalentInjection(boundaryLine, baseVoltageId, connectivityNodeId, exported);
 
             // Cast the boundaryLine to an AcLineSegment
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(boundaryLine), boundaryLine.getNameOrId(),
                     context.getBaseVoltageIdFromNominalV(boundaryLine.getTerminal().getVoltageLevel().getNominalV()),
                     boundaryLine.getR(), boundaryLine.getX(), boundaryLine.getG(), boundaryLine.getB(), cimNamespace, writer, context);
-            writeFlowsLimits(boundaryLine, getTerminalId(boundaryLine.getTerminal(), context), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeFlowsLimits(boundaryLine, getTerminalId(boundaryLine.getTerminal(), context));
         }
     }
 
-    private static void writeBoundaryLineEquivalentInjection(BoundaryLine boundaryLine, String cimNamespace,
-                                                             String baseVoltageId, String connectivityNodeId, List<String> exported, XMLStreamWriter writer,
-                                                             CgmesExportContext context) throws XMLStreamException {
+    private void writeBoundaryLineEquivalentInjection(BoundaryLine boundaryLine, String baseVoltageId, String connectivityNodeId, List<String> exported) throws XMLStreamException {
 
         double minP = 0.0;
         double maxP = 0.0;
@@ -1183,13 +1120,12 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeBoundaryLinesConnectivity(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
-                                                         CgmesExportContext context) throws XMLStreamException {
+    private String writeBoundaryLinesConnectivity(List<BoundaryLine> boundaryLineList, String baseVoltageId) throws XMLStreamException {
         String connectivityNodeId = null;
         if (!context.isCim16BusBranchExport()) {
-            connectivityNodeId = writeBoundaryLinesConnectivityNode(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+            connectivityNodeId = writeBoundaryLinesConnectivityNode(boundaryLineList, baseVoltageId);
         } else {
-            writeBoundaryLinesFictitiousContainer(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+            writeBoundaryLinesFictitiousContainer(boundaryLineList, baseVoltageId);
         }
 
         for (BoundaryLine boundaryLine : boundaryLineList) {
@@ -1199,17 +1135,16 @@ public final class EquipmentExport {
         return connectivityNodeId;
     }
 
-    private static String writeBoundaryLinesConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
-                                                             CgmesExportContext context) throws XMLStreamException {
+    private String writeBoundaryLinesConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId) throws XMLStreamException {
 
         Set<String> connectevityNodeIdSet = boundaryLineList.stream()
-                .map(boundaryLine -> obtainConnectivityNodeId(boundaryLine, context))
+                .map(this::obtainConnectivityNodeId)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toSet());
 
         String connectivityNodeId;
         if (connectevityNodeIdSet.size() > 1) { // Only in paired boundaryLines
-            throw new PowsyblException("Paired boundaryLines with different connectivityNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
+            throw new PowsyblException("Paired boundaryLines with different connectivityNode on the boundarySide. ParingKey: " + boundaryLineList.getFirst().getPairingKey());
         } else if (connectevityNodeIdSet.size() == 1) {
             connectivityNodeId = connectevityNodeIdSet.iterator().next();
         } else {
@@ -1217,13 +1152,13 @@ public final class EquipmentExport {
             // we first try to find the ConnectivityNodeId in the reference data provider, and as a last option,
             // we create a new ConnectivityNode in a fictitious Substation and VoltageLevel.
 
-            Optional<String> optionalConnectivityNodeId = findConnectivityNodeId(boundaryLineList.getFirst().getPairingKey(), context);
-            connectivityNodeId = optionalConnectivityNodeId.isPresent() ? optionalConnectivityNodeId.get() : createNewConnectivityNode(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+            Optional<String> optionalConnectivityNodeId = findConnectivityNodeId(boundaryLineList.getFirst().getPairingKey());
+            connectivityNodeId = optionalConnectivityNodeId.isPresent() ? optionalConnectivityNodeId.get() : createNewConnectivityNode(boundaryLineList, baseVoltageId);
         }
         return connectivityNodeId;
     }
 
-    private static Optional<String> findConnectivityNodeId(String pairingKey, CgmesExportContext context) {
+    private Optional<String> findConnectivityNodeId(String pairingKey) {
         ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
         if (pairingKey == null || referenceDataProvider == null) {
             return Optional.empty();
@@ -1239,70 +1174,66 @@ public final class EquipmentExport {
                 .findFirst();
     }
 
-    private static String createNewConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace,
-                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private String createNewConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId) throws XMLStreamException {
         if (LOG.isInfoEnabled()) {
             LOG.info("Boundary line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
         }
         BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
         String connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(boundaryLine), CONNECTIVITY_NODE);
 
-        String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+        String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId);
         ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
 
         return connectivityNodeId;
     }
 
-    private static Optional<String> obtainConnectivityNodeId(BoundaryLine boundaryLine, CgmesExportContext context) {
+    private Optional<String> obtainConnectivityNodeId(BoundaryLine boundaryLine) {
         return boundaryLine.hasProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY)
                 ? Optional.of(context.getNamingStrategy().getCgmesIdFromProperty(boundaryLine, PROPERTY_CONNECTIVITY_NODE_BOUNDARY))
                 : Optional.empty();
     }
 
-    private static void writeBoundaryLinesFictitiousContainer(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
-                                                              CgmesExportContext context) throws XMLStreamException {
+    private void writeBoundaryLinesFictitiousContainer(List<BoundaryLine> boundaryLineList, String baseVoltageId) throws XMLStreamException {
 
         Set<String> topologicalNodeIdSet = boundaryLineList.stream()
-                .map(EquipmentExport::obtainTopologicalNodeId)
+                .map(this::obtainTopologicalNodeId)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toSet());
 
         if (topologicalNodeIdSet.size() > 1) { // Only in paired boundaryLines
-            throw new PowsyblException("Paired boundaryLines with different topologicalNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
+            throw new PowsyblException("Paired boundaryLines with different topologicalNode on the boundarySide. ParingKey: " + boundaryLineList.getFirst().getPairingKey());
         } else if (topologicalNodeIdSet.isEmpty()) {
             // Also create a container if we will have to create a Topological Node for the boundary
             if (LOG.isInfoEnabled()) {
                 LOG.info("Boundary line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
             }
-            createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+            createFictitiousContainerFor(boundaryLineList, baseVoltageId);
         }
     }
 
-    private static Optional<String> obtainTopologicalNodeId(BoundaryLine boundaryLine) {
+    private Optional<String> obtainTopologicalNodeId(BoundaryLine boundaryLine) {
         return boundaryLine.hasProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)
                 ? Optional.of(boundaryLine.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY))
                 : Optional.empty();
     }
 
-    private static String createFictitiousContainerFor(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace,
-                                                       XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private String createFictitiousContainerFor(List<BoundaryLine> boundaryLineList, String baseVoltageId) throws XMLStreamException {
         BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
-        String substationId = writeFictitiousSubstationFor(boundaryLine, cimNamespace, writer, context);
-        String containerId = writeFictitiousVoltageLevelFor(boundaryLine, substationId, baseVoltageId, cimNamespace, writer, context);
+        String substationId = writeFictitiousSubstationFor(boundaryLine);
+        String containerId = writeFictitiousVoltageLevelFor(boundaryLine, substationId, baseVoltageId);
         boundaryLineList.forEach(bl -> context.setFictitiousContainerFor(bl, containerId));
         return containerId;
     }
 
-    private static String boundaryLinesId(List<BoundaryLine> boundaryLineList) {
+    private String boundaryLinesId(List<BoundaryLine> boundaryLineList) {
         List<String> strings = new ArrayList<>();
         boundaryLineList.forEach(boundaryLine -> strings.add(boundaryLine.getId()));
         String string = String.join(", ", strings);
-        return !boundaryLineList.isEmpty() && boundaryLineList.get(0).getPairingKey() != null
-                ? string + " linked to X-node " + boundaryLineList.get(0).getPairingKey() : string;
+        return !boundaryLineList.isEmpty() && boundaryLineList.getFirst().getPairingKey() != null
+                ? string + " linked to X-node " + boundaryLineList.getFirst().getPairingKey() : string;
     }
 
-    private static String writeFictitiousSubstationFor(Identifiable<?> identifiable, String cimNamespace, XMLStreamWriter writer,
-                                                       CgmesExportContext context) throws XMLStreamException {
+    private String writeFictitiousSubstationFor(Identifiable<?> identifiable) throws XMLStreamException {
         // New Substation
         // We avoid using only the name of the identifiable for the names of fictitious region and subregion
         // Because regions and subregions with the same name are merged
@@ -1317,17 +1248,14 @@ public final class EquipmentExport {
         return substationId;
     }
 
-    private static String writeFictitiousVoltageLevelFor(Identifiable<?> identifiable, String substationId, String baseVoltageId,
-                                                         String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private String writeFictitiousVoltageLevelFor(Identifiable<?> identifiable, String substationId, String baseVoltageId) throws XMLStreamException {
         // New VoltageLevel
         String voltageLevelId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, VOLTAGE_LEVEL);
         VoltageLevelEq.write(voltageLevelId, identifiable.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer, context);
         return voltageLevelId;
     }
 
-    private static void writeBranchLimits(Branch<?> branch, String terminalId1, String terminalId2, String cimNamespace,
-                                          String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer,
-                                          CgmesExportContext context) throws XMLStreamException {
+    private void writeBranchLimits(Branch<?> branch, String terminalId1, String terminalId2) throws XMLStreamException {
         Collection<OperationalLimitsGroup> limitsGroups1 = new ArrayList<>();
         if (context.isExportAllLimitsGroup()) {
             limitsGroups1.addAll(branch.getOperationalLimitsGroups1());
@@ -1335,7 +1263,7 @@ public final class EquipmentExport {
             limitsGroups1.addAll(branch.getAllSelectedOperationalLimitsGroups(TwoSides.ONE));
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups1) {
-            writeLimitsGroup(limitsGroup, terminalId1, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeLimitsGroup(limitsGroup, terminalId1);
         }
 
         Collection<OperationalLimitsGroup> limitsGroups2 = new ArrayList<>();
@@ -1345,12 +1273,11 @@ public final class EquipmentExport {
             limitsGroups2.addAll(branch.getAllSelectedOperationalLimitsGroups(TwoSides.TWO));
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups2) {
-            writeLimitsGroup(limitsGroup, terminalId2, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeLimitsGroup(limitsGroup, terminalId2);
         }
     }
 
-    private static void writeFlowsLimits(FlowsLimitsHolder holder, String terminalId, String cimNamespace, String euNamespace,
-                                         Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeFlowsLimits(FlowsLimitsHolder holder, String terminalId) throws XMLStreamException {
         Collection<OperationalLimitsGroup> limitsGroups = new ArrayList<>();
         if (context.isExportAllLimitsGroup()) {
             limitsGroups.addAll(holder.getOperationalLimitsGroups());
@@ -1358,13 +1285,11 @@ public final class EquipmentExport {
             limitsGroups.addAll(holder.getAllSelectedOperationalLimitsGroups());
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups) {
-            writeLimitsGroup(limitsGroup, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeLimitsGroup(limitsGroup, terminalId);
         }
     }
 
-    private static void writeLimitsGroup(OperationalLimitsGroup limitsGroup, String terminalId, String cimNamespace,
-                                         String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer,
-                                         CgmesExportContext context) throws XMLStreamException {
+    private void writeLimitsGroup(OperationalLimitsGroup limitsGroup, String terminalId) throws XMLStreamException {
         if (limitsGroup.getCurrentLimits().isEmpty() && context.isCim16BusBranchExport()) {
             // In CIM16, ActivePowerLimit and ApparentPowerLimit are part of EquipmentOperation profile
             return;
@@ -1388,20 +1313,19 @@ public final class EquipmentExport {
         // Write the OperationalLimit objects
         Optional<ActivePowerLimits> activePowerLimits = limitsGroup.getActivePowerLimits();
         if (activePowerLimits.isPresent()) {
-            writeLoadingLimits(activePowerLimits.get(), cimNamespace, euNamespace, operationalLimitSetId, exportedLimitTypes, writer, context);
+            writeLoadingLimits(activePowerLimits.get(), operationalLimitSetId);
         }
         Optional<ApparentPowerLimits> apparentPowerLimits = limitsGroup.getApparentPowerLimits();
         if (apparentPowerLimits.isPresent()) {
-            writeLoadingLimits(apparentPowerLimits.get(), cimNamespace, euNamespace, operationalLimitSetId, exportedLimitTypes, writer, context);
+            writeLoadingLimits(apparentPowerLimits.get(), operationalLimitSetId);
         }
         Optional<CurrentLimits> currentLimits = limitsGroup.getCurrentLimits();
         if (currentLimits.isPresent()) {
-            writeLoadingLimits(currentLimits.get(), cimNamespace, euNamespace, operationalLimitSetId, exportedLimitTypes, writer, context);
+            writeLoadingLimits(currentLimits.get(), operationalLimitSetId);
         }
     }
 
-    private static void writeLoadingLimits(LoadingLimits limits, String cimNamespace, String euNamespace, String operationalLimitSetId,
-                                           Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeLoadingLimits(LoadingLimits limits, String operationalLimitSetId) throws XMLStreamException {
         if (!(limits instanceof CurrentLimits) && context.isCim16BusBranchExport()) {
             // In CIM16, ActivePowerLimit and ApparentPowerLimit are part of EquipmentOperation profile
             return;
@@ -1441,7 +1365,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeHvdcLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeHvdcLines() throws XMLStreamException {
         NamingStrategy namingStrategy = context.getNamingStrategy();
         for (HvdcLine line : network.getHvdcLines()) {
             String lineId = context.getNamingStrategy().getCgmesId(line);
@@ -1456,56 +1380,56 @@ public final class EquipmentExport {
             // - DCNode 1G is connected to a DCGround inside DCConverterUnit 1.
             // - DCNode 2G is connected to a DCGround inside DCConverterUnit 2.
             String dcConverterUnit1 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(1));
-            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation1Id, cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation1Id);
             String dcNode1 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(1));
-            writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer, context);
+            writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1);
             String dcNode1G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("1G"));
-            writeDCNode(dcNode1G, line.getNameOrId() + "_1G", dcConverterUnit1, cimNamespace, writer, context);
+            writeDCNode(dcNode1G, line.getNameOrId() + "_1G", dcConverterUnit1);
 
             String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(2));
-            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_2", MONOPOLAR_GROUND_RETURN, substation2Id, cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_2", MONOPOLAR_GROUND_RETURN, substation2Id);
             String dcNode2 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(2));
-            writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer, context);
+            writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2);
             String dcNode2G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("2G"));
-            writeDCNode(dcNode2G, line.getNameOrId() + "_2G", dcConverterUnit2, cimNamespace, writer, context);
+            writeDCNode(dcNode2G, line.getNameOrId() + "_2G", dcConverterUnit2);
 
             String ground1Id = context.getNamingStrategy().getCgmesId(refTyped(line), DC_GROUND, ref("1G"));
-            writeDCGround(ground1Id, line.getNameOrId() + "_1G", 0.0, cimNamespace, writer, context);
+            writeDCGround(ground1Id, line.getNameOrId() + "_1G", 0.0);
 
             String ground2Id = context.getNamingStrategy().getCgmesId(refTyped(line), DC_GROUND, ref("2G"));
-            writeDCGround(ground2Id, line.getNameOrId() + "_2G", 0.0, cimNamespace, writer, context);
+            writeDCGround(ground2Id, line.getNameOrId() + "_2G", 0.0);
 
             String dcTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(line, ALIAS_DC_TERMINAL1);
-            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal1, line.getNameOrId() + " 1", lineId, dcNode1, 1, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal1, line.getNameOrId() + " 1", lineId, dcNode1, 1);
             String dcTerminal1G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("1G"));
-            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal1G, line.getNameOrId() + " 1G", ground1Id, dcNode1G, 1, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal1G, line.getNameOrId() + " 1G", ground1Id, dcNode1G, 1);
 
             String dcTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(line, ALIAS_DC_TERMINAL2);
-            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal2, line.getNameOrId() + " 2", lineId, dcNode2, 2, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal2, line.getNameOrId() + " 2", lineId, dcNode2, 2);
             String dcTerminal2G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("2G"));
-            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal2G, line.getNameOrId() + " 2G", ground2Id, dcNode2G, 1, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal2G, line.getNameOrId() + " 2G", ground2Id, dcNode2G, 1);
 
             HvdcConverterStation<?> converter = line.getConverterStation1();
-            String capabilityCurveId1 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
+            String capabilityCurveId1 = writeVsCapabilityCurve(converter);
             String acdcConverterDcTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL1);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1, converter.getNameOrId() + " 2", converter1Id, dcNode1, 2, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1, converter.getNameOrId() + " 2", converter1Id, dcNode1, 2);
             String acdcConverterDcTerminal1G = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL2);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1G, converter.getNameOrId() + " 3", converter1Id, dcNode1G, 3, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1G, converter.getNameOrId() + " 3", converter1Id, dcNode1G, 3);
 
             converter = line.getConverterStation2();
-            String capabilityCurveId2 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
+            String capabilityCurveId2 = writeVsCapabilityCurve(converter);
             String acdcConverterDcTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL1);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2, converter.getNameOrId() + " 2", converter2Id, dcNode2, 2, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2, converter.getNameOrId() + " 2", converter2Id, dcNode2, 2);
             String acdcConverterDcTerminal2G = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL2);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3);
 
             DCLineSegmentEq.write(lineId, line.getNameOrId(), line.getR(), cimNamespace, writer, context);
-            writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, capabilityCurveId1, cimNamespace, writer, context);
-            writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, capabilityCurveId2, cimNamespace, writer, context);
+            writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, capabilityCurveId1);
+            writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, capabilityCurveId2);
         }
     }
 
-    private static String writeVsCapabilityCurve(Identifiable<?> identifiable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private String writeVsCapabilityCurve(Identifiable<?> identifiable) throws XMLStreamException {
         if (!(identifiable instanceof ReactiveLimitsHolder limitsHolder)) {
             return null;
         }
@@ -1535,43 +1459,39 @@ public final class EquipmentExport {
         return reactiveLimitsId;
     }
 
-    private static void writeDCConverterUnit(String id, String dcConverterUnitName, String operationMode, String substationId, String cimNamespace,
-                                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDCConverterUnit(String id, String dcConverterUnitName, String operationMode, String substationId) throws XMLStreamException {
         DCConverterUnitEq.write(id, dcConverterUnitName, operationMode, substationId, cimNamespace, writer, context);
     }
 
-    private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId,
-                                                  String capabilityCurveId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String pccTerminal = getConverterStationPccTerminal(converterStation, context);
+    private void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId,
+                                                  String capabilityCurveId) throws XMLStreamException {
+        String pccTerminal = getConverterStationPccTerminal(converterStation);
         String className = converterClassName(converterStation);
         AcDcConverterEq.write(context.getNamingStrategy().getCgmesId(converterStation), converterStation.getNameOrId(), className, ratedUdc,
                 0.0, 0.0, 0.0, dcEquipmentContainerId, pccTerminal, capabilityCurveId, cimNamespace, writer, context);
     }
 
-    private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, CgmesExportContext context) {
+    private String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation) {
         if (converterStation instanceof VscConverterStation vsc && vsc.getRegulatingTerminal() != vsc.getTerminal()) {
             return getTerminalId(vsc.getRegulatingTerminal(), context);
         }
         return null;
     }
 
-    private static void writeDCNode(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace,
-                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDCNode(String id, String dcNodeName, String dcEquipmentContainerId) throws XMLStreamException {
         DCNodeEq.write(id, dcNodeName, dcEquipmentContainerId, cimNamespace, writer, context);
     }
 
-    private static void writeDCGround(String id, String dcGroundName, double resistance, String cimNamespace,
-                                      XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDCGround(String id, String dcGroundName, double resistance) throws XMLStreamException {
         DCGroundEq.write(id, dcGroundName, resistance, cimNamespace, writer, context);
     }
 
-    private static void writeDcTerminal(DcTerminal dcTerminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDcTerminal(DcTerminal dcTerminal) throws XMLStreamException {
         int sequenceNumber = CgmesExportUtil.getDcTerminalSequenceNumber(dcTerminal);
-        writeDcTerminal(dcTerminal.getDcConnectable(), dcTerminal.getDcNode(), sequenceNumber, cimNamespace, writer, context);
+        writeDcTerminal(dcTerminal.getDcConnectable(), dcTerminal.getDcNode(), sequenceNumber);
     }
 
-    private static void writeDcTerminal(Identifiable<?> dcIdentifiable, DcNode dcNode, int sequenceNumber, String cimNamespace,
-                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDcTerminal(Identifiable<?> dcIdentifiable, DcNode dcNode, int sequenceNumber) throws XMLStreamException {
         String dcIdentifiableId = context.getNamingStrategy().getCgmesId(dcIdentifiable);
         String dcNodeId = null;
         if (!context.isBusBranchExport()) {
@@ -1584,17 +1504,15 @@ public final class EquipmentExport {
         String aliasType = sequenceNumber == 1 ? ALIAS_DC_TERMINAL1 : ALIAS_DC_TERMINAL2;
         String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcIdentifiable, aliasType);
         String className = dcIdentifiable instanceof AcDcConverter<?> ? AC_DC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
-        writeDcTerminal(className, dcTerminalId, dcIdentifiable.getNameOrId() + " " + sequenceNumber, dcIdentifiableId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
+        writeDcTerminal(className, dcTerminalId, dcIdentifiable.getNameOrId() + " " + sequenceNumber, dcIdentifiableId, dcNodeId, sequenceNumber);
     }
 
-    private static void writeDcTerminal(String className, String id, String name, String conductingEquipmentId, String dcNodeId,
-                                        int sequenceNumber, String cimNamespace, XMLStreamWriter writer,
-                                        CgmesExportContext context) throws XMLStreamException {
+    private void writeDcTerminal(String className, String id, String name, String conductingEquipmentId, String dcNodeId,
+                                        int sequenceNumber) throws XMLStreamException {
         DCTerminalEq.write(className, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
     }
 
-    private static void writeDcConverterUnits(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit, String cimNamespace,
-                                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDcConverterUnits(Map<DcNode, DCConverterUnit> dcNodesConverterUnit) throws XMLStreamException {
         // Build DCConverterUnit adjacency.
         // In order to properly populate the DCConverterUnit.operationMode attribute, DCConverterUnit shall not be
         // considered separately but with the possible presence of an adjacent one.
@@ -1602,8 +1520,8 @@ public final class EquipmentExport {
                 .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
         Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
         List<DCEquipment> dcEquipments = new ArrayList<>();
-        dcEquipments.addAll(getDCEquipmentConverters(network));
-        dcEquipments.addAll(getDCEquipmentSwitches(network));
+        dcEquipments.addAll(getDCEquipmentConverters());
+        dcEquipments.addAll(getDCEquipmentSwitches());
         dcNodesByConverterUnit.forEach((converterUnit, dcNodes) ->
             // Retrieve adjacent units by checking node adjacency.
             dcConverterUnitAdjacency.put(converterUnit, dcNodes.stream()
@@ -1618,13 +1536,13 @@ public final class EquipmentExport {
             Set<DcNode> adjacentNodes = dcConverterUnitAdjacency.get(dcConverterUnit).stream()
                     .flatMap(unit -> dcNodesByConverterUnit.get(unit).stream())
                     .collect(Collectors.toSet());
-            String operationMode = getDcUnitOperationMode(network, adjacentNodes);
+            String operationMode = getDcUnitOperationMode(adjacentNodes);
 
-            writeDCConverterUnit(dcConverterUnit.id(), dcConverterUnit.name(), operationMode, dcConverterUnit.substation(), cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit.id(), dcConverterUnit.name(), operationMode, dcConverterUnit.substation());
         }
     }
 
-    private static String getDcUnitOperationMode(Network network, Set<DcNode> dcNodes) {
+    private String getDcUnitOperationMode(Set<DcNode> dcNodes) {
         if (Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
                 .filter(c -> dcNodes.contains(c.getDcTerminal1().getDcNode()) || dcNodes.contains(c.getDcTerminal2().getDcNode()))
                 .count() > 1) {
@@ -1637,8 +1555,7 @@ public final class EquipmentExport {
         return MONOPOLAR_GROUND_RETURN;
     }
 
-    private static void writeDcNodes(Network network, Map<DcNode, DCConverterUnit> dcNodesConverters, String cimNamespace,
-                                     XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDcNodes(Map<DcNode, DCConverterUnit> dcNodesConverters) throws XMLStreamException {
         // DCNodes are:
         // - exported from DcNodes in case of a node-breaker export
         // - exported from DcBuses in case of a CIM100 bus-branch export
@@ -1648,7 +1565,7 @@ public final class EquipmentExport {
                 // node-breaker export
                 String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
                 String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
-                writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+                writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId);
             }
         } else if (!context.isCim16BusBranchExport()) {
             for (DcBus dcBus : network.getDcBuses()) {
@@ -1656,45 +1573,44 @@ public final class EquipmentExport {
                 String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
                 DcNode refDcNode = dcBus.getDcNodeStream().min(Comparator.comparing(DcNode::getId)).orElseThrow();
                 String dcConverterUnitId = dcNodesConverters.containsKey(refDcNode) ? dcNodesConverters.get(refDcNode).id() : null;
-                writeDCNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+                writeDCNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId);
             }
         }
     }
 
-    private static void writeDcSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDcSwitches() throws XMLStreamException {
         if (!context.isBusBranchExport()) {
             for (DcSwitch dcSwitch : network.getDcSwitches()) {
                 String className = dcSwitch.getKind() == DcSwitchKind.BREAKER ? "DCBreaker" : "DCDisconnector";
                 String dcSwitchId = context.getNamingStrategy().getCgmesId(dcSwitch);
                 DCSwitchEq.write(className, dcSwitchId, dcSwitch.getNameOrId(), cimNamespace, writer, context);
 
-                writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1, cimNamespace, writer, context);
-                writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2, cimNamespace, writer, context);
+                writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1);
+                writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2);
             }
         }
     }
 
-    private static void writeDcGrounds(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDcGrounds() throws XMLStreamException {
         for (DcGround dcGround : network.getDcGrounds()) {
             String dcGroundId = context.getNamingStrategy().getCgmesId(dcGround);
             DCGroundEq.write(dcGroundId, dcGround.getNameOrId(), dcGround.getR(), cimNamespace, writer, context);
 
-            writeDcTerminal(dcGround.getDcTerminal(), cimNamespace, writer, context);
+            writeDcTerminal(dcGround.getDcTerminal());
         }
     }
 
-    private static void writeDcLineSegments(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeDcLineSegments() throws XMLStreamException {
         for (DcLine dcLine : network.getDcLines()) {
             String dcLineId = context.getNamingStrategy().getCgmesId(dcLine);
             DCLineSegmentEq.write(dcLineId, dcLine.getNameOrId(), dcLine.getR(), cimNamespace, writer, context);
 
-            writeDcTerminal(dcLine.getDcTerminal1(), cimNamespace, writer, context);
-            writeDcTerminal(dcLine.getDcTerminal2(), cimNamespace, writer, context);
+            writeDcTerminal(dcLine.getDcTerminal1());
+            writeDcTerminal(dcLine.getDcTerminal2());
         }
     }
 
-    private static void writeAcDcConverters(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit, String cimNamespace,
-                                            XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeAcDcConverters(Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) throws XMLStreamException {
         for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
             String dcConverterUnitId = acDcConvertersUnit.get(converter).id();
             String converterId = context.getNamingStrategy().getCgmesId(converter);
@@ -1703,18 +1619,17 @@ public final class EquipmentExport {
             if (converter.getPccTerminal() != converter.getTerminal1()) {
                 pccTerminalId = getTerminalId(converter.getPccTerminal(), context);
             }
-            String capabilityCurveId = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
+            String capabilityCurveId = writeVsCapabilityCurve(converter);
             AcDcConverterEq.write(converterId, converter.getNameOrId(), className, converter.getDcTerminal1().getDcNode().getNominalV(),
                     converter.getIdleLoss(), converter.getSwitchingLoss(), converter.getResistiveLoss(), dcConverterUnitId,
                     pccTerminalId, capabilityCurveId, cimNamespace, writer, context);
 
-            writeDcTerminal(converter.getDcTerminal1(), cimNamespace, writer, context);
-            writeDcTerminal(converter.getDcTerminal2(), cimNamespace, writer, context);
+            writeDcTerminal(converter.getDcTerminal1());
+            writeDcTerminal(converter.getDcTerminal2());
         }
     }
 
-    private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace,
-                                          XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeControlAreas(String energyAreaId) throws XMLStreamException {
         // Log a warning if we are a stand-alone network (an IGM) and no control area is being exported
         long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)).count();
         int numSubnetworks = network.getSubnetworks().size();
@@ -1724,13 +1639,12 @@ public final class EquipmentExport {
 
         for (Area area : network.getAreas()) {
             if (area.getAreaType().equals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)) {
-                writeControlArea(area, energyAreaId, cimNamespace, euNamespace, writer, context);
+                writeControlArea(area, energyAreaId);
             }
         }
     }
 
-    private static void writeControlArea(Area controlArea, String energyAreaId, String cimNamespace, String euNamespace,
-                                         XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeControlArea(Area controlArea, String energyAreaId) throws XMLStreamException {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
@@ -1757,7 +1671,7 @@ public final class EquipmentExport {
         }
 
         static Optional<TieFlow> from(Boundary boundary, CgmesExportContext context) {
-            String terminalId = getTieFlowBoundaryTerminal(boundary, context);
+            String terminalId = CgmesExportUtil.getBoundaryLineBoundaryTerminalId(boundary.getBoundaryLine(), context);
             if (terminalId != null) {
                 return Optional.of(new TieFlow(
                         context.getNamingStrategy().getCgmesId(ref(terminalId), TIE_FLOW),
@@ -1768,16 +1682,11 @@ public final class EquipmentExport {
         }
     }
 
-    private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
-        return CgmesExportUtil.getBoundaryLineBoundaryTerminalId(boundary.getBoundaryLine(), context);
-    }
-
-    private static void writeTerminals(Network network, Map<String, String> mapNodeKey2NodeId,
-                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeTerminals() throws XMLStreamException {
         for (Connectable<?> c : network.getConnectables()) {
             if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, mapNodeKey2NodeId, cimNamespace, writer, context);
+                    writeTerminal(t);
                 }
             }
         }
@@ -1786,7 +1695,7 @@ public final class EquipmentExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
-                fillSwitchNodeKeys(vl, sw, switchNodesKeys, context);
+                fillSwitchNodeKeys(vl, sw, switchNodesKeys);
                 String nodeId1 = mapNodeKey2NodeId.get(switchNodesKeys[0]);
                 String terminalId1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1);
                 TerminalEq.write(terminalId1, context.getNamingStrategy().getCgmesId(sw), nodeId1, 1, cimNamespace, writer, context);
@@ -1797,17 +1706,16 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeTerminal(Terminal t, Map<String, String> mapNodeKey2NodeId,
-                                      String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private void writeTerminal(Terminal t) throws XMLStreamException {
         int sequenceNumber = getTerminalSequenceNumber(t);
         String terminalId = getTerminalId(t, context);
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
-        String nodeId = connectivityNodeId(mapNodeKey2NodeId, t, context);
+        String nodeId = connectivityNodeId(t);
 
         TerminalEq.write(terminalId, equipmentId, nodeId, sequenceNumber, cimNamespace, writer, context);
     }
 
-    private static String connectivityNodeId(Map<String, String> mapNodeKey2NodeId, Terminal terminal, CgmesExportContext context) {
+    private String connectivityNodeId(Terminal terminal) {
         String key;
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
             key = buildNodeKey(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode());
@@ -1817,7 +1725,7 @@ public final class EquipmentExport {
         return mapNodeKey2NodeId.get(key);
     }
 
-    private static List<List<Integer>> getVoltageLevelAdjacencies(VoltageLevel.NodeBreakerView nodeBreakerView, CgmesExportContext context) {
+    private List<List<Integer>> getVoltageLevelAdjacencies(VoltageLevel.NodeBreakerView nodeBreakerView) {
         List<List<Integer>> adjacencies = new ArrayList<>();
         Set<Integer> visitedNodes = new HashSet<>();
 
@@ -1849,7 +1757,7 @@ public final class EquipmentExport {
 
     private record DCConverterUnit(String id, String name, String substation) { }
 
-    private static Map<AcDcConverter<?>, DCConverterUnit> getAcDcConvertersUnit(Network network, CgmesExportContext context) {
+    private Map<AcDcConverter<?>, DCConverterUnit> getAcDcConvertersUnit() {
         Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = new HashMap<>();
 
         Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
@@ -1874,11 +1782,11 @@ public final class EquipmentExport {
         return acDcConvertersUnit;
     }
 
-    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+    private Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         // Build the DcNode to AcDcConverter associations by traversing the dc network
         // using breadth first search starting from ACDCConverter DCNodes.
-        List<DCEquipment> converters = getDCEquipmentConverters(network);
-        List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
+        List<DCEquipment> converters = getDCEquipmentConverters();
+        List<DCEquipment> dcSwitches = getDCEquipmentSwitches();
         Map<String, String> dcNodesConverter = new HashMap<>();
         Set<String> visitedDcNodes = new HashSet<>();
         Queue<String> queue = new LinkedList<>();
@@ -1908,10 +1816,10 @@ public final class EquipmentExport {
         // Build the DcNode to DCConverterUnit associations.
         return dcNodesConverter.entrySet().stream()
                 .collect(Collectors.toMap(e -> network.getDcNode(e.getKey()),
-                        e -> acDcConvertersUnit.get(getAcDcConverter(network, e.getValue()))));
+                        e -> acDcConvertersUnit.get(getAcDcConverter(e.getValue()))));
     }
 
-    private static AcDcConverter<?> getAcDcConverter(Network network, String converterId) {
+    private AcDcConverter<?> getAcDcConverter(String converterId) {
         LineCommutatedConverter lcc = network.getLineCommutatedConverter(converterId);
         if (lcc != null) {
             return lcc;
@@ -1919,7 +1827,7 @@ public final class EquipmentExport {
         return network.getVoltageSourceConverter(converterId);
     }
 
-    private static List<DCEquipment> getDCEquipmentConverters(Network network) {
+    private List<DCEquipment> getDCEquipmentConverters() {
         return Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
                 .sorted(Comparator.comparing(AcDcConverter::getId))
                 .map(c -> new DCEquipment(
@@ -1930,7 +1838,7 @@ public final class EquipmentExport {
                 .toList();
     }
 
-    private static List<DCEquipment> getDCEquipmentSwitches(Network network) {
+    private List<DCEquipment> getDCEquipmentSwitches() {
         return network.getDcSwitchStream()
                 .sorted(Comparator.comparing(DcSwitch::getId))
                 .map(s -> new DCEquipment(
@@ -1941,7 +1849,7 @@ public final class EquipmentExport {
                 .toList();
     }
 
-    private static List<String> getAdjacentNodes(List<DCEquipment> dcEquipments, String node) {
+    private List<String> getAdjacentNodes(List<DCEquipment> dcEquipments, String node) {
         // Get the list of nodes adjacent through the given dc equipments.
         return dcEquipments.stream()
                 .filter(eq -> node.equals(eq.node1()) || node.equals(eq.node2()))

@@ -1655,7 +1655,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             CgmesExportContext context = new CgmesExportContext(network)
                     .setExportEquipment(true)
                     .setExportTransformersWithHighestVoltageAtEnd1(transformersWithHighestVoltageAtEnd1);
-            new EquipmentExport(writer, context).write(network);
+            new EquipmentExport(writer, context).write();
         }
         return exportedEq;
     }
