@@ -65,6 +65,7 @@ public final class EquipmentExport {
     private final Set<String> regulatingControlsWritten;
     private final Set<String> exportedLimitTypes;
     private final LoadGroups loadGroups;
+    private final Map<AcDcConverter<?>, DCConverterUnit> dcConvertersToUnit;
 
     public EquipmentExport(XMLStreamWriter writer, CgmesExportContext context) {
         this.writer = writer;
@@ -76,6 +77,7 @@ public final class EquipmentExport {
         regulatingControlsWritten = new HashSet<>();
         exportedLimitTypes = new HashSet<>();
         loadGroups = new LoadGroups();
+        dcConvertersToUnit = new HashMap<>();
     }
 
     public void write() {
@@ -113,15 +115,12 @@ public final class EquipmentExport {
             writeBoundaryLines();
             writeHvdcLines();
 
-            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
-            Map<DcNode, DCConverterUnit> converterDcNodesConverterUnit = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
-            writeDcConverterUnits(converterDcNodesConverterUnit);
-            Map<DcNode, DCConverterUnit> allDcNodesConverterUnit = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
-            writeDcNodes(allDcNodesConverterUnit);
+            writeDcConverterUnits();
+            writeDcNodes();
             writeDcSwitches();
             writeDcGrounds();
             writeDcLineSegments();
-            writeAcDcConverters(acDcConvertersUnit);
+            writeAcDcConverters();
 
             writeControlAreas(loadAreaId);
 
@@ -1514,11 +1513,15 @@ public final class EquipmentExport {
         DCTerminalEq.write(className, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
     }
 
-    private void writeDcConverterUnits(Map<DcNode, DCConverterUnit> dcNodesConverterUnit) throws XMLStreamException {
+    private void writeDcConverterUnits() throws XMLStreamException {
+        // Build DCConverterUnit hierarchy
+        dcConvertersToUnit.putAll(CgmesExportUtil.getAcDcConvertersUnit(network, context));
+        Map<DcNode, DCConverterUnit> converterDcNodesToConverterUnit = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, dcConvertersToUnit);
+
         // Build DCConverterUnit adjacency.
         // In order to properly populate the DCConverterUnit.operationMode attribute, DCConverterUnit shall not be
         // considered separately but with the possible presence of an adjacent one.
-        Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesConverterUnit.entrySet().stream()
+        Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = converterDcNodesToConverterUnit.entrySet().stream()
                 .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
         Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
         List<DCEquipment> dcEquipments = new ArrayList<>();
@@ -1529,7 +1532,7 @@ public final class EquipmentExport {
             dcConverterUnitAdjacency.put(converterUnit, dcNodes.stream()
                     .flatMap(n -> CgmesExportUtil.getAdjacentNodes(dcEquipments, n.getId()).stream())
                     .map(network::getDcNode)
-                    .map(dcNodesConverterUnit::get)
+                    .map(converterDcNodesToConverterUnit::get)
                     .distinct()
                     .toList()));
 
@@ -1557,16 +1560,17 @@ public final class EquipmentExport {
         return MONOPOLAR_GROUND_RETURN;
     }
 
-    private void writeDcNodes(Map<DcNode, DCConverterUnit> dcNodesConverters) throws XMLStreamException {
+    private void writeDcNodes() throws XMLStreamException {
         // DCNodes are:
         // - exported from DcNodes in case of a node-breaker export
         // - exported from DcBuses in case of a CIM100 bus-branch export
         // - never exported in case of a CIM16 bus-branch export
+        Map<DcNode, DCConverterUnit> allDcNodesToConverterUnit = CgmesExportUtil.getAllDcNodesConvertersUnit(network, dcConvertersToUnit);
         if (!context.isBusBranchExport()) {
             for (DcNode dcNode : network.getDcNodes()) {
                 // node-breaker export
                 String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
-                String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
+                String dcConverterUnitId = allDcNodesToConverterUnit.containsKey(dcNode) ? allDcNodesToConverterUnit.get(dcNode).id() : null;
                 writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId);
             }
         } else if (!context.isCim16BusBranchExport()) {
@@ -1574,7 +1578,7 @@ public final class EquipmentExport {
                 // CIM100 bus-branch export
                 String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
                 DcNode refDcNode = dcBus.getDcNodeStream().min(Comparator.comparing(DcNode::getId)).orElseThrow();
-                String dcConverterUnitId = dcNodesConverters.containsKey(refDcNode) ? dcNodesConverters.get(refDcNode).id() : null;
+                String dcConverterUnitId = allDcNodesToConverterUnit.containsKey(refDcNode) ? allDcNodesToConverterUnit.get(refDcNode).id() : null;
                 writeDCNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId);
             }
         }
@@ -1612,9 +1616,9 @@ public final class EquipmentExport {
         }
     }
 
-    private void writeAcDcConverters(Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) throws XMLStreamException {
+    private void writeAcDcConverters() throws XMLStreamException {
         for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
-            String dcConverterUnitId = acDcConvertersUnit.get(converter).id();
+            String dcConverterUnitId = dcConvertersToUnit.get(converter).id();
             String converterId = context.getNamingStrategy().getCgmesId(converter);
             String className = converterClassName(converter);
             String pccTerminalId = null;
