@@ -122,7 +122,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
-        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
+        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(PROPERTY_REGULATION_CAPABILITY));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
 
@@ -136,14 +136,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                 .setLocalTargetQ(targetQ)
                 .setLocalTargetV(targetV);
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (regulatingOn) {
+        if (regulatingOn && regulationCapability) {
             if (voltageRegulation == null) {
                 generator.newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withRegulating(regulationCapability && isValidTargetV(targetV))
+                    .withRegulating(isValidTargetV(targetV))
                     .build();
             } else {
-                voltageRegulation.setRegulating(regulationCapability && isValidTargetV(targetV));
+                voltageRegulation.setRegulating(isValidTargetV(targetV));
             }
         } else if (voltageRegulation != null) {
             voltageRegulation.setRegulating(false);
