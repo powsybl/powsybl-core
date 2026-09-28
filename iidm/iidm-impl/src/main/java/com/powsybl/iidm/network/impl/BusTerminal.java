@@ -84,6 +84,20 @@ class BusTerminal extends AbstractTerminal {
         }
 
         @Override
+        public void updateConnectableBus(String busId) {
+            Objects.requireNonNull(busId);
+            BusBreakerTopologyModel topologyModel = getTopologyModel();
+
+            // Assert that the new bus exists
+            topologyModel.getBus(busId, true);
+
+            int variantIndex = getVariantManagerHolder().getVariantIndex();
+            String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
+            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+            getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
+        }
+
+        @Override
         public void moveConnectable(String busId, boolean connected) {
             if (removed) {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);

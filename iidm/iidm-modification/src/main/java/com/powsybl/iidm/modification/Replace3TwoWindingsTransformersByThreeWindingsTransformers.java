@@ -389,7 +389,11 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     }
 
     private static void replaceRegulatedTerminal(ThreeWindingsTransformer.Leg t3wLeg, TwoR twoR) {
-        t3wLeg.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(rtc::setRegulationTerminal));
+        t3wLeg.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulatingTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(terminal -> {
+            if (rtc.getVoltageRegulation() != null) {
+                rtc.getVoltageRegulation().setTerminal(terminal, rtc.getVoltageRegulation().getTargetValue());
+            }
+        }));
         t3wLeg.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3wLeg.getTransformer(), twoR).ifPresent(ptc::setRegulationTerminal));
     }
 
@@ -456,9 +460,10 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     // TODO For now, only a few extensions are supported. But a wider mechanism should be developed to support custom extensions.
     private static List<ExtensionR> copyExtensions(TwoR twoR, ThreeWindingsTransformer t3w) {
         List<ExtensionR> extensions = new ArrayList<>();
-        extensions.addAll(twoR.t2w1.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w1.getId(), extension.getName())).toList());
-        extensions.addAll(twoR.t2w2.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w2.getId(), extension.getName())).toList());
-        extensions.addAll(twoR.t2w3.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w3.getId(), extension.getName())).toList());
+
+        extensions.addAll(twoR.t2w1.getExtensionsStream().map(extension -> new ExtensionR(twoR.t2w1.getId(), extension.getName())).toList());
+        extensions.addAll(twoR.t2w2.getExtensionsStream().map(extension -> new ExtensionR(twoR.t2w2.getId(), extension.getName())).toList());
+        extensions.addAll(twoR.t2w3.getExtensionsStream().map(extension -> new ExtensionR(twoR.t2w3.getId(), extension.getName())).toList());
 
         List<ExtensionR> lostExtensions = new ArrayList<>();
         extensions.stream().map(extensionR -> extensionR.extensionName).collect(Collectors.toSet()).forEach(extensionName -> {

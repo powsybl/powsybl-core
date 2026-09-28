@@ -13,7 +13,7 @@ import com.powsybl.commons.ref.Ref;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> extends AbstractConnectableAdder<T> {
 
     private Integer node;
 

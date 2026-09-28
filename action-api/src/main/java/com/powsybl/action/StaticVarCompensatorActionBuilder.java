@@ -7,7 +7,7 @@
  */
 package com.powsybl.action;
 
-import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -16,7 +16,7 @@ public class StaticVarCompensatorActionBuilder implements ActionBuilder<StaticVa
 
     private String id;
     private String staticVarCompensatorId;
-    private StaticVarCompensator.RegulationMode regulationMode;
+    private RegulationMode regulationMode;
     private Double voltageSetpoint;
     private Double reactivePowerSetpoint;
 
@@ -50,7 +50,7 @@ public class StaticVarCompensatorActionBuilder implements ActionBuilder<StaticVa
         return withNetworkElementId(staticVarCompensatorId);
     }
 
-    public StaticVarCompensatorActionBuilder withRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {
+    public StaticVarCompensatorActionBuilder withRegulationMode(RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
     }

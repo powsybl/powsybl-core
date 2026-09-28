@@ -13,7 +13,9 @@ import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -328,8 +330,52 @@ public interface UndirectedGraph<V, E> {
      *                           </ul>
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
+     * @deprecated Use {@link #computeTraversalPartitions(Traverser)} or {@link #traverse(int, TraversalType, Traverser)} instead.
      */
+    @Deprecated(since = "7.2.0")
     boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] verticesEncountered);
+
+    /**
+     * Computes the connected components of the graph based on the given traversal rules,
+     * collecting visited vertex indices into {@link TIntArrayList} partitions.
+     * <p>
+     * This is a convenience overload of {@link #computeTraversalPartitions(Traverser, Supplier, ObjIntConsumer)}
+     * using {@link TIntArrayList} as the partition type.
+     * </p>
+     *
+     * @param traverser the traversal logic that controls which edges to follow and when to stop
+     * @return a list of {@link TIntArrayList}, one per connected component found;
+     * may be incomplete if traversal is terminated early by {@link TraverseResult#TERMINATE_TRAVERSER}
+     * @see #computeTraversalPartitions(Traverser, Supplier, ObjIntConsumer)
+     */
+    default List<TIntArrayList> computeTraversalPartitions(Traverser traverser) {
+        return computeTraversalPartitions(traverser, TIntArrayList::new, TIntArrayList::add);
+    }
+
+    /**
+     * Computes the partitions (i.e. connected components) of the graph based on the given traversal rules.
+     * <p>
+     * This method iterates over all vertices. For every vertex that has not been encountered yet,
+     * it creates a new partition using the {@code partitionFactory} and performs a breadth-first traversal.
+     * During the traversal, each visited vertex index is passed to the {@code vertexCollector} to be
+     * added to the current partition.
+     * </p>
+     * <p>
+     * If the {@code traverser} returns {@link TraverseResult#TERMINATE_TRAVERSER} during any traversal,
+     * the computation stops immediately and the returned list may not contain all partitions.
+     * </p>
+     *
+     * @param <C>              the type of the partition
+     * @param traverser        the traversal logic that controls which edges to follow and when to stop;
+     *                         returning {@link TraverseResult#TERMINATE_PATH} skips a branch while
+     *                         {@link TraverseResult#TERMINATE_TRAVERSER} stops the entire computation
+     * @param partitionFactory a supplier used to create a new empty partition for each connected component
+     * @param vertexCollector  a consumer that receives the current partition and a visited vertex index,
+     *                         used to accumulate vertices into the partition
+     * @return a list of partitions, one per connected component found; may be incomplete if the traversal
+     * is terminated early by {@link TraverseResult#TERMINATE_TRAVERSER}
+     */
+    <C> List<C> computeTraversalPartitions(Traverser traverser, Supplier<C> partitionFactory, ObjIntConsumer<C> vertexCollector);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.

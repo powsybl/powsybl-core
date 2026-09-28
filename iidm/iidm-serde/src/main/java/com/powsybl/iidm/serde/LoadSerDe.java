@@ -37,6 +37,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(l, context);
         context.getWriter().writeEnumAttribute("loadType", l.getLoadType());
         context.getWriter().writeDoubleAttribute("p0", l.getP0());
         context.getWriter().writeDoubleAttribute("q0", l.getQ0());
@@ -85,6 +86,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void readRootElementAttributes(LoadAdder adder, VoltageLevel parent, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         LoadType loadType = context.getReader().readEnumAttribute("loadType", LoadType.class, LoadType.UNDEFINED);
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
