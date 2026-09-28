@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.extensions.LoadConnectionType;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import de.siegmar.fastcsv.reader.CommentStrategy;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.FieldModifiers;
@@ -92,8 +93,8 @@ public final class EuropeanLvTestFeederFactory {
                 .setMinP(0)
                 .setMaxP(0)
                 .setTargetP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(voltage * pu)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(voltage * pu)
                 .add();
         sourceVoltageLevel.newExtension(SlackTerminalAdder.class)
                 .withTerminal(sourceGenerator.getTerminal())

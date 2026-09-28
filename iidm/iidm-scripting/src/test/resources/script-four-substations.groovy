@@ -1,3 +1,5 @@
+import com.powsybl.iidm.network.regulation.RegulationMode
+
 voltageLevel = network.getVoltageLevel("S1VL2")
 newNode = voltageLevel.nodeBreakerView.getMaximumNodeIndex() + 1
 generator = voltageLevel.newGenerator()
@@ -5,10 +7,12 @@ generator = voltageLevel.newGenerator()
         .setNode(newNode)
         .setMinP(0)
         .setMaxP(1000)
-        .setVoltageRegulatorOn(true)
-        .setTargetV(voltageLevel.nominalV)
+        .newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .add()
+        .setLocalTargetV(voltageLevel.nominalV)
         .setTargetP(800)
-        .setTargetQ(0)
+        .setLocalTargetQ(0)
         .add()
 
 generator.newReactiveCapabilityCurve()

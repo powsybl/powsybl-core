@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.Objects;
 
@@ -82,9 +83,9 @@ public final class NetworkTest1Factory {
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMinP(200.0)
                 .setMaxP(900.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(900.0)
-                .setTargetV(380.0)
+                .setLocalTargetV(380.0)
                 .setNode(5)
                 .add();
         generator1.newReactiveCapabilityCurve()

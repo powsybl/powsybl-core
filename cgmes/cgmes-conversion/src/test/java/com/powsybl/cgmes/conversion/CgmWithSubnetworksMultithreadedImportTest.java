@@ -80,9 +80,9 @@ class CgmWithSubnetworksMultithreadedImportTest {
                   Converting RegulatingControl.
                   Applying postprocessors.
                   CGMES network urn:uuid:095c6b30-255d-40d5-85fe-2c9fe6c9846d is imported.
-                  Converting during update Terminal.
                   Converting during update TIE_LINE.
                   Converting during update SvInjection.
+                  Converting during update Terminal.
                   Updating SWITCH.
                   Updating LOAD.
                   Updating GENERATOR.
@@ -133,9 +133,9 @@ class CgmWithSubnetworksMultithreadedImportTest {
                   Converting RegulatingControl.
                   Applying postprocessors.
                   CGMES network urn:uuid:87da6373-3b6c-47a2-9493-1918a8d9df61 is imported.
-                  Converting during update Terminal.
                   Converting during update TIE_LINE.
                   Converting during update SvInjection.
+                  Converting during update Terminal.
                   Updating SWITCH.
                   Updating LOAD.
                   Updating GENERATOR.
