@@ -9,6 +9,9 @@ package com.powsybl.iidm.network.tck.voltage.regulation.backward.compatibility;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.NetworkEventRecorder;
+import com.powsybl.iidm.network.events.NetworkEvent;
+import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
@@ -289,6 +292,95 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
 
         assertTrue(generator.isRegulating());
         assertTrue(generator.isVoltageRegulatorOn());
+    }
+
+    @Test
+    void testNotifyUpdateOnSetTargetQ() {
+        // GIVEN
+        Generator generator = voltageLevel.getGeneratorStream().toList().getFirst();
+        String id = generator.getId();
+        double newTargetQ = 123.0;
+        double oldTargetQ = generator.getTargetQ();
+        NetworkEventRecorder listener = new NetworkEventRecorder();
+        network.addListener(listener);
+        // WHEN
+        generator.setTargetQ(newTargetQ);
+        // THEN
+        assertEquals(2, listener.getEvents().size());
+        NetworkEvent firstEvent = listener.getEvents().getFirst();
+        assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
+        assertEquals("localTargetQ", ((UpdateNetworkEvent) firstEvent).attribute());
+        assertEquals(newTargetQ, ((UpdateNetworkEvent) firstEvent).newValue());
+        assertEquals(oldTargetQ, ((UpdateNetworkEvent) firstEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) firstEvent).id());
+        NetworkEvent secondEvent = listener.getEvents().get(1);
+        assertEquals(NetworkEvent.Type.UPDATE, secondEvent.getType());
+        assertEquals("targetQ", ((UpdateNetworkEvent) secondEvent).attribute());
+        assertEquals(newTargetQ, ((UpdateNetworkEvent) secondEvent).newValue());
+        assertEquals(oldTargetQ, ((UpdateNetworkEvent) secondEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
+    }
+
+    @Test
+    void testNotifyUpdateOnSetTargetV() {
+        // GIVEN
+        Generator generator = voltageLevel.getGeneratorStream().toList().getFirst();
+        String id = generator.getId();
+        double newTargetV = 123.0;
+        double oldTargetV = generator.getTargetV();
+        NetworkEventRecorder listener = new NetworkEventRecorder();
+        network.addListener(listener);
+        // WHEN
+        generator.setTargetV(newTargetV);
+        // THEN
+        assertEquals(2, listener.getEvents().size());
+        NetworkEvent firstEvent = listener.getEvents().getFirst();
+        assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
+        assertEquals("localTargetV", ((UpdateNetworkEvent) firstEvent).attribute());
+        assertEquals(newTargetV, ((UpdateNetworkEvent) firstEvent).newValue());
+        assertEquals(oldTargetV, ((UpdateNetworkEvent) firstEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) firstEvent).id());
+        NetworkEvent secondEvent = listener.getEvents().get(1);
+        assertEquals(NetworkEvent.Type.UPDATE, secondEvent.getType());
+        assertEquals("targetV", ((UpdateNetworkEvent) secondEvent).attribute());
+        assertEquals(newTargetV, ((UpdateNetworkEvent) secondEvent).newValue());
+        assertEquals(oldTargetV, ((UpdateNetworkEvent) secondEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
+    }
+
+    @Test
+    void testNotifyUpdateOnSetTargetVAndEquivalentTargetV() {
+        // GIVEN
+        Generator generator = voltageLevel.getGeneratorStream().toList().getFirst();
+        String id = generator.getId();
+        double newTargetV = 123.0;
+        double newEquivalentTargetV = 12.0;
+        double oldTargetV = generator.getTargetV();
+        generator.setRegulatingTerminal(remoteTerminal);
+        NetworkEventRecorder listener = new NetworkEventRecorder();
+        network.addListener(listener);
+        // WHEN
+        generator.setTargetV(newTargetV, newEquivalentTargetV);
+        // THEN
+        assertEquals(3, listener.getEvents().size());
+        NetworkEvent firstEvent = listener.getEvents().getFirst();
+        assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
+        assertEquals("localTargetV", ((UpdateNetworkEvent) firstEvent).attribute());
+        assertEquals(newEquivalentTargetV, ((UpdateNetworkEvent) firstEvent).newValue());
+        assertEquals(oldTargetV, ((UpdateNetworkEvent) firstEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) firstEvent).id());
+        NetworkEvent secondEvent = listener.getEvents().get(1);
+        assertEquals(NetworkEvent.Type.UPDATE, secondEvent.getType());
+        assertEquals("VoltageRegulation.TargetValue", ((UpdateNetworkEvent) secondEvent).attribute());
+        assertEquals(newTargetV, ((UpdateNetworkEvent) secondEvent).newValue());
+        assertEquals(oldTargetV, ((UpdateNetworkEvent) secondEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
+        NetworkEvent thirdEvent = listener.getEvents().get(2);
+        assertEquals(NetworkEvent.Type.UPDATE, thirdEvent.getType());
+        assertEquals("targetV", ((UpdateNetworkEvent) thirdEvent).attribute());
+        assertEquals(newTargetV, ((UpdateNetworkEvent) thirdEvent).newValue());
+        assertEquals(oldTargetV, ((UpdateNetworkEvent) thirdEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) thirdEvent).id());
     }
 
 }

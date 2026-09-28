@@ -211,9 +211,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setTargetQ(double targetQ) {
-        setLocalTargetQ(targetQ);
         int variantIndex = network.get().getVariantIndex();
         double oldValue = getTargetQ();
+        setLocalTargetQ(targetQ);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetQ", variantId, oldValue, targetQ);
         return this;
