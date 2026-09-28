@@ -66,6 +66,12 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertLocalTargets(g4, Double.NaN, Double.NaN);
         VoltageRegulation reg4 = g4.getVoltageRegulation();
         assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", Double.NaN, Double.NaN, false);
+
+        // EI: Equivalent injection <=> local voltage regulation
+        Generator eqInj = network.getGenerator("EI");
+        assertLocalTargets(eqInj, Double.NaN, Double.NaN);
+        VoltageRegulation regEqInj = eqInj.getVoltageRegulation();
+        assertVoltageRegulation(regEqInj, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, false);
     }
 
     @Test
@@ -102,6 +108,12 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertLocalTargets(g4, 10, Double.NaN);
         VoltageRegulation reg4 = g4.getVoltageRegulation();
         assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", 20, Double.NaN, true);
+
+        // EI: Equivalent injection <=> local voltage regulation
+        Generator eqInj = network.getGenerator("EI");
+        assertLocalTargets(eqInj, -10, 400);
+        VoltageRegulation regEqInj = eqInj.getVoltageRegulation();
+        assertVoltageRegulation(regEqInj, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
     }
 
     @Test
@@ -128,6 +140,9 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertSynchronousMachine(eqFile, sshFile, "SM_4", "RC_4", "-10", "true");
         assertRegulatingControl(eqFile, sshFile, "RC_4", "T_PTE_1", MODE_KIND_REACTIVE_POWER,
             "false", "true", "-20", "0");
+
+        assertEquivalentInjectionEq(eqFile);
+        assertEquivalentInjectionSsh(sshFile);
     }
 
     @Test
@@ -643,6 +658,18 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertEquals(enabled, getAttribute(regulatingControlSsh, "RegulatingControl.enabled"));
         assertEquals(targetValue, getAttribute(regulatingControlSsh, "RegulatingControl.targetValue"));
         assertEquals(targetDeadband, getAttribute(regulatingControlSsh, "RegulatingControl.targetDeadband"));
+    }
+
+    private void assertEquivalentInjectionEq(String eqFile) {
+        String equivalentInjectionEq = getElement(eqFile, "EquivalentInjection", "EI");
+        assertEquals("true", getAttribute(equivalentInjectionEq, "EquivalentInjection.regulationCapability"));
+    }
+
+    private void assertEquivalentInjectionSsh(String sshFile) {
+        String equivalentInjectionSsh = getElement(sshFile, "EquivalentInjection", "EI");
+        assertEquals("10", getAttribute(equivalentInjectionSsh, "EquivalentInjection.q"));
+        assertEquals("400", getAttribute(equivalentInjectionSsh, "EquivalentInjection.regulationTarget"));
+        assertEquals("true", getAttribute(equivalentInjectionSsh, "EquivalentInjection.regulationStatus"));
     }
 
     private void assertVsConverterEq(String eqFile, String vsConverterId, String pccTerminal) {

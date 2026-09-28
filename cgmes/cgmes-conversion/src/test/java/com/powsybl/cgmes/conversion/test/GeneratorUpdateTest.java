@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -18,9 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATION_CAPABILITY;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -101,16 +98,14 @@ class GeneratorUpdateTest {
     }
 
     private static void assertEq(Network network) {
-        assertEq(network.getGenerator("SynchronousMachine"));
-        assertEq(network.getGenerator("ExternalNetworkInjection"));
-        assertEq(network.getGenerator("EquivalentInjection"));
-        assertEq(network.getGenerator("SynchronousMachineWithoutRegulatingControl"));
-        assertEq(network.getGenerator("EquivalentInjectionWithRegulationCapability"));
+        assertEq(network.getGenerator("SynchronousMachine"), true);
+        assertEq(network.getGenerator("ExternalNetworkInjection"), false);
+        assertEq(network.getGenerator("EquivalentInjection"), false);
+        assertEq(network.getGenerator("SynchronousMachineWithoutRegulatingControl"), false);
+        assertEq(network.getGenerator("EquivalentInjectionWithRegulationCapability"), true);
 
         assertNotNull(network.getGenerator("SynchronousMachine").getProperty(PROPERTY_MODE));
         assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getProperty(PROPERTY_MODE));
-        assertEquals("false", network.getGenerator("EquivalentInjection").getProperty(PROPERTY_REGULATION_CAPABILITY));
-        assertEquals("true", network.getGenerator("EquivalentInjectionWithRegulationCapability").getProperty(PROPERTY_REGULATION_CAPABILITY));
     }
 
     private static void assertFirstSsh(Network network) {
@@ -151,7 +146,7 @@ class GeneratorUpdateTest {
         assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), equivalentInjectionP, equivalentInjectionQ);
     }
 
-    private static void assertEq(Generator generator) {
+    private static void assertEq(Generator generator, boolean regulationCapability) {
         assertNotNull(generator);
         assertTrue(Double.isNaN(generator.getTargetP()));
         assertTrue(Double.isNaN(generator.getLocalTargetQ()));
@@ -159,16 +154,9 @@ class GeneratorUpdateTest {
         assertNotNull(generator.getRegulatingTerminal());
         assertFalse(generator.isRegulating());
 
-        String originalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
-        if (originalClass.equals(CgmesNames.SYNCHRONOUS_MACHINE)) {
-            if (generator.getProperty(PROPERTY_MODE) != null) {
-                assertSame(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
-            } else {
-                assertNull(generator.getVoltageRegulation());
-            }
-        } else if (originalClass.equals(CgmesNames.EQUIVALENT_INJECTION)) {
-            assertNotNull(generator.getProperty(PROPERTY_REGULATION_CAPABILITY));
-            assertNull(generator.getVoltageRegulation());
+        assertEquals(regulationCapability, generator.getVoltageRegulation() != null);
+        if (generator.getProperty(PROPERTY_MODE) != null) {
+            assertSame(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
         }
     }
 
