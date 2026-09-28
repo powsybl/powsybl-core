@@ -21,8 +21,8 @@ class LccConverterStationImpl extends AbstractHvdcConverterStation<LccConverterS
 
     private float powerFactor;
 
-    LccConverterStationImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, float lossFactor, float powerFactor) {
-        super(network, id, name, fictitious, lossFactor);
+    LccConverterStationImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent, float lossFactor, float powerFactor) {
+        super(network, id, name, fictitious, equivalent, lossFactor);
         this.powerFactor = powerFactor;
     }
 

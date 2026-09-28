@@ -25,8 +25,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     private final FlowsLimitsHolder operationalLimitsHolder2;
 
-    AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
-        super(network, id, name, fictitious);
+    AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent) {
+        super(network, id, name, fictitious, equivalent);
         operationalLimitsHolder1 = new OperationalLimitsGroupsImpl(this, "limits1");
         operationalLimitsHolder2 = new OperationalLimitsGroupsImpl(this, "limits2");
     }

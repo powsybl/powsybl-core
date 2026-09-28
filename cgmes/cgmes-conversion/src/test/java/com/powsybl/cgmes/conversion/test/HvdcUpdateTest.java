@@ -7,12 +7,20 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class HvdcUpdateTest {
+class HvdcUpdateTest extends AbstractSerDeTest {
 
     private static final String DIR = "/update/hvdc/";
 
@@ -97,6 +105,105 @@ class HvdcUpdateTest {
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
+    @Test
+    void vscReactivePowerSetpointRoundTripFlipsSignLegacy() throws IOException {
+        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        HvdcLine senderLine = network.getHvdcLine("DCLineSegment-Vsc");
+        VscConverterStation vsc = (VscConverterStation) senderLine.getConverterStation2();
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(30.34, vsc.getLocalTargetQ(), 1e-7);
+
+        // Switch from local VOLTAGE regulationMode to local REACTIVE_POWER regulationMode
+        vsc.removeVoltageRegulation();
+        vsc.setLocalTargetQ(30.0);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "vsc-q-roundtrip";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // The legacy version assumes that the IIDM model uses the generator sign convention
+        // and converts it to the load sign convention during the export process,
+        // which is the standard convention in CGMES
+        String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+        String vscSsh = getElement(sshXml, "VsConverter", vsc.getId());
+        assertEquals("-30", getAttribute(vscSsh, "VsConverter.targetQpcc"));
+
+        vsc.setLocalTargetQ(0.0);
+
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(30.0, vsc.getLocalTargetQ(), 1e-7);
+        assertEquals(30.0, vsc.getVoltageRegulation().getTargetValue(), 1e-7);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+    }
+
+    @Test
+    void vscReactivePowerSetpointRoundTripFlipsSignDetailed() throws IOException {
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network network = readCgmesResources(importParameters, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("DCLineSegment-Vsc-VscConverter-2");
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(-30.34, vsc.getLocalTargetQ(), 1e-7);
+
+        // Switch from local VOLTAGE regulationMode to local REACTIVE_POWER regulationMode
+        vsc.removeVoltageRegulation();
+        vsc.setLocalTargetQ(30.0);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "vsc-q-roundtrip";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // The detailed version assumes that the IIDM model uses the load sign convention and exports it directly,
+        // as this is the standard convention in CGMES
+        String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+        String vscSsh = getElement(sshXml, "VsConverter", vsc.getId());
+        assertEquals("30", getAttribute(vscSsh, "VsConverter.targetQpcc"));
+
+        vsc.setLocalTargetQ(0.0);
+
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(30.0, vsc.getLocalTargetQ(), 1e-7);
+        assertEquals(30.0, vsc.getVoltageRegulation().getTargetValue(), 1e-7);
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+    }
+
+    @Test
+    void hvdcZeroActivePowerSetpointTest() {
+        Network network = readCgmesResources("/update/hvdc/", "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        assertEquals(300.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
+
+        // we export 0.0
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(0.0);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "zero-active-power-stepoint";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        // we restore the initial active power setpoint before the update
+        network.getHvdcLine("DCLineSegment-Lcc").setActivePowerSetpoint(300.0);
+
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
+        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+
+        assertEquals(0.0, network.getHvdcLine("DCLineSegment-Lcc").getActivePowerSetpoint());
+    }
+
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
@@ -116,14 +223,14 @@ class HvdcUpdateTest {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 360.0, 300.0, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
                 -0.9152494668960571, 0.9340579509735107);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 597.24, 497.7, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
-                 392.54, 392.54, 0.0, true);
+                 392.54, 392.54, 30.34, RegulationMode.VOLTAGE);
     }
 
     private static void assertSecondSsh(Network network) {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 420.0, 350.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 0.9503694176673889, -0.9194843769073486);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 596.4, 497.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                396.54, 0.0, 30.0, false);
+                396.54, Double.NaN, 30.0, RegulationMode.REACTIVE_POWER);
     }
 
     private static void assertUnassignedFlows(Network network) {
@@ -194,9 +301,12 @@ class HvdcUpdateTest {
         double tol = 0.0000001;
         assertEquals(0.0, vscConverterStation.getLossFactor(), tol);
         assertNotNull(vscConverterStation.getRegulatingTerminal());
-        assertEquals(0.0, vscConverterStation.getReactivePowerSetpoint(), tol);
-        assertTrue(Double.isNaN(vscConverterStation.getVoltageSetpoint()));
-        assertFalse(vscConverterStation.isVoltageRegulatorOn());
+        assertNull(vscConverterStation.getVoltageRegulation());
+        assertTrue(vscConverterStation.isWithMode(RegulationMode.REACTIVE_POWER));
+        assertFalse(vscConverterStation.isRegulating());
+        assertEquals(Double.NaN, vscConverterStation.getRegulatingTargetQ());
+        assertTrue(Double.isNaN(vscConverterStation.getRegulatingTargetV()));
+        assertFalse(vscConverterStation.isWithMode(RegulationMode.VOLTAGE));
     }
 
     private static void assertSshLcc(HvdcLine hvdcLine, double maxP, double activePowerSetpoint, HvdcLine.ConvertersMode convertersMode,
@@ -217,22 +327,23 @@ class HvdcUpdateTest {
     }
 
     private static void assertSshVsc(HvdcLine hvdcLine, double maxP, double activePowerSetpoint, HvdcLine.ConvertersMode convertersMode,
-                                     double targetV1, double targetV2, double targetQ2, boolean voltageRegulatorOn2) {
+                                     double targetV1, double targetV2, double targetQ2, RegulationMode regulationMode2) {
         assertNotNull(hvdcLine);
         assertEquals(maxP, hvdcLine.getMaxP());
         assertEquals(activePowerSetpoint, hvdcLine.getActivePowerSetpoint());
         assertEquals(convertersMode, hvdcLine.getConvertersMode());
 
         assertEquals(HvdcConverterStation.HvdcType.VSC, hvdcLine.getConverterStation1().getHvdcType());
-        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), targetV1, 0.0, true);
-        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation2(), targetV2, targetQ2, voltageRegulatorOn2);
+        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), targetV1, -1.35, RegulationMode.VOLTAGE);
+        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation2(), targetV2, targetQ2, regulationMode2);
     }
 
-    private static void assertSshVscConverter(VscConverterStation vscConverterStation, double targetV, double targetQ, boolean voltageRegulatorOn) {
+    private static void assertSshVscConverter(VscConverterStation vscConverterStation, double targetV, double targetQ, RegulationMode regulationMode) {
         double tol = 0.0000001;
-        assertEquals(targetV, vscConverterStation.getVoltageSetpoint(), tol);
-        assertEquals(targetQ, vscConverterStation.getReactivePowerSetpoint(), tol);
-        assertEquals(voltageRegulatorOn, vscConverterStation.isVoltageRegulatorOn());
+        assertEquals(targetV, vscConverterStation.getRegulatingTargetV(), tol);
+        assertEquals(targetQ, vscConverterStation.getRegulatingTargetQ(), tol);
+        assertTrue(vscConverterStation.isWithMode(regulationMode));
+        assertTrue(vscConverterStation.isRegulatingWithMode(regulationMode));
     }
 
     private static void assertFlows(Terminal terminal1, double p1, double q1, Terminal terminal2, double p2, double q2) {

@@ -41,8 +41,9 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     }
 
     @Override
-    protected void writeRootElementAttributes(BoundaryLine dl, VoltageLevel vl, NetworkSerializerContext context) {
-        writeRootElementAttributesInternal(INSTANCE.getRootElementName(), dl, dl::getTerminal, context);
+    protected void writeRootElementAttributes(BoundaryLine bl, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(bl, context);
+        writeRootElementAttributesInternal(INSTANCE.getRootElementName(), bl, bl::getTerminal, context);
     }
 
     static void writeRootElementAttributesInternal(String rootElementName, BoundaryLine bl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
@@ -112,6 +113,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     @Override
     protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         checkVersion(context);
+        readEquivalent(adder, context);
         readRootElementAttributesInternal(adder, voltageLevel, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");

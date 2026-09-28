@@ -36,6 +36,7 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
 
     @Override
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
+        writeEquivalent(twt, context);
         context.getWriter().writeDoubleAttribute("r", twt.getR());
         context.getWriter().writeDoubleAttribute("x", twt.getX());
         writeFormerlyMandatoryDoubleAttribute("g", twt.getG(), IidmVersion.V_1_17, context);
@@ -80,6 +81,7 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
 
     @Override
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Substation s, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
         double g = readFormerlyMandatoryDoubleAttribute("g", IidmVersion.V_1_17, context);

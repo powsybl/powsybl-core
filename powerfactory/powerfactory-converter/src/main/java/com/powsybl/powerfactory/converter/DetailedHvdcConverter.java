@@ -10,6 +10,7 @@ package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.AcDcConverter.ControlMode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
@@ -513,7 +514,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         converterAdder.setDcNode2(dcNodesIds.getLast());
 
         converterAdder.setControlMode(controlMode);
-        converterAdder.setVoltageRegulatorOn(acVoltageRegulation);
 
         double targetVdc = pfParams.uSetVoltageDcPu * pfParams.unomDc;
         if (!Double.isFinite(targetVdc) && controlMode == ControlMode.V_DC) {
@@ -525,7 +525,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         if (!Double.isFinite(voltageSetPointAc) && acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has V_AC control but unspecified target V_AC.");
         }
-        converterAdder.setVoltageSetpoint(voltageSetPointAc);
 
         // Loss model
         double idleLoss = computeIdleLoss(controlMode, pfParams.pnold, pfParams.uSetVoltageDcPu);
@@ -541,13 +540,24 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         if (!Double.isFinite(pfParams.qsetp) && !acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has Q control but undefined Q.");
         }
-        converterAdder.setReactivePowerSetpoint(-pfParams.qsetp);
+        double targetQ = -pfParams.qsetp;
         if (!Double.isFinite(pfParams.psetp) && controlMode == ControlMode.P_PCC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has P control but undefined P.");
         }
         converterAdder.setTargetP(-pfParams.psetp);
 
+        addVoltageRegulation(converterAdder, acVoltageRegulation, voltageSetPointAc, targetQ);
         converterAdder.add();
+    }
+
+    private static void addVoltageRegulation(VoltageSourceConverterAdder converterAdder, boolean acVoltageRegulation, double voltageSetPointAc, double targetQ) {
+        converterAdder.setLocalTargetV(voltageSetPointAc)
+            .setLocalTargetQ(targetQ);
+        if (acVoltageRegulation) {
+            converterAdder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add();
+        }
     }
 
     private static double computeIdleLoss(ControlMode controlMode, double pnold, double usetpDcPu) {

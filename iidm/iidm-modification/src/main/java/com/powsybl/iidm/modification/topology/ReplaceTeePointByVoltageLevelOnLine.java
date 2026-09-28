@@ -71,8 +71,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
      * NB: This constructor is package-private, Please use {@link ReplaceTeePointByVoltageLevelOnLineBuilder} instead.
      */
     ReplaceTeePointByVoltageLevelOnLine(String teePointLine1Id, String teePointLine2Id, String teePointLineToRemoveId, String bbsOrBusId,
-                                        String newLine1Id, String newLine1Name, String newLine2Id, String newLine2Name) {
-        super(teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
+                                        String newLine1Id, String newLine1Name, String newLine2Id, String newLine2Name, boolean forceRemoveIsolatedVoltageLevel) {
+        super(teePointLine1Id, teePointLine2Id, teePointLineToRemoveId, forceRemoveIsolatedVoltageLevel);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.newLine1Id = Objects.requireNonNull(newLine1Id);
         this.newLine1Name = newLine1Name;
@@ -201,7 +201,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         LOGGER.info("Line {} created", newLine2Id);
 
         // remove tee point
-        removeVoltageLevelAndSubstation(teePoint, reportNode);
+        removeVoltageLevelAndSubstation(teePoint, forceRemoveIsolatedVoltageLevel, reportNode);
     }
 
     private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, ReportNode reportNode, boolean throwException) {
