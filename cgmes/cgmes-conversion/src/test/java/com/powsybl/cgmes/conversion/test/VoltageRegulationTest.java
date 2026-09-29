@@ -191,14 +191,35 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertTrue(Double.isNaN(sc2.getLocalTargetV()));
         VoltageRegulation reg2 = sc2.getVoltageRegulation();
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
+    }
 
+    @Test
+    void shuntCompensatorVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
+        ShuntCompensator sc2 = network.getShuntCompensator("LSC_2");
         // SC2: disabled regulation + TargetValue = NaN
         sc2.getVoltageRegulation().setRegulating(false);
         sc2.getVoltageRegulation().setTargetValue(Double.NaN);
         // The update must re-enable regulation and restore the target value/deadband from SSH
         readCgmesResources(network, DIR, "shuntCompensator_SSH.xml");
+
+        // SC0: no regulation (not CGMES compliant)
+        ShuntCompensator sc0 = network.getShuntCompensator("LSC_0");
+        assertTrue(Double.isNaN(sc0.getLocalTargetV()));
+        VoltageRegulation reg0 = sc0.getVoltageRegulation();
+        assertNull(reg0);
+
+        // SC1: local voltage regulation
+        ShuntCompensator sc1 = network.getShuntCompensator("LSC_1");
+        assertEquals(400, sc1.getLocalTargetV());
+        VoltageRegulation reg1 = sc1.getVoltageRegulation();
+        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, 2.0, true);
+
+        // SC2: remote voltage regulation
+        sc2 = network.getShuntCompensator("LSC_2");
         assertTrue(Double.isNaN(sc2.getLocalTargetV()));
-        reg2 = sc2.getVoltageRegulation();
+        VoltageRegulation reg2 = sc2.getVoltageRegulation();
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
     }
 
