@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -133,13 +134,23 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         if (voltageRegulation == null) {
             return;
         }
-        voltageRegulation.setRegulating(regulatingOn);
-        if (shuntCompensator.hasRegulatingTerminal()) {
+        if (regulatingOn) {
+            setLocalTargetVOrTargetValue(shuntCompensator, targetV, voltageRegulation);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+            voltageRegulation.setRegulating(true);
+        } else {
+            voltageRegulation.setRegulating(false);
+            setLocalTargetVOrTargetValue(shuntCompensator, targetV, voltageRegulation);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+        }
+    }
+
+    private static <T extends VoltageRegulationHolder<T>> void setLocalTargetVOrTargetValue(VoltageRegulationHolder<T> holder, double targetV, VoltageRegulation voltageRegulation) {
+        if (holder.hasRegulatingTerminal()) {
             voltageRegulation.setTargetValue(targetV);
         } else {
-            shuntCompensator.setLocalTargetV(targetV);
+            holder.setLocalTargetV(targetV);
         }
-        voltageRegulation.setTargetDeadband(targetDeadband);
     }
 
     private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {

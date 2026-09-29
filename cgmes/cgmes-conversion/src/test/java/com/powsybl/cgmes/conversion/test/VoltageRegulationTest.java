@@ -191,6 +191,15 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertTrue(Double.isNaN(sc2.getLocalTargetV()));
         VoltageRegulation reg2 = sc2.getVoltageRegulation();
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
+
+        // SC2: disabled regulation + TargetValue = NaN
+        sc2.getVoltageRegulation().setRegulating(false);
+        sc2.getVoltageRegulation().setTargetValue(Double.NaN);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, DIR, "shuntCompensator_SSH.xml");
+        assertTrue(Double.isNaN(sc2.getLocalTargetV()));
+        reg2 = sc2.getVoltageRegulation();
+        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
     }
 
     @Test
