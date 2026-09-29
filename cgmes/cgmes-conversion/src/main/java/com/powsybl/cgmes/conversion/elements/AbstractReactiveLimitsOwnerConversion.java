@@ -158,6 +158,9 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
 
     protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
         String mode = generator.getProperty(PROPERTY_MODE);
+        if (generator.getVoltageRegulation() == null) {
+            return;
+        }
 
         // No mode means no regulating control mapped at EQ conversion (absent, or already reported as ignored there)
         if (mode == null) {
@@ -189,22 +192,6 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
 
         // Regulating control is enabled AND this equipment participates in regulating control
         setVoltageRegulation(generator, targetV, regulatingOn && updatedControlEnabled && validTargetV);
-    }
-
-    // TargetV must be valid before the regulation is turned on,
-    // and the regulation must be turned off before assigning potentially invalid regulation values,
-    // to ensure consistency with the applied checks
-    private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
-        if (generator.getVoltageRegulation() == null) {
-            generator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).build();
-        }
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (generator.hasRegulatingTerminal()) {
-            voltageRegulation.setTargetValue(targetV);
-        } else {
-            generator.setLocalTargetV(targetV);
-        }
-        voltageRegulation.setRegulating(regulatingOn);
     }
 
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
