@@ -11,8 +11,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -90,11 +89,11 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     void testGeneratorRemoteReactivePowerControl() {
         Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
         Generator g = network.getGenerator("SM1");
-        RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
-        assertNotNull(ext);
-        assertEquals(-115.5, ext.getTargetQ(), 0.0);
-        assertTrue(ext.isEnabled());
-        assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), ext.getRegulatingTerminal());
+        VoltageRegulation voltageRegulation = g.getVoltageRegulation();
+        assertNotNull(voltageRegulation);
+        assertEquals(-115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertTrue(voltageRegulation.isRegulating());
+        assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), voltageRegulation.getTerminal());
     }
 
     @Test
