@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:control-area-tie-flows-SSH">
+        <md:Model.scenarioTime>2026-09-30T10:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2026-09-30T10:00:00Z</md:Model.created>
+        <md:Model.description>Minimal Control Area interchange state</md:Model.description>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:control-area-tie-flows-EQ"/>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:ControlArea rdf:about="#_CONTROL_AREA_BE">
+        <cim:ControlArea.netInterchange>-205.90011555672567</cim:ControlArea.netInterchange>
+    </cim:ControlArea>
+</rdf:RDF>
