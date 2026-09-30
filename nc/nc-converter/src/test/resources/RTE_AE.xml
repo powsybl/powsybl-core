@@ -105,4 +105,28 @@
     <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_ae_voltage_level"/>
     <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
   </nc:AssessedElementWithContingency>
+  <nc:AssessedElement rdf:ID="_ae_post_contingency_only">
+    <cim:IdentifiedObject.mRID>ae_post_contingency_only</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE post-contingency only</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>true</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_BBE2AA1++BBE3AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_ae_base_case_only_without_association">
+    <cim:IdentifiedObject.mRID>ae_base_case_only_without_association</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE base case only without association</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>false</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR2AA1++FFR3AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_ae_not_monitored_without_association">
+    <cim:IdentifiedObject.mRID>ae_not_monitored_without_association</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE not monitored without association</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>false</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_BBE1AA1++BBE3AA1++1"/>
+  </nc:AssessedElement>
 </rdf:RDF>

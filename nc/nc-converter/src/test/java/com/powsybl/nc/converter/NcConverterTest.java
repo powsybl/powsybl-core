@@ -46,6 +46,8 @@ class NcConverterTest {
     private static final OffsetDateTime TIMESTAMP = OffsetDateTime.parse("2024-01-31T12:00:00Z");
     private static final String MONITORED_BRANCH = "FFR3AA1  FFR5AA1  1";
     private static final String MONITORED_TRANSFORMER = "BBE2AA1  BBE3AA1  1";
+    private static final String BASE_CASE_ONLY_BRANCH = "FFR2AA1  FFR3AA1  1";
+    private static final String NOT_MONITORED_BRANCH = "BBE1AA1  BBE3AA1  1";
 
     private static Network network;
     private static NcDataset dataset;
@@ -95,20 +97,40 @@ class NcConverterTest {
     void convertsPreventiveStateMonitor() {
         StateMonitor preventiveMonitor = monitors(ContingencyContextType.NONE).stream()
             .findFirst().orElseThrow();
-        assertEquals(Set.of(MONITORED_BRANCH), preventiveMonitor.getBranchIds());
+        assertEquals(Set.of(MONITORED_BRANCH, BASE_CASE_ONLY_BRANCH), preventiveMonitor.getBranchIds());
         assertEquals(Set.of("FFR3AA1"), preventiveMonitor.getVoltageLevelIds());
         assertEquals(Set.of(MONITORED_TRANSFORMER), preventiveMonitor.getThreeWindingsTransformerIds());
+    }
+
+    @Test
+    void convertsBaseCaseAndCombinableAssessedElementToAllMonitor() {
+        StateMonitor allMonitor = monitors(ContingencyContextType.ALL).stream()
+            .findFirst().orElseThrow();
+        assertEquals(Set.of(MONITORED_BRANCH), allMonitor.getBranchIds());
+        assertEquals(Set.of("FFR3AA1"), allMonitor.getVoltageLevelIds());
+        assertTrue(allMonitor.getThreeWindingsTransformerIds().isEmpty());
+        assertTrue(monitors(ContingencyContextType.ONLY_CONTINGENCIES).isEmpty());
     }
 
     @Test
     void convertsPostContingencyStateMonitors() {
         List<StateMonitor> specific = monitors(ContingencyContextType.SPECIFIC);
         assertEquals(3, specific.size());
+        // OpenLoadFlow does not combine ALL with SPECIFIC, so the converter includes ALL equipment in every
+        // SPECIFIC monitor it creates.
         assertEquals(3, countSpecificMonitorsOnBranch(MONITORED_BRANCH));
         assertEquals(1, countSpecificMonitorsOnBranch("FFR2AA1  FFR3AA1  1"));
-        assertEquals(1, specific.stream()
+        // Post-contingency-only combinable equipment is expanded into every SPECIFIC monitor because
+        // ONLY_CONTINGENCIES is currently ignored by StateMonitorIndex.
+        assertEquals(3, specific.stream()
             .filter(monitor -> monitor.getThreeWindingsTransformerIds().contains(MONITORED_TRANSFORMER))
             .count());
+    }
+
+    @Test
+    void doesNotMonitorNonCombinableAssessedElementWithoutBaseCaseOrAssociation() {
+        assertTrue(result.stateMonitors().stream()
+            .noneMatch(monitor -> monitor.getBranchIds().contains(NOT_MONITORED_BRANCH)));
     }
 
     @Test

@@ -42,6 +42,12 @@ final class AssessedElementConverter extends AbstractNcConverter {
             threeWindingsTransformerIds.addAll(equipment.threeWindingsTransformerIds());
         }
 
+        void add(EquipmentAccumulator equipment) {
+            branchIds.addAll(equipment.branchIds);
+            voltageLevelIds.addAll(equipment.voltageLevelIds);
+            threeWindingsTransformerIds.addAll(equipment.threeWindingsTransformerIds);
+        }
+
         boolean isEmpty() {
             return branchIds.isEmpty() && voltageLevelIds.isEmpty() && threeWindingsTransformerIds.isEmpty();
         }
@@ -69,7 +75,9 @@ final class AssessedElementConverter extends AbstractNcConverter {
     }
 
     Result convert() {
-        EquipmentAccumulator preventiveEquipment = new EquipmentAccumulator();
+        EquipmentAccumulator allEquipment = new EquipmentAccumulator();
+        EquipmentAccumulator preventiveOnlyEquipment = new EquipmentAccumulator();
+        EquipmentAccumulator postContingencyOnlyEquipment = new EquipmentAccumulator();
         Map<String, Context> contexts = new LinkedHashMap<>();
         Map<String, EquipmentAccumulator> equipmentByContingency = new LinkedHashMap<>();
         Map<String, List<NcAssessedElementWithContingency>> links = model.getAssessedElementWithContingencies().stream()
@@ -78,16 +86,20 @@ final class AssessedElementConverter extends AbstractNcConverter {
         contingencyIds.forEach(contingencyId -> equipmentByContingency.put(contingencyId, new EquipmentAccumulator()));
 
         for (NcAssessedElement assessedElement : model.getAssessedElements()) {
-            process(assessedElement, links, preventiveEquipment, equipmentByContingency, contexts);
+            process(assessedElement, links, allEquipment, preventiveOnlyEquipment, postContingencyOnlyEquipment,
+                equipmentByContingency, contexts);
         }
 
-        List<StateMonitor> monitors = createMonitors(preventiveEquipment, equipmentByContingency);
+        List<StateMonitor> monitors = createMonitors(allEquipment, preventiveOnlyEquipment,
+            postContingencyOnlyEquipment, equipmentByContingency);
 
         return new Result(List.copyOf(monitors), Map.copyOf(contexts));
     }
 
     private void process(NcAssessedElement assessedElement, Map<String, List<NcAssessedElementWithContingency>> links,
-                         EquipmentAccumulator preventiveEquipment,
+                         EquipmentAccumulator allEquipment,
+                         EquipmentAccumulator preventiveOnlyEquipment,
+                         EquipmentAccumulator postContingencyOnlyEquipment,
                          Map<String, EquipmentAccumulator> equipmentByContingency,
                          Map<String, Context> contexts) {
         if (!assessedElement.enabled()) {
@@ -100,8 +112,14 @@ final class AssessedElementConverter extends AbstractNcConverter {
             return;
         }
 
-        if (assessedElement.inBaseCase()) {
-            preventiveEquipment.add(equipment);
+        if (assessedElement.isCombinableWithContingency()) {
+            if (assessedElement.inBaseCase()) {
+                allEquipment.add(equipment);
+            } else {
+                postContingencyOnlyEquipment.add(equipment);
+            }
+        } else if (assessedElement.inBaseCase()) {
+            preventiveOnlyEquipment.add(equipment);
         }
 
         List<NcAssessedElementWithContingency> assessedElementLinks = links.getOrDefault(assessedElement.mrid(), List.of());
@@ -115,7 +133,9 @@ final class AssessedElementConverter extends AbstractNcConverter {
             return;
         }
 
-        linkedContingencies.forEach(contingency -> equipmentByContingency.get(contingency).add(equipment));
+        if (!assessedElement.isCombinableWithContingency()) {
+            linkedContingencies.forEach(contingency -> equipmentByContingency.get(contingency).add(equipment));
+        }
         contexts.put(assessedElement.mrid(), new Context(equipment.ids(), linkedContingencies));
     }
 
@@ -200,22 +220,43 @@ final class AssessedElementConverter extends AbstractNcConverter {
         return linkedContingencies;
     }
 
-    private static List<StateMonitor> createMonitors(EquipmentAccumulator preventiveEquipment,
+    private static List<StateMonitor> createMonitors(EquipmentAccumulator allEquipment,
+                                                     EquipmentAccumulator preventiveOnlyEquipment,
+                                                     EquipmentAccumulator postContingencyOnlyEquipment,
                                                      Map<String, EquipmentAccumulator> equipmentByContingency) {
         List<StateMonitor> monitors = new ArrayList<>();
 
-        if (!preventiveEquipment.isEmpty()) {
-            monitors.add(new StateMonitor(ContingencyContext.none(), preventiveEquipment.branchIds,
-                preventiveEquipment.voltageLevelIds, preventiveEquipment.threeWindingsTransformerIds));
+        if (!allEquipment.isEmpty()) {
+            monitors.add(createMonitor(ContingencyContext.all(), allEquipment));
+        }
+
+        if (!preventiveOnlyEquipment.isEmpty()) {
+            monitors.add(createMonitor(ContingencyContext.none(), preventiveOnlyEquipment));
         }
 
         equipmentByContingency.forEach((contingency, equipment) -> {
-            if (!equipment.isEmpty()) {
-                monitors.add(new StateMonitor(ContingencyContext.specificContingency(contingency), equipment.branchIds,
-                    equipment.voltageLevelIds, equipment.threeWindingsTransformerIds));
+            if (!equipment.isEmpty() || !postContingencyOnlyEquipment.isEmpty()) {
+                EquipmentAccumulator specificEquipment = new EquipmentAccumulator();
+                /*
+                 * StateMonitor supports ONLY_CONTINGENCIES, but OpenLoadFlow currently produces no results for
+                 * monitors using this context. When both ALL and SPECIFIC apply to a contingency, OpenLoadFlow
+                 * processes only SPECIFIC. Each SPECIFIC monitor must therefore contain the complete set of equipment
+                 * required for that contingency: equipment monitored in every state, equipment monitored after every
+                 * contingency, and equipment explicitly associated with this contingency. If no SPECIFIC monitor is
+                 * needed, OpenLoadFlow uses the compact ALL monitor.
+                 */
+                specificEquipment.add(allEquipment);
+                specificEquipment.add(postContingencyOnlyEquipment);
+                specificEquipment.add(equipment);
+                monitors.add(createMonitor(ContingencyContext.specificContingency(contingency), specificEquipment));
             }
         });
 
         return monitors;
+    }
+
+    private static StateMonitor createMonitor(ContingencyContext contingencyContext, EquipmentAccumulator equipment) {
+        return new StateMonitor(contingencyContext, equipment.branchIds, equipment.voltageLevelIds,
+            equipment.threeWindingsTransformerIds);
     }
 }
