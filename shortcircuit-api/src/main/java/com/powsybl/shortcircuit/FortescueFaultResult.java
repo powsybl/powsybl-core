@@ -24,12 +24,25 @@ public final class FortescueFaultResult extends AbstractFaultResult {
 
     private final FortescueValue voltage;
 
+    private final double equivalentRZero;
+
+    private final double equivalentXZero;
+
+    public FortescueFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                                List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
+                                Duration timeConstant, Status status, double equivalentR, double equivalentRZero,
+                                double equivalentX, double equivalentXZero) {
+        super(fault, status, shortCircuitPower, timeConstant, feederResults, limitViolations, shortCircuitBusResults, equivalentR, equivalentX);
+        this.current = current;
+        this.voltage = voltage;
+        this.equivalentRZero = equivalentRZero;
+        this.equivalentXZero = equivalentXZero;
+    }
+
     public FortescueFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                                 List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
                                 Duration timeConstant, Status status) {
-        super(fault, status, shortCircuitPower, timeConstant, feederResults, limitViolations, shortCircuitBusResults);
-        this.current = current;
-        this.voltage = voltage;
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     public FortescueFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
@@ -46,6 +59,12 @@ public final class FortescueFaultResult extends AbstractFaultResult {
         this(fault, Double.NaN, null, null, null, null, Collections.emptyList(), null, status);
     }
 
+    public FortescueFaultResult(Fault fault, double shortCircuitPower, FortescueValue current, FortescueValue voltage,
+                                Duration timeConstant, Status status, double equivalentR, double equivalentRZero, double equivalentX, double equivalentXZero) {
+        this(fault, shortCircuitPower, Collections.emptyList(), Collections.emptyList(), current, voltage, Collections.emptyList(),
+                timeConstant, status, equivalentR, equivalentRZero, equivalentX, equivalentXZero);
+    }
+
     /**
      * The results on three phases for current [in A]
      */
@@ -58,6 +77,20 @@ public final class FortescueFaultResult extends AbstractFaultResult {
      */
     public FortescueValue getVoltage() {
         return voltage;
+    }
+
+    /**
+     * The zero-sequence equivalent resistance of the network seen from the fault.
+     */
+    public double getEquivalentRZero() {
+        return equivalentRZero;
+    }
+
+    /**
+     * The zero-sequence equivalent three-phase reactance of the network seen from the fault.
+     */
+    public double getEquivalentXZero() {
+        return equivalentXZero;
     }
 
 }
