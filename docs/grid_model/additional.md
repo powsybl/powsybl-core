@@ -557,14 +557,14 @@ Here the list of objects capable of such regulation by authorized mode:
 
 **Characteristics**
 
-| Attribute        | Unit        | Description                                                                                                                            |
-|------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal                                                                       |
-| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                     |
-| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode) |
-| $Terminal$       |             | The regulating Terminal which can be remote or local                                                                                   |
-| $Mode$           |             | The kind of regulation                                                                                                                 |
-| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                   |
+| Attribute        | Unit        | Description                                                                                                                                                      |
+|------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal <br/> In the reactive target's case, it follows the same sign convention as the equipment. |
+| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                                          |
+| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode)                      |
+| $Terminal$       |             | The regulating Terminal which can be remote or local                                                                                                        |
+| $Mode$           |             | The kind of regulation                                                                                                                                      |
+| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                                        |
 
 **Specifications**
 
