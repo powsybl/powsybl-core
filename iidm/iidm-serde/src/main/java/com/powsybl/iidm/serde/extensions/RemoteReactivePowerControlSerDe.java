@@ -58,7 +58,7 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
             extendable.newVoltageRegulation()
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withRegulating(enabled)
-                .withTargetValue(targetQ)
+                .withTargetValue(-targetQ)
                 .withTerminal(terminal)
                 .build();
         }

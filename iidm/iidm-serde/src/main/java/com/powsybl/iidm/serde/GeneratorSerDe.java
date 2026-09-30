@@ -91,7 +91,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     protected void addExtinctExtensions(Generator g, NetworkSerializerContext context) {
         if (RemoteReactivePowerControlSerDe.isExtensionNeededAndExportable(g, context)) {
             RemoteReactivePowerControl extension = new RemoteReactivePowerControl(g,
-                    g.getVoltageRegulation().getTargetValue(),
+                    -g.getVoltageRegulation().getTargetValue(),
                     g.getVoltageRegulation().getTerminal(),
                     g.getVoltageRegulation().isRegulating());
             context.addExtinctExtensionsToSerialize(g.getId(), extension);
