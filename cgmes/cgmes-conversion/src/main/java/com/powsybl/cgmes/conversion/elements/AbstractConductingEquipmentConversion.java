@@ -849,6 +849,18 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    /**
+     * Sets the voltage regulation target consistently with the regulation point.
+     * <p>
+     * When a regulating terminal is explicitly configured, the target is stored as the
+     * voltage regulation target value. Otherwise, the regulation is local and the target
+     * is stored as the holder local target voltage.
+     * </p>
+     *
+     * @param holder the voltage regulation holder to update
+     * @param targetV the target voltage value
+     * @param regulatingOn {@code true} to enable regulation, {@code false} to disable it
+     */
     protected static <T extends VoltageRegulationHolder<T>> void setVoltageRegulation(VoltageRegulationHolder<T> holder, double targetV, boolean regulatingOn) {
         VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
         if (regulatingOn) {
@@ -860,6 +872,20 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+
+    /**
+     * Sets the voltage regulation target consistently with the regulation point.
+     * <p>
+     * When a regulating terminal is explicitly configured, the target is stored as the
+     * voltage regulation target value. Otherwise, the regulation is local and the target
+     * is stored as the holder local target voltage.
+     * </p>
+     *
+     * @param holder the voltage regulation holder to update
+     * @param targetV the target voltage value
+     * @param regulatingOn {@code true} to enable regulation, {@code false} to disable it
+     * @param targetDeadband the target deadband value
+     */
     protected static <T extends VoltageRegulationHolder<T>> void setVoltageRegulation(VoltageRegulationHolder<T> holder, double targetV, boolean regulatingOn, double targetDeadband) {
         VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
         if (regulatingOn) {
