@@ -31,7 +31,7 @@ class LimitViolationComparatorTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.0)
             .side(TwoSides.ONE)
             .build();
@@ -39,7 +39,7 @@ class LimitViolationComparatorTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.0)
             .side(TwoSides.TWO)
             .build();
@@ -47,7 +47,7 @@ class LimitViolationComparatorTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(900.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(950.0)
             .side(TwoSides.ONE)
             .build();
@@ -56,7 +56,7 @@ class LimitViolationComparatorTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId("group_2")
             .limit(900.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(950.0)
             .side(TwoSides.ONE)
             .build();
@@ -65,7 +65,7 @@ class LimitViolationComparatorTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId("group_1")
             .limit(900.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(950.0)
             .side(TwoSides.ONE)
             .build();
@@ -85,7 +85,7 @@ class LimitViolationComparatorTest {
             .subject(EurostagTutorialExample1Factory.NHV1_NHV2_1)
             .type(LimitViolationType.ACTIVE_POWER)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.0)
             .side(TwoSides.ONE)
             .build();
@@ -93,7 +93,7 @@ class LimitViolationComparatorTest {
             .subject(EurostagTutorialExample1Factory.NHV1_NHV2_2)
             .type(LimitViolationType.APPARENT_POWER)
             .limit(900.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(950.0)
             .side(TwoSides.ONE)
             .build();

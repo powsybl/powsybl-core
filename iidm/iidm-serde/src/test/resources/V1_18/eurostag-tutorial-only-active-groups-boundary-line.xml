@@ -5,8 +5,9 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NGEN" v="24.500000610351563" angle="2.3259763717651367"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN" p="-605.558349609375" q="-225.2825164794922">
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="607.0" localTargetV="24.5" localTargetQ="301.0" bus="NGEN" connectableBus="NGEN" p="-605.558349609375" q="-225.2825164794922">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
@@ -15,7 +16,7 @@
             </iidm:busBreakerTopology>
             <iidm:boundaryLine id="NHV1_XNODE1" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" bus="NHV1" connectableBus="NHV1" pairingKey="XNODE1" p="302.4440612792969" q="98.74027252197266" selectedOperationalLimitsGroupIds="activated_1_1">
                 <iidm:operationalLimitsGroup id="activated_1_1">
-                    <iidm:currentLimits permanentLimit="175.0"/>
+                    <iidm:currentLimits detectionKind="HIGH" permanentLimit="175.0"/>
                 </iidm:operationalLimitsGroup>
             </iidm:boundaryLine>
             <iidm:boundaryLine id="NHV1_XNODE2" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" bus="NHV1" connectableBus="NHV1" pairingKey="XNODE2" p="302.4440612792969" q="98.74027252197266"/>
@@ -29,10 +30,10 @@
             </iidm:busBreakerTopology>
             <iidm:boundaryLine id="XNODE1_NHV2" p0="0.0" q0="0.0" r="1.5" x="13.0" g="2.0E-6" b="1.93E-4" bus="NHV2" connectableBus="NHV2" pairingKey="XNODE1" p="-300.43389892578125" q="-137.18849182128906" selectedOperationalLimitsGroupIds="activated_1_1,activated_1_2">
                 <iidm:operationalLimitsGroup id="activated_1_1">
-                    <iidm:apparentPowerLimits permanentLimit="135.0"/>
+                    <iidm:apparentPowerLimits detectionKind="HIGH" permanentLimit="135.0"/>
                 </iidm:operationalLimitsGroup>
                 <iidm:operationalLimitsGroup id="activated_1_2">
-                    <iidm:currentLimits permanentLimit="500.0"/>
+                    <iidm:currentLimits detectionKind="HIGH" permanentLimit="500.0"/>
                 </iidm:operationalLimitsGroup>
             </iidm:boundaryLine>
             <iidm:boundaryLine id="XNODE2_NHV2" p0="0.0" q0="0.0" r="1.5" x="13.0" g="2.0E-6" b="1.93E-4" bus="NHV2" connectableBus="NHV2" pairingKey="XNODE2" p="-300.43389892578125" q="-137.18849182128906"/>
@@ -44,11 +45,13 @@
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD" p="600.0" q="200.0"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" ratedU1="400.0" ratedU2="158.0" voltageLevelId1="VLHV2" bus1="NHV2" connectableBus1="NHV2" voltageLevelId2="VLLOAD" bus2="NLOAD" connectableBus2="NLOAD" p1="600.8677978515625" q1="274.3769836425781" p2="-600.0" q2="-200.0">
-            <iidm:ratioTapChanger regulating="true" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="158.0">
-                <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
+            <iidm:ratioTapChanger tapPosition="1" loadTapChangingCapabilities="true">
                 <iidm:step rho="0.8505666905244191"/>
                 <iidm:step rho="1.0006666666666666"/>
                 <iidm:step rho="1.150766642808914"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetDeadband="0.0" targetValue="158.0">
+                    <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
+                </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>

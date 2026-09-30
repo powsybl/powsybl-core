@@ -31,6 +31,7 @@ public class PreContingencyResultSerializer extends StdSerializer<PreContingency
         serializerProvider.defaultSerializeField("limitViolationsResult", preContingencyResult.getLimitViolationsResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("networkResult", preContingencyResult.getNetworkResult(), jsonGenerator);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "distributedActivePower", preContingencyResult.getDistributedActivePower());
+        ChangedPhaseTapChangerSerializerUtil.write(preContingencyResult.getChangedPhaseTapChangers(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

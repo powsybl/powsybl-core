@@ -39,7 +39,7 @@ class SecurityAnalysisResultBuilderTest {
             .type(LimitViolationType.CURRENT)
             .limitName("IST")
             .limit(0.0)
-            .reduction(100f)
+            .scaling(100f)
             .value(101)
             .side(TwoSides.ONE)
             .build());
@@ -51,7 +51,7 @@ class SecurityAnalysisResultBuilderTest {
             .type(LimitViolationType.CURRENT)
             .limitName("IST")
             .limit(0.0)
-            .reduction(100f)
+            .scaling(100f)
             .value(110)
             .side(TwoSides.ONE)
             .build());

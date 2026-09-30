@@ -97,9 +97,6 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     private AbstractLoadingLimits(OperationalLimitsGroupImpl owner, DetectionKind detectionKind, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
         this.detectionKind = Objects.requireNonNull(detectionKind);
-        if (detectionKind == DetectionKind.LOW) {
-            LOGGER.warn("BETA feature, there is no guarantee that a LoadingLimit with DetectionKind.LOW will still exist in the model in the next releases");
-        }
         this.permanentLimit = permanentLimit;
         this.permanentLimitName = Objects.requireNonNull(permanentLimitName);
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);

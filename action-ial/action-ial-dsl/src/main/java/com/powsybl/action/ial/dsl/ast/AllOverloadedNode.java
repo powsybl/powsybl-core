@@ -14,8 +14,8 @@ import java.util.List;
  */
 public class AllOverloadedNode extends AbstractBranchActionExpressionNode {
 
-    public AllOverloadedNode(List<String> branchIds, double limitReduction) {
-        super(branchIds, limitReduction);
+    public AllOverloadedNode(List<String> branchIds, double limitScaling) {
+        super(branchIds, limitScaling);
     }
 
     @Override

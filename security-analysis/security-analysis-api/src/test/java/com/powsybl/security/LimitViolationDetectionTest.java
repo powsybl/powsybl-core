@@ -17,9 +17,9 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.security.detectors.AbstractLimitViolationDetectionTest;
-import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.limitscaling.DefaultLimitScalingsApplier;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,8 +50,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
 
     @Override
     protected void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
-                                       LimitType limitType, double limitReduction) {
-        LimitViolationDetection.checkLimitViolation(branch, side, currentValue, limitType, EnumSet.allOf(LoadingLimitType.class), new SimpleLimitsComputer(limitReduction), consumer
+                                       LimitType limitType, double limitScaling) {
+        LimitViolationDetection.checkLimitViolation(branch, side, currentValue, limitType, EnumSet.allOf(LoadingLimitType.class), new SimpleLimitsComputer(limitScaling), consumer
         );
     }
 
@@ -142,8 +142,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     void testSingleTempLimitIncrease() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
-        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
-            List.of(LimitReduction.builder(LimitType.CURRENT, 1.1)
+        DefaultLimitScalingsApplier applier = new DefaultLimitScalingsApplier(
+            List.of(LimitScaling.builder(LimitType.CURRENT, 1.1)
                 .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
                 .build()
@@ -159,15 +159,15 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
         assertEquals(600, violation.getAcceptableDuration());
         assertEquals(1100, violation.getLimit());
-        assertEquals(1, violation.getLimitReduction());
+        assertEquals(1, violation.getLimitScaling());
     }
 
     @Test
     void testTempLimitIntervertedWithIncrease() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
-        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
-            List.of(LimitReduction.builder(LimitType.CURRENT, 1.3)
+        DefaultLimitScalingsApplier applier = new DefaultLimitScalingsApplier(
+            List.of(LimitScaling.builder(LimitType.CURRENT, 1.3)
                 .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
                 .build()
@@ -184,7 +184,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
         assertEquals(60, violation.getAcceptableDuration());
         assertEquals(1100, violation.getLimit());
-        assertEquals(1, violation.getLimitReduction());
+        assertEquals(1, violation.getLimitScaling());
 
         violationsCollector.clear();
         //Check above both limits
@@ -196,7 +196,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         assertEquals("1'", violation.getLimitName());
         assertEquals(0, violation.getAcceptableDuration());
         assertEquals(1500, violation.getLimit());
-        assertEquals(1, violation.getLimitReduction());
+        assertEquals(1, violation.getLimitScaling());
     }
 
     @Test
@@ -289,20 +289,20 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testPermanentLimitLimitsComputer() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        List<LimitReduction> limitReductionList = new ArrayList<>();
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+        List<LimitScaling> limitScalingList = new ArrayList<>();
+        LimitScaling scaling1 = LimitScaling.builder(LimitType.CURRENT, 0.5)
             .withMonitoringOnly(false)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
             .withLimitDurationCriteria(new PermanentDurationCriterion())
             .build();
-        limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        limitScalingList.add(scaling1);
+        DefaultLimitScalingsApplier computer = new DefaultLimitScalingsApplier(limitScalingList);
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.ONE, 315, violationsCollector::add, computer);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
-                assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
+                assertEquals(0.5, violationsCollector.get(0).getLimitScaling());
                 assertEquals(Integer.MAX_VALUE, violationsCollector.get(0).getAcceptableDuration());
                 assertEquals(315, violationsCollector.get(0).getValue(), 0.01);
                 assertEquals(500., violationsCollector.get(0).getLimit(), 0.01);
@@ -313,18 +313,18 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testTemporaryLimitLimitsComputer() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        List<LimitReduction> limitReductionList = new ArrayList<>();
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+        List<LimitScaling> limitScalingList = new ArrayList<>();
+        LimitScaling scaling1 = LimitScaling.builder(LimitType.CURRENT, 0.5)
             .withMonitoringOnly(false)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
             .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
             .build();
-        limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        limitScalingList.add(scaling1);
+        DefaultLimitScalingsApplier computer = new DefaultLimitScalingsApplier(limitScalingList);
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.TWO, 751, violationsCollector::add, computer);
         assertEquals(1, violationsCollector.size());
-        assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
+        assertEquals(0.5, violationsCollector.get(0).getLimitScaling());
         assertEquals(0, violationsCollector.get(0).getAcceptableDuration());
         assertEquals(751, violationsCollector.get(0).getValue(), 0.01);
         assertEquals(1500, violationsCollector.get(0).getLimit(), 0.01);
@@ -335,40 +335,40 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @ParameterizedTest
     @MethodSource("provideUtilCheckLimitViolationArguments")
     void checkLimitViolationMultipleActiveGroupsTest(Identifiable<?> identifiable, ThreeSides side,
-                                                     Collection<Double> limitReductions, LimitType type, double value,
+                                                     Collection<Double> limitScalings, LimitType type, double value,
                                                      Collection<ExpectedLimitViolation> expected) {
-        for (double limitReduction : limitReductions) {
+        for (double limitScaling : limitScalings) {
             Collection<LimitViolation> violations = new ArrayList<>();
             switch (identifiable) {
                 case Branch<?> b -> {
-                    if (limitReduction == 1) {
+                    if (limitScaling == 1) {
                         LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value, type, Set.of(LoadingLimitType.values()), new LimitsComputer.NoModificationsImpl(), violations::add);
                     } else {
                         /*
-                         * multiply by limitReduction because all the limits will be reduced, so we also want to reduce
+                         * multiply by limitScaling because all the limits will be scaled, so we also want to scale
                          * the actual value to match that.
-                         * The arguments to this method test both with and without limitReduction.
-                         * All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                         * To get the same situation, we need to reduce both the limits and the value.
-                         * The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                         * The arguments to this method test both with and without limitScaling.
+                         * All the cases with a limitScaling are the exact same case as without, but with a coefficient
+                         * To get the same situation, we need to scale both the limits and the value.
+                         * The limits are supposed to be scaled by checkAllTemporaryLimits, and we scale the value in the test
                          */
-                        LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value * limitReduction,
-                            type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
+                        LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value * limitScaling,
+                            type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitScaling), violations::add);
                     }
                 }
                 case ThreeWindingsTransformer t -> {
-                    if (limitReduction == 1) {
+                    if (limitScaling == 1) {
                         LimitViolationDetection.checkLimitViolation(t, side, value, type, Set.of(LoadingLimitType.values()), new LimitsComputer.NoModificationsImpl(), violations::add);
                     } else {
                         /*
-                        multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
-                        the arguments to this method test both with and without limitReduction.
-                        All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                        To get the same situation, we need to reduce both the limits and the value.
-                        The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                        multiply by limitScaling because all the limits will be scaled, so we also want to scale the actual value to match that.
+                        the arguments to this method test both with and without limitScaling.
+                        All the cases with a limitScaling are the exact same case as without, but with a coefficient
+                        To get the same situation, we need to scale both the limits and the value.
+                        The limits are supposed to be scaled by checkAllTemporaryLimits, and we scale the value in the test
                         */
-                        LimitViolationDetection.checkLimitViolation(t, side, value * limitReduction, type,
-                            Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
+                        LimitViolationDetection.checkLimitViolation(t, side, value * limitScaling, type,
+                            Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitScaling), violations::add);
                     }
                 }
                 default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
@@ -515,30 +515,30 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testLimitsComputerMultipleSelectedGroups() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
-        double reductionValue = 0.75;
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, reductionValue)
+        double scalingValue = 0.75;
+        LimitScaling scaling1 = LimitScaling.builder(LimitType.CURRENT, scalingValue)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of(EurostagTutorialExample1Factory.NHV1_NHV2_1)))
             //apply to default and activated_1_2 but not to activated_1_1
             .withOperationalLimitsGroupIdSelection("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
             .build();
-        List<LimitReduction> limitReductionList = new ArrayList<>();
-        limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        List<LimitScaling> limitScalingList = new ArrayList<>();
+        limitScalingList.add(scaling1);
+        DefaultLimitScalingsApplier computer = new DefaultLimitScalingsApplier(limitScalingList);
         checkCurrent(network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1), TwoSides.ONE, 1000, violationsCollector::add, computer);
         Assertions.assertThat(violationsCollector)
             .hasSize(2)
             .extracting(
                 LimitViolation::getValue,
                 LimitViolation::getLimit,
-                LimitViolation::getLimitReduction,
+                LimitViolation::getLimitScaling,
                 LimitViolation::getAcceptableDuration,
                 LimitViolation::getOperationalLimitsGroupId
             )
             .containsExactlyInAnyOrderElementsOf(
                 List.of(
-                    new Tuple(1000., 500., reductionValue, Integer.MAX_VALUE, "DEFAULT"),
-                    new Tuple(1000., 700., reductionValue, 30, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
+                    new Tuple(1000., 500., scalingValue, Integer.MAX_VALUE, "DEFAULT"),
+                    new Tuple(1000., 700., scalingValue, 30, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
                 )
             );
     }

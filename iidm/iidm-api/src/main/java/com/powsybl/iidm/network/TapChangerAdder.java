@@ -34,14 +34,6 @@ public interface TapChangerAdder<
 
     S setSolvedTapPosition(Integer solvedTapPosition);
 
-    S setRegulating(boolean regulating);
-
-    S setRegulationTerminal(Terminal regulationTerminal);
-
-    default S setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException();
-    }
-
     A beginStep();
 
     C add();

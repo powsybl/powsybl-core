@@ -267,7 +267,11 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     private static void replaceRegulatedTerminal(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w, ThreeT2wsR threeT2ws) {
-        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3w, threeT2ws).ifPresent(rtc::setRegulationTerminal));
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulatingTerminal(), t3w, threeT2ws).ifPresent(terminal -> {
+            if (rtc.getVoltageRegulation() != null) {
+                rtc.getVoltageRegulation().setTerminal(terminal, rtc.getVoltageRegulation().getTargetValue());
+            }
+        }));
         t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3w, threeT2ws).ifPresent(ptc::setRegulationTerminal));
     }
 
@@ -325,7 +329,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     // TODO For now, only a few extensions are supported. But a wider mechanism should be developed to support custom extensions.
     private static List<String> copyExtensions(ThreeWindingsTransformer t3w, ThreeT2wsR threeT2w) {
         List<String> lostExtensions = new ArrayList<>();
-        t3w.getExtensions().stream().map(Extension::getName).forEach(extensionName -> {
+        t3w.getExtensionsStream().map(Extension::getName).forEach(extensionName -> {
             boolean copied = copyExtension(extensionName, t3w, threeT2w);
             if (!copied) {
                 lostExtensions.add(extensionName);

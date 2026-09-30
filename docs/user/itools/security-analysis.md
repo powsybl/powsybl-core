@@ -25,7 +25,7 @@ $> itools security-analysis --help
 usage: itools [OPTIONS] security-analysis [--actions-file <FILE>] --case-file
        <FILE> [--contingencies-file <FILE>] [--external] [--help] [-I
        <property=value>] [--import-parameters <IMPORT_PARAMETERS>]
-       [--limit-reductions-file <FILE>] [--limit-types <LIMIT-TYPES>]
+       [--limit-scalings-file <FILE>] [--limit-types <LIMIT-TYPES>]
        [--log-file <FILE>] [--monitoring-file <FILE>] [--output-file <FILE>]
        [--output-format <FORMAT>] [--parameters-file <FILE>] [--strategies-file
        <FILE>] [--with-extensions <EXTENSIONS>]
@@ -42,7 +42,7 @@ Available arguments are:
  -I <property=value>                          use value for given importer
                                               parameter
     --import-parameters <IMPORT_PARAMETERS>   the importer configuration file
-    --limit-reductions-file <FILE>            limit reductions file (.json)
+    --limit-scalings-file <FILE>              limit scalings file (.json)
     --limit-types <LIMIT-TYPES>               limit type filter (all if not set)
     --log-file <FILE>                         log output path (.zip)
     --monitoring-file <FILE>                  monitoring file (.json) to get
@@ -125,8 +125,8 @@ Example
 }
 ```
 
-`--limit-reductions-file`  
-Path to a JSON file defining limit reductions. See [Limit reductions](../../simulation/security/limit-reductions.md) for principles and details.
+`--limit-scalings-file`  
+Path to a JSON file defining limit scalings. See [Limit scalings](../../simulation/security/limit-scalings.md) for principles and details.
 
 `--external`<br>
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
@@ -153,7 +153,7 @@ This option defines the path of the [parameters](#parameters) file of the simula
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
-The available security analysis implementations are described [here](../../simulation/security/implementations.md).
+The available security analysis implementations are described [here](../../simulation/security/index.md#implementations).
 
 ## Contingencies
 Contingencies are provided through `--contingencies-file`. The file is interpreted by the configured `ContingenciesProviderFactory` (see [`componentDefaultConfig`](../configuration/componentDefaultConfig.md)).
@@ -163,10 +163,14 @@ Typical inputs are:
 - JSON contingencies list (type `ContingencyList`, see examples above)
 
 ## Parameters
-<span style="color: red">TODO</span>
+The available parameters are described [here](../../simulation/security/configuration.md#parameters).
 
 ## Results
 The expected results are described in the [security analysis documentation](../../simulation/security/index.md#outputs)
+
+### with-extensions
+Use the `--with-extensions` parameter to activate a list of `com.powsybl.security.interceptors.SecurityAnalysisInterceptor`
+implementations.
 
 ## Examples
 
@@ -347,7 +351,7 @@ The "version" field of a JSON operator strategy list must be located at the top 
       "id" : "decreaseLoadP",
       "loadId" : "LOAD",
       "relativeValue" : false,
-      "activePowerValue" : 250.0
+      "activePowerValue" : 500.0
     }, {
       "type" : "GENERATOR",
       "id" : "decreaseGenP",
@@ -376,14 +380,19 @@ Post-contingency limit violations:
 +--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
 | contingency1 | CONVERGED |        | Equipment (1) |       |         |              |                |                |           |          |                  |                |
 |              |           |        | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 1008,9288 | 460,0000 |         548,9288 |         219,33 |
+Operator strategy limit violations:
++--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+| Operator strategy | Status    | Contingency | Equipment (1) | End   | Country | Base voltage | Violation type | Violation name | Value     | Limit    | abs(value-limit) | Loading rate % |
++--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+| strategy_gen_load | CONVERGED | contingency1 | Equipment (1) |       |         |              |                |                |           |          |                  |                |
+|                   |           |              | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 831,3471 | 460,0000 |         371,3471 |         180,73 |
 +--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
 ```
 
-- After adding operator strategies and actions, the simulation result written out by itools does not yet include information about operator strategies remedial action violations.
 - `itools` print:
   - ✅ Pre-contingency violations
   - ✅ Post-contingency limit violations
-  - ⬜️ Operator strategy remedial action violations
+  - ✅ Operator strategy remedial action violations
 - All simulation results are contained in the output result, which can be retrieved using `--output-file` and `--output-format`.
 
 Example
@@ -395,7 +404,7 @@ itools security-analysis \
   --actions-file action-load-gen.json \
   --output-file "/tmp/result.json" --output-format JSON
 ```
-The result shows that no more limit violations exist.
+A result can show that no more limit violations exist when `operatorStrategyResults:limitViolations` is empty.
 ```json 
 ...
 "operatorStrategyResults" : [ {
@@ -411,12 +420,12 @@ The result shows that no more limit violations exist.
 ```
 
 ### Example 4
-The following example shows how to run a security analysis simulation with `limit reductions` of a given network.
+The following example shows how to run a security analysis simulation with `limit scalings` of a given network.
 
 ```shell
 itools security-analysis \
   --case-file network.xiidm \
-  --limit-reductions-file limit-reductions.json
+  --limit-scalings-file limit-scalings.json
 ```
 
 #### Inputs
@@ -475,12 +484,12 @@ itools security-analysis \
 </details>
 
 <details>
-<summary>Limit Reductions: reduce the current limit of NHV1_NHV2_1 by 10%</summary>
+<summary>Limit Scalings: Scale the current limit of NHV1_NHV2_1 by a factor of 90% (reduce it by 10%)</summary>
 
 ```json lines
 {
   "version": "1.0",
-  "limitReductions": [
+  "limitScalings": [
     {
       "value": 0.9,
       "limitType": "CURRENT",
@@ -495,7 +504,7 @@ itools security-analysis \
 </details>
 
 #### Output
-The reduction affect results as pre-contingency violations
+The scaling affects results as pre-contingency violations
 ``` shell
 Pre-contingency violations:
 +--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+
@@ -505,10 +514,3 @@ Pre-contingency violations:
 +--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+
 ```
 ***
-
-<span style="color: red">TODO</span>: to be clean and completed with the following information
-
-
-### with-extensions
-Use the `--with-extensions` parameter to activate a list of `com.powsybl.security.interceptors.SecurityAnalysisInterceptor`
-implementations.

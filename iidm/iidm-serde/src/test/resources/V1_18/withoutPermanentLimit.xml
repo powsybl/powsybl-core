@@ -16,12 +16,12 @@
     </iidm:substation>
     <iidm:line id="NHV1_NHV2_1" r="3.0" x="33.0" b1="1.93E-4" b2="1.93E-4" bus1="NHV1" connectableBus1="NHV1" voltageLevelId1="VLHV1" bus2="NHV2" connectableBus2="NHV2" voltageLevelId2="VLHV2" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits>
+            <iidm:currentLimits detectionKind="HIGH">
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="1000.0"/>
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:currentLimits>
+            <iidm:currentLimits detectionKind="HIGH">
                 <iidm:temporaryLimit name="infinite duration" value="300.0"/>
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
             </iidm:currentLimits>

@@ -11,8 +11,8 @@ package com.powsybl.action;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -221,18 +221,18 @@ class EqualsActionTest {
                 .withNetworkElementId("neId")
                 .withReactivePowerSetpoint(10.)
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         StaticVarCompensatorAction action2 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withStaticVarCompensatorId("neId")
                 .withReactivePowerSetpoint(10.)
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         Action action3 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withReactivePowerSetpoint(10.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         Action action4 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withNetworkElementId("neId")
@@ -242,13 +242,13 @@ class EqualsActionTest {
         StaticVarCompensatorAction action5 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         StaticVarCompensatorAction action6 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withStaticVarCompensatorId("neId2")
                 .withReactivePowerSetpoint(10.)
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         new EqualsTester()
                 .addEqualityGroup(action1, action2)

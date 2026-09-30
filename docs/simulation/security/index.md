@@ -5,7 +5,7 @@
 configuration.md
 contingency-dsl.md
 action-dsl.md
-limit-reductions.md
+limit-scalings.md
 ```
 
 The security analysis is a simulation that checks violations on a network. These checks can be done on the base case or
@@ -135,25 +135,27 @@ state or post-contingency state with a contingency id or both. For example:
   contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the
   branch.
 
-(security-limit-reductions)=
-### Limit reductions
+(security-limit-scalings)=
+### Limit scalings
 
-Limit reductions can be specified in order to detect when a specific limit is **nearly** reached, without having to
+Limit scalings can be specified in order to detect when a specific limit is **nearly** reached, without having to
 artificially modify the limit itself.
-For instance, with a limit reduction set to 95% for a limit of 1000 MW, the security analysis will flag a limit
+For instance, with a limit scaling set to 95% for a limit of 1000 MW, the security analysis will flag a limit
 violation for any value exceeding 950 MW.
+Limit scalings can also use a scaling higher than 100%. With a limit scaling of 110% for a limit of 1000 MW, the security
+analysis will flag a limit violation for any value exceeding 1100 MW.
 
-Each limit reduction has its own criteria specifying for which limits and under what conditions it should be applied.
+Each limit scaling has its own criteria specifying for which limits and under what conditions it should be applied.
 These criteria can include:
 
 - the type of limit (current, active power or apparent power);
 - the use case (for monitoring only or also for applying remedial actions);
 - the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.);
-- the network elements targeted by the reduction (by ids, countries and/or nominal voltages);
-- which operational limits are affected by the reduction (permanent or temporary + acceptable duration);
-- which specified operational limit groups are affected by the reduction.
+- the network elements targeted by the scaling (by ids, countries and/or nominal voltages);
+- which operational limits are affected by the scaling (permanent or temporary + acceptable duration).
+- which specified operational limit groups are affected by the scaling.
 
-You can find more details about limit reductions [here](./limit-reductions).
+You can find more details about limit scalings [here](./limit-scalings).
 
 ## Outputs
 
@@ -168,7 +170,17 @@ also have the side where the violation has been detected.
 The pre-contingency results also contain the network results based on given state monitors. A network result groups
 branch results, bus results and three-winding transformer results. All elementary results are fully extendable.
 
+The pre-contingency results may also contain the list of the changed phase tap changers. Each changed phase tap changer result identifies a transformer whose tap position has been moved during the security analysis, giving the transformer ID, the side for the three-winding transformers, the initial tap position (before optimization) and the final tap position (after optimization).
+
 ### Post-contingency results
+
+The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
+them the violations detected. To limit information to the user, only new violations or worsened violations can be
+listed.
+
+The post-contingency results also contain the network results based on given state monitors.
+
+They may also contain the list of the changed phase tap changers. Each changed phase tap changer result identifies a transformer whose tap position has been moved during the security analysis, giving the transformer ID, the side for the three-winding transformers, the initial tap position (before optimization) and the final tap position (after optimization).
 
 The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
 them the violations detected. To limit information to the user, only new violations or worsened violations can be
@@ -194,6 +206,25 @@ Pre-contingency, post-contingency, and operator strategy results all report the 
   - losses changes,
   - injections (generators, loads, ...) changes by the operator strategy actions, if any, such as disconnections, reconnections, or setpoint modifications.
 
+### Changed Phase Changers
+
+The security analysis can report the tap position changes of phase tap changers that have been moved during the
+computation. A `ChangedPhaseTapChanger` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase tap changer on a three-winding transformer, the initial tap position before optimization
+and the new tap position after optimization. The side is required for three-winding transformers because they can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. For two-winding transformers the side is omitted (`null`). The record is validated on construction: the transformer ID must not be `null`.
+
+When serialized to JSON, the changed phase tap changers are written as a `changedPhaseTapChangers` array of objects with the
+following fields:
+
+| Field            | Type    | Description                                       |
+|------------------|---------|---------------------------------------------------|
+| `transformerId`  | String  | ID of the phase tap changer's transformer               |
+| `side`           | String  | Optional side of a three-winding transformer (`ONE`, `TWO`, `THREE`); omitted for two-winding transformers |
+| `initialTap`     | int     | Tap position before optimization                  |
+| `finalTap`         | int     | Tap position after optimization                   |
+
+The serialized entries are sorted by `transformerId` for deterministic output. When no phase tap changer has been moved,
+the `changedPhaseTapChangers` field is omitted from the JSON output.
+
 ### Extensions
 
 The results of a security analysis are extendable, meaning you can have additional information attached to the network,
@@ -205,7 +236,7 @@ The following example is a result of a security analysis with remedial action, e
 
 ```json
 {
-  "version" : "1.9",
+  "version" : "1.10",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -220,7 +251,7 @@ The following example is a result of a security analysis with remedial action, e
         "operationalLimitsGroupId" : "activated_1_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
-        "limitReduction" : 0.95,
+        "limitScaling" : 0.95,
         "value" : 110.0,
         "side" : "ONE",
         "extensions" : {
@@ -269,7 +300,12 @@ The following example is a result of a security analysis with remedial action, e
         "i3" : 3.2
       } ]
     },
-    "distributedActivePower" : 1.23
+    "distributedActivePower" : 1.23,
+    "changedPhaseTapChangers" : [ {
+      "transformerId" : "T1",
+      "initialTap" : 2,
+      "finalTap" : 4
+    } ]
   },
   "postContingencyResults" : [ {
     "contingency" : {
@@ -298,7 +334,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO",
         "extensions" : {
@@ -318,7 +354,7 @@ The following example is a result of a security analysis with remedial action, e
         },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.9,
+        "limitScaling" : 0.9,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
@@ -329,7 +365,7 @@ The following example is a result of a security analysis with remedial action, e
         },
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.7,
+        "limitScaling" : 0.7,
         "value" : 115.0,
         "extensions" : {
           "Voltage" : {
@@ -342,7 +378,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "ONE"
       }, {
@@ -351,7 +387,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO"
       } ],
