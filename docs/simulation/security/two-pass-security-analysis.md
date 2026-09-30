@@ -32,7 +32,7 @@ This first pass produces the usual security analysis results and is used to iden
 
 ### Analysis and decision criterion
 
-The security analysis results from the first pass are analysed to produce quantitites used in a decision criterion. 
+The security analysis results from the first pass are analyzed using a decision criterion. 
 This decision criterion decides which contingencies are sent forward to the second pass.
 Currently, a contingency is selected for the second pass when the first pass:
 
@@ -49,7 +49,7 @@ The final result keeps the first-pass result for the contingencies that do not n
 
 The two-pass approach makes it possible to:
 
-- run a first screening on all contingencies with a provider suited to large volumes
+- run a first analysis on all contingencies with a provider suited to large volumes
 - focus the second analysis only on the contingencies that are sensitive or harder to solve
 - combine performance and robustness in the same study workflow
 
@@ -92,7 +92,7 @@ It defines:
 
 ```yaml
 twopass-security-analysis-parameters:
-  firstProviderName: LoadFlow
+  firstProviderName: OpenLoadFlow
   secondProviderName: DynaFlow
 ```
 
@@ -100,7 +100,7 @@ twopass-security-analysis-parameters:
 
 ```xml
 <twopass-security-analysis-parameters>
-    <firstProviderName>LoadFlow</firstProviderName>
+    <firstProviderName>OpenLoadFlow</firstProviderName>
     <secondProviderName>DynaFlow</secondProviderName>
 </twopass-security-analysis-parameters>
 ```
