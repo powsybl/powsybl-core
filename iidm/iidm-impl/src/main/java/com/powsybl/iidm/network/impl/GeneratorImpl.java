@@ -253,6 +253,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantIndex = network.get().getVariantIndex();
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         double oldValueTargetV = getTargetV();
+        double oldEquivalentLocalTargetV = getEquivalentLocalTargetV();
         if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
             getVoltageRegulation().setTargetValue(targetV);
             getNetwork().invalidateValidationLevel();
@@ -260,6 +261,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             setLocalTargetV(targetV);
         }
         notifyUpdate(TARGET_V, variantId, oldValueTargetV, targetV);
+        notifyUpdate("equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, getEquivalentLocalTargetV());
         return this;
     }
 
@@ -268,6 +270,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantIndex = network.get().getVariantIndex();
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         double oldTargetV = getTargetV();
+        double oldEquivalentLocalTargetV = getEquivalentLocalTargetV();
         if (voltageRegulation != null) {
             if (hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
                 oldTargetV = getVoltageRegulation().getTargetValue();
@@ -285,6 +288,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             setLocalTargetV(equivalentLocalTargetV);
         }
         notifyUpdate(TARGET_V, variantId, oldTargetV, targetV);
+        notifyUpdate("equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, getEquivalentLocalTargetV());
         getNetwork().invalidateValidationLevel();
         return this;
     }

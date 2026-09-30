@@ -333,7 +333,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         // WHEN
         generator.setTargetV(newTargetV);
         // THEN
-        assertEquals(2, listener.getEvents().size());
+        assertEquals(3, listener.getEvents().size());
         NetworkEvent firstEvent = listener.getEvents().getFirst();
         assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
         assertEquals("localTargetV", ((UpdateNetworkEvent) firstEvent).attribute());
@@ -346,6 +346,12 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         assertEquals(newTargetV, ((UpdateNetworkEvent) secondEvent).newValue());
         assertEquals(oldTargetV, ((UpdateNetworkEvent) secondEvent).oldValue());
         assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
+        NetworkEvent thirdEvent = listener.getEvents().get(2);
+        assertEquals(NetworkEvent.Type.UPDATE, thirdEvent.getType());
+        assertEquals("equivalentLocalTargetV", ((UpdateNetworkEvent) thirdEvent).attribute());
+        assertEquals(newTargetV, ((UpdateNetworkEvent) thirdEvent).newValue());
+        assertEquals(oldTargetV, ((UpdateNetworkEvent) thirdEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) thirdEvent).id());
     }
 
     @Test
@@ -362,7 +368,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         // WHEN
         generator.setTargetV(newTargetV, newEquivalentTargetV);
         // THEN
-        assertEquals(3, listener.getEvents().size());
+        assertEquals(4, listener.getEvents().size());
         NetworkEvent firstEvent = listener.getEvents().getFirst();
         assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
         assertEquals("localTargetV", ((UpdateNetworkEvent) firstEvent).attribute());
@@ -381,6 +387,12 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         assertEquals(newTargetV, ((UpdateNetworkEvent) thirdEvent).newValue());
         assertEquals(oldTargetV, ((UpdateNetworkEvent) thirdEvent).oldValue());
         assertEquals(id, ((UpdateNetworkEvent) thirdEvent).id());
+        NetworkEvent fourthEvent = listener.getEvents().get(3);
+        assertEquals(NetworkEvent.Type.UPDATE, fourthEvent.getType());
+        assertEquals("equivalentLocalTargetV", ((UpdateNetworkEvent) fourthEvent).attribute());
+        assertEquals(newEquivalentTargetV, ((UpdateNetworkEvent) fourthEvent).newValue());
+        assertEquals(oldTargetV, ((UpdateNetworkEvent) fourthEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) fourthEvent).id());
     }
 
 }

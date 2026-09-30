@@ -101,7 +101,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         setLocalTargetQ(targetQ);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetQ", variantId, oldValue, targetQ);
-        return this.setLocalTargetQ(targetQ);
+        return this;
     }
 
     /**
