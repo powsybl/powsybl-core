@@ -120,7 +120,7 @@ public class DynamicSimulationTool implements Tool {
                         .get());
                 options.addOption(Option.builder()
                         .longOpt(OUTPUT_CASE_FILE)
-                        .desc("modified network base name")
+                        .desc("modified network output path")
                         .hasArg()
                         .argName("FILE")
                         .get());
@@ -159,6 +159,8 @@ public class DynamicSimulationTool implements Tool {
             } else {
                 throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
             }
+        } else if (line.hasOption(OUTPUT_CASE_FORMAT)) {
+            throw new ParseException("Missing required option: " + OUTPUT_CASE_FILE);
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
