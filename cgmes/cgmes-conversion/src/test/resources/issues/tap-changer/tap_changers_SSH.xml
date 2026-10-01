@@ -1,0 +1,67 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:TapChangers_SSH">
+        <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+        <md:Model.description>Minimal tap changer state variables and control states</md:Model.description>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:TapChangers_EQ"/>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:RatioTapChanger rdf:about="#RTC1">
+        <cim:TapChanger.step>4</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:RatioTapChanger>
+    <cim:PhaseTapChangerTabular rdf:about="#PTC4">
+        <cim:TapChanger.step>2</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:PhaseTapChangerTabular>
+    <cim:TapChangerControl rdf:about="#TCC1">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>1.0</cim:RegulatingControl.targetValue>
+    </cim:TapChangerControl>
+    <cim:TapChangerControl rdf:about="#TCC2">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>65.0</cim:RegulatingControl.targetValue>
+    </cim:TapChangerControl>
+    <cim:RatioTapChanger rdf:about="#RTC2">
+        <cim:TapChanger.step>4</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:RatioTapChanger>
+    <cim:PhaseTapChangerTabular rdf:about="#PTC3">
+        <cim:TapChanger.step>3</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:PhaseTapChangerTabular>
+    <cim:TapChangerControl rdf:about="#TCC3">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none"/>
+        <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>0.0</cim:RegulatingControl.targetValue>
+    </cim:TapChangerControl>
+    <cim:RatioTapChanger rdf:about="#RTC5">
+        <cim:TapChanger.step>4</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:RatioTapChanger>
+    <cim:PhaseTapChangerTabular rdf:about="#PTC6">
+        <cim:TapChanger.step>2</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:PhaseTapChangerTabular>
+    <cim:TapChangerControl rdf:about="#TCC4">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none"/>
+        <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>1.0</cim:RegulatingControl.targetValue>
+    </cim:TapChangerControl>
+    <cim:PhaseTapChangerLinear rdf:about="#PTC7">
+        <cim:TapChanger.step>10</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:PhaseTapChangerLinear>
+</rdf:RDF>
