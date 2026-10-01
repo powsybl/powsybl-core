@@ -147,7 +147,7 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setBus2(bus2.getId())
                 .setReactiveModel(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR)
                 .setPowerFactor(0.92)
-                .setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP)
+                .setControlMode(AcDcConverter.ControlMode.DC_DROOP)
                 .setTargetVdc(502.)
                 .setTargetP(301.)
                 .setPccTerminal(lineBb.getTerminal1())

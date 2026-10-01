@@ -14,8 +14,10 @@ import com.powsybl.security.SecurityAnalysisInputInterface;
  * in order to customize its {@link SecurityAnalysisInputInterface}, in particular
  * contingencies and limit violations detection.
  *
+ * @deprecated This interface will be removed on later versions, avoid new usages of it.
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
+@Deprecated(forRemoval = true, since = "7.4.0")
 public interface SecurityAnalysisPreprocessor {
 
     /**

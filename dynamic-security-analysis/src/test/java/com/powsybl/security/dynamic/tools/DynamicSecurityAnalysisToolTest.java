@@ -110,7 +110,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(options, "event-models-file", false, true);
         assertOption(options, "strategies-file", false, true);
         assertOption(options, "actions-file", false, true);
-        assertOption(options, "limit-reductions-file", false, true);
+        assertOption(options, "limit-scalings-file", false, true);
     }
 
     @Test

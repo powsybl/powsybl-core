@@ -129,7 +129,8 @@ to specific operational durations.
 A temporary limit thus has an **acceptable duration**.
 
 The component on which the current limits are applied can safely remain
-between the preceding limit (it could be another temporary limit or a permanent limit) and this limit for a duration up to the acceptable duration.
+between the preceding limit (it could be another temporary limit or a permanent limit) and the limit __directly above__ for a duration up to the acceptable duration
+of the limit __directly above__.
 Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all high loading limits):
 
 ![Loading limits model](img/current-limits.svg){width="50%" align=center class="only-light"}
@@ -139,26 +140,95 @@ Note that, following this modeling, in general, the last temporary limit (the hi
 If temporary limits are modeled, the permanent limit becomes mandatory.
 If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
 
+To create a high loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("group").newCurrentLimits()
+    .setPermanentLimit(600)
+    .beginTemporaryLimit()
+    .setName("10'")
+    .setAcceptableDuration(60 * 10)
+    .setValue(1000)
+    .endTemporaryLimit()
+    .add();
+```
+The detection kind is high by default, there is no need to specify it.
+
 ### Low loading limits
 
 ```{note}
-Currently, this model is in BETA and only available in the IIDM representation. There is no import or export of this kind of limit with any
-exchange format.
-The model is subject to change and support for downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.) may vary.
+Import / export of low limits is available starting from IIDM 1.18 (PowSyBl 7.4.0). Networks that contain low limits
+can be exported to IIDM 1.17 or earlier, but the low limits are converted to high limits. See 
+[converting low limits to high limits](#converting-low-limits-to-high-limits) for details.
+
+Low limits might not yet be supported by downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.).
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
 
 If you're unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html)
 ```
 
-Low loading limits are defined by one or more temporary limits. Contrary to high loading limits, low loading limits
+Low loading limits are defined by one or more temporary limits (each having an __acceptable duration__). Contrary to high loading limits, low loading limits
 do not have a permanent limit.
 
 The component on which the current limits are applied can safely remain
-at a given level for a duration up to the acceptable duration of the limit directly below the given level.
+at a given level (between the preceding limit and the limit above) for a duration up to the acceptable duration of the limit __directly below__ the given level (
+contrary to high limit where it's the acceptable duration of the limit __directly above__).
 Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all low loading limits):
 
 ![Loading limits model](img/current-limits-low.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits-low.svg){width="50%" align=center class="only-dark"}
+
+To create a low loading limit:
+```java
+Network network = //our network;
+Line line = network.getLine("my line name");
+
+line.newOperationalLimitsGroup2("low limit").newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(60 * 40)
+            .setValue(500)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(900)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("5'")
+            .setAcceptableDuration(60 * 5)
+            .setValue(1200)
+            .endTemporaryLimit()
+            .add();
+```
+The detection kind is high by default, we need to specify that we want a low limit.
+
+(converting-low-limits-to-high-limits)=
+### Converting low limits to high limits
+
+When converting a low limit to a high limit, the goal is that querying the acceptable duration for a given value in the limit
+should yield the same acceptable duration and name of the limit after converting the low limit to the high limit.
+
+That means, with $V$ the set of all possible values
+for the equipment having the limit, with $L$ the function that gives the acceptable duration for a value $v \in V$ on the set of low limits, $H$ the function
+that gives the acceptable duration for a value $v \in V$ on the set of high limits (converted from low limits), then
+
+$$\forall v \in V, L(v) = H(v)$$
+
+Here is a scheme to represent the conversion:
+
+![Low to high limit](img/current-limits-low_to_high_conversion.svg){width="100%" align=center class="only-light"}
+![Low to high limit](img/dark_mode/current-limits-low_to_high_conversion.svg){width="100%" align=center class="only-dark"}
+
+The first temporary of the low limit is used as the permanent limit of the high limit. Then each temporary limit is
+built as such:
+- 1st temporary limit of the high: value of the 2nd temporary of the low + name and duration of 1st temporary of the low
+- 2nd temporary of the high: value of the 3rd temporary of the low + name and duration of the 2nd temporary of the low
+- etc...
+- last temporary of the high: value at infinity + name and duration of the last temporary of the low
 
 (limit-group-collection)=
 ### Limit group collection
@@ -407,12 +477,12 @@ A ratio tap changer is described by a set of tap positions (or steps) within whi
 - the solved position index of the tap that represents the index after a calculation
 - whether the ratio tap changer can change tap positions onload or only offload
 
-If the ratio tap changer can change tap positions onload, regulation is specified as follows:
-- whether the tap changer is regulating or not
-- the regulation mode, which can be `VOLTAGE` or `REACTIVE_POWER`: the tap changer either regulates the voltage or the reactive power
-- the regulation value (either a voltage value in `kV` or a reactive power value in `MVar`)
-- the regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
-- the target deadband, which defines a margin on the regulation so as to avoid an excessive update of controls
+If the ratio tap changer can change tap positions onload, regulation is specified by:
+- if the tap changer is regulating, `loadTapChangingCapabilities` must be set to `true`
+- the regulation mode, for more information see [Voltage Regulation - Characteristics - Mode](#voltage-regulation)
+- the regulation value, for more information see [Voltage Regulation - Characteristics - TargetValue](#voltage-regulation)
+- the regulating terminal, for more information see [Voltage Regulation - Characteristics - Terminal](#voltage-regulation)
+- the target deadband, for more information see [Voltage Regulation - Characteristics - TargetDeadBand](#voltage-regulation)
 
 
 Each step of a ratio tap changer has the following attributes:
@@ -433,10 +503,12 @@ twoWindingsTransformer.newRatioTapChanger()
     .setLowTapPosition(-1)
     .setTapPosition(0)
     .setLoadTapChangingCapabilities(true)
-    .setRegulating(true)
-    .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-    .setRegulationValue(25)
-    .setRegulationTerminal(twoWindingsTransformer.getTerminal1())
+    .newVoltageRegulation()
+        .withRegulating(true)
+        .withMode(RegulationMode.VOLTAGE)
+        .withTargetValue(25)
+        .withTerminal(twoWindingsTransformer.getTerminal1())
+        .add()
     .beginStep()
         .setRho(0.95)
         .setR(1.)
@@ -460,3 +532,88 @@ twoWindingsTransformer.newRatioTapChanger()
         .endStep()
     .add()
 ```
+
+(voltage-regulation)=
+## Voltage Regulation
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/regulation/VoltageRegulation.html)
+
+A Voltage Regulation models the behavior of equipment that can regulate voltage either directly or through the control of reactive power, in order to regulate voltage.
+Unlike in CGMES, the VoltageRegulation object isn't shared: each IIDM object capable of voltage regulation have its own.
+
+Here the list of objects capable of such regulation by authorized mode:
+
+| Equipment                                                                  | Voltage | Reactive Power | Voltage Per Reactive Power | Reactive Power Per Active Power |
+|----------------------------------------------------------------------------|---------|----------------|----------------------------|---------------------------------|
+| [Battery](./network_subnetwork.md#battery)                                 | X       | X (*)          |                            |                                 |
+| [Generator](./network_subnetwork.md#generator)                             | X       | X (*)          |                            | X (Not yet implemented)         |
+| [RatioTapChanger](#ratio-tap-changer)                                      | X (*)   | X (*)          |                            |                                 |
+| [ShuntCompensator](./network_subnetwork.md#shunt-compensator)              | X       |                |                            |                                 |
+| [StaticVarCompensator](./network_subnetwork.md#static-var-compensator)     | X       | X              | X                          |                                 |
+| [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X (*)          |                            |                                 |
+| [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter) | X       | X (*)          |                            |                                 |
+
+(*) The terminal is required
+
+**Characteristics**
+
+| Attribute        | Unit        | Description                                                                                                                            |
+|------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal                                                                       |
+| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                     |
+| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode) |
+| $Terminal$       |             | The regulating Terminal which can be remote or local                                                                                   |
+| $Mode$           |             | The kind of regulation                                                                                                                 |
+| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                   |
+
+**Specifications**
+
+The voltageRegulation is optional. If it is missing, the equipment is not regulating.  
+If the voltageRegulation is absent, the localTargetQ must be set so that localTargetQ is mandatory for the following equipment to compute their reactive power injection:
+ - [Battery](./network_subnetwork.md#battery)
+ - [Generator](./network_subnetwork.md#generator)
+ - [VscConverterStation](./network_subnetwork.md#vsc-converter-station)
+ - [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter)
+
+The values `Regulating` and `Mode` are always required. `TargetValue` is required when the `Terminal` is set.
+
+`Terminal` is optional. If not set, the local terminal of the connectable will be used.  
+Once a `Terminal` has been set, it is considered a `Remote` terminal even if it is the connectable Terminal (local).  
+For the [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter), the `Terminal`, when set, must be the same as the `PccTerminal`. 
+`TargetValue` is used only when the `Terminal` is set. Otherwise, the local target voltage or reactive value is used.
+
+Regulation `Mode` has the following values : 
+- `VOLTAGE`
+- `REACTIVE_POWER`
+- `VOLTAGE_PER_REACTIVE_POWER`
+- `REACTIVE_POWER_PER_ACTIVE_POWER`
+
+The optional `Slope` attribute is relevant for:
+- `VOLTAGE_PER_REACTIVE_POWER`: it corresponds to the $\lambda$ in $U_0 = U + \lambda \times Q$
+- `REACTIVE_POWER_PER_ACTIVE_POWER`: it corresponds to the $tan(\phi)$ in $Q = tan(\phi) \times P$
+
+The optional `TargetDeadband` is only pertinent for objects with discrete (as opposed to continuous) voltage regulation, which is the case for [RatioTapChanger](#ratio-tap-changer)  and [ShuntCompensator](./network_subnetwork.md#shunt-compensator)
+
+**Example**
+
+This example shows how to add a voltage regulation to a generator with remote regulation:
+ - when we create a new generator:
+```java
+generatorAdder.newVoltageRegulation()
+    .withTargetValue(120)
+    .withMode(RegulationMode.REACTIVE_POWER)
+    .withRegulating(true)
+    .withTerminal(regulatingTerminal)
+    .add();
+```
+- when the generator already exists:
+```java
+generator.newVoltageRegulation()
+    .withTargetValue(120)
+    .withMode(RegulationMode.REACTIVE_POWER)
+    .withRegulating(true)
+    .withTerminal(regulatingTerminal)
+    .build();
+```
+
+

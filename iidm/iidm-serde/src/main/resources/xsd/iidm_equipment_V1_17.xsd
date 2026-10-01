@@ -306,7 +306,7 @@
                 </xs:sequence>
                 <xs:attribute name="p0" use="optional" type="xs:double"/>
                 <xs:attribute name="q0" use="optional" type="xs:double"/>
-                <xs:attribute name="loadType" use="required" type="iidm:LoadType"/>
+                <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -830,7 +830,7 @@
             <xs:element name="from" type="iidm:TerminalRef"/>
             <xs:element name="to" type="iidm:TerminalRef"/>
         </xs:sequence>
-		<xs:attribute name="id" use="required" type="xs:string"/>
+        <xs:attribute name="id" use="required" type="xs:string"/>
         <xs:attribute name="highLimit" use="optional" type="xs:double"/>
         <xs:attribute name="lowLimit" use="optional" type="xs:double"/>
     </xs:complexType>

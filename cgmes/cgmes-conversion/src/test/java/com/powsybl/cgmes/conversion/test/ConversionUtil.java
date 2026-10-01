@@ -150,10 +150,22 @@ public final class ConversionUtil {
         return matches;
     }
 
+    public static Set<String> getElements(String xmlFile, String className) {
+        String regex = "(<cim:" + className + " rdf:.*?</cim:" + className + ">)";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        return getUniqueMatches(xmlFile, pattern);
+    }
+
     public static String getElement(String xmlFile, String className, String rdfId) {
         String regex = "(<cim:" + className + " (?:rdf:ID=\"_|rdf:about=\"#_)\\Q" + rdfId + "\\E\">.*?</cim:" + className + ">)";
         Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         return getFirstMatch(xmlFile, pattern);
+    }
+
+    public static String getIdentifier(String element) {
+        String regex = "<cim:.*? (?:rdf:ID=\"_|rdf:about=\"#_)(.*?)\">";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
     }
 
     public static String getAttribute(String element, String attributeName) {

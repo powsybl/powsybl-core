@@ -19,11 +19,11 @@ import java.util.stream.Stream;
  */
 class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
-    private final Set<ConfiguredBus> buses;
+    private final List<ConfiguredBus> buses;
 
     private boolean valid = true;
 
-    MergedBus(String id, String name, boolean fictitious, Set<ConfiguredBus> buses) {
+    MergedBus(String id, String name, boolean fictitious, List<ConfiguredBus> buses) {
         super(id, name, fictitious);
         if (buses.isEmpty()) {
             throw new IllegalArgumentException("buses is empty");

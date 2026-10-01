@@ -78,6 +78,13 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     private boolean sorted = false;
 
+    /**
+     * Sort IIDM objects so that generated XML does depend on data model object order.
+     * Require object exported to define a creation order.
+     * Remark: Export option 'sorted' takes priority over 'useConnectableCreationOrder'.
+     */
+    private boolean useConnectableCreationOrder = false;
+
     private boolean withAutomationSystems = true;
 
     public ExportOptions() {
@@ -262,6 +269,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setSorted(boolean sorted) {
         this.sorted = sorted;
+        return this;
+    }
+
+    public boolean isConnectableCreationOrder() {
+        return useConnectableCreationOrder;
+    }
+
+    public ExportOptions setConnectableCreationOrder(boolean useConnectableCreationOrder) {
+        this.useConnectableCreationOrder = useConnectableCreationOrder;
         return this;
     }
 

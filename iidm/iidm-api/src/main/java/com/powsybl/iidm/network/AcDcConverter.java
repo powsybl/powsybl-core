@@ -82,7 +82,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The converter's control mode: P_PCC or V_DC</td>
+ *             <td style="border: 1px solid black">The converter's control mode: P_PCC, V_DC or DC_DROOP</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">TargetP</td>
@@ -143,9 +143,9 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
          */
         V_DC,
         /**
-         * Controlling DC Voltage with Droop Control
+         * Controlling the relation between DC voltage and AC power through a droop curve
          */
-        P_PCC_DROOP
+        DC_DROOP
     }
 
     /**

@@ -28,7 +28,7 @@ final class Substations {
                                        final String tso,
                                        final String... geographicalTags) {
         return StreamSupport.stream(substations.spliterator(), false).filter(substation -> {
-            if (country != null && !country.equals(substation.getCountry().map(Country::getName).orElse(""))) {
+            if (country != null && !country.equals(substation.getCountry().map(Country::getFullName).orElse(""))) {
                 return false;
             }
             if (tso != null && !tso.equals(substation.getTso())) {

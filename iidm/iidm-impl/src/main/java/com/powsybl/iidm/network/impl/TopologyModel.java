@@ -41,4 +41,10 @@ interface TopologyModel {
     boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
 
     boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
+
+    default void updateBusId(String id, String newId) {
+    }
+
+    default void updateSwitchId(String id, String newId) {
+    }
 }

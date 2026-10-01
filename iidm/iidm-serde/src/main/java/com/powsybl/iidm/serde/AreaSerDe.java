@@ -44,7 +44,7 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     }
 
     private void writeVoltageLevels(Area area, NetworkSerializerContext context) {
-        for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(area.getVoltageLevels(), context.getOptions())) {
+        for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(area.getNetwork(), area.getVoltageLevels(), context.getOptions())) {
             VoltageLevelRefSerDe.writeVoltageLevelRef(voltageLevel, context);
         }
     }

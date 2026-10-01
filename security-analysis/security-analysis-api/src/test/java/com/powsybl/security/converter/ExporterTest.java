@@ -47,9 +47,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -103,7 +101,8 @@ class ExporterTest extends AbstractSerDeTest {
                 new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
                 NetworkResult.empty(),
                 ConnectivityResult.empty(),
-                2.34
+                2.34,
+                Collections.emptyList()
         );
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
@@ -157,7 +156,8 @@ class ExporterTest extends AbstractSerDeTest {
         operatorStrategyResults.add(opStrategyResult2);
         SecurityAnalysisResult result = new SecurityAnalysisResult(
                 new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult,
-                    new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23),
+                    new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23,
+                    List.of(new ChangedPhaseTapChanger("T1", ThreeSides.ONE, 2, 4))),
                 Collections.singletonList(postContingencyResult), operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
@@ -169,7 +169,7 @@ class ExporterTest extends AbstractSerDeTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(100)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(110.0)
             .side1()
             .build();
@@ -215,7 +215,8 @@ class ExporterTest extends AbstractSerDeTest {
             Arguments.of("/SecurityAnalysisResultV1.5.json"),
             Arguments.of("/SecurityAnalysisResultV1.6.json"),
             Arguments.of("/SecurityAnalysisResultV1.7.json"),
-            Arguments.of("/SecurityAnalysisResultV1.8.json")
+            Arguments.of("/SecurityAnalysisResultV1.8.json"),
+            Arguments.of("/SecurityAnalysisResultV1.9.json")
         );
     }
 
@@ -225,6 +226,20 @@ class ExporterTest extends AbstractSerDeTest {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().get(0).getStatus());
+    }
+
+    @Test
+    void testReductionScalingNamingVersion() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.9_wrong_scaling_naming.json")) {
+            //should throw, since limitScaling is valid only starting from version 1.10 included
+            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
+            assertTrue(e.getMessage().contains("limit-violation. limitScaling is not valid for this version"));
+        }
+        try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.10_wrong_reduction_naming.json")) {
+            //should throw, since limitScaling is valid only until version 1.9 included
+            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
+            assertTrue(e.getMessage().contains("limit-violation. limitReduction is not valid for this version"));
+        }
     }
 
     @Test
