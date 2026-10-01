@@ -9,7 +9,8 @@
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?contingencyEquipment
         rdf:type cim:ContingencyEquipment ;
         cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
@@ -24,21 +25,16 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT DISTINCT *
 {
-GRAPH <${context}> {
-    {
-        ?fullModel dcat:keyword ?headerAnchor .
-    } UNION {
-        ?fullModel md:Model.scenarioTime ?headerAnchor .
-    } UNION {
-        ?fullModel md:Model.profile ?headerAnchor .
-    }
-    OPTIONAL { ?fullModel dcat:keyword ?keyword . }
+VALUES ?context { ${contexts} }
+GRAPH ?context {
+    ?fullModel
+        rdf:type md:FullModel ;
+        dcat:keyword ?keyword .
     OPTIONAL {
         ?fullModel
             dcat:startDate ?startDate ;
             dcat:endDate ?endDate ;
         }
-    OPTIONAL { ?fullModel md:Model.scenarioTime ?scenarioTime . }
     OPTIONAL { ?fullModel md:Model.profile ?cgmesProfile . }
     OPTIONAL {
         ?fullModel dcterms:Model.conformsTo ?conformsTo .
@@ -51,7 +47,8 @@ PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     VALUES ?contingencyType {
         nc:OrdinaryContingency
         nc:ExceptionalContingency
@@ -72,10 +69,10 @@ GRAPH <${context}> {
 # query: assessedElement
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?assessedElement
         rdf:type nc:AssessedElement ;
         nc:AssessedElement.inBaseCase ?inBaseCase ;
@@ -112,7 +109,8 @@ GRAPH <${context}> {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?assessedElementWithRemedialAction
         rdf:type nc:AssessedElementWithRemedialAction ;
         nc:AssessedElementWithRemedialAction.RemedialAction ?remedialAction ;
@@ -129,7 +127,8 @@ GRAPH <${context}> {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?assessedElementWithContingency
         rdf:type nc:AssessedElementWithContingency ;
         nc:AssessedElementWithContingency.Contingency ?contingency ;
@@ -145,11 +144,11 @@ GRAPH <${context}> {
 # query: gridStateAlterationRemedialAction
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
         ?gridStateAlterationRemedialAction
             rdf:type nc:GridStateAlterationRemedialAction ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -175,7 +174,8 @@ GRAPH <${context}> {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?contingencyWithRemedialAction
         rdf:type nc:ContingencyWithRemedialAction ;
         nc:ContingencyWithRemedialAction.mRID ?mRID ;
@@ -194,7 +194,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?topologyAction
         rdf:type nc:TopologyAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -218,7 +219,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
         ?rotatingMachineAction
             rdf:type nc:RotatingMachineAction ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -242,7 +244,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
         ?shuntCompensatorModification
             rdf:type nc:ShuntCompensatorModification ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -266,7 +269,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?staticPropertyRange
         rdf:type nc:StaticPropertyRange ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -283,7 +287,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?tapPositionAction
         rdf:type nc:TapPositionAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -305,11 +310,11 @@ GRAPH <${context}> {
 # query: remedialActionSchedule
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
         ?remedialActionSchedule
             rdf:type nc:RemedialActionSchedule ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -321,7 +326,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?schemeRemedialAction
         rdf:type nc:SchemeRemedialAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -344,7 +350,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
             ?remedialActionScheme
                 rdf:type nc:RemedialActionScheme ;
                 cim:IdentifiedObject.mRID ?mRID ;
@@ -359,7 +366,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
         ?stage
             rdf:type nc:Stage ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -373,7 +381,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?gridStateAlterationCollection
         rdf:type nc:GridStateAlterationCollection ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -383,14 +392,10 @@ GRAPH <${context}> {
 
 # query: contingencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?contingency
         rdf:type nc:Contingency ;
         nc:Contingency.mustStudy ?mustStudy ;
@@ -399,14 +404,10 @@ GRAPH <${context}> {
 
 # query: assessedElementOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?assessedElement
         rdf:type nc:AssessedElement ;
         nc:AssessedElement.enabled ?enabled .
@@ -415,14 +416,10 @@ GRAPH <${context}> {
 
 # query: assessedElementWithContingencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?assessedElementWithContingency
         rdf:type nc:AssessedElementWithContingency;
         nc:AssessedElementWithContingency.enabled ?enabled .
@@ -431,14 +428,10 @@ GRAPH <${context}> {
 
 # query: assessedElementWithRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?assessedElementWithRemedialAction
         rdf:type nc:AssessedElementWithRemedialAction ;
         nc:AssessedElementWithRemedialAction.enabled ?enabled .
@@ -447,14 +440,10 @@ GRAPH <${context}> {
 
 # query: contingencyWithRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?contingencyWithRemedialAction
         rdf:type nc:ContingencyWithRemedialAction ;
         nc:ContingencyWithRemedialAction.enabled ?enabled .
@@ -463,14 +452,10 @@ GRAPH <${context}> {
 
 # query: gridStateAlterationRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?gridStateAlterationRemedialAction
         rdf:type nc:GridStateAlterationRemedialAction ;
         nc:RemedialAction.available ?available .
@@ -479,14 +464,10 @@ GRAPH <${context}> {
 
 # query: schemeRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?schemeRemedialAction
         rdf:type nc:SchemeRemedialAction ;
         nc:RemedialAction.available ?available .
@@ -495,14 +476,10 @@ GRAPH <${context}> {
 
 # query: gridStateAlterationOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?gridStateAlteration
         rdf:type nc:GridStateAlteration ;
         nc:GridStateAlteration.enabled ?enabled .
@@ -511,14 +488,10 @@ GRAPH <${context}> {
 
 # query: topologyActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?topologyAction
         rdf:type nc:GridStateAlteration ;
         nc:GridStateAlteration.enabled ?enabled .
@@ -527,14 +500,10 @@ GRAPH <${context}> {
 
 # query: rotatingMachineActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?rotatingMachineAction
         rdf:type nc:GridStateAlteration ;
         nc:GridStateAlteration.enabled ?enabled .
@@ -543,14 +512,10 @@ GRAPH <${context}> {
 
 # query: shuntCompensatorModificationOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?shuntCompensatorModification
         rdf:type nc:GridStateAlteration ;
         nc:GridStateAlteration.enabled ?enabled .
@@ -559,14 +524,10 @@ GRAPH <${context}> {
 
 # query: tapPositionActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?tapPositionAction
         rdf:type nc:GridStateAlteration ;
         nc:GridStateAlteration.enabled ?enabled .
@@ -575,14 +536,10 @@ GRAPH <${context}> {
 
 # query: staticPropertyRangeOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?staticPropertyRange
         rdf:type nc:RangeConstraint ;
         nc:RangeConstraint.value ?value .
@@ -591,14 +548,10 @@ GRAPH <${context}> {
 
 # query: remedialActionSchemeOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?remedialActionScheme
         rdf:type nc:RemedialActionScheme ;
         nc:RemedialActionScheme.armed ?armed .
@@ -610,7 +563,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?remedialActionGroup
         rdf:type nc:RemedialActionGroup ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -625,7 +579,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <${context}> {
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?remedialActionDependency
         rdf:type nc:RemedialActionDependency ;
         nc:RemedialActionDependency.kind ?kind ;
@@ -641,14 +596,10 @@ GRAPH <${context}> {
 
 # query: remedialActionDependencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <${context}> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+VALUES ?context { ${contexts} }
+GRAPH ?context {
     ?remedialActionDependency
         rdf:type nc:RemedialActionDependency ;
         nc:RemedialActionDependency.enabled ?enabled .

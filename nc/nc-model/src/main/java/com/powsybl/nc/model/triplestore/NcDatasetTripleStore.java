@@ -40,14 +40,13 @@ public final class NcDatasetTripleStore implements NcDataset {
     private final Map<QueryKey, PropertyBags> queryCache = new HashMap<>();
     private boolean closed;
 
-    public NcDatasetTripleStore(TripleStore tripleStore, Map<String, Set<String>> contextsByKeyword,
+    public NcDatasetTripleStore(TripleStore tripleStore, Map<String, String> profileNamesByContext,
                                 List<NcModelPostProcessor> postProcessors, ReportNode reportNode) {
         this.tripleStore = Objects.requireNonNull(tripleStore);
-        Map<String, Set<String>> immutableContextsByKeyword = Map.copyOf(contextsByKeyword);
         this.postProcessors = List.copyOf(postProcessors);
         this.reportNode = Objects.requireNonNull(reportNode);
         this.queryExecutor = new NcQueryExecutor(this);
-        this.profileMetadata = NcProfileSelector.readMetadata(tripleStore.contextNames(), immutableContextsByKeyword,
+        this.profileMetadata = NcProfileSelector.readMetadata(tripleStore.contextNames(), profileNamesByContext,
             queryExecutor, reportNode);
         this.baselineModel = new NcModelTripleStore(this, null);
     }

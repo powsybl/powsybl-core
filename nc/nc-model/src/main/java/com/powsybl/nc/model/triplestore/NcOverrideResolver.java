@@ -11,10 +11,8 @@ import com.powsybl.nc.model.NcKeyword;
 import com.powsybl.nc.model.io.NcOverrideKey;
 import com.powsybl.nc.model.io.NcOverridingObjectsFields;
 import com.powsybl.nc.model.io.NcOverridingQuery;
-import com.powsybl.nc.model.io.NcUtils;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -24,19 +22,16 @@ final class NcOverrideResolver {
     private NcOverrideResolver() {
     }
 
-    static Map<NcOverrideKey, String> resolve(OffsetDateTime timestamp,
-                                              NcProfileSelector.Selection selection,
+    static Map<NcOverrideKey, String> resolve(NcProfileSelector.Selection selection,
                                               NcQueryExecutor queryExecutor) {
+        Set<String> contexts = selection.contexts(NcKeyword.STEADY_STATE_INSTRUCTION);
+        if (contexts.isEmpty()) {
+            return Map.of();
+        }
         Map<NcOverrideKey, String> overridingData = new HashMap<>();
         for (NcOverridingQuery query : NcOverridingQuery.values()) {
-            Set<String> contexts = selection.contexts(NcKeyword.STEADY_STATE_INSTRUCTION);
-            if (contexts.isEmpty()) {
-                continue;
-            }
             for (PropertyBag propertyBag : queryExecutor.query(query.getRequestName(), contexts)) {
-                if (isApplicable(propertyBag, timestamp)) {
-                    addValues(overridingData, propertyBag, query);
-                }
+                addValues(overridingData, propertyBag, query);
             }
         }
         return Map.copyOf(overridingData);
@@ -53,8 +48,4 @@ final class NcOverrideResolver {
         }
     }
 
-    private static boolean isApplicable(PropertyBag propertyBag, OffsetDateTime timestamp) {
-        return NcUtils.checkProfileKeyword(propertyBag, NcKeyword.STEADY_STATE_INSTRUCTION)
-            && NcUtils.checkProfileValidityInterval(propertyBag, timestamp);
-    }
 }

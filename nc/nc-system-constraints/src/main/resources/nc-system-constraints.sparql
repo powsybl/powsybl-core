@@ -4,7 +4,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         ?voltageAngleLimit
             rdf:type nc:VoltageAngleLimit ;
             nc:VoltageAngleLimit.normalValue ?normalValue ;
@@ -22,7 +23,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         ?voltageAngleLimit
             rdf:type nc:VoltageAngleLimit ;
             nc:VoltageAngleLimit.value ?value .
@@ -35,7 +37,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT DISTINCT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         VALUES ?corridorType { nc:OrdinaryPowerTransferCorridor nc:ExceptionalPowerTransferCorridor }
         ?powerTransferCorridor
             rdf:type ?corridorType ;
@@ -51,7 +54,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT DISTINCT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         ?operationalLimitSet rdf:type cim:OperationalLimitSet .
         OPTIONAL { ?operationalLimitSet cim:OperationalLimitSet.Terminal ?terminal . }
         OPTIONAL { ?operationalLimitSet nc:OperationalLimitSet.PowerTransferCorridor ?powerTransferCorridor . }
@@ -64,7 +68,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT DISTINCT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         ?operationalLimitType rdf:type cim:OperationalLimitType .
         OPTIONAL { ?operationalLimitType cim:OperationalLimitType.direction ?direction . }
         OPTIONAL { ?operationalLimitType nc:OperationalLimitType.isMinimum ?isMinimum . }
@@ -77,7 +82,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT DISTINCT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         ?infeedLimit
             rdf:type nc:InfeedLimit ;
             cim:IdentifiedObject.mRID ?infeedLimitMrid ;
@@ -95,7 +101,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT DISTINCT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         ?infeedTerminal
             rdf:type nc:InfeedTerminal ;
             (nc:InfeedTerminal.mRID|cim:IdentifiedObject.mRID) ?infeedTerminalMrid ;
@@ -109,7 +116,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         VALUES ?corridorType { nc:OrdinaryPowerTransferCorridor nc:ExceptionalPowerTransferCorridor }
         ?powerTransferCorridor
             rdf:type ?corridorType ;
@@ -122,7 +130,8 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 
 SELECT *
 {
-    GRAPH <${context}> {
+    VALUES ?context { ${contexts} }
+    GRAPH ?context {
         ?infeedLimit rdf:type nc:InfeedLimit .
         OPTIONAL { ?infeedLimit nc:InfeedLimit.valueW ?valueW . }
         OPTIONAL { ?infeedLimit nc:InfeedLimit.valueA ?valueA . }

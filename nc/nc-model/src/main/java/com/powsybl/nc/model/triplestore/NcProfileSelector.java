@@ -15,7 +15,6 @@ import com.powsybl.nc.model.NcVersion;
 import com.powsybl.nc.model.io.NcConstants;
 import com.powsybl.nc.model.io.NcModelReports;
 import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,29 +33,39 @@ final class NcProfileSelector {
     }
 
     static Map<String, NcProfileMetadata> readMetadata(Set<String> contexts,
-                                                       Map<String, Set<String>> contextsByKeyword,
+                                                       Map<String, String> profileNamesByContext,
                                                        NcQueryExecutor queryExecutor,
                                                        ReportNode reportNode) {
         Map<String, NcProfileMetadata> metadata = new LinkedHashMap<>();
+        Map<String, PropertyBag> headersByContext = new LinkedHashMap<>();
+        queryExecutor.query(NcConstants.REQUEST_HEADER, contexts).forEach(header ->
+            headersByContext.put(header.get("context"), header));
         for (String context : contexts) {
-            PropertyBags headers = queryExecutor.query(NcConstants.REQUEST_HEADER, Set.of(context));
-            PropertyBag header = headers.isEmpty() ? null : headers.getFirst();
+            PropertyBag header = headersByContext.get(context);
+            String profileName = profileNamesByContext.getOrDefault(context, context);
+            NcKeyword keyword = keyword(header, profileName, reportNode);
             String profileUri = profileUri(header);
             NcVersion version = NcVersion.fromProfileUri(profileUri);
             if (!version.isSupported()) {
                 LOGGER.warn("NC profile {} declares unsupported version {}", context, version);
-                NcModelReports.unsupportedNcVersion(reportNode, context, version.toString());
-                throw new NcException("NC profile " + context + " declares unsupported version " + version);
+                NcModelReports.unsupportedNcVersion(reportNode, profileName, version.toString());
+                throw new NcException("NC profile " + profileName + " declares unsupported version " + version);
+            }
+            OffsetDateTime startDate = date(header, NcConstants.REQUEST_HEADER_START_DATE, profileName);
+            OffsetDateTime endDate = date(header, NcConstants.REQUEST_HEADER_END_DATE, profileName);
+            if (keyword == NcKeyword.STEADY_STATE_INSTRUCTION && (startDate == null || endDate == null)) {
+                NcModelReports.ssiProfileWithoutValidityInterval(reportNode, profileName);
+                throw new NcException("SSI profile " + profileName + " must define both startDate and endDate");
             }
             metadata.put(context, new NcProfileMetadata(
                 context,
-                keyword(context, contextsByKeyword),
+                keyword,
                 profileUri,
                 version,
-                date(header, NcConstants.REQUEST_HEADER_START_DATE, context),
-                date(header, NcConstants.REQUEST_HEADER_END_DATE, context),
-                date(header, NcConstants.REQUEST_HEADER_SCENARIO_TIME, context)
+                startDate,
+                endDate
             ));
+            NcModelReports.ncProfileRead(reportNode, profileName, keyword.toString());
         }
         return Map.copyOf(metadata);
     }
@@ -75,7 +84,8 @@ final class NcProfileSelector {
         Map<String, Set<String>> contextsByKeyword = new LinkedHashMap<>();
         Map<String, NcProfileMetadata> selectedMetadata = new LinkedHashMap<>();
         metadata.values().forEach(profile -> {
-            boolean selected = timestamp == null ? !isOverridingProfile(profile) : isApplicable(profile, timestamp);
+            boolean overridingProfile = isOverridingProfile(profile);
+            boolean selected = !overridingProfile || timestamp != null && isApplicable(profile, timestamp);
             if (selected) {
                 selectedMetadata.put(profile.contextName(), profile);
                 contextsByKeyword.computeIfAbsent(profile.keyword().toString(), ignored -> new LinkedHashSet<>())
@@ -90,24 +100,20 @@ final class NcProfileSelector {
     }
 
     private static boolean isApplicable(NcProfileMetadata metadata, OffsetDateTime timestamp) {
-        if (metadata.startDate() != null || metadata.endDate() != null) {
-            return metadata.startDate() != null && metadata.endDate() != null
-                && !timestamp.isBefore(metadata.startDate()) && !timestamp.isAfter(metadata.endDate());
-        }
-        return true;
+        return !timestamp.isBefore(metadata.startDate()) && !timestamp.isAfter(metadata.endDate());
     }
 
     private static boolean isOverridingProfile(NcProfileMetadata metadata) {
         return metadata.keyword() == NcKeyword.STEADY_STATE_INSTRUCTION;
     }
 
-    private static NcKeyword keyword(String context, Map<String, Set<String>> contextsByKeyword) {
-        return contextsByKeyword.entrySet().stream()
-            .filter(entry -> entry.getValue().contains(context))
-            .map(Map.Entry::getKey)
-            .map(NcKeyword::fromString)
-            .findFirst()
-            .orElseThrow(() -> new NcException("No profile keyword for context " + context));
+    private static NcKeyword keyword(PropertyBag header, String profileName, ReportNode reportNode) {
+        String keyword = header == null ? null : header.get(NcConstants.REQUEST_HEADER_KEYWORD);
+        if (keyword == null) {
+            NcModelReports.ncProfileWithoutKeyword(reportNode, profileName);
+            throw new NcException("Missing NC profile keyword in " + profileName);
+        }
+        return NcKeyword.fromString(keyword);
     }
 
     private static String profileUri(PropertyBag header) {
@@ -118,7 +124,7 @@ final class NcProfileSelector {
         return conformsTo != null ? conformsTo : header.get(NcConstants.REQUEST_HEADER_CGMES_PROFILE);
     }
 
-    private static OffsetDateTime date(PropertyBag header, String field, String context) {
+    private static OffsetDateTime date(PropertyBag header, String field, String profileName) {
         if (header == null) {
             return null;
         }
@@ -129,7 +135,7 @@ final class NcProfileSelector {
         try {
             return OffsetDateTime.parse(value);
         } catch (DateTimeParseException e) {
-            throw new NcException("Cannot parse " + field + " in NC profile " + context + ": " + value, e);
+            throw new NcException("Cannot parse " + field + " in NC profile " + profileName + ": " + value, e);
         }
     }
 

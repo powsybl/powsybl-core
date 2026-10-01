@@ -13,5 +13,5 @@ import java.time.OffsetDateTime;
  * @author Roman Vykuka {@literal <vykuka at gmail.com>}
  */
 public record NcProfileMetadata(String contextName, NcKeyword keyword, String profileUri, NcVersion version,
-                                OffsetDateTime startDate, OffsetDateTime endDate, OffsetDateTime scenarioTime) {
+                                OffsetDateTime startDate, OffsetDateTime endDate) {
 }

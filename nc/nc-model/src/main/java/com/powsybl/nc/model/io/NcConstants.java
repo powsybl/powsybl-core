@@ -22,20 +22,6 @@ public final class NcConstants {
 
     public static final String RDF_BASE_URL = "http://entsoe.eu";
 
-    public static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-
-    public static final String NC_NAMESPACE = "http://entsoe.eu/ns/nc#";
-
-    public static final String MODEL_DESCRIPTION_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
-
-    public static final String DCAT_NAMESPACE = "http://www.w3.org/ns/dcat#";
-
-    public static final String DCTERMS_NAMESPACE = "http://purl.org/dc/terms/#";
-
-    public static final String PROV_NAMESPACE = "http://www.w3.org/ns/prov#";
-
-    public static final String TRIPLESTORE_RDF4J_NAME = "rdf4j";
-
     /**
      * constants to access triplestore data
      */
@@ -52,11 +38,7 @@ public final class NcConstants {
 
     public static final String REQUEST_HEADER_KEYWORD = "keyword";
 
-    public static final String REQUEST_HEADER_SCENARIO_TIME = "scenarioTime";
-
     public static final String REQUEST_HEADER_CGMES_PROFILE = "cgmesProfile";
-
-    public static final String REQUEST_HEADER_PROFILE = "profile";
 
     public static final String REQUEST_HEADER_CONFORMS_TO = "conformsTo";
 
@@ -122,7 +104,6 @@ public final class NcConstants {
     public static final String VALUE = "value";
     public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
     public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
-    public static final String TAP_CHANGER = "tapChanger";
     public static final String IS_MANUAL = "isManual";
 
     /**

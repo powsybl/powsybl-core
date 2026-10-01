@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 final class NcQueryExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NcQueryExecutor.class);
-
     private final NcDatasetTripleStore dataset;
     private final QueryCatalog ncQueryCatalog;
 
@@ -39,34 +39,45 @@ final class NcQueryExecutor {
     PropertyBags query(String queryKey, Set<String> contexts) {
         dataset.checkOpen();
         if (contexts.isEmpty()) {
-            return execute(ncQueryCatalog, queryKey, null);
+            return new PropertyBags();
         }
-        PropertyBags result = new PropertyBags();
-        contexts.forEach(context -> result.addAll(execute(ncQueryCatalog, queryKey, context)));
-        return result;
+        return execute(queryKey, contexts);
     }
 
-    PropertyBags queryExtension(Set<String> contexts, String contextQueryTemplate) {
+    PropertyBags queryExtension(Set<String> contexts, String contextsQueryTemplate) {
         dataset.checkOpen();
-        if (!contextQueryTemplate.contains(NcQueryContext.CONTEXT_PLACEHOLDER)) {
-            throw new NcException("NC extension query does not contain the context placeholder");
+        if (contexts.isEmpty()) {
+            return new PropertyBags();
         }
-        PropertyBags result = new PropertyBags();
-        contexts.forEach(context -> result.addAll(dataset.getTripleStore().query(
-            contextQueryTemplate.replace(NcQueryContext.CONTEXT_PLACEHOLDER, context))));
-        return result;
+        if (!contextsQueryTemplate.contains(NcQueryContext.CONTEXTS_PLACEHOLDER)) {
+            throw new NcException("NC extension query does not contain the contexts placeholder");
+        }
+        String executableQuery = expandContexts(contextsQueryTemplate, contexts);
+        LOGGER.debug("Executing NC extension query in contexts [{}]:{}{}", contexts,
+            System.lineSeparator(), executableQuery);
+        return dataset.getTripleStore().query(executableQuery);
     }
 
-    private PropertyBags execute(QueryCatalog queryCatalog, String queryKey, String context) {
-        String query = queryCatalog.get(queryKey);
+    private PropertyBags execute(String queryKey, Set<String> contexts) {
+        String query = ncQueryCatalog.get(queryKey);
         if (query == null) {
             LOGGER.warn("Query [{}] not found in catalog", queryKey);
             return new PropertyBags();
         }
-        if (context != null && !query.contains(NcQueryContext.CONTEXT_PLACEHOLDER)) {
-            throw new NcException("NC query does not contain the context placeholder: " + queryKey);
+        if (!query.contains(NcQueryContext.CONTEXTS_PLACEHOLDER)) {
+            throw new NcException("NC query does not contain the contexts placeholder: " + queryKey);
         }
-        return dataset.getTripleStore().query(context == null ? query
-            : query.replace(NcQueryContext.CONTEXT_PLACEHOLDER, context));
+        String executableQuery = expandContexts(query, contexts);
+        LOGGER.debug("Executing NC query [{}] in contexts [{}]:{}{}", queryKey, contexts,
+            System.lineSeparator(), executableQuery);
+        return dataset.getTripleStore().query(executableQuery);
+    }
+
+    private static String expandContexts(String query, Set<String> contexts) {
+        String contextValues = contexts.stream()
+            .sorted()
+            .map(context -> "<" + context + ">")
+            .collect(Collectors.joining(" "));
+        return query.replace(NcQueryContext.CONTEXTS_PLACEHOLDER, contextValues);
     }
 }

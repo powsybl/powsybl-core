@@ -60,7 +60,7 @@ public class NcModelTripleStore implements NcModel {
         } else {
             this.profileSelection = NcProfileSelector.forTimestamp(dataset.getProfileMetadata(), timestamp,
                 dataset.getReportNode());
-            this.overridingData = NcOverrideResolver.resolve(timestamp, profileSelection, dataset.getQueryExecutor());
+            this.overridingData = NcOverrideResolver.resolve(profileSelection, dataset.getQueryExecutor());
         }
         NcQueryContext queryContext = new NcQueryContextTripleStore(this);
         dataset.getPostProcessors().forEach(postProcessor -> postProcessor.process(this, queryContext));
@@ -75,8 +75,8 @@ public class NcModelTripleStore implements NcModel {
         return profileSelection.contexts(keyword);
     }
 
-    PropertyBags queryExtension(NcKeyword keyword, String contextQueryTemplate) {
-        return dataset.getQueryExecutor().queryExtension(getContextNamesToRequest(keyword), contextQueryTemplate);
+    PropertyBags queryExtension(NcKeyword keyword, String contextsQueryTemplate) {
+        return dataset.getQueryExecutor().queryExtension(getContextNamesToRequest(keyword), contextsQueryTemplate);
     }
 
     @Override

@@ -16,7 +16,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.nc.model.NcDataset;
 import com.powsybl.nc.model.NcException;
-import com.powsybl.nc.model.NcKeyword;
 import com.powsybl.nc.model.triplestore.NcDatasetTripleStore;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -29,11 +28,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -114,8 +111,9 @@ public final class NcDatasetReader {
         TripleStore tripleStore = TripleStoreFactory.create(implementation);
         boolean successful = false;
         try {
-            Map<String, Set<String>> contextsByKeyword = importProfiles(dataSource, tripleStore, readReportNode);
-            NcDataset dataset = new NcDatasetTripleStore(tripleStore, contextsByKeyword, postProcessors, readReportNode);
+            Map<String, String> profileNamesByContext = importProfiles(dataSource, tripleStore, readReportNode);
+            NcDataset dataset = new NcDatasetTripleStore(tripleStore, profileNamesByContext, postProcessors,
+                readReportNode);
             successful = true;
             return dataset;
         } finally {
@@ -125,20 +123,18 @@ public final class NcDatasetReader {
         }
     }
 
-    private static Map<String, Set<String>> importProfiles(ReadOnlyDataSource dataSource, TripleStore tripleStore,
-                                                           ReportNode reportNode) {
-        Map<String, Set<String>> contextsByKeyword = new HashMap<>();
+    private static Map<String, String> importProfiles(ReadOnlyDataSource dataSource, TripleStore tripleStore,
+                                                      ReportNode reportNode) {
+        Map<String, String> profileNamesByContext = new HashMap<>();
         for (String profileName : listProfiles(dataSource)) {
-            NcKeyword keyword = readKeyword(dataSource, profileName, reportNode);
             String context = loadProfile(dataSource, profileName, tripleStore);
             if (context == null) {
                 NcModelReports.ncProfileWithoutData(reportNode, profileName);
-                continue;
+                throw new NcException("NC profile " + profileName + " contains no RDF data");
             }
-            contextsByKeyword.computeIfAbsent(keyword.toString(), ignored -> new HashSet<>()).add(context);
-            NcModelReports.ncProfileRead(reportNode, profileName, keyword.toString());
+            profileNamesByContext.put(context, profileName);
         }
-        return contextsByKeyword;
+        return Map.copyOf(profileNamesByContext);
     }
 
     private static List<String> listProfiles(ReadOnlyDataSource dataSource) {
@@ -154,21 +150,9 @@ public final class NcDatasetReader {
         }
     }
 
-    private static NcKeyword readKeyword(ReadOnlyDataSource dataSource, String profileName, ReportNode reportNode) {
-        try (InputStream inputStream = dataSource.newInputStream(profileName)) {
-            Optional<NcKeyword> keyword = NcProfileHeaderReader.readKeyword(inputStream, profileName);
-            if (keyword.isEmpty()) {
-                NcModelReports.ncProfileWithoutKeyword(reportNode, profileName);
-                throw new NcException("Missing NC profile keyword in " + profileName);
-            }
-            return keyword.get();
-        } catch (IOException e) {
-            throw new NcException("Cannot read NC profile " + profileName, e);
-        }
-    }
-
     /**
      * Loads a profile into its own RDF context and returns the context name assigned by the triple store.
+     * The data source entry name is the profile identity and must therefore be unique within the data source.
      * The name is discovered from the triple store instead of being reconstructed, because the naming of
      * contexts is an implementation detail of the triple store.
      */

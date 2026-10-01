@@ -17,9 +17,14 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Roman Vykuka {@literal <vykuka at gmail.com>}
  */
 public interface NcQueryContext {
-    String CONTEXT_PLACEHOLDER = "${context}";
+    String CONTEXTS_PLACEHOLDER = "${contexts}";
 
-    PropertyBags query(NcKeyword keyword, String contextQueryTemplate);
+    /**
+     * Executes one query over all selected profiles with the requested keyword. The query template must use
+     * {@value #CONTEXTS_PLACEHOLDER} inside a {@code VALUES ?context} clause and query the corresponding named
+     * graphs through {@code GRAPH ?context}.
+     */
+    PropertyBags query(NcKeyword keyword, String contextsQueryTemplate);
 
     <E extends NcModelExtension> void addExtension(Class<E> type, E extension);
 }

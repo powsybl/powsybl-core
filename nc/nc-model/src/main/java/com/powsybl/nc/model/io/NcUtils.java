@@ -7,14 +7,10 @@
  */
 package com.powsybl.nc.model.io;
 
-import com.powsybl.nc.model.NcKeyword;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -30,28 +26,6 @@ public final class NcUtils {
             return Optional.empty();
         }
         return Optional.of(operator == null ? nativeElementName : operator + "_" + nativeElementName);
-    }
-
-    public static boolean isValidInterval(OffsetDateTime timestamp, String startTime, String endTime) {
-        if (Objects.isNull(timestamp) || Objects.isNull(startTime) || Objects.isNull(endTime)) {
-            return false;
-        }
-        try {
-            OffsetDateTime start = OffsetDateTime.parse(startTime);
-            OffsetDateTime end = OffsetDateTime.parse(endTime);
-            return !timestamp.isBefore(start) && !timestamp.isAfter(end);
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-    public static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime timestamp) {
-        return isValidInterval(timestamp, propertyBag.get(NcConstants.REQUEST_HEADER_START_DATE),
-                propertyBag.get(NcConstants.REQUEST_HEADER_END_DATE));
-    }
-
-    public static boolean checkProfileKeyword(PropertyBag propertyBag, NcKeyword keyword) {
-        return keyword.toString().equals(propertyBag.get(NcConstants.REQUEST_HEADER_KEYWORD));
     }
 
     public static PropertyBags overrideData(PropertyBags propertyBags, Map<NcOverrideKey, String> data,

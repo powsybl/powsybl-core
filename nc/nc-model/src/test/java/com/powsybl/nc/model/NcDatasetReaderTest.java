@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,15 +80,15 @@ class NcDatasetReaderTest {
     }
 
     @Test
-    void ignoresProfilesNotApplicableToTimestamp() {
+    void appliesTimestampOnlyToSteadyStateInstructionProfiles() {
         NcDataset dataset = track(NcDatasetReader.read(profileDataSource("/profiles/contingency",
             "RTE_CO.xml", "RTE_SSI.xml")));
 
-        // The CO profile declares a validity interval starting in 2023.
+        // The baseline CO profile remains selected even outside its declared interval, while SSI does not.
         NcModel outOfRange = dataset.forTimestamp(OffsetDateTime.parse("1999-01-01T00:00:00Z"));
-        assertTrue(outOfRange.getProfileMetadata().isEmpty());
-        assertTrue(outOfRange.getContingencies().isEmpty());
-        assertTrue(outOfRange.getContingencyEquipments().isEmpty());
+        assertEquals(1, outOfRange.getProfileMetadata().size());
+        assertEquals(12, outOfRange.getContingencies().size());
+        assertEquals(16, outOfRange.getContingencyEquipments().size());
 
         // A timestamp inside the interval still resolves the same data as the baseline.
         NcModel inRange = dataset.forTimestamp(PROFILE_TIMESTAMP);
@@ -98,32 +97,35 @@ class NcDatasetReaderTest {
     }
 
     @Test
-    void readsKeywordBoundToAnyDcatPrefix() {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("nc-profiles");
-        String profile = """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" \
-            xmlns:catalog="http://www.w3.org/ns/dcat#" \
-            xmlns:dcterms="http://purl.org/dc/terms/#" \
-            xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" \
-            xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:nc="http://entsoe.eu/ns/nc#">
-              <md:FullModel rdf:about="urn:uuid:00000000-0000-0000-0000-000000000001">
-                <catalog:keyword>CO</catalog:keyword>
-                <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/Contingency-EU/2.4</dcterms:Model.conformsTo>
-              </md:FullModel>
-              <nc:OrdinaryContingency rdf:ID="_contingency-x">
-                <cim:IdentifiedObject.mRID>contingency-x</cim:IdentifiedObject.mRID>
-                <cim:IdentifiedObject.name>COX</cim:IdentifiedObject.name>
-                <nc:Contingency.normalMustStudy>true</nc:Contingency.normalMustStudy>
-              </nc:OrdinaryContingency>
-            </rdf:RDF>
-            """;
-        dataSource.putData("profile.xml", profile.getBytes(StandardCharsets.UTF_8));
+    void rejectsSteadyStateInstructionWithoutCompleteValidityInterval() {
+        String profileName = "RTE_SSI_WITHOUT_END_DATE.xml";
+        ReadOnlyMemDataSource dataSource = profileDataSource("/profiles/validation", profileName);
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withResourceBundles(PowsyblCoreReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("core.nc.model.readingNcProfiles")
+            .withUntypedValue("dataSource", "invalid-ssi-profile")
+            .build();
 
-        NcDataset dataset = track(NcDatasetReader.read(dataSource));
-        assertEquals(1, dataset.getModel().getContingencies().size());
-        assertEquals(NcKeyword.CONTINGENCY,
-            dataset.getModel().getProfileMetadata().values().iterator().next().keyword());
+        NcException exception = assertThrows(NcException.class,
+            () -> NcDatasetReader.read(dataSource, reportNode));
+        assertEquals("SSI profile " + profileName + " must define both startDate and endDate",
+            exception.getMessage());
+        assertTrue(reportNode.getChildren().stream()
+            .flatMap(child -> child.getChildren().stream())
+            .anyMatch(child -> "core.nc.model.ssiProfileWithoutValidityInterval".equals(child.getMessageKey())));
+    }
+
+    @Test
+    void readsProfileHeader() {
+        NcDataset dataset = track(NcDatasetReader.read(
+            profileDataSource("/profiles/validation", "CO_HEADER.xml")));
+
+        NcProfileMetadata metadata = dataset.getModel().getProfileMetadata().values().iterator().next();
+        assertEquals(NcKeyword.CONTINGENCY, metadata.keyword());
+        assertEquals("http://entsoe.eu/ns/CIM/Contingency-EU/2.4", metadata.profileUri());
+        assertEquals(NcVersion.V2_4, metadata.version());
+        assertEquals(OffsetDateTime.parse("2024-01-31T00:00:00Z"), metadata.startDate());
+        assertEquals(OffsetDateTime.parse("2024-01-31T23:59:59Z"), metadata.endDate());
     }
 
     @Test
@@ -154,49 +156,30 @@ class NcDatasetReaderTest {
     }
 
     @Test
-    void rejectsXmlWithoutNcProfileKeyword() {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("invalid-nc-profile");
-        dataSource.putData("profile.xml", "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"/>"
-            .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    void rejectsXmlWithoutRdfData() {
+        ReadOnlyMemDataSource dataSource = profileDataSource("/profiles/validation", "EMPTY_RDF.xml");
 
         NcException exception = assertThrows(NcException.class, () -> NcDatasetReader.read(dataSource));
-        assertEquals("Missing NC profile keyword in profile.xml", exception.getMessage());
+        assertEquals("NC profile EMPTY_RDF.xml contains no RDF data", exception.getMessage());
     }
 
     @Test
-    void rejectsKeywordOutsideFullModelHeader() {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("invalid-nc-profile");
-        String profile = """
-            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                     xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
-                     xmlns:dcat="http://www.w3.org/ns/dcat#">
-              <md:FullModel rdf:about="urn:uuid:00000000-0000-0000-0000-000000000001"/>
-              <rdf:Description rdf:about="urn:uuid:00000000-0000-0000-0000-000000000002">
-                <dcat:keyword>CO</dcat:keyword>
-              </rdf:Description>
-            </rdf:RDF>
-            """;
-        dataSource.putData("profile.xml", profile.getBytes(StandardCharsets.UTF_8));
+    void usesProfileNameAsContextIdentity() {
+        ReadOnlyMemDataSource dataSource = profileDataSource("/profiles/validation/context-identity",
+            "first.xml", "second.xml");
 
-        NcException exception = assertThrows(NcException.class, () -> NcDatasetReader.read(dataSource));
-        assertEquals("Missing NC profile keyword in profile.xml", exception.getMessage());
+        NcDataset dataset = track(NcDatasetReader.read(dataSource));
+
+        Set<String> contexts = dataset.getModel().getProfileMetadata().keySet();
+        assertEquals(2, contexts.size());
+        assertTrue(contexts.stream().anyMatch(context -> context.endsWith("first.xml")));
+        assertTrue(contexts.stream().anyMatch(context -> context.endsWith("second.xml")));
     }
 
     @Test
     void rejectsUnsupportedProfileVersion() {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("invalid-nc-profile");
-        String profile = """
-            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                     xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
-                     xmlns:dcat="http://www.w3.org/ns/dcat#"
-                     xmlns:dcterms="http://purl.org/dc/terms/#">
-              <md:FullModel rdf:about="urn:uuid:00000000-0000-0000-0000-000000000001">
-                <dcat:keyword>CO</dcat:keyword>
-                <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/Contingency-EU/9.9</dcterms:Model.conformsTo>
-              </md:FullModel>
-            </rdf:RDF>
-            """;
-        dataSource.putData("profile.xml", profile.getBytes(StandardCharsets.UTF_8));
+        ReadOnlyMemDataSource dataSource = profileDataSource("/profiles/validation",
+            "CO_UNSUPPORTED_VERSION.xml");
 
         NcException exception = assertThrows(NcException.class, () -> NcDatasetReader.read(dataSource));
         assertTrue(exception.getMessage().contains("declares unsupported version 9.9"));

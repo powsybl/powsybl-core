@@ -47,6 +47,14 @@ public final class NcModelReports {
                 .add();
     }
 
+    public static void ssiProfileWithoutValidityInterval(ReportNode reportNode, String name) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.nc.model.ssiProfileWithoutValidityInterval")
+                .withTypedValue("instanceFile", name, TypedValue.FILENAME)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
     public static void ncProfileWithoutData(ReportNode reportNode, String name) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.nc.model.ncProfileWithoutData")

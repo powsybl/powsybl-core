@@ -25,8 +25,8 @@ public final class NcQueryContextTripleStore implements NcQueryContext {
     }
 
     @Override
-    public PropertyBags query(NcKeyword keyword, String contextQueryTemplate) {
-        return model.queryExtension(keyword, contextQueryTemplate);
+    public PropertyBags query(NcKeyword keyword, String contextsQueryTemplate) {
+        return model.queryExtension(keyword, contextsQueryTemplate);
     }
 
     @Override
