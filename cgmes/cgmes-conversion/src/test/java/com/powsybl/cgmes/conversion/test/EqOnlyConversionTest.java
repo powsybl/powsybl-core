@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,5 +25,21 @@ class EqOnlyConversionTest {
         assertEquals(4, network.getVoltageLevelCount());
         assertEquals(3, network.getSubstationCount());
         assertTrue(network.getVoltageLevel("Line1TPointBus_VL").getSubstation().isEmpty()); // tee point
+    }
+
+    @Test
+    void testTeePointNodeBreaker() {
+        Network network = Network.read("t-line-node-breaker.xml", getClass().getResourceAsStream("/t-line-node-breaker.xml"));
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(2, network.getSubstationCount());
+        assertEquals(5, network.getLineCount());
+        VoltageLevel line1TPoint1Vl = network.getVoltageLevel("Line1TPoint1_VL"); // tee point 1 fictitious voltage level
+        VoltageLevel line1TPoint2Vl = network.getVoltageLevel("Line1TPoint2_VL"); // tee point 2 fictitious voltage level
+        assertEquals("Line1", line1TPoint1Vl.getOptionalName().orElseThrow());
+        assertEquals("Line1", line1TPoint2Vl.getOptionalName().orElseThrow());
+        assertTrue(line1TPoint1Vl.isFictitious());
+        assertTrue(line1TPoint2Vl.isFictitious());
+        assertTrue(line1TPoint1Vl.getSubstation().isEmpty());
+        assertTrue(line1TPoint2Vl.getSubstation().isEmpty());
     }
 }
