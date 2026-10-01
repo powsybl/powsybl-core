@@ -364,4 +364,59 @@ class LocalComputationManagerTest {
         waitForInterruption.await(10, TimeUnit.SECONDS);
         assertTrue(stopped.isTrue());
     }
+
+    @Test
+    void testNoZipSlipVulnerability() throws Exception {
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+                // Empty
+            }
+
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) {
+                return 0; // Command execution successful
+            }
+        };
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+            computationManager.execute(new ExecutionEnvironment(Map.of(), PREFIX, false, DEBUG_DIR),
+                    new AbstractExecutionHandler<>() {
+                        @Override
+                        public List<CommandExecution> before(Path workingDir) throws IOException {
+                            // Create a malicious zip file: it contains the expected network file
+                            // (same name as the archive, without the ".zip" extension),
+                            // but also a malicious file (located outside the working directory)
+                            try (ZipOutputStream os = new ZipOutputStream(Files.newOutputStream(workingDir.resolve("networkFile.zip")))) {
+                                os.putNextEntry(new ZipEntry("networkFile"));
+                                os.putNextEntry(new ZipEntry("../malicious"));
+                                os.closeEntry();
+                            }
+
+                            // Run the command "analyze" on "networkFile" (provided via the zip file).
+                            // The input files preprocessing will try to extract the zip archive content.
+                            // Without zip slip protection, the "malicious" file would be created outside the working directory,
+                            // which is a security problem.
+                            Command command = new SimpleCommandBuilder()
+                                    .id("test")
+                                    .program("analyze")
+                                    .args("networkFile")
+                                    .inputFiles(new InputFile("networkFile.zip", FilePreProcessor.ARCHIVE_UNZIP))
+                                    .build();
+                            return Collections.singletonList(new CommandExecution(command, 1));
+                        }
+
+                        @Override
+                        public Object after(Path workingDir, ExecutionReport report) throws IOException {
+                            // Check command exits correctly
+                            assertTrue(report.getErrors().isEmpty());
+
+                            assertTrue(Files.exists(workingDir));
+                            // When a zip slip tentative is detected, no file is extracted
+                            assertFalse(Files.exists(workingDir.resolve("networkFile")));
+                            assertFalse(Files.exists(workingDir.resolve("../malicious")));
+                            return null;
+                        }
+                    }).join();
+        }
+    }
 }
