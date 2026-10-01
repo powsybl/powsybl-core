@@ -872,7 +872,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-
     /**
      * Sets the voltage regulation target consistently with the regulation point.
      * <p>
@@ -881,12 +880,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
      * is stored as the holder local target voltage.
      * </p>
      *
-     * @param holder the voltage regulation holder to update
-     * @param targetV the target voltage value
-     * @param regulatingOn {@code true} to enable regulation, {@code false} to disable it
+     * @param holder         the voltage regulation holder to update
+     * @param targetV        the target voltage value
      * @param targetDeadband the target deadband value
+     * @param regulatingOn   {@code true} to enable regulation, {@code false} to disable it
      */
-    protected static <T extends VoltageRegulationHolder<T>> void setVoltageRegulation(VoltageRegulationHolder<T> holder, double targetV, boolean regulatingOn, double targetDeadband) {
+    protected static <T extends VoltageRegulationHolder<T>> void setVoltageRegulation(VoltageRegulationHolder<T> holder, double targetV, double targetDeadband, boolean regulatingOn) {
         VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
         if (regulatingOn) {
             setLocalTargetVOrTargetValue(holder, targetV);
