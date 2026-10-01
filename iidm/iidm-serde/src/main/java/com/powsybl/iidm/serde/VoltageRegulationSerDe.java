@@ -181,42 +181,33 @@ public final class VoltageRegulationSerDe {
     private static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void actionToSetTerminal(NetworkDeserializerContext context, TerminalRefSerDe.TerminalData terminalData, T holder) {
         Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), holder.getNetwork());
         VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+        Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
+        double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
+
         if (voltageRegulation == null) {
             if (holder instanceof Generator generator) {
                 // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
                 // without using an extension (RemoteReactivePowerControl)
                 // The VoltageRegulation object will be updated later if the extension is discovered.
-                buildRemoteVoltageRegulationOffForGenerator(context, generator, terminal);
+                generator.newVoltageRegulation()
+                    .withTargetValue(targetValue)
+                    .withTerminal(terminal)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(false)
+                    .build();
             } else {
                 holder.newVoltageRegulation()
-                    .withTargetValue(holder.getLocalTargetQ())
+                    .withTargetValue(targetValue)
                     .withTerminal(terminal)
-                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(false)
                     .build();
-                holder.setLocalTargetQ(Double.NaN);
             }
         } else {
-            Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
-            double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
             voltageRegulation.setTerminal(terminal, targetValue);
-            extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(holder));
-            context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
         }
-    }
-
-    private static void buildRemoteVoltageRegulationOffForGenerator(NetworkDeserializerContext context,
-                                                                    Generator generator,
-                                                                    Terminal terminal) {
-        Optional<ExtraProperties> extraProperties = context.getExtraProperties(generator, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
-        double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
-        extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(generator));
-        context.removeExtraProperties(generator, EXTRA_PROPERTIES_PROCESS_KEY);
-        generator.newVoltageRegulation()
-            .withTargetValue(targetValue)
-            .withTerminal(terminal)
-            .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(false)
-            .build();
+        extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(holder));
+        context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
     }
 
     private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace) {

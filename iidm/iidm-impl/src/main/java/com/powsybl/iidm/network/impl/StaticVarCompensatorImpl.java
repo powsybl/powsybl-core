@@ -92,6 +92,10 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         return this.localTargetV.get(getNetwork().getVariantIndex());
     }
 
+    /**
+     * <p>This value is defined in the load convention.</p>
+     * {@inheritDoc}
+     */
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ.get(getNetwork().getVariantIndex());
@@ -118,6 +122,10 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         return this;
     }
 
+    /**
+     * <p>This value is defined in the load convention.</p>
+     * {@inheritDoc}
+     */
     @Override
     public StaticVarCompensator setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();

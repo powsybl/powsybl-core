@@ -99,6 +99,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     /**
+     * <p>This value is defined in the generator convention.</p>
      * {@inheritDoc}
      */
     @Override
@@ -107,6 +108,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     /**
+     * <p>This value is defined in the generator convention.</p>
      * {@inheritDoc}
      */
     @Override

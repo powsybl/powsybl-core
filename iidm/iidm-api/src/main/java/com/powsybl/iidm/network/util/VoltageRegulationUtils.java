@@ -71,12 +71,17 @@ public final class VoltageRegulationUtils {
         throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
     }
 
-    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
-                                                                                                                 RegulationMode regulationMode,
-                                                                                                                 double targetV,
-                                                                                                                 double targetQ,
-                                                                                                                 Boolean regulating,
-                                                                                                                 Terminal terminal) {
+    /**
+     *
+     * @param signToUseLoadConvention -> 1 if the targetQ is given in load convention, -1 if it is given in generator convention
+     */
+    public static <T extends VoltageRegulationHolderAdder<T>> void createSvcVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                   RegulationMode regulationMode,
+                                                                                                                   double targetV,
+                                                                                                                   double targetQ,
+                                                                                                                   Boolean regulating,
+                                                                                                                   Terminal terminal,
+                                                                                                                   int signToUseLoadConvention) {
         if (regulationMode != null && regulating != null) {
             VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
                 .withMode(regulationMode);
@@ -90,7 +95,7 @@ public final class VoltageRegulationUtils {
                 adder.setLocalTargetQ(targetQ);
             } else if (regulationMode == REACTIVE_POWER) {
                 if (terminal != null) {
-                    targetValue = targetQ;
+                    targetValue = signToUseLoadConvention * targetQ;
                 } else {
                     adder.setLocalTargetQ(targetQ);
                 }
@@ -110,6 +115,10 @@ public final class VoltageRegulationUtils {
         }
     }
 
+    /**
+     *
+     * @param signToUseLoadConvention -> 1 if the targetQ is given in load convention, -1 if it is given in generator convention
+     */
     private static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
                                                                                                                  boolean withLocalTargetValue,
                                                                                                                  double targetV,
@@ -117,7 +126,8 @@ public final class VoltageRegulationUtils {
                                                                                                                  double targetQ,
                                                                                                                  Boolean voltageRegulatorOn,
                                                                                                                  Terminal terminal,
-                                                                                                                 boolean isGeneratorCase) {
+                                                                                                                 boolean isGeneratorCase,
+                                                                                                                 int signToUseLoadConvention) {
         // VOLTAGE case
         if (Boolean.TRUE.equals(voltageRegulatorOn)) {
             VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
@@ -150,7 +160,7 @@ public final class VoltageRegulationUtils {
             } else {
                 adder.newVoltageRegulation()
                         .withMode(RegulationMode.REACTIVE_POWER)
-                        .withTargetValue(targetQ)
+                        .withTargetValue(signToUseLoadConvention * targetQ)
                         .withTerminal(terminal)
                         .add();
                 adder.setLocalTargetV(targetV);
@@ -175,7 +185,7 @@ public final class VoltageRegulationUtils {
                                                                                                                             double targetQ,
                                                                                                                             Boolean voltageRegulatorOn,
                                                                                                                             Terminal terminal) {
-        createVoltageRegulationBackwardCompatibility(adder, true, targetV, localTargetV, targetQ, voltageRegulatorOn, terminal, true);
+        createVoltageRegulationBackwardCompatibility(adder, true, targetV, localTargetV, targetQ, voltageRegulatorOn, terminal, true, -1);
     }
 
     public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
@@ -183,7 +193,15 @@ public final class VoltageRegulationUtils {
                                                                                                                 double targetQ,
                                                                                                                 Boolean voltageRegulatorOn,
                                                                                                                 Terminal terminal) {
-        createVoltageRegulationBackwardCompatibility(adder, false, targetV, targetV, targetQ, voltageRegulatorOn, terminal, false);
+        createVoltageRegulationBackwardCompatibility(adder, false, targetV, targetV, targetQ, voltageRegulatorOn, terminal, false, 1);
+    }
+
+    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibilityAsGeneratorConvention(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                double targetV,
+                                                                                                                double targetQ,
+                                                                                                                Boolean voltageRegulatorOn,
+                                                                                                                Terminal terminal) {
+        createVoltageRegulationBackwardCompatibility(adder, false, targetV, targetV, targetQ, voltageRegulatorOn, terminal, false, -1);
     }
 
     /**
@@ -295,4 +313,19 @@ public final class VoltageRegulationUtils {
 
     public record VoltageRegulationData(RegulationMode regulationMode, double targetV, double targetQ, double targetValue) { }
 
+    /**
+     * Determines the sign convention to be used for the `targetValue` parameter when regulating in the REACTIVE_POWER mode.
+     * The sign depends on the type of VoltageRegulationHolder.
+     *
+     * @param holder the VoltageRegulationHolder instance for which the sign convention is being determined.
+     * @return -1 if the holder is an instance of Generator, VscConverterStation, or Battery,
+     *         indicating the generator convention is used.
+     *         Returns 1 for all other cases, indicating the load convention is used.
+     */
+    public static int getSignToUseLoadSignConvention(VoltageRegulationHolder<?> holder) {
+        if (holder instanceof Generator || holder instanceof VscConverterStation || holder instanceof Battery) {
+            return -1;
+        }
+        return 1;
+    }
 }

@@ -11,6 +11,7 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,11 +83,11 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         }
         Terminal t = updateTerminalQ(svc.getTerminal(), q);
         double nominalV = svc.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        double targetValue = targetV * nominalV;
+        double targetValueV = targetV * nominalV;
         if (svc.hasRegulatingTerminal()) {
-            svc.getVoltageRegulation().setTargetValue(targetValue);
+            svc.getVoltageRegulation().setTargetValue(targetValueV);
         } else {
-            svc.setLocalTargetV(targetValue);
+            svc.setLocalTargetV(targetValueV);
         }
         busConnection(t, busNum, networkMapper);
     }
@@ -199,7 +200,9 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
                 holder.setLocalTargetQ(targetQ);
             } else if (holder.isWithMode(RegulationMode.REACTIVE_POWER)) {
                 holder.setLocalTargetV(targetValueV);
-                holder.getVoltageRegulation().setTargetValue(targetQ);
+                // The target value has a load convention, so we need to get the sign to use for the load convention
+                int signToUseLoadConvention = VoltageRegulationUtils.getSignToUseLoadSignConvention(holder);
+                holder.getVoltageRegulation().setTargetValue(signToUseLoadConvention * targetQ);
             }
         } else {
             holder.setLocalTargetV(targetValueV);

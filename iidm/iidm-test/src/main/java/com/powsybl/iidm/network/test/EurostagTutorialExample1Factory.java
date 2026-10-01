@@ -41,7 +41,8 @@ public final class EurostagTutorialExample1Factory {
 
     public static final double GENERATOR_LOCAL_TARGET_V = 24.5;
     public static final double GENERATOR_LOCAL_TARGET_Q = 200d;
-    public static final double GENERATOR_REMOTE_TARGET_VALUE = 399d;
+    public static final double GENERATOR_REMOTE_TARGET_VALUE_V = 399d;
+    public static final double GENERATOR_REMOTE_TARGET_VALUE_Q = -10d;
     public static final String GENERATOR_ID = "GEN";
 
     private EurostagTutorialExample1Factory() {
@@ -1468,7 +1469,7 @@ public final class EurostagTutorialExample1Factory {
         generator.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(getRemoteTerminal(network))
-            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE)
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE_V)
             .withRegulating(true)
             .build();
         return network;
@@ -1481,7 +1482,7 @@ public final class EurostagTutorialExample1Factory {
         generator.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(getRemoteTerminal(network))
-            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE)
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE_Q)
             .withRegulating(true)
             .build();
         generator.setLocalTargetV(Double.NaN);
@@ -1495,7 +1496,7 @@ public final class EurostagTutorialExample1Factory {
         gen.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(gen.getTerminal())
-            .withTargetValue(GENERATOR_LOCAL_TARGET_Q)
+            .withTargetValue(-GENERATOR_LOCAL_TARGET_Q)
             .withRegulating(true)
             .build();
         gen.setLocalTargetV(Double.NaN);

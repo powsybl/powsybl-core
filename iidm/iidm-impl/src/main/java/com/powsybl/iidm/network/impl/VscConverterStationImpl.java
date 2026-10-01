@@ -126,6 +126,10 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         return this;
     }
 
+    /**
+     * <p>This value is defined in the generator convention.</p>
+     * {@inheritDoc}
+     */
     @Override
     public VscConverterStation setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
@@ -144,6 +148,10 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         return this;
     }
 
+    /**
+     * <p>This value is defined in the generator convention.</p>
+     * {@inheritDoc}
+     */
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ.get(getNetwork().getVariantIndex());
@@ -154,7 +162,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         double oldValue;
         if (voltageRegulation != null && isWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             oldValue = voltageRegulation.getTargetValue();
-            voltageRegulation.setTargetValue(reactivePowerSetpoint);
+            // reactivePowerSetpoint is defined in the generator convention, but the voltage regulation targetValue is defined in the load convention.
+            voltageRegulation.setTargetValue(-reactivePowerSetpoint);
         } else {
             oldValue = this.getLocalTargetQ();
             this.setLocalTargetQ(reactivePowerSetpoint);
