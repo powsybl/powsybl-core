@@ -21,8 +21,9 @@ public final class UcteConverterConstants {
     public static final String GEOGRAPHICAL_NAME_PROPERTY_KEY = "geographicalName";
     /**
      * {@code "nomimalPower"} is the property name formerly used to let transformers carry nominal power. Note that this
-     * property name has a typo and should have been {@code "nominalPower"}. This typo must be kept as-is: do not try to
-     * fix it.
+     * property name has a typo and should have been {@code "nominalPower"}. This typo must be kept as-is: it may remain
+     * present with this exact wording in IIDM networks that were created with an UCTE-DEF import before the deprecation.
+     * To enforce retro-compatibility, do not try to fix the typo.
      * @deprecated use the new field {@code ratedS} instead.
      */
     @Deprecated(since = "7.5.0")
