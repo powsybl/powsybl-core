@@ -219,9 +219,10 @@ voltage 2 (regulated winding) is its `ratedU1`.
 
 #### Nominal power
 
-The nominal power is the transformer's rated apparent power `ratedS`, used as-is. If `ratedS` is undefined
-(`Double.NaN`), the value of the `nomimalPower` property is used instead: the property was set by the UCTE-DEF import in
-older PowSyBl versions, and this is to remain retro-compatible with networks serialized with these older versions.
+The nominal power is the transformer's rated apparent power `ratedS`, used as-is.<br>
+If `ratedS` is undefined (`Double.NaN`), the value of the `nomimalPower` property is used instead:
+the `nomimalPower` property was set by the UCTE-DEF import in older PowSyBl versions (with a typo),
+and this is to remain retro-compatible with networks serialized with these older versions.
 
 If both `ratedS` is `NaN` and legacy property `nomimalPower` is absent or null, `99999` MVA is written in the file, and
 a warning is [reported](#reporting). This value is chosen because it cannot be mistaken for the nominal power of a real
