@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.gl;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -20,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -64,6 +65,35 @@ class CgmesGLImportPostProcessorTest {
 
         assertEquals(49.224448, linePosition.getCoordinates().get(3).getLatitude(), 0);
         assertEquals(-2.136596, linePosition.getCoordinates().get(3).getLongitude(), 0);
+    }
+
+    @Test
+    void testCgmes2SmallNodeBreaker() {
+        Network network = readWithGL(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        assertAllSubstationPositionsImported(network);
+        assertAllLinePositionsImported(network);
+    }
+
+    @Test
+    void testCgmes3SmallGrid() {
+        // GL profile of this test configuration only locates lines
+        assertAllLinePositionsImported(readWithGL(Cgmes3Catalog.smallGrid().dataSource()));
+    }
+
+    private static Network readWithGL(ReadOnlyDataSource ds) {
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
+        return Network.read(ds, properties);
+    }
+
+    private static void assertAllSubstationPositionsImported(Network network) {
+        assertTrue(network.getSubstationCount() > 0);
+        network.getSubstations().forEach(s -> assertNotNull(s.getExtension(SubstationPosition.class), s.getId()));
+    }
+
+    private static void assertAllLinePositionsImported(Network network) {
+        assertTrue(network.getLineCount() > 0);
+        network.getLines().forEach(l -> assertNotNull(l.getExtension(LinePosition.class), l.getId()));
     }
 
     @Test

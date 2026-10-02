@@ -654,10 +654,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         update(queryText);
     }
 
+    @Override
     public String getCimNamespace() {
         return cimNamespace;
     }
 
+    @Override
     public int getCimVersion() {
         return cimVersion;
     }
