@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.gl;
 
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.triplestore.api.TripleStore;
 
@@ -23,7 +24,14 @@ public final class CgmesGLUtils {
      */
     public static final String COORDINATE_SYSTEM_URN = "urn:ogc:def:crs:EPSG::4326";
 
+    public static final String CIM_16_GL_PROFILE = "http://entsoe.eu/CIM/GeographicalLocation/2/1";
+    public static final String CIM_100_GL_PROFILE = "http://iec.ch/TC57/ns/CIM/GeographicalLocation-EU/3.0";
+
     private CgmesGLUtils() {
+    }
+
+    public static String glProfileUri(CgmesNamespace.Cim cim) {
+        return cim.getVersion() >= 100 ? CIM_100_GL_PROFILE : CIM_16_GL_PROFILE;
     }
 
     public static boolean checkCoordinateSystem(String crsUrn) {

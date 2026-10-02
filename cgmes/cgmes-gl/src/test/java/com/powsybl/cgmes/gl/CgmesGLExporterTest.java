@@ -8,6 +8,8 @@
 package com.powsybl.cgmes.gl;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
@@ -45,6 +47,7 @@ class CgmesGLExporterTest {
     private static final Coordinate LINE_2 = new Coordinate(51.944923400878906, 0.4120868146419525);
 
     private Network network;
+    private CgmesNamespace.Cim expectedCim;
 
     @BeforeEach
     void setUp() {
@@ -92,7 +95,21 @@ class CgmesGLExporterTest {
     }
 
     @Test
-    void test() {
+    void testCim16WithoutCimCharacteristics() {
+        exportAndCheck(CgmesNamespace.CIM_16, CgmesGLUtils.CIM_16_GL_PROFILE);
+    }
+
+    @Test
+    void testCim100() {
+        network.newExtension(CimCharacteristicsAdder.class)
+                .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
+                .setCimVersion(100)
+                .add();
+        exportAndCheck(CgmesNamespace.CIM_100, CgmesGLUtils.CIM_100_GL_PROFILE);
+    }
+
+    private void exportAndCheck(CgmesNamespace.Cim cim, String expectedProfile) {
+        expectedCim = cim;
         Substation substation1 = network.getSubstation("Substation1");
         SubstationPosition substationPosition1 = new SubstationPositionImpl(substation1, SUBSTATION_1);
         substation1.addExtension(SubstationPosition.class, substationPosition1);
@@ -103,7 +120,7 @@ class CgmesGLExporterTest {
         line.addExtension(LinePosition.class, new LinePositionImpl<>(line, ImmutableList.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
 
         TripleStore tripleStore = Mockito.mock(TripleStore.class);
-        Mockito.when(tripleStore.add(ArgumentMatchers.anyString(), ArgumentMatchers.eq(CgmesNamespace.CIM_16_NAMESPACE),
+        Mockito.when(tripleStore.add(ArgumentMatchers.anyString(), ArgumentMatchers.eq(cim.getNamespace()),
                         ArgumentMatchers.eq("CoordinateSystem"), ArgumentMatchers.any(PropertyBag.class)))
                                 .thenReturn("CoordinateSystemId");
 
@@ -122,12 +139,13 @@ class CgmesGLExporterTest {
         // check add namespace
         Mockito.verify(tripleStore, Mockito.times(3)).addNamespace(prefixCaptor.capture(), namespaceCaptor.capture());
         checkNamespace(prefixCaptor.getAllValues().get(0), namespaceCaptor.getAllValues().get(0), "data", "http://" + network.getId().toLowerCase() + "/#");
-        checkNamespace(prefixCaptor.getAllValues().get(1), namespaceCaptor.getAllValues().get(1), "cim", CgmesNamespace.CIM_16_NAMESPACE);
+        checkNamespace(prefixCaptor.getAllValues().get(1), namespaceCaptor.getAllValues().get(1), "cim", cim.getNamespace());
         checkNamespace(prefixCaptor.getAllValues().get(2), namespaceCaptor.getAllValues().get(2), "md", CgmesGLExporter.MD_NAMESPACE);
 
         // check add statements
         Mockito.verify(tripleStore, Mockito.times(11)).add(contextCaptor.capture(), nsCaptor.capture(),
                        typeCaptor.capture(), propertiesCaptor.capture());
+        assertEquals(expectedProfile, propertiesCaptor.getAllValues().get(0).get("Model.profile"));
         checkCoordinateSystem(contextCaptor.getAllValues().get(1), nsCaptor.getAllValues().get(1), typeCaptor.getAllValues().get(1),
                               propertiesCaptor.getAllValues().get(1), network.getId().toLowerCase());
         checkLocation(contextCaptor.getAllValues().get(2), nsCaptor.getAllValues().get(2), typeCaptor.getAllValues().get(2),
@@ -160,7 +178,7 @@ class CgmesGLExporterTest {
                                  List<String> expectedClassProperties) {
         assertTrue(CgmesSubset.GEOGRAPHICAL_LOCATION.isValidName(context));
         assertEquals(basename + "_" + CgmesSubset.GEOGRAPHICAL_LOCATION.getIdentifier() + ".xml", context);
-        assertEquals(CgmesNamespace.CIM_16_NAMESPACE, namespace);
+        assertEquals(expectedCim.getNamespace(), namespace);
         assertEquals(expectedType, type);
         assertEquals(expectedProperties.size(), properties.propertyNames().size());
         expectedProperties.forEach(property -> assertTrue(properties.propertyNames().contains(property)));

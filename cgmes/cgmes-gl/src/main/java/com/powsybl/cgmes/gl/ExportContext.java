@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.gl;
 
+import com.powsybl.cgmes.model.CgmesNamespace;
+
 import java.util.Objects;
 
 /**
@@ -15,9 +17,18 @@ import java.util.Objects;
  */
 public class ExportContext {
 
+    private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private String basename;
     private String glContext;
     private String coordinateSystemId;
+
+    public CgmesNamespace.Cim getCim() {
+        return cim;
+    }
+
+    public void setCim(CgmesNamespace.Cim cim) {
+        this.cim = Objects.requireNonNull(cim);
+    }
 
     public String getBasename() {
         return basename;

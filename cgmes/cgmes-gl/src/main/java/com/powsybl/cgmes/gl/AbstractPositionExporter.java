@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.TripleStore;
@@ -47,7 +46,7 @@ public abstract class AbstractPositionExporter {
         locationProperties.put(POWER_SYSTEM_RESOURCES, id);
         locationProperties.put(COORDINATE_SYSTEM, context.getCoordinateSystemId());
 
-        return tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, LOCATION, locationProperties);
+        return tripleStore.add(context.getGlContext(), context.getCim().getNamespace(), LOCATION, locationProperties);
     }
 
     protected void addLocationPoint(String locationId, Coordinate coordinate, int seq) {
@@ -61,7 +60,7 @@ public abstract class AbstractPositionExporter {
         locationPointProperties.put(X_POSITION, Double.toString(coordinate.getLongitude()));
         locationPointProperties.put(Y_POSITION, Double.toString(coordinate.getLatitude()));
         locationPointProperties.put(LOCATION, locationId);
-        tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "PositionPoint", locationPointProperties);
+        tripleStore.add(context.getGlContext(), context.getCim().getNamespace(), "PositionPoint", locationPointProperties);
     }
 
 }

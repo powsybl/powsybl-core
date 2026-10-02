@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.gl;
 
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
@@ -57,6 +58,10 @@ public class CgmesGLExporter {
     public void exportData(DataSource dataSource) {
         Objects.requireNonNull(dataSource);
         ExportContext context = new ExportContext();
+        CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
+        if (cimCharacteristics != null) {
+            context.setCim(CgmesNamespace.getCim(cimCharacteristics.getCimVersion()));
+        }
         context.setBasename(dataSource.getBaseName());
         context.setGlContext(CgmesGLUtils.contextNameFor(CgmesSubset.GEOGRAPHICAL_LOCATION, tripleStore, dataSource.getBaseName()));
         addNamespaces(context);
@@ -72,7 +77,7 @@ public class CgmesGLExporter {
             tripleStore.addNamespace("data", "http://" + context.getBasename().toLowerCase() + "/#");
         }
         if (isMissedNamespace("cim")) {
-            tripleStore.addNamespace("cim", CgmesNamespace.CIM_16_NAMESPACE);
+            tripleStore.addNamespace("cim", context.getCim().getNamespace());
         }
         if (isMissedNamespace("md")) {
             tripleStore.addNamespace("md", MD_NAMESPACE);
@@ -91,7 +96,7 @@ public class CgmesGLExporter {
         modelProperties.put(MODEL_CREATED, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
         modelProperties.put(MODEL_DESCRIPTION, network.getNameOrId());
         modelProperties.put(MODEL_VERSION, "4");
-        modelProperties.put(MODEL_PROFILE, "http://entsoe.eu/CIM/GeographicalLocation/2/1");
+        modelProperties.put(MODEL_PROFILE, CgmesGLUtils.glProfileUri(context.getCim()));
         modelProperties.put(MODEL_DEPENDENT_ON, network.getId());
         tripleStore.add(context.getGlContext(), MD_NAMESPACE, "FullModel", modelProperties);
     }
@@ -100,7 +105,7 @@ public class CgmesGLExporter {
         PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"), true);
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
-        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
+        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), context.getCim().getNamespace(), "CoordinateSystem", coordinateSystemProperties));
     }
 
     private void exportSubstationsPosition(ExportContext context) {
