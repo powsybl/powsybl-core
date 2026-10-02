@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
@@ -185,24 +184,16 @@ public final class VoltageRegulationSerDe {
         double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
 
         if (voltageRegulation == null) {
-            if (holder instanceof Generator generator) {
-                // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
-                // without using an extension (RemoteReactivePowerControl)
-                // The VoltageRegulation object will be updated later if the extension is discovered.
-                generator.newVoltageRegulation()
-                    .withTargetValue(targetValue)
-                    .withTerminal(terminal)
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withRegulating(false)
-                    .build();
-            } else {
-                holder.newVoltageRegulation()
-                    .withTargetValue(targetValue)
-                    .withTerminal(terminal)
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withRegulating(false)
-                    .build();
-            }
+            // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
+            // without using an extension (RemoteReactivePowerControl)
+            // The VoltageRegulation object will be updated later if the extension is discovered.
+            // For other equipment, the VoltageRegulation object is also created with the VOLTAGE mode and regulating set to false.
+            holder.newVoltageRegulation()
+                .withTargetValue(targetValue)
+                .withTerminal(terminal)
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
         } else {
             voltageRegulation.setTerminal(terminal, targetValue);
         }
