@@ -1,0 +1,23 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:LoadTypes_SSH">
+        <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+        <md:Model.description>Minimal load state variables</md:Model.description>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:LoadTypes_EQ"/>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:ConformLoad rdf:about="#CL1">
+        <cim:EnergyConsumer.p>200.0</cim:EnergyConsumer.p>
+        <cim:EnergyConsumer.q>90.0</cim:EnergyConsumer.q>
+    </cim:ConformLoad>
+    <cim:NonConformLoad rdf:about="#NCL1">
+        <cim:EnergyConsumer.p>200.0</cim:EnergyConsumer.p>
+        <cim:EnergyConsumer.q>50.0</cim:EnergyConsumer.q>
+    </cim:NonConformLoad>
+    <cim:StationSupply rdf:about="#SS1">
+        <cim:EnergyConsumer.p>6.5</cim:EnergyConsumer.p>
+        <cim:EnergyConsumer.q>0.001</cim:EnergyConsumer.q>
+    </cim:StationSupply>
+</rdf:RDF>
