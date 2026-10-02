@@ -44,10 +44,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-cgmes-extensions</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-model</artifactId>
         </dependency>
         <dependency>

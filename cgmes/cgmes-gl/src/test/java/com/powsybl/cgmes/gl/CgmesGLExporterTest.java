@@ -7,33 +7,33 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.google.common.collect.ImmutableList;
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
-import com.powsybl.iidm.network.extensions.SubstationPosition;
-import com.powsybl.iidm.network.impl.extensions.LinePositionImpl;
-import com.powsybl.iidm.network.impl.extensions.SubstationPositionImpl;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.iidm.network.extensions.LinePositionAdder;
+import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
+import java.util.regex.Pattern;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -47,7 +47,6 @@ class CgmesGLExporterTest {
     private static final Coordinate LINE_2 = new Coordinate(51.944923400878906, 0.4120868146419525);
 
     private Network network;
-    private CgmesNamespace.Cim expectedCim;
 
     @BeforeEach
     void setUp() {
@@ -77,7 +76,7 @@ class CgmesGLExporterTest {
         voltageLevel2.getBusBreakerView().newBus()
                 .setId("Bus2")
                 .add();
-        network.newLine()
+        Line line = network.newLine()
                 .setId("Line")
                 .setVoltageLevel1(voltageLevel1.getId())
                 .setBus1("Bus1")
@@ -92,11 +91,19 @@ class CgmesGLExporterTest {
                 .setG2(0.0)
                 .setB2(386E-6 / 2)
                 .add();
+        substation1.newExtension(SubstationPositionAdder.class).withCoordinate(SUBSTATION_1).add();
+        substation2.newExtension(SubstationPositionAdder.class).withCoordinate(SUBSTATION_2).add();
+        line.newExtension(LinePositionAdder.class).withCoordinates(List.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)).add();
     }
 
     @Test
     void testCim16WithoutCimCharacteristics() {
-        exportAndCheck(CgmesNamespace.CIM_16, CgmesGLUtils.CIM_16_GL_PROFILE);
+        String gl = exportGL(network);
+
+        assertTrue(gl.contains("xmlns:cim=\"" + CgmesNamespace.CIM_16_NAMESPACE + "\""));
+        assertTrue(gl.contains("<md:Model.profile>" + CgmesGLUtils.CIM_16_GL_PROFILE + "</md:Model.profile>"));
+        assertFalse(gl.contains("IdentifiedObject.mRID"));
+        checkPositions(gl);
     }
 
     @Test
@@ -105,115 +112,74 @@ class CgmesGLExporterTest {
                 .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                 .setCimVersion(100)
                 .add();
-        exportAndCheck(CgmesNamespace.CIM_100, CgmesGLUtils.CIM_100_GL_PROFILE);
+        String gl = exportGL(network);
+
+        assertTrue(gl.contains("xmlns:cim=\"" + CgmesNamespace.CIM_100_NAMESPACE + "\""));
+        assertTrue(gl.contains("<md:Model.profile>" + CgmesGLUtils.CIM_100_GL_PROFILE + "</md:Model.profile>"));
+        // 1 coordinate system, 3 locations, 1 + 1 + 4 position points
+        assertEquals(10, count(gl, "<cim:IdentifiedObject.mRID>"));
+        assertTrue(gl.contains("<cim:Location rdf:ID=\"_Substation1_S_Location\">"));
+        assertTrue(gl.contains("<cim:IdentifiedObject.mRID>Substation1_S_Location</cim:IdentifiedObject.mRID>"));
+        checkPositions(gl);
     }
 
-    private void exportAndCheck(CgmesNamespace.Cim cim, String expectedProfile) {
-        expectedCim = cim;
-        Substation substation1 = network.getSubstation("Substation1");
-        SubstationPosition substationPosition1 = new SubstationPositionImpl(substation1, SUBSTATION_1);
-        substation1.addExtension(SubstationPosition.class, substationPosition1);
-        Substation substation2 = network.getSubstation("Substation2");
-        SubstationPosition substationPosition2 = new SubstationPositionImpl(substation2, SUBSTATION_2);
-        substation2.addExtension(SubstationPosition.class, substationPosition2);
-        Line line = network.getLine("Line");
-        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, ImmutableList.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
+    @Test
+    void testCgmes3RoundTrip() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
+        Network cgmes3 = Network.read(Cgmes3Catalog.smallGrid().dataSource(), importParams);
 
-        TripleStore tripleStore = Mockito.mock(TripleStore.class);
-        Mockito.when(tripleStore.add(ArgumentMatchers.anyString(), ArgumentMatchers.eq(cim.getNamespace()),
-                        ArgumentMatchers.eq("CoordinateSystem"), ArgumentMatchers.any(PropertyBag.class)))
-                                .thenReturn("CoordinateSystemId");
+        MemDataSource exported = new MemDataSource();
+        cgmes3.write("CGMES", new Properties(), exported);
+        new CgmesGLExporter(cgmes3).exportData(exported);
 
-        DataSource dataSource = Mockito.mock(DataSource.class);
-        Mockito.when(dataSource.getBaseName()).thenReturn(network.getId().toLowerCase());
+        String gl = new String(exported.getData("_" + CgmesSubset.GEOGRAPHICAL_LOCATION.getIdentifier() + ".xml"), StandardCharsets.UTF_8);
+        String eqModelId = cgmes3.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.EQUIPMENT)
+                .map(CgmesMetadataModel::getId).orElseThrow();
+        assertTrue(gl.contains("<md:Model.DependentOn rdf:resource=\"" + eqModelId + "\"/>"));
+        assertTrue(gl.contains("<md:Model.profile>" + CgmesGLUtils.CIM_100_GL_PROFILE + "</md:Model.profile>"));
+        assertEquals(count(gl, "rdf:ID="), count(gl, "<cim:IdentifiedObject.mRID>"));
 
-        ArgumentCaptor<String> prefixCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> namespaceCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> contextCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> nsCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> typeCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<PropertyBag> propertiesCaptor = ArgumentCaptor.forClass(PropertyBag.class);
-
-        new CgmesGLExporter(network, tripleStore).exportData(dataSource);
-
-        // check add namespace
-        Mockito.verify(tripleStore, Mockito.times(3)).addNamespace(prefixCaptor.capture(), namespaceCaptor.capture());
-        checkNamespace(prefixCaptor.getAllValues().get(0), namespaceCaptor.getAllValues().get(0), "data", "http://" + network.getId().toLowerCase() + "/#");
-        checkNamespace(prefixCaptor.getAllValues().get(1), namespaceCaptor.getAllValues().get(1), "cim", cim.getNamespace());
-        checkNamespace(prefixCaptor.getAllValues().get(2), namespaceCaptor.getAllValues().get(2), "md", CgmesGLExporter.MD_NAMESPACE);
-
-        // check add statements
-        Mockito.verify(tripleStore, Mockito.times(11)).add(contextCaptor.capture(), nsCaptor.capture(),
-                       typeCaptor.capture(), propertiesCaptor.capture());
-        assertEquals(expectedProfile, propertiesCaptor.getAllValues().get(0).get("Model.profile"));
-        checkCoordinateSystem(contextCaptor.getAllValues().get(1), nsCaptor.getAllValues().get(1), typeCaptor.getAllValues().get(1),
-                              propertiesCaptor.getAllValues().get(1), network.getId().toLowerCase());
-        checkLocation(contextCaptor.getAllValues().get(2), nsCaptor.getAllValues().get(2), typeCaptor.getAllValues().get(2),
-                      propertiesCaptor.getAllValues().get(2), network.getId().toLowerCase(), "Substation1", "Substation1");
-        checkPositionPoint(contextCaptor.getAllValues().get(3), nsCaptor.getAllValues().get(3), typeCaptor.getAllValues().get(3),
-                           propertiesCaptor.getAllValues().get(3), network.getId().toLowerCase(), SUBSTATION_1, -1);
-        checkLocation(contextCaptor.getAllValues().get(4), nsCaptor.getAllValues().get(4), typeCaptor.getAllValues().get(4),
-                      propertiesCaptor.getAllValues().get(4), network.getId().toLowerCase(), "Substation2", "Substation2");
-        checkPositionPoint(contextCaptor.getAllValues().get(5), nsCaptor.getAllValues().get(5), typeCaptor.getAllValues().get(5),
-                           propertiesCaptor.getAllValues().get(5), network.getId().toLowerCase(), SUBSTATION_2, -1);
-        checkLocation(contextCaptor.getAllValues().get(6), nsCaptor.getAllValues().get(6), typeCaptor.getAllValues().get(6),
-                      propertiesCaptor.getAllValues().get(6), network.getId().toLowerCase(), "Line", "Line");
-        checkPositionPoint(contextCaptor.getAllValues().get(7), nsCaptor.getAllValues().get(7), typeCaptor.getAllValues().get(7),
-                           propertiesCaptor.getAllValues().get(7), network.getId().toLowerCase(), SUBSTATION_1, 1);
-        checkPositionPoint(contextCaptor.getAllValues().get(8), nsCaptor.getAllValues().get(8), typeCaptor.getAllValues().get(8),
-                           propertiesCaptor.getAllValues().get(8), network.getId().toLowerCase(), LINE_1, 2);
-        checkPositionPoint(contextCaptor.getAllValues().get(9), nsCaptor.getAllValues().get(9), typeCaptor.getAllValues().get(9),
-                           propertiesCaptor.getAllValues().get(9), network.getId().toLowerCase(), LINE_2, 3);
-        checkPositionPoint(contextCaptor.getAllValues().get(10), nsCaptor.getAllValues().get(10), typeCaptor.getAllValues().get(10),
-                           propertiesCaptor.getAllValues().get(10), network.getId().toLowerCase(), SUBSTATION_2, 4);
-    }
-
-    private void checkNamespace(String prefix, String ns, String expetedPrefix, String expectedNs) {
-        assertEquals(expetedPrefix, prefix);
-        assertEquals(expectedNs, ns);
-    }
-
-    private void checkProperties(String context, String namespace, String type, PropertyBag properties, String basename,
-                                 String expectedType, List<String> expectedProperties, List<String> expectedResources,
-                                 List<String> expectedClassProperties) {
-        assertTrue(CgmesSubset.GEOGRAPHICAL_LOCATION.isValidName(context));
-        assertEquals(basename + "_" + CgmesSubset.GEOGRAPHICAL_LOCATION.getIdentifier() + ".xml", context);
-        assertEquals(expectedCim.getNamespace(), namespace);
-        assertEquals(expectedType, type);
-        assertEquals(expectedProperties.size(), properties.propertyNames().size());
-        expectedProperties.forEach(property -> assertTrue(properties.propertyNames().contains(property)));
-        expectedResources.forEach(resource -> assertTrue(properties.isResource(resource)));
-        expectedClassProperties.forEach(classProperty -> assertTrue(properties.isClassProperty(classProperty)));
-    }
-
-    private void checkCoordinateSystem(String context, String namespace, String type, PropertyBag properties, String basename) {
-        checkProperties(context, namespace, type, properties, basename, "CoordinateSystem",
-                Arrays.asList("IdentifiedObject.name", "crsUrn"), Collections.emptyList(),
-                List.of("IdentifiedObject.name"));
-        assertEquals(CgmesGLUtils.COORDINATE_SYSTEM_URN, properties.get("crsUrn"));
-    }
-
-    private void checkLocation(String context, String namespace, String type, PropertyBag properties, String basename,
-                               String expectedName, String expectedPowerSystemResource) {
-        checkProperties(context, namespace, type, properties, basename, "Location",
-                Arrays.asList("IdentifiedObject.name", "CoordinateSystem", "PowerSystemResources"),
-                Arrays.asList("CoordinateSystem", "PowerSystemResources"),
-                List.of("IdentifiedObject.name"));
-        assertEquals(expectedName, properties.get("IdentifiedObject.name"));
-        assertEquals("CoordinateSystemId", properties.get("CoordinateSystem"));
-        assertEquals(expectedPowerSystemResource, properties.get("PowerSystemResources"));
-    }
-
-    private void checkPositionPoint(String context, String namespace, String type, PropertyBag properties, String basename,
-                                    Coordinate expectedCoordinate, int expectedSeq) {
-        checkProperties(context, namespace, type, properties, basename, "PositionPoint",
-                expectedSeq == -1 ? Arrays.asList("xPosition", "yPosition", "Location") : Arrays.asList("xPosition", "yPosition", "sequenceNumber", "Location"),
-                List.of("Location"), Collections.emptyList());
-        assertEquals(expectedCoordinate.getLongitude(), properties.asDouble("xPosition"), 0);
-        assertEquals(expectedCoordinate.getLatitude(), properties.asDouble("yPosition"), 0);
-        if (expectedSeq != -1) {
-            assertEquals(expectedSeq, properties.asInt("sequenceNumber"), 0);
+        // The CGMES export does not include the boundary, required for the re-import
+        ReadOnlyDataSource original = Cgmes3Catalog.smallGrid().dataSource();
+        for (String name : original.listNames(".*EQ_BD.*")) {
+            try (InputStream is = original.newInputStream(name); OutputStream os = exported.newOutputStream(name, false)) {
+                is.transferTo(os);
+            }
         }
+        Network reimported = Network.read(exported, importParams);
+        assertTrue(cgmes3.getLineCount() > 0);
+        cgmes3.getLines().forEach(line -> {
+            LinePosition<Line> expected = line.getExtension(LinePosition.class);
+            LinePosition<Line> actual = reimported.getLine(line.getId()).getExtension(LinePosition.class);
+            assertNotNull(actual, line.getId());
+            assertEquals(expected.getCoordinates(), actual.getCoordinates(), line.getId());
+        });
+    }
+
+    private static String exportGL(Network network) {
+        MemDataSource dataSource = new MemDataSource();
+        new CgmesGLExporter(network).exportData(dataSource);
+        return new String(dataSource.getData("_" + CgmesSubset.GEOGRAPHICAL_LOCATION.getIdentifier() + ".xml"), StandardCharsets.UTF_8);
+    }
+
+    private static void checkPositions(String gl) {
+        assertTrue(gl.contains("<md:Model.DependentOn rdf:resource="));
+        assertEquals(1, count(gl, "<cim:CoordinateSystem "));
+        assertTrue(gl.contains("<cim:CoordinateSystem.crsUrn>" + CgmesGLUtils.COORDINATE_SYSTEM_URN + "</cim:CoordinateSystem.crsUrn>"));
+        assertEquals(3, count(gl, "<cim:Location "));
+        assertTrue(gl.contains("<cim:Location.PowerSystemResources rdf:resource=\"#_Substation1\"/>"));
+        assertTrue(gl.contains("<cim:Location.PowerSystemResources rdf:resource=\"#_Substation2\"/>"));
+        assertTrue(gl.contains("<cim:Location.PowerSystemResources rdf:resource=\"#_Line\"/>"));
+        assertEquals(6, count(gl, "<cim:PositionPoint "));
+        // substation positions are single points, without sequence number
+        assertEquals(4, count(gl, "<cim:PositionPoint.sequenceNumber>"));
+        assertTrue(gl.contains("<cim:PositionPoint.xPosition>" + LINE_1.getLongitude() + "</cim:PositionPoint.xPosition>"));
+        assertTrue(gl.contains("<cim:PositionPoint.yPosition>" + LINE_1.getLatitude() + "</cim:PositionPoint.yPosition>"));
+    }
+
+    private static int count(String text, String pattern) {
+        return (int) Pattern.compile(Pattern.quote(pattern)).matcher(text).results().count();
     }
 
 }
