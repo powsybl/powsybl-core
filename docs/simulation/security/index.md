@@ -6,6 +6,7 @@ configuration.md
 contingency-dsl.md
 action-dsl.md
 limit-scalings.md
+two-pass-security-analysis.md
 ```
 
 The security analysis is a simulation that checks violations on a network. These checks can be done on the base case or
