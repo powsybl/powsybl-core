@@ -1,7 +1,7 @@
 # Export
 
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
-into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF 
+into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF
 [format specification](format_specification.md).
 
 ## Limitations
@@ -15,14 +15,9 @@ import a UCTE-DEF file in PowSyBl, you can update some elements and then export 
 exporting to UCTE-DEF format a file imported from another format most often leads at best to incorrect file content, at
 worst to an exporter failure. Some examples are listed here after.
 
-**At most one load and one generator per bus**: The export fails with a `UcteException` if a bus has more than one
-[load](../../grid_model/network_subnetwork.md#load) or more than one [generator](../../grid_model/network_subnetwork.md#generator)
-connected to it. See [node conversion](#node-conversion) below for how the node's load and generation attributes are
-sourced from the load and the generator.
-
-**Transformers Tap Changers**: UCTE-DEF format assumes neutral tap position to be centered at position zero. If your IIDM
-model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will be
-incorrect without warning.
+**Transformers Tap Changers**: UCTE-DEF format assumes neutral tap position to be centered at position zero. If your
+IIDM model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will
+be incorrect without warning.
 
 ## Options
 
@@ -51,37 +46,38 @@ Its default value is `false`.
 ### Node conversion
 
 Every bus of the network's [bus/breaker view](../../grid_model/network_subnetwork.md#voltage-level) is converted into a
-UCTE node, using the naming strategy to compute its UCTE node code. The export fails with a `UcteException` if more than
-one load, or more than one generator, is connected to the bus.
+UCTE node, using the naming strategy to compute its UCTE node code. If several loads or generators are connected to the
+bus, their injections are aggregated
+(see [Aggregation of several generators and loads](#aggregation-of-several-generators-and-loads)).
 
 The table below maps every UCTE-DEF node attribute to its source in IIDM. Unless stated otherwise, an attribute with no
 IIDM source is left undefined in the exported node.
 
-| UCTE-DEF attribute                                   | Source in IIDM                                                                       | Computation                                                                                                                                                                                                                                               |
-|------------------------------------------------------|--------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Node code                                            | Bus                                                                                  | Computed by the [naming strategy](#options).                                                                                                                                                                                                              |
-| Geographical name                                    | Bus `geographicalName` property                                                      | Used as-is.                                                                                                                                                                                                                                               |
-| Node status                                          | Bus fictitiousness                                                                   | `0` (real node) if the bus is not fictitious, `1` (equivalent node) otherwise, following the [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s node status convention. |
-| Node type                                            | Connected generator's voltage regulation; whether the bus is the network's slack bus | Derived from the connected generator's voltage regulation and whether the bus is the network's slack bus. Further information in [Node type](#node-type).                                                                                                 |
-| Voltage reference (kV)                               | Connected generator's target voltage (`targetV`)                                     | Used as-is; left undefined if there is no generator, or its `targetV` is undefined.                                                                                                                                                                       |
-| Active load (MW)                                     | Connected load's `P0`                                                                | Used as-is; `0` if there is no load.                                                                                                                                                                                                                      |
-| Reactive load (MVar)                                 | Connected load's `Q0`                                                                | Used as-is; `0` if there is no load.                                                                                                                                                                                                                      |
-| Active power generation (MW)                         | Connected generator's target active power (`targetP`)                                | Opposite of `targetP` (UCTE-DEF convention: generation is negative); `0` if there is no generator, or its `targetP` is undefined.                                                                                                                         |
-| Reactive power generation (MVar)                     | Connected generator's target reactive power (`targetQ`)                              | Opposite of `targetQ`; `0` if there is no generator, or its `targetQ` is undefined.                                                                                                                                                                       |
-| Minimum permissible active power generation (MW)     | Connected generator's `minP`                                                         | Opposite of `minP`; left undefined if `minP` is lower than or equal to `-9999` MW. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                                       |
-| Maximum permissible active power generation (MW)     | Connected generator's `maxP`                                                         | Opposite of `maxP`; left undefined if `maxP` is greater than or equal to `9999` MW. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                                      |
-| Minimum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the minimum reactive limit; left undefined if it is lower than or equal to `-9999` MVar. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                     |
-| Maximum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the maximum reactive limit; left undefined if it is greater than or equal to `9999` MVar. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                    |
-| Static of primary control (%)                        | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
-| Nominal power for primary control (MW)               | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
-| Three-phase short-circuit power (MVA)                | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
-| X/R ratio                                            | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
-| Power plant type                                     | Connected generator's `powerPlantType` property, or its energy source                | Derived from the connected generator's `powerPlantType` property or its energy source. Further information in [Power plant type](#power-plant-type).                                                                                                      |
+| UCTE-DEF attribute                                   | Source in IIDM                                                                                   | Computation                                                                                                                                                                                                                                               |
+|------------------------------------------------------|--------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Node code                                            | Bus                                                                                              | Computed by the [naming strategy](#options).                                                                                                                                                                                                              |
+| Geographical name                                    | Bus `geographicalName` property                                                                  | Used as-is.                                                                                                                                                                                                                                               |
+| Node status                                          | Bus fictitiousness                                                                               | `0` (real node) if the bus is not fictitious, `1` (equivalent node) otherwise, following the [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s node status convention. |
+| Node type                                            | Connected generators' voltage regulation; whether the bus is the network's slack bus             | Derived from the connected generators' voltage regulation and whether the bus is the network's slack bus. Further information in [Node type](#node-type).                                                                                                 |
+| Voltage reference (kV)                               | Connected generators' target voltage                                                             | Selected among the generators' targets; left undefined if there is no usable target. See [Voltage reference selection](#voltage-reference-selection).                                                                                                     |
+| Active load (MW)                                     | Connected loads' `P0`                                                                            | Sum of the `P0` of the connected loads; `0` if there is no load.                                                                                                                                                                                          |
+| Reactive load (MVar)                                 | Connected loads' `Q0`                                                                            | Sum of the `Q0` of the connected loads; `0` if there is no load.                                                                                                                                                                                          |
+| Active power generation (MW)                         | Connected generators' target active power (`targetP`)                                            | Opposite of the sum of the `targetP` of the connected generators (UCTE-DEF convention: generation is negative); undefined values are ignored; `0` if there is no generator.                                                                               |
+| Reactive power generation (MVar)                     | Connected generators' target reactive power                                                      | Opposite of the sum of the target reactive power of the connected generators; undefined values are ignored; `0` if there is no generator.                                                                                                                 |
+| Minimum permissible active power generation (MW)     | Connected generators' `minP`                                                                     | Opposite of the sum of the `minP`; left undefined if the limit is out of bounds. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                                         |
+| Maximum permissible active power generation (MW)     | Connected generators' `maxP`                                                                     | Opposite of the sum of the `maxP`; left undefined if the limit is out of bounds. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                                         |
+| Minimum permissible reactive power generation (MVar) | Connected generators' reactive limits, each evaluated at the generator's own target active power | Opposite of the sum of the minimum reactive limits; left undefined if the limit is out of bounds. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                        |
+| Maximum permissible reactive power generation (MVar) | Connected generators' reactive limits, each evaluated at the generator's own target active power | Opposite of the sum of the maximum reactive limits; left undefined if the limit is out of bounds. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                        |
+| Static of primary control (%)                        | *(none)*                                                                                         | Always left undefined.                                                                                                                                                                                                                                    |
+| Nominal power for primary control (MW)               | *(none)*                                                                                         | Always left undefined.                                                                                                                                                                                                                                    |
+| Three-phase short-circuit power (MVA)                | *(none)*                                                                                         | Always left undefined.                                                                                                                                                                                                                                    |
+| X/R ratio                                            | *(none)*                                                                                         | Always left undefined.                                                                                                                                                                                                                                    |
+| Power plant type                                     | Connected generators' `powerPlantType` property, or their energy source                          | Derived from the generators' `powerPlantType` property or energy source; `F` if they differ. Further information in [Power plant type](#power-plant-type).                                                                                                |
 
 #### Node type
 
-The node type is `0` (PQ node) by default. It is set to `2` (PU node) if the bus has a connected generator with voltage
-regulation on. It is set to `3` (global slack node) if the bus is the network's
+The node type is `0` (PQ node) by default. It is set to `2` (PU node) if the bus has at least one connected generator
+with voltage regulation on. It is set to `3` (global slack node) if the bus is the network's
 [slack bus](../../grid_model/extensions.md#slack-terminal), which takes precedence over the PU case. `1` (Q and θ
 constant) is never produced by the export. See the
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)
@@ -89,7 +85,7 @@ for the full node type convention.
 
 #### Power plant type
 
-The `powerPlantType` property of the connected generator (typically set at import time) is used if present; otherwise,
+The `powerPlantType` property of each connected generator (typically set at import time) is used if present; otherwise,
 the energy source of the generator is converted to a UCTE power plant type according to the following table:
 
 | IIDM Energy source | UCTE Power plant type |
@@ -100,8 +96,18 @@ the energy source of the generator is converted to a UCTE power plant type accor
 |        Wind        |      `W` (Wind)       |
 |   Other sources    |     `F` (further)     |
 
+If the generators of a bus do not all have the same power plant type, type `F` is used.
+
 See the convention for power plant types in
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf):
+
+#### Aggregation of several generators and loads
+
+Several loads or generators can be connected to the same bus. They are exported as a single UCTE-DEF node, with the
+rules described in [Node conversion](#node-conversion): loads, active and reactive generation are summed, the limits are
+aggregated as described in [Active and reactive power generation limits](#active-and-reactive-power-generation-limits),
+the power plant type is `F` if the generators' types differ, and the node is a PU node if at least one generator
+regulates voltage.
 
 #### Active and reactive power generation limits
 
@@ -115,10 +121,50 @@ On export, a limit is left empty if it is outside of bounds `-9999` and `9999` (
 - a minimum limit lower than or equal to `-9999` is left undefined,
 - a maximum limit greater than or equal to `9999` is left undefined.
 
+If a bus has several generators, each of the four limits (`minP`, `maxP`, minimum and maximum reactive limits) is
+aggregated independently. The reactive limits of each generator are evaluated at its own target active power.
+
+- If the limit of any generator is out of bounds ("no limit"), the aggregated limit is left undefined. This is checked
+  before summing: a `9999` value never takes part in a sum.
+- Otherwise, the aggregated limit is the sum of the generators' limits. If this sum is itself out of bounds, the limit
+  is left undefined and a warning is reported.
+
+##### Voltage reference selection
+
+A UCTE-DEF node has a single voltage reference. When several generators are connected to a bus, the target voltage of
+one of them has to be selected for the exported node. Each generator provides at most one candidate target voltage, then
+one candidate is kept.
+
+A voltage-regulating generator provides:
+
+- its local target voltage (`localTargetV`), if defined (case *local*);
+- otherwise, the target value of its voltage regulation, if defined:
+  - used as-is if its regulating terminal is on the exported bus (case *local*),
+  - rescaled if its regulating terminal is on another bus (case *remote*):
+
+$$
+V_{ref} = V_{target} \times \dfrac{V_{nom,local}}{V_{nom,remote}}
+$$
+
+where $V_{target}$ is the target value of the generator's voltage regulation (in kV, at the regulated bus),
+$V_{nom,local}$ the nominal voltage of the exported bus and $V_{nom,remote}$ the nominal voltage of the regulated bus.
+This keeps the per-unit target, and is an approximation which ignores transformer ratios and voltage drops. A warning is
+[reported](#reporting) if the selected candidate is rescaled.
+
+A generator that does not regulate voltage provides its local target voltage, if defined (case *non-regulating*). This
+keeps the voltage reference of a PQ node imported from a UCTE-DEF file.
+
+The candidates of the first non-empty case are considered, in this order: local, remote, non-regulating. Among them,
+the one of the generator with the largest target active power is kept (ties are broken by the smallest generator id). A
+warning is reported if the candidates have different values. If there is no candidate, the voltage reference is left
+undefined; if the node is a PU node, a warning is reported.
+
 ### Line conversion
 
-Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) (as a busbar coupler), [line](../../grid_model/network_subnetwork.md#line),
-unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line), and [tie line](../../grid_model/network_subnetwork.md#tie-line)
+Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) (as a busbar
+coupler), [line](../../grid_model/network_subnetwork.md#line),
+unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line),
+and [tie line](../../grid_model/network_subnetwork.md#tie-line)
 of the network is converted into one or more UCTE lines, using the naming strategy to compute each line's node codes and
 order code. A boundary line or a tie line additionally creates an [X-node](#x-nodes).
 
@@ -138,8 +184,9 @@ IIDM source is left undefined in the exported line.
 #### Line status
 
 The status follows the
-[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s
-convention for element status:
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)
+'s convention for element status:
+
 - `0`: real element in operation
 - `8`: real element out of operation
 - `1`: equivalent element in operation
@@ -148,6 +195,7 @@ convention for element status:
 - `7`: busbar coupler out of operation
 
 It is derived as follows:
+
 - **Switch**: `2` if closed, `7` if open.
 - **Line**, **two-winding transformer**, and each side of a **tie line**: `0`/`8` (real) if not fictitious, `1`/`9`
   (equivalent) if fictitious; the `_IN_OPERATION` variant if the branch's two terminals (or the tie line side's single
@@ -171,8 +219,8 @@ An unpaired boundary line is converted into an X-node and a UCTE line connecting
 tie line is converted into an X-node and two UCTE lines, one for each side, using the same rules as for a standalone
 boundary line.
 
-The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following
-the same conventions as [node conversion](#node-conversion) above.
+The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following the
+same conventions as [node conversion](#node-conversion) above.
 
 | UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                                                             |
 |--------------------------------------------------------|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -194,9 +242,9 @@ the same conventions as [node conversion](#node-conversion) above.
 
 #### Tie line properties
 
-A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by 
-custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although 
-we expect both sides of the line to carry the same value for the same property, there can be discrepancies.
+A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by custom
+properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although we
+expect both sides of the line to carry the same value for the same property, there can be discrepancies.
 
 - If both boundary lines have the same value, it is used in the exported tie line.
 - If one of the boundary lines has an empty value, the other boundary line's value is used.
@@ -246,6 +294,7 @@ The table below maps every UCTE-DEF phase regulation attribute to its source in 
 | Voltage set point U (kV) | Ratio tap changer's target voltage (`targetV`) | Used as-is; left undefined if the ratio tap changer has no target voltage.                                                        |
 
 ##### δu formula
+
 $$
 \delta u = 100 \times \left (\dfrac{1}{\rho_{max}} - \dfrac{1}{\rho_{min}}\right) / (n - 1)
 $$
@@ -260,16 +309,17 @@ angle regulation.
 
 The table below maps every UCTE-DEF angle regulation attribute to its source in IIDM.
 
-| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                        |
-|-------------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| Regulation type         | Phase tap changer's tap steps' ρ           | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                              |
-| δu (%)                  | Phase tap changer's tap steps' α and/or ρ  | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
-| Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ  | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.               |
-| n (number of taps)      | Phase tap changer's high tap position      | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.  |
-| n' (tap position)       | Phase tap changer's current tap position   | Used as-is. Same assumption as above.                                                                                              |
-| Regulation power P (MW) | Phase tap changer's `regulationValue`      | Opposite of `regulationValue`.                                                                                                      |
+| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                                  |
+|-------------------------|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| Regulation type         | Phase tap changer's tap steps' ρ          | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                                       |
+| δu (%)                  | Phase tap changer's tap steps' α and/or ρ | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
+| Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.                         |
+| n (number of taps)      | Phase tap changer's high tap position     | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.            |
+| n' (tap position)       | Phase tap changer's current tap position  | Used as-is. Same assumption as above.                                                                                                        |
+| Regulation power P (MW) | Phase tap changer's `regulationValue`     | Opposite of `regulationValue`.                                                                                                               |
 
 ##### SYMM regulation δu formula
+
 For a `SYMM` regulation, the angle is fixed at `90°` and the δu (%) is computed from the α of the two extreme taps:
 
 $$
@@ -291,9 +341,15 @@ and on side 1 in IIDM.
 ## Reporting
 
 When a [ReportNode](../../user/functional_logs/index.md) is provided to the export, one report node is created per
-conversion step (buses and switches, boundary lines, lines, tie lines, transformers) and per exported file, and the
-following situations are reported with a `WARN` severity:
+conversion step (buses and switches, boundary lines, lines, tie lines, transformers) and per exported file. The
+following situations are reported:
 
-- a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
-- a two-winding transformer has no usable nominal power
-  (see [two-winding transformer conversion](#two-winding-transformer-conversion)).
+| Situation                                                                                                    | Severity | See                                                                                         |
+|--------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
+| A switch has no usable `currentLimit` property                                                               | `WARN`   | [Current limit](#current-limit)                                                             |
+| A two-winding transformer has no usable nominal power                                                        | `WARN`   | [Two-winding transformer conversion](#two-winding-transformer-conversion)                   |
+| A node regulates voltage but none of its generators provides a voltage target                                | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| The generators of a bus have different candidate voltage targets; the kept value and its generator are given | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| The kept voltage target comes from a remote regulation and is rescaled                                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| The sum of finite generator power limits reaches or exceeds `9999` in absolute value and is left undefined   | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
+| The generators of a bus have different power plant types and type `F` (further) is used                      | `INFO`   | [Power plant type](#power-plant-type)                                                       |
