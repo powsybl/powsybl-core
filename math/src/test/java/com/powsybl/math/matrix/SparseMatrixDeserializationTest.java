@@ -14,11 +14,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -56,6 +58,40 @@ class SparseMatrixDeserializationTest {
         // Confirm there is no exploit: the "rce" file should not exist
         Path rceFile = testDir.resolve("rce");
         assertFalse(Files.exists(rceFile), "The exploit is present.");
+    }
+
+    @Test
+    void testInconsistentColumnCountRejected() throws Exception {
+        SparseMatrix matrix = new SparseMatrix(2, 2, new int[] {0, 1, 2}, new int[] {0, 1}, new double[] {1d, 2d});
+        // Dirty reflection to get a columnCount that no longer matches the columnStart length: the
+        // constructors reject that shape, a serialized stream can carry it.
+        setField(matrix, "columnCount", 1_000_000);
+        setField(matrix, "currentColumn", 999_999);
+
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> readBack(matrix));
+        assertEquals("columnStart array length has to be columnCount + 1", e.getCause().getMessage());
+    }
+
+    @Test
+    void testColumnStartBeyondValueCountRejected() {
+        // Consistent shape, but the last columnStart entry announces 100000 values while the matrix carries
+        // one. That entry is the value count the native layer iterates over.
+        SparseMatrix matrix = new SparseMatrix(2, 2, new int[] {0, 1, 100_000}, new int[] {0}, new double[] {1d});
+
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> readBack(matrix));
+        assertEquals("columnStart value 100000 out of range [-1, 1]", e.getCause().getMessage());
+    }
+
+    private static SparseMatrix readBack(SparseMatrix matrix) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        matrix.write(baos);
+        return SparseMatrix.read(new ByteArrayInputStream(baos.toByteArray()));
+    }
+
+    private static void setField(SparseMatrix matrix, String name, Object value) throws ReflectiveOperationException {
+        Field field = SparseMatrix.class.getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(matrix, value);
     }
 
     static class Exploit implements Serializable {
