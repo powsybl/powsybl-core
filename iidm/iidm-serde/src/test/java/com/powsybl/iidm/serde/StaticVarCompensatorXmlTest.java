@@ -49,7 +49,7 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
         addProperties(network);
         allFormatsRoundTripTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
-        allFormatsRoundTripFromVersionedXmlTest("regulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_1);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("regulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_1);
     }
 
     @Test

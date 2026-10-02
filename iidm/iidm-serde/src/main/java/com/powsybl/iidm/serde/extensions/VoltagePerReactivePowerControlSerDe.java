@@ -42,9 +42,11 @@ public class VoltagePerReactivePowerControlSerDe extends AbstractExtensionSerDe<
     public VoltagePerReactivePowerControl read(StaticVarCompensator svc, DeserializerContext context) {
         double slope = context.getReader().readDoubleAttribute("slope");
         context.getReader().readEndNode();
-        if (!Double.isNaN(slope)) {
-            svc.getVoltageRegulation().setSlope(slope);
-            svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
+        if (!Double.isNaN(slope) && slope != 0) { // When the slope is equal to zero, ignore the extension: q cannot be computed (division by 0)
+            svc.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)
+                    .withSlope(slope)
+                    .build();
         }
         return null;
     }

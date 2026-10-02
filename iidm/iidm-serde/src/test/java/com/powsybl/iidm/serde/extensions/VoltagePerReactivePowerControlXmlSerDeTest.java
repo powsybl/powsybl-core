@@ -13,14 +13,18 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
@@ -48,4 +52,36 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("voltagePerReactivePowerControl.xml", IidmVersion.V_1_5, CURRENT_IIDM_VERSION);
     }
 
+    @ParameterizedTest
+    @MethodSource("getVersions")
+    void importWithReactivePowerRegulationAndZeroSlopeExtension(IidmVersion version) {
+        Network network = NetworkSerDe.read(getVersionedNetworkAsStream("/voltagePerReactivePowerControlZeroSlope.xml", version));
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertNotNull(svc);
+        assertNotNull(svc.getVoltageRegulation());
+        assertEquals(RegulationMode.REACTIVE_POWER, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+        assertTrue(Double.isNaN(svc.getVoltageRegulation().getSlope()));
+        assertEquals(-170.0, svc.getLocalTargetQ(), 0.001);
+        assertNull(svc.getVoltageRegulation().getTerminal());
+    }
+
+    @ParameterizedTest
+    @MethodSource("getVersions")
+    void importWithRegulatingTerminal(IidmVersion version) {
+        Network network = NetworkSerDe.read(getVersionedNetworkAsStream("/voltagePerReactivePowerControlWithTerminal.xml", version));
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertNotNull(svc);
+        assertNotNull(svc.getVoltageRegulation());
+        assertEquals(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+        assertEquals(0.5, svc.getVoltageRegulation().getSlope(), 0.001);
+        assertEquals(380., svc.getVoltageRegulation().getTargetValue(), 0.001);
+        assertEquals(network.getGenerator("G1").getTerminal(), svc.getVoltageRegulation().getTerminal());
+    }
+
+    static Stream<Arguments> getVersions() {
+        // 1.18: first version after the extension extinction
+        return Stream.of(allBetweenVersions(IidmVersion.V_1_5, IidmVersion.V_1_18)).map(Arguments::of);
+    }
 }
