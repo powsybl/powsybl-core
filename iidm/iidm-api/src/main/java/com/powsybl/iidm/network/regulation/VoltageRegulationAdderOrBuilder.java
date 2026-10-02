@@ -17,7 +17,7 @@ public interface VoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdde
     /**
      * Sets the target value for the voltage regulation.
      *
-     * <p>This value is defined in the load convention.</p>
+     * <p>In case of reactive power regulation, this value is defined in the load convention.</p>
      */
     T withTargetValue(double targetValue);
 

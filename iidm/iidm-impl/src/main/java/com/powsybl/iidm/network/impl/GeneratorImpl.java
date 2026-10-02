@@ -187,7 +187,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     /**
-     * <p>This value is defined in the generator convention.</p>
+     * <p>This value is defined in the generator sign convention.</p>
      * {@inheritDoc}
      */
     @Override
@@ -196,7 +196,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     /**
-     * <p>This value is defined in the generator convention.</p>
+     * <p>This value is defined in the generator sign convention.</p>
      * {@inheritDoc}
      */
     @Override

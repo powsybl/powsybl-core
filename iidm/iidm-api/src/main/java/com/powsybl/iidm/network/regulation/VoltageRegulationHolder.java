@@ -153,7 +153,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * </p>
      * <p>
      * If this object is regulating in {@link RegulationMode#REACTIVE_POWER} mode and
-     * a regulating terminal is explicitly configured, the configured regulation target
+     * a regulating terminal is explicitly configured, the configured regulation target value
      * is returned using the holder's sign convention. Otherwise, the local target
      * reactive power value is returned.
      * </p>

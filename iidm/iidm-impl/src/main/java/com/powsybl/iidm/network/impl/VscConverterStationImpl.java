@@ -127,7 +127,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     /**
-     * <p>This value is defined in the generator convention.</p>
+     * <p>This value is defined in the generator sign convention.</p>
      * {@inheritDoc}
      */
     @Override
@@ -149,7 +149,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     /**
-     * <p>This value is defined in the generator convention.</p>
+     * <p>This value is defined in the generator sign convention.</p>
      * {@inheritDoc}
      */
     @Override
@@ -162,7 +162,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         double oldValue;
         if (voltageRegulation != null && isWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             oldValue = voltageRegulation.getTargetValue();
-            // reactivePowerSetpoint is defined in the generator convention, but the voltage regulation targetValue is defined in the load convention.
+            // reactivePowerSetpoint is defined in the generator sign convention, but the voltage regulation targetValue is defined in the load sign convention.
             voltageRegulation.setTargetValue(-reactivePowerSetpoint);
         } else {
             oldValue = this.getLocalTargetQ();

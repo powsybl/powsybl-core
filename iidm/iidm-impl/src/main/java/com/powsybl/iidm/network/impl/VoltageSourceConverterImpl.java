@@ -293,7 +293,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     /**
-     * <p>This value is defined in the load convention.</p>
+     * <p>This value is defined in the load sign convention.</p>
      * {@inheritDoc}
      */
     @Override
@@ -315,7 +315,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     /**
-     * <p>This value is defined in the load convention.</p>
+     * <p>This value is defined in the load sign convention.</p>
      * {@inheritDoc}
      */
     @Override

@@ -93,7 +93,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     }
 
     /**
-     * <p>This value is defined in the load convention.</p>
+     * <p>This value is defined in the load sign convention.</p>
      * {@inheritDoc}
      */
     @Override
@@ -123,7 +123,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     }
 
     /**
-     * <p>This value is defined in the load convention.</p>
+     * <p>This value is defined in the load sign convention.</p>
      * {@inheritDoc}
      */
     @Override

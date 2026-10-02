@@ -200,7 +200,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
                 holder.setLocalTargetQ(targetQ);
             } else if (holder.isWithMode(RegulationMode.REACTIVE_POWER)) {
                 holder.setLocalTargetV(targetValueV);
-                // The target value has a load convention, so we need to get the sign to use for the load convention
+                // The target value has a load sign convention, so we need to get the sign to use for the load sign convention
                 int signToUseLoadConvention = VoltageRegulationUtils.getSignToUseLoadSignConvention(holder);
                 holder.getVoltageRegulation().setTargetValue(signToUseLoadConvention * targetQ);
             }
