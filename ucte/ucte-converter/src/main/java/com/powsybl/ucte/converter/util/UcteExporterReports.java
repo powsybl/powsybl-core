@@ -71,6 +71,55 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static void aggregatedPowerLimitOutOfBounds(ReportNode reportNode, String busId, String limitName, double value) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.aggregatedPowerLimitOutOfBounds")
+                .withUntypedValue("busId", busId)
+                .withUntypedValue("limitName", limitName)
+                .withUntypedValue("value", value)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void mixedPowerPlantTypes(ReportNode reportNode, String busId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.mixedPowerPlantTypes")
+                .withUntypedValue("busId", busId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void remoteVoltageTargetRescaled(ReportNode reportNode, String busId, String generatorId, String remoteBusId,
+                                                   double remoteTargetV, double localTargetV) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.remoteVoltageTargetRescaled")
+                .withUntypedValue("busId", busId)
+                .withUntypedValue("generatorId", generatorId)
+                .withUntypedValue("remoteBusId", remoteBusId)
+                .withUntypedValue("remoteTargetV", remoteTargetV)
+                .withUntypedValue("localTargetV", localTargetV)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void voltageTargetMissing(ReportNode reportNode, String busId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.voltageTargetMissing")
+                .withUntypedValue("busId", busId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void voltageTargetConflict(ReportNode reportNode, String busId, String generatorId, double targetV) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.voltageTargetConflict")
+                .withUntypedValue("busId", busId)
+                .withUntypedValue("generatorId", generatorId)
+                .withUntypedValue("targetV", targetV)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void nominalPowerMissing(ReportNode reportNode, String transformerId, double nominalPowerNovalue) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.nominalPowerMissing")
