@@ -524,6 +524,35 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         }
     }
 
+    @Serial
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // Deserialization does not go through the constructors, so the CSC structure they check has to be
+        // checked again here: columnStart, rowIndices and values are then handed over as-is to the native
+        // layer (times, add, transpose, SparseLUDecomposition.init), which sizes its reads from these counts.
+        checkDeserializedStructure();
+    }
+
+    private void checkDeserializedStructure() throws InvalidObjectException {
+        if (rowCount < 1 || columnCount < 1) {
+            throw new InvalidObjectException("row count and column count have to be strictly positive");
+        }
+        if (columnStart == null || columnStart.length != columnCount + 1) {
+            throw new InvalidObjectException("columnStart array length has to be columnCount + 1");
+        }
+        if (columnValueCount == null || columnValueCount.length != columnCount) {
+            throw new InvalidObjectException("columnValueCount array length has to be columnCount");
+        }
+        if (rowIndices == null || values == null || rowIndices.size() != values.size()) {
+            throw new InvalidObjectException("rowIndices and values arrays must have the same length");
+        }
+        for (int start : columnStart) {
+            if (start < -1 || start > values.size()) {
+                throw new InvalidObjectException("columnStart value " + start + " out of range [-1, " + values.size() + "]");
+            }
+        }
+    }
+
     public String formatValues(DecimalFormat decimalFormat) {
         return Arrays.stream(getValues())
                 .mapToObj(decimalFormat::format)
