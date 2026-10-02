@@ -11,6 +11,7 @@ import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.powerfactory.model.DataAttributeType;
+import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRefKey;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.apache.commons.io.input.BOMInputStream;
@@ -510,6 +511,11 @@ public class DgsParser {
             if (actualCols != this.cols) {
                 throw new PowerFactoryException("RealMatrix: Unexpected number of cols: '"
                     + attributeName + "' rows: " + actualRows + " cols: " + actualCols + " expected cols: " + this.cols);
+            }
+            // The record must actually carry actualRows x actualCols values, otherwise a row declaring more
+            // values than it holds would force an oversized allocation from a tiny input.
+            if (!DataObject.isDataSufficientForRealMatrix(actualRows, actualCols, fields.length - indexField - 2)) {
+                return Optional.empty();
             }
             RealMatrix realMatrix = new BlockRealMatrix(actualRows, actualCols);
             for (int i = 0; i < actualRows; i++) {

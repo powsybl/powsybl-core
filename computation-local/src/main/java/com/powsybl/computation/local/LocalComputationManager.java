@@ -15,8 +15,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +29,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  *
@@ -272,13 +268,7 @@ public class LocalComputationManager implements ComputationManager {
                         break;
                     case ARCHIVE_UNZIP:
                         // extract the archive
-                        try (ZipFile zipFile = ZipFile.builder()
-                            .setSeekableByteChannel(Files.newByteChannel(path))
-                            .get()) {
-                            for (ZipArchiveEntry ze : Collections.list(zipFile.getEntries())) {
-                                Files.copy(zipFile.getInputStream(zipFile.getEntry(ze.getName())), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
-                            }
-                        }
+                        FileUtil.unzipArchive(workingDir, path);
                         break;
 
                     default:
