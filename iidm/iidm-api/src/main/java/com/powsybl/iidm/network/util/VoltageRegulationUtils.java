@@ -71,17 +71,12 @@ public final class VoltageRegulationUtils {
         throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
     }
 
-    /**
-     *
-     * @param signToUseLoadConvention -> 1 if the targetQ is given in load convention, -1 if it is given in generator convention
-     */
     public static <T extends VoltageRegulationHolderAdder<T>> void createSvcVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
                                                                                                                    RegulationMode regulationMode,
                                                                                                                    double targetV,
                                                                                                                    double targetQ,
                                                                                                                    Boolean regulating,
-                                                                                                                   Terminal terminal,
-                                                                                                                   int signToUseLoadConvention) {
+                                                                                                                   Terminal terminal) {
         if (regulationMode != null && regulating != null) {
             VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
                 .withMode(regulationMode);
@@ -95,7 +90,7 @@ public final class VoltageRegulationUtils {
                 adder.setLocalTargetQ(targetQ);
             } else if (regulationMode == REACTIVE_POWER) {
                 if (terminal != null) {
-                    targetValue = signToUseLoadConvention * targetQ;
+                    targetValue = targetQ;
                 } else {
                     adder.setLocalTargetQ(targetQ);
                 }

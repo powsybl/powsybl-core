@@ -131,7 +131,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         if (voltageRegulationAttributes == null && regulating != null) {
             // If a static var compensator with old setters is added and voltageRegulation does not exist,
             // the new voltageRegulation will be created from the old attributes.
-            createSvcVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal, 1);
+            createSvcVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
         } else {
             // In the case of a static var compensator with old setters and newVoltageRegulation method used
             // the old local attributes will be set without overriding the local attributes if already set
