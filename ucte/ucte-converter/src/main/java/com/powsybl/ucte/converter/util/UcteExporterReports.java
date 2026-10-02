@@ -79,8 +79,7 @@ public final class UcteExporterReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.nominalPowerMissing")
                 .withUntypedValue("transformerId", transformerId)
-                // nominal power is exported in a 5 chars column
-                .withUntypedValue("nominalPowerNovalue", formatAsExported(nominalPowerNovalue, 5))
+                .withUntypedValue("nominalPowerNovalue", (int) nominalPowerNovalue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

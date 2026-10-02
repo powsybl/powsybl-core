@@ -351,18 +351,11 @@ class UcteImporterTest {
     }
 
     @Test
-    void testNominalPowerImportedAsRatedS() {
+    void testNominalPowerAndMissingNominalPowerImport() {
         ResourceDataSource dataSource =
                 new ResourceDataSource("nominalPower", new ResourceSet("/", "nominalPower.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(5000., network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS());
-    }
-
-    @Test
-    void testMissingNominalPowerImportedAsNanRatedS() {
-        ResourceDataSource dataSource =
-                new ResourceDataSource("nominalPower", new ResourceSet("/", "nominalPower.uct"));
-        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertTrue(Double.isNaN(network.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").getRatedS()));
     }
 
