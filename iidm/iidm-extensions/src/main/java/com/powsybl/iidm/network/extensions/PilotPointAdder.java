@@ -14,7 +14,9 @@ import java.util.List;
  */
 public interface PilotPointAdder {
 
-    PilotPointAdder withBusbarSectionsOrBusesIds(List<String> busbarSectionsOrBusesIds);
+    PilotPointAdder withBuses(List<PilotPoint.BusRef> buses);
+
+    PilotPointAdder withBusbarSectionIds(List<String> busbarSectionIds);
 
     PilotPointAdder withTargetV(double targetV);
 
