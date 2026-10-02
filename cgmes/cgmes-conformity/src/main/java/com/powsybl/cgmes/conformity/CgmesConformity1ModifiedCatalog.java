@@ -74,67 +74,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBERatioPhaseTapChangerFaultyTabular() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_rtc_ptc_faulty_tabular/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-RTC-PTC-Faulty_Tabular",
-                null,
-                new ResourceSet(base,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SSH),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microT4BePhaseTapChangerLinear() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/Type4_T4/BE_BB_PhaseTapChangerLinear/";
-        return new GridModelReferenceResources(
-                "MicroGrid-T4-Invalid-SVC-mode",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_T4_EQ,
-                        MICRO_GRID_T4_SSH),
-                new ResourceSet(MICRO_GRID_T4_BASE,
-                        MICRO_GRID_T4_SV,
-                        MICRO_GRID_T4_TP),
-                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
-                        MICRO_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBEPtcSide2() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_ptc_side_2/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-RTC-PTC-Side-2",
-                null,
-                new ResourceSet(base,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_SSH,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBERtcPtcDisabled() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_rtc_ptc_disabled_in_ssh_data/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-RTC-PTC-Disabled",
-                null,
-                new ResourceSet(base,
-                        MICRO_GRID_BE_SSH),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_TP),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReferenceResources microGridBaseCaseBEReactiveCapabilityCurve() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_q_curves/";
@@ -154,21 +93,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 + "/MicroGrid/BaseCase/BC_BE_v2_q_curve_1_point/";
         return new GridModelReferenceResources(
                 "MicroGrid-BaseCase-BE-Q-Curves-1-point",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_SSH,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_TP),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBEPtcCurrentLimiter() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_ptc_current_limiter/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-Ptc-Current-Limiter",
                 null,
                 new ResourceSet(baseModified,
                         MICRO_GRID_BE_EQ),
