@@ -186,11 +186,19 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         return this.getLocalTargetQ();
     }
 
+    /**
+     * <p>This value is defined in the generator sign convention.</p>
+     * {@inheritDoc}
+     */
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ.get(network.get().getVariantIndex());
     }
 
+    /**
+     * <p>This value is defined in the generator sign convention.</p>
+     * {@inheritDoc}
+     */
     @Override
     public GeneratorImpl setLocalTargetQ(double localTargetQ) {
         NetworkImpl n = getNetwork();

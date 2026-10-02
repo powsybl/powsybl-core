@@ -142,7 +142,7 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
                 .withMode(RegulationMode.REACTIVE_POWER)
                 // always set the terminal in case of reactive power regulation
                 .withTerminal(regulatingTerminal.orElse(vscConverter.getTerminal()))
-                .withTargetValue(targetQ)
+                .withTargetValue(-targetQ)
                 .build();
             vscConverter.setLocalTargetV(defaultLocalTargetV);
         }

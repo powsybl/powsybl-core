@@ -21,6 +21,7 @@ public interface VoltageRegulation {
     /**
      * <p>Get the TargetValue for RegulationMode set.</p>
      * <p>This value is variant-dependant.</p>
+     * <p>In case of reactive power regulation, this value is defined in the load convention.</p>
      * @see VariantManager
      */
     double getTargetValue();
@@ -28,6 +29,7 @@ public interface VoltageRegulation {
     /**
      * <p>Set the targetValue.</p>
      * <p>This value is variant-dependant.</p>
+     * <p>In case of reactive power regulation, this value is defined in the load convention.</p>
      *
      * @return the current instance for method chaining
      * @see #getTargetValue()
@@ -86,11 +88,12 @@ public interface VoltageRegulation {
     Terminal getTerminal();
 
     /**
-     * <p>Set the Terminal with the expected targetValue.</p>
+     * <p>Set the Terminal with the expected targetValue (defined in the load convention in case of reactive power regulation) ({@link #setTargetValue(double)}).</p>
      * <p>This value is <b>NOT</b> variant-dependent.</p>
      *
      * @return the current instance for method chaining
      * @see #getTerminal()
+     * @see #setTargetValue(double)
      */
     VoltageRegulation setTerminal(Terminal terminal, double targetValue);
 
@@ -142,7 +145,14 @@ public interface VoltageRegulation {
     }
 
     /**
-     * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
+     * Constructs a new instance of the {@link VoltageRegulationAttributes} class.
+     *
+     * @param targetValue The target value for voltage regulation. In case of reactive power regulation, this value is defined in the load convention.
+     * @param targetDeadband The acceptable range around the target value where no regulation action is taken.
+     * @param slope The slope of the regulation curve, which defines the sensitivity of the regulation.
+     * @param mode The regulation mode, specifying how the regulation is applied (e.g., voltage, reactive power).
+     * @param isRegulating A boolean indicating whether the regulation is currently active.
+     * @param terminal The terminal associated with the voltage regulation.
      */
     record VoltageRegulationAttributes(
         double targetValue,
@@ -152,6 +162,16 @@ public interface VoltageRegulation {
         boolean isRegulating,
         Terminal terminal
     ) {
+
+        /**
+         * Constructs a new instance of the {@link VoltageRegulationAttributes} class.
+         *
+         * @param targetValue The target value for voltage regulation. In case of reactive power regulation, this value is defined in the load convention.
+         * @param targetDeadband The acceptable range around the target value where no regulation action is taken.
+         * @param slope The slope of the regulation curve, which defines the sensitivity of the regulation.
+         * @param mode The regulation mode, specifying how the regulation is applied (e.g., voltage, reactive power).
+         * @param isRegulating A boolean indicating whether the regulation is currently active.
+         */
         public VoltageRegulationAttributes(
             double targetValue,
             double targetDeadband,
@@ -169,10 +189,20 @@ public interface VoltageRegulation {
             return new VoltageRegulationAttributes(targetValue(), targetDeadband(), slope(), mode(), newRegulating, terminal());
         }
 
+        /**
+         * Creates a new instance of {@link VoltageRegulationAttributes} with the specified terminal and target value
+         * while retaining the other properties of the current instance.
+         * <p>In case of reactive power regulation, the target value is defined in the load convention.</p>
+         */
         public VoltageRegulationAttributes withTerminalAndTargetValue(Terminal newTerminal, double newTargetValue) {
             return new VoltageRegulationAttributes(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), newTerminal);
         }
 
+        /**
+         * Creates a new instance of {@link VoltageRegulationAttributes} with the specified target value
+         * while retaining the other properties of the current instance.
+         * <p>In case of reactive power regulation, the target value is defined in the load convention.</p>
+         */
         public VoltageRegulationAttributes withTargetValue(double newTargetValue) {
             return new VoltageRegulationAttributes(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), terminal());
         }

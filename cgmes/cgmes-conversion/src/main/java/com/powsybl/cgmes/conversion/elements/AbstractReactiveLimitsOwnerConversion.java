@@ -209,13 +209,14 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
             return;
         }
         // VoltageRegulation With Reactive_POWER for generator = remote ReactivePower
+        // The target value has a load sign convention
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
         int terminalSign = findTerminalSign(generator);
         double defaultTargetQ = getDefaultTargetQ(voltageRegulation.getTargetValue(), context);
         boolean defaultRegulatingOn = getDefaultRegulatingOn(voltageRegulation.isRegulating(), context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
 
-        double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, -terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
+        double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         setReactivePowerRegulation(voltageRegulation, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));

@@ -95,13 +95,13 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         Generator g3 = network.getGenerator("SM_3");
         assertLocalTargets(g3, 10, Double.NaN);
         VoltageRegulation reg3 = g3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SM_3", 10, Double.NaN, true);
+        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SM_3", -10, Double.NaN, true);
 
         // G4: remote reactive power regulation
         Generator g4 = network.getGenerator("SM_4");
         assertLocalTargets(g4, 10, Double.NaN);
         VoltageRegulation reg4 = g4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", 20, Double.NaN, true);
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", -20, Double.NaN, true);
     }
 
     @Test
@@ -501,13 +501,13 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         VscConverterStation vsc3 = network.getVscConverterStation("VSC_3");
         assertLocalTargets(vsc3, -22.5, Double.NaN);
         VoltageRegulation reg3 = vsc3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "VSC_3", -22.5, Double.NaN, true);
+        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "VSC_3", 22.5, Double.NaN, true);
 
         // VSC4: remote reactive power regulation
         VscConverterStation vsc4 = network.getVscConverterStation("VSC_4");
         assertLocalTargets(vsc4, -30, Double.NaN);
         VoltageRegulation reg4 = vsc4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", 30.5, Double.NaN, true);
+        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", -30.5, Double.NaN, true);
     }
 
     @Test

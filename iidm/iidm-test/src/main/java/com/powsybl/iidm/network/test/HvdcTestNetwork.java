@@ -136,10 +136,11 @@ public final class HvdcTestNetwork {
                 .setName("Converter2")
                 .setNode(2)
                 .setLossFactor(1.1f)
+                .setLocalTargetQ(123)
                 .newVoltageRegulation()
-                    .withTargetValue(123)
-                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withMode(RegulationMode.VOLTAGE)
                     .withTerminal(cs1.getTerminal())
+                    .withRegulating(false)
                     .add()
                 .add();
         cs2.newMinMaxReactiveLimits()
