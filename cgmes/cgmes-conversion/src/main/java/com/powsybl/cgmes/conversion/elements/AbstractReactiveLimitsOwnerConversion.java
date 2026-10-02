@@ -159,6 +159,10 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
         String mode = generator.getProperty(PROPERTY_MODE);
 
+        // No mode means no regulating control mapped at EQ conversion (absent, or already reported as ignored there)
+        if (mode == null) {
+            return;
+        }
         if (isControlModeVoltage(mode)) {
             updateRegulatingControlVoltage(generator, controlEnabled, context);
         } else if (isControlModeReactivePower(mode)) {
