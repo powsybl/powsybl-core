@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" >
+  <md:FullModel rdf:about="urn:uuid:e6b94ef6-e043-4d29-a258-1718d6d2f507">
+    <dcat:version>1.0</dcat:version>
+    <dcat:keyword>CO</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/Contingency-EU/2.4</dcterms:Model.conformsTo>
+    <dcat:startDate>2023-01-01T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2100-01-01T00:00:00Z</dcat:endDate>
+    <prov:Model.generatedAtTime>2023-09-04T12:59:43Z</prov:Model.generatedAtTime>
+    <prov:Model.wasInfluencedBy>urn:uuid:816a7e4f-8e78-41e7-9f32-40214675b087</prov:Model.wasInfluencedBy>
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcterms:Model.creator>http://rte-france.fr/CGMES</dcterms:Model.creator>
+    <dcterms:Model.identifier>urn:uuid:e6b94ef6-e043-4d29-a258-1718d6d2f507</dcterms:Model.identifier>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+    <dcterms:Model.description>This is an example of contingency profile</dcterms:Model.description>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/Contingency-EU/2.2</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <nc:OrdinaryContingency rdf:ID="_co1_fr2_fr3_1">
+    <cim:IdentifiedObject.mRID>co1_fr2_fr3_1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO1</cim:IdentifiedObject.name>
+    <nc:Contingency.normalMustStudy>true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_72ecd231-7535-4413-9f77-7fc912c96153">
+    <cim:IdentifiedObject.mRID>72ecd231-7535-4413-9f77-7fc912c96153</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_co1_fr2_fr3_1"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR2AA1++FFR3AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_co2_be1_be3_1">
+    <cim:IdentifiedObject.mRID>co2_be1_be3_1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>COE</cim:IdentifiedObject.name>
+    <nc:Contingency.normalMustStudy>true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_13ce6074-00e7-4f0d-b83c-9ebd7cc11e7a">
+    <cim:IdentifiedObject.mRID>13ce6074-00e7-4f0d-b83c-9ebd7cc11e7a</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_co2_be1_be3_1"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_BBE1AA1++BBE3AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_co3_three_windings_transformer">
+    <cim:IdentifiedObject.mRID>co3_three_windings_transformer</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO3</cim:IdentifiedObject.name>
+    <nc:Contingency.normalMustStudy>true</nc:Contingency.normalMustStudy>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_co3_three_windings_transformer_equipment">
+    <cim:IdentifiedObject.mRID>co3_three_windings_transformer_equipment</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_co3_three_windings_transformer"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_BBE2AA1++BBE3AA1++1"/>
+  </cim:ContingencyEquipment>
+</rdf:RDF>

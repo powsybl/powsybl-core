@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:dcterms="http://purl.org/dc/terms/#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:nc="http://entsoe.eu/ns/nc#">
+    <md:FullModel rdf:about="urn:uuid:ssi-power-transfer-corridor">
+        <dcat:startDate>2029-01-09T22:30:00Z</dcat:startDate>
+        <dcat:endDate>2029-01-10T22:30:00Z</dcat:endDate>
+        <dcat:keyword>SSI</dcat:keyword>
+        <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/SteadyStateInstruction-EU/2.4</dcterms:Model.conformsTo>
+    </md:FullModel>
+    <nc:OrdinaryPowerTransferCorridor rdf:about="#_power-transfer-corridor-1">
+        <nc:PowerTransferCorridor.enabled>false</nc:PowerTransferCorridor.enabled>
+    </nc:OrdinaryPowerTransferCorridor>
+    <nc:InfeedLimit rdf:about="#_infeed-limit-maximum">
+        <nc:InfeedLimit.valueW>650</nc:InfeedLimit.valueW>
+    </nc:InfeedLimit>
+</rdf:RDF>
