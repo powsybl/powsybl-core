@@ -81,7 +81,8 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum, LoadFlowResult.ComponentResult.Status status, String statusText) {
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum,
+                                 LoadFlowResult.ComponentResult.Status status, String statusText) {
         Objects.requireNonNull(status);
         Objects.requireNonNull(statusText);
         try {

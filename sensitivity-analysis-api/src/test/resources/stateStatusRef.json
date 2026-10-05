@@ -3,7 +3,7 @@
   "componentStatuses" : [ {
     "loadFlowStatus" : "CONVERGED",
     "loadFlowStatusText" : "",
-    "connectedComponentNum" : 0,
-    "synchronousComponentNum" : 0
+    "numCC" : 0,
+    "numSC" : 0
   } ]
 }

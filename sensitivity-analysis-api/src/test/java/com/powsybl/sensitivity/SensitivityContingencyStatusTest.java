@@ -31,8 +31,8 @@ class SensitivityContingencyStatusTest {
                 {
                   "loadFlowStatus": "CONVERGED",
                   "loadFlowStatusText": "TestConvergence",
-                  "connectedComponentNum": 0,
-                  "synchronousComponentNum": 0
+                  "numCC": 0,
+                  "numSC": 0
                 }
               ]
             }
@@ -57,8 +57,8 @@ class SensitivityContingencyStatusTest {
                 {
                   "loadFlowStatus": "CONVERGED",
                   "loadFlowStatusText": "TestConvergence",
-                  "connectedComponentNum": 5,
-                  "synchronousComponentNum": 2
+                  "numCC": 5,
+                  "numSC": 2
                 }
               ]
             }
@@ -85,8 +85,8 @@ class SensitivityContingencyStatusTest {
             {
               "componentStatuses": [
                 {
-                  "connectedComponentNum": 5,
-                  "synchronousComponentNum": 2,
+                  "numCC": 5,
+                  "numSC": 2,
                   "loadFlowStatus": "CONVERGED",
                   "loadFlowStatusText": "TestStatusText"
                 }
