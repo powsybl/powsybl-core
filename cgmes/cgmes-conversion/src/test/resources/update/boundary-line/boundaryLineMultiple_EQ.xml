@@ -1,0 +1,111 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e81">
+        <md:Model.created>2024-06-28T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-06-28T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Several boundary lines sharing a boundary point</md:Model.description>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="_MultipleBoundaryRegion">
+        <cim:IdentifiedObject.name>Multiple boundary region</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_MultipleBoundarySubregion">
+        <cim:IdentifiedObject.name>Multiple boundary subregion</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_MultipleBoundaryRegion"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_MultipleBoundarySubstation">
+        <cim:IdentifiedObject.name>Multiple boundary substation</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_MultipleBoundarySubregion"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_MultipleBoundaryBaseVoltage">
+        <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_MultipleBoundaryVoltageLevel">
+        <cim:IdentifiedObject.name>Multiple boundary voltage level</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_MultipleBoundarySubstation"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_MultipleBoundaryBaseVoltage"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_MultipleBoundaryLocalNode">
+        <cim:IdentifiedObject.name>Multiple boundary local node</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_MultipleBoundaryVoltageLevel"/>
+    </cim:ConnectivityNode>
+    <cim:BusbarSection rdf:ID="_MultipleBoundaryBusbarSection">
+        <cim:IdentifiedObject.name>Multiple boundary busbar section</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_MultipleBoundaryVoltageLevel"/>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_MultipleBoundaryBusbarSection-T">
+        <cim:IdentifiedObject.name>Multiple boundary busbar section terminal</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_MultipleBoundaryBusbarSection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryLocalNode"/>
+    </cim:Terminal>
+    <cim:ACLineSegment rdf:ID="_ConnectedBoundaryLine1">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_MultipleBoundarySubstation"/>
+        <cim:ACLineSegment.r>1.0</cim:ACLineSegment.r>
+        <cim:ACLineSegment.x>2.0</cim:ACLineSegment.x>
+        <cim:ACLineSegment.bch>0.0</cim:ACLineSegment.bch>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ConnectedBoundaryLine1-T1">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine1 terminal 1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ConnectedBoundaryLine1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryLocalNode"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ConnectedBoundaryLine1-T2">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine1 terminal 2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ConnectedBoundaryLine1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryNode"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ConnectedBoundaryLine1-EquivalentInjection">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine1 equivalent injection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_MultipleBoundaryBaseVoltage"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ConnectedBoundaryLine1-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine1 equivalent injection terminal</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ConnectedBoundaryLine1-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryNode"/>
+    </cim:Terminal>
+
+    <cim:ACLineSegment rdf:ID="_ConnectedBoundaryLine2">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_MultipleBoundarySubstation"/>
+        <cim:ACLineSegment.r>1.0</cim:ACLineSegment.r>
+        <cim:ACLineSegment.x>2.0</cim:ACLineSegment.x>
+        <cim:ACLineSegment.bch>0.0</cim:ACLineSegment.bch>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ConnectedBoundaryLine2-T1">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine2 terminal 1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ConnectedBoundaryLine2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryLocalNode"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ConnectedBoundaryLine2-T2">
+        <cim:IdentifiedObject.name>ConnectedBoundaryLine2 terminal 2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ConnectedBoundaryLine2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryNode"/>
+    </cim:Terminal>
+    <cim:ACLineSegment rdf:ID="_DisconnectedBoundaryLine">
+        <cim:IdentifiedObject.name>DisconnectedBoundaryLine</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_MultipleBoundarySubstation"/>
+        <cim:ACLineSegment.r>1.0</cim:ACLineSegment.r>
+        <cim:ACLineSegment.x>2.0</cim:ACLineSegment.x>
+        <cim:ACLineSegment.bch>0.0</cim:ACLineSegment.bch>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_DisconnectedBoundaryLine-T1">
+        <cim:IdentifiedObject.name>DisconnectedBoundaryLine terminal 1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_DisconnectedBoundaryLine"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryLocalNode"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_DisconnectedBoundaryLine-T2">
+        <cim:IdentifiedObject.name>DisconnectedBoundaryLine terminal 2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_DisconnectedBoundaryLine"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_MultipleBoundaryNode"/>
+    </cim:Terminal>
+</rdf:RDF>
