@@ -86,8 +86,8 @@ public class SensitivityAnalysisResult {
         static final String COMPONENT_STATUSES = "componentStatuses";
         static final String LOAD_FLOW_STATUS = "loadFlowStatus";
         static final String LOAD_FLOW_STATUS_TEXT = "loadFlowStatusText";
-        static final String NUM_CC = "connectedComponentNum";
-        static final String NUM_SC = "synchronousComponentNum";
+        static final String NUM_CC = "numCC";
+        static final String NUM_SC = "numSC";
 
         private final SensitivityState state;
 
