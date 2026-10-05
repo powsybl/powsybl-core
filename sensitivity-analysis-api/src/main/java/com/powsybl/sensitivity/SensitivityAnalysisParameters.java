@@ -7,11 +7,16 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /**
@@ -177,5 +182,27 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     public SensitivityAnalysisParameters setDebugDir(String debugDir) {
         this.debugDir = debugDir;
         return this;
+    }
+
+    /**
+     * This copy method uses json serializer mechanism to rebuild all extensions in the this parameters.
+     * If an extension's serializer not found via {@code @AutoService}, the extension would be lost in copied.
+     *
+     * @return a new copied instance and with original's extensions found based-on json serializer.
+     */
+    public SensitivityAnalysisParameters copy() {
+        byte[] bytes = writeInMemory();
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
+            return JsonSensitivityAnalysisParameters.read(bais);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private byte[] writeInMemory() {
+        try (ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder()) {
+            JsonSensitivityAnalysisParameters.write(this, byteArrayBuilder);
+            return byteArrayBuilder.toByteArray();
+        }
     }
 }

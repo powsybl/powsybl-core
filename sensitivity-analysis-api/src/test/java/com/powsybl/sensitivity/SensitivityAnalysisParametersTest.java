@@ -20,6 +20,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -315,6 +316,45 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
                 .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.3.json"));
         assertEquals("/tmp/debugDir", parameters.getDebugDir());
+    }
+
+    @Test
+    void testCopy() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters()
+                .setFlowFlowSensitivityValueThreshold(0.1)
+                .setAngleFlowSensitivityValueThreshold(0.2)
+                .setFlowVoltageSensitivityValueThreshold(0.3)
+                .setVoltageVoltageSensitivityValueThreshold(0.4)
+                .setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES)
+                .setDebugDir("/tmp/debugDir");
+        parameters.getLoadFlowParameters().setDc(true);
+
+        SensitivityAnalysisParameters copy = parameters.copy();
+        assertNotSame(parameters, copy);
+        assertEquals(0.1, copy.getFlowFlowSensitivityValueThreshold(), EPS);
+        assertEquals(0.2, copy.getAngleFlowSensitivityValueThreshold(), EPS);
+        assertEquals(0.3, copy.getFlowVoltageSensitivityValueThreshold(), EPS);
+        assertEquals(0.4, copy.getVoltageVoltageSensitivityValueThreshold(), EPS);
+        assertEquals(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES, copy.getOperatorStrategiesCalculationMode());
+        assertEquals("/tmp/debugDir", copy.getDebugDir());
+        assertNotSame(parameters.getLoadFlowParameters(), copy.getLoadFlowParameters());
+        assertTrue(copy.getLoadFlowParameters().isDc());
+        assertTrue(copy.getExtensions().isEmpty());
+    }
+
+    @Test
+    void testCopyWithExtension() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        DummyExtension dummyExtension = new DummyExtension();
+        dummyExtension.setParameterString("test");
+        parameters.addExtension(DummyExtension.class, dummyExtension);
+
+        SensitivityAnalysisParameters copy = parameters.copy();
+        assertEquals(1, copy.getExtensions().size());
+        Extension<SensitivityAnalysisParameters> copiedExt = copy.getExtensionByName(DUMMY_EXTENSION_NAME);
+        assertNotSame(dummyExtension, copiedExt);
+        assertSame(parameters, dummyExtension.getExtendable());
+        assertSame(copy, copiedExt.getExtendable());
     }
 
     @Test
