@@ -37,6 +37,8 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -57,6 +59,8 @@ import static com.powsybl.iidm.network.tools.ConversionToolUtils.readProperties;
  */
 @AutoService(Tool.class)
 public class SensitivityAnalysisTool implements Tool {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisTool.class);
 
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
@@ -192,7 +196,7 @@ public class SensitivityAnalysisTool implements Tool {
         } else {
             // json format
             if (line.hasOption(OUTPUT_STATE_STATUS_FILE_OPTION)) {
-                throw new PowsyblException(OUTPUT_STATE_STATUS_FILE_OPTION + " file is not supported in json");
+                LOGGER.warn(OUTPUT_STATE_STATUS_FILE_OPTION + " file is not supported in json");
             }
         }
 

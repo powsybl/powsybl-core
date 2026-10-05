@@ -58,10 +58,10 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         return factory.create(writer, "Sensitivity analysis status result", tfc,
                 new Column("Contingency ID"),
                 new Column("Operator strategy ID"),
-                new Column("Loadflow Status"),
-                new Column("Loadflow Status Description"),
                 new Column("Connected component"),
-                new Column("Synchronous component"));
+                new Column("Synchronous component"),
+                new Column("Load flow Status"),
+                new Column("Load flow Status Text"));
     }
 
     @Override
