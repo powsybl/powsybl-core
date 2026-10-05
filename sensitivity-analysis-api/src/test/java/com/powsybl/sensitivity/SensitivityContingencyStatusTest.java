@@ -27,12 +27,12 @@ class SensitivityContingencyStatusTest {
         String json = """
             {
               "contingencyId": "ID_001",
-              "componentsLoadFlowStatuses": [
+              "componentStatuses": [
                 {
                   "loadFlowStatus": "CONVERGED",
-                  "loadFlowStatusDescription": "TestConvergence",
-                  "numCC": 0,
-                  "numCS": 0
+                  "loadFlowStatusText": "TestConvergence",
+                  "connectedComponentNum": 0,
+                  "synchronousComponentNum": 0
                 }
               ]
             }
@@ -53,12 +53,12 @@ class SensitivityContingencyStatusTest {
         String json = """
             {
               "contingencyId": "ID_001",
-              "componentsLoadFlowStatuses": [
+              "componentStatuses": [
                 {
                   "loadFlowStatus": "CONVERGED",
-                  "loadFlowStatusDescription": "TestConvergence",
-                  "numCC": 5,
-                  "numCS": 2
+                  "loadFlowStatusText": "TestConvergence",
+                  "connectedComponentNum": 5,
+                  "synchronousComponentNum": 2
                 }
               ]
             }
@@ -83,12 +83,12 @@ class SensitivityContingencyStatusTest {
     void parsePreContingencyStateStatus() throws Exception {
         String json = """
             {
-              "componentsLoadFlowStatuses": [
+              "componentStatuses": [
                 {
+                  "connectedComponentNum": 5,
+                  "synchronousComponentNum": 2,
                   "loadFlowStatus": "CONVERGED",
-                  "loadFlowStatusDescription": "TestStatusText",
-                  "numCC": 5,
-                  "numCS": 2
+                  "loadFlowStatusText": "TestStatusText"
                 }
               ]
             }

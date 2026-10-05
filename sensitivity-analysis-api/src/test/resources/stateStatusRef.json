@@ -1,9 +1,9 @@
 {
   "contingencyId" : "C1",
-  "componentsLoadFlowStatuses" : [ {
+  "componentStatuses" : [ {
     "loadFlowStatus" : "CONVERGED",
-    "loadFlowStatusDescription" : "",
-    "numCC" : 0,
-    "numCS" : 0
+    "loadFlowStatusText" : "",
+    "connectedComponentNum" : 0,
+    "synchronousComponentNum" : 0
   } ]
 }

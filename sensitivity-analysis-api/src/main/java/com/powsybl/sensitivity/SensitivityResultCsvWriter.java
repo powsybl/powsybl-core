@@ -85,10 +85,10 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         try {
             formatterStatus.writeCell(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : "");
             formatterStatus.writeCell(operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : "");
-            formatterStatus.writeCell(loadFlowStatus.status().toString());
-            formatterStatus.writeCell(loadFlowStatus.statusText());
             formatterStatus.writeCell(numCC);
             formatterStatus.writeCell(numCS);
+            formatterStatus.writeCell(loadFlowStatus.status().toString());
+            formatterStatus.writeCell(loadFlowStatus.statusText());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

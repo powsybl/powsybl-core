@@ -105,11 +105,11 @@
   } ],
   "stateStatus" : [ {
     "contingencyId" : "NHV1_NHV2_2",
-    "componentsLoadFlowStatuses" : [ {
+    "componentStatuses" : [ {
       "loadFlowStatus" : "CONVERGED",
-      "loadFlowStatusDescription" : "",
-      "numCC" : 0,
-      "numCS" : 0
+      "loadFlowStatusText" : "",
+      "connectedComponentNum" : 0,
+      "synchronousComponentNum" : 0
     } ]
   } ],
   "contingencyIds" : [ "NHV1_NHV2_2" ],
