@@ -100,7 +100,7 @@ public class SensitivityAnalysisResult {
         private final SensitivityState state;
 
         /**
-         * Per-component load flow status (one entry per (connectedComponentNum, numCS) for which a load flow has run).
+         * Per-component load flow status (one entry per (connectedComponentNum, synchronousComponentNum) for which a load flow has run).
          */
         private final List<ComponentStatus> componentsLoadFlowStatusList;
 
@@ -160,13 +160,13 @@ public class SensitivityAnalysisResult {
             }
         }
 
-        public SensitivityStateStatus addComponentLoadFlowStatus(LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
-            componentsLoadFlowStatusList.add(new ComponentStatus(numCC, numCS, loadFlowStatus));
+        public SensitivityStateStatus addComponentLoadFlowStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowStatus loadFlowStatus) {
+            componentsLoadFlowStatusList.add(new ComponentStatus(connectedComponentNum, synchronousComponentNum, loadFlowStatus));
             return this;
         }
 
-        public SensitivityStateStatus addComponentLoadFlowStatus(LoadFlowResult.ComponentResult.Status status, int numCC, int numCS) {
-            componentsLoadFlowStatusList.add(new ComponentStatus(numCC, numCS, new LoadFlowStatus(status, "")));
+        public SensitivityStateStatus addComponentLoadFlowStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowResult.ComponentResult.Status status) {
+            componentsLoadFlowStatusList.add(new ComponentStatus(connectedComponentNum, synchronousComponentNum, new LoadFlowStatus(status, "")));
             return this;
         }
 
@@ -282,21 +282,21 @@ public class SensitivityAnalysisResult {
         private static ComponentStatus parseSingleComponentStatus(JsonParser parser) throws IOException {
             String statusStr = null;
             String descStr = null;
-            int numCC = 0;
-            int numCS = 0;
+            int connectedComponentNum = 0;
+            int synchronousComponentNum = 0;
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = parser.currentName();
                 parser.nextToken();
                 switch (fieldName) {
                     case LOAD_FLOW_STATUS -> statusStr = parser.getText();
                     case LOAD_FLOW_STATUS_TEXT -> descStr = parser.getText();
-                    case NUM_CC -> numCC = parser.getIntValue();
-                    case NUM_SC -> numCS = parser.getIntValue();
+                    case NUM_CC -> connectedComponentNum = parser.getIntValue();
+                    case NUM_SC -> synchronousComponentNum = parser.getIntValue();
                     default -> parser.skipChildren();
                 }
             }
             LoadFlowStatus lfs = new LoadFlowStatus(LoadFlowResult.ComponentResult.Status.valueOf(statusStr), descStr);
-            return new ComponentStatus(numCC, numCS, lfs);
+            return new ComponentStatus(connectedComponentNum, synchronousComponentNum, lfs);
         }
     }
 

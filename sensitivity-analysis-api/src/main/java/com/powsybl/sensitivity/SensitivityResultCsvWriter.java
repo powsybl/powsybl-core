@@ -80,13 +80,13 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
         Objects.requireNonNull(loadFlowStatus);
         try {
             formatterStatus.writeCell(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : "");
             formatterStatus.writeCell(operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : "");
-            formatterStatus.writeCell(numCC);
-            formatterStatus.writeCell(numCS);
+            formatterStatus.writeCell(connectedComponentNum);
+            formatterStatus.writeCell(synchronousComponentNum);
             formatterStatus.writeCell(loadFlowStatus.status().toString());
             formatterStatus.writeCell(loadFlowStatus.statusText());
         } catch (IOException e) {

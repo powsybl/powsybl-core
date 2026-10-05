@@ -31,20 +31,20 @@ public interface SensitivityResultWriter {
 
     /**
      * Reports the status for a given state (contingency + optional operator strategy)
-     * and a given component (connectedComponentNum/numCS).
+     * and a given component (connectedComponentNum/synchronousComponentNum).
      * <p>
-     * Called for every state and every connectedComponentNum/numCS where the state has an impact.
+     * Called for every state and every connectedComponentNum/synchronousComponentNum where the state has an impact.
      * For pre-contingency reporting, both {@code contingencyIndex} and
      * {@code operatorStrategyIndex} are -1.
      * For contingencies that are never run, called once in the end with NO_IMPACT
-     * and connectedComponentNum and numCS set to -1.
+     * and connectedComponentNum and synchronousComponentNum set to -1.
      *
-     * @param contingencyIndex the contingency index, -1 for pre-contingency state
-     * @param operatorStrategyIndex the operator strategy index, -1 if none
-     * @param loadFlowStatus the load flow status for this component
-     * @param connectedComponentNum index of connected component, -1 if not applicable
+     * @param contingencyIndex        the contingency index, -1 for pre-contingency state
+     * @param operatorStrategyIndex   the operator strategy index, -1 if none
+     * @param connectedComponentNum   index of connected component, -1 if not applicable
      * @param synchronousComponentNum index of synchronous component, -1 if not applicable
+     * @param loadFlowStatus          the load flow status for this component
      */
     void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
-                          SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int connectedComponentNum, int synchronousComponentNum);
+                          int connectedComponentNum, int synchronousComponentNum, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus);
 }
