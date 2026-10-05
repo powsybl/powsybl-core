@@ -89,7 +89,7 @@ public class SensitivityAnalysisResult {
 
     public static class SensitivityStateStatus {
 
-        public record ComponentStatus(LoadFlowStatus status, int connectedComponentNum, int synchronousComponentNum) { }
+        public record ComponentStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowStatus status) { }
 
         static final String COMPONENT_STATUSES = "componentStatuses";
         static final String LOAD_FLOW_STATUS = "loadFlowStatus";
@@ -143,7 +143,7 @@ public class SensitivityAnalysisResult {
         @Deprecated(since = "7.4.0")
         public SensitivityStateStatus(SensitivityState state, Status status) {
             this(state, List.of(new ComponentStatus(
-                    new LoadFlowStatus(toLoadFlowStatus(status), ""), -1, -1)));
+                    -1, -1, new LoadFlowStatus(toLoadFlowStatus(status), ""))));
         }
 
         private static LoadFlowResult.ComponentResult.Status toLoadFlowStatus(Status status) {
@@ -161,12 +161,12 @@ public class SensitivityAnalysisResult {
         }
 
         public SensitivityStateStatus addComponentLoadFlowStatus(LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
-            componentsLoadFlowStatusList.add(new ComponentStatus(loadFlowStatus, numCC, numCS));
+            componentsLoadFlowStatusList.add(new ComponentStatus(numCC, numCS, loadFlowStatus));
             return this;
         }
 
         public SensitivityStateStatus addComponentLoadFlowStatus(LoadFlowResult.ComponentResult.Status status, int numCC, int numCS) {
-            componentsLoadFlowStatusList.add(new ComponentStatus(new LoadFlowStatus(status, ""), numCC, numCS));
+            componentsLoadFlowStatusList.add(new ComponentStatus(numCC, numCS, new LoadFlowStatus(status, "")));
             return this;
         }
 
@@ -296,7 +296,7 @@ public class SensitivityAnalysisResult {
                 }
             }
             LoadFlowStatus lfs = new LoadFlowStatus(LoadFlowResult.ComponentResult.Status.valueOf(statusStr), descStr);
-            return new ComponentStatus(lfs, numCC, numCS);
+            return new ComponentStatus(numCC, numCS, lfs);
         }
     }
 
