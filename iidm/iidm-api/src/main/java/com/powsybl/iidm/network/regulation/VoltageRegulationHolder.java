@@ -226,7 +226,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
         if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             double remoteQ = getVoltageRegulation().getTerminal().getQ();
             if (!Double.isNaN(remoteQ)) {
-                // The target value uses the same load sign convention as the terminal.
+                // The target value uses the load sign convention, same as the terminal.
                 getVoltageRegulation().setTargetValue(remoteQ);
             }
         }
