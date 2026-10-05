@@ -51,13 +51,13 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
         Objects.requireNonNull(loadFlowStatus);
         SensitivityState state = new SensitivityState(
                 contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
                 operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
         stateStatusBuffer.computeIfAbsent(state, SensitivityAnalysisResult.SensitivityStateStatus::new)
-                .addComponentLoadFlowStatus(loadFlowStatus, numCC, numCS);
+                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, loadFlowStatus);
     }
 
     @Override
