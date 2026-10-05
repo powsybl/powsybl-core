@@ -151,6 +151,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel(),
                 network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
+        ValidationUtil.checkActivePowerTargetWithinRange(this, targetP, minP, maxP, network.getReportNodeContext().getReportNode());
         ValidationUtil.checkRatedS(this, ratedS);
         // Backward compatibility
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {

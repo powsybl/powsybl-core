@@ -168,6 +168,16 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkActivePowerTargetWithinRange(Validable validable, double targetP, double minP, double maxP, ReportNode reportNode) {
+        // targetP=0 is always an acceptable state for a generator
+        if (validable instanceof Generator && targetP == 0) {
+            return;
+        }
+        if (targetP < minP || targetP > maxP) {
+            NetworkReports.activePowerTargetNotWithinRange(reportNode, validable.getMessageHeader().id(), targetP, minP, maxP);
+        }
+    }
+
     public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, checkValidationActionOnError(validationLevel), reportNode);
     }
