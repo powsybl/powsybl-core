@@ -55,6 +55,15 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void remoteReactivePowerRegulationRoundTripTest() throws IOException {
+        Network network = SvcTestCaseFactory.createWithRemoteReactiveRegulatingTerminal();
+        addProperties(network);
+        allFormatsRoundTripTest(network, "staticVarCompensatorRemoteReactiveRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("staticVarCompensatorRemoteReactiveRoundTripRef.xml", IidmVersion.V_1_7);
+    }
+
+    @Test
     void readFaultyVersionRegulatingSvcFile() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getVersionedNetworkAsStream("faultyRegulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_0)));
         assertTrue(e.getMessage().contains("staticVarCompensator.regulatingTerminal is not supported for IIDM version 1.0. " +

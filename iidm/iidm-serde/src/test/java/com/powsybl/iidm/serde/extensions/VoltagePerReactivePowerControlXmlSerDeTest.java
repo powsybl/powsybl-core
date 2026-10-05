@@ -78,6 +78,15 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
         assertEquals(0.5, svc.getVoltageRegulation().getSlope(), 0.001);
         assertEquals(380., svc.getVoltageRegulation().getTargetValue(), 0.001);
         assertEquals(network.getGenerator("G1").getTerminal(), svc.getVoltageRegulation().getTerminal());
+
+        StaticVarCompensator svc3 = network.getStaticVarCompensator("SVC3");
+        assertNotNull(svc3);
+        assertNotNull(svc3.getVoltageRegulation());
+        assertEquals(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, svc3.getVoltageRegulation().getMode());
+        assertFalse(svc3.getVoltageRegulation().isRegulating());
+        assertEquals(0.6, svc3.getVoltageRegulation().getSlope(), 0.001);
+        assertEquals(380., svc3.getVoltageRegulation().getTargetValue(), 0.001);
+        assertEquals(network.getGenerator("G1").getTerminal(), svc3.getVoltageRegulation().getTerminal());
     }
 
     static Stream<Arguments> getVersions() {

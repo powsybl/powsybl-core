@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" id="svcTestCase" caseDate="2016-06-29T14:54:03.427+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" xmlns:vprpc="http://www.powsybl.org/schema/iidm/ext/voltage_per_reactive_power_control/1_0" id="svcTestCase" caseDate="2019-05-27T12:17:02.504+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -18,12 +18,22 @@
             </iidm:busBreakerTopology>
             <iidm:load id="L2" loadType="UNDEFINED" p0="100.0" q0="50.0" bus="B2" connectableBus="B2"/>
             <iidm:staticVarCompensator id="SVC2" bMin="2.0E-4" bMax="8.0E-4" bus="B2" connectableBus="B2">
-                <iidm:property name="test" value="test"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="390.0">
-                    <iidm:terminalRef id="L2"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="380.0">
+                    <iidm:terminalRef id="G1"/>
+                </iidm:voltageRegulation>
+            </iidm:staticVarCompensator>
+            <iidm:staticVarCompensator id="SVC3" bMin="2.0E-4" bMax="8.0E-4" bus="B2" connectableBus="B2">
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="false" targetValue="380.0">
+                    <iidm:terminalRef id="G1"/>
                 </iidm:voltageRegulation>
             </iidm:staticVarCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="L1" r="4.0" x="200.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2"/>
+    <iidm:extension id="SVC2">
+        <vprpc:voltagePerReactivePowerControl slope="0.5"/>
+    </iidm:extension>
+    <iidm:extension id="SVC3">
+        <vprpc:voltagePerReactivePowerControl slope="0.6"/>
+    </iidm:extension>
 </iidm:network>
