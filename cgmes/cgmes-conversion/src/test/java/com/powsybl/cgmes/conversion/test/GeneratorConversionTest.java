@@ -9,13 +9,16 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.CgmesImport.POST_PROCESSORS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_WIND_GEN_UNIT_TYPE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,6 +74,39 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         assertFalse(network.getGenerator("sm_motor").isCondenser());
         assertTrue(network.getGenerator("sm_generator_condenser").isCondenser());
         assertTrue(network.getGenerator("sm_condenser").isCondenser());
+    }
+
+    @Test
+    void testGeneratorActivePowerLimits() {
+        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+        Generator g = network.getGenerator("SM1");
+        assertEquals(50.0, g.getMinP());
+        assertEquals(200.0, g.getMaxP());
+        assertFalse(g.isCondenser());
+    }
+
+    @Test
+    void testGeneratorRemoteReactivePowerControl() {
+        Network network = readCgmesResources("/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+        Generator g = network.getGenerator("SM1");
+        VoltageRegulation voltageRegulation = g.getVoltageRegulation();
+        assertNotNull(voltageRegulation);
+        assertEquals(-115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertTrue(voltageRegulation.isRegulating());
+        assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), voltageRegulation.getTerminal());
+    }
+
+    @Test
+    void testGeneratorEntsoeCategory() {
+        Properties params = new Properties();
+        params.put(POST_PROCESSORS, "EntsoeCategory");
+        Network network = readCgmesResources(params, "/issues/generators/", "generators_EQ.xml", "generators_SSH.xml");
+        Generator g1 = network.getGenerator("SM1");
+        assertNull(g1.getExtension(GeneratorEntsoeCategory.class));
+        Generator g2 = network.getGenerator("SM2");
+        assertEquals(42, g2.getExtension(GeneratorEntsoeCategory.class).getCode());
+        Generator g3 = network.getGenerator("SM3");
+        assertEquals(31, g3.getExtension(GeneratorEntsoeCategory.class).getCode());
     }
 
     @Test
