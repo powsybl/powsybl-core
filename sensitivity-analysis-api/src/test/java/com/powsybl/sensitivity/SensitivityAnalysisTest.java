@@ -213,28 +213,28 @@ class SensitivityAnalysisTest {
             switch (resultCase) {
                 case 0:
                     assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, componentLoadFlowStatus.status().status());
-                    assertEquals(0, componentLoadFlowStatus.numCC());
-                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
+                    assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
                     break;
                 case 1:
                     assertEquals(LoadFlowResult.ComponentResult.Status.NO_CALCULATION, componentLoadFlowStatus.status().status());
-                    assertEquals(0, componentLoadFlowStatus.numCC());
-                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
+                    assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
                     break;
                 case 2:
                     assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, componentLoadFlowStatus.status().status());
-                    assertEquals(0, componentLoadFlowStatus.numCC());
-                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
+                    assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
                     break;
                 case 3:
                     assertEquals(LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, componentLoadFlowStatus.status().status());
-                    assertEquals(0, componentLoadFlowStatus.numCC());
-                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
+                    assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
                     break;
                 case 4:
                     assertEquals(LoadFlowResult.ComponentResult.Status.FAILED, componentLoadFlowStatus.status().status());
-                    assertEquals(0, componentLoadFlowStatus.numCC());
-                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
+                    assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
                     break;
                 default:
                     fail();
