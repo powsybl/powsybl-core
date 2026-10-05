@@ -46,12 +46,13 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     @Override
     public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
-                                 SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
+                                 int connectedComponentNum, int synchronousComponentNum,
+                                 SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
         Objects.requireNonNull(loadFlowStatus);
         SensitivityState state = new SensitivityState(
                 contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
                 operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
         stateStatuses.computeIfAbsent(state, SensitivityAnalysisResult.SensitivityStateStatus::new)
-                .addComponentLoadFlowStatus(loadFlowStatus, numCC, numCS);
+                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, loadFlowStatus);
     }
 }
