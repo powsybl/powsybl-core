@@ -70,15 +70,7 @@ public class SensitivityAnalysisResult {
     private final boolean computationComplete;
 
     /**
-     * The load flow status reported for a given component.
-     * @param status the load flow component status
-     * @param statusText the human-readable description of the status
-     */
-    public record LoadFlowStatus(LoadFlowResult.ComponentResult.Status status, String statusText) {
-    }
-
-    /**
-     * @deprecated Use {@link SensitivityAnalysisResult.LoadFlowStatus} instead.
+     * @deprecated See {@link SensitivityStateStatus.ComponentStatus} instead.
      */
     @Deprecated(since = "7.4.0")
     public enum Status {
