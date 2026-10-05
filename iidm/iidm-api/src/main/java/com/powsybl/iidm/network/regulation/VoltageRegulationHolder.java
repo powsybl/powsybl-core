@@ -230,10 +230,12 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
                 getVoltageRegulation().setTargetValue(remoteQ);
             }
         }
-        double q = this.getTerminal().getQ();
-        if (!Double.isNaN(q)) {
-            // In any cases we set the localTargetQ
-            this.setLocalTargetQ(-this.getTerminal().getQ());
+        if (this.getTerminal() != null) {
+            double q = this.getTerminal().getQ();
+            if (!Double.isNaN(q)) {
+                // In any cases we set the localTargetQ
+                this.setLocalTargetQ(-q);
+            }
         }
     }
 
@@ -256,10 +258,12 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
                 getVoltageRegulation().setTargetValue(remoteBus.getV());
             }
         }
-        Bus bus = this.getTerminal().getBusView().getBus();
-        if (bus != null && !Double.isNaN(bus.getV())) {
-            // In any cases we set the localTargetV
-            this.setLocalTargetV(bus.getV());
+        if (this.getTerminal() != null) {
+            Bus bus = this.getTerminal().getBusView().getBus();
+            if (bus != null && !Double.isNaN(bus.getV())) {
+                // In any cases we set the localTargetV
+                this.setLocalTargetV(bus.getV());
+            }
         }
     }
 
