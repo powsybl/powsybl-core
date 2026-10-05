@@ -43,10 +43,16 @@ public class VoltagePerReactivePowerControlSerDe extends AbstractExtensionSerDe<
         double slope = context.getReader().readDoubleAttribute("slope");
         context.getReader().readEndNode();
         if (!Double.isNaN(slope) && slope != 0) { // When the slope is equal to zero, ignore the extension: q cannot be computed (division by 0)
-            svc.newVoltageRegulation()
-                    .withMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)
-                    .withSlope(slope)
-                    .build();
+            if (svc.getVoltageRegulation() == null) {
+                svc.newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)
+                        .withSlope(slope)
+                        .build();
+            } else {
+                // Fill in the slope before changing the mode to pass the validation
+                svc.getVoltageRegulation().setSlope(slope);
+                svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
+            }
         }
         return null;
     }
