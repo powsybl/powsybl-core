@@ -7,6 +7,8 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.loadflow.LoadFlowResult;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com}
@@ -43,8 +45,10 @@ public interface SensitivityResultWriter {
      * @param operatorStrategyIndex   the operator strategy index, -1 if none
      * @param connectedComponentNum   index of connected component, -1 if not applicable
      * @param synchronousComponentNum index of synchronous component, -1 if not applicable
-     * @param loadFlowStatus          the load flow status for this component
+     * @param status          the load flow status for this component
+     * @param statusText      the load flow status text for this component
      */
     void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
-                          int connectedComponentNum, int synchronousComponentNum, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus);
+                          int connectedComponentNum, int synchronousComponentNum,
+                          LoadFlowResult.ComponentResult.Status status, String statusText);
 }

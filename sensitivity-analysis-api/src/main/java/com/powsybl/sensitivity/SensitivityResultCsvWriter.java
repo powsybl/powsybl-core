@@ -10,6 +10,7 @@ package com.powsybl.sensitivity;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -80,15 +81,16 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
-        Objects.requireNonNull(loadFlowStatus);
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum, LoadFlowResult.ComponentResult.Status status, String statusText) {
+        Objects.requireNonNull(status);
+        Objects.requireNonNull(statusText);
         try {
             formatterStatus.writeCell(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : "");
             formatterStatus.writeCell(operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : "");
             formatterStatus.writeCell(connectedComponentNum);
             formatterStatus.writeCell(synchronousComponentNum);
-            formatterStatus.writeCell(loadFlowStatus.status().toString());
-            formatterStatus.writeCell(loadFlowStatus.statusText());
+            formatterStatus.writeCell(status.toString());
+            formatterStatus.writeCell(statusText);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
