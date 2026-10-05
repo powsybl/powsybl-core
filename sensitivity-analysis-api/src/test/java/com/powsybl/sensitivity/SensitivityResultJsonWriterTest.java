@@ -40,9 +40,9 @@ class SensitivityResultJsonWriterTest {
         try (Writer writer = new StringWriter()) {
             try (JsonGenerator generator = JsonUtil.createJsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
                 SensitivityResultJsonWriter sensiWriter = new SensitivityResultJsonWriter(generator, contingencies, operatorStrategies)) {
-                sensiWriter.writeStateStatus(-1, -1, 0, 0, new SensitivityAnalysisResult.LoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED, ""));
+                sensiWriter.writeStateStatus(-1, -1, 0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
                 sensiWriter.writeSensitivityValue(0, -1, -1, 1d, 2d);
-                sensiWriter.writeStateStatus(0, 0, 0, 0, new SensitivityAnalysisResult.LoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED, ""));
+                sensiWriter.writeStateStatus(0, 0, 0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
                 sensiWriter.writeSensitivityValue(1, 0, 0, 3d, 4d);
             }
             writer.flush();
