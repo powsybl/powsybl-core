@@ -71,14 +71,14 @@ public final class VoltageRegulationUtils {
         throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
     }
 
-    public static <T extends VoltageRegulationHolderAdder<T>> void createSvcVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
+    public static <T extends VoltageRegulationHolderAdder<T>> void createSvcVoltageRegulationBackwardCompatibility(StaticVarCompensatorAdder adder,
                                                                                                                    RegulationMode regulationMode,
                                                                                                                    double targetV,
                                                                                                                    double targetQ,
                                                                                                                    Boolean regulating,
                                                                                                                    Terminal terminal) {
         if (regulationMode != null && regulating != null) {
-            VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
+            VoltageRegulationAdder<StaticVarCompensatorAdder> vrAdder = adder.newVoltageRegulation()
                 .withMode(regulationMode);
             double targetValue = Double.NaN;
             if (regulationMode == VOLTAGE) {
@@ -174,12 +174,12 @@ public final class VoltageRegulationUtils {
         }
     }
 
-    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibilityForGenerator(VoltageRegulationHolderAdder<T> adder,
-                                                                                                                            double targetV,
-                                                                                                                            double localTargetV,
-                                                                                                                            double targetQ,
-                                                                                                                            Boolean voltageRegulatorOn,
-                                                                                                                            Terminal terminal) {
+    public static <T extends VoltageRegulationHolderAdder<T>> void createGeneratorVoltageRegulationBackwardCompatibility(GeneratorAdder adder,
+                                                                                                                         double targetV,
+                                                                                                                         double localTargetV,
+                                                                                                                         double targetQ,
+                                                                                                                         Boolean voltageRegulatorOn,
+                                                                                                                         Terminal terminal) {
         createVoltageRegulationBackwardCompatibility(adder, true, targetV, localTargetV, targetQ, voltageRegulatorOn, terminal, true, -1);
     }
 
@@ -191,11 +191,11 @@ public final class VoltageRegulationUtils {
         createVoltageRegulationBackwardCompatibility(adder, false, targetV, targetV, targetQ, voltageRegulatorOn, terminal, false, 1);
     }
 
-    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibilityAsGeneratorConvention(VoltageRegulationHolderAdder<T> adder,
-                                                                                                                double targetV,
-                                                                                                                double targetQ,
-                                                                                                                Boolean voltageRegulatorOn,
-                                                                                                                Terminal terminal) {
+    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibilityForGeneratorConvention(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                                      double targetV,
+                                                                                                                                      double targetQ,
+                                                                                                                                      Boolean voltageRegulatorOn,
+                                                                                                                                      Terminal terminal) {
         createVoltageRegulationBackwardCompatibility(adder, false, targetV, targetV, targetQ, voltageRegulatorOn, terminal, false, -1);
     }
 

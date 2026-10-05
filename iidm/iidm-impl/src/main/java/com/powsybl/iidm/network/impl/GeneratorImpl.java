@@ -151,7 +151,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         Terminal oldValue = null;
         if (voltageRegulation != null) {
             oldValue = voltageRegulation.getTerminal();
-            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
+            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : -getRegulatingTargetQ();
             voltageRegulation.setTerminal(regulatingTerminal, targetValue);
         } else {
             newVoltageRegulation()

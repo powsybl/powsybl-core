@@ -177,12 +177,18 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         return getDefaultValue(null, vscConverter.getRegulatingTargetV(), Double.NaN, Double.NaN, context);
     }
 
+    /**
+     * Result in the generator sign convention
+     */
     // targetQ = - targetQpcc then we considered - terminalSign
     private static double getValidTargetQ(PropertyBag cgmesDataConverter, VscConverterStation vscConverter, Context context) {
         double defaultTargetQ = getDefaultTargetQ(vscConverter, context);
         return findTargetQ(cgmesDataConverter, TARGET_QPCC, -findTerminalSign(vscConverter), defaultTargetQ, DefaultValueUse.NOT_VALID);
     }
 
+    /**
+     * Result in the generator sign convention
+     */
     private static double getDefaultTargetQ(VscConverterStation vscConverter, Context context) {
         double previousTargetQ = Double.isFinite(vscConverter.getRegulatingTargetQ()) ? vscConverter.getRegulatingTargetQ() : 0.0;
         return getDefaultValue(0.0, previousTargetQ, 0.0, 0.0, context);

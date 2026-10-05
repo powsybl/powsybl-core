@@ -182,6 +182,8 @@ public final class VoltageRegulationSerDe {
         VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
         Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
         double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
+        Optional<Consumer> actionOnHolder = extraProperties.map(ExtraProperties::actionOnHolder);
+        context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
 
         if (voltageRegulation == null) {
             // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
@@ -197,8 +199,7 @@ public final class VoltageRegulationSerDe {
         } else {
             voltageRegulation.setTerminal(terminal, targetValue);
         }
-        extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(holder));
-        context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
+        actionOnHolder.ifPresent(c -> c.accept(holder));
     }
 
     private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace) {

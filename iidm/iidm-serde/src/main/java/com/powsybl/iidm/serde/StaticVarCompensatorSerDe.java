@@ -235,12 +235,6 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                 .withRegulating(regulating)
                 .add();
             return voltageSetpoint;
-        } else if (RegulationMode.REACTIVE_POWER == regulationMode) {
-            adder.newVoltageRegulation()
-                .withMode(regulationMode)
-                .withRegulating(regulating)
-                .add();
-            return reactivePowerSetpoint;
         }
         return reactivePowerSetpoint;
     }
@@ -251,7 +245,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
             switch (elementName) {
                 case REGULATING_TERMINAL -> {
                     IidmSerDeUtil.assertInBetweenTwoVersions(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED,
-                            IidmVersion.V_1_1, IidmVersion.V_1_17, context);
+                            IidmVersion.V_1_1, IidmVersion.V_1_16, context);
                     VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
                 }
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);

@@ -28,8 +28,7 @@ import java.util.Objects;
  */
 public final class SvcTestCaseFactory {
 
-    public static final double REMOTE_TARGET_VALUE = 390;
-    public static final double REMOTE_TARGET_VALUE_Q = 10;
+    public static final double REMOTE_TARGET_VALUE = 400;
     public static final double LOCAL_TARGET_V = 390;
     public static final double LOCAL_TARGET_Q = 350;
 
@@ -146,20 +145,6 @@ public final class SvcTestCaseFactory {
             .withRegulating(true)
             .withTerminal(getRemoteTerminal(network))
             .withTargetValue(REMOTE_TARGET_VALUE)
-            .build();
-        svc2.setLocalTargetV(Double.NaN);
-        svc2.setLocalTargetQ(Double.NaN);
-        return network;
-    }
-
-    public static Network createWithRemoteReactiveRegulatingTerminal() {
-        Network network = create();
-        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
-        svc2.newVoltageRegulation()
-            .withMode(RegulationMode.REACTIVE_POWER)
-            .withRegulating(true)
-            .withTerminal(getRemoteTerminal(network))
-            .withTargetValue(REMOTE_TARGET_VALUE_Q)
             .build();
         svc2.setLocalTargetV(Double.NaN);
         svc2.setLocalTargetQ(Double.NaN);
