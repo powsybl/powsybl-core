@@ -43,7 +43,7 @@ class SensitivityContingencyStatusTest {
                     SensitivityAnalysisResult.SensitivityStateStatus.parseJson(parser, "1.2");
             assertEquals("ID_001", stateStatus.getState().contingencyId());
             assertNull(stateStatus.getState().operatorStrategyId());
-            assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, stateStatus.getComponentsLoadFlowStatusList().getFirst().status().status());
+            assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, stateStatus.getComponentsLoadFlowStatusList().getFirst().status());
             assertEquals(1, stateStatus.getComponentsLoadFlowStatusList().size());
         }
     }
@@ -72,8 +72,8 @@ class SensitivityContingencyStatusTest {
             assertEquals(1, stateStatus.getComponentsLoadFlowStatusList().size());
             SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus triple =
                     stateStatus.getComponentsLoadFlowStatusList().getFirst();
-            assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status().status());
-            assertEquals("TestConvergence", triple.status().statusText());
+            assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status());
+            assertEquals("TestConvergence", triple.statusText());
             assertEquals(5, triple.connectedComponentNum());
             assertEquals(2, triple.synchronousComponentNum());
         }
@@ -102,8 +102,8 @@ class SensitivityContingencyStatusTest {
             assertEquals(1, stateStatus.getComponentsLoadFlowStatusList().size());
             SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus triple =
                     stateStatus.getComponentsLoadFlowStatusList().getFirst();
-            assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status().status());
-            assertEquals("TestStatusText", triple.status().statusText());
+            assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status());
+            assertEquals("TestStatusText", triple.statusText());
             assertEquals(5, triple.connectedComponentNum());
             assertEquals(2, triple.synchronousComponentNum());
         }

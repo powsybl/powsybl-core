@@ -10,6 +10,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -51,13 +52,14 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
-        Objects.requireNonNull(loadFlowStatus);
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum, LoadFlowResult.ComponentResult.Status status, String statusText) {
+        Objects.requireNonNull(status);
+        Objects.requireNonNull(statusText);
         SensitivityState state = new SensitivityState(
                 contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
                 operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
         stateStatusBuffer.computeIfAbsent(state, SensitivityAnalysisResult.SensitivityStateStatus::new)
-                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, loadFlowStatus);
+                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, status, statusText);
     }
 
     @Override

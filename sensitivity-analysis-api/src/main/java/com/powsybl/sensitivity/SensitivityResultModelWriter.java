@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.*;
 
@@ -47,12 +48,13 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     @Override
     public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
                                  int connectedComponentNum, int synchronousComponentNum,
-                                 SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
-        Objects.requireNonNull(loadFlowStatus);
+                                 LoadFlowResult.ComponentResult.Status status, String statusText) {
+        Objects.requireNonNull(status);
+        Objects.requireNonNull(statusText);
         SensitivityState state = new SensitivityState(
                 contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
                 operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
         stateStatuses.computeIfAbsent(state, SensitivityAnalysisResult.SensitivityStateStatus::new)
-                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, loadFlowStatus);
+                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, status, statusText);
     }
 }

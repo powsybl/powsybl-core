@@ -289,8 +289,8 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertNull(postStatus.getState().operatorStrategyId());
         assertEquals(1, preStatus.getComponentsLoadFlowStatusList().size());
         SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus preComponent = preStatus.getComponentsLoadFlowStatusList().getFirst();
-        assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, preComponent.status().status());
-        assertEquals("testStatusText", preComponent.status().statusText());
+        assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, preComponent.status());
+        assertEquals("testStatusText", preComponent.statusText());
         assertEquals(0, preComponent.connectedComponentNum());
         assertEquals(1, preComponent.synchronousComponentNum());
 
