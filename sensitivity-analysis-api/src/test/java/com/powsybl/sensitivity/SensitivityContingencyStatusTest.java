@@ -74,8 +74,8 @@ class SensitivityContingencyStatusTest {
                     stateStatus.getComponentsLoadFlowStatusList().getFirst();
             assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status().status());
             assertEquals("TestConvergence", triple.status().statusText());
-            assertEquals(5, triple.numCC());
-            assertEquals(2, triple.numSC());
+            assertEquals(5, triple.connectedComponentNum());
+            assertEquals(2, triple.synchronousComponentNum());
         }
     }
 
@@ -104,8 +104,8 @@ class SensitivityContingencyStatusTest {
                     stateStatus.getComponentsLoadFlowStatusList().getFirst();
             assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status().status());
             assertEquals("TestStatusText", triple.status().statusText());
-            assertEquals(5, triple.numCC());
-            assertEquals(2, triple.numSC());
+            assertEquals(5, triple.connectedComponentNum());
+            assertEquals(2, triple.synchronousComponentNum());
         }
     }
 }

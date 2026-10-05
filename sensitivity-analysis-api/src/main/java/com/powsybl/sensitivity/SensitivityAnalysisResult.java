@@ -77,6 +77,10 @@ public class SensitivityAnalysisResult {
     public record LoadFlowStatus(LoadFlowResult.ComponentResult.Status status, String statusText) {
     }
 
+    /**
+     * @deprecated Use {@link SensitivityAnalysisResult.LoadFlowStatus} instead.
+     */
+    @Deprecated(since = "7.4.0")
     public enum Status {
         SUCCESS,
         FAILURE,
@@ -85,18 +89,18 @@ public class SensitivityAnalysisResult {
 
     public static class SensitivityStateStatus {
 
-        public record ComponentStatus(LoadFlowStatus status, int numCC, int numSC) { }
+        public record ComponentStatus(LoadFlowStatus status, int connectedComponentNum, int synchronousComponentNum) { }
 
-        static final String COMPONENTS_LOADFLOW_STATUSES = "componentsLoadFlowStatuses";
+        static final String COMPONENT_STATUSES = "componentStatuses";
         static final String LOAD_FLOW_STATUS = "loadFlowStatus";
-        static final String LOAD_FLOW_STATUS_DESCRIPTION = "loadFlowStatusDescription";
-        static final String NUM_CC = "numCC";
-        static final String NUM_CS = "numCS";
+        static final String LOAD_FLOW_STATUS_TEXT = "loadFlowStatusText";
+        static final String NUM_CC = "connectedComponentNum";
+        static final String NUM_SC = "synchronousComponentNum";
 
         private final SensitivityState state;
 
         /**
-         * Per-component load flow status (one entry per (numCC, numCS) for which a load flow has run).
+         * Per-component load flow status (one entry per (connectedComponentNum, numCS) for which a load flow has run).
          */
         private final List<ComponentStatus> componentsLoadFlowStatusList;
 
@@ -181,13 +185,13 @@ public class SensitivityAnalysisResult {
                     jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
                 }
                 if (componentsLoadFlowStatusList != null && !componentsLoadFlowStatusList.isEmpty()) {
-                    jsonGenerator.writeArrayFieldStart(COMPONENTS_LOADFLOW_STATUSES);
+                    jsonGenerator.writeArrayFieldStart(COMPONENT_STATUSES);
                     for (ComponentStatus componentStatus : componentsLoadFlowStatusList) {
                         jsonGenerator.writeStartObject();
                         jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().status().toString());
-                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS_DESCRIPTION, componentStatus.status().statusText());
-                        jsonGenerator.writeNumberField(NUM_CC, componentStatus.numCC());
-                        jsonGenerator.writeNumberField(NUM_CS, componentStatus.numSC());
+                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS_TEXT, componentStatus.status().statusText());
+                        jsonGenerator.writeNumberField(NUM_CC, componentStatus.connectedComponentNum());
+                        jsonGenerator.writeNumberField(NUM_SC, componentStatus.synchronousComponentNum());
                         jsonGenerator.writeEndObject();
                     }
                     jsonGenerator.writeEndArray();
@@ -253,8 +257,8 @@ public class SensitivityAnalysisResult {
                     parser.nextToken();
                     context.status = Status.valueOf(parser.getValueAsString());
                     break;
-                case COMPONENTS_LOADFLOW_STATUSES:
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + COMPONENTS_LOADFLOW_STATUSES, version, "1.2");
+                case COMPONENT_STATUSES:
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + COMPONENT_STATUSES, version, "1.2");
                     context.componentsLoadFlowStatusList = parseComponentLoadFlowStatuses(parser);
                     break;
                 default:
@@ -285,9 +289,9 @@ public class SensitivityAnalysisResult {
                 parser.nextToken();
                 switch (fieldName) {
                     case LOAD_FLOW_STATUS -> statusStr = parser.getText();
-                    case LOAD_FLOW_STATUS_DESCRIPTION -> descStr = parser.getText();
+                    case LOAD_FLOW_STATUS_TEXT -> descStr = parser.getText();
                     case NUM_CC -> numCC = parser.getIntValue();
-                    case NUM_CS -> numCS = parser.getIntValue();
+                    case NUM_SC -> numCS = parser.getIntValue();
                     default -> parser.skipChildren();
                 }
             }
@@ -806,8 +810,8 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Return true if the computation was fully completed, false if it was partially completed
-     * @return the computation complete boolean
+     * Return true if the computation was fully completed, false if it was partially completed because of interruption. Interrupted calculations contain only partial results.
+     * @return true if the computation completed without interruption, i.e. the results are complete.
      */
     public boolean isComputationComplete() {
         return computationComplete;
