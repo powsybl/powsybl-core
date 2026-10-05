@@ -80,6 +80,33 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
 
+        assertGeneratorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void generatorVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "generator_EQ.xml");
+        readCgmesResources(network, DIR, "generator_SSH.xml");
+
+        assertGeneratorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void generatorVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
+        Generator g2 = network.getGenerator("SM_2");
+        Generator g4 = network.getGenerator("SM_4");
+        setRegulatingFalseAndTargetValueNaN(g2);
+        setRegulatingFalseAndTargetValueNaN(g4);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, DIR, "generator_SSH.xml");
+
+        assertGeneratorVoltageRegulationSsh(network);
+    }
+
+    private void assertGeneratorVoltageRegulationSsh(Network network) {
         // G0: no regulation (not CGMES compliant)
         Generator g0 = network.getGenerator("SM_0");
         assertLocalTargets(g0, 10, Double.NaN);
@@ -115,48 +142,6 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertLocalTargets(eqInj, -10, 400);
         VoltageRegulation regEqInj = eqInj.getVoltageRegulation();
         assertVoltageRegulation(regEqInj, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
-    }
-
-    @Test
-    void generatorVoltageRegulationEqAndSshAndUpdateSshTest() {
-        // Full import: regulation is created with correct targets and enabled.
-        Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
-        Generator g2 = network.getGenerator("SM_2");
-        Generator g4 = network.getGenerator("SM_4");
-        setRegulatingFalseAndTargetValueNaN(g2);
-        setRegulatingFalseAndTargetValueNaN(g4);
-        // The update must re-enable regulation and restore the target value/deadband from SSH
-        readCgmesResources(network, DIR, "generator_SSH.xml");
-
-        // G0: no regulation (not CGMES compliant)
-        Generator g0 = network.getGenerator("SM_0");
-        assertLocalTargets(g0, 10, Double.NaN);
-        VoltageRegulation reg0 = g0.getVoltageRegulation();
-        assertNull(reg0);
-
-        // G1: local voltage regulation
-        Generator g1 = network.getGenerator("SM_1");
-        assertLocalTargets(g1, -10, 400);
-        VoltageRegulation reg1 = g1.getVoltageRegulation();
-        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
-
-        // G2: remote voltage regulation
-        g2 = network.getGenerator("SM_2");
-        assertLocalTargets(g2, -10, Double.NaN);
-        VoltageRegulation reg2 = g2.getVoltageRegulation();
-        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS_1", 400, Double.NaN, true);
-
-        // G3: local reactive power regulation
-        Generator g3 = network.getGenerator("SM_3");
-        assertLocalTargets(g3, 10, Double.NaN);
-        VoltageRegulation reg3 = g3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SM_3", 10, Double.NaN, true);
-
-        // G4: remote reactive power regulation
-        g4 = network.getGenerator("SM_4");
-        assertLocalTargets(g4, 10, Double.NaN);
-        VoltageRegulation reg4 = g4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", 20, Double.NaN, true);
     }
 
     @Test
@@ -217,23 +202,16 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
 
-        // SC0: no regulation (not CGMES compliant)
-        ShuntCompensator sc0 = network.getShuntCompensator("LSC_0");
-        assertTrue(Double.isNaN(sc0.getLocalTargetV()));
-        VoltageRegulation reg0 = sc0.getVoltageRegulation();
-        assertNull(reg0);
+        assertShuntCompensatorVoltageRegulationSsh(network);
+    }
 
-        // SC1: local voltage regulation
-        ShuntCompensator sc1 = network.getShuntCompensator("LSC_1");
-        assertEquals(400, sc1.getLocalTargetV());
-        VoltageRegulation reg1 = sc1.getVoltageRegulation();
-        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, 2.0, true);
+    @Test
+    void shuntCompensatorVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml");
+        readCgmesResources(network, DIR, "shuntCompensator_SSH.xml");
 
-        // SC2: remote voltage regulation
-        ShuntCompensator sc2 = network.getShuntCompensator("LSC_2");
-        assertTrue(Double.isNaN(sc2.getLocalTargetV()));
-        VoltageRegulation reg2 = sc2.getVoltageRegulation();
-        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
+        assertShuntCompensatorVoltageRegulationSsh(network);
     }
 
     @Test
@@ -245,6 +223,10 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // The update must re-enable regulation and restore the target value/deadband from SSH
         readCgmesResources(network, DIR, "shuntCompensator_SSH.xml");
 
+        assertShuntCompensatorVoltageRegulationSsh(network);
+    }
+
+    private void assertShuntCompensatorVoltageRegulationSsh(Network network) {
         // SC0: no regulation (not CGMES compliant)
         ShuntCompensator sc0 = network.getShuntCompensator("LSC_0");
         assertTrue(Double.isNaN(sc0.getLocalTargetV()));
@@ -258,7 +240,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, 2.0, true);
 
         // SC2: remote voltage regulation
-        sc2 = network.getShuntCompensator("LSC_2");
+        ShuntCompensator sc2 = network.getShuntCompensator("LSC_2");
         assertTrue(Double.isNaN(sc2.getLocalTargetV()));
         VoltageRegulation reg2 = sc2.getVoltageRegulation();
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS", 400, 2.0, true);
@@ -319,29 +301,16 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
 
-        // SVC1: local voltage regulation
-        StaticVarCompensator svc1 = network.getStaticVarCompensator("SVC_1");
-        assertLocalTargets(svc1, 10, 400);
-        VoltageRegulation reg1 = svc1.getVoltageRegulation();
-        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
+        assertStaticVarCompensatorVoltageRegulationSsh(network);
+    }
 
-        // SVC2: remote voltage regulation
-        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC_2");
-        assertLocalTargets(svc2, 10, Double.NaN);
-        VoltageRegulation reg2 = svc2.getVoltageRegulation();
-        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS_1", 400, Double.NaN, true);
+    @Test
+    void staticVarCompensatorVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
+        readCgmesResources(network, DIR, "staticVarCompensator_SSH.xml");
 
-        // SVC3: local reactive power regulation
-        StaticVarCompensator svc3 = network.getStaticVarCompensator("SVC_3");
-        assertLocalTargets(svc3, -10, Double.NaN);
-        VoltageRegulation reg3 = svc3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SVC_3", -10, Double.NaN, true);
-
-        // SVC4: remote reactive power regulation
-        StaticVarCompensator svc4 = network.getStaticVarCompensator("SVC_4");
-        assertLocalTargets(svc4, -10, Double.NaN);
-        VoltageRegulation reg4 = svc4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", -20, Double.NaN, true);
+        assertStaticVarCompensatorVoltageRegulationSsh(network);
     }
 
     @Test
@@ -355,6 +324,10 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // The update must re-enable regulation and restore the target value/deadband from SSH
         readCgmesResources(network, DIR, "staticVarCompensator_SSH.xml");
 
+        assertStaticVarCompensatorVoltageRegulationSsh(network);
+    }
+
+    private void assertStaticVarCompensatorVoltageRegulationSsh(Network network) {
         // SVC1: local voltage regulation
         StaticVarCompensator svc1 = network.getStaticVarCompensator("SVC_1");
         assertLocalTargets(svc1, 10, 400);
@@ -362,7 +335,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
 
         // SVC2: remote voltage regulation
-        svc2 = network.getStaticVarCompensator("SVC_2");
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC_2");
         assertLocalTargets(svc2, 10, Double.NaN);
         VoltageRegulation reg2 = svc2.getVoltageRegulation();
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "BBS_1", 400, Double.NaN, true);
@@ -374,7 +347,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "SVC_3", -10, Double.NaN, true);
 
         // SVC4: remote reactive power regulation
-        svc4 = network.getStaticVarCompensator("SVC_4");
+        StaticVarCompensator svc4 = network.getStaticVarCompensator("SVC_4");
         assertLocalTargets(svc4, -10, Double.NaN);
         VoltageRegulation reg4 = svc4.getVoltageRegulation();
         assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "PT", -20, Double.NaN, true);
@@ -436,26 +409,16 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
 
-        // RTC0: no regulation
-        RatioTapChanger rtc0 = network.getTwoWindingsTransformer("PT2_0").getRatioTapChanger();
-        assertNotNull(rtc0);
-        assertNull(rtc0.getVoltageRegulation());
+        assertTransformerVoltageRegulation(network);
+    }
 
-        // RTC1: 2w transformer voltage regulation
-        RatioTapChanger rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
-        assertVoltageRegulation(rtc1.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
+    @Test
+    void transformerVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml");
+        readCgmesResources(network, DIR, "transformer_SSH.xml");
 
-        // RTC2: 2w transformer reactive power regulation
-        RatioTapChanger rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
-        assertVoltageRegulation(rtc2.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT2_2", 50.0, 2.0, true);
-
-        // RTC3: 3w transformer voltage regulation
-        RatioTapChanger rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
-        assertVoltageRegulation(rtc3.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
-
-        // RTC4: 3w transformer reactive power regulation
-        RatioTapChanger rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
-        assertVoltageRegulation(rtc4.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT3_2", 50.0, 2.0, true);
+        assertTransformerVoltageRegulation(network);
     }
 
     @Test
@@ -473,25 +436,29 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // The update must re-enable regulation and restore the target value/deadband from SSH
         readCgmesResources(network, DIR, "transformer_SSH.xml");
 
+        assertTransformerVoltageRegulation(network);
+    }
+
+    private void assertTransformerVoltageRegulation(Network network) {
         // RTC0: no regulation
         RatioTapChanger rtc0 = network.getTwoWindingsTransformer("PT2_0").getRatioTapChanger();
         assertNotNull(rtc0);
         assertNull(rtc0.getVoltageRegulation());
 
         // RTC1: 2w transformer voltage regulation
-        rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
+        RatioTapChanger rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
         assertVoltageRegulation(rtc1.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
 
         // RTC2: 2w transformer reactive power regulation
-        rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
+        RatioTapChanger rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
         assertVoltageRegulation(rtc2.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT2_2", 50.0, 2.0, true);
 
         // RTC3: 3w transformer voltage regulation
-        rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
+        RatioTapChanger rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
         assertVoltageRegulation(rtc3.getVoltageRegulation(), RegulationMode.VOLTAGE, "BBS_2", 200.0, 1.0, true);
 
         // RTC4: 3w transformer reactive power regulation
-        rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
+        RatioTapChanger rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
         assertVoltageRegulation(rtc4.getVoltageRegulation(), RegulationMode.REACTIVE_POWER, "PT3_2", 50.0, 2.0, true);
     }
 
@@ -560,29 +527,18 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
         Network network = readCgmesResources(importParameters, DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
 
-        // VSC1: local voltage regulation
-        VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("VSC_1");
-        assertLocalTargets(vsc1, 22.5, 100);
-        VoltageRegulation reg1 = vsc1.getVoltageRegulation();
-        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
+        assertVoltageSourceConverterVoltageRegulationSsh(network);
+    }
 
-        // VSC2: remote voltage regulation
-        VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("VSC_2");
-        assertLocalTargets(vsc2, 30, Double.NaN);
-        VoltageRegulation reg2 = vsc2.getVoltageRegulation();
-        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "ACL", 100, Double.NaN, true);
+    @Test
+    void voltageSourceConverterVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network network = readCgmesResources(importParameters, DIR, "vsConverter_EQ.xml");
+        readCgmesResources(network, importParameters, DIR, "vsConverter_SSH.xml");
 
-        // VSC3: local reactive power regulation
-        VoltageSourceConverter vsc3 = network.getVoltageSourceConverter("VSC_3");
-        assertLocalTargets(vsc3, 22.5, Double.NaN);
-        VoltageRegulation reg3 = vsc3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "VSC_3", 22.5, Double.NaN, true);
-
-        // VSC4: remote reactive power regulation
-        VoltageSourceConverter vsc4 = network.getVoltageSourceConverter("VSC_4");
-        assertLocalTargets(vsc4, 30, Double.NaN);
-        VoltageRegulation reg4 = vsc4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", -30.5, Double.NaN, true);
+        assertVoltageSourceConverterVoltageRegulationSsh(network);
     }
 
     @Test
@@ -598,6 +554,10 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // The update must re-enable regulation and restore the target value/deadband from SSH
         readCgmesResources(network, importParameters, DIR, "vsConverter_SSH.xml");
 
+        assertVoltageSourceConverterVoltageRegulationSsh(network);
+    }
+
+    private void assertVoltageSourceConverterVoltageRegulationSsh(Network network) {
         // VSC1: local voltage regulation
         VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("VSC_1");
         assertLocalTargets(vsc1, 22.5, 100);
@@ -605,7 +565,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
 
         // VSC2: remote voltage regulation
-        vsc2 = network.getVoltageSourceConverter("VSC_2");
+        VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("VSC_2");
         assertLocalTargets(vsc2, 30, Double.NaN);
         VoltageRegulation reg2 = vsc2.getVoltageRegulation();
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "ACL", 100, Double.NaN, true);
@@ -617,7 +577,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "VSC_3", 22.5, Double.NaN, true);
 
         // VSC4: remote reactive power regulation
-        vsc4 = network.getVoltageSourceConverter("VSC_4");
+        VoltageSourceConverter vsc4 = network.getVoltageSourceConverter("VSC_4");
         assertLocalTargets(vsc4, 30, Double.NaN);
         VoltageRegulation reg4 = vsc4.getVoltageRegulation();
         assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", -30.5, Double.NaN, true);
@@ -682,29 +642,16 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
 
-        // VSC1: local voltage regulation
-        VscConverterStation vsc1 = network.getVscConverterStation("VSC_1");
-        assertLocalTargets(vsc1, -22.5, 100);
-        VoltageRegulation reg1 = vsc1.getVoltageRegulation();
-        assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
+        assertVscConverterStationVoltageRegulationSsh(network);
+    }
 
-        // VSC2: remote voltage regulation
-        VscConverterStation vsc2 = network.getVscConverterStation("VSC_2");
-        assertLocalTargets(vsc2, -30, Double.NaN);
-        VoltageRegulation reg2 = vsc2.getVoltageRegulation();
-        assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "ACL", 100, Double.NaN, true);
+    @Test
+    void vscConverterStationVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "vsConverter_EQ.xml");
+        readCgmesResources(network, DIR, "vsConverter_SSH.xml");
 
-        // VSC3: local reactive power regulation
-        VscConverterStation vsc3 = network.getVscConverterStation("VSC_3");
-        assertLocalTargets(vsc3, -22.5, Double.NaN);
-        VoltageRegulation reg3 = vsc3.getVoltageRegulation();
-        assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "VSC_3", -22.5, Double.NaN, true);
-
-        // VSC4: remote reactive power regulation
-        VscConverterStation vsc4 = network.getVscConverterStation("VSC_4");
-        assertLocalTargets(vsc4, -30, Double.NaN);
-        VoltageRegulation reg4 = vsc4.getVoltageRegulation();
-        assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", 30.5, Double.NaN, true);
+        assertVscConverterStationVoltageRegulationSsh(network);
     }
 
     @Test
@@ -718,6 +665,10 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // The update must re-enable regulation and restore the target value/deadband from SSH
         readCgmesResources(network, DIR, "vsConverter_SSH.xml");
 
+        assertVscConverterStationVoltageRegulationSsh(network);
+    }
+
+    private void assertVscConverterStationVoltageRegulationSsh(Network network) {
         // VSC1: local voltage regulation
         VscConverterStation vsc1 = network.getVscConverterStation("VSC_1");
         assertLocalTargets(vsc1, -22.5, 100);
@@ -725,7 +676,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg1, RegulationMode.VOLTAGE, null, Double.NaN, Double.NaN, true);
 
         // VSC2: remote voltage regulation
-        vsc2 = network.getVscConverterStation("VSC_2");
+        VscConverterStation vsc2 = network.getVscConverterStation("VSC_2");
         assertLocalTargets(vsc2, -30, Double.NaN);
         VoltageRegulation reg2 = vsc2.getVoltageRegulation();
         assertVoltageRegulation(reg2, RegulationMode.VOLTAGE, "ACL", 100, Double.NaN, true);
@@ -737,7 +688,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertVoltageRegulation(reg3, RegulationMode.REACTIVE_POWER, "VSC_3", -22.5, Double.NaN, true);
 
         // VSC4: remote reactive power regulation
-        vsc4 = network.getVscConverterStation("VSC_4");
+        VscConverterStation vsc4 = network.getVscConverterStation("VSC_4");
         assertLocalTargets(vsc4, -30, Double.NaN);
         VoltageRegulation reg4 = vsc4.getVoltageRegulation();
         assertVoltageRegulation(reg4, RegulationMode.REACTIVE_POWER, "ACL", 30.5, Double.NaN, true);
