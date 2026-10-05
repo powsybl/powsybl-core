@@ -14,8 +14,8 @@
     "componentStatuses" : [ {
       "loadFlowStatus" : "CONVERGED",
       "loadFlowStatusText" : "",
-      "connectedComponentNum" : 0,
-      "synchronousComponentNum" : 0
+      "numCC" : 0,
+      "numSC" : 0
     } ]
   }, {
     "contingencyId" : "NHV1_NHV2_2",
@@ -23,8 +23,8 @@
     "componentStatuses" : [ {
       "loadFlowStatus" : "CONVERGED",
       "loadFlowStatusText" : "",
-      "connectedComponentNum" : 0,
-      "synchronousComponentNum" : 0
+      "numCC" : 0,
+      "numSC" : 0
     } ]
   } ],
   "contingencyIds" : [ "NHV1_NHV2_2" ],
