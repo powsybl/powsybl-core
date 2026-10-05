@@ -89,7 +89,7 @@ public class SensitivityAnalysisResult {
 
     public static class SensitivityStateStatus {
 
-        public record ComponentStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowStatus status) { }
+        public record ComponentStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowResult.ComponentResult.Status status, String statusText) { }
 
         static final String COMPONENT_STATUSES = "componentStatuses";
         static final String LOAD_FLOW_STATUS = "loadFlowStatus";
@@ -111,7 +111,7 @@ public class SensitivityAnalysisResult {
         @Deprecated(since = "7.4.0")
         public Status getStatus() {
             if (!getComponentsLoadFlowStatusList().isEmpty()) {
-                switch (getComponentsLoadFlowStatusList().get(0).status().status) {
+                switch (getComponentsLoadFlowStatusList().get(0).status()) {
                     case CONVERGED -> {
                         return Status.SUCCESS;
                     }
@@ -143,7 +143,7 @@ public class SensitivityAnalysisResult {
         @Deprecated(since = "7.4.0")
         public SensitivityStateStatus(SensitivityState state, Status status) {
             this(state, List.of(new ComponentStatus(
-                    -1, -1, new LoadFlowStatus(toLoadFlowStatus(status), ""))));
+                    -1, -1, toLoadFlowStatus(status), "")));
         }
 
         private static LoadFlowResult.ComponentResult.Status toLoadFlowStatus(Status status) {
@@ -160,14 +160,13 @@ public class SensitivityAnalysisResult {
             }
         }
 
-        public SensitivityStateStatus addComponentLoadFlowStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowStatus loadFlowStatus) {
-            componentsLoadFlowStatusList.add(new ComponentStatus(connectedComponentNum, synchronousComponentNum, loadFlowStatus));
+        public SensitivityStateStatus addComponentLoadFlowStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowResult.ComponentResult.Status status, String statusText) {
+            componentsLoadFlowStatusList.add(new ComponentStatus(connectedComponentNum, synchronousComponentNum, status, statusText));
             return this;
         }
 
         public SensitivityStateStatus addComponentLoadFlowStatus(int connectedComponentNum, int synchronousComponentNum, LoadFlowResult.ComponentResult.Status status) {
-            componentsLoadFlowStatusList.add(new ComponentStatus(connectedComponentNum, synchronousComponentNum, new LoadFlowStatus(status, "")));
-            return this;
+            return addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, status, "");
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
@@ -188,8 +187,8 @@ public class SensitivityAnalysisResult {
                     jsonGenerator.writeArrayFieldStart(COMPONENT_STATUSES);
                     for (ComponentStatus componentStatus : componentsLoadFlowStatusList) {
                         jsonGenerator.writeStartObject();
-                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().status().toString());
-                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS_TEXT, componentStatus.status().statusText());
+                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().toString());
+                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS_TEXT, componentStatus.statusText());
                         jsonGenerator.writeNumberField(NUM_CC, componentStatus.connectedComponentNum());
                         jsonGenerator.writeNumberField(NUM_SC, componentStatus.synchronousComponentNum());
                         jsonGenerator.writeEndObject();
@@ -295,8 +294,7 @@ public class SensitivityAnalysisResult {
                     default -> parser.skipChildren();
                 }
             }
-            LoadFlowStatus lfs = new LoadFlowStatus(LoadFlowResult.ComponentResult.Status.valueOf(statusStr), descStr);
-            return new ComponentStatus(connectedComponentNum, synchronousComponentNum, lfs);
+            return new ComponentStatus(connectedComponentNum, synchronousComponentNum, LoadFlowResult.ComponentResult.Status.valueOf(statusStr), descStr);
         }
     }
 
