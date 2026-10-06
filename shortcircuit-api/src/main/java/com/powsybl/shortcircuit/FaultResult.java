@@ -78,7 +78,17 @@ public interface FaultResult extends Extendable<FaultResult> {
     Status getStatus();
 
     /**
-     * Returns the three-phase current associated to a feeder.
+     * Returns the three-phase current associated with a feeder.
      */
     double getFeederCurrent(String feederId);
+
+    /**
+     * The equivalent resistance of the network seen from the fault.
+     */
+    double getEquivalentR();
+
+    /**
+     * The equivalent reactance of the network seen from the fault.
+     */
+    double getEquivalentX();
 }
