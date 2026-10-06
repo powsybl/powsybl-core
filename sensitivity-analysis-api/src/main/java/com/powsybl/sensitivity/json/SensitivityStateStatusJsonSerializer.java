@@ -11,18 +11,19 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityStateStatus;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityStateStatusJsonSerializer extends StdSerializer<SensitivityAnalysisResult.SensitivityStateStatus> {
+public class SensitivityStateStatusJsonSerializer extends StdSerializer<SensitivityStateStatus> {
 
     public SensitivityStateStatusJsonSerializer() {
-        super(SensitivityAnalysisResult.SensitivityStateStatus.class);
+        super(SensitivityStateStatus.class);
     }
 
     @Override
-    public void serialize(SensitivityAnalysisResult.SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
-        SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, value);
+    public void serialize(SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+        SensitivityStateStatus.writeJson(jsonGenerator, value);
     }
 }
