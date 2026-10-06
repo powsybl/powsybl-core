@@ -263,15 +263,15 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     // Regulation values (targetValue and targetDeadband) must be valid before the regulation is turned on,
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
-    private static void setRegulation(RatioTapChanger rtc, double targetV, double targetDeadband, boolean regulatingOn) {
+    private static void setRegulation(RatioTapChanger rtc, double targetValue, double targetDeadband, boolean regulatingOn) {
         VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
         if (voltageRegulation != null) {
-            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setTargetValue(targetValue);
             voltageRegulation.setTargetDeadband(targetDeadband);
             voltageRegulation.setRegulating(regulatingOn);
         } else {
             rtc.newVoltageRegulation()
-                .withTargetValue(targetV)
+                .withTargetValue(targetValue)
                 .withTargetDeadband(targetDeadband)
                 .withRegulating(regulatingOn)
                 .withMode(regulatingOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER)
