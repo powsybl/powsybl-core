@@ -39,8 +39,8 @@ class SensitivityContingencyStatusTest {
             """;
         try (JsonParser parser = factory.createParser(json)) {
             parser.nextToken();
-            SensitivityAnalysisResult.SensitivityStateStatus stateStatus =
-                    SensitivityAnalysisResult.SensitivityStateStatus.parseJson(parser, "1.2");
+            SensitivityStateStatus stateStatus =
+                    SensitivityStateStatus.parseJson(parser, "1.2");
             assertEquals("ID_001", stateStatus.getState().contingencyId());
             assertNull(stateStatus.getState().operatorStrategyId());
             assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, stateStatus.getComponentsLoadFlowStatusList().getFirst().status());
@@ -65,12 +65,12 @@ class SensitivityContingencyStatusTest {
             """;
         try (JsonParser parser = factory.createParser(json)) {
             parser.nextToken();
-            SensitivityAnalysisResult.SensitivityStateStatus stateStatus =
-                    SensitivityAnalysisResult.SensitivityStateStatus.parseJson(parser, "1.2");
+            SensitivityStateStatus stateStatus =
+                    SensitivityStateStatus.parseJson(parser, "1.2");
 
             assertEquals("ID_001", stateStatus.getState().contingencyId());
             assertEquals(1, stateStatus.getComponentsLoadFlowStatusList().size());
-            SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus triple =
+            SensitivityStateStatus.ComponentStatus triple =
                     stateStatus.getComponentsLoadFlowStatusList().getFirst();
             assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status());
             assertEquals("TestConvergence", triple.statusText());
@@ -95,12 +95,12 @@ class SensitivityContingencyStatusTest {
             """;
         try (JsonParser parser = factory.createParser(json)) {
             parser.nextToken();
-            SensitivityAnalysisResult.SensitivityStateStatus stateStatus =
-                    SensitivityAnalysisResult.SensitivityStateStatus.parseJson(parser, "1.2");
+            SensitivityStateStatus stateStatus =
+                    SensitivityStateStatus.parseJson(parser, "1.2");
 
             assertEquals(SensitivityState.PRE_CONTINGENCY, stateStatus.getState());
             assertEquals(1, stateStatus.getComponentsLoadFlowStatusList().size());
-            SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus triple =
+            SensitivityStateStatus.ComponentStatus triple =
                     stateStatus.getComponentsLoadFlowStatusList().getFirst();
             assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, triple.status());
             assertEquals("TestStatusText", triple.statusText());

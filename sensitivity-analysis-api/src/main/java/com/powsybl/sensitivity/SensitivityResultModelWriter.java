@@ -25,7 +25,7 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityValue> values = new ArrayList<>();
 
-    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new LinkedHashMap<>();
+    private final Map<SensitivityState, List<SensitivityStateStatus.ComponentStatus>> stateStatuses = new LinkedHashMap<>();
 
     public SensitivityResultModelWriter(List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.contingencies = Objects.requireNonNull(contingencies);
@@ -36,8 +36,10 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
         return values;
     }
 
-    public List<SensitivityAnalysisResult.SensitivityStateStatus> getStateStatuses() {
-        return new ArrayList<>(stateStatuses.values());
+    public List<SensitivityStateStatus> getStateStatuses() {
+        return stateStatuses.entrySet().stream()
+                .map(e -> new SensitivityStateStatus(e.getKey(), e.getValue()))
+                .toList();
     }
 
     @Override
@@ -54,7 +56,7 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
         SensitivityState state = new SensitivityState(
                 contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
                 operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
-        stateStatuses.computeIfAbsent(state, SensitivityAnalysisResult.SensitivityStateStatus::new)
-                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, status, statusText);
+        stateStatuses.computeIfAbsent(state, s -> new ArrayList<>())
+                .add(new SensitivityStateStatus.ComponentStatus(connectedComponentNum, synchronousComponentNum, status, statusText));
     }
 }
