@@ -14,6 +14,11 @@ import com.powsybl.iidm.network.Terminal;
  */
 public interface VoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> {
 
+    /**
+     * Sets the target value for the voltage regulation.
+     *
+     * <p>In case of reactive power regulation, this value is defined in the load sign convention.</p>
+     */
     T withTargetValue(double targetValue);
 
     T withTargetDeadband(double targetDeadband);

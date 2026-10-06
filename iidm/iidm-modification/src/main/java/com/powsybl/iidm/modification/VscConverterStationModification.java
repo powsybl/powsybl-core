@@ -44,7 +44,8 @@ public class VscConverterStationModification extends AbstractSetpointModificatio
     @Override
     protected void setReactivePowerSetpoint(VscConverterStation networkElement, Double reactivePowerSetpoint) {
         if (networkElement.getVoltageRegulation() != null && networkElement.isWithMode(RegulationMode.REACTIVE_POWER)) {
-            networkElement.getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
+            // The target value has a load sign convention, so we need to negate it to match the IIDM convention
+            networkElement.getVoltageRegulation().setTargetValue(-reactivePowerSetpoint);
         } else {
             networkElement.setLocalTargetQ(reactivePowerSetpoint);
         }

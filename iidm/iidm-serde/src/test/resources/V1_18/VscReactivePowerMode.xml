@@ -23,7 +23,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:vscConverterStation id="C2" name="Converter2" lossFactor="1.1" node="2" localTargetQ="123.0">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="10.0"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="false">
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="-12.0">
                     <iidm:terminalRef id="C1"/>
                 </iidm:voltageRegulation>
             </iidm:vscConverterStation>
