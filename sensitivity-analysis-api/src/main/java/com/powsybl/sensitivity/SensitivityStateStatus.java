@@ -185,7 +185,7 @@ public class SensitivityStateStatus {
                 context.status = SensitivityAnalysisResult.Status.valueOf(parser.getValueAsString());
                 break;
             case "status":
-                JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
+                JsonUtil.assertEqualToReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
                 parser.nextToken();
                 context.status = SensitivityAnalysisResult.Status.valueOf(parser.getValueAsString());
                 break;
