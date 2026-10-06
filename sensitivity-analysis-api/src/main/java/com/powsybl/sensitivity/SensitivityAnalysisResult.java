@@ -562,7 +562,7 @@ public class SensitivityAnalysisResult {
      *
      * @param state the considered state.
      * @return the associated status.
-     * @deprecated Use {@link SensitivityAnalysisResult#getStateComponentStatus(SensitivityState)} instead.
+     * @deprecated Use {@link SensitivityAnalysisResult#getStateComponentStatuses(SensitivityState)} instead.
      */
     @Deprecated(since = "7.4.0")
     public Status getStateStatus(SensitivityState state) {
@@ -571,12 +571,12 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get the status associated to a state for all components
+     * Get the statuses associated to a state for all components
      *
      * @param state the considered state.
-     * @return the components' status.
+     * @return the components' statuses.
      */
-    public List<SensitivityStateStatus.ComponentStatus> getStateComponentStatus(SensitivityState state) {
+    public List<SensitivityStateStatus.ComponentStatus> getStateComponentStatuses(SensitivityState state) {
         Objects.requireNonNull(state);
         return statusByState.get(state).getComponentsLoadFlowStatusList();
     }
