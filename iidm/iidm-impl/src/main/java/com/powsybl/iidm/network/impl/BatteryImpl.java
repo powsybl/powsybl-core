@@ -98,19 +98,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this.setLocalTargetQ(targetQ);
     }
 
-    /**
-     * <p>This value is defined in the generator convention.</p>
-     * {@inheritDoc}
-     */
     @Override
     public double getLocalTargetQ() {
         return localTargetQ.get(getNetwork().getVariantIndex());
     }
 
-    /**
-     * <p>This value is defined in the generator convention.</p>
-     * {@inheritDoc}
-     */
     @Override
     public Battery setLocalTargetQ(double targetQ) {
         NetworkImpl network = getNetwork();
