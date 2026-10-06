@@ -13,6 +13,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -79,6 +80,33 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
 
+        assertGeneratorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void generatorVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "generator_EQ.xml");
+        readCgmesResources(network, DIR, "generator_SSH.xml");
+
+        assertGeneratorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void generatorVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
+        Generator g2 = network.getGenerator("SM_2");
+        Generator g4 = network.getGenerator("SM_4");
+        setRegulatingFalseAndTargetValueNaN(g2);
+        setRegulatingFalseAndTargetValueNaN(g4);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, DIR, "generator_SSH.xml");
+
+        assertGeneratorVoltageRegulationSsh(network);
+    }
+
+    private void assertGeneratorVoltageRegulationSsh(Network network) {
         // G0: no regulation (not CGMES compliant)
         Generator g0 = network.getGenerator("SM_0");
         assertLocalTargets(g0, 10, Double.NaN);
@@ -174,6 +202,31 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
 
+        assertShuntCompensatorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void shuntCompensatorVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml");
+        readCgmesResources(network, DIR, "shuntCompensator_SSH.xml");
+
+        assertShuntCompensatorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void shuntCompensatorVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
+        ShuntCompensator sc2 = network.getShuntCompensator("LSC_2");
+        setRegulatingFalseAndTargetValueNaN(sc2);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, DIR, "shuntCompensator_SSH.xml");
+
+        assertShuntCompensatorVoltageRegulationSsh(network);
+    }
+
+    private void assertShuntCompensatorVoltageRegulationSsh(Network network) {
         // SC0: no regulation (not CGMES compliant)
         ShuntCompensator sc0 = network.getShuntCompensator("LSC_0");
         assertTrue(Double.isNaN(sc0.getLocalTargetV()));
@@ -248,6 +301,33 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
 
+        assertStaticVarCompensatorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void staticVarCompensatorVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml");
+        readCgmesResources(network, DIR, "staticVarCompensator_SSH.xml");
+
+        assertStaticVarCompensatorVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void staticVarCompensatorVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC_2");
+        setRegulatingFalseAndTargetValueNaN(svc2);
+        StaticVarCompensator svc4 = network.getStaticVarCompensator("SVC_4");
+        setRegulatingFalseAndTargetValueNaN(svc4);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, DIR, "staticVarCompensator_SSH.xml");
+
+        assertStaticVarCompensatorVoltageRegulationSsh(network);
+    }
+
+    private void assertStaticVarCompensatorVoltageRegulationSsh(Network network) {
         // SVC1: local voltage regulation
         StaticVarCompensator svc1 = network.getStaticVarCompensator("SVC_1");
         assertLocalTargets(svc1, 10, 400);
@@ -329,6 +409,37 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
 
+        assertTransformerVoltageRegulation(network);
+    }
+
+    @Test
+    void transformerVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml");
+        readCgmesResources(network, DIR, "transformer_SSH.xml");
+
+        assertTransformerVoltageRegulation(network);
+    }
+
+    @Test
+    void transformerVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+        RatioTapChanger rtc1 = network.getTwoWindingsTransformer("PT2_1").getRatioTapChanger();
+        RatioTapChanger rtc2 = network.getTwoWindingsTransformer("PT2_2").getRatioTapChanger();
+        RatioTapChanger rtc3 = network.getThreeWindingsTransformer("PT3_1").getLeg2().getRatioTapChanger();
+        RatioTapChanger rtc4 = network.getThreeWindingsTransformer("PT3_2").getLeg2().getRatioTapChanger();
+        setRegulatingFalseAndTargetValueNaN(rtc1);
+        setRegulatingFalseAndTargetValueNaN(rtc2);
+        setRegulatingFalseAndTargetValueNaN(rtc3);
+        setRegulatingFalseAndTargetValueNaN(rtc4);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, DIR, "transformer_SSH.xml");
+
+        assertTransformerVoltageRegulation(network);
+    }
+
+    private void assertTransformerVoltageRegulation(Network network) {
         // RTC0: no regulation
         RatioTapChanger rtc0 = network.getTwoWindingsTransformer("PT2_0").getRatioTapChanger();
         assertNotNull(rtc0);
@@ -416,6 +527,37 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
         Network network = readCgmesResources(importParameters, DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
 
+        assertVoltageSourceConverterVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void voltageSourceConverterVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network network = readCgmesResources(importParameters, DIR, "vsConverter_EQ.xml");
+        readCgmesResources(network, importParameters, DIR, "vsConverter_SSH.xml");
+
+        assertVoltageSourceConverterVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void voltageSourceConverterVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network network = readCgmesResources(importParameters, DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
+        VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("VSC_2");
+        VoltageSourceConverter vsc4 = network.getVoltageSourceConverter("VSC_4");
+        setRegulatingFalseAndTargetValueNaN(vsc2);
+        setRegulatingFalseAndTargetValueNaN(vsc4);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, importParameters, DIR, "vsConverter_SSH.xml");
+
+        assertVoltageSourceConverterVoltageRegulationSsh(network);
+    }
+
+    private void assertVoltageSourceConverterVoltageRegulationSsh(Network network) {
         // VSC1: local voltage regulation
         VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("VSC_1");
         assertLocalTargets(vsc1, 22.5, 100);
@@ -500,6 +642,33 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         // Full import: regulation is created with correct targets and enabled.
         Network network = readCgmesResources(DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
 
+        assertVscConverterStationVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void vscConverterStationVoltageRegulationEqThenSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "vsConverter_EQ.xml");
+        readCgmesResources(network, DIR, "vsConverter_SSH.xml");
+
+        assertVscConverterStationVoltageRegulationSsh(network);
+    }
+
+    @Test
+    void vscConverterStationVoltageRegulationEqAndSshAndUpdateSshTest() {
+        // Full import: regulation is created with correct targets and enabled.
+        Network network = readCgmesResources(DIR, "vsConverter_EQ.xml", "vsConverter_SSH.xml");
+        VscConverterStation vsc2 = network.getVscConverterStation("VSC_2");
+        VscConverterStation vsc4 = network.getVscConverterStation("VSC_4");
+        setRegulatingFalseAndTargetValueNaN(vsc2);
+        setRegulatingFalseAndTargetValueNaN(vsc4);
+        // The update must re-enable regulation and restore the target value/deadband from SSH
+        readCgmesResources(network, DIR, "vsConverter_SSH.xml");
+
+        assertVscConverterStationVoltageRegulationSsh(network);
+    }
+
+    private void assertVscConverterStationVoltageRegulationSsh(Network network) {
         // VSC1: local voltage regulation
         VscConverterStation vsc1 = network.getVscConverterStation("VSC_1");
         assertLocalTargets(vsc1, -22.5, 100);
@@ -683,6 +852,11 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertEquals(localTargetQ, getAttribute(vsConverterSsh, "ACDCConverter.q"));
         assertEquals(targetQpcc, getAttribute(vsConverterSsh, "VsConverter.targetQpcc"));
         assertEquals(targetUpcc, getAttribute(vsConverterSsh, "VsConverter.targetUpcc"));
+    }
+
+    private static <T extends VoltageRegulationHolder<T>> void setRegulatingFalseAndTargetValueNaN(VoltageRegulationHolder<T> holder) {
+        holder.getVoltageRegulation().setRegulating(false);
+        holder.getVoltageRegulation().setTargetValue(Double.NaN);
     }
 
 }
