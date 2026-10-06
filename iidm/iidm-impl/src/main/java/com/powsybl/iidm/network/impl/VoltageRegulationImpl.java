@@ -131,12 +131,14 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     private void checkAttributes(VoltageRegulationAttributes newAttributes) {
-        NetworkImpl n = network.get();
-        ValidationUtil.checkVoltageRegulation(validable, newAttributes, n, classHolder,
-            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        if (newAttributes != null) {
+            NetworkImpl n = network.get();
+            ValidationUtil.checkVoltageRegulation(validable, newAttributes, n, classHolder,
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
 
-        if (n.getVariantManager().getVariantCount() > 1 && terminal != newAttributes.terminal()) {
-            throw new PowsyblException(this.validable.getMessageHeader() + "Cannot change terminal when there are multiple variants");
+            if (n.getVariantManager().getVariantCount() > 1 && terminal != newAttributes.terminal()) {
+                throw new PowsyblException(this.validable.getMessageHeader() + "Cannot change terminal when there are multiple variants");
+            }
         }
     }
 

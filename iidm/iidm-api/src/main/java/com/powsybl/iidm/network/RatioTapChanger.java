@@ -84,6 +84,16 @@ public interface RatioTapChanger extends TapChanger<
     RatioTapChanger setTargetV(double targetV);
 
     @Override
+    default double getLocalTargetQ() {
+        return Double.NaN;
+    }
+
+    @Override
+    default RatioTapChanger setLocalTargetQ(double localTargetQ) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     default boolean isRegulating() {
         return VoltageRegulationHolder.super.isRegulating();
     }
