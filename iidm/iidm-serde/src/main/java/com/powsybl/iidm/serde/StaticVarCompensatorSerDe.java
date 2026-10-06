@@ -85,7 +85,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
     private static void writeVoltageSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String voltageSetpointName) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             double voltageSetpoint;
-            if (svc.isWithMode(RegulationMode.VOLTAGE) && svc.hasRegulatingTerminal()) {
+            if (svc.hasRegulatingTerminal() && (svc.isWithMode(RegulationMode.VOLTAGE) || svc.isWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER))) {
                 voltageSetpoint = svc.getVoltageRegulation().getTargetValue();
             } else {
                 voltageSetpoint = svc.getLocalTargetV();
@@ -229,14 +229,11 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                                                                         boolean regulating) {
         adder.setLocalTargetV(voltageSetpoint);
         adder.setLocalTargetQ(reactivePowerSetpoint);
-        if (RegulationMode.VOLTAGE == regulationMode) {
-            adder.newVoltageRegulation()
-                .withMode(regulationMode)
-                .withRegulating(regulating)
-                .add();
-            return voltageSetpoint;
-        }
-        return reactivePowerSetpoint;
+        adder.newVoltageRegulation()
+            .withMode(regulationMode)
+            .withRegulating(regulating)
+            .add();
+        return RegulationMode.VOLTAGE == regulationMode ? voltageSetpoint : reactivePowerSetpoint;
     }
 
     @Override
@@ -245,7 +242,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
             switch (elementName) {
                 case REGULATING_TERMINAL -> {
                     IidmSerDeUtil.assertInBetweenTwoVersions(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED,
-                            IidmVersion.V_1_1, IidmVersion.V_1_16, context);
+                            IidmVersion.V_1_1, IidmVersion.V_1_17, context);
                     VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
                 }
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
