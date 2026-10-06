@@ -539,6 +539,16 @@ public final class JsonUtil {
         }
     }
 
+    public static void assertEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
+        checkVersion(contextName, version);
+        if (compareVersions(version, referenceVersion) != 0) {
+            String exception = String.format(
+                    "%s. %s is not valid for version %s. Version should be == %s %n",
+                    contextName, elementName, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
     public static void checkVersion(String contextName, String version) {
         if (version == null) {
             String exception = String.format(
