@@ -229,19 +229,11 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                                                                         boolean regulating) {
         adder.setLocalTargetV(voltageSetpoint);
         adder.setLocalTargetQ(reactivePowerSetpoint);
-        if (RegulationMode.VOLTAGE == regulationMode) {
-            adder.newVoltageRegulation()
-                .withMode(regulationMode)
-                .withRegulating(regulating)
-                .add();
-            return voltageSetpoint;
-        } else {
-            adder.newVoltageRegulation()
-                    .withMode(regulationMode)
-                    .withRegulating(regulating)
-                    .add();
-        }
-        return reactivePowerSetpoint;
+        adder.newVoltageRegulation()
+            .withMode(regulationMode)
+            .withRegulating(regulating)
+            .add();
+        return RegulationMode.VOLTAGE == regulationMode ? voltageSetpoint : reactivePowerSetpoint;
     }
 
     @Override
