@@ -352,17 +352,13 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         SensitivityValue value9 = new SensitivityValue(8, -1, -1, 13d, 14d);
         List<SensitivityValue> values = List.of(value1, value2, value3, value4, value5, value6, value7, value8, value9);
 
-        List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
+        Contingency contingency = new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2"));
         List<SensitivityStateStatus> stateStatuses = new ArrayList<>();
-        contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
-                SensitivityState.postContingency(c.getId()), List.of(
-                        new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
-        contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
-                new SensitivityState(c.getId(), "op1"), List.of(
-                new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
-        List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
-        List<String> operatorStrategyIds = Collections.emptyList();
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
+        stateStatuses.add(new SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()),
+                List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, ""))));
+        stateStatuses.add(new SensitivityStateStatus(new SensitivityState(contingency.getId(), "op1"),
+                List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, ""))));
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, List.of(contingency.getId()), List.of("op1"), values);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.2.json");

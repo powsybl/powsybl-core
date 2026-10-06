@@ -122,5 +122,5 @@
     } ]
   } ],
   "contingencyIds" : [ "NHV1_NHV2_2" ],
-  "operatorStrategyIds" : [ ]
+  "operatorStrategyIds" : [ "op1" ]
 }
