@@ -134,18 +134,14 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
      * <p>This value is defined in the generator sign convention.</p>
      */
     @Override
-    default double getLocalTargetQ() {
-        return VoltageRegulationHolder.super.getLocalTargetQ();
-    }
+    double getLocalTargetQ();
 
     /**
      * {@inheritDoc}
      * <p>This value is defined in the generator sign convention.</p>
      */
     @Override
-    default Battery setLocalTargetQ(double targetQ) {
-        return VoltageRegulationHolder.super.setLocalTargetQ(targetQ);
-    }
+    Battery setLocalTargetQ(double targetQ);
 
     /**
      * Get the minimal active power in MW.

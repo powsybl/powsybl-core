@@ -210,18 +210,14 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>This value is defined in the load sign convention.</p>
      */
     @Override
-    default double getLocalTargetQ() {
-        return VoltageRegulationHolder.super.getLocalTargetQ();
-    }
+    double getLocalTargetQ();
 
     /**
      * {@inheritDoc}
      * <p>This value is defined in the load sign convention.</p>
      */
     @Override
-    default StaticVarCompensator setLocalTargetQ(double targetQ) {
-        return VoltageRegulationHolder.super.setLocalTargetQ(targetQ);
-    }
+    StaticVarCompensator setLocalTargetQ(double targetQ);
 
     @Override
     default IdentifiableType getType() {

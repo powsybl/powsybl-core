@@ -140,17 +140,13 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * <p>This value is defined in the generator sign convention.</p>
      */
     @Override
-    default double getLocalTargetQ() {
-        return VoltageRegulationHolder.super.getLocalTargetQ();
-    }
+    double getLocalTargetQ();
 
     /**
      * {@inheritDoc}
      * <p>This value is defined in the generator sign convention.</p>
      */
     @Override
-    default VscConverterStation setLocalTargetQ(double targetQ) {
-        return VoltageRegulationHolder.super.setLocalTargetQ(targetQ);
-    }
+    VscConverterStation setLocalTargetQ(double targetQ);
 
 }

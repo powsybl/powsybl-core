@@ -75,18 +75,14 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * @return the current instance for method chaining
      * @see VariantManager
      */
-    default T setLocalTargetQ(double localTargetQ) {
-        throw new UnsupportedOperationException();
-    }
+    T setLocalTargetQ(double localTargetQ);
 
     /**
      * Gets the target reactive power value
      *
      * @return the target reactive power value, or Double.NaN if not applicable
      */
-    default double getLocalTargetQ() {
-        return Double.NaN;
-    }
+    double getLocalTargetQ();
 
     /**
      * Checks if the object is associated with the specified regulation mode.

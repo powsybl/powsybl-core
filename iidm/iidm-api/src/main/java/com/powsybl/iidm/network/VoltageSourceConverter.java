@@ -195,17 +195,13 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * <p>This value is defined in the load sign convention.</p>
      */
     @Override
-    default double getLocalTargetQ() {
-        return VoltageRegulationHolder.super.getLocalTargetQ();
-    }
+    double getLocalTargetQ();
 
     /**
      * {@inheritDoc}
      * <p>This value is defined in the load sign convention.</p>
      */
     @Override
-    default VoltageSourceConverter setLocalTargetQ(double targetQ) {
-        return VoltageRegulationHolder.super.setLocalTargetQ(targetQ);
-    }
+    VoltageSourceConverter setLocalTargetQ(double targetQ);
 
 }
