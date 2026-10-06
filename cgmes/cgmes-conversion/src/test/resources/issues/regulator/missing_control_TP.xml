@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20">
+        <md:Model.created>2014-10-24T11:42:40</md:Model.created>
+        <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.description>CGMES Conformity Assessment: 'MicroGridTestConfiguration....BC (MAS BE) Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+    </md:FullModel>
+    <cim:TopologicalNode rdf:ID="_e44141af-f1dc-44d3-bfa4-b674e5c953d7">
+        <cim:IdentifiedObject.name>BE_TR_BUS2</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_35cf638d-9a9d-4ae5-ae90-2f01ef898cb6"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_469df5f7-058f-4451-a998-57a48e8a56fe"/>
+    </cim:TopologicalNode>
+    <cim:TopologicalNode rdf:ID="_99b219f3-4593-428b-a4da-124a54630178">
+        <cim:IdentifiedObject.name>BE_TR_BUS4</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_63893f24-5b4e-407c-9a1e-4ff71121f33c"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c"/>
+    </cim:TopologicalNode>
+    <cim:TopologicalNode rdf:ID="_5c74cb26-ce2f-40c6-951d-89091eb781b6">
+        <cim:IdentifiedObject.name>BE-Busbar_6</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-B_6</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.description>BBRUS151; BGENT_51</cim:IdentifiedObject.description>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_00b17311-075f-48f6-a79b-597f42af4694"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0"/>
+    </cim:TopologicalNode>
+    <cim:TopologicalNode rdf:ID="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e">
+        <cim:IdentifiedObject.name>BE-Busbar_4</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-B_4</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.description>BGENT_71; This is the old UCTE code from UCTE DEF</cim:IdentifiedObject.description>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_862a4658-6b03-4550-9de2-b5c413912b75"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386"/>
+    </cim:TopologicalNode>
+    <cim:Terminal rdf:about="#_c3774d3f-f48c-4954-a0cf-b4572eb714fd">
+        <cim:Terminal.TopologicalNode rdf:resource="#_e44141af-f1dc-44d3-bfa4-b674e5c953d7"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_2cd21c77-b8b1-4896-95fb-240f45b9ac89">
+        <cim:Terminal.TopologicalNode rdf:resource="#_5c74cb26-ce2f-40c6-951d-89091eb781b6"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_4c19ace6-c825-4c5b-87d9-031e6e6a3379">
+        <cim:Terminal.TopologicalNode rdf:resource="#_99b219f3-4593-428b-a4da-124a54630178"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ab7ece75-d726-48c8-a924-b0a9325e6d51">
+        <cim:Terminal.TopologicalNode rdf:resource="#_5c74cb26-ce2f-40c6-951d-89091eb781b6"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_beffa353-7d10-421d-9c08-036b744b1cee">
+        <cim:Terminal.TopologicalNode rdf:resource="#_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e"/>
+    </cim:Terminal>
+</rdf:RDF>

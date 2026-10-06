@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:806f9f1b-ff69-4fb5-80f9-a8f393d31ebb">
+        <md:Model.created>2014-10-24T16:53:10</md:Model.created>
+        <md:Model.scenarioTime>2014-03-28T10:13:02</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.description>Static var compensator with an invalid control mode</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://ELIA/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+        <md:Model.Supersedes rdf:resource="urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20"/>
+    </md:FullModel>
+    <cim:TopologicalNode rdf:ID="_f70f6bad-eb8d-4b8f-8431-4ab93581514e">
+        <cim:IdentifiedObject.name>BE-Busbar_2</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-B_2</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.description>BBRUS_21; this is UCTE code</cim:IdentifiedObject.description>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_63893f24-5b4e-407c-9a1e-4ff71121f33c"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_d0486169-2205-40b2-895e-b672ecb9e5fc"/>
+    </cim:TopologicalNode>
+    <cim:Terminal rdf:about="#_67bb74f1-8620-4a32-9d7d-a44092d11d22">
+        <cim:Terminal.TopologicalNode rdf:resource="#_f70f6bad-eb8d-4b8f-8431-4ab93581514e"/>
+    </cim:Terminal>
+</rdf:RDF>

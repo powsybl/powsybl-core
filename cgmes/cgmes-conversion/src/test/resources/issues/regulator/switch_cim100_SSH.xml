@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:3a2a0416-c6a8-49a9-9f23-b8ec7cb29bae">
+        <md:Model.created>2021-02-09T19:28:14Z</md:Model.created>
+        <md:Model.scenarioTime>2021-02-09T19:30:00Z</md:Model.scenarioTime>
+        <md:Model.description>Regulating terminals connected through switches</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://elia.be/CGMES</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+        <md:Model.version>5</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:9e7050a8-960b-4e1a-8e34-7f56bc2b2a7b"/>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_2cd21c77-b8b1-4896-95fb-240f45b9ac89">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>2cd21c77-b8b1-4896-95fb-240f45b9ac89</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_c3774d3f-f48c-4954-a0cf-b4572eb714fd">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>c3774d3f-f48c-4954-a0cf-b4572eb714fd</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_f392d0d3-47cb-4ec1-925f-b3762d4a787c">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>f392d0d3-47cb-4ec1-925f-b3762d4a787c</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_b3bf6cbd-abe8-42b6-95f4-20682475b484">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>b3bf6cbd-abe8-42b6-95f4-20682475b484</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_4bb5407b-b4a5-416c-80ad-1a778ada2b9b">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>4bb5407b-b4a5-416c-80ad-1a778ada2b9b</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_95f1d705-35fa-4102-ba5b-43dfe7a0e0cc">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>95f1d705-35fa-4102-ba5b-43dfe7a0e0cc</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_9f5dbaf3-e384-4e86-9d49-f43c30b4e354">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>9f5dbaf3-e384-4e86-9d49-f43c30b4e354</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_a1b46f53-86f1-497e-bf57-c3b6268bcd6c">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>a1b46f53-86f1-497e-bf57-c3b6268bcd6c</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:about="#_84bf5be8-eb59-4555-b131-fce4d2d7775d">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>21.987</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:IdentifiedObject.mRID>84bf5be8-eb59-4555-b131-fce4d2d7775d</cim:IdentifiedObject.mRID>
+    </cim:RegulatingControl>
+    <cim:SynchronousMachine rdf:about="#_550ebe0d-f2b2-48c1-991f-cebea43a21aa">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-118</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>-18.7203</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineOperatingMode.generator"/>
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+        <cim:IdentifiedObject.mRID>550ebe0d-f2b2-48c1-991f-cebea43a21aa</cim:IdentifiedObject.mRID>
+    </cim:SynchronousMachine>
+    <cim:GeneratingUnit rdf:about="#_5b7a4d43-09ec-4033-882d-64a76d557631">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:GeneratingUnit.normalPF>0</cim:GeneratingUnit.normalPF>
+        <cim:IdentifiedObject.mRID>5b7a4d43-09ec-4033-882d-64a76d557631</cim:IdentifiedObject.mRID>
+    </cim:GeneratingUnit>
+    <cim:TapChangerControl rdf:about="#_f43499bf-6bf3-483d-ae2a-e46d696a66b2">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetDeadband>1.625</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValue>-65</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.M"/>
+        <cim:IdentifiedObject.mRID>f43499bf-6bf3-483d-ae2a-e46d696a66b2</cim:IdentifiedObject.mRID>
+    </cim:TapChangerControl>
+    <cim:PhaseTapChangerSymmetrical rdf:about="#_63454a73-f439-45bb-951a-e7b193986571">
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+        <cim:TapChanger.step>10</cim:TapChanger.step>
+        <cim:IdentifiedObject.mRID>63454a73-f439-45bb-951a-e7b193986571</cim:IdentifiedObject.mRID>
+    </cim:PhaseTapChangerSymmetrical>
+    <cim:Breaker rdf:about="#_969470b9-e74c-40d2-b3f7-bcfd88400fd1">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:Switch.open>false</cim:Switch.open>
+        <cim:IdentifiedObject.mRID>969470b9-e74c-40d2-b3f7-bcfd88400fd1</cim:IdentifiedObject.mRID>
+        <cim:Switch.locked>false</cim:Switch.locked>
+    </cim:Breaker>
+    <cim:Breaker rdf:about="#_38dfcc80-600f-44e2-8f71-fb595b4f00ac">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:Switch.open>false</cim:Switch.open>
+        <cim:IdentifiedObject.mRID>38dfcc80-600f-44e2-8f71-fb595b4f00ac</cim:IdentifiedObject.mRID>
+        <cim:Switch.locked>false</cim:Switch.locked>
+    </cim:Breaker>
+    <cim:Equipment rdf:about="#_364c9ca2-0d1d-4363-8f46-e586f8f66a8c">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:IdentifiedObject.mRID>364c9ca2-0d1d-4363-8f46-e586f8f66a8c</cim:IdentifiedObject.mRID>
+    </cim:Equipment>
+    <cim:Equipment rdf:about="#_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:IdentifiedObject.mRID>a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</cim:IdentifiedObject.mRID>
+    </cim:Equipment>
+</rdf:RDF>
