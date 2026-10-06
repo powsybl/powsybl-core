@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:2399cbd7-9a39-11e0-aa80-0800200c9a66_EU">
+        <md:Model.scenarioTime>2030-01-02T09:00:00</md:Model.scenarioTime>
+        <md:Model.created>2014-10-22T09:01:25.830</md:Model.created>
+        <md:Model.description>CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E &quot;as it is&quot;. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+        <md:Model.version>4</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>http://A1.de/Planning/ENTSOE/2</md:Model.modelingAuthoritySet>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd2-9a39-11e0-aa80-0800200c9a66_EU"/>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_82611054-72b9-4cb0-8621-e418b8962cb1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_eb8ed3e6-c0de-47e2-9dd5-52b321d51b70">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_e59d3a8c-8382-413a-95ae-6354dfe85565">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_5af3b857-165c-4f96-b415-0d6e2e9ca27f">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_1dfffea9-1fac-48f1-b466-1312643f3a47">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_d5b02a21-e6f5-441c-81f2-4accb1a56ddd">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_01a240e9-5607-4844-9d53-5c8b08b5c9a8">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:RatioTapChanger rdf:about="#_0522ca48-e644-4d3a-9721-22bb0abd1c8b">
+        <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
+        <cim:TapChanger.step>13</cim:TapChanger.step>
+    </cim:RatioTapChanger>
+    <cim:RatioTapChanger rdf:about="#_8de2d157-15d1-42c7-b376-a8ae5b6c0e77">
+        <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
+        <cim:TapChanger.step>17</cim:TapChanger.step>
+    </cim:RatioTapChanger>
+    <cim:RatioTapChanger rdf:about="#_4a8a5456-91ac-4bc9-b8e2-64eeeef78a1a">
+        <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
+        <cim:TapChanger.step>17</cim:TapChanger.step>
+    </cim:RatioTapChanger>
+    <cim:RegulatingControl rdf:about="#RATIO_TAP_CONTROL">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetDeadband>0</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValue>21.0</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+    </cim:RegulatingControl>
+    <cim:RegulatingControl rdf:about="#RATIO_TAP_CONTROL_T3">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetDeadband>0</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValue>30.0</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+    </cim:RegulatingControl>
+</rdf:RDF>

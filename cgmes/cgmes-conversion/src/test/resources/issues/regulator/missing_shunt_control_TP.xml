@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20">
+        <md:Model.created>2014-10-24T11:42:40</md:Model.created>
+        <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.description>CGMES Conformity Assessment: 'MicroGridTestConfiguration....BC (MAS BE) Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+    </md:FullModel>
+    <cim:TopologicalNode rdf:ID="_5c74cb26-ce2f-40c6-951d-89091eb781b6">
+        <cim:IdentifiedObject.name>BE-Busbar_6</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-B_6</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.description>BBRUS151; BGENT_51</cim:IdentifiedObject.description>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_00b17311-075f-48f6-a79b-597f42af4694"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0"/>
+    </cim:TopologicalNode>
+    <cim:Terminal rdf:about="#_d5e2e58e-ccf6-47d9-b3bb-3088eb7a9b6c">
+        <cim:Terminal.TopologicalNode rdf:resource="#_5c74cb26-ce2f-40c6-951d-89091eb781b6"/>
+    </cim:Terminal>
+</rdf:RDF>

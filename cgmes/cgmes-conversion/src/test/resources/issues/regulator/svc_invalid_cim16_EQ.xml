@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79">
+        <md:Model.created>2014-10-24T16:53:10</md:Model.created>
+        <md:Model.scenarioTime>2014-03-28T10:13:02</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.description>Static var compensator with an invalid control mode</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://ELIA/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentShortCircuit/3/1</md:Model.profile>
+        <md:Model.Supersedes rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73"/>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="_c1d5bfc68f8011e08e4d00247eb1f55e">
+        <cim:IdentifiedObject.name>BE</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:RegulatingControl rdf:ID="_caf65447-3cfb-48d7-aaaa-cd9af3d34261">
+        <cim:IdentifiedObject.name>SVC-1230797516</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.badMode"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_67bb74f1-8620-4a32-9d7d-a44092d11d22"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_3c69652c-ff14-4550-9a87-b6fdaccbb5f4">
+        <cim:IdentifiedObject.name>SVC-1230797516</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_d0486169-2205-40b2-895e-b672ecb9e5fc"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.500000</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.500000</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102000</cim:StaticVarCompensator.slope>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>229.500000</cim:StaticVarCompensator.voltageSetPoint>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_caf65447-3cfb-48d7-aaaa-cd9af3d34261"/>
+    </cim:StaticVarCompensator>
+    <cim:SubGeographicalRegion rdf:ID="_c1d5c0378f8011e08e4d00247eb1f55e">
+        <cim:IdentifiedObject.name>ELIA-Anvers</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_c1d5bfc68f8011e08e4d00247eb1f55e"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_87f7002b-056f-4a6a-a872-1744eea757e3">
+        <cim:IdentifiedObject.name>Anvers</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>Anvers</entsoe:IdentifiedObject.shortName>
+        <cim:Substation.Region rdf:resource="#_c1d5c0378f8011e08e4d00247eb1f55e"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_63893f24-5b4e-407c-9a1e-4ff71121f33c">
+        <cim:BaseVoltage.nominalVoltage>220</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:Terminal rdf:ID="_67bb74f1-8620-4a32-9d7d-a44092d11d22">
+        <cim:IdentifiedObject.name>SVC-1230797516 - T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_3c69652c-ff14-4550-9a87-b6fdaccbb5f4"/>
+    </cim:Terminal>
+    <cim:VoltageLevel rdf:ID="_d0486169-2205-40b2-895e-b672ecb9e5fc">
+        <cim:IdentifiedObject.name>220.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.lowVoltageLimit>202.500000</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.highVoltageLimit>247.500000</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_87f7002b-056f-4a6a-a872-1744eea757e3"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_63893f24-5b4e-407c-9a1e-4ff71121f33c"/>
+    </cim:VoltageLevel>
+</rdf:RDF>

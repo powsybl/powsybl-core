@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:2399cbd4-9a39-11e0-aa80-0800200c9a66_EU">
+        <md:Model.scenarioTime>2030-01-02T09:00:00</md:Model.scenarioTime>
+        <md:Model.created>2014-10-22T09:01:25.830</md:Model.created>
+        <md:Model.description>Three-winding transformer with two regulating controls</md:Model.description>
+        <md:Model.version>4</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>http://A1.de/Planning/ENTSOE/2</md:Model.modelingAuthoritySet>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd2-9a39-11e0-aa80-0800200c9a66_EU"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"/>
+    </md:FullModel>
+    <cim:TopologicalNode rdf:ID="_adee76cd-b2b9-48ac-8fd4-0d205a435f59">
+        <cim:IdentifiedObject.description>Node-1</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_5d9d9d87-ce6b-4213-b4ec-d50de9790a59"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_ed2bd589-b6d9-42bd-82fc-0b895e8707b1"/>
+    </cim:TopologicalNode>
+    <cim:TopologicalNode rdf:ID="_87c0d153-e308-4b2b-92a4-4fad53ab1ff9">
+        <cim:IdentifiedObject.description>Node-2</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>8</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_93778e52-3fd5-456d-8b10-987c3e6bc47e"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_b2a3e748-1772-409d-a61f-1d6da09564c9"/>
+    </cim:TopologicalNode>
+    <cim:TopologicalNode rdf:ID="_b3d3b4ad-02af-4490-8748-70f6c9a23734">
+        <cim:IdentifiedObject.description>Node-3</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>2</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_cd28a27e-8b17-4f23-b9f5-03b6de15203f"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_a7363e0b-e9ed-424e-8984-6e74823307aa"/>
+    </cim:TopologicalNode>
+    <cim:Terminal rdf:about="#_1dfffea9-1fac-48f1-b466-1312643f3a47">
+        <cim:Terminal.TopologicalNode rdf:resource="#_adee76cd-b2b9-48ac-8fd4-0d205a435f59"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_d5b02a21-e6f5-441c-81f2-4accb1a56ddd">
+        <cim:Terminal.TopologicalNode rdf:resource="#_b3d3b4ad-02af-4490-8748-70f6c9a23734"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_01a240e9-5607-4844-9d53-5c8b08b5c9a8">
+        <cim:Terminal.TopologicalNode rdf:resource="#_87c0d153-e308-4b2b-92a4-4fad53ab1ff9"/>
+    </cim:Terminal>
+</rdf:RDF>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:svc-SSH">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Static var compensator regulation cases</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_T_BBS">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_BASE">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_INVALID_MODE">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_REACTIVE">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_OFF">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_OFF_229">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_OFF_231">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_NO_CONTROL">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SVC_NO_REACTIVE_CONTROL">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:StaticVarCompensator rdf:about="#_SVC_BASE">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:StaticVarCompensator.q>0</cim:StaticVarCompensator.q>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_RC_BASE">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>229.5</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:about="#_SVC_INVALID_MODE">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_RC_INVALID_MODE">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>229.5</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:about="#_SVC_REACTIVE">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_RC_REACTIVE">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>229.5</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:about="#_SVC_OFF">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+        <cim:StaticVarCompensator.q>0</cim:StaticVarCompensator.q>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_RC_OFF">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>229.5</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:about="#_SVC_OFF_229">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+        <cim:StaticVarCompensator.q>0</cim:StaticVarCompensator.q>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_RC_OFF_229">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>229.5</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:about="#_SVC_OFF_231">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_RC_OFF_231">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.5</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>231.123</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:about="#_SVC_NO_REACTIVE_CONTROL">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:StaticVarCompensator.q>0</cim:StaticVarCompensator.q>
+    </cim:StaticVarCompensator>
+</rdf:RDF>

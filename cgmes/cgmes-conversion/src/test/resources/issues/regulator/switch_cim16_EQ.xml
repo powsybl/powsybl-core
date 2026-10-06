@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2014-10-24T11:42:40</md:Model.created>
+        <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.description>Regulating terminals connected through switches</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentShortCircuit/3/1</md:Model.profile>
+    </md:FullModel>
+    <cim:BaseVoltage rdf:ID="_00b17311-075f-48f6-a79b-597f42af4694">
+        <cim:BaseVoltage.nominalVoltage>110.00</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.description>Base Voltage Level</cim:IdentifiedObject.description>
+        <entsoe:IdentifiedObject.shortName>110.00</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.name>110.00 kV</cim:IdentifiedObject.name>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_1cefd53a-79bd-4ad4-aa9a-5a4ad0191ce2">
+        <cim:BaseVoltage.nominalVoltage>21.00</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.description>Base Voltage Level</cim:IdentifiedObject.description>
+        <entsoe:IdentifiedObject.shortName>21.00</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.name>21.00 kV</cim:IdentifiedObject.name>
+    </cim:BaseVoltage>
+    <cim:BusbarSection rdf:ID="_364c9ca2-0d1d-4363-8f46-e586f8f66a8c">
+        <cim:IdentifiedObject.name>BE-Busbar_6</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0"/>
+        <cim:BusbarSection.ipMax>5000.000000</cim:BusbarSection.ipMax>
+    </cim:BusbarSection>
+    <cim:GeneratingUnit rdf:ID="_5b7a4d43-09ec-4033-882d-64a76d557631">
+        <cim:IdentifiedObject.name>Gen-1229753024</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Machine</cim:IdentifiedObject.description>
+        <cim:GeneratingUnit.initialP>118.000000</cim:GeneratingUnit.initialP>
+        <cim:GeneratingUnit.nominalP>255.000000</cim:GeneratingUnit.nominalP>
+        <cim:GeneratingUnit.maxOperatingP>200.000000</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.minOperatingP>50.000000</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.genControlSource rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#GeneratorControlSource.offAGC"/>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+    </cim:GeneratingUnit>
+    <cim:GeographicalRegion rdf:ID="_c1d5bfc68f8011e08e4d00247eb1f55e">
+        <cim:IdentifiedObject.name>BE</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:PhaseTapChangerAsymmetrical rdf:ID="_6ebbef67-3061-4236-a6fd-6ccc4595f6c3">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
+        <cim:TapChanger.neutralU>400.000000</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>10</cim:TapChanger.normalStep>
+        <cim:PhaseTapChangerNonLinear.voltageStepIncrement>1.250000</cim:PhaseTapChangerNonLinear.voltageStepIncrement>
+        <cim:PhaseTapChangerNonLinear.xMin>14.518904</cim:PhaseTapChangerNonLinear.xMin>
+        <cim:PhaseTapChangerNonLinear.xMax>14.518904</cim:PhaseTapChangerNonLinear.xMax>
+        <cim:PhaseTapChangerAsymmetrical.windingConnectionAngle>90.000000</cim:PhaseTapChangerAsymmetrical.windingConnectionAngle>
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#_49ca3fd4-1b54-4c5b-83fd-4dbd0f9fec9d"/>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_5fc492ab-fe33-423b-84f1-a47f87552427"/>
+    </cim:PhaseTapChangerAsymmetrical>
+    <cim:PowerTransformer rdf:ID="_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.description>T1 that is after maintenance</cim:IdentifiedObject.description>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+        <cim:PowerTransformer.beforeShCircuitHighestOperatingVoltage>0e+000</cim:PowerTransformer.beforeShCircuitHighestOperatingVoltage>
+        <cim:PowerTransformer.beforeShCircuitHighestOperatingCurrent>0e+000</cim:PowerTransformer.beforeShCircuitHighestOperatingCurrent>
+        <cim:PowerTransformer.beforeShortCircuitAnglePf>0e+000</cim:PowerTransformer.beforeShortCircuitAnglePf>
+        <cim:PowerTransformer.highSideMinOperatingU>0e+000</cim:PowerTransformer.highSideMinOperatingU>
+        <cim:PowerTransformer.isPartOfGeneratorUnit>false</cim:PowerTransformer.isPartOfGeneratorUnit>
+        <cim:PowerTransformer.operationalValuesConsidered>false</cim:PowerTransformer.operationalValuesConsidered>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="_49ca3fd4-1b54-4c5b-83fd-4dbd0f9fec9d">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
+        <cim:PowerTransformerEnd.r>2.707692</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>14.518904</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.g>0.0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.r0>2.720000</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x0>14.516604</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.b0>0.0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.g0>0.0</cim:PowerTransformerEnd.g0>
+        <cim:TransformerEnd.rground>0e+000</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.xground>0.0</cim:TransformerEnd.xground>
+        <cim:PowerTransformerEnd.ratedS>650.000000</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>400.000000</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Y"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_35cf638d-9a9d-4ae5-ae90-2f01ef898cb6"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_c3774d3f-f48c-4954-a0cf-b4572eb714fd"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="_1912224a-9e98-41aa-84cf-00875bce7264">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
+        <cim:PowerTransformerEnd.r>0e+000</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>0e+000</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.g>0.0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.r0>0e+000</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x0>0e+000</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.b0>0.0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.g0>0.0</cim:PowerTransformerEnd.g0>
+        <cim:TransformerEnd.rground>0e+000</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.xground>0.0</cim:TransformerEnd.xground>
+        <cim:PowerTransformerEnd.ratedS>650.000000</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>110.000000</cim:PowerTransformerEnd.ratedU>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Y"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_00b17311-075f-48f6-a79b-597f42af4694"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_2cd21c77-b8b1-4896-95fb-240f45b9ac89"/>
+    </cim:PowerTransformerEnd>
+    <cim:RegulatingControl rdf:ID="_84bf5be8-eb59-4555-b131-fce4d2d7775d">
+        <cim:IdentifiedObject.name>BE-G2</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-G2</entsoe:IdentifiedObject.shortName>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_f392d0d3-47cb-4ec1-925f-b3762d4a787c"/>
+    </cim:RegulatingControl>
+    <cim:SubGeographicalRegion rdf:ID="_c1d5bfc88f8011e08e4d00247eb1f55e">
+        <cim:IdentifiedObject.name>ELIA-Brussels</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_c1d5bfc68f8011e08e4d00247eb1f55e"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_37e14a0f-5e34-4647-a062-8bfd9305fa9d">
+        <cim:IdentifiedObject.name>PP_Brussels</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>PP_Brussels</entsoe:IdentifiedObject.shortName>
+        <cim:Substation.Region rdf:resource="#_c1d5bfc88f8011e08e4d00247eb1f55e"/>
+    </cim:Substation>
+    <cim:SynchronousMachine rdf:ID="_550ebe0d-f2b2-48c1-991f-cebea43a21aa">
+        <cim:IdentifiedObject.name>BE-G2</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-G2</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.description>Machine</cim:IdentifiedObject.description>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_929ba893-c9dc-44d7-b1fd-30834bd3ab85"/>
+        <cim:SynchronousMachine.qPercent>100.000000</cim:SynchronousMachine.qPercent>
+        <cim:SynchronousMachine.maxQ>200.000000</cim:SynchronousMachine.maxQ>
+        <cim:SynchronousMachine.minQ>-200.000000</cim:SynchronousMachine.minQ>
+        <cim:RotatingMachine.ratedS>300.000000</cim:RotatingMachine.ratedS>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_84bf5be8-eb59-4555-b131-fce4d2d7775d"/>
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_5b7a4d43-09ec-4033-882d-64a76d557631"/>
+        <cim:RotatingMachine.ratedU>21.000000</cim:RotatingMachine.ratedU>
+        <cim:RotatingMachine.ratedPowerFactor>0.850000</cim:RotatingMachine.ratedPowerFactor>
+        <cim:SynchronousMachine.shortCircuitRotorType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#ShortCircuitRotorKind.turboSeries1"/>
+        <cim:SynchronousMachine.r0>0e+000</cim:SynchronousMachine.r0>
+        <cim:SynchronousMachine.r2>0e+000</cim:SynchronousMachine.r2>
+        <cim:SynchronousMachine.x0>0.130000</cim:SynchronousMachine.x0>
+        <cim:SynchronousMachine.x2>0.170000</cim:SynchronousMachine.x2>
+        <cim:SynchronousMachine.earthingStarPointR>0e+000</cim:SynchronousMachine.earthingStarPointR>
+        <cim:SynchronousMachine.earthingStarPointX>0e+000</cim:SynchronousMachine.earthingStarPointX>
+        <cim:SynchronousMachine.r>0e+000</cim:SynchronousMachine.r>
+        <cim:SynchronousMachine.satDirectSubtransX>0.200000</cim:SynchronousMachine.satDirectSubtransX>
+        <cim:SynchronousMachine.satDirectSyncX>2.000000</cim:SynchronousMachine.satDirectSyncX>
+        <cim:SynchronousMachine.satDirectTransX>0e+000</cim:SynchronousMachine.satDirectTransX>
+        <cim:SynchronousMachine.mu>0e+000</cim:SynchronousMachine.mu>
+        <cim:SynchronousMachine.ikk>0e+000</cim:SynchronousMachine.ikk>
+        <cim:SynchronousMachine.voltageRegulationRange>0e+000</cim:SynchronousMachine.voltageRegulationRange>
+        <cim:SynchronousMachine.earthing>true</cim:SynchronousMachine.earthing>
+    </cim:SynchronousMachine>
+    <cim:TapChangerControl rdf:ID="_5fc492ab-fe33-423b-84f1-a47f87552427">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.activePower"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_95f1d705-35fa-4102-ba5b-43dfe7a0e0cc"/>
+    </cim:TapChangerControl>
+    <cim:Terminal rdf:ID="_a1b46f53-86f1-497e-bf57-c3b6268bcd6c">
+        <cim:IdentifiedObject.name>BE-Busbar_6_Busbar_Section</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BB</entsoe:IdentifiedObject.shortName>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_364c9ca2-0d1d-4363-8f46-e586f8f66a8c"/>
+        <cim:IdentifiedObject.description>Busbar Section</cim:IdentifiedObject.description>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_4bb5407b-b4a5-416c-80ad-1a778ada2b9b">
+        <cim:IdentifiedObject.name>BE-G2 - T1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-G2</entsoe:IdentifiedObject.shortName>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_550ebe0d-f2b2-48c1-991f-cebea43a21aa"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_c3774d3f-f48c-4954-a0cf-b4572eb714fd">
+        <cim:IdentifiedObject.name>BE-TR2_1 - T1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_2cd21c77-b8b1-4896-95fb-240f45b9ac89">
+        <cim:IdentifiedObject.name>BE-TR2_1 - T2</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0"/>
+    </cim:Terminal>
+    <cim:VoltageLevel rdf:ID="_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0">
+        <cim:IdentifiedObject.name>110.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.lowVoltageLimit>99.000000</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.highVoltageLimit>121.000000</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_00b17311-075f-48f6-a79b-597f42af4694"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_929ba893-c9dc-44d7-b1fd-30834bd3ab85">
+        <cim:IdentifiedObject.name>21.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.lowVoltageLimit>18.900000</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.highVoltageLimit>23.100000</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_1cefd53a-79bd-4ad4-aa9a-5a4ad0191ce2"/>
+    </cim:VoltageLevel>
+    <cim:Breaker rdf:ID="_38dfcc80-600f-44e2-8f71-fb595b4f00ac">
+        <cim:IdentifiedObject.name>BE_Breaker_1</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+        <cim:IdentifiedObject.mRID>38dfcc80-600f-44e2-8f71-fb595b4f00ac</cim:IdentifiedObject.mRID>
+    </cim:Breaker>
+    <cim:Terminal rdf:ID="_9f5dbaf3-e384-4e86-9d49-f43c30b4e354">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_38dfcc80-600f-44e2-8f71-fb595b4f00ac"/>
+        <cim:IdentifiedObject.mRID>9f5dbaf3-e384-4e86-9d49-f43c30b4e354</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_95f1d705-35fa-4102-ba5b-43dfe7a0e0cc">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_38dfcc80-600f-44e2-8f71-fb595b4f00ac"/>
+        <cim:IdentifiedObject.mRID>95f1d705-35fa-4102-ba5b-43dfe7a0e0cc</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Breaker rdf:ID="_969470b9-e74c-40d2-b3f7-bcfd88400fd1">
+        <cim:IdentifiedObject.name>BE_Breaker_10</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_929ba893-c9dc-44d7-b1fd-30834bd3ab85"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+        <cim:IdentifiedObject.mRID>969470b9-e74c-40d2-b3f7-bcfd88400fd1</cim:IdentifiedObject.mRID>
+    </cim:Breaker>
+    <cim:Terminal rdf:ID="_f392d0d3-47cb-4ec1-925f-b3762d4a787c">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_969470b9-e74c-40d2-b3f7-bcfd88400fd1"/>
+        <cim:IdentifiedObject.mRID>f392d0d3-47cb-4ec1-925f-b3762d4a787c</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_b3bf6cbd-abe8-42b6-95f4-20682475b484">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_969470b9-e74c-40d2-b3f7-bcfd88400fd1"/>
+        <cim:IdentifiedObject.mRID>b3bf6cbd-abe8-42b6-95f4-20682475b484</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:BaseVoltage rdf:ID="_35cf638d-9a9d-4ae5-ae90-2f01ef898cb6">
+        <cim:IdentifiedObject.description>Base Voltage 380 kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>380 kV</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>380</entsoe:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_469df5f7-058f-4451-a998-57a48e8a56fe">
+        <cim:IdentifiedObject.name>380.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.lowVoltageLimit>342.000000</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.highVoltageLimit>418.000000</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_35cf638d-9a9d-4ae5-ae90-2f01ef898cb6"/>
+    </cim:VoltageLevel>
+</rdf:RDF>

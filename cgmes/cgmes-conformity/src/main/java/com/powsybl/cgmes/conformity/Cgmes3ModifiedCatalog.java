@@ -58,26 +58,6 @@ public final class Cgmes3ModifiedCatalog {
             new ResourceSet(CGMES_3_SMALL_GRID_BASE, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static GridModelReferenceResources microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() {
-        String base = CGMES_3_MODIFIED_TEST_MODELS
-            + "/MicroGrid/regulatingTerminalsDefinedOnSwitches/";
-        return new GridModelReferenceResources(
-            "MicroGrid-regulating-terminals-defined-on-switches",
-            null,
-            new ResourceSet(base,
-                    CGMES_3_MICRO_GRID_BE_EQ),
-            new ResourceSet(CGMES_3_MICRO_GRID_BASE,
-                    CGMES_3_MICRO_GRID_ASSEMBLED_DL,
-                    CGMES_3_MICRO_GRID_ASSEMBLED_SV,
-                    CGMES_3_MICRO_GRID_BE_GL,
-                    CGMES_3_MICRO_GRID_BE_SSH,
-                    CGMES_3_MICRO_GRID_NL_EQ,
-                    CGMES_3_MICRO_GRID_NL_GL,
-                    CGMES_3_MICRO_GRID_NL_SSH,
-                    CGMES_3_MICRO_GRID_ASSEMBLED_TP),
-            new ResourceSet(CGMES_3_MICRO_GRID_BASE, CGMES_3_MICRO_GRID_EQ_BD));
-    }
-
     public static GridModelReferenceResources microGridBaseCaseBESingleFile() {
         String base = CGMES_3_MODIFIED_TEST_MODELS
                 + "/MicroGrid/singleFile/";

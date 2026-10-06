@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:75271ec4-af11-4a87-8137-d6d2b43b594d">
+        <md:Model.created>2014-10-24T16:53:10</md:Model.created>
+        <md:Model.scenarioTime>2014-03-28T10:13:02</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79"/>
+        <md:Model.description>Static var compensator with an invalid control mode</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://ELIA/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.Supersedes rdf:resource="urn:uuid:52b712d1-f3b0-4a59-9191-79f2fb1e4c4e"/>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_67bb74f1-8620-4a32-9d7d-a44092d11d22">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:StaticVarCompensator rdf:about="#_3c69652c-ff14-4550-9a87-b6fdaccbb5f4">
+        <cim:StaticVarCompensator.q>0e+000</cim:StaticVarCompensator.q>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    </cim:StaticVarCompensator>
+    <cim:RegulatingControl rdf:about="#_caf65447-3cfb-48d7-aaaa-cd9af3d34261">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>229.500000</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+</rdf:RDF>
