@@ -395,4 +395,46 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         assertEquals(id, ((UpdateNetworkEvent) fourthEvent).id());
     }
 
+    @Test
+    void testSetRegulatingTerminal() {
+        // GIVEN
+        int expectedTargetQ = 10;
+        Generator generatorWithRemoteReactiveRegulationOff = voltageLevel.newGenerator()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOff")
+            .setConnectableBus(LOCAL_BUS)
+            .setMinP(0)
+            .setTargetP(20)
+            .setMaxP(100)
+            .setLocalTargetQ(expectedTargetQ)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(false)
+                .add()
+            .add();
+        Generator generatorWithRemoteReactiveRegulationOn = voltageLevel.newGenerator()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOn")
+            .setConnectableBus(LOCAL_BUS)
+            .setMinP(0)
+            .setTargetP(20)
+            .setMaxP(100)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(remoteTerminal)
+                .withRegulating(true)
+                .withTargetValue(-expectedTargetQ)
+                .add()
+            .add();
+        // WHEN
+        generatorWithRemoteReactiveRegulationOff.setRegulatingTerminal(remoteTerminal);
+        generatorWithRemoteReactiveRegulationOn.setRegulatingTerminal(remoteTerminal);
+        // THEN
+        assertEquals(-expectedTargetQ, generatorWithRemoteReactiveRegulationOff.getVoltageRegulation().getTargetValue());
+        assertEquals(expectedTargetQ, generatorWithRemoteReactiveRegulationOff.getLocalTargetQ());
+        assertEquals(expectedTargetQ, generatorWithRemoteReactiveRegulationOff.getRegulatingTargetQ());
+
+        assertEquals(-expectedTargetQ, generatorWithRemoteReactiveRegulationOn.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(generatorWithRemoteReactiveRegulationOn.getLocalTargetQ()));
+        assertEquals(expectedTargetQ, generatorWithRemoteReactiveRegulationOn.getRegulatingTargetQ());
+    }
+
 }

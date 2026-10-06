@@ -1308,6 +1308,32 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
+    void testSignOnRemoteReactiveMode() {
+        Terminal remoteTerminal = lineax.getTerminal1();
+        double localTargetQ = 40.0;
+        double remoteTargetQLoadSignConvention = 10.0;
+        VoltageSourceConverter vsc = vla.newVoltageSourceConverter()
+            .setId("vscMonoVariant")
+            .setBus1(b1a.getId())
+            .setDcNode1(dcNode1a.getId())
+            .setDcNode2(dcNode2a.getId())
+            .setControlMode(AcDcConverter.ControlMode.P_PCC)
+            .setTargetP(100.)
+            .setTargetVdc(500.)
+            .setLocalTargetQ(localTargetQ)
+            .add();
+        vsc.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(remoteTargetQLoadSignConvention)
+            .build();
+
+        assertEquals(localTargetQ, vsc.getLocalTargetQ());
+        assertEquals(remoteTargetQLoadSignConvention, vsc.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQLoadSignConvention, vsc.getRegulatingTargetQ());
+    }
+
+    @Test
     void equivalentAcDcConverter() {
         LineCommutatedConverter lccConverterStation = createLccAdder(vla)
                 .setId("acdcConverterA")

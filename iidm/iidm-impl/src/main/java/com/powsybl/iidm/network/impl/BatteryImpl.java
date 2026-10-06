@@ -104,17 +104,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public double getLocalTargetQ() {
         return localTargetQ.get(getNetwork().getVariantIndex());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Battery setLocalTargetQ(double targetQ) {
         NetworkImpl network = getNetwork();

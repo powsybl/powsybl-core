@@ -65,14 +65,14 @@ public abstract class AbstractVscTest {
         assertFalse(cs2.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(123.0, cs2.getRegulatingTargetQ(), 0.0);
 
-        cs2.getVoltageRegulation().setTargetValue(124.0);
+        cs2.setLocalTargetQ(124.0);
         assertEquals(124.0, cs2.getRegulatingTargetQ(), 0.0);
         assertEquals(406.0, cs1.getRegulatingTargetV(), 0.0);
         assertTrue(Double.isNaN(cs2.getRegulatingTargetV()));
 
         cs2.getVoltageRegulation().setTargetValue(405);
         cs2.getVoltageRegulation().setRegulating(true);
-        assertTrue(cs2.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertTrue(cs2.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
@@ -293,5 +293,22 @@ public abstract class AbstractVscTest {
         VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
         // THEN
         assertNotNull(voltageRegulation);
+    }
+
+    @Test
+    void testSignOnRemoteReactiveMode() {
+        Terminal remoteTerminal = cs2.getTerminal();
+        double localTargetQ = 40.0;
+        double remoteTargetQGeneratorSignConvention = 10.0;
+        cs1.setLocalTargetQ(localTargetQ);
+        cs1.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(-remoteTargetQGeneratorSignConvention)
+            .build();
+
+        assertEquals(localTargetQ, cs1.getLocalTargetQ());
+        assertEquals(-remoteTargetQGeneratorSignConvention, cs1.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQGeneratorSignConvention, cs1.getRegulatingTargetQ());
     }
 }
