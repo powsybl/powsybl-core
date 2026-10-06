@@ -357,6 +357,9 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
                 SensitivityState.postContingency(c.getId()), List.of(
                         new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
+        contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
+                new SensitivityState(c.getId(), "op1"), List.of(
+                new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
