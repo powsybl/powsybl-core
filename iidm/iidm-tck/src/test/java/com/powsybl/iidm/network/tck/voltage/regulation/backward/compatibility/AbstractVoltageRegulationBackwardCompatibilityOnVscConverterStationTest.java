@@ -119,6 +119,25 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnVscConvert
     }
 
     @Test
+    void testSetReactivePowerSetpoint() {
+        int expectedTargetQ = 10;
+        VscConverterStation vscConverterStationWithRemoteReactiveRegulationOn = voltageLevel.newVscConverterStation()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOn")
+            .setConnectableBus(LOCAL_BUS)
+            .setLossFactor(0.9f)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(remoteTerminal)
+                .withRegulating(true)
+                .withTargetValue(-20)
+                .add()
+            .add();
+        vscConverterStationWithRemoteReactiveRegulationOn.setReactivePowerSetpoint(expectedTargetQ);
+        assertEquals(-expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOn.getVoltageRegulation().getTargetValue());
+        assertEquals(expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOn.getRegulatingTargetQ());
+    }
+
+    @Test
     void testSetRegulatingTerminal() {
         // GIVEN
         int expectedTargetQ = 10;
