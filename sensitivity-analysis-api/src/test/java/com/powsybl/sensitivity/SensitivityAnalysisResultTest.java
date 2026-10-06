@@ -61,11 +61,11 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         SensitivityValue value5 = new SensitivityValue(4, -1, -1, 4d, 4d);
         List<SensitivityStateStatus> stateStatuses = new ArrayList<>();
         stateStatuses.add(new SensitivityStateStatus(
-                SensitivityState.postContingency("NHV1_NHV2_2"), List.of(new SensitivityStateStatus.ComponentStatus(
-                0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, ""))));
+                SensitivityState.postContingency("NHV1_NHV2_2"), List.of(
+                        new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, ""))));
         stateStatuses.add(new SensitivityStateStatus(
-                SensitivityState.postContingency("NHV2_NHV3"), List.of(new SensitivityStateStatus.ComponentStatus(
-                0, 0, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, ""))));
+                SensitivityState.postContingency("NHV2_NHV3"), List.of(
+                        new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, ""))));
         List<String> contingencyIds = List.of("NHV1_NHV2_2", "NHV2_NHV3");
         List<String> operatorStrategyIds = Collections.emptyList();
 
@@ -140,8 +140,8 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<SensitivityValue> values = List.of(value1, value2, value3, value4, value5);
         List<SensitivityStateStatus> stateStatuses = new ArrayList<>();
         contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
-                SensitivityState.postContingency(c.getId()), List.of(new SensitivityStateStatus.ComponentStatus(
-                0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
+                SensitivityState.postContingency(c.getId()), List.of(
+                        new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
@@ -208,8 +208,8 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<SensitivityValue> values = List.of(value1, value2, value3, value4, value5);
         List<SensitivityStateStatus> stateStatuses = new ArrayList<>();
         contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
-                SensitivityState.postContingency(c.getId()), List.of(new SensitivityStateStatus.ComponentStatus(
-                0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
+                SensitivityState.postContingency(c.getId()), List.of(
+                        new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
@@ -272,8 +272,8 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<SensitivityValue> values = List.of(value1, value2, value3, value4);
         List<SensitivityStateStatus> stateStatuses = new ArrayList<>();
         contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
-                SensitivityState.postContingency(c.getId()), List.of(new SensitivityStateStatus.ComponentStatus(
-                0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
+                SensitivityState.postContingency(c.getId()), List.of(
+                        new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
@@ -355,8 +355,8 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
         List<SensitivityStateStatus> stateStatuses = new ArrayList<>();
         contingencies.forEach(c -> stateStatuses.add(new SensitivityStateStatus(
-                SensitivityState.postContingency(c.getId()), List.of(new SensitivityStateStatus.ComponentStatus(
-                0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
+                SensitivityState.postContingency(c.getId()), List.of(
+                        new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
