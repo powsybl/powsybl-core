@@ -152,7 +152,7 @@ public final class VoltageRegulationSerDe {
     /**
      * Store the given target value and runnable as extra properties for the holder
      * @param voltageRegulationHolder The voltage regulation holder (also an {@link Identifiable})
-     * @param targetValue the target value. In the reactive power case, in load convention sign
+     * @param targetValue the target value. In the reactive power case, in load sign convention
      * @param actionOnHolder the action to run on the voltage regulation holder
      * @param context the deserialization context
      * @param <T> the class of the voltage regulation holder (at the same time a {@link VoltageRegulationHolder} and an {@link Identifiable})

@@ -112,7 +112,7 @@ public final class VoltageRegulationUtils {
 
     /**
      *
-     * @param signToUseLoadConvention -> 1 if the targetQ is given in load convention, -1 if it is given in generator convention
+     * @param signToUseLoadConvention -> 1 if the targetQ is given in load sign convention, -1 if it is given in generator sign convention
      */
     private static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
                                                                                                                  boolean withLocalTargetValue,
