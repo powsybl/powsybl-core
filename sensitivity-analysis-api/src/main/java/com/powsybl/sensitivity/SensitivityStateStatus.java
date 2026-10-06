@@ -151,7 +151,7 @@ public class SensitivityStateStatus {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context, version == null ? SensitivityAnalysisResult.VERSION : version);
                 } else if (token == JsonToken.END_OBJECT) {
-                    if (version != null && version.compareTo("1.1") <= 0) {
+                    if (version != null && JsonUtil.compareVersions(version, "1.1") <= 0) {
                         return new SensitivityStateStatus(
                                 new SensitivityState(context.contingencyId, context.operatorStrategyId), context.status);
                     } else {
