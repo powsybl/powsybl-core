@@ -12,19 +12,20 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityStateStatus;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<SensitivityAnalysisResult.SensitivityStateStatus> {
+public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<SensitivityStateStatus> {
 
     public SensitivityStateStatusJsonDeserializer() {
-        super(SensitivityAnalysisResult.SensitivityStateStatus.class);
+        super(SensitivityStateStatus.class);
     }
 
     @Override
-    public SensitivityAnalysisResult.SensitivityStateStatus deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+    public SensitivityStateStatus deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
         String version = JsonUtil.getSourceVersion(deserializationContext, SensitivityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE);
-        return SensitivityAnalysisResult.SensitivityStateStatus.parseJson(jsonParser, version);
+        return SensitivityStateStatus.parseJson(jsonParser, version);
     }
 }

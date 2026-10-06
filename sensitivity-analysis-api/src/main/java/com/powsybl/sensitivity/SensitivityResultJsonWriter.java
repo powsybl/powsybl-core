@@ -28,7 +28,7 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     private final List<OperatorStrategy> operatorStrategies;
 
-    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatusBuffer = new LinkedHashMap<>();
+    private final Map<SensitivityState, List<SensitivityStateStatus.ComponentStatus>> stateStatusBuffer = new LinkedHashMap<>();
 
     private boolean computationComplete = false;
 
@@ -59,8 +59,8 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
         SensitivityState state = new SensitivityState(
                 contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
                 operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
-        stateStatusBuffer.computeIfAbsent(state, SensitivityAnalysisResult.SensitivityStateStatus::new)
-                .addComponentLoadFlowStatus(connectedComponentNum, synchronousComponentNum, status, statusText);
+        stateStatusBuffer.computeIfAbsent(state, s -> new ArrayList<>())
+                .add(new SensitivityStateStatus.ComponentStatus(connectedComponentNum, synchronousComponentNum, status, statusText));
     }
 
     @Override
@@ -70,8 +70,8 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
             jsonGenerator.writeFieldName("stateStatus");
             jsonGenerator.writeStartArray();
-            for (SensitivityAnalysisResult.SensitivityStateStatus stateStatus : stateStatusBuffer.values()) {
-                SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, stateStatus);
+            for (var stateStatus : stateStatusBuffer.entrySet()) {
+                SensitivityStateStatus.writeJson(jsonGenerator, new SensitivityStateStatus(stateStatus.getKey(), stateStatus.getValue()));
             }
             jsonGenerator.writeEndArray();
 
