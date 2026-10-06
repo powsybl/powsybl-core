@@ -292,10 +292,6 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         return this;
     }
 
-    /**
-     * <p>This value is defined in the load sign convention.</p>
-     * {@inheritDoc}
-     */
     @Override
     public VoltageSourceConverter setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
@@ -314,10 +310,6 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         return this;
     }
 
-    /**
-     * <p>This value is defined in the load sign convention.</p>
-     * {@inheritDoc}
-     */
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ.get(getNetwork().getVariantIndex());

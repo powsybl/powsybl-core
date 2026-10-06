@@ -205,6 +205,24 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the load sign convention.</p>
+     */
+    @Override
+    default double getLocalTargetQ() {
+        return VoltageRegulationHolder.super.getLocalTargetQ();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the load sign convention.</p>
+     */
+    @Override
+    default StaticVarCompensator setLocalTargetQ(double targetQ) {
+        return VoltageRegulationHolder.super.setLocalTargetQ(targetQ);
+    }
+
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.STATIC_VAR_COMPENSATOR;

@@ -282,6 +282,24 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     Generator setTargetQ(double targetQ);
 
     /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    default double getLocalTargetQ() {
+        return VoltageRegulationHolder.super.getLocalTargetQ();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    default Generator setLocalTargetQ(double targetQ) {
+        return VoltageRegulationHolder.super.setLocalTargetQ(targetQ);
+    }
+
+    /**
      * Get the rated nominal power (apparent power rating) in MVA.
      * @return the rated nominal power in MVA or NaN if not defined
      */

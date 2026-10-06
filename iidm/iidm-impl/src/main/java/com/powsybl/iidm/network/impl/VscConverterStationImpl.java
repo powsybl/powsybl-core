@@ -126,10 +126,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         return this;
     }
 
-    /**
-     * <p>This value is defined in the generator sign convention.</p>
-     * {@inheritDoc}
-     */
     @Override
     public VscConverterStation setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
@@ -148,10 +144,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         return this;
     }
 
-    /**
-     * <p>This value is defined in the generator sign convention.</p>
-     * {@inheritDoc}
-     */
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ.get(getNetwork().getVariantIndex());
