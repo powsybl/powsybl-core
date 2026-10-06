@@ -24,6 +24,12 @@ sourced from the load and the generator.
 model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will be
 incorrect without warning.
 
+**Substation countries with the `Counter` naming strategy**: the `Counter` naming strategy builds node codes from the
+countries of the substations. With it, the export fails with a `UcteException` if a substation has no country, or a
+country not supported by UCTE-DEF (see section 1.3, "UCTE country codes", of the
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf#page=6)).
+The `Default` naming strategy reads node codes from bus ids and does no such check.
+
 ## Options
 
 These properties can be defined in the configuration file in
@@ -330,6 +336,21 @@ tap changer's current step.
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf),
 and on side 1 in IIDM.
 
+### Voltage levels without substation
+
+Voltage levels that belong to no substation (for instance those created by the CGMES importer for the junction of a
+T-line, or between line segments in series) are exported like any other voltage level.
+
+The `Counter` naming strategy needs their country, and computes it without modifying the network:
+
+- if the network holds a single country, every voltage level without substation gets it;
+- otherwise, the voltage levels are grouped by connected components, considering lines only (whatever their status;
+  tie lines and boundary lines are not considered), and a voltage level without substation gets the country of the
+  substations of its component. The export fails with a `UcteException` if the component holds substations of several
+  countries: in the European grid, cross-border connections are tie lines;
+- a component holding no substation is isolated. The export fails with a `UcteException` if one of its voltage levels
+  holds equipment (busbar sections aside). Otherwise, its voltage levels are not exported and a warning is reported.
+
 ## Reporting
 
 When a [ReportNode](../../user/functional_logs/index.md) is provided to the export, one report node is created per
@@ -338,4 +359,6 @@ following situations are reported with a `WARN` severity:
 
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
 - a two-winding transformer has no nominal power, and the default value `99999` is exported instead
-  (see [Nominal power](#nominal-power)).
+  (see [Nominal power](#nominal-power)),
+- with the `Counter` naming strategy, a voltage level has no substation
+  (see [Voltage levels without substation](#voltage-levels-without-substation)).
