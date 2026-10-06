@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
@@ -200,7 +201,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
             boundaryLine.getGeneration().setTargetP(0.0);
             boundaryLine.getGeneration().setTargetQ(0.0);
-            setRegulation(boundaryLine, targetV, false);
+            setRegulation(boundaryLine.getGeneration(), targetV, false);
         }
         boundaryLine.setP0(0.0);
         boundaryLine.setQ0(0.0);
@@ -221,18 +222,19 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             boundaryLine.setQ0(0.0);
             boundaryLine.getGeneration().setTargetP(getTargetP(updatedPowerFlow, boundaryLine.getGeneration(), context));
             boundaryLine.getGeneration().setTargetQ(getTargetQ(updatedPowerFlow, boundaryLine.getGeneration(), context));
-            setRegulation(boundaryLine, targetV, regulatingOn && isValidTargetV(targetV));
+            setRegulation(boundaryLine.getGeneration(), targetV, regulatingOn && isValidTargetV(targetV));
         } else {
             boundaryLine.setP0(getTargetP(updatedPowerFlow, boundaryLine, context));
             boundaryLine.setQ0(getTargetQ(updatedPowerFlow, boundaryLine, context));
         }
     }
 
-    private static void setRegulation(BoundaryLine boundaryLine, double targetV, boolean regulatingOn) {
+    private static void setRegulation(BoundaryLine.Generation generation, double targetV, boolean regulatingOn) {
+        Objects.requireNonNull(generation);
         if (regulatingOn) {
-            boundaryLine.getGeneration().setTargetV(targetV).setVoltageRegulationOn(true);
+            generation.setTargetV(targetV).setVoltageRegulationOn(true);
         } else {
-            boundaryLine.getGeneration().setVoltageRegulationOn(false).setTargetV(targetV);
+            generation.setVoltageRegulationOn(false).setTargetV(targetV);
         }
     }
 
