@@ -49,4 +49,30 @@
     <cim:Terminal rdf:about="#_ExternalNetworkInjection_T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
+
+    <cim:SynchronousMachine rdf:about="#_SynchronousMachineWithoutRegulatingControl">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-55</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>-15</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineOperatingMode.generator" />
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:about="#_SynchronousMachineWithoutRegulatingControl_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:ThermalGeneratingUnit rdf:about="#_SynchronousMachineWithoutRegulatingControl-GeneratingUnit">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:ThermalGeneratingUnit>
+
+    <cim:EquivalentInjection rdf:about="#_EquivalentInjectionWithRegulationCapability">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:EquivalentInjection.p>35</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>15</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:about="#_EquivalentInjectionWithRegulationCapability_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
 </rdf:RDF>
