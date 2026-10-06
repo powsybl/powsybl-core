@@ -294,4 +294,21 @@ public abstract class AbstractVscTest {
         // THEN
         assertNotNull(voltageRegulation);
     }
+
+    @Test
+    void testSignOnRemoteReactiveMode() {
+        Terminal remoteTerminal = cs2.getTerminal();
+        double localTargetQ = 40.0;
+        double remoteTargetQGeneratorSignConvention = 10.0;
+        cs1.setLocalTargetQ(localTargetQ);
+        cs1.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(-remoteTargetQGeneratorSignConvention)
+            .build();
+
+        assertEquals(localTargetQ, cs1.getLocalTargetQ());
+        assertEquals(-remoteTargetQGeneratorSignConvention, cs1.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQGeneratorSignConvention, cs1.getRegulatingTargetQ());
+    }
 }

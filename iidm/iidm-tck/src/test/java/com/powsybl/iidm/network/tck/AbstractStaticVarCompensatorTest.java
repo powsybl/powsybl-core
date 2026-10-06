@@ -326,6 +326,24 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertNotNull(voltageRegulation);
     }
 
+    @Test
+    void testSignOnRemoteReactiveMode() {
+        Terminal remoteTerminal = network.getGenerator("G1").getTerminal();
+        double localTargetQ = 40.0;
+        double remoteTargetQLoadSignConvention = 10.0;
+        StaticVarCompensator svc = createSvc("svc_remoteReactive", null, RegulationMode.VOLTAGE);
+        svc.setLocalTargetQ(localTargetQ);
+        svc.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(remoteTargetQLoadSignConvention)
+            .build();
+
+        assertEquals(localTargetQ, svc.getLocalTargetQ());
+        assertEquals(remoteTargetQLoadSignConvention, svc.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQLoadSignConvention, svc.getRegulatingTargetQ());
+    }
+
     private StaticVarCompensatorAdder createSvcAdder(String id, Terminal regulatingTerminal, RegulationMode regulationMode) {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
         return vl2.newStaticVarCompensator()
