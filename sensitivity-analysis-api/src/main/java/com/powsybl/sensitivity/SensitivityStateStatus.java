@@ -78,10 +78,6 @@ public class SensitivityStateStatus {
         this.componentsLoadFlowStatusList = new ArrayList<>(statusList);
     }
 
-    public SensitivityStateStatus(SensitivityState state) {
-        this(state, Collections.emptyList());
-    }
-
     @Deprecated(since = "7.4.0")
     public SensitivityStateStatus(SensitivityState state, SensitivityAnalysisResult.Status status) {
         this(state, List.of(new ComponentStatus(
