@@ -92,7 +92,7 @@ public class UcteExporter implements Exporter {
                 .map(ServiceLoader.Provider::get)
                 .toList();
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
-        namingStrategy.initializeNetwork(network);
+        namingStrategy.initializeNetwork(network, reportNode);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
         ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);

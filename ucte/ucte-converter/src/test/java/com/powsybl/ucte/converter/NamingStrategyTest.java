@@ -10,6 +10,7 @@ package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
@@ -19,8 +20,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -81,5 +84,23 @@ class NamingStrategyTest {
         UcteElementId elementId3 = strategy.getUcteElementId("F_SU1_12 F_SU1_11 1");
         Switch sw = network.getSwitch("F_SU1_12 F_SU1_11 1");
         assertEquals(elementId3, strategy.getUcteElementId(sw));
+    }
+
+    @Test
+    void defaultMethodsKeepThirdPartyStrategiesWorking() {
+        Network network = Network.read(new ResourceDataSource("network", new ResourceSet("/", "network.xiidm")));
+        NamingStrategy strategy = new OtherNamingStrategy();
+
+        assertDoesNotThrow(() -> strategy.initializeNetwork(network, ReportNode.NO_OP));
+        assertSame(ExportedVoltageLevels.all(), strategy.getExportedVoltageLevels());
+    }
+
+    @Test
+    void allExportsEveryVoltageLevelWithItsSubstationCountry() {
+        Network network = Network.read(new ResourceDataSource("network", new ResourceSet("/", "network.xiidm")));
+        VoltageLevel vl = network.getVoltageLevel("VLHV1");
+
+        assertTrue(ExportedVoltageLevels.all().isExported(vl));
+        assertEquals(UcteCountryCode.FR, ExportedVoltageLevels.all().getCountry(vl));
     }
 }
