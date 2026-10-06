@@ -278,17 +278,17 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(0, value1.getContingencyIndex());
 
         assertEquals(2, result.getStateStatuses().size());
-        SensitivityAnalysisResult.SensitivityStateStatus preStatus = result.getStateStatuses().stream()
+        SensitivityStateStatus preStatus = result.getStateStatuses().stream()
                 .filter(s -> SensitivityState.PRE_CONTINGENCY.equals(s.getState()))
                 .findFirst()
                 .orElseThrow();
-        SensitivityAnalysisResult.SensitivityStateStatus postStatus = result.getStateStatuses().stream()
+        SensitivityStateStatus postStatus = result.getStateStatuses().stream()
                 .filter(s -> "NHV1_NHV2_2".equals(s.getState().contingencyId()))
                 .findFirst()
                 .orElseThrow();
         assertNull(postStatus.getState().operatorStrategyId());
         assertEquals(1, preStatus.getComponentsLoadFlowStatusList().size());
-        SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus preComponent = preStatus.getComponentsLoadFlowStatusList().getFirst();
+        SensitivityStateStatus.ComponentStatus preComponent = preStatus.getComponentsLoadFlowStatusList().getFirst();
         assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, preComponent.status());
         assertEquals("testStatusText", preComponent.statusText());
         assertEquals(0, preComponent.connectedComponentNum());

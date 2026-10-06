@@ -231,12 +231,12 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
     @Test
     void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
-        SensitivityAnalysisResult.SensitivityStateStatus value = new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("C1"),
-                List.of(new SensitivityAnalysisResult.SensitivityStateStatus.ComponentStatus(
+        SensitivityStateStatus value = new SensitivityStateStatus(SensitivityState.postContingency("C1"),
+                List.of(new SensitivityStateStatus.ComponentStatus(
                         0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")));
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, objectMapper), "/stateStatusRef.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityStateStatus.class, objectMapper), "/stateStatusRef.json");
     }
 
     @Test
