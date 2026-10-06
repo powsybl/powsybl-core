@@ -219,4 +219,17 @@ class DataObjectTest {
         assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleMatrixAttributeValue("mm"));
         assertEquals(new BlockRealMatrix(2, 2), objFoo.getDoubleMatrixAttributeValue("m"));
     }
+
+    @Test
+    void testCheckValidRealMatrix() {
+        assertDoesNotThrow(() -> DataObject.checkValidRealMatrix(2, 3, 6));
+        assertTrue(DataObject.isDataSufficientForRealMatrix(2, 3, 7));
+        assertFalse(DataObject.isDataSufficientForRealMatrix(2, 3, 5));
+        assertFalse(DataObject.isDataSufficientForRealMatrix(-2, 3, 6));
+        assertFalse(DataObject.isDataSufficientForRealMatrix(Integer.MAX_VALUE, 2, 6));
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> DataObject.checkValidRealMatrix(0, 3, 6));
+        assertEquals("Matrix dimensions must be greater than zero: 0x3", e.getMessage());
+        e = assertThrows(PowerFactoryException.class, () -> DataObject.checkValidRealMatrix(2, 3, 5));
+        assertEquals("Matrix data holds 5 values, less than the declared 2x3", e.getMessage());
+    }
 }

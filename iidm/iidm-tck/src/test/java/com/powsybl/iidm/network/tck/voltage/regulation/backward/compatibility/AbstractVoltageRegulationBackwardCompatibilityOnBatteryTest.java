@@ -9,6 +9,9 @@ package com.powsybl.iidm.network.tck.voltage.regulation.backward.compatibility;
 
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
+import com.powsybl.iidm.network.NetworkEventRecorder;
+import com.powsybl.iidm.network.events.NetworkEvent;
+import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
@@ -106,6 +109,33 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBatteryTes
         assertEquals(newTargetQ, battery.getRegulatingTargetQ());
 
         assertFalse(battery.isRegulating());
+    }
+
+    @Test
+    void testNotifyUpdateOnSetTargetQ() {
+        // GIVEN
+        Battery battery = network.getBatteryStream().toList().getFirst();
+        String id = battery.getId();
+        double newTargetQ = 123.0;
+        double oldTargetQ = battery.getTargetQ();
+        NetworkEventRecorder listener = new NetworkEventRecorder();
+        network.addListener(listener);
+        // WHEN
+        battery.setTargetQ(newTargetQ);
+        // THEN
+        assertEquals(2, listener.getEvents().size());
+        NetworkEvent firstEvent = listener.getEvents().getFirst();
+        assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
+        assertEquals("localTargetQ", ((UpdateNetworkEvent) firstEvent).attribute());
+        assertEquals(newTargetQ, ((UpdateNetworkEvent) firstEvent).newValue());
+        assertEquals(oldTargetQ, ((UpdateNetworkEvent) firstEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) firstEvent).id());
+        NetworkEvent secondEvent = listener.getEvents().get(1);
+        assertEquals(NetworkEvent.Type.UPDATE, secondEvent.getType());
+        assertEquals("targetQ", ((UpdateNetworkEvent) secondEvent).attribute());
+        assertEquals(newTargetQ, ((UpdateNetworkEvent) secondEvent).newValue());
+        assertEquals(oldTargetQ, ((UpdateNetworkEvent) secondEvent).oldValue());
+        assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
     }
 
 }
