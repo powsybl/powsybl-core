@@ -7,16 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.loadflow.LoadFlowResult;
 import org.jgrapht.alg.util.Triple;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
