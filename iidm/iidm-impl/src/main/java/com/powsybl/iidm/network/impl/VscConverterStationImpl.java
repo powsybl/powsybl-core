@@ -154,7 +154,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         double oldValue;
         if (voltageRegulation != null && isWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             oldValue = voltageRegulation.getTargetValue();
-            voltageRegulation.setTargetValue(reactivePowerSetpoint);
+            // reactivePowerSetpoint is defined in the generator sign convention, but the voltage regulation targetValue is defined in the load sign convention.
+            voltageRegulation.setTargetValue(-reactivePowerSetpoint);
         } else {
             oldValue = this.getLocalTargetQ();
             this.setLocalTargetQ(reactivePowerSetpoint);
@@ -264,7 +265,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         Terminal oldValue = null;
         if (voltageRegulation != null) {
             oldValue = voltageRegulation.getTerminal();
-            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
+            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : -getRegulatingTargetQ();
             voltageRegulation.setTerminal(regulatingTerminal, targetValue);
         } else {
             newVoltageRegulation()

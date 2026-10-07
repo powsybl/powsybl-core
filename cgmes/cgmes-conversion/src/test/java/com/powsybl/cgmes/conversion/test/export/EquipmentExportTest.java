@@ -606,6 +606,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testExportEquivalentInjectionRegulationCapability() throws IOException {
+        // Regulation of the equivalent injection with regulation capability is switched off by the second SSH
+        Network network = readCgmesResources("/update/generator/", "generator_EQ.xml");
+        readCgmesResources(network, "/update/generator/", "generator_SSH.xml");
+        readCgmesResources(network, "/update/generator/", "generator_SSH_1.xml");
+
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals("false", getRegulationCapability(eqFile, "EquivalentInjection"));
+        assertEquals("true", getRegulationCapability(eqFile, "EquivalentInjectionWithRegulationCapability"));
+    }
+
+    private static String getRegulationCapability(String eqFile, String equivalentInjectionId) {
+        return getAttribute(getElement(eqFile, CgmesNames.EQUIVALENT_INJECTION, equivalentInjectionId), "EquivalentInjection.regulationCapability");
+    }
+
+    @Test
     void testExportEquivalentInjectionBaseVoltage() throws IOException {
         // Ensure equivalent injections outside boundaries are exported with a reference to a base voltage
 
