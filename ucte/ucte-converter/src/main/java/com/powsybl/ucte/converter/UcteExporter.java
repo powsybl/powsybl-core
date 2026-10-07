@@ -366,7 +366,7 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Generator min power limits must be strictly grater than -9999 (see
+     * Generator min power limits must be strictly greater than -9999 (see
      * {@link UcteConverterConstants#DEFAULT_POWER_LIMIT}). Values that are out of bounds must be ignored and exported
      * blank.
      *
