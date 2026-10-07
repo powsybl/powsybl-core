@@ -203,18 +203,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        NetworkImpl n = getNetwork();
-        Terminal oldValue = getRegulatingTerminal();
-        int variantIndex = network.get().getVariantIndex();
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         double targetValue = getRegulatingTargetV();
         if (voltageRegulation != null) {
             voltageRegulation.setTerminal(regulatingTerminal, targetValue);
         } else {
             newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
         }
-        n.invalidateValidationLevel();
-        notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
         return this;
     }
 

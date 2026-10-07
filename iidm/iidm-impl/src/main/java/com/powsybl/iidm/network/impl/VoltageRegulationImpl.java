@@ -215,11 +215,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             ValidationUtil.checkAcDcConverterPccTerminal(voltageSourceConverter, newTerminal, voltageSourceConverter.getTerminal1().getVoltageLevel());
             voltageSourceConverter.updatePccTerminalFromVoltageRegulation(newTerminal);
         }
-        if (notify) {
-            this.updateTerminal(newTerminal);
-        } else {
-            this.updateTerminalWithoutNotify(newTerminal);
-        }
+        this.updateTerminal(newTerminal, notify);
         this.setTargetValueOnCurrentVariant(newTargetValue);
         return this;
     }
@@ -378,7 +374,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     @Override
     public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
         if (this.terminal == oldReferenced) {
-            this.updateTerminal(newReferenced);
+            this.updateTerminal(newReferenced, true);
         }
     }
 
@@ -396,7 +392,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         this.setModeOnCurrentVariant(attributes.mode());
         this.setSlopeOnCurrentVariant(attributes.slope());
         this.setTargetDeadbandOnCurrentVariant(attributes.targetDeadband());
-        this.updateTerminal(attributes.terminal());
+        this.updateTerminal(attributes.terminal(), true);
         this.setTargetValueOnCurrentVariant(attributes.targetValue());
         this.setRegulatingOnCurrentVariant(attributes.isRegulating());
     }
@@ -405,13 +401,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return network.get().getVariantIndex();
     }
 
-    private void updateTerminal(Terminal newTerminal) {
-        Terminal oldTerminal = updateTerminalWithoutNotify(newTerminal);
-        network.get().invalidateValidationLevel();
-        notifyUpdate(NotifyUpdateKey.TERMINAL, oldTerminal, newTerminal);
-    }
-
-    private Terminal updateTerminalWithoutNotify(Terminal newTerminal) {
+    private Terminal updateTerminal(Terminal newTerminal, boolean withNotify) {
         Terminal oldTerminal = this.terminal;
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
@@ -420,6 +410,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (newTerminal != null) {
             this.terminal = (TerminalExt) newTerminal;
             this.terminal.getReferrerManager().register(this);
+        }
+        network.get().invalidateValidationLevel();
+        if (withNotify) {
+            notifyUpdate(NotifyUpdateKey.TERMINAL, oldTerminal, newTerminal);
         }
         return oldTerminal;
     }
@@ -436,11 +430,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             if (bus != null && bus == localBus) {
                 LOGGER.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", oldRegulatingTerminal.getConnectable().getId(),
                     regulatedEquipmentId, regulatedEquipmentId);
-                updateTerminal(localTerminal);
+                updateTerminal(localTerminal, true);
                 return;
             }
         }
-        updateTerminal(null);
+        updateTerminal(null, true);
         regulating.fill(0, regulating.size(), false);
         targetValue.fill(0, targetValue.size(), Double.NaN);
         regulationMode.fill(0, regulationMode.size(), VOLTAGE.getIndex());

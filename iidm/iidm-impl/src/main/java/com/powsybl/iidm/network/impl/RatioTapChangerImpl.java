@@ -73,12 +73,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
             n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         if (voltageRegulation != null) {
-            boolean oldValue = voltageRegulation.isRegulating();
-            int variantIndex = n.getVariantIndex();
             voltageRegulation.setRegulating(regulating);
-            String variantId = n.getVariantManager().getVariantId(variantIndex);
-
-            notifyUpdate(() -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
         } else if (regulating) {
             // This will throw an exception because the target value is not set
             // (called to have the same message as everywhere else)
@@ -87,7 +82,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
                     .withRegulating(true)
                     .build();
         }
-        n.invalidateValidationLevel();
         return this;
     }
 
