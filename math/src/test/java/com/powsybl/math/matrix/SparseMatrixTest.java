@@ -69,6 +69,7 @@ class SparseMatrixTest extends AbstractMatrixTest {
     void testInitSparseMatrixFromCpp() {
         SparseMatrix m = new SparseMatrix(2, 5, new int[] {0, -1, 2, -1, 3, 4}, new int[] {0, 1, 0, 1}, new double[] {1d, 2d, 3d, 4d});
         assertArrayEquals(new int[] {2, 0, 1, 0, 1}, m.getColumnValueCount());
+        m.checkBuildingInconsistency();
     }
 
     @Test
@@ -105,6 +106,7 @@ class SparseMatrixTest extends AbstractMatrixTest {
             decomposition.solve(x);
             assertArrayEquals(new double[] {0, 1}, x);
         }
+        a.checkBuildingInconsistency();
     }
 
     @Test
@@ -113,5 +115,16 @@ class SparseMatrixTest extends AbstractMatrixTest {
         assertEquals("columnStart array length has to be columnCount + 1", e.getMessage());
         e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1, 1}, new int[]{0, 1, 1}, new double[]{0.5, 0.3}));
         assertEquals("rowIndices and values arrays must have the same length", e.getMessage());
+    }
+
+    @Test
+    void testSparseMatrixWithDuplicates() {
+        SparseMatrix a = new SparseMatrix(2, 2, 2);
+        a.add(0, 0, 1d);
+        a.add(1, 0, 1d);
+        a.add(0, 0, 2d); // Adding to already filled row, this is inconsistent
+        a.add(0, 1, 1d);
+        MatrixException e = assertThrows(MatrixException.class, a::checkBuildingInconsistency); // only checkBuildingInconsistency can check this kind of error
+        assertEquals("Same row value (0) is referenced multiple times in the same column (0)", e.getMessage());
     }
 }
