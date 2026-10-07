@@ -16,8 +16,8 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
