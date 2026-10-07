@@ -211,18 +211,13 @@ class SensitivityAnalysisTest {
             var componentLoadFlowStatus = stateStatus.getComponentsLoadFlowStatusList().iterator().next();
             int resultCase = contingencyIndex % 5;
             switch (resultCase) {
-                case 0:
+                case 0, 2:
                     assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, componentLoadFlowStatus.status());
                     assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
                     assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
                     break;
                 case 1:
                     assertEquals(LoadFlowResult.ComponentResult.Status.NO_CALCULATION, componentLoadFlowStatus.status());
-                    assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
-                    assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
-                    break;
-                case 2:
-                    assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, componentLoadFlowStatus.status());
                     assertEquals(0, componentLoadFlowStatus.connectedComponentNum());
                     assertEquals(0, componentLoadFlowStatus.synchronousComponentNum());
                     break;
