@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public interface VoltageRegulation {
+    String VOLTAGE_REGULATION_PREFIX = "VoltageRegulation.";
 
     /**
      * <p>Get the TargetValue for RegulationMode set.</p>
@@ -142,6 +143,27 @@ public interface VoltageRegulation {
             isRegulating(),
             getTerminal()
         );
+    }
+
+    enum NotifyUpdateKey {
+        NEW_REGULATION(VOLTAGE_REGULATION_PREFIX + "created"),
+        REMOVE_REGULATION(VOLTAGE_REGULATION_PREFIX + "removed"),
+        REGULATION_MODE(VOLTAGE_REGULATION_PREFIX + "RegulationMode"),
+        REGULATING(VOLTAGE_REGULATION_PREFIX + "isRegulating"),
+        TERMINAL(VOLTAGE_REGULATION_PREFIX + "Terminal"),
+        SLOPE(VOLTAGE_REGULATION_PREFIX + "Slope"),
+        TARGET_VALUE(VOLTAGE_REGULATION_PREFIX + "TargetValue"),
+        TARGET_DEADBAND(VOLTAGE_REGULATION_PREFIX + "TargetDeadband");
+
+        private final String key;
+
+        NotifyUpdateKey(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
+        }
     }
 
     /**

@@ -40,27 +40,6 @@ import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 public class VoltageRegulationImpl implements VoltageRegulationExt {
     private static final Logger LOGGER = LoggerFactory.getLogger(VoltageRegulationImpl.class);
 
-    private static final String VOLTAGE_REGULATION_PREFIX = "VoltageRegulation.";
-
-    protected enum NotifyUpdateKey {
-        REGULATION_MODE(VOLTAGE_REGULATION_PREFIX + "RegulationMode"),
-        REGULATING(VOLTAGE_REGULATION_PREFIX + "isRegulating"),
-        TERMINAL(VOLTAGE_REGULATION_PREFIX + "Terminal"),
-        SLOPE(VOLTAGE_REGULATION_PREFIX + "Slope"),
-        TARGET_VALUE(VOLTAGE_REGULATION_PREFIX + "TargetValue"),
-        TARGET_DEADBAND(VOLTAGE_REGULATION_PREFIX + "TargetDeadband");
-
-        private final String key;
-
-        NotifyUpdateKey(String key) {
-            this.key = key;
-        }
-
-        public String getKey() {
-            return this.key;
-        }
-    }
-
     // Context
     private final Validable validable;
     private final VoltageRegulationHolder<?> holder;
@@ -107,8 +86,9 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             attributes.mode(),
             variantArraySize);
         if (attributes.terminal() != null) {
-            this.setTerminal(attributes.terminal(), attributes.targetValue());
+            this.setTerminal(attributes.terminal(), attributes.targetValue(), false);
         }
+        notifyUpdate(NotifyUpdateKey.NEW_REGULATION, null, this);
     }
 
     private void initVariantAttributes(double targetValue, double targetDeadband, double slope, boolean regulating, RegulationMode mode, int variantArraySize) {
@@ -224,6 +204,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public VoltageRegulation setTerminal(Terminal newTerminal, double newTargetValue) {
+        return this.setTerminal(newTerminal, newTargetValue, true);
+    }
+
+    private VoltageRegulation setTerminal(Terminal newTerminal, double newTargetValue, boolean notify) {
         checkNewTerminal(newTerminal, newTargetValue);
         // The voltageSourceConverter pccTerminal must be synchronized with the voltageRegulation terminal
         if (holder instanceof VoltageSourceConverterImpl voltageSourceConverter && !voltageSourceConverter.getTerminals().isEmpty()) {
@@ -231,7 +215,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             ValidationUtil.checkAcDcConverterPccTerminal(voltageSourceConverter, newTerminal, voltageSourceConverter.getTerminal1().getVoltageLevel());
             voltageSourceConverter.updatePccTerminalFromVoltageRegulation(newTerminal);
         }
-        this.updateTerminal(newTerminal);
+        if (notify) {
+            this.updateTerminal(newTerminal);
+        } else {
+            this.updateTerminalWithoutNotify(newTerminal);
+        }
         this.setTargetValueOnCurrentVariant(newTargetValue);
         return this;
     }
@@ -399,6 +387,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
         }
+        notifyUpdate(NotifyUpdateKey.REMOVE_REGULATION, this, null);
     }
 
     @Override
@@ -417,6 +406,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     private void updateTerminal(Terminal newTerminal) {
+        Terminal oldTerminal = updateTerminalWithoutNotify(newTerminal);
+        network.get().invalidateValidationLevel();
+        notifyUpdate(NotifyUpdateKey.TERMINAL, oldTerminal, newTerminal);
+    }
+
+    private Terminal updateTerminalWithoutNotify(Terminal newTerminal) {
         Terminal oldTerminal = this.terminal;
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
@@ -426,8 +421,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             this.terminal = (TerminalExt) newTerminal;
             this.terminal.getReferrerManager().register(this);
         }
-        network.get().invalidateValidationLevel();
-        notifyUpdate(NotifyUpdateKey.TERMINAL, oldTerminal, newTerminal);
+        return oldTerminal;
     }
 
     private void actionOnRemovedTerminal() {

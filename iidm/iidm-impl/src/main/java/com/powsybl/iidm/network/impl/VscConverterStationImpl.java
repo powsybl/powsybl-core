@@ -60,18 +60,12 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        NetworkImpl n = getNetwork();
-        boolean oldValue = isRegulating();
         if (voltageRegulation != null) {
             voltageRegulation.setMode(RegulationMode.VOLTAGE);
             voltageRegulation.setRegulating(voltageRegulatorOn);
         } else {
             newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
         }
-        n.invalidateValidationLevel();
-        int variantIndex = n.getVariantIndex();
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -82,18 +76,11 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        NetworkImpl n = getNetwork();
-        double oldValue;
         if (voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) && hasRegulatingTerminal()) {
-            oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(voltageSetpoint);
         } else {
-            oldValue = getLocalTargetV();
             setLocalTargetV(voltageSetpoint);
         }
-        n.invalidateValidationLevel();
-        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
-        notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
 
@@ -151,19 +138,12 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        double oldValue;
         if (voltageRegulation != null && isWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
-            oldValue = voltageRegulation.getTargetValue();
             // reactivePowerSetpoint is defined in the generator sign convention, but the voltage regulation targetValue is defined in the load sign convention.
             voltageRegulation.setTargetValue(-reactivePowerSetpoint);
         } else {
-            oldValue = this.getLocalTargetQ();
             this.setLocalTargetQ(reactivePowerSetpoint);
         }
-        NetworkImpl n = getNetwork();
-        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
-        notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
-        n.invalidateValidationLevel();
         return this;
     }
 
@@ -262,9 +242,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        Terminal oldValue = null;
         if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getTerminal();
             double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : -getRegulatingTargetQ();
             voltageRegulation.setTerminal(regulatingTerminal, targetValue);
         } else {
@@ -274,10 +252,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
                     .withTerminal(regulatingTerminal)
                     .build();
         }
-        NetworkImpl n = getNetwork();
-        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
-        notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
-        n.invalidateValidationLevel();
         return this;
     }
 
