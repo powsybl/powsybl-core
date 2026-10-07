@@ -22,10 +22,12 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -122,7 +124,8 @@ public class DynamicSimulationTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
+        ToolOptions options = new ToolOptions(line, context);
+        Path caseFile = options.getPath(CASE_FILE).orElseThrow(() -> new ParseException("Missing required option: " + CASE_FILE));
         // process a single network: output-file/output-format options available
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
@@ -134,24 +137,24 @@ public class DynamicSimulationTool implements Tool {
 
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
-        Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODELS_FILE));
+        Path dydFile = options.getPath(DYNAMIC_MODELS_FILE).orElseThrow(() -> new ParseException("Missing required option: " + DYNAMIC_MODELS_FILE));
         DynamicModelsSupplier dynamicModelsSupplier = DynamicSimulationSupplierFactory.createDynamicModelsSupplier(dydFile, runner.getName());
 
         EventModelsSupplier eventSupplier = EventModelsSupplier.empty();
-        if (line.hasOption(EVENT_MODELS_FILE)) {
-            Path eventFile = context.getFileSystem().getPath(line.getOptionValue(EVENT_MODELS_FILE));
+        if (options.hasOption(EVENT_MODELS_FILE)) {
+            Path eventFile = options.getPath(EVENT_MODELS_FILE).orElseThrow(IllegalStateException::new);
             eventSupplier = DynamicSimulationSupplierFactory.createEventModelsSupplier(eventFile, runner.getName());
         }
 
         OutputVariablesSupplier outputVariablesSupplier = OutputVariablesSupplier.empty();
-        if (line.hasOption(OUTPUT_VARIABLES_FILE)) {
-            Path outputVariablesFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_VARIABLES_FILE));
+        if (options.hasOption(OUTPUT_VARIABLES_FILE)) {
+            Path outputVariablesFile = options.getPath(OUTPUT_VARIABLES_FILE).orElseThrow(IllegalStateException::new);
             outputVariablesSupplier = DynamicSimulationSupplierFactory.createOutputVariablesSupplier(outputVariablesFile, runner.getName());
         }
 
         DynamicSimulationParameters params = DynamicSimulationParameters.load();
-        if (line.hasOption(PARAMETERS_FILE)) {
-            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+        if (options.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = options.getPath(PARAMETERS_FILE).orElseThrow(IllegalStateException::new);
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
@@ -159,14 +162,14 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, outputVariablesSupplier,
             VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
 
-        Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
+        Path outputLogFile = options.getPath(OUTPUT_LOG_FILE).orElse(null);
         if (outputLogFile != null) {
             exportLog(reportNode, context, outputLogFile);
         } else {
             printLog(reportNode, context);
         }
 
-        Path outputFile = line.hasOption(OUTPUT_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE)) : null;
+        Path outputFile = options.getPath(OUTPUT_FILE).orElse(null);
         if (outputFile != null) {
             exportResult(result, context, outputFile);
         } else {
