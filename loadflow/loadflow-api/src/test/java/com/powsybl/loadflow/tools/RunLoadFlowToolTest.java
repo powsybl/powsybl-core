@@ -108,11 +108,11 @@ class RunLoadFlowToolTest extends AbstractToolTest {
                 "+ Loadflow tool",
                 "   testLoadflow",
                 "Loadflow results:",
-                "+------+--------+---------+",
-                "| Ok   | Status | Metrics |",
-                "+------+--------+---------+",
-                "| true | FAILED | {}      |",
-                "+------+--------+---------+" + System.lineSeparator());
+                "+------+---------------------+---------+",
+                "| Ok   | Status              | Metrics |",
+                "+------+---------------------+---------+",
+                "| true | PARTIALLY_CONVERGED | {}      |",
+                "+------+---------------------+---------+" + System.lineSeparator());
         assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "supportedParameters.json"}, expectedOut);
     }
 
@@ -139,11 +139,11 @@ class RunLoadFlowToolTest extends AbstractToolTest {
                 "Loading network 'network.xiidm'",
                 "Writing logs to 'outputTest.log'",
                 "Loadflow results:",
-                "+------+--------+---------+",
-                "| Ok   | Status | Metrics |",
-                "+------+--------+---------+",
-                "| true | FAILED | {}      |",
-                "+------+--------+---------+" + System.lineSeparator());
+                "+------+---------------------+---------+",
+                "| Ok   | Status              | Metrics |",
+                "+------+---------------------+---------+",
+                "| true | PARTIALLY_CONVERGED | {}      |",
+                "+------+---------------------+---------+" + System.lineSeparator());
         String expectedOutputFile = "+ Loadflow tool\n   testLoadflow\n";
         assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "supportedParameters.json", "--output-log-file", "outputTest.log"}, expectedOut);
         ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
