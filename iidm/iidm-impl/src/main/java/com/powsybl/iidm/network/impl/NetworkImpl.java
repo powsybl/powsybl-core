@@ -954,7 +954,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return index.getAll().stream().filter(clazz::isInstance).map(clazz::cast);
+        return index.streamAssignable(clazz);
     }
 
     @Override
