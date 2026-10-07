@@ -151,36 +151,6 @@ public class UcteExporter implements Exporter {
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
-            new UcteWriter(ucteNetwork).write(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, "uct"));
-    }
-
-    public void exportTEST(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
-        if (network == null) {
-            throw new IllegalArgumentException("network is null");
-        }
-
-        String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        // a new instance is requested from the ServiceLoader for each export, instead of caching and
-        // reusing one across exports, so that concurrent exports don't share (and corrupt) the same
-        // NamingStrategy's internal id-mapping state
-        List<NamingStrategy> namingStrategies = ServiceLoader.load(NamingStrategy.class, UcteExporter.class.getClassLoader())
-                .stream()
-                .map(ServiceLoader.Provider::get)
-                .toList();
-        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
-        namingStrategy.initializeNetwork(network);
-        boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
-
-        ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation, networkCreationReportNode);
-
-        try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
-             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             getUcteWriter(ucteNetwork).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
