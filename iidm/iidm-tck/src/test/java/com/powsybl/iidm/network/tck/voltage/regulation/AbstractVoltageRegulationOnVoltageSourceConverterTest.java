@@ -244,6 +244,21 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         assertEquals(voltageSourceConverter.getPccTerminal(), voltageSourceConverter.getRegulatingTerminal());
     }
 
+    @Test
+    void testNotifyUpdate() {
+        String vscId = "vsc_setPccTerminal";
+        DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(vscId,
+            RegulationMode.VOLTAGE,
+            true,
+            24,
+            Double.NaN,
+            10.0,
+            true);
+        VoltageSourceConverter voltageSourceConverter = createVoltageSourceConverter(dataVoltageRegulationHolderCreator);
+        remoteTerminal = lineTerminal;
+        this.testNotifyCommon(voltageSourceConverter, vscId);
+    }
+
     private static void assertPccTerminalAndVoltageRegulationTerminal(Terminal expectedTerminal, int expectedTargetValue, VoltageSourceConverter voltageSourceConverter) {
         assertEquals(expectedTerminal, voltageSourceConverter.getPccTerminal());
         assertEquals(expectedTerminal, voltageSourceConverter.getVoltageRegulation().getTerminal());
@@ -281,9 +296,10 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
                 .withRegulating(dataVoltageRegulationHolderCreator.regulating())
                 .withMode(dataVoltageRegulationHolderCreator.mode())
                 .withTargetValue(dataVoltageRegulationHolderCreator.targetValue())
-                .withTerminal(dataVoltageRegulationHolderCreator.remoteTerminal() ? remoteTerminal : null)
+                .withTerminal(dataVoltageRegulationHolderCreator.remoteTerminal() ? lineTerminal : null)
                 .add();
         }
+        adder.setPccTerminal(dataVoltageRegulationHolderCreator.remoteTerminal() ? lineTerminal : null);
         return adder.add();
     }
 }
