@@ -1,0 +1,4 @@
+moduleA:
+    propA: valueA
+shared:
+    common: fromA
