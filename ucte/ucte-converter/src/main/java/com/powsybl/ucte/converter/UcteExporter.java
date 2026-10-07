@@ -17,24 +17,75 @@ import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLineFilter;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.Exporter;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.converter.util.UcteExporterReports;
-import com.powsybl.ucte.network.*;
+import com.powsybl.ucte.network.UcteAngleRegulation;
+import com.powsybl.ucte.network.UcteAngleRegulationType;
+import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.ucte.network.UcteElementId;
+import com.powsybl.ucte.network.UcteElementStatus;
+import com.powsybl.ucte.network.UcteFormatVersion;
+import com.powsybl.ucte.network.UcteLine;
+import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UcteNetworkImpl;
+import com.powsybl.ucte.network.UcteNode;
+import com.powsybl.ucte.network.UcteNodeCode;
+import com.powsybl.ucte.network.UcteNodeStatus;
+import com.powsybl.ucte.network.UcteNodeTypeCode;
+import com.powsybl.ucte.network.UctePhaseRegulation;
+import com.powsybl.ucte.network.UctePowerPlantType;
+import com.powsybl.ucte.network.UcteRegulation;
+import com.powsybl.ucte.network.UcteTransformer;
 import com.powsybl.ucte.network.io.UcteWriter;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.ServiceLoader;
 
-import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
-import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.CURRENT_LIMIT_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.DEFAULT_POWER_LIMIT;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.ELEMENT_NAME_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.GEOGRAPHICAL_NAME_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.IS_COUPLER_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.NOMINAL_POWER_KEY;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.POWER_PLANT_TYPE_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.STATUS_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConverterHelper.calculateAsymmAngleDuAndAngle;
+import static com.powsybl.ucte.converter.util.UcteConverterHelper.calculatePhaseDu;
+import static com.powsybl.ucte.converter.util.UcteConverterHelper.calculateSymmAngleDu;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
@@ -106,6 +157,40 @@ public class UcteExporter implements Exporter {
         }
 
         UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, "uct"));
+    }
+
+    public void exportTEST(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
+        if (network == null) {
+            throw new IllegalArgumentException("network is null");
+        }
+
+        String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+        // a new instance is requested from the ServiceLoader for each export, instead of caching and
+        // reusing one across exports, so that concurrent exports don't share (and corrupt) the same
+        // NamingStrategy's internal id-mapping state
+        List<NamingStrategy> namingStrategies = ServiceLoader.load(NamingStrategy.class, UcteExporter.class.getClassLoader())
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
+        namingStrategy.initializeNetwork(network);
+        boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
+
+        ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation, networkCreationReportNode);
+
+        try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
+            getUcteWriter(ucteNetwork).write(writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, "uct"));
+    }
+
+    protected UcteWriter getUcteWriter(final UcteNetwork network) {
+        return new UcteWriter(network);
     }
 
     @Override
@@ -300,6 +385,23 @@ public class UcteExporter implements Exporter {
         ucteNode.setPowerPlantType(powerPlantType);
         ucteNode.setTypeCode(nodeType);
         // FIXME(mathbagu): to be changed in UcteImporter?
+        setGenerationBoundaries(ucteNode, minP, maxP, minQ, maxQ);
+    }
+
+    /**
+     * Initialize the power generation fields from a generator's active/reactive power limits
+     *
+     * @param ucteNode The UCTE node to update
+     * @param minP the generation's minimum active power
+     * @param maxP the generation's maximum active power
+     * @param minQ the generation's minimum reactive power
+     * @param maxQ the generation's maximum reactive power
+     */
+    private static void setGenerationBoundaries(final UcteNode ucteNode,
+                                                final double minP,
+                                                final double maxP,
+                                                final double minQ,
+                                                final double maxQ) {
         if (minP != -DEFAULT_POWER_LIMIT) {
             ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
         }
@@ -340,18 +442,7 @@ public class UcteExporter implements Exporter {
             double maxP = boundaryLine.getGeneration().getMaxP();
             double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
             double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
-            if (minP != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
-            }
-            if (maxP != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
-            }
-            if (minQ != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
-            }
-            if (maxQ != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
-            }
+            setGenerationBoundaries(ucteNode, minP, maxP, minQ, maxQ);
         }
     }
 
@@ -799,33 +890,30 @@ public class UcteExporter implements Exporter {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
-                ucteLine.setCurrentLimit(null);
-                LOGGER.warn("Switch {}: No current limit provided", sw.getId());
-                UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
+                handleMissingSwitchCurrentLimit(ucteLine, sw, context);
             }
         } else {
-            ucteLine.setCurrentLimit(null);
-            LOGGER.warn("Switch {}: No current limit provided", sw.getId());
-            UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
+            handleMissingSwitchCurrentLimit(ucteLine, sw, context);
         }
+    }
+
+    private static void handleMissingSwitchCurrentLimit(UcteLine ucteLine, Switch sw, UcteExporterContext context) {
+        ucteLine.setCurrentLimit(null);
+        LOGGER.warn("Switch {}: No current limit provided", sw.getId());
+        UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
     }
 
     private static UctePowerPlantType energySourceToUctePowerPlantType(Generator generator) {
         if (generator.hasProperty(POWER_PLANT_TYPE_PROPERTY_KEY)) {
             return UctePowerPlantType.valueOf(generator.getProperty(POWER_PLANT_TYPE_PROPERTY_KEY));
         }
-        switch (generator.getEnergySource()) {
-            case HYDRO:
-                return UctePowerPlantType.H;
-            case NUCLEAR:
-                return UctePowerPlantType.N;
-            case THERMAL:
-                return UctePowerPlantType.C;
-            case WIND:
-                return UctePowerPlantType.W;
-            default:
-                return UctePowerPlantType.F;
-        }
+        return switch (generator.getEnergySource()) {
+            case HYDRO -> UctePowerPlantType.H;
+            case NUCLEAR -> UctePowerPlantType.N;
+            case THERMAL -> UctePowerPlantType.C;
+            case WIND -> UctePowerPlantType.W;
+            default -> UctePowerPlantType.F;
+        };
     }
 
     private static Integer getPermanentLimit(Branch<?> branch) {

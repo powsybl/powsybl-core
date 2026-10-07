@@ -19,7 +19,7 @@ import java.util.Locale;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class UcteRecordWriter {
+public class UcteRecordWriter {
 
     private enum Alignment {
         RIGHT, LEFT
