@@ -64,17 +64,20 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensator setLocalTargetV(double newLocalTargetV) {
+        NetworkImpl n = getNetwork();
         double oldTargetV = getLocalTargetV();
         ValidationUtil.checkLocalTargetQandV(this,
             ShuntCompensator.class,
             newLocalTargetV,
             Double.NaN,
             getVoltageRegulation(),
-            getNetwork().getMinValidationLevel(),
-            getNetwork().getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         this.localTargetV.set(getCurrentIndex(), newLocalTargetV);
-        getNetwork().invalidateValidationLevel();
-        notifyUpdate("localTargetV", oldTargetV, newLocalTargetV);
+        n.invalidateValidationLevel();
+        int variantIndex = n.getVariantIndex();
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("localTargetV", variantId, oldTargetV, newLocalTargetV);
         return this;
     }
 
