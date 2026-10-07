@@ -50,6 +50,9 @@ public class SensitivityStateStatus {
         return state;
     }
 
+    /**
+     * @deprecated Use {@link SensitivityStateStatus#getComponentsLoadFlowStatusList()} instead.
+     */
     @Deprecated(since = "7.4.0")
     public SensitivityAnalysisResult.Status getStatus() {
         if (!getComponentsLoadFlowStatusList().isEmpty()) {
@@ -78,6 +81,9 @@ public class SensitivityStateStatus {
         this.componentsLoadFlowStatusList = new ArrayList<>(statusList);
     }
 
+    /**
+     * @deprecated Use {@link SensitivityStateStatus} instead.
+     */
     @Deprecated(since = "7.4.0")
     public SensitivityStateStatus(SensitivityState state, SensitivityAnalysisResult.Status status) {
         this(state, List.of(new ComponentStatus(

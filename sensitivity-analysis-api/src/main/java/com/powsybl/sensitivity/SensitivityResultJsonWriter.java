@@ -64,6 +64,16 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
     }
 
     @Override
+    public void computationComplete() {
+        computationComplete = true;
+    }
+
+    @Override
+    public boolean isComputationComplete() {
+        return computationComplete;
+    }
+
+    @Override
     public void close() {
         try {
             jsonGenerator.writeEndArray();

@@ -75,6 +75,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                 }
             });
         }
+        resultWriter.computationComplete();
         if (reportNode != null) {
             reportNode.newReportNode()
                     .withMessageTemplate("testSensitivityAnalysis")
