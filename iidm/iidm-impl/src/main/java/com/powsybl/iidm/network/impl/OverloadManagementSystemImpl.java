@@ -91,7 +91,7 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     static class SwitchTrippingImpl extends AbstractTrippingImpl implements SwitchTripping {
         private String switchToOperateId;
 
-        public SwitchTrippingImpl(String overloadManagementSystemId, String key, String name,
+        SwitchTrippingImpl(String overloadManagementSystemId, String key, String name,
                                   double currentLimit, boolean openAction,
                                   String switchToOperateId) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);

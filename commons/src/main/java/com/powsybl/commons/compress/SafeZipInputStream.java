@@ -7,11 +7,11 @@
  */
 package com.powsybl.commons.compress;
 
+import com.powsybl.commons.io.ForwardingInputStream;
+
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import com.powsybl.commons.io.ForwardingInputStream;
 
 public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
 

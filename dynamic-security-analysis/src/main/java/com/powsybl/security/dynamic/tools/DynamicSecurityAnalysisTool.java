@@ -14,12 +14,12 @@ import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProviders;
+import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.iidm.network.ImportersServiceLoader;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisInput;
@@ -36,6 +36,8 @@ import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +46,8 @@ import java.util.function.Supplier;
 
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION;
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION;
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.DEFAULT_SERVICE_IMPL_NAME_PROPERTY;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.PARAMETERS_FILE_OPTION;
 import static com.powsybl.tools.ToolConstants.TASK;
 
 /**
@@ -53,6 +56,8 @@ import static com.powsybl.tools.ToolConstants.TASK;
 @AutoService(Tool.class)
 public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<DynamicSecurityAnalysisExecutionInput,
         DynamicSecurityAnalysisExecutionBuilder> implements Tool {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicSecurityAnalysisTool.class);
 
     @Override
     public Command getCommand() {
@@ -104,7 +109,11 @@ public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<Dy
 
         executionInput.getContingenciesSource()
             .map(preprocessorFactory::newPreprocessor)
-            .ifPresent(p -> p.preprocess(input));
+            .ifPresent(p -> {
+                LOG.warn("Since version 7.4.0, the `preprocessor` property of the `security-analysis` module is deprecated" +
+                        " and will be removed in a future version. Avoid new usages of the `SecurityAnalysisPreprocessor` plugin.");
+                p.preprocess(input);
+            });
 
         return input;
     }

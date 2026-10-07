@@ -113,10 +113,10 @@ public abstract class AbstractDcLineTest {
         assertEquals(0.0, dcLine.getR());
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcLine.setR(Double.NaN));
-        assertEquals("DC Line 'dcLine': r is invalid", e1.getMessage());
+        assertEquals("DC Line 'dcLine': r is invalid (must be positive); given: NaN", e1.getMessage());
 
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> dcLine.setR(-1.0));
-        assertEquals("DC Line 'dcLine': r is invalid", e2.getMessage());
+        assertEquals("DC Line 'dcLine': r is invalid (must be positive); given: -1.0", e2.getMessage());
     }
 
     @Test
@@ -210,15 +210,15 @@ public abstract class AbstractDcLineTest {
 
         adder.setDcNode2(dcNode2.getId());
         PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Line 'dcLine': r is invalid", e6.getMessage());
+        assertEquals("DC Line 'dcLine': r is invalid (must be positive); given: NaN", e6.getMessage());
 
         adder.setR(Double.NaN);
         PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Line 'dcLine': r is invalid", e7.getMessage());
+        assertEquals("DC Line 'dcLine': r is invalid (must be positive); given: NaN", e7.getMessage());
 
         adder.setR(-1.0);
         PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("DC Line 'dcLine': r is invalid", e8.getMessage());
+        assertEquals("DC Line 'dcLine': r is invalid (must be positive); given: -1.0", e8.getMessage());
     }
 
     @Test

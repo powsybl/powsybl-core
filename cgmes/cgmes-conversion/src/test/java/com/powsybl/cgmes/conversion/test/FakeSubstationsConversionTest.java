@@ -8,17 +8,17 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.powsybl.iidm.network.Substation;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.InMemoryCgmesModel;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

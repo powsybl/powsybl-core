@@ -9,13 +9,20 @@ package com.powsybl.commons.io;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteSource;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -63,7 +70,7 @@ public final class FileUtil {
         private final Path toPath;
         private final CopyOption copyOption;
 
-        public CopyDirVisitor(Path fromPath, Path toPath, CopyOption copyOption) {
+        CopyDirVisitor(Path fromPath, Path toPath, CopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = copyOption;
@@ -103,4 +110,29 @@ public final class FileUtil {
             }
         };
     }
+
+    public static void unzipArchive(Path workingDir, Path path) throws IOException {
+        Objects.requireNonNull(workingDir);
+        Objects.requireNonNull(path);
+        try (ZipFile zipFile = ZipFile.builder()
+                .setSeekableByteChannel(Files.newByteChannel(path))
+                .get()) {
+            Path normalizedWorkingDir = workingDir.toAbsolutePath().normalize();
+            List<ZipArchiveEntry> entries = Collections.list(zipFile.getEntries());
+            // Check that all entries are inside the working directory
+            for (ZipEntry ze : entries) {
+                Path target = normalizedWorkingDir.resolve(ze.getName()).normalize();
+                if (!target.startsWith(normalizedWorkingDir)) {
+                    throw new IOException("Archive entry '" + ze.getName()
+                            + "' would extract outside of the working directory");
+                }
+            }
+            // Copy all entries inside the working directory
+            for (ZipEntry ze : entries) {
+                Files.copy(zipFile.getInputStream(zipFile.getEntry(ze.getName())),
+                        workingDir.resolve(ze.getName()), REPLACE_EXISTING);
+            }
+        }
+    }
+
 }

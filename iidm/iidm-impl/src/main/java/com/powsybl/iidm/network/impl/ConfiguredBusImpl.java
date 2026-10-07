@@ -7,12 +7,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -254,6 +255,18 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
             connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
             synchronousComponentNumber.set(index, synchronousComponentNumber.get(sourceIndex));
         }
+    }
+
+    @Override
+    public Bus setId(String id) {
+        var oldId = getId();
+        super.setId(id);
+        // Update the BusTerminal
+        Set<VoltageLevelExt> vlToUpdate = getTerminals().stream()
+                .map(AbstractTerminal::getVoltageLevel).collect(Collectors.toSet());
+        vlToUpdate.forEach(vl -> vl.getTopologyModel().updateBusId(oldId, id));
+        getTerminals().forEach(t -> t.getBusBreakerView().updateConnectableBus(id));
+        return this;
     }
 
 }

@@ -94,7 +94,7 @@ public class PropertyBag extends HashMap<String, String> {
         }
         try {
             return Double.parseDouble(get(property));
-        } catch (NumberFormatException x) {
+        } catch (NumberFormatException e) {
             LOG.warn("Invalid value for property {} : {}", property, get(property));
             return Double.NaN;
         }
@@ -106,7 +106,7 @@ public class PropertyBag extends HashMap<String, String> {
         }
         try {
             return OptionalDouble.of(Double.parseDouble(get(property)));
-        } catch (NumberFormatException x) {
+        } catch (NumberFormatException e) {
             LOG.warn("Invalid value for property {} : {}", property, get(property));
             return OptionalDouble.of(Double.NaN);
         }

@@ -17,6 +17,8 @@ public class DataObjectIndex {
 
     private final Map<Long, DataObject> objectsById = new HashMap<>();
 
+    private final Map<String, DataObject> objectsByForeignKey = new HashMap<>();
+
     private final Map<String, List<DataObject>> objectsByClass = new HashMap<>();
 
     private Map<Long, List<DataObject>> backwardLinks;
@@ -34,12 +36,23 @@ public class DataObjectIndex {
         }
     }
 
+    public void addForeignKey(DataObject obj, String forName) {
+        if (objectsByForeignKey.containsKey(forName)) {
+            throw new PowerFactoryException("Object '" + forName + "' already exists");
+        }
+        objectsByForeignKey.put(forName, obj);
+    }
+
     public Collection<DataObject> getDataObjects() {
         return objectsById.values();
     }
 
     public List<DataObject> getRootDataObjects() {
         return objectsById.values().stream().filter(obj -> obj.getParent() == null).collect(Collectors.toList());
+    }
+
+    public Optional<DataObject> getDataObjectByForeignKey(String forName) {
+        return Optional.ofNullable(objectsByForeignKey.get(forName));
     }
 
     public Optional<DataObject> getDataObjectById(long id) {

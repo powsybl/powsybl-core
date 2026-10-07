@@ -7,11 +7,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadModel;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Optional;
@@ -35,9 +35,9 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     private final TDoubleArrayList q0;
 
     LoadImpl(Ref<NetworkImpl> networkRef,
-             String id, String name, boolean fictitious, LoadType loadType, LoadModel model,
+             String id, String name, boolean fictitious, boolean equivalent, LoadType loadType, LoadModel model,
              double p0, double q0) {
-        super(networkRef, id, name, fictitious);
+        super(networkRef, id, name, fictitious, equivalent);
         this.network = networkRef;
         this.loadType = loadType;
         this.model = model;

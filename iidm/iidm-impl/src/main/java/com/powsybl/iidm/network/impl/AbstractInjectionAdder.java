@@ -13,7 +13,7 @@ import com.powsybl.commons.ref.Ref;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> extends AbstractConnectableAdder<T> {
 
     private Integer node;
 
@@ -48,7 +48,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
     }
 
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getNetworkRef(), this, null, null)
+        return new TerminalBuilder(getNetworkRef(), voltageLevel.getTopologyKind(), this, null, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

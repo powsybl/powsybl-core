@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -22,6 +21,7 @@ import java.util.function.Predicate;
  */
 class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
+    public static final String R_ATTRIBUTE = "r";
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
     private double r;
@@ -116,7 +116,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setR(double r) {
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
         double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
@@ -236,32 +236,12 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public boolean connectConverterStations() {
-        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
-    }
-
-    @Override
-    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectConverterStations(isTypeSwitchToOperate, null);
-    }
-
-    @Override
     public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnectConverterStations() {
-        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
-    }
-
-    @Override
-    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
-        return disconnectConverterStations(isSwitchOpenable, null);
     }
 
     @Override

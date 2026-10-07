@@ -1,0 +1,36 @@
+{
+  "version" : "1.3",
+  "increased-violations-parameters" : {
+    "flow-proportional-threshold" : 0.2,
+    "low-voltage-proportional-threshold" : 0.0,
+    "low-voltage-absolute-threshold" : 0.0,
+    "high-voltage-proportional-threshold" : 0.0,
+    "high-voltage-absolute-threshold" : 0.0
+  },
+  "monitored-element-modification-threshold" : {
+    "power-modification-threshold" : 1.0,
+    "voltage-modification-proportional-threshold" : 0.0,
+    "voltage-modification-absolute-threshold" : 10.0
+  },
+  "intermediate-results-in-operator-strategy" : true,
+  "debug-dir" : "/tmp/debugDir",
+  "load-flow-parameters" : {
+    "version" : "1.11",
+    "voltageInitMode" : "UNIFORM_VALUES",
+    "transformerVoltageControlOn" : false,
+    "phaseShifterRegulationOn" : false,
+    "useReactiveLimits" : true,
+    "twtSplitShuntAdmittance" : false,
+    "shuntCompensatorVoltageControlOn" : false,
+    "readSlackBus" : true,
+    "writeSlackBus" : true,
+    "dc" : false,
+    "distributedSlack" : true,
+    "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
+    "dcUseTransformerRatio" : true,
+    "countriesToBalance" : [ ],
+    "componentMode" : "MAIN_CONNECTED",
+    "hvdcAcEmulation" : true,
+    "dcPowerFactor" : 1.0
+  }
+}

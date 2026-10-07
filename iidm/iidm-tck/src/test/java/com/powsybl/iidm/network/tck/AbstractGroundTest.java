@@ -59,6 +59,9 @@ public abstract class AbstractGroundTest {
         // Test getters
         assertEquals(IdentifiableType.GROUND, groundNB.getType());
         assertEquals(IdentifiableType.GROUND, groundBB.getType());
+        assertFalse(groundNB.isEquivalent()); // default value
+        groundNB.setEquivalent(true);
+        assertTrue(groundNB.isEquivalent());
         assertEquals(vl1, groundNB.getTerminal().getVoltageLevel());
         assertEquals(vl2, groundBB.getTerminal().getVoltageLevel());
         assertEquals("GroundNB", groundNB.getId());
@@ -193,7 +196,7 @@ public abstract class AbstractGroundTest {
             .setId("Ground")
             .setEnsureIdUnicity(true);
         ValidationException exception = assertThrows(ValidationException.class, groundAdderNB::add);
-        assertEquals("Ground 'Ground': connectable bus is not set", exception.getMessage());
+        assertEquals("Ground 'Ground': node is not set", exception.getMessage());
         groundAdderNB = vl1.newGround()
             .setNode(6)
             .setEnsureIdUnicity(true);

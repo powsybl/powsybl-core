@@ -36,6 +36,23 @@ The possible validation levels are  `EQUIPMENT` and `STEADY_STATE_HYPOTHESIS`.
 
 By default, the value is `null`, the network validation level remains the same.
 
+**iidm.import.only-selected-operational-limits-groups**<br>
+The `iidm.import.only-selected-operational-limits-groups` property is an optional property that allows for each equipment to import only the selected operational limits groups.
+Using this will result in a smaller in-memory network.
+
+By default, this is set to `false`, all groups are imported.
+
+**iidm.import.repair-invalid-reactive-curve-limits**<br>
+The `iidm.import.repair-invalid-reactive-curve-limits` property is an optional property that enables the IIDM importer to detect `minQ > maxQ` values in `ReactiveCapabilityCurve` points and automatically reorder them before validation.
+
+By default, the value is `false`.<br>
+When set to `false`, a reactive capability curve point with `minQ > maxQ` is considered invalid and the import fails with a validation error.<br>
+When set to `true`, the importer automatically swaps the values so that `minQ <= maxQ`, allowing the import to succeed.<br>
+
+```{note}
+The `iidm.import.repair-invalid-reactive-curve-limits` property should normally be left at its default value. Earlier versions of PowSyBl accepted invalid ordered minQ/maxQ limits. Change this parameter only if you need to import older IIDM files that contain such invalid values.
+```
+
 ### Deprecated properties
 
 **throwExceptionIfExtensionNotFound**<br>

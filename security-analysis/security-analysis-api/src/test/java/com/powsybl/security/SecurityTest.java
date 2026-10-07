@@ -10,6 +10,10 @@ package com.powsybl.security;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.strategy.ConditionalActions;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.condition.AtLeastOneViolationCondition;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.contingency.violations.LimitViolationHelper;
@@ -18,9 +22,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 import com.powsybl.security.results.ConnectivityResult;
 import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.results.OperatorStrategyResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,16 +57,54 @@ class SecurityTest {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
         // create pre-contingency results, just one violation on line1
-        line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        line1Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limitName(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
+            .limit(1000.0)
+            .scaling(0.95f)
+            .value(1100.0)
+            .side(TwoSides.ONE)
+            .build();
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+        line2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limitName("permanent2")
+            .limit(900.0)
+            .scaling(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1,
+            PostContingencyComputationStatus.CONVERGED,
+            new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyList());
 
-        result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
+        List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
+        OperatorStrategyResult opStrategyResult1 = new OperatorStrategyResult(
+            new OperatorStrategy("strategy1", ContingencyContext.specificContingency(contingency1.getId()),
+                List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
+            List.of(new OperatorStrategyResult.ConditionalActionsResult("strategy1", PostContingencyComputationStatus.CONVERGED,
+                    new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
+                    NetworkResult.empty(),
+                    3.45)
+            )
+        );
+        operatorStrategyResults.add(opStrategyResult1);
+
+        result = new SecurityAnalysisResult(preContingencyResult,
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                Collections.singletonList(postContingencyResult),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                operatorStrategyResults
+        );
     }
 
     @Test
@@ -76,7 +119,7 @@ class SecurityTest {
                                  "Pre-contingency violations",
                                  "Action,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
                                  "action1,,,,,,,,,,",
-                                 ",NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00"),
+                                 ",NHV1_NHV2_1,VLHV1,FR,380,CURRENT,permanent,1100.0000,950.0000,150.0000,110.00"),
                      writer.toString().trim());
     }
 
@@ -93,8 +136,8 @@ class SecurityTest {
                                  "Contingency,Status,Action,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
                                  "contingency1,CONVERGED,,Equipment (2),,,,,,,,,",
                                  ",,action2,,,,,,,,,,",
-                                 ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00",
-                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
+                                 ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,permanent,1100.0000,950.0000,150.0000,110.00",
+                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,permanent2,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
     }
 
@@ -111,18 +154,54 @@ class SecurityTest {
                                  "Contingency,Status,Action,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
                                  "contingency1,CONVERGED,,Equipment (1),,,,,,,,,",
                                  ",,action2,,,,,,,,,,",
-                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
+                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,permanent2,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
     }
 
     @Test
+    void printOperatorStrategyViolations() throws Exception {
+        StringWriter writer = new StringWriter();
+        try (writer) {
+            Security.printOperatorStrategyViolations(result, network, writer, formatterFactory, formatterConfig, null, false);
+        } finally {
+            writer.close();
+        }
+        assertEquals(String.join(System.lineSeparator(),
+                        "Operator strategy limit violations",
+                        "Operator strategy,Status,Contingency,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
+                        "strategy1,CONVERGED,contingency1,Equipment (2),,,,,,,,,",
+                        ",,action2,,,,,,,,,,",
+                        ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,permanent,1100.0000,950.0000,150.0000,110.00",
+                        ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,permanent2,950.0000,855.0000,95.0000,105.56"),
+                writer.toString().trim());
+    }
+
+    @Test
+    void printOperatorStrategyViolationsWithPreContingencyViolationsFiltering() throws Exception {
+        StringWriter writer = new StringWriter();
+        try (writer) {
+            Security.printOperatorStrategyViolations(result, network, writer, formatterFactory, formatterConfig, null, true);
+        } finally {
+            writer.close();
+        }
+        assertEquals(String.join(System.lineSeparator(),
+                        "Operator strategy limit violations",
+                        "Operator strategy,Status,Contingency,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
+                        "strategy1,CONVERGED,contingency1,Equipment (1),,,,,,,,,",
+                        ",,action2,,,,,,,,,,",
+                        ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,permanent2,950.0000,855.0000,95.0000,105.56"),
+                writer.toString().trim());
+    }
+
+    @Test
     void printLimitsViolations() {
-        assertEquals("+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
-                     "| Equipment (2) | End   | Country | Base voltage | Violation type | Violation name  | Value     | Limit    | abs(value-limit) | Loading rate % |\n" +
-                     "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
-                     "| NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit | 1100.0000 | 950.0000 |         150.0000 |         110.00 |\n" +
-                     "| NHV1_NHV2_2   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit |  950.0000 | 855.0000 |          95.0000 |         105.56 |\n" +
-                     "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+",
+        assertEquals("""
+                     +---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+                     | Equipment (2) | End   | Country | Base voltage | Violation type | Violation name | Value     | Limit    | abs(value-limit) | Loading rate % |
+                     +---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+                     | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 1100.0000 | 950.0000 |         150.0000 |         110.00 |
+                     | NHV1_NHV2_2   | VLHV1 | FR      |          380 | CURRENT        | permanent2     |  950.0000 | 855.0000 |          95.0000 |         105.56 |
+                     +---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+""",
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), network, new LimitViolationFilter(), formatterConfig));
     }
 
@@ -158,7 +237,7 @@ class SecurityTest {
     private static void assertViolation05(List<LimitViolation> violations) {
         Optional<LimitViolation> violation = getCurrentLimitViolationOnLine1Side1(violations);
         assertTrue(violation.isPresent());
-        assertEquals(0.5, violation.get().getLimitReduction(), 0.001d);
+        assertEquals(0.5, violation.get().getLimitScaling(), 0.001d);
         assertEquals(2000, violation.get().getLimit(), 0.001d);
         assertEquals(1192, violation.get().getValue(), 1d);
     }
@@ -183,8 +262,8 @@ class SecurityTest {
 
     @Test
     void checkLimitsDC() {
-        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0, 0.95));
-        assertEquals("Bad limit reduction 0.0", eBadLimit.getMessage());
+        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, -0.2, 0.95));
+        assertEquals("Limit scaling should be positive, got -0.2", eBadLimit.getMessage());
 
         var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, -0.1));
         assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());
@@ -199,8 +278,9 @@ class SecurityTest {
     @Test
     void checkLimitsDCOnThreeWindingsTransformer() {
         Network otherNetwork = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimitsAndTerminalsPAndQ();
-        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, 0, 0.95));
-        assertEquals("Bad limit reduction 0.0", eBadLimit.getMessage());
+
+        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, -0.3, 0.95));
+        assertEquals("Limit scaling should be positive, got -0.3", eBadLimit.getMessage());
 
         var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(otherNetwork, 0.7f, -0.1));
         assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());

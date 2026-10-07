@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import com.powsybl.iidm.network.*;
-import com.powsybl.commons.ref.Ref;
 
 /**
  *
@@ -41,10 +41,10 @@ class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTr
 
     private PhaseTapChangerImpl phaseTapChanger;
 
-    TwoWindingsTransformerImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious,
+    TwoWindingsTransformerImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent,
                                SubstationImpl substation,
                                double r, double x, double g, double b, double ratedU1, double ratedU2, double ratedS) {
-        super(network, id, name, fictitious);
+        super(network, id, name, fictitious, equivalent);
         this.substation = substation;
         this.r = r;
         this.x = x;

@@ -80,6 +80,46 @@
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2" />
     </cim:Terminal>
 
+    <cim:EquivalentBranch rdf:ID="_EquivalentBranch">
+        <cim:IdentifiedObject.name>EquivalentBranch</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.r>0.0</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>0.0</cim:EquivalentBranch.x>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_EquivalentBranch-T1">
+        <cim:IdentifiedObject.name>EquivalentBranch-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentBranch"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_EquivalentBranch-T2">
+        <cim:IdentifiedObject.name>EquivalentBranch-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentBranch"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment">
+        <cim:IdentifiedObject.name>ACLineSegment</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.bch>0.0</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>0.0</cim:ACLineSegment.r>
+        <cim:ACLineSegment.x>0.0</cim:ACLineSegment.x>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment-T1">
+        <cim:IdentifiedObject.name>ACLineSegment-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment-T2">
+        <cim:IdentifiedObject.name>ACLineSegment-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
     <cim:EnergyConsumer rdf:ID="_EnergyConsumer">
         <cim:IdentifiedObject.name>EnergyConsumer</cim:IdentifiedObject.name>
         <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>

@@ -9,17 +9,15 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.networkModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-
-import com.powsybl.iidm.network.*;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.cgmes.conversion.Conversion;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

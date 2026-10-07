@@ -11,10 +11,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,8 +67,8 @@ public abstract class AbstractSlackTerminalTest {
             .setTargetP(100)
             .setMinP(0)
             .setMaxP(110)
-            .setTargetV(380)
-            .setVoltageRegulatorOn(true)
+            .setLocalTargetV(380)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 
         network.newLine()
@@ -248,7 +249,7 @@ public abstract class AbstractSlackTerminalTest {
         assertEquals("NLOAD", stLoad.getTerminal().getBusBreakerView().getBus().getId());
         assertFalse(stLoad.isEmpty());
 
-         // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
+        // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
         SlackTerminal.reset(vlgen, tGen);
         stGen = vlgen.getExtension(SlackTerminal.class);
         assertNotNull(stGen);

@@ -27,7 +27,8 @@ import static com.powsybl.iidm.serde.extensions.BatteryShortCircuitSerDe.Version
 @AutoService(ExtensionSerDe.class)
 public class BatteryShortCircuitSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, BatteryShortCircuit, BatteryShortCircuitSerDe.Version> {
 
-    private static final ImmutableSortedSet<BatteryShortCircuitSerDe.Version> LEGACY_VERSIONS = ImmutableSortedSet.<BatteryShortCircuitSerDe.Version>reverseOrder().add(V_1_0_LEGACY, V_1_0_LEGACY_2).build();
+    private static final ImmutableSortedSet<BatteryShortCircuitSerDe.Version> LEGACY_VERSIONS = ImmutableSortedSet.<BatteryShortCircuitSerDe.Version>reverseOrder()
+        .add(V_1_0_LEGACY, V_1_0_LEGACY_2).build();
 
     public enum Version implements SerDeVersion<BatteryShortCircuitSerDe.Version> {
         V_1_0_LEGACY("/xsd/batteryShortCircuit_V1_0_legacy.xsd", "http://www.itesla_project.eu/schema/iidm/ext/battery_short_circuits/1_0",

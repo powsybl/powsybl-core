@@ -82,7 +82,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The converter's control mode: P_PCC or V_DC</td>
+ *             <td style="border: 1px solid black">The converter's control mode: P_PCC, V_DC or DC_DROOP</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">TargetP</td>
@@ -108,6 +108,22 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">Curve which contains multiple droop segments</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">minP</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> -Double.MAX_VALUE MW</td>
+ *             <td style="border: 1px solid black">Minimum operating active power at point of common coupling, load sign convention</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">maxP</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> +Double.MAX_VALUE MW</td>
+ *             <td style="border: 1px solid black">Maximum operating active power at point of common coupling, load sign convention</td>
+ *         </tr>
  *     </tbody>
  * </table>
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -127,9 +143,9 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
          */
         V_DC,
         /**
-         * Controlling DC Voltage with Droop Control
+         * Controlling the relation between DC voltage and AC power through a droop curve
          */
-        P_PCC_DROOP
+        DC_DROOP
     }
 
     /**
@@ -171,6 +187,34 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
      * Get the DC terminal of provided terminal number.
      */
     DcTerminal getDcTerminal(TerminalNumber terminalNumber);
+
+    /**
+     * Get the minimal active power in MW.
+     * Defaults to -{@link Double#MAX_VALUE} if not set.
+     */
+    double getMinP();
+
+    /**
+     * Set the minimal active power in MW.
+     * <p><b>Note:</b> IIDM serialization is not yet supported for non-default values.
+     * Setting a value other than -{@link Double#MAX_VALUE} will cause
+     * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
+     */
+    I setMinP(double minP);
+
+    /**
+     * Get the maximal active power in MW.
+     * Defaults to {@link Double#MAX_VALUE} if not set.
+     */
+    double getMaxP();
+
+    /**
+     * Set the maximal active power in MW.
+     * <p><b>Note:</b> IIDM serialization is not yet supported for non-default values.
+     * Setting a value other than {@link Double#MAX_VALUE} will cause
+     * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
+     */
+    I setMaxP(double maxP);
 
     /**
      * Set the idle loss (MW).
@@ -251,4 +295,10 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
      * Get the Converter droop curve;
      */
     DroopCurve getDroopCurve();
+
+    @Override
+    default void unsetSolvedValues() {
+        Connectable.super.unsetSolvedValues();
+        DcConnectable.super.unsetSolvedValues();
+    }
 }

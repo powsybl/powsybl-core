@@ -26,6 +26,18 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
 
     double[] toArray();
 
+    default double[] toCompactArray() {
+        return toArray();
+    }
+
+    default double get(int index) {
+        return getDoubleTimeSeriesValues().get(index);
+    }
+
+    default DoubleTimeSeriesValues getDoubleTimeSeriesValues() {
+        return new DoubleTimeSeriesValues(toArray(), 0);
+    }
+
     static Iterator<DoubleMultiPoint> iterator(List<DoubleTimeSeries> timeSeriesList) {
         return iterator(timeSeriesList, DoubleTimeSeries::iterator);
     }

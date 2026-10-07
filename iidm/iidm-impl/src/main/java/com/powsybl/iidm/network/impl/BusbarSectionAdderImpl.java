@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.ValidationException;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdderImpl> implements BusbarSectionAdder {
+class BusbarSectionAdderImpl extends AbstractConnectableAdder<BusbarSectionAdderImpl> implements BusbarSectionAdder {
 
     private final VoltageLevelExt voltageLevel;
 
@@ -48,7 +48,7 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
             throw new ValidationException(this, "node is not set");
         }
         TerminalExt terminal = new NodeTerminal(voltageLevel.getNetworkRef(), null, null, node);
-        BusbarSectionImpl section = new BusbarSectionImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious());
+        BusbarSectionImpl section = new BusbarSectionImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(), isEquivalent());
         section.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(section);

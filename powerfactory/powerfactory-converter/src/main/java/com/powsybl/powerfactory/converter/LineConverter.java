@@ -8,13 +8,22 @@
 package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillLineGeoData;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -28,7 +37,11 @@ class LineConverter extends AbstractConverter {
     }
 
     void create(DataObject elmLne) {
-        List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
+        List<NodeRef> nodeRefs = findNodes(elmLne);
+        if (nodeRefs.size() != 2) {
+            LOGGER.warn("ElemLne discarded as it does not have two ends {} '{}'", elmLne.getId(), elmLne);
+            return;
+        }
         Optional<LineModel> lineModel = LineModel.createFromElmLne(elmLne);
         if (lineModel.isEmpty()) {
             return;
@@ -164,4 +177,27 @@ class LineConverter extends AbstractConverter {
                 .orElseThrow(() -> new PowerFactoryException("Unexpected elmTow configuration '" + elmTow.getLocName() + "'"));
         }
     }
+
+    static void addGeoData(Network network, DataObject elmLne) {
+        RealMatrix realMatrix = elmLne.findDoubleMatrixAttributeValue("GPScoords").orElse(null);
+        List<Coordinate> coordinates = realMatrixToCoordinateList(realMatrix);
+        if (coordinates.size() >= 2) {
+            AtomicInteger linesWithNewData = new AtomicInteger();
+            AtomicInteger linesWithUpdatedData = new AtomicInteger();
+            AtomicInteger unknownLines = new AtomicInteger();
+            fillLineGeoData(network, elmLne.getLocName(), coordinates, false, linesWithNewData, linesWithUpdatedData, unknownLines);
+        }
+    }
+
+    private static List<Coordinate> realMatrixToCoordinateList(RealMatrix realMatrix) {
+        if (realMatrix == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(Arrays.stream(realMatrix.getData())
+                .filter(point -> point != null && point.length >= 2)
+                .map(point -> new Coordinate(point[0], point[1]))
+                .toList());
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineConverter.class);
 }

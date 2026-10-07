@@ -9,6 +9,7 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedNoSuchMethodException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,5 +82,11 @@ class ComponentDefaultConfigTest {
         moduleConfig.setClassProperty(C.class.getSimpleName(), C.class);
         assertThrows(UncheckedNoSuchMethodException.class, () -> config.newFactoryImpl(C.class));
         assertThrows(UncheckedNoSuchMethodException.class, () -> config.newFactoryImpl(A.class, C.class));
+    }
+
+    @Test
+    void newFactoryImplMissingClassTest() {
+        moduleConfig.setStringProperty(A.class.getSimpleName(), "com.powsybl.commons.config.A_Impl_DOES_NOT_EXIST");
+        assertThrows(UncheckedClassNotFoundException.class, () -> config.newFactoryImpl(A.class));
     }
 }

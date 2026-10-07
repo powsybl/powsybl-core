@@ -61,7 +61,7 @@ public class NetworkStateComparator {
 
         @Override
         public String getTitle() {
-            return "\u03B8 (°)";
+            return "θ (°)";
         }
 
         @Override
@@ -178,7 +178,7 @@ public class NetworkStateComparator {
         protected final ThreeSides side;
         private final String title;
 
-        public AbstractT3wtPColumnMapper(ThreeSides side, String title) {
+        AbstractT3wtPColumnMapper(ThreeSides side, String title) {
             this.side = side;
             this.title = title;
         }
@@ -191,7 +191,7 @@ public class NetworkStateComparator {
 
     private static class T3wtPColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtPColumnMapper(ThreeSides side, String title) {
+        T3wtPColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -205,7 +205,7 @@ public class NetworkStateComparator {
 
     private static class T3wtQColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtQColumnMapper(ThreeSides side, String title) {
+        T3wtQColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -219,7 +219,7 @@ public class NetworkStateComparator {
 
     private static class T3wtRatioTapColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtRatioTapColumnMapper(ThreeSides side, String title) {
+        T3wtRatioTapColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -234,7 +234,7 @@ public class NetworkStateComparator {
 
     private static class T3wtPhaseTapColumnMapper extends AbstractT3wtPColumnMapper<ThreeWindingsTransformer> {
 
-        public T3wtPhaseTapColumnMapper(ThreeSides side, String title) {
+        T3wtPhaseTapColumnMapper(ThreeSides side, String title) {
             super(side, title);
         }
 
@@ -474,9 +474,11 @@ public class NetworkStateComparator {
 
     private static final List<ColumnMapper<Line>> LINE_MAPPERS = List.of(LINE_P1, LINE_P2, LINE_Q1, LINE_Q2);
 
-    private static final List<ColumnMapper<TwoWindingsTransformer>> TRANSFO_MAPPERS = List.of(TWT_P1, TWT_P2, TWT_Q1, TWT_Q2, TWT_RATIO_TAP, TWT_PHASE_TAP, TWT_RATIO, TWT_DEPHA);
+    private static final List<ColumnMapper<TwoWindingsTransformer>> TRANSFO_MAPPERS = List.of(TWT_P1, TWT_P2, TWT_Q1,
+        TWT_Q2, TWT_RATIO_TAP, TWT_PHASE_TAP, TWT_RATIO, TWT_DEPHA);
 
-    private static final List<ColumnMapper<ThreeWindingsTransformer>> T3WT_MAPPERS = List.of(T3WT_P1, T3WT_P2, T3WT_P3, T3WT_Q1, T3WT_Q2, T3WT_Q3, T3WT_RATIO1, T3WT_RATIO2, T3WT_RATIO3, T3WT_PHASE1, T3WT_PHASE2, T3WT_PHASE3);
+    private static final List<ColumnMapper<ThreeWindingsTransformer>> T3WT_MAPPERS = List.of(T3WT_P1, T3WT_P2, T3WT_P3,
+        T3WT_Q1, T3WT_Q2, T3WT_Q3, T3WT_RATIO1, T3WT_RATIO2, T3WT_RATIO3, T3WT_PHASE1, T3WT_PHASE2, T3WT_PHASE3);
 
     private static final List<ColumnMapper<Generator>> GENERATOR_MAPPERS = List.of(GEN_P, GEN_Q, GEN_V);
 

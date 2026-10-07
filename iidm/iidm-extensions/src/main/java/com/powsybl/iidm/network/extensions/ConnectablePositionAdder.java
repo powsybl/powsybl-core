@@ -22,13 +22,13 @@ public interface ConnectablePositionAdder<C extends Connectable<C>>
 
     interface FeederAdder<C extends Connectable<C>> {
 
-        public FeederAdder<C> withName(String name);
+        FeederAdder<C> withName(String name);
 
-        public FeederAdder<C> withOrder(int order);
+        FeederAdder<C> withOrder(int order);
 
-        public FeederAdder<C> withDirection(ConnectablePosition.Direction direction);
+        FeederAdder<C> withDirection(ConnectablePosition.Direction direction);
 
-        public ConnectablePositionAdder<C> add();
+        ConnectablePositionAdder<C> add();
 
     }
 

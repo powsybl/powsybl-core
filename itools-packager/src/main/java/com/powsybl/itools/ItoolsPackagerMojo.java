@@ -273,9 +273,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             addLicenseFiles(packageDir);
 
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
-            if (packageType.equalsIgnoreCase("zip")) {
+            if ("zip".equalsIgnoreCase(packageType)) {
                 zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
-            } else if (packageType.equalsIgnoreCase("tgz")) {
+            } else if ("tgz".equalsIgnoreCase(packageType)) {
                 targz(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".tgz"));
             } else {
                 throw new IllegalArgumentException("Unknown filetype '" + packageType + "': should be either zip or tgz");

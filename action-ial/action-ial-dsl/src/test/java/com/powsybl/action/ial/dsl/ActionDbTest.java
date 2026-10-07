@@ -7,6 +7,7 @@
  */
 package com.powsybl.action.ial.dsl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,7 +15,7 @@ import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -30,11 +31,7 @@ class ActionDbTest {
         assertEquals(1, actionDb.getContingencies().size());
         assertSame(contingency, actionDb.getContingency("id"));
 
-        try {
-            actionDb.getContingency("id2");
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> actionDb.getContingency("id2"));
     }
 
     @Test
@@ -66,10 +63,6 @@ class ActionDbTest {
         actionDb.addAction(action);
         assertSame(action, actionDb.getAction("id"));
 
-        try {
-            actionDb.getAction("id2");
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> actionDb.getAction("id2"));
     }
 }

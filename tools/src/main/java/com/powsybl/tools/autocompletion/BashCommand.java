@@ -22,6 +22,10 @@ public class BashCommand {
 
     private final List<BashOption> options;
 
+    public BashCommand(String name) {
+        this(name, new ArrayList<>());
+    }
+
     public BashCommand(String name, BashOption... options) {
         this(name, Arrays.asList(options));
     }
@@ -40,10 +44,6 @@ public class BashCommand {
             commands.add(new BashCommand(commandName, options));
         }
         return commands;
-    }
-
-    public BashCommand(String name) {
-        this(name, new ArrayList<>());
     }
 
     public String getName() {

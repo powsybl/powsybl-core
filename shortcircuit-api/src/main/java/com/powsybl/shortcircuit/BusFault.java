@@ -14,19 +14,36 @@ package com.powsybl.shortcircuit;
  */
 public class BusFault extends AbstractFault {
 
+    /**
+     * Creates a bus fault by specifying the impedance and the fault type.
+     */
     public BusFault(String id, String elementId, double r, double x, ConnectionType connection, FaultType faultType) {
         // Here the elementId is the id of a bus from the bus view.
         super(id, elementId, r, x, connection, faultType);
     }
 
+    /**
+     * Creates a three-phase bus fault by specifying the impedance (connected in series).
+     */
     public BusFault(String id, String elementId, double r, double x) {
         // Here the elementId is the id of a bus from the bus view.
         this(id, elementId, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE);
     }
 
+    /**
+     * Creates a three-phase bus fault with zero impedance and the specified fault type.
+     */
+    public BusFault(String id, String elementId, FaultType faultType) {
+        // Here the elementId is the id of a bus from the bus view.
+        this(id, elementId, 0.0, 0.0, ConnectionType.SERIES, faultType);
+    }
+
+    /**
+     * Creates a three-phase bus fault with zero impedance.
+     */
     public BusFault(String id, String elementId) {
         // Here the elementId is the id of a bus from the bus view.
-        this(id, elementId, 0.0, 0.0, ConnectionType.SERIES, FaultType.THREE_PHASE);
+        this(id, elementId, FaultType.THREE_PHASE);
     }
 
     @Override

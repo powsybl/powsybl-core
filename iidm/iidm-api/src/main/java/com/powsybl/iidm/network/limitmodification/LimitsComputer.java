@@ -8,8 +8,8 @@
 package com.powsybl.iidm.network.limitmodification;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;

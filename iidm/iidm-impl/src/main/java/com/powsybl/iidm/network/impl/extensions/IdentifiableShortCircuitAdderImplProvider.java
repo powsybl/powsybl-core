@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 
-
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */

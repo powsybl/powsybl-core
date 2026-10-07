@@ -55,13 +55,13 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
         assertEquals(1200, violation.getAcceptableDuration(), 0);
 
         LimitViolation violation2 = builder
                 .subjectName("name")
                 .limitName("limitName")
-                .reduction(0.9)
+                .scaling(0.9)
                 .side2()
                 .duration(60)
                 .operationalLimitsGroupId("group1")
@@ -69,7 +69,7 @@ class LimitViolationBuilderTest {
         assertEquals(TwoSides.TWO, violation2.getSideAsTwoSides());
         assertEquals("name", violation2.getSubjectName());
         assertEquals("limitName", violation2.getLimitName());
-        assertEquals(0.9, violation2.getLimitReduction(), 0);
+        assertEquals(0.9, violation2.getLimitScaling(), 0);
         assertEquals(60, violation2.getAcceptableDuration(), 0);
         assertEquals("group1", violation2.getOperationalLimitsGroupId());
     }
@@ -88,7 +88,7 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
     }
 
     @Test
@@ -122,7 +122,7 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
     }
 
     @Test
@@ -139,7 +139,7 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(0.25, violation.getLimit(), 0);
         assertEquals(0.30, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
 
         LimitViolationBuilder builder2 = LimitViolations.highVoltageAngle()
                 .subject("id")
@@ -153,7 +153,7 @@ class LimitViolationBuilderTest {
         assertNull(violation2.getLimitName());
         assertEquals(0.50, violation2.getLimit(), 0);
         assertEquals(0.60, violation2.getValue(), 0);
-        assertEquals(1.0, violation2.getLimitReduction(), 0);
+        assertEquals(1.0, violation2.getLimitScaling(), 0);
     }
 
     @Test
@@ -170,7 +170,7 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
     }
 
     @Test
@@ -187,7 +187,7 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
     }
 
     @Test
@@ -206,7 +206,7 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
     }
 
     @Test
@@ -225,7 +225,7 @@ class LimitViolationBuilderTest {
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
-        assertEquals(1.0, violation.getLimitReduction(), 0);
+        assertEquals(1.0, violation.getLimitScaling(), 0);
     }
 
     @Test

@@ -8,10 +8,11 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Test;
 
@@ -181,6 +182,11 @@ public abstract class AbstractConnectableTest {
             .add()
             .add();
 
+        createBreakersAndDisconnectors(vl1);
+        return network;
+    }
+
+    private static void createBreakersAndDisconnectors(VoltageLevel vl1) {
         // Breakers
         vl1.getNodeBreakerView().newBreaker()
             .setId("B_L1_1")
@@ -286,7 +292,7 @@ public abstract class AbstractConnectableTest {
             .setNode2(12)
             .setOpen(true)
             .add();
-        return network;
+
     }
 
     @Test
@@ -319,9 +325,9 @@ public abstract class AbstractConnectableTest {
 
         // disconnect the already fully disconnected line 1
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("reportTest")
-                .build();
+            .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("reportTest")
+            .build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line1.disconnect());
         network.getReportNodeContext().popReportNode();
@@ -372,9 +378,9 @@ public abstract class AbstractConnectableTest {
 
         // connect the already fully connected line 2
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("reportTest")
-                .build();
+            .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("reportTest")
+            .build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line2.connect());
         network.getReportNodeContext().popReportNode();
@@ -458,5 +464,36 @@ public abstract class AbstractConnectableTest {
         // disconnect the twt on side 3
         assertTrue(twt.disconnect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR, ThreeSides.THREE));
         assertFalse(twt.getTerminal(ThreeSides.THREE).isConnected());
+    }
+
+    @Test
+    public void connectAndDisconnectAcDcConverter() {
+        Network network = DcDetailedNetworkFactory.createVscAsymmetricalMonopole();
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("VscFr");
+
+        // Check vsc is fully connected
+        assertConverterConnectionStatus(true, vsc);
+
+        // Disconnect vsc, which should return true
+        assertTrue(vsc.disconnect());
+        assertConverterConnectionStatus(false, vsc);
+
+        // Disconnect vsc again, which should return False
+        assertFalse(vsc.disconnect());
+        assertConverterConnectionStatus(false, vsc);
+
+        // Connect vsc, which should return true
+        assertTrue(vsc.connect());
+        assertConverterConnectionStatus(true, vsc);
+
+        // Connect vsc again, which should return False
+        assertFalse(vsc.connect());
+        assertConverterConnectionStatus(true, vsc);
+    }
+
+    private void assertConverterConnectionStatus(boolean expectedAcStatus, VoltageSourceConverter vsc) {
+        assertEquals(expectedAcStatus, vsc.getTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal1().isConnected()); // DC side is not modified
+        assertTrue(vsc.getDcTerminal2().isConnected());
     }
 }

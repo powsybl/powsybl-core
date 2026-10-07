@@ -29,7 +29,8 @@ public final class CriterionContingencyListSerializer {
         jsonGenerator.writeStringField("name", contingencyList.getName());
     }
 
-    public static void serializeCommonCriterionAttributes(AbstractEquipmentCriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public static void serializeCommonCriterionAttributes(AbstractEquipmentCriterionContingencyList criterionContingencyList,
+                                                          JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         if (criterionContingencyList.getCountryCriterion() != null) {
             serializerProvider.defaultSerializeField("countryCriterion",
                     criterionContingencyList.getCountryCriterion(),

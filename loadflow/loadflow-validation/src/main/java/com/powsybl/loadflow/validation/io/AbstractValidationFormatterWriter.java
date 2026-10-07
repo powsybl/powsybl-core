@@ -11,8 +11,8 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 import org.slf4j.Logger;
@@ -118,29 +118,29 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     @Override
     public void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
-                      boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
+                      String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(generatorId);
         GeneratorData emptyGeneratorData = new GeneratorData(generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-            Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+            Double.NaN, false, null, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = generatorsData.containsKey(generatorId);
                 GeneratorData generatorData = found ? generatorsData.get(generatorId) : emptyGeneratorData;
-                write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
+                write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, regulationMode, regulating,
                       minP, maxP, minQ, maxQ, mainComponent, validated, generatorData, found, true);
                 generatorsData.remove(generatorId);
             } else {
                 generatorsData.put(generatorId, new GeneratorData(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected,
-                    voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated));
+                    regulationMode, regulating, minP, maxP, minQ, maxQ, mainComponent, validated));
             }
         } else {
-            write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
+            write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, regulationMode, regulating,
                   minP, maxP, minQ, maxQ, mainComponent, validated, emptyGeneratorData, false, true);
         }
     }
 
     protected abstract void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                                  boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
+                                  boolean connected, String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
                                   boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException;
 
     @Override
@@ -178,18 +178,22 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     public void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                       boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(svcId);
-        SvcData emptySvcData = new SvcData(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.VOLTAGE, false, Double.NaN, Double.NaN, false, false);
+        SvcData emptySvcData = new SvcData(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+            Double.NaN, Double.NaN, false, RegulationMode.VOLTAGE, false, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = svcsData.containsKey(svcId);
                 SvcData svcData = found ? svcsData.get(svcId) : emptySvcData;
-                write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated, svcData, found, true);
+                write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint,
+                    connected, regulationMode, regulating, bMin, bMax, mainComponent, validated, svcData, found, true);
                 svcsData.remove(svcId);
             } else {
-                svcsData.put(svcId, new SvcData(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated));
+                svcsData.put(svcId, new SvcData(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint,
+                    connected, regulationMode, regulating, bMin, bMax, mainComponent, validated));
             }
         } else {
-            write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated, emptySvcData, false, true);
+            write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint,
+                connected, regulationMode, regulating, bMin, bMax, mainComponent, validated, emptySvcData, false, true);
         }
     }
 
@@ -319,7 +323,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         generatorsData.values().forEach(generatorData -> {
             try {
                 write(generatorData.generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                      Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
+                      Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
                       generatorData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId, e.getMessage());
@@ -472,7 +476,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final double targetV;
         final double expectedP;
         final boolean connected;
-        final boolean voltageRegulatorOn;
+        final String regulationMode;
+        final boolean regulating;
         final double minP;
         final double maxP;
         final double minQ;
@@ -481,7 +486,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final boolean validated;
 
         GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                      boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,
+                      boolean connected, String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ,
                       boolean mainComponent, boolean validated) {
             this.generatorId = Objects.requireNonNull(generatorId);
             this.p = p;
@@ -492,7 +497,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             this.targetV = targetV;
             this.expectedP = expectedP;
             this.connected = connected;
-            this.voltageRegulatorOn = voltageRegulatorOn;
+            this.regulationMode = regulationMode;
+            this.regulating = regulating;
             this.minP = minP;
             this.maxP = maxP;
             this.minQ = minQ;

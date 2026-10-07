@@ -1,0 +1,109 @@
+/*
+ * Copyright (c) 2019-2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.ieeecdf.model.elements;
+
+import java.time.LocalDate;
+
+/**
+ * <pre>
+ * Columns  2- 9   Date, in format DD/MM/YY with leading zeros. If no date provided, use 0b/0b/0b where b is blank.
+ * Columns 11-30   Originator's name (A)
+ * Columns 32-37   MVA Base (F*)
+ * Columns 39-42   Year (I)
+ * Column  44      Season (S - Summer, W - Winter)
+ * Column  46-73   Case identification (A)
+ * </pre>
+ *
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ */
+public class IeeeCdfTitle extends AbstractIeeeElement {
+
+    public enum Season {
+        SUMMER,
+        WINTER
+    }
+
+    /**
+     * Date
+     */
+    private LocalDate date;
+
+    /**
+     * Originator's name
+     */
+    private String originatorName;
+
+    /**
+     * MVA Base
+     */
+    private double mvaBase;
+
+    /**
+     * Year
+     */
+    private int year;
+
+    /**
+     *  Season
+     */
+    private Season season;
+
+    /**
+     * Case identification
+     */
+    private String caseIdentification;
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public String getOriginatorName() {
+        return originatorName;
+    }
+
+    public void setOriginatorName(String originatorName) {
+        this.originatorName = originatorName;
+    }
+
+    public double getMvaBase() {
+        return mvaBase;
+    }
+
+    public void setMvaBase(double mvaBase) {
+        this.mvaBase = mvaBase;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public Season getSeason() {
+        return season;
+    }
+
+    public void setSeason(Season season) {
+        this.season = season;
+    }
+
+    public String getCaseIdentification() {
+        return caseIdentification;
+    }
+
+    public void setCaseIdentification(String caseIdentification) {
+        this.caseIdentification = caseIdentification;
+    }
+}

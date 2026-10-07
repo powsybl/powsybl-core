@@ -8,10 +8,9 @@
 package com.powsybl.timeseries;
 
 import com.powsybl.timeseries.ast.*;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

@@ -26,7 +26,8 @@ public final class RegulatingControlEq {
     public static final String REGULATING_CONTROL_REACTIVE_POWER = "RegulatingControlModeKind.reactivePower";
     public static final String REGULATING_CONTROL_ACTIVE_POWER = "RegulatingControlModeKind.activePower";
 
-    public static void writeRegulatingControlEq(Connectable<?> c, String terminalId, String regulatingControlId, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writeRegulatingControlEq(Connectable<?> c, String terminalId, String regulatingControlId,
+                                                String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String regulatingControlName = "RC_" + c.getNameOrId();
         CgmesExportUtil.writeStartIdName("RegulatingControl", regulatingControlId, regulatingControlName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer, context);

@@ -7,11 +7,11 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.contingency.violations.LimitViolationType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,10 +24,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
+import static com.powsybl.iidm.network.LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
@@ -57,7 +56,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     protected abstract void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
-                                                LimitType limitType, double limitReduction);
+                                                LimitType limitType, double limitScaling);
 
     protected abstract void checkCurrent(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer);
 
@@ -87,12 +86,12 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(600, l.getAcceptableDuration());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 
     @Test
-    void testLimitReductionOnCurrentPermanentLimit() {
+    void testLimitScalingOnCurrentPermanentLimit() {
         final double i = 460;
         Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = line1.getLimits(LimitType.CURRENT, TwoSides.ONE);
@@ -100,19 +99,19 @@ public abstract class AbstractLimitViolationDetectionTest {
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
-        // no violation if limitReductionValue is 1
+        // no violation if limitScalingValue is 1
         checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 1.0);
         assertTrue(violationsCollector.isEmpty());
 
-        // violation reported if limitReductionValue is 0.9
+        // violation reported if limitScalingValue is 0.9
         checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 0.9);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
-                    assertEquals(0.9, l.getLimitReduction(), 0.001);
+                    assertEquals(0.9, l.getLimitScaling(), 0.001);
                 });
     }
 
@@ -157,12 +156,12 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(600, l.getAcceptableDuration());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 
     @Test
-    void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
+    void testLimitScalingOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = tieLine1.getBoundaryLine(TwoSides.ONE).getCurrentLimits();
@@ -170,19 +169,19 @@ public abstract class AbstractLimitViolationDetectionTest {
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
-        // no violation if limitReduction is 1
+        // no violation if limitScaling is 1
         checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 1.0);
         assertTrue(violationsCollector.isEmpty());
 
-        // violation reported if limitReduction is 0.9
+        // violation reported if limitScaling is 0.9
         checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 0.9);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
-                    assertEquals(0.9, l.getLimitReduction(), 0.001);
+                    assertEquals(0.9, l.getLimitScaling(), 0.001);
                 });
     }
 
@@ -527,17 +526,17 @@ public abstract class AbstractLimitViolationDetectionTest {
         return Stream.of(
                 // Case 1: no upper infinite limit
                 Arguments.of(network, case1, 90., null), // below the permanent limit
-                Arguments.of(network, case1, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
+                Arguments.of(network, case1, 110., new ExpectedResults(DEFAULT_PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
                 Arguments.of(network, case1, 130., new ExpectedResults("TL1", 120., 600)), // between TL1 and TL2
                 Arguments.of(network, case1, 150., new ExpectedResults("TL2", 140., 0)), // over the highest temp limit (TL2)
                 // Case 2: with an upper infinite limit
                 Arguments.of(network, case2, 90., null), // below the permanent limit
-                Arguments.of(network, case2, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
+                Arguments.of(network, case2, 110., new ExpectedResults(DEFAULT_PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
                 Arguments.of(network, case2, 130., new ExpectedResults("IT20", 120., 600)), // between IT20 and IT10
                 Arguments.of(network, case2, 150., new ExpectedResults("IT10", 140., 60)), // between IT10 and IT1 (over IT1 is not possible)
                 // Case 3: same as 1 but with a single temp limit
                 Arguments.of(network, case3, 90., null), // below the permanent limit
-                Arguments.of(network, case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
+                Arguments.of(network, case3, 110., new ExpectedResults(DEFAULT_PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
                 Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
         );
     }

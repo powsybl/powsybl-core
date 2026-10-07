@@ -104,7 +104,8 @@ public final class TapChangerEq {
         writer.writeEndElement();
     }
 
-    public static void writeSteps(double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeSteps(double lowStep, double highStep, double neutralStep, double normalStep,
+                                  double neutralU, boolean ltcFlag, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_LOWSTEP);
         writer.writeCharacters(CgmesExportUtil.format(lowStep));
         writer.writeEndElement();

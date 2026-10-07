@@ -1,0 +1,5 @@
+{
+  "version" : "1.10",
+  "useReactiveLimits" : true,
+  "balanceType" : "PROPORTIONAL_TO_GENERATION_P"
+}

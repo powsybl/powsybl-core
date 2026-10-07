@@ -8,22 +8,28 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_LINE_SEGMENT2;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
-import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Map;
-import java.util.Properties;
-
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_LINE_SEGMENT2;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElementCount;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -52,8 +58,8 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertContainsLccConverter(network, "CSC_2", "Current source converter 2", "DCL_12", 0.0, 0.8);
         assertContainsHvdcLine(network, "DCL_12", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12", "CSC_1", "CSC_2", 4.64, 0.0, 0.0);
 
-        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, Double.NaN, 0.0);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, Double.NaN, 0.0);
+        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, Double.NaN, Double.NaN);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, Double.NaN, Double.NaN);
         assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
     }
 
@@ -98,8 +104,8 @@ class HvdcConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "monopole_with_metallic_return.xml");
 
         // A single HvdcLine has been created with an equivalent resistance.
-        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34N", 0.0, Double.NaN, 0.0);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34N", 0.0, Double.NaN, 0.0);
+        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34N", 0.0, Double.NaN, Double.NaN);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34N", 0.0, Double.NaN, Double.NaN);
         assertContainsHvdcLine(network, "DCL_34N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34N", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
 
         // The other DCLineSegment identifier is kept as an alias.
@@ -252,8 +258,8 @@ class HvdcConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "monopole_EQ.xml", "monopole_Qpcc_SSH.xml", "monopole_SV.xml", "monopole_TP.xml");
 
         // Control variable is reactive power at PCC.
-        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, 0.0, -22.5);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6085, 0.0, -30.0);
+        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.6, Double.NaN, -22.5);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.6085, Double.NaN, -30.0);
         assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0);
     }
 
@@ -314,8 +320,8 @@ class HvdcConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "remote_pccTerminal_EQ.xml", "remote_pccTerminal_SSH.xml");
 
         // HVDC line and converters are imported with the same characteristics.
-        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, 0.0, -22.5);
-        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, 0.0, -30.0);
+        assertContainsVscConverter(network, "VSC_3", "Voltage source converter 3", "DCL_34", 0.0, Double.NaN, -22.5);
+        assertContainsVscConverter(network, "VSC_4", "Voltage source converter 4", "DCL_34", 0.0, Double.NaN, -30.0);
         assertContainsHvdcLine(network, "DCL_34", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34", "VSC_3", "VSC_4", 9.92, 100.0, 120.0);
 
         // VSC_3 regulating terminal is remote, VSC_4 regulating terminal is local.
@@ -340,8 +346,8 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertEquals(name, vscConverter.getNameOrId());
         assertEquals(hvdcLineId, vscConverter.getHvdcLine().getId());
         assertEquals(lossFactor, vscConverter.getLossFactor(), TOLERANCE);
-        assertEquals(voltageSetpoint, vscConverter.getVoltageSetpoint(), TOLERANCE);
-        assertEquals(reactivePowerSetpoint, vscConverter.getReactivePowerSetpoint(), TOLERANCE);
+        assertEquals(voltageSetpoint, vscConverter.getRegulatingTargetV(), TOLERANCE);
+        assertEquals(reactivePowerSetpoint, vscConverter.getRegulatingTargetQ(), TOLERANCE);
     }
 
     private void assertContainsHvdcLine(Network network, String id, HvdcLine.ConvertersMode convertersMode, String name,

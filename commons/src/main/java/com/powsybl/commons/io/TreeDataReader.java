@@ -46,6 +46,14 @@ public interface TreeDataReader extends AutoCloseable {
 
     String readStringAttribute(String name);
 
+    /**
+     * Read the value of the field corresponding to the name, use the default value if it's absent
+     * @param name the name of the string field to read
+     * @param defaultValue the default value to return if there is no match for the given name
+     * @return the value corresponding to the <code>name</code> if it's present, the <code>defaultValue</code> otherwise
+     */
+    String readStringAttribute(String name, String defaultValue);
+
     int readIntAttribute(String name);
 
     OptionalInt readOptionalIntAttribute(String name);

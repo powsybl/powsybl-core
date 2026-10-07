@@ -9,6 +9,7 @@ package com.powsybl.powerfactory.db;
 
 import com.powsybl.powerfactory.model.DataAttribute;
 import com.powsybl.powerfactory.model.DataAttributeType;
+import com.powsybl.powerfactory.model.DataObjectRefKey;
 
 import java.time.Instant;
 import java.util.List;
@@ -53,7 +54,7 @@ class TestDatabaseReader implements DatabaseReader {
 
         builder.createObject(0L, "IntPrj");
         builder.setStringAttributeValue(0L, DataAttribute.LOC_NAME, "TestProject");
-        builder.setObjectAttributeValue(0L, "pCase", 2L);
+        builder.setObjectAttributeValue(0L, "pCase", DataObjectRefKey.ofId(2L));
 
         builder.createObject(1L, "IntPrjfolder");
         builder.setStringAttributeValue(1L, DataAttribute.LOC_NAME, "Study Cases");
@@ -78,11 +79,11 @@ class TestDatabaseReader implements DatabaseReader {
         builder.setIntAttributeValue(5L, "aInt", 3);
         builder.setLongAttributeValue(5L, "aInt64", 494949L);
         builder.setDoubleAttributeValue(5L, "aDouble", 3.34d);
-        builder.setObjectAttributeValue(5L, "aObj", 1L);
+        builder.setObjectAttributeValue(5L, "aObj", DataObjectRefKey.ofId(1L));
         builder.setIntVectorAttributeValue(5L, "aIntVec", List.of(67));
         builder.setLongVectorAttributeValue(5L, "aInt64Vec", List.of(6772437L));
         builder.setDoubleVectorAttributeValue(5L, "aDoubleVec", List.of(4.54828d));
-        builder.setObjectVectorAttributeValue(5L, "aObjVec", List.of(2L));
+        builder.setObjectVectorAttributeValue(5L, "aObjVec", List.of(DataObjectRefKey.ofId(2L)));
         builder.setStringVectorAttributeValue(5L, "aStrVec", List.of("a", "b"));
         builder.setDoubleMatrixAttributeValue(5L, "aMat", 2, 3, List.of(0d, 1d, 2d, 3d, 4d, 5d));
         builder.setObjectParent(5L, 4L);

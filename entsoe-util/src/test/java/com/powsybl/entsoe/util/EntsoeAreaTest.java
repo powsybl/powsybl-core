@@ -31,11 +31,7 @@ class EntsoeAreaTest {
 
         assertEquals(EntsoeGeographicalCode.D1, area.getCode());
 
-        try {
-            area.setCode(null);
-            fail();
-        } catch (NullPointerException ignored) {
-        }
+        assertThrows(NullPointerException.class, () -> area.setCode(null));
 
         area.setCode(EntsoeGeographicalCode.FR);
         assertEquals(EntsoeGeographicalCode.FR, area.getCode());

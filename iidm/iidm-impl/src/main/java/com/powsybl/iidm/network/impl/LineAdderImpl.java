@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
@@ -115,7 +115,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
         Ref<NetworkImpl> networkRef = computeNetworkRef(getNetwork(), voltageLevel1, voltageLevel2);
 
-        LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
+        LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), isEquivalent(), r, x, g1, b1, g2, b2);
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
 

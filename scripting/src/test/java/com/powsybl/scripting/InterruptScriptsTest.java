@@ -134,7 +134,7 @@ class InterruptScriptsTest extends AbstractTaskInterruptionTest {
         testCancelLongTask(isDelayed, () -> {
             try {
                 return runCommand(new String[] {"run-script", "--file", scriptFile, "John Doe"});
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });

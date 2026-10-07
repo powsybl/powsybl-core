@@ -55,8 +55,7 @@ public class LinePositionImporter {
         Identifiable<?> lineOrBoundaryLine = getLineOrBoundaryLine(lineId);
         if (lineOrBoundaryLine != null) {
             lineOrBoundaryLineCoordinates.computeIfAbsent(lineOrBoundaryLine, k -> new TreeMap<>())
-                    .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
-                    // y <=> lat, x <=> lon
+                    .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x"))); // y <=> lat, x <=> lon
         } else {
             LOG.warn("Cannot find line/boundary {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
         }

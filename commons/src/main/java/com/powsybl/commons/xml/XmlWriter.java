@@ -133,6 +133,14 @@ public class XmlWriter extends AbstractTreeDataWriter {
     }
 
     @Override
+    public void writeStringAttribute(String name, String value, String absentValue) {
+        if (value != null && !value.equals(absentValue)) {
+            names.add(name);
+            values.add(value);
+        }
+    }
+
+    @Override
     public void writeFloatAttribute(String name, float value) {
         if (!Float.isNaN(value)) {
             names.add(name);

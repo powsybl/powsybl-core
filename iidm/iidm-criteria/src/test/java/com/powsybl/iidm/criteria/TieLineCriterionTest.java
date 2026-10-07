@@ -111,5 +111,3 @@ public class TieLineCriterionTest {
         return new DefaultNetworkElementAdapter(tieLine);
     }
 }
-
-

@@ -7,17 +7,17 @@
  */
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -42,7 +42,8 @@ class IssuesTest {
         // NOTE:
         // Disconnecting the terminal of the generator or the regulated terminal
         // do not deactivate voltage regulation
-        assertTrue(n.getGenerator("G1").isVoltageRegulatorOn());
+        assertEquals(RegulationMode.VOLTAGE, n.getGenerator("G1").getVoltageRegulation().getMode());
+        assertTrue(n.getGenerator("G1").getVoltageRegulation().isRegulating());
         c.compare();
     }
 
@@ -76,9 +77,11 @@ class IssuesTest {
             .setMinP(0)
             .setMaxP(1)
             .setTargetP(1)
-            .setTargetQ(0)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(400)
+            .setLocalTargetQ(0)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add()
+            .setLocalTargetV(400)
             .add();
         assertEquals(g1.getRegulatingTerminal(), g1.getTerminal());
         vl2.getBusBreakerView().newBus()

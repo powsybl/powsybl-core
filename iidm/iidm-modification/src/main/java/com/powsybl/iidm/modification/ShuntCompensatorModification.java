@@ -11,11 +11,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 
 import java.util.Objects;
 
@@ -87,9 +88,12 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
     }
 
     private static void setTargetV(ShuntCompensator shuntCompensator) {
-        if (shuntCompensator.isVoltageRegulatorOn()) {
-            VoltageRegulationUtils.getTargetVForRegulatingElement(shuntCompensator.getNetwork(), shuntCompensator.getRegulatingTerminal().getBusView().getBus(),
-                    shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR).ifPresent(shuntCompensator::setTargetV);
+        if (shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            VoltageRegulationUtils.getTargetVForRegulatingElement(shuntCompensator.getNetwork(),
+                    shuntCompensator.getRegulatingTerminal().getBusView().getBus(),
+                    shuntCompensator.getId(),
+                    IdentifiableType.SHUNT_COMPENSATOR)
+                .ifPresent(targetValue -> shuntCompensator.getVoltageRegulation().setTargetValue(targetValue));
         }
     }
 

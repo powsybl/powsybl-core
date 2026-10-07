@@ -81,11 +81,8 @@ class CgmesConformity3ConversionTest {
         params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.FILENAME.name());
         Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
         assertEquals(2, n.getSubnetworks().size());
-        assertEquals(List.of("BE", "NL"),
-                n.getSubnetworks().stream()
-                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
-                        .sorted()
-                        .toList());
+        // Subnetworks are sorted by IGM name ("BE" < "NL")
+        assertEquals(List.of("BE", "NL"), subnetworksCountries(n));
         checkExportSvTerminals(n);
     }
 
@@ -96,12 +93,15 @@ class CgmesConformity3ConversionTest {
         params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.MODELING_AUTHORITY.name());
         Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
         assertEquals(2, n.getSubnetworks().size());
-        assertEquals(List.of("BE", "NL"),
-                n.getSubnetworks().stream()
-                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
-                        .sorted()
-                        .toList());
+        // Subnetworks are sorted by modeling authority ("http://elia.be/CGMES" < "http://tennet.nl/CGMES")
+        assertEquals(List.of("BE", "NL"), subnetworksCountries(n));
         checkExportSvTerminals(n);
+    }
+
+    private List<String> subnetworksCountries(Network n) {
+        return n.getSubnetworks().stream()
+                .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
+                .toList();
     }
 
     private void checkExportSvTerminals(Network network) {

@@ -24,7 +24,7 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
 
     private final ArrayList<Map<Terminal, ReferencePriority>> referencePrioritiesPerVariant;
 
-    public ReferencePrioritiesImpl(C extendable) {
+    ReferencePrioritiesImpl(C extendable) {
         super(extendable);
         this.referencePrioritiesPerVariant = new ArrayList<>(
                 Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashMap<>()));

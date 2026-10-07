@@ -7,8 +7,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.iidm.modification.tripping.VoltageSourceConverterTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
+import com.powsybl.iidm.modification.tripping.VoltageSourceConverterTripping;
 
 /**
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}

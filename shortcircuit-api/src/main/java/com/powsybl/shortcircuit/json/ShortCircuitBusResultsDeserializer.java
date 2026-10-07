@@ -10,10 +10,10 @@ package com.powsybl.shortcircuit.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.FortescueValue;
 import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
-import com.powsybl.shortcircuit.ShortCircuitBusResults;
+import com.powsybl.shortcircuit.FortescueValue;
 import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
+import com.powsybl.shortcircuit.ShortCircuitBusResults;
 
 import java.io.IOException;
 import java.util.ArrayList;

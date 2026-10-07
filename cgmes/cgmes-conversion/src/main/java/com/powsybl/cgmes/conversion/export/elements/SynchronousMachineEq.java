@@ -22,7 +22,8 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class SynchronousMachineEq {
 
     public static void write(String id, String generatorName, String equipmentContainer, String generatingUnit, String regulatingControlId, String reactiveCapabilityCurveId,
-                             Double minQ, Double maxQ, double ratedS, double defaultRatedS, String kind, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                             Double minQ, Double maxQ, double ratedS, double defaultRatedS, String kind, String cimNamespace,
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         if (generatingUnit != null) {

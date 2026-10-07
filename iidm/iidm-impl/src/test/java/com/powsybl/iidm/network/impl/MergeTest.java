@@ -9,7 +9,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,18 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class MergeTest {
+
+    @Test
+    void merge3NetworksWithDuplicates() {
+        Network network1 = NetworkTest1Factory.create();
+        Network network2 = EurostagTutorialExample1Factory.create();
+        Network network3 = SecurityAnalysisTestNetworkFactory.create();
+        PowsyblException x = assertThrows(PowsyblException.class, () -> {
+            Network.merge("full", network1, network2, network3);
+        });
+        // Assert that the message contains the identifiers of networks where duplicates are found
+        assertEquals("The following object(s) of type GeneratorImpl already exist in merged network when trying to merge network 'fictitious': [GEN]", x.getMessage());
+    }
 
     @Test
     void mergeNodeBreakerTestNPE() throws IOException {
@@ -359,10 +374,10 @@ class MergeTest {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(-500.0)
             .setMaxP(500.0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setTargetP(p)
-            .setTargetV(targetV)
-            .setTargetQ(q)
+            .setLocalTargetV(targetV)
+            .setLocalTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

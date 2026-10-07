@@ -12,7 +12,7 @@ IIDM is the internal format used in Powsybl because it is designed for running s
 Several exchange formats result from this internal format:
 - XIIDM, which corresponds to an XML export of IIDM,
 - JIIDM, which corresponds to a JSON export of IIDM,
-- BIIDM, which corresponds to a binary export (this is still a beta-feature).
+- BIIDM, which corresponds to a binary export.
 
 Below are two exports from the same network:
 - one XML export (XIIDM exchange format)

@@ -22,7 +22,7 @@ public enum EnergySource {
 
     private final boolean intermittent;
 
-    private EnergySource(boolean intermittent) {
+    EnergySource(boolean intermittent) {
         this.intermittent = intermittent;
     }
 

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2026, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:lmc="http://www.powsybl.org/schema/iidm/ext/line_couplings/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/line_couplings/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="lineCouplings">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mutualCoupling" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="line1" use="required" type="lmc:nonEmptyString"/>
+                        <xs:attribute name="line2" use="required" type="lmc:nonEmptyString"/>
+                        <xs:attribute name="r" use="required" type="xs:double"/>
+                        <xs:attribute name="x" use="required" type="xs:double"/>
+                        <xs:attribute name="line1Start" type="xs:double"/>
+                        <xs:attribute name="line2Start" type="xs:double"/>
+                        <xs:attribute name="line1End" type="xs:double"/>
+                        <xs:attribute name="line2End" type="xs:double"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
