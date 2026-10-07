@@ -401,7 +401,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return network.get().getVariantIndex();
     }
 
-    private Terminal updateTerminal(Terminal newTerminal, boolean withNotify) {
+    private void updateTerminal(Terminal newTerminal, boolean notify) {
         Terminal oldTerminal = this.terminal;
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
@@ -412,10 +412,9 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             this.terminal.getReferrerManager().register(this);
         }
         network.get().invalidateValidationLevel();
-        if (withNotify) {
+        if (notify) {
             notifyUpdate(NotifyUpdateKey.TERMINAL, oldTerminal, newTerminal);
         }
-        return oldTerminal;
     }
 
     private void actionOnRemovedTerminal() {

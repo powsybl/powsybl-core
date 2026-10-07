@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import static com.powsybl.iidm.network.regulation.VoltageRegulation.NotifyUpdateKey.REGULATING;
 import static com.powsybl.iidm.network.regulation.VoltageRegulation.NotifyUpdateKey.REGULATION_MODE;
+import static com.powsybl.iidm.network.regulation.VoltageRegulation.NotifyUpdateKey.TARGET_DEADBAND;
 import static com.powsybl.iidm.network.regulation.VoltageRegulation.NotifyUpdateKey.TARGET_VALUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -175,8 +176,10 @@ abstract class AbstractVoltageRegulationCommon<T extends VoltageRegulationHolder
         assertNetworkEvent(firstEvent, VoltageRegulation.NotifyUpdateKey.NEW_REGULATION.getKey(), holder.getVoltageRegulation(), null, id);
     }
 
-    public void testNotifyOnNewVoltageRegulationWithPreviousVoltageRegulation(VoltageRegulationHolder<T> holder, String id, double targetDeadband) {
+    public void testNotifyOnNewVoltageRegulationWithPreviousVoltageRegulation(VoltageRegulationHolder<T> holder, String id, double newTargetDeadband) {
         double targetValue = 120.0;
+        boolean updateTargetDeadband = !Double.isNaN(newTargetDeadband);
+        double targetDeadband = updateTargetDeadband ? 15.0 : Double.NaN;
         double newTargetValue = 220.0;
         RegulationMode mode = RegulationMode.VOLTAGE;
         RegulationMode newMode = RegulationMode.REACTIVE_POWER;
@@ -195,15 +198,20 @@ abstract class AbstractVoltageRegulationCommon<T extends VoltageRegulationHolder
             .withTargetValue(newTargetValue)
             .withTerminal(remoteTerminal) // Same terminal -> no notification
             .withRegulating(false)
-            .withTargetDeadband(targetDeadband) // Same targetDeadband -> no notification
+            .withTargetDeadband(newTargetDeadband)
             .build();
-        assertEquals(3, listener.getEvents().size());
+        int listenerSize = updateTargetDeadband ? 4 : 3;
+        assertEquals(listenerSize, listener.getEvents().size());
         NetworkEvent firstEvent = listener.getEvents().getFirst();
         assertNetworkEvent(firstEvent, REGULATION_MODE.getKey(), newMode, mode, id);
         NetworkEvent secondEvent = listener.getEvents().get(1);
         assertNetworkEvent(secondEvent, TARGET_VALUE.getKey(), newTargetValue, targetValue, id);
         NetworkEvent thirdEvent = listener.getEvents().get(2);
         assertNetworkEvent(thirdEvent, REGULATING.getKey(), false, true, id);
+        if (updateTargetDeadband) {
+            NetworkEvent fourthEvent = listener.getEvents().get(3);
+            assertNetworkEvent(fourthEvent, TARGET_DEADBAND.getKey(), newTargetDeadband, targetDeadband, id);
+        }
     }
 
     public void testNotifyOnNewVoltageRegulationWithPreviousVoltageRegulationSameMode(VoltageRegulationHolder<T> holder, String id, double targetDeadband) {
