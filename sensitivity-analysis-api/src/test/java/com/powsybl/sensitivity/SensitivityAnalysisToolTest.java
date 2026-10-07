@@ -156,9 +156,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(1, preComponents.size());
         assertEquals("CONVERGED", preComponents.getFirst().get("loadFlowStatus"));
         assertEquals("testStatusText", preComponents.getFirst().get("loadFlowStatusText"));
-
-        // TODO Check relevance
-        //assertEquals(Boolean.TRUE, computationComplete);
+        assertEquals(Boolean.TRUE, computationComplete);
     }
 
     @Test
