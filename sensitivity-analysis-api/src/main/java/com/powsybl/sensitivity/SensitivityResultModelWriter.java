@@ -27,6 +27,8 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final Map<SensitivityState, List<SensitivityStateStatus.ComponentStatus>> stateStatuses = new LinkedHashMap<>();
 
+    private boolean computationComplete = false;
+
     public SensitivityResultModelWriter(List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.contingencies = Objects.requireNonNull(contingencies);
         this.operatorStrategies = Objects.requireNonNull(operatorStrategies);
@@ -58,5 +60,15 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
                 operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
         stateStatuses.computeIfAbsent(state, s -> new ArrayList<>())
                 .add(new SensitivityStateStatus.ComponentStatus(connectedComponentNum, synchronousComponentNum, status, statusText));
+    }
+
+    @Override
+    public void computationComplete() {
+        computationComplete = true;
+    }
+
+    @Override
+    public boolean isComputationComplete() {
+        return computationComplete;
     }
 }

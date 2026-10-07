@@ -32,6 +32,7 @@ public class SensitivityAnalysisResultSerializer extends StdSerializer<Sensitivi
         serializerProvider.defaultSerializeField("stateStatus", result.getStateStatuses(), jsonGenerator);
         serializerProvider.defaultSerializeField("contingencyIds", result.getContingencyIds(), jsonGenerator);
         serializerProvider.defaultSerializeField("operatorStrategyIds", result.getOperatorStrategyIds(), jsonGenerator);
+        serializerProvider.defaultSerializeField("computationComplete", result.isComputationComplete(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

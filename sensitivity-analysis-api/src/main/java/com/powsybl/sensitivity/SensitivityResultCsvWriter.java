@@ -32,6 +32,8 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final List<OperatorStrategy> operatorStrategies;
 
+    private boolean computationComplete = true;
+
     public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterStatus,
                                       List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.formatter = Objects.requireNonNull(formatter);
@@ -95,5 +97,15 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public void computationComplete() {
+        computationComplete = true;
+    }
+
+    @Override
+    public boolean isComputationComplete() {
+        return computationComplete;
     }
 }

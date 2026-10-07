@@ -358,10 +358,10 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
                 List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, ""))));
         stateStatuses.add(new SensitivityStateStatus(new SensitivityState(contingency.getId(), "op1"),
                 List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, ""))));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, List.of(contingency.getId()), List.of("op1"), values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, List.of(contingency.getId()), List.of("op1"), values, true);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.2.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.3.json");
     }
 
     @Test
@@ -389,6 +389,17 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
             try (InputStream isRef = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.1-upgraded.json")) {
                 assertEquals(new String(Objects.requireNonNull(isRef).readAllBytes(), StandardCharsets.UTF_8), json12);
             }
+        }
+    }
+
+    @Test
+    void testCanReadResult12() throws IOException {
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
+        try (InputStream is12 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.2.json")) {
+            SensitivityAnalysisResult result = objectMapper.readValue(is12, SensitivityAnalysisResult.class);
+            assertEquals(2, result.getStateStatuses().size());
+            assertEquals(9, result.getFactors().size());
+            assertEquals(9, result.getValues().size());
         }
     }
 }

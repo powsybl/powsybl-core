@@ -51,4 +51,14 @@ public interface SensitivityResultWriter {
     void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
                           int connectedComponentNum, int synchronousComponentNum,
                           LoadFlowResult.ComponentResult.Status status, String statusText);
+
+    /**
+     * Called at the end of the computation if the computation has not been interrupted.
+     */
+    void computationComplete();
+
+    /**
+     * @return true if the computation was complete, false otherwise
+     */
+    boolean isComputationComplete();
 }
