@@ -110,7 +110,7 @@ class CriterionContingencyListTest {
                 countriesCriterion, null, Collections.emptyList(), null);
         contingencies = hvdcLineCriterionContingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(1, contingencies.size());
-        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+        assertEquals(new Contingency("HVDC1", "HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
 
         // transfo2 in France
         countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
@@ -139,15 +139,15 @@ class CriterionContingencyListTest {
     void testTwoCountriesCriterion() {
         List<Contingency> contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.singletonList(Country.BE));
         assertEquals(1, contingencies.size());
-        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+        assertEquals(new Contingency("HVDC1", "HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
 
         contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.emptyList());
         assertEquals(2, contingencies.size());
-        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+        assertEquals(new Contingency("HVDC1", "HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
 
         contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.emptyList(), Collections.emptyList());
         assertEquals(2, contingencies.size());
-        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+        assertEquals(new Contingency("HVDC1", "HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
 
         contingencies = getContingenciesForHvdcTwoCountriesCriterion(Collections.singletonList(Country.FR), Collections.singletonList(Country.CI));
         assertEquals(0, contingencies.size());
@@ -232,8 +232,8 @@ class CriterionContingencyListTest {
                 null, twoNominalVoltageCriterion, Collections.emptyList(), null);
         contingencies = hvdcLineCriterionContingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(2, contingencies.size());
-        assertEquals(new Contingency("HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
-        assertEquals(new Contingency("HVDC2", new HvdcLineContingency("HVDC2")), contingencies.get(1));
+        assertEquals(new Contingency("HVDC1", "HVDC1", new HvdcLineContingency("HVDC1")), contingencies.get(0));
+        assertEquals(new Contingency("HVDC2", "HVDC2", new HvdcLineContingency("HVDC2")), contingencies.get(1));
     }
 
     @Test
@@ -526,11 +526,11 @@ class CriterionContingencyListTest {
                 IdentifiableType.SWITCH, countriesCriterion, nominalVoltageCriterion, Collections.emptyList(), null);
         List<Contingency> contingencies = contingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(43, contingencies.size());
-        assertEquals(new Contingency("S1VL2_BBS1_TWT_DISCONNECTOR", new SwitchContingency("S1VL2_BBS1_TWT_DISCONNECTOR")),
+        assertEquals(new Contingency("S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", new SwitchContingency("S1VL2_BBS1_TWT_DISCONNECTOR")),
                 contingencies.get(0));
-        assertEquals(new Contingency("S1VL2_BBS2_TWT_DISCONNECTOR", new SwitchContingency("S1VL2_BBS2_TWT_DISCONNECTOR")),
+        assertEquals(new Contingency("S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", new SwitchContingency("S1VL2_BBS2_TWT_DISCONNECTOR")),
                 contingencies.get(1));
-        assertEquals(new Contingency("S1VL2_TWT_BREAKER", new SwitchContingency("S1VL2_TWT_BREAKER")),
+        assertEquals(new Contingency("S1VL2_TWT_BREAKER", "S1VL2_TWT_BREAKER", new SwitchContingency("S1VL2_TWT_BREAKER")),
                 contingencies.get(2));
 
         // shunt
@@ -554,8 +554,19 @@ class CriterionContingencyListTest {
                 IdentifiableType.BUSBAR_SECTION, countriesCriterion, nominalVoltageCriterion, Collections.emptyList(), null);
         contingencies = contingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(3, contingencies.size());
-        assertEquals(new Contingency("S1VL2_BBS1", new BusbarSectionContingency("S1VL2_BBS1")), contingencies.get(0));
-        assertEquals(new Contingency("S1VL2_BBS2", new BusbarSectionContingency("S1VL2_BBS2")), contingencies.get(1));
-        assertEquals(new Contingency("S3VL1_BBS", new BusbarSectionContingency("S3VL1_BBS")), contingencies.get(2));
+        assertEquals(new Contingency("S1VL2_BBS1", "S1VL2_BBS1", new BusbarSectionContingency("S1VL2_BBS1")), contingencies.get(0));
+        assertEquals(new Contingency("S1VL2_BBS2", "S1VL2_BBS2", new BusbarSectionContingency("S1VL2_BBS2")), contingencies.get(1));
+        assertEquals(new Contingency("S3VL1_BBS", "S3VL1_BBS", new BusbarSectionContingency("S3VL1_BBS")), contingencies.get(2));
+    }
+
+    @Test
+    void testContingencyName() {
+        fourSubstationNetwork.getGenerator("GH1").setName("GH1 name");
+        InjectionCriterionContingencyList contingencyList = new InjectionCriterionContingencyList("list1", "GENERATOR",
+                null, null, Collections.emptyList(), null);
+        List<Contingency> contingencies = contingencyList.getContingencies(fourSubstationNetwork);
+        assertEquals(5, contingencies.size());
+        assertEquals(new Contingency("GH1", "GH1 name", new GeneratorContingency("GH1")), contingencies.get(0));
+        assertEquals(new Contingency("GH2", new GeneratorContingency("GH2")), contingencies.get(1));
     }
 }
