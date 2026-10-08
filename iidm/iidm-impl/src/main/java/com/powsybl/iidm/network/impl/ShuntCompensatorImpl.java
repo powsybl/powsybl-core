@@ -64,17 +64,20 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensator setLocalTargetV(double newLocalTargetV) {
+        NetworkImpl n = getNetwork();
         double oldTargetV = getLocalTargetV();
         ValidationUtil.checkLocalTargetQandV(this,
             ShuntCompensator.class,
             newLocalTargetV,
             Double.NaN,
             getVoltageRegulation(),
-            getNetwork().getMinValidationLevel(),
-            getNetwork().getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         this.localTargetV.set(getCurrentIndex(), newLocalTargetV);
-        getNetwork().invalidateValidationLevel();
-        notifyUpdate("localTargetV", oldTargetV, newLocalTargetV);
+        n.invalidateValidationLevel();
+        int variantIndex = n.getVariantIndex();
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("localTargetV", variantId, oldTargetV, newLocalTargetV);
         return this;
     }
 
@@ -200,18 +203,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        NetworkImpl n = getNetwork();
-        Terminal oldValue = getRegulatingTerminal();
-        int variantIndex = network.get().getVariantIndex();
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         double targetValue = getRegulatingTargetV();
         if (voltageRegulation != null) {
             voltageRegulation.setTerminal(regulatingTerminal, targetValue);
         } else {
             newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
         }
-        n.invalidateValidationLevel();
-        notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
         return this;
     }
 
@@ -222,18 +219,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        NetworkImpl n = getNetwork();
-        int variantIndex = network.get().getVariantIndex();
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        boolean oldValue = isRegulating();
         if (voltageRegulation != null) {
             voltageRegulation.setMode(RegulationMode.VOLTAGE);
             voltageRegulation.setRegulating(voltageRegulatorOn);
         } else {
             newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
         }
-        n.invalidateValidationLevel();
-        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -244,18 +235,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setTargetV(double targetV) {
-        NetworkImpl n = getNetwork();
-        int variantIndex = network.get().getVariantIndex();
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        double oldValue = getLocalTargetV();
         if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
-            oldValue = getVoltageRegulation().getTargetValue();
             getVoltageRegulation().setTargetValue(targetV);
         } else {
             setLocalTargetV(targetV);
         }
-        n.invalidateValidationLevel();
-        notifyUpdate("targetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -266,17 +250,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setTargetDeadband(double targetDeadband) {
-        NetworkImpl n = getNetwork();
-        int variantIndex = network.get().getVariantIndex();
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        double oldValue = Double.NaN;
         if (voltageRegulation != null) {
             voltageRegulation.setTargetDeadband(targetDeadband);
         } else {
             newVoltageRegulation().withRegulating(false).withTargetDeadband(targetDeadband).build();
         }
-        n.invalidateValidationLevel();
-        notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);
         return this;
     }
 
