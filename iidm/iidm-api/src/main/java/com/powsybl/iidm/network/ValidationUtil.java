@@ -138,6 +138,14 @@ public final class ValidationUtil {
         return checkActivePowerSetpoint(validable, activePowerSetpoint, checkValidationActionOnError(validationLevel), reportNode);
     }
 
+    public static ValidationLevel checkPlannedActivePowerSetpoint(Validable validable, double plannedActivePowerSetpoint, double minP, double maxP, ReportNode reportNode) {
+        if (plannedActivePowerSetpoint < minP || plannedActivePowerSetpoint > maxP) {
+            NetworkReports.plannedActivePowerTargetNotWithinRange(reportNode, validable.getMessageHeader().id(), plannedActivePowerSetpoint, minP, maxP);
+            return ValidationLevel.EQUIPMENT;
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
     private static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, ActionOnError actionOnError, ReportNode reportNode) {
         if (Double.isNaN(activePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, activePowerSetpoint, ACTIVE_POWER_SETPOINT, actionOnError,
