@@ -138,6 +138,14 @@ public final class ValidationUtil {
         return checkActivePowerSetpoint(validable, activePowerSetpoint, checkValidationActionOnError(validationLevel), reportNode);
     }
 
+    public static ValidationLevel checkPlannedActivePowerSetpoint(Validable validable, double plannedActivePowerSetpoint, double minP, double maxP, ReportNode reportNode) {
+        if (plannedActivePowerSetpoint < minP || plannedActivePowerSetpoint > maxP) {
+            NetworkReports.plannedActivePowerTargetNotWithinRange(reportNode, validable.getMessageHeader().id(), plannedActivePowerSetpoint, minP, maxP);
+            return ValidationLevel.EQUIPMENT;
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
     private static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, ActionOnError actionOnError, ReportNode reportNode) {
         if (Double.isNaN(activePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, activePowerSetpoint, ACTIVE_POWER_SETPOINT, actionOnError,
@@ -165,6 +173,16 @@ public final class ValidationUtil {
     public static void checkActivePowerLimits(Validable validable, double minP, double maxP) {
         if (minP > maxP) {
             throw new ValidationException(validable, "invalid active limits [" + minP + ", " + maxP + "]");
+        }
+    }
+
+    public static void checkActivePowerTargetWithinRange(Validable validable, double targetP, double minP, double maxP, ReportNode reportNode) {
+        // targetP=0 is always an acceptable state for a generator
+        if (validable instanceof Generator && targetP == 0) {
+            return;
+        }
+        if (targetP < minP || targetP > maxP) {
+            NetworkReports.activePowerTargetNotWithinRange(reportNode, validable.getMessageHeader().id(), targetP, minP, maxP);
         }
     }
 
