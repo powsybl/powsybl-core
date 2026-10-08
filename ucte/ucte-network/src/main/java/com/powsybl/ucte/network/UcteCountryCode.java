@@ -125,15 +125,23 @@ public enum UcteCountryCode {
         }
     }
 
-    public static UcteCountryCode fromVoltagelevel(VoltageLevel voltageLevel) {
-        Country country = voltageLevel.getSubstation()
-                .flatMap(Substation::getCountry)
-                .orElseThrow(() -> new UcteException("No UCTE country found for substation"));
+    public static UcteCountryCode fromCountry(Country country) {
+        // Kosovo: ISO 3166 code XK, ENTSO-E code KS
+        if (country == Country.XK) {
+            return KS;
+        }
         try {
             return UcteCountryCode.valueOf(country.name());
         } catch (IllegalArgumentException e) {
             throw new UcteException(String.format("No UCTE country found for %s", country.name()));
         }
+    }
+
+    public static UcteCountryCode fromVoltagelevel(VoltageLevel voltageLevel) {
+        Country country = voltageLevel.getSubstation()
+                .flatMap(Substation::getCountry)
+                .orElseThrow(() -> new UcteException("No UCTE country found for substation"));
+        return fromCountry(country);
     }
 
 }
