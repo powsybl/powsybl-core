@@ -108,7 +108,7 @@ public final class EquipmentExport {
             Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
             Map<DcNode, DCConverterUnit> converterDcNodesConverterUnit = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
             writeDcConverterUnits(network, converterDcNodesConverterUnit, cimNamespace, writer, context);
-            Map<DcNode, DCConverterUnit> allDcNodesConverterUnit = CgmesExportUtil.getAllDcNodeConvertersUnit(network, acDcConvertersUnit);
+            Map<DcNode, DCConverterUnit> allDcNodesConverterUnit = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
             writeDcNodes(network, allDcNodesConverterUnit, cimNamespace, writer, context);
             writeDcSwitches(network, cimNamespace, writer, context);
             writeDcGrounds(network, cimNamespace, writer, context);

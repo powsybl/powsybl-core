@@ -582,7 +582,7 @@ public final class CgmesExportUtil {
      *
      * @param network            An IIDM network
      * @param acDcConvertersUnit A map associating an IIDM AcDcConverter to a DCConverterUnit
-     * @return A map associating an IIDM DcNode to a DCConverter.
+     * @return A map associating an IIDM DcNode to a DCConverterUnit.
      */
     static Map<DcNode, DCConverterUnit> getConvertersDcNodeConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
@@ -591,14 +591,14 @@ public final class CgmesExportUtil {
 
     /**
      * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network with DcSwitches (regardless of
-     * their open/closed state) and DcLines (regardless of their connected/disconnected state)
+     * their open/closed state) and DcLines (regardless of their connected/disconnected state).
      * Therefore, DcNodes that are connected to a converter by DcLines are included here.
      *
      * @param network            An IIDM network
      * @param acDcConvertersUnit A map associating an IIDM AcDcConverter to a DCConverterUnit
-     * @return A map associating an IIDM DcNode to a DCConverter.
+     * @return A map associating an IIDM DcNode to a DCConverterUnit.
      */
-    static Map<DcNode, DCConverterUnit> getAllDcNodeConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+    static Map<DcNode, DCConverterUnit> getAllDcNodesConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
         List<DCEquipment> dcLines = getDCEquipmentLines(network);
         List<DCEquipment> dcSwitchesAndDcLines = Stream.concat(dcSwitches.stream(), dcLines.stream()).toList();

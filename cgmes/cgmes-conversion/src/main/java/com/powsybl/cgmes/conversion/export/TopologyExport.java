@@ -433,7 +433,7 @@ public final class TopologyExport {
         Map<DcBus, DCConverterUnit> dcBusesConverterUnit;
         if (context.isCim16BusBranchExport()) {
             Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
-            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = CgmesExportUtil.getAllDcNodeConvertersUnit(network, acDcConvertersUnit);
+            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
             dcBusesConverterUnit = CgmesExportUtil.getDcBusesConverterUnit(network, dcNodesConverterUnit);
         } else {
             dcBusesConverterUnit = Map.of();

@@ -242,19 +242,19 @@ Each boundary line will be exported as one `EquivalentInjection` and one `ACLine
 #### DC node
 
 PowSyBl [`DC Node`](../../grid_model/network_subnetwork.md#dc-node) is exported as CGMES `DCNode`, with attribute:
-- EQ `DCEquipmentContainer` is a CGMES `DCConverterUnit`, which is the container of the closest converter. A `Dc Node` 
+- EQ `DCEquipmentContainer` is a CGMES `DCConverterUnit`, which is the container of the closest converter. A PowsSyBl `DC Node` 
 that is equally distant to several converters (e.g. it is not directly connected to a converter, but in the middle of an
-MTDC network) selects the converter with the lowest-id.
+MTDC network) selects the converter with the lowest id.
 
-### DC bus
-PowSyBl `DC buses` corresponds to CGMES `DCTopologicalNode`
+#### DC bus
+PowSyBl `DC Bus` corresponds to CGMES `DCTopologicalNode`
 
-There are three possible cases regarding PowSyBl `DC buses` export:
-- If the CGMES topology kind is `NODE_BREAKER`, `DcNode` and `DcSwitch` are exported and `DcBus` is therefore irrelevant.
-- If CGMES topology kind is `BUS_BRANCH` and CIM version is 100, PowSyBl `DcBus` are mapped to CGMES `DCNode` 
+There are three possible cases regarding PowSyBl `DC Bus` export:
+- If the CGMES topology kind is `NODE_BREAKER`, `DC Node` and `DC Switch` are exported and `DC Bus` is therefore irrelevant.
+- If CGMES topology kind is `BUS_BRANCH` and CIM version is 100, PowSyBl `DC Bus` are mapped to CGMES `DCNode` 
 with the `DcConverterUnit` in the EQ profile.
-- If CGMES topology kind is `BUS_BRANCH` and CIM version is 16, `DcNode` and `DcBus` are not exported in the EQ profile, 
-but the `DCTopologicalNode` in the TP profile includes a field `DCEquipmentContainer` with the CGMES `DcConverterUnit`
+- If CGMES topology kind is `BUS_BRANCH` and CIM version is 16, `DC Node` and `DC Bus` are not exported in the EQ profile, 
+but the `DCTopologicalNode` in the TP profile includes a field `DCEquipmentContainer` with the CGMES `DcConverterUnit`.
 
 #### DC Line
 

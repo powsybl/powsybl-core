@@ -930,7 +930,7 @@ public final class DcDetailedNetworkFactory {
         return dcNetwork;
     }
 
-    private static Network createMinimalNetworkWithTwoAcVoltageLevel(NetworkFactory networkFactory, String networkId) {
+    private static Network createMinimalNetworkWithTwoAcVoltageLevels(NetworkFactory networkFactory, String networkId) {
         Network network = networkFactory.createNetwork(networkId, "test");
 
         // Create substations and voltage levels
@@ -977,7 +977,7 @@ public final class DcDetailedNetworkFactory {
     }
 
     public static Network createVscBipoleWithCentralNode(NetworkFactory networkFactory, String dcNetworkId) {
-        Network acDcNetwork = createMinimalNetworkWithTwoAcVoltageLevel(networkFactory, dcNetworkId);
+        Network acDcNetwork = createMinimalNetworkWithTwoAcVoltageLevels(networkFactory, dcNetworkId);
         VoltageLevel vl1 = acDcNetwork.getVoltageLevel("VL1");
         VoltageLevel vl2 = acDcNetwork.getVoltageLevel("VL2");
 
@@ -1071,7 +1071,7 @@ public final class DcDetailedNetworkFactory {
     }
 
     public static Network createVscMonopoleWithGroundReturnWithCentralNode(NetworkFactory networkFactory, String dcNetworkId) {
-        Network acDcNetwork = createMinimalNetworkWithTwoAcVoltageLevel(networkFactory, dcNetworkId);
+        Network acDcNetwork = createMinimalNetworkWithTwoAcVoltageLevels(networkFactory, dcNetworkId);
         VoltageLevel vl1 = acDcNetwork.getVoltageLevel("VL1");
         VoltageLevel vl2 = acDcNetwork.getVoltageLevel("VL2");
 
