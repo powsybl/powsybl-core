@@ -44,6 +44,11 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
         EQUALITY_CONSTRAINT // enforced exactly, so no weight is involved
     }
 
+    public enum BusInjectionPolicy {
+        REQUIRE_ALL_METERED, // form a bus injection only where every connected device has a meter
+        SUM_METERED // sum the metered devices, treating the others as zero
+    }
+
     public enum DuplicateMeasurementPolicy {
         MERGE_INVERSE_VARIANCE, // combine into one reading weighted by the inverse of each variance
         KEEP_ALL, // every reading contributes its own row
@@ -63,6 +68,7 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final ZeroInjectionMode DEFAULT_ZERO_INJECTION_MODE = ZeroInjectionMode.HIGH_CONFIDENCE_MEASUREMENT;
+    public static final BusInjectionPolicy DEFAULT_BUS_INJECTION_POLICY = BusInjectionPolicy.REQUIRE_ALL_METERED;
     public static final DuplicateMeasurementPolicy DEFAULT_DUPLICATE_MEASUREMENT_POLICY = DuplicateMeasurementPolicy.MERGE_INVERSE_VARIANCE;
     public static final UnobservablePolicy DEFAULT_UNOBSERVABLE_POLICY = UnobservablePolicy.ESTIMATE_OBSERVABLE_ISLANDS;
     public static final ComponentMode DEFAULT_COMPONENT_MODE = ComponentMode.MAIN;
@@ -72,6 +78,7 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
 
     private VoltageInitMode voltageInitMode = DEFAULT_VOLTAGE_INIT_MODE;
     private ZeroInjectionMode zeroInjectionMode = DEFAULT_ZERO_INJECTION_MODE;
+    private BusInjectionPolicy busInjectionPolicy = DEFAULT_BUS_INJECTION_POLICY;
     private DuplicateMeasurementPolicy duplicateMeasurementPolicy = DEFAULT_DUPLICATE_MEASUREMENT_POLICY;
     private UnobservablePolicy unobservablePolicy = DEFAULT_UNOBSERVABLE_POLICY;
     private ComponentMode componentMode = DEFAULT_COMPONENT_MODE;
@@ -94,6 +101,7 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
     private void readConfig(ModuleConfig config) {
         config.getOptionalEnumProperty("voltageInitMode", VoltageInitMode.class).ifPresent(this::setVoltageInitMode);
         config.getOptionalEnumProperty("zeroInjectionMode", ZeroInjectionMode.class).ifPresent(this::setZeroInjectionMode);
+        config.getOptionalEnumProperty("busInjectionPolicy", BusInjectionPolicy.class).ifPresent(this::setBusInjectionPolicy);
         config.getOptionalEnumProperty("duplicateMeasurementPolicy", DuplicateMeasurementPolicy.class).ifPresent(this::setDuplicateMeasurementPolicy);
         config.getOptionalEnumProperty("unobservablePolicy", UnobservablePolicy.class).ifPresent(this::setUnobservablePolicy);
         config.getOptionalEnumProperty("componentMode", ComponentMode.class).ifPresent(this::setComponentMode);
@@ -129,6 +137,20 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
 
     public StateEstimationParameters setZeroInjectionMode(ZeroInjectionMode zeroInjectionMode) {
         this.zeroInjectionMode = Objects.requireNonNull(zeroInjectionMode);
+        return this;
+    }
+
+    /**
+     * How a bus injection is formed from the measurements of the devices connected to the bus.
+     * Summing only the metered devices gives the wrong injection whenever an unmetered device
+     * carries power, so the default forms an injection only where every device has a meter.
+     */
+    public BusInjectionPolicy getBusInjectionPolicy() {
+        return busInjectionPolicy;
+    }
+
+    public StateEstimationParameters setBusInjectionPolicy(BusInjectionPolicy busInjectionPolicy) {
+        this.busInjectionPolicy = Objects.requireNonNull(busInjectionPolicy);
         return this;
     }
 

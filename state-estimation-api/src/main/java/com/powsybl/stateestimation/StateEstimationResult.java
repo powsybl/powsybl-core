@@ -8,12 +8,9 @@
 package com.powsybl.stateestimation;
 
 import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * The outcome of a state estimation.
@@ -68,8 +65,6 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
      * implementation does not report per-measurement diagnostics.
      */
     List<MeasurementResult> getMeasurementResults();
-
-    ObservabilityResult getObservabilityResult();
 
     interface ComponentResult {
 
@@ -149,90 +144,4 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
         boolean isFlagged();
     }
 
-    /**
-     * Which parts of the network the measurement set determines. The vocabulary follows the
-     * IIDM observability extensions, so a provider can publish the same information onto the
-     * network through {@code ObservabilityArea}, {@code InjectionObservability} and
-     * {@code BranchObservability} without translating it first.
-     *
-     * <p>Computed from measurement placement and topology, so it is available whether or not
-     * the estimation converged. It describes the topology as it stood when the estimation ran.</p>
-     */
-    interface ObservabilityResult {
-
-        /**
-         * The quantities the IIDM observability extensions model: P, Q and V for an injection,
-         * P and Q per side for a branch. Angle is deliberately absent, as it is there.
-         */
-        enum Quantity {
-            ACTIVE_POWER,
-            REACTIVE_POWER,
-            VOLTAGE
-        }
-
-        /** Mirrors {@code ObservabilityArea.ObservabilityStatus}. */
-        enum AreaStatus {
-            OBSERVABLE, // the measurements determine the state of every bus in the area
-            NON_OBSERVABLE, // they do not
-            BORDER // the edge between an observable area and a non-observable one
-        }
-
-        List<Area> getAreas();
-
-        /** The area containing the given bus, empty if the bus was not part of the estimation. */
-        Optional<Area> getArea(String busId);
-
-        List<ElementObservability> getElementObservabilities();
-
-        Optional<ElementObservability> getElementObservability(String elementId);
-
-        /**
-         * A connected set of buses sharing one observability status, numbered as
-         * {@code ObservabilityArea.AreaCharacteristics.getAreaNumber()} numbers them.
-         */
-        interface Area {
-
-            int getAreaNumber();
-
-            AreaStatus getStatus();
-
-            Set<String> getBusIds();
-        }
-
-        /**
-         * Observability of one network element, matching {@code InjectionObservability} for an
-         * injection and {@code BranchObservability} for a branch.
-         */
-        interface ElementObservability {
-
-            String getElementId();
-
-            /** As {@code Observability.isObservable()}: one answer covering every quantity. */
-            boolean isObservable();
-
-            List<Quality> getQualities();
-        }
-
-        /**
-         * What the estimation determined about one quantity of one element, matching
-         * {@code ObservabilityQuality}.
-         */
-        interface Quality {
-
-            Quantity getQuantity();
-
-            /** The branch side, or an empty {@code Optional} for an injection. */
-            Optional<ThreeSides> getSide();
-
-            double getStandardDeviation();
-
-            /**
-             * Whether anything else determines this quantity. An empty {@code Optional} means the
-             * estimation did not establish it. False means the quantity is critical: losing the
-             * measurement behind it would leave a region unobservable, and an error in it cannot
-             * be detected.
-             */
-            Optional<Boolean> isRedundant();
-        }
-    }
 }

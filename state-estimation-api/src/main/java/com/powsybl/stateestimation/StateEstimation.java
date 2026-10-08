@@ -18,12 +18,12 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * State estimation main API. Entry point for running an estimation, either against a named
- * implementation or against the default one.
+ * State estimation main API. Entry point for the three state estimation operations, either
+ * against a named implementation or against the default one.
  *
  * <p>A state estimation finds the network state that best explains a set of noisy and redundant
- * meter readings. It takes the network alone, because the readings travel with it in the IIDM
- * measurement extensions.</p>
+ * meter readings. Every entry point takes the network alone, because the measurements are held
+ * in the IIDM measurement extensions of its equipment.</p>
  *
  * @author Šime Pavlić {@literal <sime.pavlic at kickstage.com>}
  */
@@ -33,8 +33,9 @@ public final class StateEstimation {
     }
 
     /**
-     * Convenience on top of {@link StateEstimationProvider}: synchronous and asynchronous runs
-     * with defaults filled in.
+     * A state estimation runner is responsible for providing convenient methods on top of
+     * {@link StateEstimationProvider}: synchronous and asynchronous forms of each operation, with
+     * default parameters.
      */
     public static class Runner implements Versionable {
 
@@ -44,39 +45,66 @@ public final class StateEstimation {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<StateEstimationResult> runAsync(Network network, String workingVariantId, StateEstimationRunParameters runParameters) {
+        public CompletableFuture<ObservabilityResult> analyseObservabilityAsync(Network network, String workingVariantId,
+                                                                                 StateEstimationRunParameters runParameters) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingVariantId, "WorkingVariantId should not be null");
             Objects.requireNonNull(runParameters, "StateEstimationRunParameters should not be null");
-            return provider.run(network, workingVariantId, runParameters);
+            return provider.analyseObservability(network, workingVariantId, runParameters);
         }
 
-        public CompletableFuture<StateEstimationResult> runAsync(Network network, StateEstimationRunParameters runParameters) {
-            return runAsync(network, network.getVariantManager().getWorkingVariantId(), runParameters);
+        public ObservabilityResult analyseObservability(Network network, String workingVariantId,
+                                                        StateEstimationRunParameters runParameters) {
+            return analyseObservabilityAsync(network, workingVariantId, runParameters).join();
         }
 
-        public CompletableFuture<StateEstimationResult> runAsync(Network network, StateEstimationParameters parameters) {
-            return runAsync(network, new StateEstimationRunParameters().setParameters(parameters));
+        public ObservabilityResult analyseObservability(Network network) {
+            return analyseObservability(network, network.getVariantManager().getWorkingVariantId(),
+                    StateEstimationRunParameters.getDefault());
         }
 
-        public CompletableFuture<StateEstimationResult> runAsync(Network network) {
-            return runAsync(network, StateEstimationRunParameters.getDefault());
+        public CompletableFuture<StateEstimationResult> estimateAsync(Network network, String workingVariantId,
+                                                                      StateEstimationRunParameters runParameters) {
+            Objects.requireNonNull(network, "Network should not be null");
+            Objects.requireNonNull(workingVariantId, "WorkingVariantId should not be null");
+            Objects.requireNonNull(runParameters, "StateEstimationRunParameters should not be null");
+            return provider.estimate(network, workingVariantId, runParameters);
         }
 
-        public StateEstimationResult run(Network network, String workingVariantId, StateEstimationRunParameters runParameters) {
-            return runAsync(network, workingVariantId, runParameters).join();
+        public StateEstimationResult estimate(Network network, String workingVariantId,
+                                              StateEstimationRunParameters runParameters) {
+            return estimateAsync(network, workingVariantId, runParameters).join();
         }
 
-        public StateEstimationResult run(Network network, StateEstimationRunParameters runParameters) {
-            return run(network, network.getVariantManager().getWorkingVariantId(), runParameters);
+        public StateEstimationResult estimate(Network network, StateEstimationParameters parameters) {
+            return estimate(network, network.getVariantManager().getWorkingVariantId(),
+                    new StateEstimationRunParameters().setParameters(parameters));
         }
 
-        public StateEstimationResult run(Network network, StateEstimationParameters parameters) {
-            return run(network, new StateEstimationRunParameters().setParameters(parameters));
+        public StateEstimationResult estimate(Network network) {
+            return estimate(network, network.getVariantManager().getWorkingVariantId(),
+                    StateEstimationRunParameters.getDefault());
         }
 
-        public StateEstimationResult run(Network network) {
-            return run(network, StateEstimationRunParameters.getDefault());
+        public CompletableFuture<BadDataResult> detectBadDataAsync(Network network, StateEstimationResult estimate,
+                                                                   ObservabilityResult observability,
+                                                                   StateEstimationRunParameters runParameters) {
+            Objects.requireNonNull(network, "Network should not be null");
+            Objects.requireNonNull(estimate, "StateEstimationResult should not be null");
+            Objects.requireNonNull(observability, "ObservabilityResult should not be null");
+            Objects.requireNonNull(runParameters, "StateEstimationRunParameters should not be null");
+            return provider.detectBadData(network, estimate, observability, runParameters);
+        }
+
+        public BadDataResult detectBadData(Network network, StateEstimationResult estimate,
+                                           ObservabilityResult observability,
+                                           StateEstimationRunParameters runParameters) {
+            return detectBadDataAsync(network, estimate, observability, runParameters).join();
+        }
+
+        public BadDataResult detectBadData(Network network, StateEstimationResult estimate,
+                                           ObservabilityResult observability) {
+            return detectBadData(network, estimate, observability, StateEstimationRunParameters.getDefault());
         }
 
         public boolean checkParameters(StateEstimationRunParameters runParameters) {
@@ -120,36 +148,37 @@ public final class StateEstimation {
         return find(null);
     }
 
-    public static CompletableFuture<StateEstimationResult> runAsync(Network network, String workingVariantId, StateEstimationRunParameters runParameters) {
-        return find().runAsync(network, workingVariantId, runParameters);
+    public static ObservabilityResult analyseObservability(Network network) {
+        return find().analyseObservability(network);
     }
 
-    public static CompletableFuture<StateEstimationResult> runAsync(Network network, StateEstimationRunParameters runParameters) {
-        return find().runAsync(network, runParameters);
+    public static ObservabilityResult analyseObservability(Network network, String workingVariantId,
+                                                           StateEstimationRunParameters runParameters) {
+        return find().analyseObservability(network, workingVariantId, runParameters);
     }
 
-    public static CompletableFuture<StateEstimationResult> runAsync(Network network, StateEstimationParameters parameters) {
-        return find().runAsync(network, parameters);
+    public static StateEstimationResult estimate(Network network) {
+        return find().estimate(network);
     }
 
-    public static CompletableFuture<StateEstimationResult> runAsync(Network network) {
-        return find().runAsync(network);
+    public static StateEstimationResult estimate(Network network, StateEstimationParameters parameters) {
+        return find().estimate(network, parameters);
     }
 
-    public static StateEstimationResult run(Network network, String workingVariantId, StateEstimationRunParameters runParameters) {
-        return find().run(network, workingVariantId, runParameters);
+    public static StateEstimationResult estimate(Network network, String workingVariantId,
+                                                 StateEstimationRunParameters runParameters) {
+        return find().estimate(network, workingVariantId, runParameters);
     }
 
-    public static StateEstimationResult run(Network network, StateEstimationRunParameters runParameters) {
-        return find().run(network, runParameters);
+    public static BadDataResult detectBadData(Network network, StateEstimationResult estimate,
+                                              ObservabilityResult observability) {
+        return find().detectBadData(network, estimate, observability);
     }
 
-    public static StateEstimationResult run(Network network, StateEstimationParameters parameters) {
-        return find().run(network, parameters);
-    }
-
-    public static StateEstimationResult run(Network network) {
-        return find().run(network);
+    public static BadDataResult detectBadData(Network network, StateEstimationResult estimate,
+                                              ObservabilityResult observability,
+                                              StateEstimationRunParameters runParameters) {
+        return find().detectBadData(network, estimate, observability, runParameters);
     }
 
     public static boolean checkParameters(StateEstimationRunParameters runParameters) {

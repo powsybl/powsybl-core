@@ -25,7 +25,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * What a state estimation implementation provides. Discovered through {@link ServiceLoaderCache}.
+ * What a state estimation implementation provides. Implementations are discovered with {@link ServiceLoader}.
  *
  * <p>Measurements are read from the network rather than passed in, through the IIDM measurement
  * extensions carried by its equipment. A second measurement snapshot is a second network variant,
@@ -39,7 +39,21 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
         return Lists.newArrayList(ServiceLoader.load(StateEstimationProvider.class, StateEstimationProvider.class.getClassLoader()));
     }
 
-    CompletableFuture<StateEstimationResult> run(Network network, String workingVariantId, StateEstimationRunParameters runParameters);
+    /** Which parts of variant {@code workingVariantId} of {@code network} its measurements determine. */
+    CompletableFuture<ObservabilityResult> analyseObservability(Network network, String workingVariantId,
+                                                                StateEstimationRunParameters runParameters);
+
+    /** The state of variant {@code workingVariantId} of {@code network} that best fits its measurements. */
+    CompletableFuture<StateEstimationResult> estimate(Network network, String workingVariantId,
+                                                      StateEstimationRunParameters runParameters);
+
+    /**
+     * Tests {@code estimate} for measurements that disagree with it. The estimate is used as given
+     * and is not recomputed. {@code observability} tells which measurements can be tested.
+     */
+    CompletableFuture<BadDataResult> detectBadData(Network network, StateEstimationResult estimate,
+                                                   ObservabilityResult observability,
+                                                   StateEstimationRunParameters runParameters);
 
     /**
      * The settings this implementation adds on top of {@link StateEstimationParameters}, as an
@@ -90,7 +104,7 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
     }
 
     /**
-     * Whether this implementation can honour the given parameters. An implementation that cannot
+     * Whether this implementation can honor the given parameters. An implementation that cannot
      * returns false instead of failing later in the run.
      */
     default boolean checkParameters(StateEstimationRunParameters runParameters) {

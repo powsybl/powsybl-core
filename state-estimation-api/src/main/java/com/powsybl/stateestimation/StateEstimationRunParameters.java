@@ -15,8 +15,8 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * What belongs to one invocation of {@link StateEstimation#run} instead of to the estimation
- * itself.
+ * Parameters of one {@link StateEstimation} invocation, as opposed to
+ * {@link StateEstimationParameters}, which describe the estimation itself.
  *
  * @author Šime Pavlić {@literal <sime.pavlic at kickstage.com>}
  */

@@ -55,8 +55,21 @@ class StateEstimationTest {
     }
 
     @Test
-    void runsAgainstTheWorkingVariantByDefault() {
-        StateEstimation.run(network);
+    void oneProviderServesAllThreeOperations() {
+        StateEstimation.Runner runner = StateEstimation.find(StateEstimationProviderMock.NAME);
+
+        ObservabilityResult observability = runner.analyseObservability(network);
+        StateEstimationResult estimate = runner.estimate(network);
+        BadDataResult badData = runner.detectBadData(network, estimate, observability);
+
+        assertEquals(ObservabilityResult.AreaStatus.OBSERVABLE, observability.getAreas().get(0).getStatus());
+        assertTrue(estimate.isFullyEstimated());
+        assertEquals(BadDataResult.Status.NO_BAD_DATA, badData.getStatus());
+    }
+
+    @Test
+    void estimatesAgainstTheWorkingVariantByDefault() {
+        StateEstimation.estimate(network);
         assertEquals(network.getVariantManager().getWorkingVariantId(), StateEstimationProviderMock.getLastWorkingVariantId());
         assertSame(network, StateEstimationProviderMock.getLastNetwork());
     }
@@ -66,8 +79,10 @@ class StateEstimationTest {
         network.getVariantManager().cloneVariant(
                 network.getVariantManager().getWorkingVariantId(), "snapshot");
 
-        StateEstimation.run(network, "snapshot", StateEstimationRunParameters.getDefault());
+        StateEstimation.estimate(network, "snapshot", StateEstimationRunParameters.getDefault());
+        assertEquals("snapshot", StateEstimationProviderMock.getLastWorkingVariantId());
 
+        StateEstimation.analyseObservability(network, "snapshot", StateEstimationRunParameters.getDefault());
         assertEquals("snapshot", StateEstimationProviderMock.getLastWorkingVariantId());
     }
 
@@ -77,7 +92,7 @@ class StateEstimationTest {
                 .setZeroInjectionMode(StateEstimationParameters.ZeroInjectionMode.EQUALITY_CONSTRAINT)
                 .setResidualFlaggingThreshold(2.5);
 
-        StateEstimation.run(network, parameters);
+        StateEstimation.estimate(network, parameters);
 
         StateEstimationParameters seen = StateEstimationProviderMock.getLastRunParameters().getStateEstimationParameters();
         assertSame(parameters, seen);
@@ -87,24 +102,40 @@ class StateEstimationTest {
 
     @Test
     void fillsInDefaultsWhenGivenNoParameters() {
-        StateEstimation.run(network);
+        StateEstimation.estimate(network);
 
         StateEstimationRunParameters runParameters = StateEstimationProviderMock.getLastRunParameters();
         assertEquals(StateEstimationParameters.DEFAULT_ZERO_INJECTION_MODE,
                 runParameters.getStateEstimationParameters().getZeroInjectionMode());
         assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_FLAGGING_THRESHOLD,
                 runParameters.getStateEstimationParameters().getResidualFlaggingThreshold());
+        assertEquals(StateEstimationParameters.BusInjectionPolicy.REQUIRE_ALL_METERED,
+                runParameters.getStateEstimationParameters().getBusInjectionPolicy());
     }
 
     @Test
-    void runsAsynchronously() throws InterruptedException, ExecutionException {
-        StateEstimationResult result = StateEstimation.runAsync(network).get();
+    void passesTheBusInjectionPolicyThrough() {
+        StateEstimationParameters parameters = new StateEstimationParameters()
+                .setBusInjectionPolicy(StateEstimationParameters.BusInjectionPolicy.SUM_METERED);
+
+        StateEstimation.estimate(network, parameters);
+
+        assertEquals(StateEstimationParameters.BusInjectionPolicy.SUM_METERED,
+                StateEstimationProviderMock.getLastRunParameters().getStateEstimationParameters().getBusInjectionPolicy());
+    }
+
+    @Test
+    void estimatesAsynchronously() throws InterruptedException, ExecutionException {
+        StateEstimationResult result = StateEstimation.find()
+                .estimateAsync(network, network.getVariantManager().getWorkingVariantId(),
+                        StateEstimationRunParameters.getDefault())
+                .get();
         assertTrue(result.isFullyEstimated());
     }
 
     @Test
-    void returnsWhatTheProviderProduced() {
-        StateEstimationResult result = StateEstimation.run(network);
+    void returnsWhatTheProviderEstimated() {
+        StateEstimationResult result = StateEstimation.estimate(network);
 
         assertEquals(StateEstimationResult.Status.FULLY_ESTIMATED, result.getStatus());
         assertTrue(result.isFullyEstimated());
@@ -125,16 +156,14 @@ class StateEstimationTest {
 
     @Test
     void reportsObservabilityInTheVocabularyOfTheIidmExtensions() {
-        StateEstimationResult.ObservabilityResult observability =
-                StateEstimation.run(network).getObservabilityResult();
+        ObservabilityResult observability = StateEstimation.analyseObservability(network);
 
         assertEquals(1, observability.getAreas().size());
-        assertEquals(StateEstimationResult.ObservabilityResult.AreaStatus.OBSERVABLE,
-                observability.getAreas().get(0).getStatus());
+        assertEquals(ObservabilityResult.AreaStatus.OBSERVABLE, observability.getAreas().get(0).getStatus());
         assertTrue(observability.getArea(StateEstimationProviderMock.BUS_ID).isPresent());
         assertTrue(observability.getArea("NotEstimated").isEmpty());
 
-        StateEstimationResult.ObservabilityResult.ElementObservability element =
+        ObservabilityResult.ElementObservability element =
                 observability.getElementObservability(StateEstimationProviderMock.BUS_ID).orElseThrow();
         assertTrue(element.isObservable());
         assertEquals(1, element.getQualities().size());
@@ -143,13 +172,39 @@ class StateEstimationTest {
     }
 
     @Test
+    void detectBadDataWorksFromAnEstimateItDidNotCompute() {
+        ObservabilityResult observability = StateEstimation.analyseObservability(network);
+        StateEstimationResult estimate = StateEstimation.estimate(network);
+        StateEstimationProviderMock.forget();
+
+        BadDataResult badData = StateEstimation.detectBadData(network, estimate, observability);
+
+        assertSame(estimate, StateEstimationProviderMock.getLastEstimate());
+        assertSame(observability, StateEstimationProviderMock.getLastObservability());
+        assertEquals(BadDataResult.Status.NO_BAD_DATA, badData.getStatus());
+        assertTrue(badData.getSuspectMeasurements().isEmpty());
+    }
+
+    @Test
+    void reportsTheMeasurementsNoTestCanClear() {
+        ObservabilityResult observability = StateEstimation.analyseObservability(network);
+        StateEstimationResult estimate = StateEstimation.estimate(network);
+
+        BadDataResult badData = StateEstimation.detectBadData(network, estimate, observability);
+
+        assertEquals(1, badData.getUncheckableMeasurementIds().size());
+        assertTrue(badData.getUncheckableMeasurementIds()
+                .contains(StateEstimationProviderMock.CRITICAL_MEASUREMENT_ID));
+    }
+
+    @Test
     void carriesAnImplementationsOwnResultsAsAnExtension() {
-        StateEstimationResultImpl result = (StateEstimationResultImpl) StateEstimation.run(network);
-        BadDataExtension badData = new BadDataExtension(21.4);
+        StateEstimationResultImpl result = (StateEstimationResultImpl) StateEstimation.estimate(network);
+        ChiSquareExtension statistic = new ChiSquareExtension(21.4);
 
-        result.addExtension(BadDataExtension.class, badData);
+        result.addExtension(ChiSquareExtension.class, statistic);
 
-        assertSame(badData, result.getExtension(BadDataExtension.class));
+        assertSame(statistic, result.getExtension(ChiSquareExtension.class));
         assertEquals(1, result.getExtensions().size());
     }
 }
