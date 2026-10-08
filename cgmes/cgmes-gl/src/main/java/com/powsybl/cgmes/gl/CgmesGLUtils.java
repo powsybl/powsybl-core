@@ -7,10 +7,7 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.triplestore.api.TripleStore;
-
-import java.util.Objects;
+import com.powsybl.cgmes.model.CgmesNamespace;
 
 /**
  *
@@ -23,37 +20,18 @@ public final class CgmesGLUtils {
      */
     public static final String COORDINATE_SYSTEM_URN = "urn:ogc:def:crs:EPSG::4326";
 
+    public static final String CIM_16_GL_PROFILE = "http://entsoe.eu/CIM/GeographicalLocation/2/1";
+    public static final String CIM_100_GL_PROFILE = "http://iec.ch/TC57/ns/CIM/GeographicalLocation-EU/3.0";
+
     private CgmesGLUtils() {
+    }
+
+    public static String glProfileUri(CgmesNamespace.Cim cim) {
+        return cim.getVersion() >= 100 ? CIM_100_GL_PROFILE : CIM_16_GL_PROFILE;
     }
 
     public static boolean checkCoordinateSystem(String crsUrn) {
         return COORDINATE_SYSTEM_URN.equals(crsUrn);
-    }
-
-    public static String contextNameFor(CgmesSubset subset, TripleStore tripleStore, String modelId) {
-        Objects.requireNonNull(subset);
-        Objects.requireNonNull(tripleStore);
-        Objects.requireNonNull(modelId);
-        String contextNameEQ = contextNameForEquipmentSubset(tripleStore);
-        return contextNameEQ != null
-                ? buildContextNameForSubsetFrom(contextNameEQ, subset)
-                : modelId + "_" + subset.getIdentifier() + ".xml";
-    }
-
-    private static String contextNameForEquipmentSubset(TripleStore tripleStore) {
-        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
-        String eqBD = CgmesSubset.EQUIPMENT_BOUNDARY.getIdentifier();
-        for (String contextName : tripleStore.contextNames()) {
-            if (contextName.contains(eq) && !contextName.contains(eqBD)) {
-                return contextName;
-            }
-        }
-        return null;
-    }
-
-    private static String buildContextNameForSubsetFrom(String contextNameEQ, CgmesSubset subset) {
-        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
-        return contextNameEQ.replace(eq, subset.getIdentifier());
     }
 
 }

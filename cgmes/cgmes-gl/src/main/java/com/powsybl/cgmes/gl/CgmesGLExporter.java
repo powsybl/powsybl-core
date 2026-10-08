@@ -7,23 +7,29 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.Objects;
+
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  *
@@ -32,85 +38,76 @@ import java.util.Objects;
 public class CgmesGLExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesGLExporter.class);
-    public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 
-    private Network network;
-    private TripleStore tripleStore;
+    private static final String COORDINATE_SYSTEM_NAME = "WGS84";
 
-    private static final String MODEL_SCENARIO_TIME = "Model.scenarioTime";
-    private static final String MODEL_CREATED = "Model.created";
-    private static final String MODEL_DESCRIPTION = "Model.description";
-    private static final String MODEL_VERSION = "Model.version";
-    private static final String MODEL_PROFILE = "Model.profile";
-    private static final String MODEL_DEPENDENT_ON = "Model.DependentOn";
-    private static final String IDENTIFIED_OBJECT_NAME = "IdentifiedObject.name";
+    private final Network network;
+    private final CgmesExportContext context;
 
-    public CgmesGLExporter(Network network, TripleStore tripleStore) {
+    /**
+     * @param context the context of the CGMES export of the other subsets: sharing it ensures that the GL subset
+     *                refers to the same identifiers (power system resources, EQ model) as the exported EQ subset
+     */
+    public CgmesGLExporter(Network network, CgmesExportContext context) {
         this.network = Objects.requireNonNull(network);
-        this.tripleStore = Objects.requireNonNull(tripleStore);
+        this.context = Objects.requireNonNull(context);
     }
 
     public CgmesGLExporter(Network network) {
-        this(network, TripleStoreFactory.create());
+        this(network, new CgmesExportContext(network));
     }
 
     public void exportData(DataSource dataSource) {
         Objects.requireNonNull(dataSource);
-        ExportContext context = new ExportContext();
-        context.setBasename(dataSource.getBaseName());
-        context.setGlContext(CgmesGLUtils.contextNameFor(CgmesSubset.GEOGRAPHICAL_LOCATION, tripleStore, dataSource.getBaseName()));
-        addNamespaces(context);
-        addModel(context);
-        addCoordinateSystem(context);
-        exportSubstationsPosition(context);
-        exportLinesPosition(context);
-        tripleStore.write(dataSource);
-    }
-
-    private void addNamespaces(ExportContext context) {
-        if (isMissedNamespace("data")) {
-            tripleStore.addNamespace("data", "http://" + context.getBasename().toLowerCase() + "/#");
-        }
-        if (isMissedNamespace("cim")) {
-            tripleStore.addNamespace("cim", CgmesNamespace.CIM_16_NAMESPACE);
-        }
-        if (isMissedNamespace("md")) {
-            tripleStore.addNamespace("md", MD_NAMESPACE);
+        String fileName = dataSource.getBaseName() + "_" + CgmesSubset.GEOGRAPHICAL_LOCATION.getIdentifier() + ".xml";
+        try (OutputStream out = new BufferedOutputStream(dataSource.newOutputStream(fileName, false))) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
+            write(writer);
+            writer.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
-    private boolean isMissedNamespace(String prefix) {
-        return tripleStore.getNamespaces().stream().map(PrefixNamespace::getPrefix).noneMatch(prefix::equals);
+    private void write(XMLStreamWriter writer) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
+        CgmesExportUtil.writeModelDescription(network, CgmesSubset.GEOGRAPHICAL_LOCATION, writer, initializeModel(), context);
+        String coordinateSystemId = writeCoordinateSystem(cimNamespace, writer);
+        exportSubstationsPosition(new SubstationPositionExporter(writer, context, coordinateSystemId));
+        exportLinesPosition(new LinePositionExporter(writer, context, coordinateSystemId));
+        writer.writeEndDocument();
     }
 
-    private void addModel(ExportContext context) {
-        PropertyBag modelProperties = new PropertyBag(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON), true);
-        modelProperties.setResourceNames(Collections.singletonList(MODEL_DEPENDENT_ON));
-        modelProperties.setClassPropertyNames(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON));
-        modelProperties.put(MODEL_SCENARIO_TIME, network.getCaseDate().toString());
-        modelProperties.put(MODEL_CREATED, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
-        modelProperties.put(MODEL_DESCRIPTION, network.getNameOrId());
-        modelProperties.put(MODEL_VERSION, "4");
-        modelProperties.put(MODEL_PROFILE, "http://entsoe.eu/CIM/GeographicalLocation/2/1");
-        modelProperties.put(MODEL_DEPENDENT_ON, network.getId());
-        tripleStore.add(context.getGlContext(), MD_NAMESPACE, "FullModel", modelProperties);
+    private CgmesMetadataModel initializeModel() {
+        CgmesMetadataModel model = CgmesExport.initializeModelForExport(network, CgmesSubset.GEOGRAPHICAL_LOCATION, context, true, false);
+        // Profile of the CIM version of the export, replacing the one of the imported GL model if any
+        model.setProfile(CgmesGLUtils.glProfileUri(context.getCim()));
+        if (context.updateDependencies()) {
+            String eqModelId = CgmesExport.initializeModelForExport(network, CgmesSubset.EQUIPMENT, context, true, false).getId();
+            model.clearDependencies().addDependentOn(eqModelId);
+        }
+        return model;
     }
 
-    private void addCoordinateSystem(ExportContext context) {
-        PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"), true);
-        coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
-        coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
-        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
+    private String writeCoordinateSystem(String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        String id = context.getNamingStrategy().getCgmesId(refTyped(network), ref("CoordinateSystem"));
+        CgmesExportUtil.writeStartIdName("CoordinateSystem", id, COORDINATE_SYSTEM_NAME, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "CoordinateSystem.crsUrn");
+        writer.writeCharacters(CgmesGLUtils.COORDINATE_SYSTEM_URN);
+        writer.writeEndElement();
+        writer.writeEndElement();
+        return id;
     }
 
-    private void exportSubstationsPosition(ExportContext context) {
-        SubstationPositionExporter positionExporter = new SubstationPositionExporter(tripleStore, context);
+    private void exportSubstationsPosition(SubstationPositionExporter positionExporter) {
         LOG.info("Exporting Substations Position");
         network.getSubstationStream().forEach(positionExporter::exportPosition);
     }
 
-    private void exportLinesPosition(ExportContext context) {
-        LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context);
+    private void exportLinesPosition(LinePositionExporter positionExporter) {
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
         LOG.info("Exporting Boundary Lines Position");
