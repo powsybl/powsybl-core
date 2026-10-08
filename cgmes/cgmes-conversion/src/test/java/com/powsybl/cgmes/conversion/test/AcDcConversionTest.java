@@ -11,16 +11,21 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
@@ -250,6 +255,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // DCNode
         String dcNode11 = getElement(eqFile, "DCNode", "DCN_1_1");
         assertEquals("DC node 1 1", getAttribute(dcNode11, "IdentifiedObject.name"));
+        assertEquals("DCCU_1_1", getResource(dcNode11, "DCNode.DCEquipmentContainer"));
 
         // DCBreaker
         String dcBreaker = getElement(eqFile, "DCBreaker", "DCSW_1_1");
@@ -371,6 +377,44 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("VSC_1_2_VSC_RCC", getResource(cd0, "CurveData.Curve"));
     }
 
+    /**
+     * This test ensures that DCNode.DCEquipmentContainer field is present in each DC node, not simply the ones
+     * belonging to a DC bus connected to a converter.
+     */
+    @Test
+    void dcNetworkWithCentralDcNodeEqExportTest() throws IOException {
+        // IIDM network:
+        //   A HVDC bipole with VSC, and DC nodes in the middle belonging to no converters
+        // CGMES network:
+        //   All DCNodes reference a DCEquipmentContainer.
+        Network network = DcDetailedNetworkFactory.createVscBipoleWithCentralNode();
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir, new Properties());
+
+        assertEquals(4, getElementCount(eqFile, "DCConverterUnit"));
+        assertEquals(9, getElementCount(eqFile, "DCNode"));
+
+        Set<String> expectedDcNodesIds = Set.of("dn1_pos", "dn1_neg", "dn1_neutral", "dn2_pos", "dn2_neg", "dn2_neutral", "dn3_pos", "dn3_neg", "dn3_neutral");
+        Map<String, String> expectedDcEquipmentContainerMapping = Map.of(
+                "dn1_pos", "vsc1_pos_VSC_DCCU",
+                "dn1_neg", "vsc1_neg_VSC_DCCU",
+                "dn1_neutral", "vsc1_neg_VSC_DCCU",
+                "dn2_pos", "vsc2_pos_VSC_DCCU",
+                "dn2_neg", "vsc2_neg_VSC_DCCU",
+                "dn2_neutral", "vsc2_neg_VSC_DCCU",
+                "dn3_pos", "vsc1_pos_VSC_DCCU",
+                "dn3_neg", "vsc1_neg_VSC_DCCU",
+                "dn3_neutral", "vsc1_neg_VSC_DCCU"
+        );
+
+        Set<String> dcNodes = getElements(eqFile, "DCNode");
+        Set<String> dcNodesIds = dcNodes.stream().map(ConversionUtil::getIdentifier).collect(Collectors.toSet());
+        assertEquals(expectedDcNodesIds, dcNodesIds);
+        for (String dcNodeRdfId : dcNodesIds) {
+            String dcNode = getElement(eqFile, "DCNode", dcNodeRdfId);
+            assertEquals(expectedDcEquipmentContainerMapping.get(dcNodeRdfId), getResource(dcNode, "DCNode.DCEquipmentContainer"));
+        }
+    }
+
     @Test
     void dcNetworkSshExportTest() throws IOException {
         // IIDM network:
@@ -482,6 +526,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // DCTopologicalNode
         String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
         assertEquals("DC node 1 1P", getAttribute(dcTopologicalNode, "IdentifiedObject.name"));
+        assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer")); // Not included in Node-breaker
     }
 
     @Test
@@ -567,10 +612,63 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0, getElementCount(eqFile, "DCNode"));
         assertFalse(eqFile.contains("DCBaseTerminal.DCNode"));
 
+        // However, the TP profile must include DCEquipmentContainer in the DCTopologicalNode
+        String tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
+        assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
+        String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
+        assertEquals("DCCU_1_1", getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
+
         // In CIM100 bus-branch export, DCNodes come from IIDM DcBuses.
         exportParams.put(CgmesExport.CIM_VERSION, "100");
         eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
         assertEquals(6, getElementCount(eqFile, "DCNode"));
+
+        // Therefore, DCEquipmentContainer should not be exported in the TP profile
+        tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
+        assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
+        dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
+        assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
+    }
+
+    static Stream<Arguments> exportParameters() {
+        return Stream.of(
+                Arguments.of("NODE_BREAKER", "16"),
+                Arguments.of("NODE_BREAKER", "100"),
+                Arguments.of("BUS_BRANCH", "16"),
+                Arguments.of("BUS_BRANCH", "100"));
+    }
+
+    /**
+     * Create a Multi-terminal DC grid in IIDM node-breaker with both VSC and LCC. Export it to CGMES and import it back
+     * to verify every element has been reloaded.
+     * The test is run with the following configurations:
+     * - CGMES node-breaker topology (CIM version 16 and 100, which should not be different)
+     * - CGMES bus-branch topology, CIM version 16
+     * - CGMES bus-branch topology, CIM version 100
+     */
+    @ParameterizedTest()
+    @MethodSource("exportParameters")
+    void testExportImport(String cgmesTopologyKind, String cimVersion) {
+        Network network = DcDetailedNetworkFactory.createThreeTerminalsMixedConverterNetwork();
+
+        // Save CGMES
+        Properties exportProperties = new Properties();
+        exportProperties.setProperty(CgmesExport.TOPOLOGY_KIND, cgmesTopologyKind);
+        exportProperties.setProperty(CgmesExport.CIM_VERSION, cimVersion);
+        network.write("CGMES", exportProperties, tmpDir.resolve("tmp"));
+
+        // Read CGMES
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network loadedNetwork = Network.read(new DirectoryDataSource(tmpDir, "tmp"), importParams);
+
+        // Check all elements are here
+        assertEquals(12, loadedNetwork.getDcNodeCount());
+        assertEquals(9, loadedNetwork.getDcLineCount());
+        assertEquals(1, loadedNetwork.getDcGroundCount());
+        assertEquals(4, loadedNetwork.getVoltageSourceConverterCount());
+        assertEquals(2, loadedNetwork.getLineCommutatedConverterCount());
     }
 
 }
