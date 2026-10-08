@@ -139,19 +139,19 @@ public class UcteExporter implements Exporter {
     /**
      * Convert an IIDM network to an UCTE network
      *
-     * @param network the IIDM network to convert
+     * @param network        the IIDM network to convert
      * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
     private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation, ReportNode reportNode) {
 
         if (network.getShuntCompensatorCount() > 0 ||
-            network.getStaticVarCompensatorCount() > 0 ||
-            network.getBatteryCount() > 0 ||
-            network.getLccConverterStationCount() > 0 ||
-            network.getVscConverterStationCount() > 0 ||
-            network.getHvdcLineCount() > 0 ||
-            network.getThreeWindingsTransformerCount() > 0) {
+                network.getStaticVarCompensatorCount() > 0 ||
+                network.getBatteryCount() > 0 ||
+                network.getLccConverterStationCount() > 0 ||
+                network.getVscConverterStationCount() > 0 ||
+                network.getHvdcLineCount() > 0 ||
+                network.getThreeWindingsTransformerCount() > 0) {
 
             throw new UcteException("This network contains unsupported equipments");
         }
@@ -194,8 +194,8 @@ public class UcteExporter implements Exporter {
      * Create a {@link UcteNode} object from the bus and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork the target network in ucte
-     * @param bus the bus to convert to UCTE
-     * @param context the context used to store temporary data during the conversion
+     * @param bus         the bus to convert to UCTE
+     * @param context     the context used to store temporary data during the conversion
      */
     private static void convertBus(UcteNetwork ucteNetwork, Bus bus, UcteExporterContext context) {
         LOGGER.trace("Converting bus {}", bus.getId());
@@ -245,7 +245,7 @@ public class UcteExporter implements Exporter {
      * Initialize the power consumption fields from the loads connected to the specified bus.
      *
      * @param ucteNode The UCTE node to fill
-     * @param bus The bus the loads are connected to
+     * @param bus      The bus the loads are connected to
      */
     private static void convertLoads(UcteNode ucteNode, Bus bus) {
         double activeLoad = 0.0;
@@ -262,7 +262,7 @@ public class UcteExporter implements Exporter {
      * Initialize the power generation fields from the generators connected to the specified bus.
      *
      * @param ucteNode The UCTE node to fill
-     * @param bus The bus the generators are connected to
+     * @param bus      The bus the generators are connected to
      */
     private static void convertGenerators(UcteNode ucteNode, Bus bus) {
         double activePowerGeneration = -0.0;
@@ -321,9 +321,9 @@ public class UcteExporter implements Exporter {
     /**
      * Create a {@link UcteNode} object from a BoundaryLine and add it to the {@link UcteNetwork}.
      *
-     * @param ucteNetwork The target network in ucte
+     * @param ucteNetwork  The target network in ucte
      * @param boundaryLine The boundaryLine used to create the XNode
-     * @param context The context used to store temporary data during the conversion
+     * @param context      The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(boundaryLine);
@@ -363,8 +363,8 @@ public class UcteExporter implements Exporter {
      * Create a {@link UcteNode} object from a TieLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
-     * @param tieLine The TieLine used to create the XNode
-     * @param context The context used to store temporary data during the conversion
+     * @param tieLine     The TieLine used to create the XNode
+     * @param context     The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
@@ -375,10 +375,11 @@ public class UcteExporter implements Exporter {
 
     /**
      * Create a {@link UcteNode} object from a {@link UcteNodeCode} object and an optional geographical name and add it to the {@link UcteNetwork}.
-     * @param ucteNetwork The target network in ucte
-     * @param xnodeCode The UCTE code of the XNode
+     *
+     * @param ucteNetwork      The target network in ucte
+     * @param xnodeCode        The UCTE code of the XNode
      * @param geographicalName The geographical name of the XNode
-     * @param ucteNodeStatus The UcteNodeStatus of the XNode
+     * @param ucteNodeStatus   The UcteNodeStatus of the XNode
      * @return the UcteNode
      */
     private static UcteNode convertXNode(UcteNetwork ucteNetwork, UcteNodeCode xnodeCode, String geographicalName, UcteNodeStatus ucteNodeStatus) {
@@ -415,8 +416,8 @@ public class UcteExporter implements Exporter {
      * Convert a switch to an {@link UcteLine}. Busbar couplers are UCTE lines with resistance, reactance and susceptance set to 0.
      *
      * @param ucteNetwork The target network in ucte
-     * @param sw The switch to convert to a busbar coupler
-     * @param context The context used to store temporary data during the conversion
+     * @param sw          The switch to convert to a busbar coupler
+     * @param context     The context used to store temporary data during the conversion
      */
     private static void convertSwitch(UcteNetwork ucteNetwork, Switch sw, UcteExporterContext context) {
         LOGGER.trace("Converting switch {}", sw.getId());
@@ -435,8 +436,8 @@ public class UcteExporter implements Exporter {
      * Convert {@link Line} and {@link TieLine} objects to {@link UcteLine} object and it to the network.
      *
      * @param ucteNetwork The target network in ucte
-     * @param line The line to convert to {@link UcteLine}
-     * @param context The context used to store temporary data during the conversion
+     * @param line        The line to convert to {@link UcteLine}
+     * @param context     The context used to store temporary data during the conversion
      */
     private static void convertLine(UcteNetwork ucteNetwork, Line line, UcteExporterContext context) {
         LOGGER.trace("Converting line {}", line.getId());
@@ -460,8 +461,8 @@ public class UcteExporter implements Exporter {
      * Convert a {@link TieLine} to two {@link UcteLine} connected by a Xnode. Add the two {@link UcteLine} and the {@link UcteNode} to the network.
      *
      * @param ucteNetwork The target UcteNetwork
-     * @param tieLine The TieLine object to convert
-     * @param context The context used to store temporary data during the conversion
+     * @param tieLine     The TieLine object to convert
+     * @param context     The context used to store temporary data during the conversion
      */
     private static void convertTieLine(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         LOGGER.trace("Converting TieLine {}", tieLine.getId());
@@ -503,9 +504,9 @@ public class UcteExporter implements Exporter {
     /**
      * Convert a {@link BoundaryLine} object to an {@link UcteNode} and a {@link UcteLine} objects.
      *
-     * @param ucteNetwork The target network in ucte
+     * @param ucteNetwork  The target network in ucte
      * @param boundaryLine The boundaryLine to convert to UCTE
-     * @param context The context used to store temporary data during the conversion
+     * @param context      The context used to store temporary data during the conversion
      */
     private static void convertBoundaryLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
         LOGGER.trace("Converting BoundaryLine {}", boundaryLine.getId());
@@ -658,9 +659,9 @@ public class UcteExporter implements Exporter {
      * Converts the {@link TwoWindingsTransformer} into a {@link UcteTransformer} and adds it to the ucteNetwork.
      * Also creates the adds the linked {@link UcteRegulation}
      *
-     * @param ucteNetwork The target UcteNetwork
+     * @param ucteNetwork            The target UcteNetwork
      * @param twoWindingsTransformer The two windings transformer we want to convert
-     * @param context The context used to store temporary data during the conversion
+     * @param context                The context used to store temporary data during the conversion
      */
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         if (isTransformerYNode(twoWindingsTransformer)) {
@@ -700,8 +701,8 @@ public class UcteExporter implements Exporter {
      * <li>{@link RatioTapChanger} into {@link UctePhaseRegulation}</li>
      * <li>{@link PhaseTapChanger} into {@link UcteAngleRegulation}</li>
      *
-     * @param ucteNetwork The target UcteNetwork
-     * @param ucteElementId The UcteElementId corresponding to the TwoWindingsTransformer
+     * @param ucteNetwork            The target UcteNetwork
+     * @param ucteElementId          The UcteElementId corresponding to the TwoWindingsTransformer
      * @param twoWindingsTransformer The TwoWindingTransformer we want to convert
      */
     private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
