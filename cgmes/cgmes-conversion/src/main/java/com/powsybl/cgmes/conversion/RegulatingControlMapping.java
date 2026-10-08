@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -64,7 +65,7 @@ public class RegulatingControlMapping {
         private Boolean correctlySet;
 
         RegulatingControl(PropertyBag p) {
-            this.mode = p.get("mode").toLowerCase();
+            this.mode = p.get("mode").toLowerCase(Locale.ROOT);
             this.cgmesTerminal = p.getId(CgmesNames.TERMINAL);
         }
 
@@ -112,7 +113,7 @@ public class RegulatingControlMapping {
     }
 
     public static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
+        return controlMode != null && controlMode.toLowerCase(Locale.ROOT).endsWith(CgmesNames.REACTIVE_POWER);
     }
 
     protected static String getRegulatingControlId(PropertyBag p) {
