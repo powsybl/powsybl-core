@@ -45,6 +45,8 @@ class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuild
             voltageRegulationAttributes,
             network.get().getMinValidationLevel(),
             network.get().getReportNodeContext().getReportNode());
-        return this.voltageRegulationSetter.apply(voltageRegulationAttributes);
+        VoltageRegulation voltageRegulation = this.voltageRegulationSetter.apply(voltageRegulationAttributes);
+        network.get().invalidateValidationLevel();
+        return voltageRegulation;
     }
 }
