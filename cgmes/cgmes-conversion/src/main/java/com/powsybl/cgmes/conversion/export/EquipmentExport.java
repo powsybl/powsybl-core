@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil.DCConverterUnit;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
@@ -104,10 +105,11 @@ public final class EquipmentExport {
             writeBoundaryLines(network, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
             writeHvdcLines(network, cimNamespace, writer, context);
 
-            Map<AcDcConverter<?>, CgmesExportUtil.DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
-            Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesConverterUnit = CgmesExportUtil.getDcNodesConverterUnit(network, acDcConvertersUnit);
-            writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
-            writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
+            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
+            Map<DcNode, DCConverterUnit> converterDcNodesConverterUnit = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
+            writeDcConverterUnits(network, converterDcNodesConverterUnit, cimNamespace, writer, context);
+            Map<DcNode, DCConverterUnit> allDcNodesConverterUnit = CgmesExportUtil.getAllDcNodeConvertersUnit(network, acDcConvertersUnit);
+            writeDcNodes(network, allDcNodesConverterUnit, cimNamespace, writer, context);
             writeDcSwitches(network, cimNamespace, writer, context);
             writeDcGrounds(network, cimNamespace, writer, context);
             writeDcLineSegments(network, cimNamespace, writer, context);
@@ -1584,14 +1586,14 @@ public final class EquipmentExport {
         DCTerminalEq.write(className, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
     }
 
-    private static void writeDcConverterUnits(Network network, Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesConverterUnit, String cimNamespace,
+    private static void writeDcConverterUnits(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit, String cimNamespace,
                                               XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Build DCConverterUnit adjacency.
         // In order to properly populate the DCConverterUnit.operationMode attribute, DCConverterUnit shall not be
         // considered separately but with the possible presence of an adjacent one.
-        Map<CgmesExportUtil.DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesConverterUnit.entrySet().stream()
+        Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesConverterUnit.entrySet().stream()
                 .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
-        Map<CgmesExportUtil.DCConverterUnit, List<CgmesExportUtil.DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
+        Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
         List<DCEquipment> dcEquipments = new ArrayList<>();
         dcEquipments.addAll(CgmesExportUtil.getDCEquipmentConverters(network));
         dcEquipments.addAll(CgmesExportUtil.getDCEquipmentSwitches(network));
@@ -1605,7 +1607,7 @@ public final class EquipmentExport {
                     .toList()));
 
         // Write DCConverterUnits
-        for (CgmesExportUtil.DCConverterUnit dcConverterUnit : dcNodesByConverterUnit.keySet()) {
+        for (DCConverterUnit dcConverterUnit : dcNodesByConverterUnit.keySet()) {
             Set<DcNode> adjacentNodes = dcConverterUnitAdjacency.get(dcConverterUnit).stream()
                     .flatMap(unit -> dcNodesByConverterUnit.get(unit).stream())
                     .collect(Collectors.toSet());
@@ -1628,7 +1630,7 @@ public final class EquipmentExport {
         return MONOPOLAR_GROUND_RETURN;
     }
 
-    private static void writeDcNodes(Network network, Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesConverters, String cimNamespace,
+    private static void writeDcNodes(Network network, Map<DcNode, DCConverterUnit> dcNodesConverters, String cimNamespace,
                                      XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // DCNodes are:
         // - exported from DcNodes in case of a node-breaker export
@@ -1684,7 +1686,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeAcDcConverters(Network network, Map<AcDcConverter<?>, CgmesExportUtil.DCConverterUnit> acDcConvertersUnit, String cimNamespace,
+    private static void writeAcDcConverters(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit, String cimNamespace,
                                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
             String dcConverterUnitId = acDcConvertersUnit.get(converter).id();

@@ -930,25 +930,12 @@ public final class DcDetailedNetworkFactory {
         return dcNetwork;
     }
 
-    /**
-     * <pre>
-     *           vsc1p - dn1p ----dl13p---- dn3p ----dl23p---- dn2p - vsc2p
-     *           |    |                                          |    |
-     *     b1 -- |    |- dn1r ----dl13r---- dn3r ----dl23r---- dn2r -|    | -- b2
-     *           |    |                                          |    |
-     *           vsc1n - dn1n ----dl13n---- dn3n ----dl23n---- dn2n - vsc2n
-     * </pre>
-     */
-    public static Network createVscBipoleWithCentralNode() {
-        return createVscBipoleWithCentralNode(NetworkFactory.findDefault(), "VscBipoleWithCentralNode");
-    }
-
-    public static Network createVscBipoleWithCentralNode(NetworkFactory networkFactory, String dcNetworkId) {
-        Network acDcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
+    private static Network createMinimalNetworkWithTwoAcVoltageLevel(NetworkFactory networkFactory, String networkId) {
+        Network network = networkFactory.createNetwork(networkId, "test");
 
         // Create substations and voltage levels
-        Substation s1 = acDcNetwork.newSubstation().setId("S1").add();
-        Substation s2 = acDcNetwork.newSubstation().setId("S2").add();
+        Substation s1 = network.newSubstation().setId("S1").add();
+        Substation s2 = network.newSubstation().setId("S2").add();
 
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(400.0).add();
         VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(400.0).add();
@@ -969,9 +956,30 @@ public final class DcDetailedNetworkFactory {
                 .withRegulating(true)
                 .add()
                 .add();
-        vl2.newLoad().setId("LD1").setNode(1).setP0(300).setQ0(50.0);
+        vl2.newLoad().setId("LD1").setNode(1).setP0(300).setQ0(50.0).add();
 
-        acDcNetwork.newLine().setId("AC_LINE").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(2).setNode2(2).setR(1.0).setX(15.0).add();
+        network.newLine().setId("AC_LINE").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(2).setNode2(2).setR(1.0).setX(15.0).add();
+
+        return network;
+    }
+
+    /**
+     * <pre>
+     *           vsc1p - dn1p ----dl13p---- dn3p ----dl23p---- dn2p - vsc2p
+     *           |    |                                          |    |
+     *     b1 -- |    |- dn1r ----dl13r---- dn3r ----dl23r---- dn2r -|    | -- b2
+     *           |    |                                          |    |
+     *           vsc1n - dn1n ----dl13n---- dn3n ----dl23n---- dn2n - vsc2n
+     * </pre>
+     */
+    public static Network createVscBipoleWithCentralNode() {
+        return createVscBipoleWithCentralNode(NetworkFactory.findDefault(), "VscBipoleWithCentralNode");
+    }
+
+    public static Network createVscBipoleWithCentralNode(NetworkFactory networkFactory, String dcNetworkId) {
+        Network acDcNetwork = createMinimalNetworkWithTwoAcVoltageLevel(networkFactory, dcNetworkId);
+        VoltageLevel vl1 = acDcNetwork.getVoltageLevel("VL1");
+        VoltageLevel vl2 = acDcNetwork.getVoltageLevel("VL2");
 
         // Create the MTDC network
         acDcNetwork.newDcNode().setId("dn1_pos").setNominalV(320).add();
@@ -1051,20 +1059,77 @@ public final class DcDetailedNetworkFactory {
 
     /**
      * <pre>
+     *               dn1p ----dl13p---- dn3p ----dl23p---- dn2p
+     *                |                                     |
+     *     b1 -- vsc1 |                                     | vsc2 -- b2
+     *                |                                     |
+     *              dn1n - ground1               ground2 - dn2n
+     * </pre>
+     */
+    public static Network createVscMonopoleWithGroundReturnWithCentralNode() {
+        return createVscMonopoleWithGroundReturnWithCentralNode(NetworkFactory.findDefault(), "VscMonopoleWithGroundReturnWithCentralNode");
+    }
+
+    public static Network createVscMonopoleWithGroundReturnWithCentralNode(NetworkFactory networkFactory, String dcNetworkId) {
+        Network acDcNetwork = createMinimalNetworkWithTwoAcVoltageLevel(networkFactory, dcNetworkId);
+        VoltageLevel vl1 = acDcNetwork.getVoltageLevel("VL1");
+        VoltageLevel vl2 = acDcNetwork.getVoltageLevel("VL2");
+
+        // Create the MTDC network
+        acDcNetwork.newDcNode().setId("dn1_pos").setNominalV(320).add();
+        acDcNetwork.newDcNode().setId("dn1_neg").setNominalV(320).add();
+        acDcNetwork.newDcNode().setId("dn2_pos").setNominalV(320).add();
+        acDcNetwork.newDcNode().setId("dn2_neg").setNominalV(320).add();
+        acDcNetwork.newDcNode().setId("dn3_pos").setNominalV(320).add();
+
+        acDcNetwork.newDcLine().setId("dl_pos_13").setDcNode1("dn1_pos").setDcNode2("dn3_pos").setR(1.0).add();
+        acDcNetwork.newDcLine().setId("dl_pos_23").setDcNode1("dn2_pos").setDcNode2("dn3_pos").setR(1.0).add();
+
+        acDcNetwork.newDcGround().setId("ground1").setDcNode("dn1_neg").add();
+        acDcNetwork.newDcGround().setId("ground2").setDcNode("dn2_neg").add();
+
+        vl1.newVoltageSourceConverter()
+                .setId("vsc1")
+                .setNode1(3)
+                .setDcNode1("dn1_pos")
+                .setDcNode2("dn1_neg")
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(50)
+                .setIdleLoss(0)
+                .setSwitchingLoss(0)
+                .setResistiveLoss(0)
+                .setLocalTargetQ(0)
+                .add();
+
+        vl2.newVoltageSourceConverter()
+                .setId("vsc2")
+                .setNode1(3)
+                .setDcNode1("dn2_pos")
+                .setDcNode2("dn2_neg")
+                .setControlMode(AcDcConverter.ControlMode.V_DC)
+                .setTargetVdc(320)
+                .setIdleLoss(0)
+                .setSwitchingLoss(0)
+                .setResistiveLoss(0)
+                .setLocalTargetQ(0)
+                .add();
+
+        return acDcNetwork;
+    }
+
+    /**
+     * <pre>
      *           vsc1p - dn1p ----dl13p---- dn3p ----dl23p---- dn2p - vsc2p
      *           |    |                  /                           |    |
      *     b1 -- |    |- dn1r ----dl13r-|-- dn3r ----dl23r---- dn2r -|    | -- b2
      *           |    |                 | /                          |    |
      *           vsc1n - dn1n ----dl13n-||- dn3n ----dl23n---- dn2n - vsc2n
      *                                  ||  |
-     *           vsc4p - dn4p ----dl43p-||  |
+     *           lcc4p - dn4p ----dl43p-||  |
      *           |    |                  |  |
      *     b4 -- |    |- dn4r ----dl43r--|  |
      *           |    |                     |
-     *           vsc4n - dn4n ----dl43n-----|
-     *
-     *
-     *
+     *           lcc4n - dn4n ----dl43n-----|
      * </pre>
      */
     public static Network createThreeTerminalsMixedConverterNetwork() {
@@ -1089,8 +1154,8 @@ public final class DcDetailedNetworkFactory {
         vl4.newLineCommutatedConverter()
                 .setId("lcc4_pos")
                 .setNode1(0)
-                .setDcNode1("dn3_pos")
-                .setDcNode2("dn3_neutral")
+                .setDcNode1("dn4_pos")
+                .setDcNode2("dn4_neutral")
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(50)
                 .setPowerFactor(0.8)

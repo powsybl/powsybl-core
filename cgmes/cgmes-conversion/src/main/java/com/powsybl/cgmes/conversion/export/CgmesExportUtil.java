@@ -546,7 +546,7 @@ public final class CgmesExportUtil {
 
     }
 
-    /// DC detailed model
+    // DC detailed model
     record DCConverterUnit(String id, String name, String substation) {
     }
 
@@ -575,13 +575,46 @@ public final class CgmesExportUtil {
         return acDcConvertersUnit;
     }
 
-    static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
-        // Build the DcNode to AcDcConverter associations by traversing the dc network
-        // using breadth first search starting from ACDCConverter DCNodes.
-        List<DCEquipment> converters = getDCEquipmentConverters(network);
+    /**
+     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network with only DcSwitches
+     * (regardless of their open/closed state).
+     * DcNodes that are not connected to a converter by DcSwitches but by DcLines are not included here.
+     *
+     * @param network            An IIDM network
+     * @param acDcConvertersUnit A map associating an IIDM AcDcConverter to a DCConverterUnit
+     * @return A map associating an IIDM DcNode to a DCConverter.
+     */
+    static Map<DcNode, DCConverterUnit> getConvertersDcNodeConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+        List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
+        return getDcNodesConverterUnit(network, acDcConvertersUnit, dcSwitches);
+    }
+
+    /**
+     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network with DcSwitches (regardless of
+     * their open/closed state) and DcLines (regardless of their connected/disconnected state)
+     * Therefore, DcNodes that are connected to a converter by DcLines are included here.
+     *
+     * @param network            An IIDM network
+     * @param acDcConvertersUnit A map associating an IIDM AcDcConverter to a DCConverterUnit
+     * @return A map associating an IIDM DcNode to a DCConverter.
+     */
+    static Map<DcNode, DCConverterUnit> getAllDcNodeConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
         List<DCEquipment> dcLines = getDCEquipmentLines(network);
-        List<DCEquipment> dcEquipmentForTraversal = Stream.concat(dcSwitches.stream(), dcLines.stream()).toList();
+        List<DCEquipment> dcSwitchesAndDcLines = Stream.concat(dcSwitches.stream(), dcLines.stream()).toList();
+        return getDcNodesConverterUnit(network, acDcConvertersUnit, dcSwitchesAndDcLines);
+    }
+
+    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit, List<DCEquipment> dcEquipmentForTraversal) {
+        // Build the DcNode to AcDcConverter associations by traversing the dc network
+        // using breadth first search starting from ACDCConverter DCNodes.
+        // Tie-break rule, which makes the result deterministic:
+        // - Converters are sorted by id, so a DcNode shared by several converters (e.g. the neutral node of a bipole)
+        //   is associated to the converter with the lowest id.
+        // - A DcNode that is not connected to a converter (e.g. an intermediate node of an MTDC grid) is associated to
+        //   the nearest converter, in number of switches/lines crossed. At equal distance, the converter with the lowest
+        //   id wins, since its DcNodes are queued first.
+        List<DCEquipment> converters = getDCEquipmentConverters(network);
         Map<String, String> dcNodesConverter = new HashMap<>();
         Queue<String> queue = new LinkedList<>();
         converters.forEach(converter -> {
@@ -622,8 +655,6 @@ public final class CgmesExportUtil {
      * @return A map matching a DcBus to a DcConverterUnit
      */
     static Map<DcBus, DCConverterUnit> getDcBusesConverterUnit(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit) {
-        // Several DcNodes of the same DcBus may be associated to different DCConverterUnits.
-        // Pick the one of the DcNode with the smallest id to have a deterministic result.
         Map<DcBus, DCConverterUnit> dcBusesConverterUnit = new HashMap<>();
         for (DcBus dcBus : network.getDcBuses()) {
             dcBus.getDcNodeStream()

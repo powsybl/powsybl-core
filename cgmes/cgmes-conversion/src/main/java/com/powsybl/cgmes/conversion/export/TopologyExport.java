@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil.DCConverterUnit;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -429,17 +430,17 @@ public final class TopologyExport {
             writeDCTopologicalNode(line, 2, line.getConverterStation2(), written, cimNamespace, writer, context);
         }
 
-        Map<DcBus, CgmesExportUtil.DCConverterUnit> dcBusesConverterUnit;
+        Map<DcBus, DCConverterUnit> dcBusesConverterUnit;
         if (context.isCim16BusBranchExport()) {
-            Map<AcDcConverter<?>, CgmesExportUtil.DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
-            Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesConverterUnit = CgmesExportUtil.getDcNodesConverterUnit(network, acDcConvertersUnit);
+            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
+            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = CgmesExportUtil.getAllDcNodeConvertersUnit(network, acDcConvertersUnit);
             dcBusesConverterUnit = CgmesExportUtil.getDcBusesConverterUnit(network, dcNodesConverterUnit);
         } else {
             dcBusesConverterUnit = Map.of();
         }
         for (DcBus dcBus : network.getDcBuses()) {
             String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
-            CgmesExportUtil.DCConverterUnit unit = dcBusesConverterUnit.get(dcBus);
+            DCConverterUnit unit = dcBusesConverterUnit.get(dcBus);
             String dcConverterUnitId = unit != null ? unit.id() : null;
             writeDCTopologicalNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
         }
