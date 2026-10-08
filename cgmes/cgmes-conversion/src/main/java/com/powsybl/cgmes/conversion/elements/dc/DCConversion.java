@@ -311,6 +311,8 @@ public class DCConversion {
         // DC equipment in the cim:DCConverterUnit which means that it is sufficient to locate the
         // cim:CsConverter or cim:VsConverter in the cim:DCConverterUnit to obtain the
         // information on rated DC voltage.
+        // Strong assumption here: we assume that cim:DCNode that do not belong to an ACDC converter (e.g. in a
+        // multi-terminal grid) still have the cim:DCConverterUnit as a cim:DCEquipmentContainer, and not a cim:DCLine.
         Map<String, Double> unitRatedUdc = cgmesAcDcConverters.stream()
                 .collect(Collectors.toMap(p -> p.getId("DCConverterUnit"), p -> p.asDouble(RATED_UDC), Math::max));
 

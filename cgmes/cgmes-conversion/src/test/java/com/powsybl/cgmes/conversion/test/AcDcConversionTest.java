@@ -11,16 +11,21 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
@@ -250,6 +255,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // DCNode
         String dcNode11 = getElement(eqFile, "DCNode", "DCN_1_1");
         assertEquals("DC node 1 1", getAttribute(dcNode11, "IdentifiedObject.name"));
+        assertEquals("DCCU_1_1", getResource(dcNode11, "DCNode.DCEquipmentContainer"));
 
         // DCBreaker
         String dcBreaker = getElement(eqFile, "DCBreaker", "DCSW_1_1");
@@ -371,6 +377,67 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("VSC_1_2_VSC_RCC", getResource(cd0, "CurveData.Curve"));
     }
 
+    /**
+     * This test ensures that DCNode.DCEquipmentContainer field is present in each DC node, not simply the ones
+     * belonging to a DC bus connected to a converter.
+     */
+    @Test
+    void dcNetworkWithCentralDcNodeEqExportTest() throws IOException {
+        // IIDM network:
+        //   A HVDC bipole with VSC, and DC nodes in the middle belonging to no converters
+        // CGMES network:
+        //   All DCNodes reference a DCEquipmentContainer.
+        Network network = DcDetailedNetworkFactory.createVscBipoleWithCentralNode();
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir, new Properties());
+
+        assertEquals(4, getElementCount(eqFile, "DCConverterUnit"));
+        assertEquals(9, getElementCount(eqFile, "DCNode"));
+
+        Map<String, String> expectedDcEquipmentContainerMapping = Map.of(
+                "dn1_pos", "vsc1_pos_VSC_DCCU",
+                "dn1_neg", "vsc1_neg_VSC_DCCU",
+                "dn1_neutral", "vsc1_neg_VSC_DCCU",
+                "dn2_pos", "vsc2_pos_VSC_DCCU",
+                "dn2_neg", "vsc2_neg_VSC_DCCU",
+                "dn2_neutral", "vsc2_neg_VSC_DCCU",
+                "dn3_pos", "vsc1_pos_VSC_DCCU",
+                "dn3_neg", "vsc1_neg_VSC_DCCU",
+                "dn3_neutral", "vsc1_neg_VSC_DCCU"
+        );
+        Set<String> expectedDcNodesIds = expectedDcEquipmentContainerMapping.keySet();
+
+        Set<String> dcNodes = getElements(eqFile, "DCNode");
+        Set<String> dcNodesIds = dcNodes.stream().map(ConversionUtil::getIdentifier).collect(Collectors.toSet());
+        assertEquals(expectedDcNodesIds, dcNodesIds);
+        for (String dcNodeRdfId : dcNodesIds) {
+            String dcNode = getElement(eqFile, "DCNode", dcNodeRdfId);
+            assertEquals(expectedDcEquipmentContainerMapping.get(dcNodeRdfId), getResource(dcNode, "DCNode.DCEquipmentContainer"));
+        }
+    }
+
+    /**
+     * This test ensures that the DCConverterUnit.operationMode is not affected by intermediate DC nodes,
+     * i.e. a DC line split in several segments must not be mistaken for a metallic return.
+     */
+    @Test
+    void dcNetworkWithCentralDcNodeOperationModeEqExportTest() throws IOException {
+        // IIDM network:
+        //   A HVDC monopole with VSC and ground return, the DC line being split in two by a central DC node.
+        // CGMES network:
+        //   Both DCConverterUnits are monopolar with ground return.
+        Network network = DcDetailedNetworkFactory.createVscMonopoleWithGroundReturnWithCentralNode();
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir, new Properties());
+
+        assertEquals(2, getElementCount(eqFile, "DCConverterUnit"));
+        assertEquals(5, getElementCount(eqFile, "DCNode"));
+
+        String expectedOperationMode = "http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.monopolarGroundReturn";
+        String dcConverterUnit1 = getElement(eqFile, "DCConverterUnit", "vsc1_VSC_DCCU");
+        assertEquals(expectedOperationMode, getResource(dcConverterUnit1, "DCConverterUnit.operationMode"));
+        String dcConverterUnit2 = getElement(eqFile, "DCConverterUnit", "vsc2_VSC_DCCU");
+        assertEquals(expectedOperationMode, getResource(dcConverterUnit2, "DCConverterUnit.operationMode"));
+    }
+
     @Test
     void dcNetworkSshExportTest() throws IOException {
         // IIDM network:
@@ -482,6 +549,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // DCTopologicalNode
         String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
         assertEquals("DC node 1 1P", getAttribute(dcTopologicalNode, "IdentifiedObject.name"));
+        assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer")); // Not included in Node-breaker
     }
 
     @Test
@@ -567,10 +635,123 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0, getElementCount(eqFile, "DCNode"));
         assertFalse(eqFile.contains("DCBaseTerminal.DCNode"));
 
+        // However, the TP profile must include DCEquipmentContainer in the DCTopologicalNode
+        String tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
+        assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
+        String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
+        assertEquals("DCCU_1_1", getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
+
         // In CIM100 bus-branch export, DCNodes come from IIDM DcBuses.
         exportParams.put(CgmesExport.CIM_VERSION, "100");
         eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
         assertEquals(6, getElementCount(eqFile, "DCNode"));
+
+        // Therefore, DCEquipmentContainer should not be exported in the TP profile
+        tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
+        assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
+        dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
+        assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
+    }
+
+    static Stream<Arguments> exportParameters() {
+        return Stream.of(
+                Arguments.of("NODE_BREAKER", "16"),
+                Arguments.of("NODE_BREAKER", "100"),
+                Arguments.of("BUS_BRANCH", "16"),
+                Arguments.of("BUS_BRANCH", "100"));
+    }
+
+    /**
+     * Create a Multi-terminal DC grid in IIDM node-breaker with both VSC and LCC. Export it to CGMES and import it back
+     * to verify every element has been reloaded.
+     * The test is run with the following configurations:
+     * - CGMES node-breaker topology (CIM version 16 and 100, which should not be different)
+     * - CGMES bus-branch topology, CIM version 16
+     * - CGMES bus-branch topology, CIM version 100
+     */
+    @ParameterizedTest
+    @MethodSource("exportParameters")
+    void testExportImport(String cgmesTopologyKind, String cimVersion) {
+        Network network = DcDetailedNetworkFactory.createThreeTerminalsMixedConverterNetwork();
+
+        // Save CGMES
+        Properties exportProperties = new Properties();
+        exportProperties.setProperty(CgmesExport.TOPOLOGY_KIND, cgmesTopologyKind);
+        exportProperties.setProperty(CgmesExport.CIM_VERSION, cimVersion);
+        network.write("CGMES", exportProperties, tmpDir.resolve("tmp"));
+
+        // Read CGMES
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        importParams.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
+        Network loadedNetwork = Network.read(new DirectoryDataSource(tmpDir, "tmp"), importParams);
+
+        // Check all elements are here
+        assertEquals(12, loadedNetwork.getDcNodeCount());
+        assertEquals(9, loadedNetwork.getDcLineCount());
+        assertEquals(1, loadedNetwork.getDcGroundCount());
+        assertEquals(4, loadedNetwork.getVoltageSourceConverterCount());
+        assertEquals(2, loadedNetwork.getLineCommutatedConverterCount());
+
+        // Check the dc topology has been preserved
+        assertSameDcTopology(network, loadedNetwork);
+    }
+
+    /**
+     * Check that the dc topology of the actual network is the same as the one of the expected network.
+     * DcNode ids are not necessarily preserved (e.g. in bus-branch, DcNodes are recreated from DcBuses), hence
+     * DcNodes are matched through the equipment connected to them. The resulting matching must be one-to-one.
+     */
+    private static void assertSameDcTopology(Network expected, Network actual) {
+        Map<String, String> dcNodeMapping = new HashMap<>();
+
+        for (DcLine expectedLine : expected.getDcLines()) {
+            DcLine actualLine = actual.getDcLine(expectedLine.getId());
+            assertNotNull(actualLine, "Missing DcLine " + expectedLine.getId());
+            assertSameDcNode(dcNodeMapping, expectedLine.getDcTerminal1(), actualLine.getDcTerminal1());
+            assertSameDcNode(dcNodeMapping, expectedLine.getDcTerminal2(), actualLine.getDcTerminal2());
+        }
+
+        for (VoltageSourceConverter expectedVsc : expected.getVoltageSourceConverters()) {
+            VoltageSourceConverter actualVsc = actual.getVoltageSourceConverter(expectedVsc.getId());
+            assertNotNull(actualVsc, "Missing VoltageSourceConverter " + expectedVsc.getId());
+            assertSameConverterConnections(dcNodeMapping, expectedVsc, actualVsc);
+        }
+
+        for (LineCommutatedConverter expectedLcc : expected.getLineCommutatedConverters()) {
+            LineCommutatedConverter actualLcc = actual.getLineCommutatedConverter(expectedLcc.getId());
+            assertNotNull(actualLcc, "Missing LineCommutatedConverter " + expectedLcc.getId());
+            assertSameConverterConnections(dcNodeMapping, expectedLcc, actualLcc);
+        }
+
+        // DcGround ids may not be preserved: compare the (mapped) DcNodes they are connected to.
+        Set<String> expectedGroundedNodes = expected.getDcGroundStream()
+                .map(g -> dcNodeMapping.get(g.getDcTerminal().getDcNode().getId()))
+                .collect(Collectors.toSet());
+        Set<String> actualGroundedNodes = actual.getDcGroundStream()
+                .map(g -> g.getDcTerminal().getDcNode().getId())
+                .collect(Collectors.toSet());
+        assertEquals(expectedGroundedNodes, actualGroundedNodes);
+
+        // Every DcNode must have been matched, and two distinct DcNodes must not be merged.
+        assertEquals(expected.getDcNodeCount(), dcNodeMapping.size());
+        assertEquals(dcNodeMapping.size(), new HashSet<>(dcNodeMapping.values()).size());
+    }
+
+    private static void assertSameConverterConnections(Map<String, String> dcNodeMapping, AcDcConverter<?> expected, AcDcConverter<?> actual) {
+        assertEquals(expected.getTerminal1().getVoltageLevel().getId(), actual.getTerminal1().getVoltageLevel().getId(),
+                "Wrong ac connection for converter " + expected.getId());
+        assertSameDcNode(dcNodeMapping, expected.getDcTerminal1(), actual.getDcTerminal1());
+        assertSameDcNode(dcNodeMapping, expected.getDcTerminal2(), actual.getDcTerminal2());
+    }
+
+    private static void assertSameDcNode(Map<String, String> dcNodeMapping, DcTerminal expected, DcTerminal actual) {
+        String expectedNodeId = expected.getDcNode().getId();
+        String actualNodeId = actual.getDcNode().getId();
+        String previousMapping = dcNodeMapping.putIfAbsent(expectedNodeId, actualNodeId);
+        assertTrue(previousMapping == null || previousMapping.equals(actualNodeId),
+                "DcNode " + expectedNodeId + " is mapped to both " + previousMapping + " and " + actualNodeId
+                        + " (from " + expected.getDcConnectable().getId() + ")");
     }
 
 }
