@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:adms="http://www.w3.org/ns/adms#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:nc="http://entsoe.eu/ns/nc#" xmlns:prov="http://www.w3.org/ns/prov#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:00000000-0000-0000-0000-000000000000">
+    <dcat:startDate>2023-01-01T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2100-01-01T00:00:00Z</dcat:endDate>
+    <dcat:keyword>ER</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/EquipmentReliability-EU/2.4</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-1">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-1</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>60</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-2">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-2</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>45</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-3">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-3</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>45</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>false</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-4">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-4</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-high"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>60</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-5">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-5</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-low"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>30</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-6">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-6</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>45</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_FFR1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-7">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-7</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>45</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_unknown-terminal"/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-8">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-8</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set-with-unknown-terminal"/>
+    <nc:VoltageAngleLimit.normalValue>20</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-9">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-9</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>-30</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-10">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-10</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-low"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>30</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-11">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-11</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-high"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>45</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-12">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-12</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set"/>
+    <nc:VoltageAngleLimit.normalValue>30</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_FFR1AA1+_generator"/>
+  </nc:VoltageAngleLimit>
+  <nc:VoltageAngleLimit rdf:ID="_voltage-angle-limit-13">
+    <cim:IdentifiedObject.mRID>voltage-angle-limit-13</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_operational-limit-type-absolute-value"/>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_operational-limit-set-with-non-busbar-terminal"/>
+    <nc:VoltageAngleLimit.normalValue>30</nc:VoltageAngleLimit.normalValue>
+    <nc:VoltageAngleLimit.isFlowToRefTerminal>true</nc:VoltageAngleLimit.isFlowToRefTerminal>
+    <nc:VoltageAngleLimit.AngleReferenceTerminal rdf:resource="#_BBE1AA1 "/>
+  </nc:VoltageAngleLimit>
+  <cim:OperationalLimitType rdf:ID="_operational-limit-type-absolute-value">
+    <cim:IdentifiedObject.mRID>operational-limit-type-absolute-value</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue"/>
+  </cim:OperationalLimitType>
+  <cim:OperationalLimitType rdf:ID="_operational-limit-type-high">
+    <cim:IdentifiedObject.mRID>operational-limit-type-high</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.high"/>
+  </cim:OperationalLimitType>
+  <cim:OperationalLimitType rdf:ID="_operational-limit-type-low">
+    <cim:IdentifiedObject.mRID>operational-limit-type-low</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.low"/>
+  </cim:OperationalLimitType>
+  <cim:OperationalLimitSet rdf:ID="_operational-limit-set">
+    <cim:IdentifiedObject.mRID>operational-limit-set</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_FFR1AA1 "/>
+  </cim:OperationalLimitSet>
+  <cim:OperationalLimitSet rdf:ID="_operational-limit-set-with-unknown-terminal">
+    <cim:IdentifiedObject.mRID>operational-limit-set-with-unknown-terminal</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_unknown-terminal"/>
+  </cim:OperationalLimitSet>
+  <cim:OperationalLimitSet rdf:ID="_operational-limit-set-with-non-busbar-terminal">
+    <cim:IdentifiedObject.mRID>operational-limit-set-with-non-busbar-terminal</cim:IdentifiedObject.mRID>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_FFR2AA1+_generator"/>
+  </cim:OperationalLimitSet>
+</rdf:RDF>
