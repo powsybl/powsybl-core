@@ -7,15 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.json.JsonUtil;
 import org.jgrapht.alg.util.Triple;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -31,7 +25,7 @@ import java.util.*;
  * offers the possibility to calculate the sensitivities on a set of contingencies besides the pre-contingency state.
  * The full set of results consists of:
  *  - the list of factors
- *  - the list of contingencies and their associated computation status
+ *  - the list of states (contingency + optional operator strategy) and their associated computation status
  *  - the list of sensitivity values in pre-contingency and post-contingency states
  *  - the list of function reference values in pre-contingency and post-contingency states.
  *  A sensitivity analysis result offers a set of methods to retrieve sensitivity values or function reference values.
@@ -39,11 +33,12 @@ import java.util.*;
  *  and the ID of a function.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  * @see SensitivityValue
  */
 public class SensitivityAnalysisResult {
 
-    public static final String VERSION = "1.2";
+    public static final String VERSION = "1.3";
 
     public static final String CONTEXT_NAME = "SensitivityAnalysisResult";
 
@@ -51,9 +46,9 @@ public class SensitivityAnalysisResult {
 
     private final List<SensitivityStateStatus> stateStatuses;
 
-    private final List<String> contingencyIds; // to have mapping index -> ID
+    private final List<String> contingencyIds; // mapping index -> ID
 
-    private final List<String> operatorStrategyIds; // to have mapping index -> ID
+    private final List<String> operatorStrategyIds; // mapping index -> ID
 
     private final List<SensitivityValue> values;
 
@@ -65,103 +60,16 @@ public class SensitivityAnalysisResult {
 
     private final Map<SensitivityState, SensitivityStateStatus> statusByState = new HashMap<>();
 
+    private final boolean computationComplete;
+
+    /**
+     * @deprecated See {@link SensitivityStateStatus.ComponentStatus} instead.
+     */
+    @Deprecated(since = "7.4.0")
     public enum Status {
         SUCCESS,
         FAILURE,
         NO_IMPACT
-    }
-
-    public static class SensitivityStateStatus {
-
-        private final SensitivityState state;
-
-        private final Status status;
-
-        public SensitivityState getState() {
-            return state;
-        }
-
-        public Status getStatus() {
-            return status;
-        }
-
-        public SensitivityStateStatus(SensitivityState state, Status status) {
-            this.state = Objects.requireNonNull(state);
-            this.status = Objects.requireNonNull(status);
-        }
-
-        public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
-            writeJson(jsonGenerator, stateStatus.state, stateStatus.status);
-        }
-
-        public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state, Status status) {
-            try {
-                jsonGenerator.writeStartObject();
-                if (state.contingencyId() != null) {
-                    jsonGenerator.writeStringField("contingencyId", state.contingencyId());
-                }
-                if (state.operatorStrategyId() != null) {
-                    jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
-                }
-                jsonGenerator.writeStringField("status", status.name());
-                jsonGenerator.writeEndObject();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
-        static final class ParsingContext {
-            private String contingencyId;
-            private String operatorStrategyId;
-            private Status status;
-        }
-
-        public static SensitivityStateStatus parseJson(JsonParser parser, String version) {
-            Objects.requireNonNull(parser);
-
-            var context = new SensitivityStateStatus.ParsingContext();
-            try {
-                JsonToken token;
-                while ((token = parser.nextToken()) != null) {
-                    if (token == JsonToken.FIELD_NAME) {
-                        parseJson(parser, context, version == null ? VERSION : version);
-                    } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityStateStatus(new SensitivityState(context.contingencyId, context.operatorStrategyId),
-                                                          context.status);
-                    }
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-            throw new PowsyblException("Parsing error");
-        }
-
-        private static void parseJson(JsonParser parser, SensitivityStateStatus.ParsingContext context, String version) throws IOException {
-            String fieldName = parser.currentName();
-            switch (fieldName) {
-                case "contingencyId":
-                    parser.nextToken();
-                    context.contingencyId = parser.getValueAsString();
-                    break;
-                case "operatorStrategyId":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyId", version, "1.1");
-                    parser.nextToken();
-                    context.operatorStrategyId = parser.getValueAsString();
-                    break;
-                case "contingencyStatus":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
-                    parser.nextToken();
-                    context.status = Status.valueOf(parser.getValueAsString());
-                    break;
-                case "status":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
-                    parser.nextToken();
-                    context.status = Status.valueOf(parser.getValueAsString());
-                    break;
-                default:
-                    throw new PowsyblException("Unexpected field: " + fieldName);
-            }
-        }
     }
 
     /**
@@ -174,6 +82,20 @@ public class SensitivityAnalysisResult {
      */
     public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityStateStatus> stateStatuses, List<String> contingencyIds,
                                      List<String> operatorStrategyIds, List<SensitivityValue> values) {
+        this(factors, stateStatuses, contingencyIds, operatorStrategyIds, values, true);
+    }
+
+    /**
+     * Sensitivity analysis result
+     * @param factors the list of sensitivity factors that have been computed.
+     * @param stateStatuses the list of states and their associated computation status.
+     * @param contingencyIds the list of contingency IDs that have been considered during the sensitivity analysis.
+     * @param operatorStrategyIds the list of operator strategy IDs that have been considered during the sensitivity analysis.
+     * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
+     * @param computationComplete whether the sensitivity computation fully or partially completed
+     */
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityStateStatus> stateStatuses, List<String> contingencyIds,
+                                     List<String> operatorStrategyIds, List<SensitivityValue> values, boolean computationComplete) {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
         this.stateStatuses = Collections.unmodifiableList(Objects.requireNonNull(stateStatuses));
         this.contingencyIds = Collections.unmodifiableList(Objects.requireNonNull(contingencyIds));
@@ -193,6 +115,7 @@ public class SensitivityAnalysisResult {
         for (SensitivityStateStatus stateStatus : stateStatuses) {
             this.statusByState.put(stateStatus.getState(), stateStatus);
         }
+        this.computationComplete = computationComplete;
     }
 
     /**
@@ -635,13 +558,34 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get the status associated to a state
+     * Get the status associated to a state.
      *
-     * @param state The state
-     * @return The associated status.
+     * @param state the considered state.
+     * @return the associated status.
+     * @deprecated Use {@link SensitivityAnalysisResult#getStateComponentStatuses(SensitivityState)} instead.
      */
+    @Deprecated(since = "7.4.0")
     public Status getStateStatus(SensitivityState state) {
         Objects.requireNonNull(state);
         return statusByState.get(state).getStatus();
+    }
+
+    /**
+     * Get the statuses associated to a state for all components
+     *
+     * @param state the considered state.
+     * @return the components' statuses.
+     */
+    public List<SensitivityStateStatus.ComponentStatus> getStateComponentStatuses(SensitivityState state) {
+        Objects.requireNonNull(state);
+        return statusByState.get(state).getComponentsLoadFlowStatusList();
+    }
+
+    /**
+     * Return true if the computation was fully completed, false if it was partially completed because of interruption. Interrupted calculations contain only partial results.
+     * @return true if the computation completed without interruption, i.e. the results are complete.
+     */
+    public boolean isComputationComplete() {
+        return computationComplete;
     }
 }

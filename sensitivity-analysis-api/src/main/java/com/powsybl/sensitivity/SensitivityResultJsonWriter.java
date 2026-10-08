@@ -10,6 +10,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -17,6 +18,7 @@ import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public class SensitivityResultJsonWriter implements SensitivityResultWriter, AutoCloseable {
 
@@ -26,7 +28,9 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     private final List<OperatorStrategy> operatorStrategies;
 
-    private final Map<SensitivityState, SensitivityAnalysisResult.Status> stateStatusBuffer = new LinkedHashMap<>();
+    private final Map<SensitivityState, List<SensitivityStateStatus.ComponentStatus>> stateStatusBuffer = new LinkedHashMap<>();
+
+    private boolean computationComplete = false;
 
     public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, List<Contingency> contingencies,
                                        List<OperatorStrategy> operatorStrategies) {
@@ -48,10 +52,25 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
-        SensitivityState state = new SensitivityState(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
-                                                      operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
-        stateStatusBuffer.put(state, status);
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum,
+                                 LoadFlowResult.ComponentResult.Status status, String statusText) {
+        Objects.requireNonNull(status);
+        Objects.requireNonNull(statusText);
+        SensitivityState state = new SensitivityState(
+                contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
+                operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
+        stateStatusBuffer.computeIfAbsent(state, s -> new ArrayList<>())
+                .add(new SensitivityStateStatus.ComponentStatus(connectedComponentNum, synchronousComponentNum, status, statusText));
+    }
+
+    @Override
+    public void computationComplete() {
+        computationComplete = true;
+    }
+
+    @Override
+    public boolean isComputationComplete() {
+        return computationComplete;
     }
 
     @Override
@@ -59,11 +78,10 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
         try {
             jsonGenerator.writeEndArray();
 
-            //Write buffered contingency status at the end
             jsonGenerator.writeFieldName("stateStatus");
             jsonGenerator.writeStartArray();
-            for (var e : stateStatusBuffer.entrySet()) {
-                SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, e.getKey(), e.getValue());
+            for (var stateStatus : stateStatusBuffer.entrySet()) {
+                SensitivityStateStatus.writeJson(jsonGenerator, new SensitivityStateStatus(stateStatus.getKey(), stateStatus.getValue()));
             }
             jsonGenerator.writeEndArray();
 
@@ -80,6 +98,8 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
                 jsonGenerator.writeString(operatorStrategy.getId());
             }
             jsonGenerator.writeEndArray();
+
+            jsonGenerator.writeBooleanField("computationComplete", computationComplete);
 
             jsonGenerator.writeEndObject();
         } catch (IOException e) {

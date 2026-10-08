@@ -10,6 +10,7 @@ package com.powsybl.sensitivity;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,6 +20,7 @@ import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
@@ -29,6 +31,8 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     private final List<Contingency> contingencies;
 
     private final List<OperatorStrategy> operatorStrategies;
+
+    private boolean computationComplete = true;
 
     public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterStatus,
                                       List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
@@ -57,7 +61,10 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         return factory.create(writer, "Sensitivity analysis status result", tfc,
                 new Column("Contingency ID"),
                 new Column("Operator strategy ID"),
-                new Column("Status"));
+                new Column("Connected component"),
+                new Column("Synchronous component"),
+                new Column("Load flow Status"),
+                new Column("Load flow Status Text"));
     }
 
     @Override
@@ -76,13 +83,29 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, int connectedComponentNum, int synchronousComponentNum,
+                                 LoadFlowResult.ComponentResult.Status status, String statusText) {
+        Objects.requireNonNull(status);
+        Objects.requireNonNull(statusText);
         try {
             formatterStatus.writeCell(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : "");
             formatterStatus.writeCell(operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : "");
-            formatterStatus.writeCell(status.name());
+            formatterStatus.writeCell(connectedComponentNum);
+            formatterStatus.writeCell(synchronousComponentNum);
+            formatterStatus.writeCell(status.toString());
+            formatterStatus.writeCell(statusText);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public void computationComplete() {
+        computationComplete = true;
+    }
+
+    @Override
+    public boolean isComputationComplete() {
+        return computationComplete;
     }
 }
