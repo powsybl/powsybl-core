@@ -25,8 +25,10 @@ import java.util.stream.Stream;
  * DC buses are parts of the DC network with the same voltage, i.e. connected by
  * zero impedance links. The only links with zero impedance are closed DcSwitches
  * with zero resistance.
- * Only nodes with terminal create buses. In particular, disconnected nodes do
- * not create buses.
+ * A group of nodes creates a bus if at least one of its nodes has a connected
+ * terminal, or is an end of a closed DcSwitch with non-zero resistance (such a
+ * switch carries current like a DC line, so a voltage is needed at both ends).
+ * Other groups, e.g. isolated nodes, do not create buses.
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -222,9 +224,11 @@ class DcTopologyModel implements MultiVariantObject {
      */
     class CalculatedDcBusTopology {
 
-        private static boolean isDcBusValid(List<DcNodeImpl> dcNodes) {
-            // DcBus is valid if at least one DcConnectable connected, i.e. there is at least one connected DcTerminal
-            return dcNodes.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
+        private static boolean isDcBusValid(List<DcNodeImpl> dcNodes, Set<String> resistiveSwitchEndIds) {
+            // DcBus is valid if at least one DcTerminal is connected, or if one of its DcNodes
+            // is an end of a closed DcSwitch with non-zero resistance
+            return dcNodes.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent()
+                    || dcNodes.stream().anyMatch(dcNode -> resistiveSwitchEndIds.contains(dcNode.getId()));
         }
 
         private DcBusImpl createDcBus(List<DcNodeImpl> dcNodes) {
@@ -235,6 +239,17 @@ class DcTopologyModel implements MultiVariantObject {
             String dcBusId = Identifiables.getUniqueId(node.getId() + "_dcBus", getNetwork().getIndex()::contains);
             String dcBusName = node.getOptionalName().orElse(null);
             return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodes);
+        }
+
+        private Set<String> getClosedResistiveDcSwitchEndIds() {
+            Set<String> ids = new HashSet<>();
+            graph.getEdgeObjectStream()
+                    .filter(sw -> !sw.isOpen() && sw.getR() != 0.0)
+                    .forEach(sw -> {
+                        ids.add(sw.getDcNode1().getId());
+                        ids.add(sw.getDcNode2().getId());
+                    });
+            return ids;
         }
 
         private DcBusCache getCache() {
@@ -257,8 +272,9 @@ class DcTopologyModel implements MultiVariantObject {
                 (component, vertexIndex) -> component.add(graph.getVertexObject(vertexIndex))
             );
 
+            Set<String> resistiveSwitchEndIds = getClosedResistiveDcSwitchEndIds();
             for (List<DcNodeImpl> component : components) {
-                if (isDcBusValid(component)) {
+                if (isDcBusValid(component, resistiveSwitchEndIds)) {
                     DcBusImpl dcBus = createDcBus(component);
                     dcBuses.put(dcBus.getId(), dcBus);
                     component.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
