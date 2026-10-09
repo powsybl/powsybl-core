@@ -49,13 +49,18 @@ public class UcteExporter implements Exporter {
 
     public static final String COMBINE_PHASE_ANGLE_REGULATION = "ucte.export.combine-phase-angle-regulation";
 
+    public static final String POST_PROCESSORS = "ucte.export.post-processors";
+
     private static final Parameter NAMING_STRATEGY_PARAMETER
             = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
 
     private static final Parameter COMBINE_PHASE_ANGLE_REGULATION_PARAMETER
             = new Parameter(COMBINE_PHASE_ANGLE_REGULATION, ParameterType.BOOLEAN, "Combine phase and angle regulation", false);
 
-    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
+    private static final Parameter POST_PROCESSORS_PARAMETER
+            = new Parameter(POST_PROCESSORS, ParameterType.STRING_LIST, "Post processors", Collections.emptyList());
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, POST_PROCESSORS_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -94,13 +99,28 @@ public class UcteExporter implements Exporter {
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
         namingStrategy.initializeNetwork(network);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
+        List<String> postProcessorNames = Parameter.readStringList(getFormat(), parameters, POST_PROCESSORS_PARAMETER, defaultValueConfig);
+        // same as for naming strategies, new instances for each export so that post-processors may keep per-export state
+        List<UcteExportPostProcessor> postProcessors = findPostProcessors(postProcessorNames,
+                ServiceLoader.load(UcteExportPostProcessor.class, UcteExporter.class.getClassLoader())
+                        .stream()
+                        .map(ServiceLoader.Provider::get)
+                        .toList());
 
-        ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation, networkCreationReportNode);
+        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(UcteExporterReports.networkCreation(reportNode)));
+
+        postProcessors.forEach(postProcessor -> postProcessor.process(network, ucteNetwork,
+                context.withReportNode(UcteExporterReports.postProcessor(reportNode, postProcessor.getName()))));
+        Comparator<UcteNode> nodeComparator = postProcessors.stream()
+                .map(UcteExportPostProcessor::getNodeComparator)
+                .flatMap(Optional::stream)
+                .reduce(Comparator::thenComparing)
+                .orElse(Comparator.naturalOrder());
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
-            new UcteWriter(ucteNetwork).write(writer);
+            new UcteWriter(ucteNetwork, nodeComparator).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -136,10 +156,10 @@ public class UcteExporter implements Exporter {
      * Convert an IIDM network to an UCTE network
      *
      * @param network the IIDM network to convert
-     * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
+     * @param context the export context, holding the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation, ReportNode reportNode) {
+    private static UcteNetwork createUcteNetwork(Network network, UcteExporterContext context) {
 
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
@@ -152,7 +172,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
+        ReportNode reportNode = context.getReportNode();
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
@@ -858,6 +878,15 @@ public class UcteExporter implements Exporter {
                     .findFirst()
                     .orElseThrow(() -> new PowsyblException("NamingStrategy '" + name + "' not found"));
         }
+    }
+
+    static List<UcteExportPostProcessor> findPostProcessors(List<String> names, List<UcteExportPostProcessor> postProcessors) {
+        return names.stream()
+                .map(name -> postProcessors.stream()
+                        .filter(pp -> pp.getName().equals(name))
+                        .findFirst()
+                        .orElseThrow(() -> new PowsyblException("UCTE export post-processor '" + name + "' not found")))
+                .toList();
     }
 
 }

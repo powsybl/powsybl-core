@@ -46,6 +46,18 @@ into the exported angle regulation δu. This only applies to `ASYM` angle regula
 
 Its default value is `false`.
 
+**ucte.export.post-processors**<br>
+The `ucte.export.post-processors` property is an optional property that defines the list of post-processors to apply,
+in the given order, after the conversion of the network and before the writing of the UCTE-DEF file. Post-processors
+are implementations of `UcteExportPostProcessor`, discovered with the `ServiceLoader` (e.g. using `@AutoService`) and
+identified by their name. They can modify the converted UCTE network and define the order of the nodes inside each
+`##Z` block. Comments can be added to the first comment block, or to additional comment blocks written in front of the
+`##N`, `##L`, `##T` and `##R` blocks. Comment blocks inside the `##N` block (e.g. in front of a `##Z` block) are not
+supported, as they could not be imported back. The node comparators of the post-processors are chained in the given order, each one
+only breaking the ties of the previous ones, and the default order is always used as a final tie-break.
+
+Its default value is an empty list.
+
 ## From IIDM to UCTE
 
 ### Node conversion

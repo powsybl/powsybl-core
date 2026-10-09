@@ -10,6 +10,7 @@ package com.powsybl.ucte.network;
 import com.powsybl.commons.report.ReportNode;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,6 +24,14 @@ public interface UcteNetwork {
     UcteFormatVersion getVersion();
 
     List<String> getComments();
+
+    /**
+     * Get the comments written in a comment block in front of the given block.
+     * Implementations not supporting these comments return an unmodifiable empty list.
+     */
+    default List<String> getComments(UcteBlock block) {
+        return Collections.emptyList();
+    }
 
     void addNode(UcteNode node);
 
