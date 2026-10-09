@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -39,6 +40,8 @@ import java.util.function.Supplier;
  */
 public final class JsonUtil {
 
+    private static final Map<Class<?>, JavaType> LIST_TYPE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, JavaType> SET_TYPE_CACHE = new ConcurrentHashMap<>();
     private static final String UNEXPECTED_TOKEN = "Unexpected token ";
 
     enum ContextType {
@@ -745,9 +748,7 @@ public final class JsonUtil {
     public static <T> T readValue(DeserializationContext context, JsonParser parser, Class<?> type) {
         try {
             if (parser.currentToken() != JsonToken.VALUE_NULL) {
-                JavaType jType = context.getTypeFactory()
-                        .constructType(type);
-                return context.readValue(parser, jType);
+                return context.readValue(parser, context.constructType(type));
             }
             return null;
         } catch (IOException e) {
@@ -755,9 +756,26 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Reads a value using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param valueDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the value of the parsed JSON
+     * @param <T> casting type for the value returned by the deserializer
+     */
+    public static <T> T readValue(JsonDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
+        try {
+            return valueDeserializer != null ?
+                (T) valueDeserializer.deserialize(parser, context) :
+                readValue(context, parser, typeClass);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
-        JavaType listType = context.getTypeFactory()
-                .constructCollectionType(List.class, type);
+        JavaType listType = LIST_TYPE_CACHE.computeIfAbsent(type,
+            t -> context.getTypeFactory().constructCollectionType(List.class, t));
         try {
             return context.readValue(parser, listType);
         } catch (IOException e) {
@@ -765,14 +783,62 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Reads a list using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param listDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the list of the parsed JSON
+     * @param <T> casting type for the elements of the list returned by the deserializer
+     */
+    public static <T> List<T> readList(JsonDeserializer<Object> listDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
+        try {
+            return listDeserializer != null ?
+                (List<T>) listDeserializer.deserialize(parser, context) :
+                readList(context, parser, typeClass);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {
-        JavaType setType = context.getTypeFactory()
-                .constructCollectionType(Set.class, type);
+        JavaType setType = SET_TYPE_CACHE.computeIfAbsent(type,
+            t -> context.getTypeFactory().constructCollectionType(Set.class, t));
         try {
             return context.readValue(parser, setType);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * Reads a set using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param setDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the set of the parsed JSON
+     * @param <T> casting type for the elements of the set returned by the deserializer
+     */
+    public static <T> Set<T> readSet(JsonDeserializer<Object> setDeserializer, DeserializationContext deserializationContext, JsonParser parser, Class<?> typeClass) {
+        try {
+            return setDeserializer != null ?
+                (Set<T>) setDeserializer.deserialize(parser, deserializationContext) :
+                readSet(deserializationContext, parser, typeClass);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static JsonDeserializer<Object> buildValueDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
+        return ctxt.findContextualValueDeserializer(ctxt.constructType(valueClass), property);
+    }
+
+    public static JsonDeserializer<Object> buildListDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
+        JavaType type = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, valueClass);
+        return ctxt.findContextualValueDeserializer(type, property);
+    }
+
+    public static JsonDeserializer<Object> buildSetDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
+        JavaType type = ctxt.getTypeFactory().constructCollectionType(HashSet.class, valueClass);
+        return ctxt.findContextualValueDeserializer(type, property);
     }
 
     public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws IOException {

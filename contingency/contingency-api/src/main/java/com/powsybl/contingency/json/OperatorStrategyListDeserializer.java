@@ -8,8 +8,11 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.strategy.OperatorStrategy;
@@ -23,15 +26,27 @@ import static com.powsybl.contingency.json.OperatorStrategyDeserializer.SOURCE_V
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorStrategyList> {
+public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorStrategyList> implements ContextualDeserializer {
+
+    private final transient JsonDeserializer<Object> operatorStrategyDeserializer;
 
     public OperatorStrategyListDeserializer() {
+        this(null);
+    }
+
+    public OperatorStrategyListDeserializer(JsonDeserializer<Object> operatorStrategyDeserializer) {
         super(OperatorStrategyList.class);
+        this.operatorStrategyDeserializer = operatorStrategyDeserializer;
     }
 
     private static final class ParsingContext {
         String version;
         List<OperatorStrategy> operatorStrategies;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new OperatorStrategyListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, OperatorStrategy.class));
     }
 
     @Override
@@ -45,7 +60,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
                     return true;
                 case "operatorStrategies":
                     parser.nextToken(); // skip
-                    context.operatorStrategies = JsonUtil.readList(deserializationContext, parser, OperatorStrategy.class);
+                    context.operatorStrategies = JsonUtil.readList(operatorStrategyDeserializer, deserializationContext, parser, OperatorStrategy.class);
                     return true;
                 default:
                     return false;
