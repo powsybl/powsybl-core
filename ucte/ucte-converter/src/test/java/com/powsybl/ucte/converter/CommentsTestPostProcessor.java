@@ -12,15 +12,19 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.ucte.network.UcteBlock;
+import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteNetwork;
 import com.powsybl.ucte.network.UcteNode;
+import com.powsybl.ucte.network.UcteNodeCode;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * Adds comments to the first comment block, mapping IIDM buses to UCTE nodes, and in front of some blocks.
- * Orders nodes by busbar.
+ * Orders French nodes by nominal voltage of the IIDM voltage level, leaving the order of other countries unchanged.
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -52,7 +56,14 @@ public class CommentsTestPostProcessor implements UcteExportPostProcessor {
     }
 
     @Override
-    public Optional<Comparator<UcteNode>> getNodeComparator() {
-        return Optional.of(Comparator.comparing(node -> node.getCode().getBusbar()));
+    public Optional<Comparator<UcteNode>> getNodeComparator(Network network, UcteNetwork ucteNetwork, UcteExporterContext context) {
+        Map<UcteNodeCode, Double> nominalVoltages = new HashMap<>();
+        for (Bus bus : network.getBusBreakerView().getBuses()) {
+            nominalVoltages.put(context.getNamingStrategy().getUcteNodeCode(bus), bus.getVoltageLevel().getNominalV());
+        }
+        // compared nodes always belong to the same country
+        return Optional.of((node1, node2) -> node1.getCode().getUcteCountryCode() == UcteCountryCode.FR
+                ? Double.compare(nominalVoltages.get(node1.getCode()), nominalVoltages.get(node2.getCode()))
+                : 0);
     }
 }

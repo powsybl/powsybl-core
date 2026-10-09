@@ -20,9 +20,6 @@ import java.util.Optional;
  * file. Implementations are discovered with {@link java.util.ServiceLoader} (e.g. using
  * {@link com.google.auto.service.AutoService}) and activated by name with the
  * {@value UcteExporter#POST_PROCESSORS} parameter, in the given order.
- * <p>
- * A new instance is requested for each export, so an implementation may keep state between
- * {@link #process(Network, UcteNetwork, UcteExporterContext)} and {@link #getNodeComparator()}.
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -42,14 +39,21 @@ public interface UcteExportPostProcessor {
      * @param context the export context, whose naming strategy maps IIDM elements to UCTE codes, and whose report node
      *                is dedicated to this post-processor
      */
-    void process(Network network, UcteNetwork ucteNetwork, UcteExporterContext context);
+    default void process(Network network, UcteNetwork ucteNetwork, UcteExporterContext context) {
+    }
 
     /**
-     * Get the order of the nodes inside each ##Z block, called after {@link #process(Network, UcteNetwork, UcteExporterContext)}.
+     * Get the order of the nodes inside each ##Z block, called after the {@link #process(Network, UcteNetwork, UcteExporterContext)}
+     * method of all the active post-processors. The comparator is only applied to nodes of the same country.
      * Comparators of the active post-processors are chained in activation order: a comparator only breaks ties of
      * the previous ones, so a comparator defining a total order makes the next ones useless.
+     *
+     * @param network the exported IIDM network
+     * @param ucteNetwork the UCTE network to be written
+     * @param context the export context, whose naming strategy maps IIDM elements to UCTE codes, and whose report node
+     *                is dedicated to this post-processor
      */
-    default Optional<Comparator<UcteNode>> getNodeComparator() {
+    default Optional<Comparator<UcteNode>> getNodeComparator(Network network, UcteNetwork ucteNetwork, UcteExporterContext context) {
         return Optional.empty();
     }
 }

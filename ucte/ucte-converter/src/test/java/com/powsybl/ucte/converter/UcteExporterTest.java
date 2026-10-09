@@ -335,7 +335,8 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     /**
-     * Nodes are first ordered by busbar by the first post-processor, then in reverse natural order by the second one.
+     * French nodes are first ordered by nominal voltage by the first post-processor, then in reverse natural order by the
+     * second one.
      * Each post-processor gets its own report node. Comment blocks added in front of blocks can be read back.
      */
     @Test
@@ -357,10 +358,10 @@ class UcteExporterTest extends AbstractSerDeTest {
                 ##ZBE
                 BA____11 Belgium A1   0 2 400.00 10.0000 0.00000 -100.00 0.00000 0.00000 -200.00 100.000 -100.00                               H
                 ##ZFR
-                FB____11 France B1    0 0        10.0000 0.00000 0.00000 0.00000
                 FA____21 France A3    0 0        10.0000 0.00000 0.00000 0.00000
-                FA____11 France A1    0 2 400.00 10.0000 0.00000 -100.00 0.00000 0.00000 -200.00 100.000 -100.00                               G
+                FB____11 France B1    0 0        10.0000 0.00000 0.00000 0.00000
                 FA____12 France A2    0 0        10.0000 0.00000 0.00000 0.00000
+                FA____11 France A1    0 2 400.00 10.0000 0.00000 -100.00 0.00000 0.00000 -200.00 100.000 -100.00                               G
                 ##C
                 Lines: 3
                 Second comment line
@@ -399,7 +400,7 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     /**
-     * Same post-processors in the opposite order: the reverse natural order is total, so the busbar order is not used.
+     * Same post-processors in the opposite order: the reverse natural order is total, so the nominal voltage order is not used.
      */
     @Test
     void testPostProcessorsActivationOrder() throws IOException {

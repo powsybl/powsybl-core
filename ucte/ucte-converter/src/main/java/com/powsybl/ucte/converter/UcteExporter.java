@@ -32,6 +32,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -110,10 +111,14 @@ public class UcteExporter implements Exporter {
         UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
         UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(UcteExporterReports.networkCreation(reportNode)));
 
-        postProcessors.forEach(postProcessor -> postProcessor.process(network, ucteNetwork,
-                context.withReportNode(UcteExporterReports.postProcessor(reportNode, postProcessor.getName()))));
-        Comparator<UcteNode> nodeComparator = postProcessors.stream()
-                .map(UcteExportPostProcessor::getNodeComparator)
+        List<UcteExporterContext> postProcessorContexts = postProcessors.stream()
+                .map(postProcessor -> context.withReportNode(UcteExporterReports.postProcessor(reportNode, postProcessor.getName())))
+                .toList();
+        for (int i = 0; i < postProcessors.size(); i++) {
+            postProcessors.get(i).process(network, ucteNetwork, postProcessorContexts.get(i));
+        }
+        Comparator<UcteNode> nodeComparator = IntStream.range(0, postProcessors.size())
+                .mapToObj(i -> postProcessors.get(i).getNodeComparator(network, ucteNetwork, postProcessorContexts.get(i)))
                 .flatMap(Optional::stream)
                 .reduce(Comparator::thenComparing)
                 .orElse(Comparator.naturalOrder());

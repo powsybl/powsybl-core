@@ -58,7 +58,7 @@ public class ModificationsTestPostProcessor implements UcteExportPostProcessor {
     }
 
     @Override
-    public Optional<Comparator<UcteNode>> getNodeComparator() {
+    public Optional<Comparator<UcteNode>> getNodeComparator(Network network, UcteNetwork ucteNetwork, UcteExporterContext context) {
         return Optional.of(Comparator.<UcteNode>naturalOrder().reversed());
     }
 }
