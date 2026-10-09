@@ -186,7 +186,7 @@ A generator is a piece of equipment that injects or consumes active power, and i
 | $EnergySource$      |      | The energy source harnessed to turn the generator                                  |
 | $IsCondenser$       |      | True if the generator may behave as a condenser                                    |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                       |
-| $Equivalent$        | -    | Indicates if the generator is an equivalent, from a network reduction for instance | 
+| $Equivalent$        | -    | Indicates if the generator is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -227,7 +227,7 @@ A load is a passive equipment representing a delivery point that consumes or pro
 |--------------|------|-------------------------------------------------------------------------------|
 | $P0$         | MW   | The active power setpoint                                                     |
 | $Q0$         | MVar | The reactive power setpoint                                                   |
-| $Equivalent$ | -    | Indicates if the load is an equivalent, from a network reduction for instance | 
+| $Equivalent$ | -    | Indicates if the load is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -293,7 +293,7 @@ battery side and vice versa. The power flow is bidirectional, and it is controll
 | $MaxP$              | MW   | The Maximum active power (discharging limit)                                     |
 | $ReactiveLimits$    | MVar | Operational limits of the battery (P/Q/V diagram)                                |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                     |
-| $Equivalent$        | -    | Indicates if the battery is an equivalent, from a network reduction for instance | 
+| $Equivalent$        | -    | Indicates if the battery is an equivalent, from a network reduction for instance |
 
 The values `TargetP`, `LocalTargetQ`, `MinP`, `MaxP`, are required.
 
@@ -363,7 +363,7 @@ Optional:
 | $TargetQ$            | MVar | The reactive power target                                                              |
 | $TargetV$            | kV   | The voltage target                                                                     |
 | $VoltageRegulatorOn$ |      | True if the generation part regulates voltage                                          |
-| $Equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance | 
+| $Equivalent$         | -    | Indicates if the boundary line is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -429,7 +429,7 @@ Shunt compensators follow a passive-sign convention:
 | $G$                   | S    | The conductance of the shunt compensator in its current state                              |
 | $LocalTargetV$        | kV   | The voltage target at the local terminal                                                   |
 | $VoltageRegulation$   |      | See [Voltage Regulation](./additional.md#voltage-regulation)                               |
-| $Equivalent$          | -    | Indicates if the shunt compensator is an equivalent, from a network reduction for instance | 
+| $Equivalent$          | -    | Indicates if the shunt compensator is an equivalent, from a network reduction for instance |
 
 - For Linear Shunt Compensators
 
@@ -498,7 +498,7 @@ Static VAR compensators follow a passive-sign convention:
 | $LocalTargetQ$      | MVar | The reactive power target at local terminal                                                     |
 | $LocalTargetV$      | kV   | The voltage target at local terminal                                                            |
 | $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation)                                    |
-| $Equivalent$        | -    | Indicates if the Static VAR compensator is an equivalent, from a network reduction for instance | 
+| $Equivalent$        | -    | Indicates if the Static VAR compensator is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -675,7 +675,7 @@ $$
 | $V_{1\ nom}$ | kV       | The rated voltage at side 1                                                           |
 | $V_{2\ nom}$ | kV       | The rated voltage at side 2                                                           |
 | $RatedS$     | MVA      | The normal apparent power                                                             |
-| $Equivalent$ | -        | Indicates if the transformer is an equivalent, from a network reduction for instance. | 
+| $Equivalent$ | -        | Indicates if the transformer is an equivalent, from a network reduction for instance. |
 
 **Specifications**
 
@@ -718,7 +718,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 | Attribute    | Unit | Description                                                                          |
 |--------------|------|--------------------------------------------------------------------------------------|
 | $RatedU0$    | kV   | The rated voltage at the star bus                                                    |
-| $Equivalent$ | -    | Indicates if the transformer is an equivalent, from a network reduction for instance | 
+| $Equivalent$ | -    | Indicates if the transformer is an equivalent, from a network reduction for instance |
 
 **Specifications**
 
@@ -1025,7 +1025,7 @@ LCC and VSC share the following characteristics.
 | $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention             |
 | $MaxP$          | MW       | Maximum active power at point of common coupling, load sign convention             |
 | $DroopCurve$    |          | Droop curve for droop control mode                                                 |
-| $Equivalent$    | -        | Indicates if the converter is an equivalent, from a network reduction for instance | 
+| $Equivalent$    | -        | Indicates if the converter is an equivalent, from a network reduction for instance |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:
@@ -1131,7 +1131,7 @@ hence a PowerFactor of 0.89443.
 
 **Specifications**
 
-- The terminal used for regulation is the Point of Common Coupling terminal (pccTerminal), for both voltage and reactive power control modes.  
+- The terminal used for regulation is the Point of Common Coupling terminal (pccTerminal), for both voltage and reactive power control modes.
 The `pccTerminal` and the `voltage regulation terminal` are kept consistent according to the following rules:
   - When `pccTerminal` is set:
     - if the new terminal is the local terminal, the `voltage regulation terminal` is unset
@@ -1160,10 +1160,11 @@ DC equipment connectivity may be modified in two ways:
 - By changing the `open` attribute of a `DcSwitch`.
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
-- A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
+- A DC Bus is formed when there is at least one DC Terminal connected to a DC Node, or when a DC Node is an end of a closed DC switch with non-zero resistance.
 - DC Nodes linked by a closed DC switch are considered part of the same DC Bus when the resistance of the DcSwitch is zero, otherwise they are in distinct buses.
 - A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
-- DC Nodes without any connected DC Terminal do not form a DC Bus. A DC Bus is guaranteed to contain at least one connected DC Terminal.
+- DC Nodes at the ends of a closed DC switch with non-zero resistance always form DC Buses, even without any connected DC Terminal: such a switch carries current like a DC Line, so a voltage is needed at both ends.
+- Other DC Nodes without any connected DC Terminal do not form a DC Bus.
 
 DC Buses linked together via DC Lines, AC/DC Converters and/or closed DC switches are part of the same *DC Component* (also called *DC Island*).
 *Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a

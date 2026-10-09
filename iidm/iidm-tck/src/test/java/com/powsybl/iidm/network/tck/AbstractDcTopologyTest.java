@@ -21,6 +21,7 @@ import java.util.stream.StreamSupport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,6 +39,77 @@ public abstract class AbstractDcTopologyTest {
         network.getDcSwitch("dcSwitch").remove();
         // disconnected nodes do not form buses
         assertEquals(0, network.getDcBusCount());
+    }
+
+    @Test
+    public void testResistiveSwitchEndsFormDcBuses() {
+        // dcNode1 -- [dcSwitch closed, R=0.125] -- dcNode2, no DcTerminal at all
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        DcSwitch dcSwitch = network.getDcSwitch("dcSwitch");
+        DcNode dcNode1 = network.getDcNode("dcNode1");
+        DcNode dcNode2 = network.getDcNode("dcNode2");
+
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+        DcBus dcBus1 = dcNode1.getDcBus();
+        DcBus dcBus2 = dcNode2.getDcBus();
+        assertSame(network.getDcBus("dcNode1_dcBus"), dcBus1);
+        assertSame(network.getDcBus("dcNode2_dcBus"), dcBus2);
+        assertDcBusContainsDcNodes(dcBus1, List.of(dcNode1));
+        assertDcBusContainsDcNodes(dcBus2, List.of(dcNode2));
+        // a bus may have no connected terminal and still be fully usable
+        assertEquals(0, dcBus1.getConnectedDcTerminalCount());
+        dcBus1.setV(500.);
+        assertEquals(500., dcBus1.getV(), V_EPSILON);
+        assertEquals(500., dcNode1.getV(), V_EPSILON);
+        // both ends are in the same DC component and connected component
+        assertEquals(1, network.getDcComponents().size());
+        assertSame(dcBus1.getDcComponent(), dcBus2.getDcComponent());
+        assertSame(dcBus1.getConnectedComponent(), dcBus2.getConnectedComponent());
+
+        // opening the switch removes the buses and invalidates previously returned ones
+        dcSwitch.setOpen(true);
+        assertBusInvalidated(dcBus1, DcBus::getDcNodes);
+        assertDcBusesAre(network, List.of());
+        assertNull(dcNode1.getDcBus());
+
+        dcSwitch.setOpen(false);
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+
+        // R = 0: nodes merge in one terminal-less group, which is not a bus
+        dcSwitch.setR(0.0);
+        assertDcBusesAre(network, List.of());
+        dcSwitch.setR(0.125);
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+
+        dcSwitch.remove();
+        assertDcBusesAre(network, List.of());
+    }
+
+    @Test
+    public void testResistiveSwitchEndWithDisconnectedTerminal() {
+        // dcNode1 -- [dcSwitch closed, R=0.125] -- dcNode2(ground, disconnected)
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        DcNode dcNode2 = network.getDcNode("dcNode2");
+        DcGround dcGround2 = network.newDcGround().setId("dcGround2").setDcNode(dcNode2.getId()).add();
+
+        dcGround2.getDcTerminal().disconnect();
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+        assertNotNull(dcNode2.getDcBus());
+        assertNull(dcGround2.getDcTerminal().getDcBus());
+    }
+
+    @Test
+    public void testResistiveSwitchEndsFormDcBusesMultiVariant() {
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        var variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v1");
+
+        variantManager.setWorkingVariant("v1");
+        network.getDcSwitch("dcSwitch").setOpen(true);
+        assertDcBusesAre(network, List.of());
+
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
     }
 
     @Test
