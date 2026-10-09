@@ -25,8 +25,19 @@ public class UcteWriter {
 
     private final UcteNetwork network;
 
+    private final Comparator<UcteNode> nodeComparator;
+
     public UcteWriter(UcteNetwork network) {
+        this(network, Comparator.naturalOrder());
+    }
+
+    /**
+     * @param nodeComparator order of the nodes inside each ##Z block. Natural order is always appended as a tie-break,
+     *                       so that the order is total and no node is lost.
+     */
+    public UcteWriter(UcteNetwork network, Comparator<UcteNode> nodeComparator) {
         this.network = network;
+        this.nodeComparator = Objects.requireNonNull(nodeComparator).thenComparing(Comparator.naturalOrder());
     }
 
     private void writeCommentBlock(UcteRecordWriter writer) throws IOException {
@@ -36,7 +47,21 @@ public class UcteWriter {
             writer.writeString(" " + network.getVersion().getDate(), 3, 14);
         }
         writer.newLine();
-        for (String comment : network.getComments()) {
+        writeCommentLines(network.getComments(), writer);
+    }
+
+    private void writeBlockCommentBlock(UcteBlock block, UcteRecordWriter writer) throws IOException {
+        List<String> comments = network.getComments(block);
+        if (!comments.isEmpty()) {
+            LOGGER.trace("Writing comment block before {} block", block);
+            writer.writeString("##C", 0, 3);
+            writer.newLine();
+            writeCommentLines(comments, writer);
+        }
+    }
+
+    private static void writeCommentLines(List<String> comments, UcteRecordWriter writer) throws IOException {
+        for (String comment : comments) {
             writer.writeString(comment, 0, comment.length());
             writer.newLine();
         }
@@ -55,7 +80,7 @@ public class UcteWriter {
         writer.newLine();
         Map<UcteCountryCode, TreeSet<UcteNode>> nodesByCountry = new EnumMap<>(UcteCountryCode.class);
         for (UcteNode node : network.getNodes()) {
-            nodesByCountry.computeIfAbsent(node.getCode().getUcteCountryCode(), k -> new TreeSet<>()).add(node);
+            nodesByCountry.computeIfAbsent(node.getCode().getUcteCountryCode(), k -> new TreeSet<>(nodeComparator)).add(node);
         }
 
         for (Map.Entry<UcteCountryCode, TreeSet<UcteNode>> entry : nodesByCountry.entrySet()) {
@@ -169,9 +194,13 @@ public class UcteWriter {
         long start = System.currentTimeMillis();
         UcteRecordWriter rw = new UcteRecordWriter(bw);
         writeCommentBlock(rw);
+        writeBlockCommentBlock(UcteBlock.NODES, rw);
         writeNodeBlock(rw);
+        writeBlockCommentBlock(UcteBlock.LINES, rw);
         writeLineBlock(rw);
+        writeBlockCommentBlock(UcteBlock.TRANSFORMERS, rw);
         writeTransformerBlock(rw);
+        writeBlockCommentBlock(UcteBlock.REGULATIONS, rw);
         writeRegulationBlock(rw);
         LOGGER.debug("UCTE file written in {} ms", System.currentTimeMillis() - start);
     }
