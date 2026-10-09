@@ -353,4 +353,21 @@ class NetworkElementIdentifierContingencyListTest {
         assertEquals('~', allowedCharacters[size - 2]);
         assertDoesNotThrow(() -> new IdWithWildcardsNetworkElementIdentifier(new String(allowedCharacters), "@"));
     }
+
+    @Test
+    void testContingencyName() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        network.getLoad("LD1").setName("LD1 name");
+        network.getHvdcLine("HVDC1").setName("HVDC1 name");
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", List.of(
+            new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL1", Set.of(IdentifiableType.LOAD)),
+            new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL2", Set.of(IdentifiableType.LOAD)),
+            new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL2", Set.of(IdentifiableType.HVDC_CONVERTER_STATION))));
+        Map<String, Contingency> contingencies = new HashMap<>();
+        contingencyList.getContingencies(network).forEach(c -> contingencies.put(c.getId(), c));
+        assertEquals("LD1 name", contingencies.get("LD1").getName().orElseThrow());
+        assertTrue(contingencies.get("LD2").getName().isEmpty());
+        // converter station contingency is named after the HVDC line it targets
+        assertEquals("HVDC1 name", contingencies.get("HVDC1").getName().orElseThrow());
+    }
 }
