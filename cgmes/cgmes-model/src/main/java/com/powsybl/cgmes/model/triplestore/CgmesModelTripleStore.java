@@ -701,7 +701,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     private String getBaseUri(String baseName) {
-        if (tripleStore.getImplementationName().equals("rdf4j")) {
+        if ("rdf4j".equals(tripleStore.getImplementationName())) {
             return baseName.concat("/#");
         } else {
             return baseName.concat("#");
