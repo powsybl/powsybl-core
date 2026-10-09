@@ -351,6 +351,32 @@ public abstract class AbstractDcTopologyTest {
     }
 
     @Test
+    public void testResistanceChangeInSubnetworkUpdatesDcBuses() {
+        Network network = Network.create("network", "test");
+        Network net1 = network.createSubnetwork("n1", "n1", "test");
+        DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
+        DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
+        DcSwitch s1112 = net1.newDcSwitch().setId("s11-12")
+                .setKind(DcSwitchKind.BREAKER)
+                .setOpen(false)
+                .setDcNode1(n11.getId()).setDcNode2(n12.getId())
+                .add();
+        // closed, R = 0: a single bus (cache computed here)
+        assertDcBusesAre(net1, List.of("n11_dcBus"));
+
+        s1112.setR(0.1);
+        // closed, R > 0: two buses, seen from the subnetwork and from the root network
+        assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
+        assertDcBusesAre(network, List.of("n11_dcBus", "n12_dcBus"));
+
+        s1112.setR(0.0);
+        assertDcBusesAre(net1, List.of("n11_dcBus"));
+        assertDcBusesAre(network, List.of("n11_dcBus"));
+    }
+
+    @Test
     public void testOneDcComponent() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
         Collection<Component> dcs = network.getDcComponents();
