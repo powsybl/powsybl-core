@@ -1078,7 +1078,12 @@ public final class EquipmentExport {
             String tapChangerControlId = null;
             if (rtc.getVoltageRegulation() != null) {
                 String controlName = twtName + "_RTC_RC";
-                String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulatingTerminal(), context);
+                // A regulation without a terminal is controlled at the end of the tap changer, as for the phase tap changer
+                Terminal regulatingTerminal = rtc.getRegulatingTerminal();
+                if (regulatingTerminal == null) {
+                    regulatingTerminal = eq.getTerminals().get(endNumber - 1);
+                }
+                String terminalId = CgmesExportUtil.getTerminalId(regulatingTerminal, context);
                 tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String tccMode = getRegulatingControlMode(rtc.getVoltageRegulation());
