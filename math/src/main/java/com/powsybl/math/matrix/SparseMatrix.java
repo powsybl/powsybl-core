@@ -116,15 +116,10 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.columnStart = Objects.requireNonNull(columnStart);
-        if (columnStart.length != columnCount + 1) {
-            throw new MatrixException("columnStart array length has to be columnCount + 1");
-        }
         columnValueCount = new int[columnCount];
         this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
         this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
-        if (rowIndices.length != values.length) {
-            throw new MatrixException("rowIndices and values arrays must have the same length");
-        }
+        checkStructure();
         fillColumnValueCount(this.columnCount, this.columnStart, columnValueCount, this.values);
         currentColumn = columnCount - 1;
     }
@@ -169,6 +164,30 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         }
         if (columnCount < 1) {
             throw new MatrixException("column count has to be strictly positive");
+        }
+    }
+
+    /**
+     * Check that the CSC structure vectors agree with each other and with the row and column counts. The
+     * native layer (times, add, transpose, SparseLUDecomposition.init) sizes its reads from these counts,
+     * so an inconsistent structure would be an out-of-bounds access in native code. Called from the
+     * structure-vector constructor and from {@link #readObject(ObjectInputStream)}.
+     */
+    private void checkStructure() {
+        checkSize(rowCount, columnCount);
+        if (columnStart == null || columnStart.length != columnCount + 1) {
+            throw new MatrixException("columnStart array length has to be columnCount + 1");
+        }
+        if (columnValueCount == null || columnValueCount.length != columnCount) {
+            throw new MatrixException("columnValueCount array length has to be columnCount");
+        }
+        if (rowIndices == null || values == null || rowIndices.size() != values.size()) {
+            throw new MatrixException("rowIndices and values arrays must have the same length");
+        }
+        for (int start : columnStart) {
+            if (start < -1 || start > values.size()) {
+                throw new MatrixException("columnStart value " + start + " out of range [-1, " + values.size() + "]");
+            }
         }
     }
 
@@ -527,29 +546,12 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
     @Serial
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        // Deserialization does not go through the constructors, so the CSC structure they check has to be
-        // checked again here: columnStart, rowIndices and values are then handed over as-is to the native
-        // layer (times, add, transpose, SparseLUDecomposition.init), which sizes its reads from these counts.
-        checkDeserializedStructure();
-    }
-
-    private void checkDeserializedStructure() throws InvalidObjectException {
-        if (rowCount < 1 || columnCount < 1) {
-            throw new InvalidObjectException("row count and column count have to be strictly positive");
-        }
-        if (columnStart == null || columnStart.length != columnCount + 1) {
-            throw new InvalidObjectException("columnStart array length has to be columnCount + 1");
-        }
-        if (columnValueCount == null || columnValueCount.length != columnCount) {
-            throw new InvalidObjectException("columnValueCount array length has to be columnCount");
-        }
-        if (rowIndices == null || values == null || rowIndices.size() != values.size()) {
-            throw new InvalidObjectException("rowIndices and values arrays must have the same length");
-        }
-        for (int start : columnStart) {
-            if (start < -1 || start > values.size()) {
-                throw new InvalidObjectException("columnStart value " + start + " out of range [-1, " + values.size() + "]");
-            }
+        // Deserialization does not go through the constructors, so the structure checks they perform have
+        // to be re-applied to the deserialized fields.
+        try {
+            checkStructure();
+        } catch (MatrixException e) {
+            throw new InvalidObjectException(e.getMessage());
         }
     }
 

@@ -73,10 +73,11 @@ class SparseMatrixDeserializationTest {
     }
 
     @Test
-    void testColumnStartBeyondValueCountRejected() {
-        // Consistent shape, but the last columnStart entry announces 100000 values while the matrix carries
-        // one. That entry is the value count the native layer iterates over.
-        SparseMatrix matrix = new SparseMatrix(2, 2, new int[] {0, 1, 100_000}, new int[] {0}, new double[] {1d});
+    void testColumnStartBeyondValueCountRejected() throws Exception {
+        SparseMatrix matrix = new SparseMatrix(2, 2, new int[] {0, 1, 1}, new int[] {0}, new double[] {1d});
+        // The constructor rejects this shape too, so forge it the way a hostile stream would carry it: the
+        // last columnStart entry announces 100000 values while the matrix carries one.
+        setField(matrix, "columnStart", new int[] {0, 1, 100_000});
 
         UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> readBack(matrix));
         assertEquals("columnStart value 100000 out of range [-1, 1]", e.getCause().getMessage());
