@@ -11,11 +11,14 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.plugins.PluginInfo;
 
 /**
+ * Makes state estimation implementations discoverable through the powsybl plugin mechanism.
+ *
  * @author Šime Pavlić {@literal <sime.pavlic at kickstage.com>}
  */
 @AutoService(PluginInfo.class)
 public class StateEstimationProviderPluginInfo extends PluginInfo<StateEstimationProvider> {
 
+    /** Declares {@link StateEstimationProvider} as a plugin type. */
     public StateEstimationProviderPluginInfo() {
         super(StateEstimationProvider.class);
     }

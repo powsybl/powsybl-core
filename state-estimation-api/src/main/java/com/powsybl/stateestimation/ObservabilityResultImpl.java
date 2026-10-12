@@ -26,6 +26,12 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
     private final List<Area> areas;
     private final List<ElementObservability> elementObservabilities;
 
+    /**
+     * No argument may be null.
+     *
+     * @param areas the observable, non-observable and border areas
+     * @param elementObservabilities the observability of each element reported on
+     */
     public ObservabilityResultImpl(List<Area> areas, List<ElementObservability> elementObservabilities) {
         this.areas = List.copyOf(Objects.requireNonNull(areas));
         this.elementObservabilities = List.copyOf(Objects.requireNonNull(elementObservabilities));
@@ -53,12 +59,20 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         return elementObservabilities.stream().filter(e -> e.getElementId().equals(elementId)).findFirst();
     }
 
+    /** Immutable {@link Area}. */
     public static class AreaImpl implements Area {
 
         private final int areaNumber;
         private final AreaStatus status;
         private final Set<String> busIds;
 
+        /**
+         * Neither {@code status} nor {@code busIds} may be null.
+         *
+         * @param areaNumber the area number
+         * @param status the outcome being recorded
+         * @param busIds the buses that belong to the area
+         */
         public AreaImpl(int areaNumber, AreaStatus status, Set<String> busIds) {
             this.areaNumber = areaNumber;
             this.status = Objects.requireNonNull(status);
@@ -81,12 +95,20 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         }
     }
 
+    /** Immutable {@link ElementObservability}. */
     public static class ElementObservabilityImpl implements ElementObservability {
 
         private final String elementId;
         private final boolean observable;
         private final List<Quality> qualities;
 
+        /**
+         * Neither {@code elementId} nor {@code qualities} may be null.
+         *
+         * @param elementId the identifier of the injection or branch
+         * @param observable whether the measurements determine the state of the element
+         * @param qualities one entry per quantity determined for the element
+         */
         public ElementObservabilityImpl(String elementId, boolean observable, List<Quality> qualities) {
             this.elementId = Objects.requireNonNull(elementId);
             this.observable = observable;
@@ -109,6 +131,7 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         }
     }
 
+    /** Immutable {@link Quality}. */
     public static class QualityImpl implements Quality {
 
         private final Quantity quantity;
@@ -116,6 +139,15 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         private final double standardDeviation;
         private final Boolean redundant;
 
+        /**
+         * {@code side} is null for an injection, and {@code redundant} is null when the estimation did
+         * not establish whether the quantity is redundantly measured.
+         *
+         * @param quantity the measured quantity
+         * @param side the branch side, or null for an injection
+         * @param standardDeviation the standard deviation of the estimated quantity, in MW, MVar or kV
+         * @param redundant whether more than one measurement determines the quantity, or null if that was not established
+         */
         public QualityImpl(Quantity quantity, ThreeSides side, double standardDeviation, Boolean redundant) {
             this.quantity = Objects.requireNonNull(quantity);
             this.side = side;

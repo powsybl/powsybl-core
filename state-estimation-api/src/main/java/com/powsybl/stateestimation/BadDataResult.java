@@ -33,6 +33,7 @@ public interface BadDataResult extends Extendable<BadDataResult> {
         INCONCLUSIVE
     }
 
+    /** Whether the test ran, and what it found. */
     Status getStatus();
 
     /** The measurements that disagree with the estimate, worst first. */
@@ -48,8 +49,10 @@ public interface BadDataResult extends Extendable<BadDataResult> {
     /** Metrics are generic key/value pairs and are specific to a state estimation implementation. */
     Map<String, String> getMetrics();
 
+    /** One measurement whose value disagrees with the estimate. */
     interface SuspectMeasurement {
 
+        /** The identifier of the IIDM measurement this reading came from. */
         String getMeasurementId();
 
         /** The residual divided by its own standard deviation. */

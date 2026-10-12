@@ -29,6 +29,16 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
     private final List<BusResult> busResults;
     private final List<MeasurementResult> measurementResults;
 
+    /**
+     * {@code logs} may be null; nothing else may.
+     *
+     * @param status the outcome being recorded
+     * @param metrics implementation-defined diagnostics, keyed by name
+     * @param logs text to return alongside the result, or null
+     * @param componentResults one entry per connected component
+     * @param busResults the estimated state, one entry per bus
+     * @param measurementResults one entry per measurement the estimation consumed
+     */
     public StateEstimationResultImpl(Status status, Map<String, String> metrics, String logs,
                                      List<ComponentResult> componentResults, List<BusResult> busResults,
                                      List<MeasurementResult> measurementResults) {
@@ -40,7 +50,12 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         this.measurementResults = List.copyOf(Objects.requireNonNull(measurementResults));
     }
 
-    /** A failed estimation, carrying only the logs. */
+    /**
+     * A failed estimation, carrying only the logs.
+     *
+     * @param logs text to return alongside the result, or null
+     * @return a failed estimation, carrying only the logs
+     */
     public static StateEstimationResultImpl failed(String logs) {
         return new StateEstimationResultImpl(Status.FAILED, Map.of(), logs, List.of(), List.of(), List.of());
     }
@@ -75,6 +90,7 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         return measurementResults;
     }
 
+    /** Immutable {@link ComponentResult}. */
     public static class ComponentResultImpl implements ComponentResult {
 
         private final int connectedComponentNum;
@@ -86,6 +102,18 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         private final double objectiveFunctionValue;
         private final Map<String, String> metrics;
 
+        /**
+         * A null {@code metrics} is read as an empty map.
+         *
+         * @param connectedComponentNum the connected component number
+         * @param synchronousComponentNum the synchronous component number
+         * @param status the outcome being recorded
+         * @param statusText implementation-defined text explaining the status
+         * @param iterationCount how many iterations the estimation took on this component
+         * @param referenceBusId the identifier of the bus whose voltage angle was held fixed
+         * @param objectiveFunctionValue the weighted sum of squared residuals at the solution
+         * @param metrics implementation-defined diagnostics, keyed by name
+         */
         public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status, String statusText,
                                    int iterationCount, String referenceBusId, double objectiveFunctionValue,
                                    Map<String, String> metrics) {
@@ -140,12 +168,20 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         }
     }
 
+    /** Immutable {@link BusResult}. */
     public static class BusResultImpl implements BusResult {
 
         private final String busId;
         private final double v;
         private final double angle;
 
+        /**
+         * {@code v} is in kV and {@code angle} in degrees.
+         *
+         * @param busId the identifier of the bus
+         * @param v the voltage magnitude, in kV
+         * @param angle the voltage angle, in degrees
+         */
         public BusResultImpl(String busId, double v, double angle) {
             this.busId = Objects.requireNonNull(busId);
             this.v = v;
@@ -168,6 +204,10 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         }
     }
 
+    /**
+     * Immutable {@link MeasurementResult}. The residual is computed from the measured and estimated
+     * values.
+     */
     public static class MeasurementResultImpl implements MeasurementResult {
 
         private final String measurementId;
@@ -176,6 +216,15 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         private final double normalizedResidual;
         private final boolean flagged;
 
+        /**
+         * Values are in the unit the measurement was given in.
+         *
+         * @param measurementId the identifier of the IIDM measurement
+         * @param measuredValue the value the meter reported
+         * @param estimatedValue what a meter in this position would read in the estimated state
+         * @param normalizedResidual the residual divided by its own standard deviation
+         * @param flagged whether the normalized residual exceeded the flagging threshold
+         */
         public MeasurementResultImpl(String measurementId, double measuredValue, double estimatedValue,
                                      double normalizedResidual, boolean flagged) {
             this.measurementId = Objects.requireNonNull(measurementId);

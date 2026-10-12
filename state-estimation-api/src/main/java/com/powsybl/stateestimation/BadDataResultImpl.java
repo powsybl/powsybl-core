@@ -26,6 +26,14 @@ public class BadDataResultImpl extends AbstractExtendable<BadDataResult> impleme
     private final Set<String> uncheckableMeasurementIds;
     private final Map<String, String> metrics;
 
+    /**
+     * No argument may be null.
+     *
+     * @param status the outcome being recorded
+     * @param suspectMeasurements the measurements that disagree with the estimate, worst first
+     * @param uncheckableMeasurementIds the identifiers of the measurements that could not be tested
+     * @param metrics implementation-defined diagnostics, keyed by name
+     */
     public BadDataResultImpl(Status status, List<SuspectMeasurement> suspectMeasurements,
                              Set<String> uncheckableMeasurementIds, Map<String, String> metrics) {
         this.status = Objects.requireNonNull(status);
@@ -54,11 +62,18 @@ public class BadDataResultImpl extends AbstractExtendable<BadDataResult> impleme
         return metrics;
     }
 
+    /** Immutable {@link SuspectMeasurement}. */
     public static class SuspectMeasurementImpl implements SuspectMeasurement {
 
         private final String measurementId;
         private final double normalizedResidual;
 
+        /**
+         * {@code normalizedResidual} is the residual divided by its own standard deviation.
+         *
+         * @param measurementId the identifier of the IIDM measurement
+         * @param normalizedResidual the residual divided by its own standard deviation
+         */
         public SuspectMeasurementImpl(String measurementId, double normalizedResidual) {
             this.measurementId = Objects.requireNonNull(measurementId);
             this.normalizedResidual = normalizedResidual;

@@ -27,6 +27,7 @@ import java.util.Map;
  */
 public interface StateEstimationResult extends Extendable<StateEstimationResult> {
 
+    /** How much of the network in scope produced an estimate. */
     enum Status {
         /** Every component in scope produced an estimate. */
         FULLY_ESTIMATED,
@@ -36,16 +37,20 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
         FAILED
     }
 
+    /** The outcome over every component in scope. */
     Status getStatus();
 
+    /** Whether the status is {@link Status#FULLY_ESTIMATED}. */
     default boolean isFullyEstimated() {
         return getStatus() == Status.FULLY_ESTIMATED;
     }
 
+    /** Whether the status is {@link Status#PARTIALLY_ESTIMATED}. */
     default boolean isPartiallyEstimated() {
         return getStatus() == Status.PARTIALLY_ESTIMATED;
     }
 
+    /** Whether the status is {@link Status#FAILED}. */
     default boolean isFailed() {
         return getStatus() == Status.FAILED;
     }
@@ -53,8 +58,14 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
     /** Implementation-defined diagnostics, keyed by name. */
     Map<String, String> getMetrics();
 
+    /**
+     * Text the implementation returns alongside the result, such as a solver log. This is separate
+     * from the application's logging stack: an implementation that logs only through slf4j returns
+     * an empty string here.
+     */
     String getLogs();
 
+    /** One entry per connected component the estimation covered. */
     List<ComponentResult> getComponentResults();
 
     /** The estimated state, one entry per bus that was estimated. Empty when the estimation failed. */
@@ -66,8 +77,10 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
      */
     List<MeasurementResult> getMeasurementResults();
 
+    /** The outcome on one connected component. Components are estimated independently of each other. */
     interface ComponentResult {
 
+        /** Whether this component was estimated, and what stopped it when it was not. */
         enum Status {
             /** The component was observable and the estimation converged on it. */
             ESTIMATED,
@@ -79,14 +92,22 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
             FAILED
         }
 
+        /** The connected component number, as {@link com.powsybl.iidm.network.Bus#getConnectedComponent()} numbers it. */
         int getConnectedComponentNum();
 
+        /** The synchronous component number, as {@link com.powsybl.iidm.network.Bus#getSynchronousComponent()} numbers it. */
         int getSynchronousComponentNum();
 
+        /** Whether this component was estimated. */
         Status getStatus();
 
+        /**
+         * Implementation-defined text explaining the status, typically the reason an estimation did
+         * not succeed. Empty when the implementation has nothing to add.
+         */
         String getStatusText();
 
+        /** How many iterations the estimation took on this component. */
         int getIterationCount();
 
         /**
@@ -101,6 +122,7 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
          */
         double getObjectiveFunctionValue();
 
+        /** Implementation-defined diagnostics for this component, keyed by name. */
         Map<String, String> getMetrics();
     }
 
@@ -110,10 +132,13 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
      */
     interface BusResult {
 
+        /** The IIDM identifier of the bus. */
         String getBusId();
 
+        /** The estimated voltage magnitude, in kV. */
         double getV();
 
+        /** The estimated voltage angle, in degrees. */
         double getAngle();
     }
 
@@ -123,8 +148,10 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
      */
     interface MeasurementResult {
 
+        /** The identifier of the IIDM measurement this reading came from. */
         String getMeasurementId();
 
+        /** The value the meter reported. */
         double getMeasuredValue();
 
         /** What a meter in this position would read in the estimated state. */

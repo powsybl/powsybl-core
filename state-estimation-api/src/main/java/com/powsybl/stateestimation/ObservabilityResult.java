@@ -27,25 +27,44 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
 
     /** The quantities modelled by {@code InjectionObservability} and {@code BranchObservability}. */
     enum Quantity {
+        /** Active power, in MW. */
         ACTIVE_POWER,
+        /** Reactive power, in MVar. */
         REACTIVE_POWER,
+        /** Voltage magnitude, in kV. */
         VOLTAGE
     }
 
     /** Mirrors {@code ObservabilityArea.ObservabilityStatus}. */
     enum AreaStatus {
+        /** The measurements determine the state of every bus in the area. */
         OBSERVABLE,
+        /** The measurements leave the state of the area undetermined. */
         NON_OBSERVABLE,
-        BORDER // between an observable area and a non-observable one
+        /** Between an observable area and a non-observable one. */
+        BORDER
     }
 
+    /** The observable, non-observable and border areas, in no guaranteed order. */
     List<Area> getAreas();
 
-    /** The area containing the given bus, or an empty {@code Optional} if there is none. */
+    /**
+     * The area containing the given bus, or an empty {@code Optional} if there is none.
+     *
+     * @param busId the identifier of the bus
+     * @return the area containing the given bus, or an empty {@code Optional} if there is none
+     */
     Optional<Area> getArea(String busId);
 
+    /** Observability of every element the estimation reported on, in no guaranteed order. */
     List<ElementObservability> getElementObservabilities();
 
+    /**
+     * Observability of one element, or an empty {@code Optional} if it was not reported on.
+     *
+     * @param elementId the identifier of the injection or branch
+     * @return the observability of that element, or an empty {@code Optional} if it was not reported on
+     */
     Optional<ElementObservability> getElementObservability(String elementId);
 
     /** A connected set of buses sharing one observability status. */
@@ -54,8 +73,10 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
         /** The area number, as {@code ObservabilityArea.AreaCharacteristics} numbers it. */
         int getAreaNumber();
 
+        /** Whether the measurements determine the state of this area. */
         AreaStatus getStatus();
 
+        /** The buses that belong to this area. */
         Set<String> getBusIds();
     }
 
@@ -65,17 +86,23 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
      */
     interface ElementObservability {
 
+        /** The IIDM identifier of the injection or branch. */
         String getElementId();
 
-        /** As {@code Observability.isObservable()}: one answer for every quantity. */
+        /**
+         * Whether the measurements determine the state of this element. As
+         * {@code Observability.isObservable()}, one answer covers every quantity.
+         */
         boolean isObservable();
 
+        /** One entry per quantity of this element that the estimation determined. */
         List<Quality> getQualities();
     }
 
     /** What was determined about one quantity of one element, matching {@code ObservabilityQuality}. */
     interface Quality {
 
+        /** The quantity this entry describes. */
         Quantity getQuantity();
 
         /** The branch side, or an empty {@code Optional} for an injection. */
