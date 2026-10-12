@@ -50,6 +50,11 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     parser.nextToken();
                     parameters.setScalingConvention(JsonUtil.readValue(context, parser, Scalable.ScalingConvention.class));
                 }
+                case "scalingType" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: scalingType", version, "1.3");
+                    parser.nextToken();
+                    parameters.setScalingType(JsonUtil.readValue(context, parser, ScalingParameters.ScalingType.class));
+                }
                 case "constantPowerFactor" -> {
                     parser.nextToken();
                     parameters.setConstantPowerFactor(parser.readValueAs(Boolean.class));
@@ -71,6 +76,21 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                 case "ignoredInjectionIds" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
                     parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
+                }
+                case "loadMinPowerFactor" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMinPowerFactor", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMinPowerFactor(parser.getDoubleValue());
+                }
+                case "loadMinQRate" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMinQRate", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMinQRate(parser.getDoubleValue());
+                }
+                case "loadMaxQRate" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMaxQRate", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMaxQRate(parser.getDoubleValue());
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }

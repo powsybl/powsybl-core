@@ -9,6 +9,8 @@ package com.powsybl.math.matrix;
 
 import com.powsybl.math.AbstractMathNative;
 
+import java.io.PrintStream;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -60,4 +62,20 @@ public abstract class AbstractMatrix extends AbstractMathNative implements Matri
     public Matrix times(Matrix other) {
         return times(other, 1d);
     }
+
+    @Override
+    public void print(PrintStream out) {
+        print(out, null, null, PrintConfig.load());
+    }
+
+    @Override
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+        print(out, rowNames, columnNames, PrintConfig.load());
+    }
+
+    @Override
+    public void print(PrintStream out, PrintConfig config) {
+        print(out, null, null, config);
+    }
+
 }

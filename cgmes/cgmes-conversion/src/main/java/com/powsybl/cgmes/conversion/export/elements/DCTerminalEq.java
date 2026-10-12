@@ -18,7 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class DCTerminalEq {
 
-    public static void write(String element, String id, String name, String dcConductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String element, String id, String name, String dcConductingEquipmentId, String dcNodeId,
+                             int sequenceNumber, String cimNamespace, XMLStreamWriter writer,
+                             CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(element, id, name, cimNamespace, writer, context);
         CgmesExportUtil.writeReference(element + ".DCConductingEquipment", dcConductingEquipmentId, cimNamespace, writer, context);
         if (dcNodeId != null) {

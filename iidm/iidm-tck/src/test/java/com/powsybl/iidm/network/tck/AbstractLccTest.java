@@ -49,6 +49,9 @@ public abstract class AbstractLccTest {
         assertEquals(0.6f, cs2.getPowerFactor(), 0.0f);
         cs1.setPowerFactor(0.6f);
         assertEquals(0.6f, cs1.getPowerFactor(), 0.0f);
+        assertFalse(cs1.isEquivalent()); // default value
+        cs1.setEquivalent(true);
+        assertTrue(cs1.isEquivalent());
         assertEquals(2, network.getVoltageLevel("VL1").getShuntCompensatorCount());
         assertEquals(2, network.getVoltageLevel("VL2").getShuntCompensatorCount());
         assertEquals(1e-5, network.getShuntCompensator("C1_Filter1").getB(), 0.0);

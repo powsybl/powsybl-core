@@ -84,6 +84,28 @@ The CGMES model does not guarantee these hierarchical constraints, so the first 
 
 The following sections describe in detail how each supported CGMES network object is converted to PowSyBl network model objects.
 
+(cgmes-subnetwork-import)=
+
+### Subnetwork
+
+When importing a Common Grid Model (CGM) made of several Individual Grid Models (IGMs) merged together, by default each
+IGM is imported into its own PowSyBl [`Subnetwork`](../../grid_model/network_subnetwork.md), and all the subnetworks are
+then merged into a single PowSyBl `Network`. This behavior is controlled by the `iidm.import.cgmes.cgm-with-subnetworks`
+import option, which defaults to `true`. Setting it to `false` disables this separation, so the CGM is imported directly
+as a single flat `Network`.
+
+When subnetwork separation is enabled, the `iidm.import.cgmes.cgm-with-subnetworks-defined-by` import option controls
+how the importer groups CGMES files by IGM, and therefore how it builds each subnetwork:
+
+- `MODELING_AUTHORITY` (the default): files are grouped by the modeling authority declared in the `FullModel` header of
+  each CGMES instance file.
+- `FILENAME`: files are grouped by the `sourcingActor` segment of the CGMES file naming convention (
+  `<effectiveDateTime>_<businessProcess>_<sourcingActor>_<modelPart>_<fileVersion>`).
+
+Subnetworks are imported in a deterministic order, sorted by their grouping key (modeling authority name or sourcing
+actor name). As a result, the subnetworks of the imported `Network`, and the corresponding entries in the import report,
+are always listed in the same, reproducible order.
+
 (cgmes-substation-import)=
 ### Substation
 
@@ -315,6 +337,8 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 - `MaxP` is copied from CGMES `maxP`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, they are set to `0`.
 - `EnergySource` is set as `OTHER`
+
+The [`Reference Priority`](../../grid_model/extensions.md#reference-priorities) extension is created from the `ExternalNetworkInjection.referencePriority` attribute in `SSH`.
 
 <span style="color: red">TODO reactive limits</span>
 
@@ -871,6 +895,12 @@ Optional property to define if subnetworks must be added to the network when imp
 **iidm.import.cgmes.cgm-with-subnetworks-defined-by**<br>
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
 Its default value is `MODELING_AUTHORITY`.
+
+**iidm.import.cgmes.cgm-with-subnetworks-thread-count**<br>
+If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to define the number of threads used to import the IGMs of a CGM concurrently.
+Its default value is `1`, meaning IGMs are imported sequentially.
+If there are less IGMs than the number of configured threads, the importer will only use as many threads as there are IGMs.
+The number of threads is also limited to the number of available logical processors minus one.
 
 **iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**<br>
 Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.

@@ -9,7 +9,20 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -18,59 +31,93 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseVoltageSourceConverter extends PsseVersioned {
 
-    @Parsed
+    private static final Map<String, PsseFieldDefinition<PsseVoltageSourceConverter, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_32_33 = {STR_IBUS, STR_TYPE, STR_MODE, STR_DCSET, STR_ACSET, STR_ALOSS,
+        STR_BLOSS, STR_MINLOSS, STR_SMAX, STR_IMAX, STR_PWF, STR_MAXQ, STR_MINQ, STR_REMOT, STR_RMPCT};
+    private static final String[] FIELD_NAMES_35 = {STR_IBUS, STR_TYPE, STR_MODE, STR_DCSET, STR_ACSET, STR_ALOSS,
+        STR_BLOSS, STR_MINLOSS, STR_SMAX, STR_IMAX, STR_PWF, STR_MAXQ, STR_MINQ, STR_VSREG, STR_NREG, STR_RMPCT};
+
     private int ibus;
-
-    @Parsed
     private int type;
-
-    @Parsed
-    private int mode = 1;
-
-    @Parsed
+    private int mode = defaultIntegerFor(STR_MODE, FIELDS);
     private double dcset;
+    private double acset = defaultDoubleFor(STR_ACSET, FIELDS);
+    private double aloss = defaultDoubleFor(STR_ALOSS, FIELDS);
+    private double bloss = defaultDoubleFor(STR_BLOSS, FIELDS);
+    private double minloss = defaultDoubleFor(STR_MINLOSS, FIELDS);
+    private double smax = defaultDoubleFor(STR_SMAX, FIELDS);
+    private double imax = defaultDoubleFor(STR_IMAX, FIELDS);
+    private double pwf = defaultDoubleFor(STR_PWF, FIELDS);
+    private double maxq = defaultDoubleFor(STR_MAXQ, FIELDS);
+    private double minq = defaultDoubleFor(STR_MINQ, FIELDS);
 
-    @Parsed
-    private double acset = 1.0;
-
-    @Parsed
-    private double aloss = 0.0;
-
-    @Parsed
-    private double bloss = 0.0;
-
-    @Parsed
-    private double minloss = 0.0;
-
-    @Parsed
-    private double smax = 0.0;
-
-    @Parsed
-    private double imax = 0.0;
-
-    @Parsed
-    private double pwf = 1.0;
-
-    @Parsed
-    private double maxq = 9999.0;
-
-    @Parsed
-    private double minq = -9999.0;
-
-    @Parsed
     @Revision(until = 33)
-    private int remot = 0;
+    private int remot = defaultIntegerFor(STR_REMOT, FIELDS);
 
-    @Parsed
-    private double rmpct = 100.0;
+    private double rmpct = defaultDoubleFor(STR_RMPCT, FIELDS);
 
-    @Parsed
     @Revision(since = 35)
-    private int vsreg = 0;
+    private int vsreg = defaultIntegerFor(STR_VSREG, FIELDS);
 
-    @Parsed
     @Revision(since = 35)
-    private int nreg = 0;
+    private int nreg = defaultIntegerFor(STR_NREG, FIELDS);
+
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseVoltageSourceConverter fromRecord(CsvRecord rec, String[] headers) {
+        return fromRecord(rec, headers, "");
+    }
+
+    public static PsseVoltageSourceConverter fromRecord(CsvRecord rec, String[] headers, String headerSuffix) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseVoltageSourceConverter::new, headerSuffix);
+    }
+
+    public static void toRecord(PsseVoltageSourceConverter psseVoltageSourceConverter, String[] headers, String[] row,
+                                Set<String> unexpectedHeaders, String headerSuffix) {
+        Util.toRecord(psseVoltageSourceConverter, headers, FIELDS, row, unexpectedHeaders, headerSuffix);
+    }
+
+    public static void toRecord(PsseVoltageSourceConverter psseVoltageSourceConverter, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        toRecord(psseVoltageSourceConverter, headers, row, unexpectedHeaders, "");
+    }
+
+    public static String[] toRecord(PsseVoltageSourceConverter psseVoltageSourceConverter, String[] headers) {
+        return Util.toRecord(psseVoltageSourceConverter, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseVoltageSourceConverter, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseVoltageSourceConverter, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseVoltageSourceConverter::getIbus, PsseVoltageSourceConverter::setIbus));
+        addField(fields, createNewField(STR_TYPE, Integer.class, PsseVoltageSourceConverter::getType, PsseVoltageSourceConverter::setType));
+        addField(fields, createNewField(STR_MODE, Integer.class, PsseVoltageSourceConverter::getMode, PsseVoltageSourceConverter::setMode, 1));
+        addField(fields, createNewField(STR_DCSET, Double.class, PsseVoltageSourceConverter::getDcset, PsseVoltageSourceConverter::setDcset));
+        addField(fields, createNewField(STR_ACSET, Double.class, PsseVoltageSourceConverter::getAcset, PsseVoltageSourceConverter::setAcset, 1d));
+        addField(fields, createNewField(STR_ALOSS, Double.class, PsseVoltageSourceConverter::getAloss, PsseVoltageSourceConverter::setAloss, 0d));
+        addField(fields, createNewField(STR_BLOSS, Double.class, PsseVoltageSourceConverter::getBloss, PsseVoltageSourceConverter::setBloss, 0d));
+        addField(fields, createNewField(STR_MINLOSS, Double.class, PsseVoltageSourceConverter::getMinloss, PsseVoltageSourceConverter::setMinloss, 0d));
+        addField(fields, createNewField(STR_SMAX, Double.class, PsseVoltageSourceConverter::getSmax, PsseVoltageSourceConverter::setSmax, 0d));
+        addField(fields, createNewField(STR_IMAX, Double.class, PsseVoltageSourceConverter::getImax, PsseVoltageSourceConverter::setImax, 0d));
+        addField(fields, createNewField(STR_PWF, Double.class, PsseVoltageSourceConverter::getPwf, PsseVoltageSourceConverter::setPwf, 1d));
+        addField(fields, createNewField(STR_MAXQ, Double.class, PsseVoltageSourceConverter::getMaxq, PsseVoltageSourceConverter::setMaxq, 9999d));
+        addField(fields, createNewField(STR_MINQ, Double.class, PsseVoltageSourceConverter::getMinq, PsseVoltageSourceConverter::setMinq, -9999d));
+        addField(fields, createNewField(STR_REMOT, Integer.class, PsseVoltageSourceConverter::getRemot, PsseVoltageSourceConverter::setRemot, 0));
+        addField(fields, createNewField(STR_RMPCT, Double.class, PsseVoltageSourceConverter::getRmpct, PsseVoltageSourceConverter::setRmpct, 100d));
+        addField(fields, createNewField(STR_VSREG, Integer.class, PsseVoltageSourceConverter::getVsreg, PsseVoltageSourceConverter::setVsreg, 0));
+        addField(fields, createNewField(STR_NREG, Integer.class, PsseVoltageSourceConverter::getNreg, PsseVoltageSourceConverter::setNreg, 0));
+
+        return fields;
+    }
 
     public int getIbus() {
         return ibus;
@@ -177,7 +224,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getRemot() {
-        checkVersion("remot");
+        checkVersion(STR_REMOT);
         return remot;
     }
 
@@ -194,7 +241,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getVsreg() {
-        checkVersion("vsreg");
+        checkVersion(STR_VSREG);
         return vsreg;
     }
 
@@ -203,7 +250,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getNreg() {
-        checkVersion("nreg");
+        checkVersion(STR_NREG);
         return nreg;
     }
 

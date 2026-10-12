@@ -9,11 +9,11 @@
 package com.powsybl.security.detectors;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.contingency.violations.LimitViolations;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -174,7 +174,7 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
             }
 
             @Override
-            public void checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+            public void checkPermanentLimit(Branch<?> branch, TwoSides side, double limitScalingValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
                 throw new UnsupportedOperationException("Not used in this test!");
 
             }

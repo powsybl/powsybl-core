@@ -111,5 +111,3 @@ public class ThreeWindingsTransformerCriterionTest {
         return new DefaultNetworkElementAdapter(twt);
     }
 }
-
-

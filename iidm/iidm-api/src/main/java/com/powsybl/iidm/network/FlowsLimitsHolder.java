@@ -29,7 +29,8 @@ public interface FlowsLimitsHolder {
     /**
      * <p>Get the ID of the last {@link OperationalLimitsGroup} set as selected (either by {@link #setSelectedOperationalLimitsGroup(String)} or any other mean).</p>
      * <p>If the last selected was deselected (using {@link #deselectOperationalLimitsGroups(String...)} (String)}),
-     * then this will return the ID of the OperationalLimitsGroup selected before that if any (this logic can be repeated, if the two previously selected are not selected anymore, gets the 3rd, the 4th, etc...),
+     * then this will return the ID of the OperationalLimitsGroup selected before that if any (this logic can be repeated,
+     * if the two previously selected are not selected anymore, gets the 3rd, the 4th, etc...),
      * otherwise an empty {@link Optional}</p>
      * @return the ID of the last selected {@link OperationalLimitsGroup} from all the selected groups if any,
      * the one selected before that if the last selected is not selected anymore (repeatable),
@@ -70,10 +71,10 @@ public interface FlowsLimitsHolder {
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup();
 
     /**
-     * Get all the selected {@link OperationalLimitsGroup}
-     * @return a collection containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
+     * Get all the selected {@link OperationalLimitsGroup}. The list's order must be stable when elements are added or deleted.
+     * @return a list containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
      */
-    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups();
+    List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups();
 
     /**
      * <p>Create a new {@link OperationalLimitsGroup} with the given ID.</p>

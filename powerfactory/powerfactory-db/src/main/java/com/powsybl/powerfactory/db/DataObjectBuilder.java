@@ -89,9 +89,9 @@ public class DataObjectBuilder {
         object.setStringAttributeValue(attributeName, value);
     }
 
-    public void setObjectAttributeValue(long objectId, String attributeName, long otherObjectId) {
+    public void setObjectAttributeValue(long objectId, String attributeName, DataObjectRefKey otherObjectRefKey) {
         DataObject object = getObjectById(objectId);
-        object.setObjectAttributeValue(attributeName, otherObjectId);
+        object.setObjectAttributeValue(attributeName, otherObjectRefKey);
     }
 
     public void setIntVectorAttributeValue(long objectId, String attributeName, List<Integer> value) {
@@ -114,13 +114,14 @@ public class DataObjectBuilder {
         object.setStringVectorAttributeValue(attributeName, value);
     }
 
-    public void setObjectVectorAttributeValue(long objectId, String attributeName, List<Long> otherObjectsIds) {
+    public void setObjectVectorAttributeValue(long objectId, String attributeName, List<DataObjectRefKey> otherObjectsRefKeys) {
         DataObject object = getObjectById(objectId);
-        object.setObjectVectorAttributeValue(attributeName, otherObjectsIds);
+        object.setObjectVectorAttributeValue(attributeName, otherObjectsRefKeys);
     }
 
     public void setDoubleMatrixAttributeValue(long objectId, String attributeName, int rowCount, int columnCount, List<Double> value) {
         DataObject object = getObjectById(objectId);
+        DataObject.checkValidRealMatrix(rowCount, columnCount, value.size());
         RealMatrix matrix = new BlockRealMatrix(rowCount, columnCount);
         for (int row = 0; row < rowCount; row++) {
             for (int col = 0; col < columnCount; col++) {

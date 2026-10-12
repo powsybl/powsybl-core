@@ -227,7 +227,8 @@ public final class TopologyExport {
         return context.getNamingStrategy().getCgmesId(disconnectedBusId);
     }
 
-    private static void writeTopologicalNode(String tn, String tname, Bus bus, VoltageLevel voltageLevel, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeTopologicalNode(String tn, String tname, Bus bus, VoltageLevel voltageLevel,
+                                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (context.containsTopologicalNode(tn)) {
             return;
         }
@@ -273,7 +274,8 @@ public final class TopologyExport {
         }
     }
 
-    private static void writeDcTerminals(HvdcLine line, HvdcConverterStation<?> converter, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeDcTerminals(HvdcLine line, HvdcConverterStation<?> converter, int side, String cimNamespace,
+                                         XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Bus bus = converter.getTerminal().getBusBreakerView().getBus();
         if (bus == null) {
             bus = converter.getTerminal().getBusBreakerView().getConnectableBus();
@@ -304,7 +306,8 @@ public final class TopologyExport {
         writer.writeEndElement();
     }
 
-    private static void writeDCBaseTerminal(String className, String dcBaseTerminalId, String dcTopologicalNodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeDCBaseTerminal(String className, String dcBaseTerminalId, String dcTopologicalNodeId,
+                                            String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(className, dcBaseTerminalId, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNodeId, cimNamespace, writer, context);
         writer.writeEndElement();
@@ -321,7 +324,8 @@ public final class TopologyExport {
         if (boundaryId != null) {
             writeTerminal(boundaryId, topologicalNode, cimNamespace, writer, context);
         }
-        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several boundary lines linked to same X-node)
+        // check if the equivalent injection terminal has already been written (if several boundary lines linked to same X-node)
+        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) {
             writeTerminal(equivalentInjectionTerminalId, topologicalNode, cimNamespace, writer, context);
             exported.add(equivalentInjectionTerminalId);
         }
@@ -429,7 +433,8 @@ public final class TopologyExport {
         }
     }
 
-    private static void writeDCTopologicalNode(HvdcLine line, int side, HvdcConverterStation<?> converter, Set<String> written, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeDCTopologicalNode(HvdcLine line, int side, HvdcConverterStation<?> converter, Set<String> written,
+                                               String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Bus b = converter.getTerminal().getBusBreakerView().getBus();
         if (b == null) {
             b = converter.getTerminal().getBusBreakerView().getConnectableBus();
@@ -452,7 +457,8 @@ public final class TopologyExport {
         writer.writeEndElement();
     }
 
-    private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId,
+                                             String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("TopologicalNode", topologicalNode, topologicalNodeName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, cimNamespace, writer, context);
         CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, cimNamespace, writer, context);

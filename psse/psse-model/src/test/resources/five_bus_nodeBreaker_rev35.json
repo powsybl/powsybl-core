@@ -601,11 +601,13 @@
   "gneDevice" : [ ],
   "inductionMachines" : [ ],
   "substations" : [ {
-    "is" : 1,
-    "name" : "STATION 1",
-    "lati" : 0.0,
-    "long" : 0.0,
-    "srg" : 0.1,
+    "record" : {
+      "is" : 1,
+      "name" : "STATION 1",
+      "lati" : 0.0,
+      "srg" : 0.1,
+      "long" : 0.0
+    },
     "nodes" : [ {
       "ni" : 1,
       "name" : "NB1",
@@ -766,11 +768,13 @@
       "k" : 4
     } ]
   }, {
-    "is" : 2,
-    "name" : "STATION 2",
-    "lati" : 0.0,
-    "long" : 0.0,
-    "srg" : 0.1,
+    "record" : {
+      "is" : 2,
+      "name" : "STATION 2",
+      "lati" : 0.0,
+      "srg" : 0.1,
+      "long" : 0.0
+    },
     "nodes" : [ {
       "ni" : 1,
       "name" : "NB1",
@@ -879,11 +883,13 @@
       "k" : 0
     } ]
   }, {
-    "is" : 3,
-    "name" : "STATION 3",
-    "lati" : 0.0,
-    "long" : 0.0,
-    "srg" : 0.1,
+    "record" : {
+      "is" : 3,
+      "name" : "STATION 3",
+      "lati" : 0.0,
+      "srg" : 0.1,
+      "long" : 0.0
+    },
     "nodes" : [ {
       "ni" : 1,
       "name" : "NB1",
@@ -992,11 +998,13 @@
       "k" : 4
     } ]
   }, {
-    "is" : 4,
-    "name" : "STATION 4",
-    "lati" : 0.0,
-    "long" : 0.0,
-    "srg" : 0.1,
+    "record" : {
+      "is" : 4,
+      "name" : "STATION 4",
+      "lati" : 0.0,
+      "srg" : 0.1,
+      "long" : 0.0
+    },
     "nodes" : [ {
       "ni" : 1,
       "name" : "NB1",
@@ -1079,11 +1087,13 @@
       "k" : 3
     } ]
   }, {
-    "is" : 5,
-    "name" : "STATION 5",
-    "lati" : 0.0,
-    "long" : 0.0,
-    "srg" : 0.1,
+    "record" : {
+      "is" : 5,
+      "name" : "STATION 5",
+      "lati" : 0.0,
+      "srg" : 0.1,
+      "long" : 0.0
+    },
     "nodes" : [ {
       "ni" : 1,
       "name" : "NB1",

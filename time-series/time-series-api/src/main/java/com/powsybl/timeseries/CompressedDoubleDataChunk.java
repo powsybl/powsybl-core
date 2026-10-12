@@ -54,7 +54,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
     }
 
     //To remove if we ever get it from somewhere else
-    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+    @FunctionalInterface private interface DoubleIntConsumer { void accept(double a, int b); }
 
     private void forEachMaterializedValueIndex(DoubleIntConsumer consumer) {
         int k = 0;
@@ -185,7 +185,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
         }
         int index = offset;
         for (int step = 0; step < stepLengths.length; step++) {
-            if (index + stepLengths[step] > splitIndex) {
+            if (index + stepLengths[step] >= splitIndex) {
                 // first chunk
                 int[] stepLengths1 = new int[step + 1];
                 double[] stepValues1 = new double[stepLengths1.length];
@@ -193,15 +193,17 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
                 System.arraycopy(stepValues, 0, stepValues1, 0, stepValues1.length);
                 stepLengths1[step] = splitIndex - index;
                 CompressedDoubleDataChunk chunk1 = new CompressedDoubleDataChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
-
                 // second chunk
-                int[] stepLengths2 = new int[stepLengths.length - step];
+                boolean splitOnBoundary = splitIndex == index + stepLengths[step];
+                int calculatedStep = splitOnBoundary ? step + 1 : step;
+                int[] stepLengths2 = new int[stepLengths.length - calculatedStep];
                 double[] stepValues2 = new double[stepLengths2.length];
-                System.arraycopy(stepLengths, step, stepLengths2, 0, stepLengths2.length);
-                System.arraycopy(stepValues, step, stepValues2, 0, stepValues2.length);
-                stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                System.arraycopy(stepLengths, calculatedStep, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, calculatedStep, stepValues2, 0, stepValues2.length);
+                if (!splitOnBoundary) {
+                    stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                }
                 CompressedDoubleDataChunk chunk2 = new CompressedDoubleDataChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
-
                 return new Split<>(chunk1, chunk2);
             }
             index += stepLengths[step];

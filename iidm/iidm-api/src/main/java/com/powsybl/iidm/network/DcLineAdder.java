@@ -12,6 +12,11 @@ package com.powsybl.iidm.network;
  */
 public interface DcLineAdder extends IdentifiableAdder<DcLine, DcLineAdder> {
 
+    /**
+     * Set the resistance of the DC line in &#937. The resistance value must be positive.
+     * @param r the resistance value of the DC line in &#937, must be positive
+     * @return this adder, for chaining
+     */
     DcLineAdder setR(double r);
 
     DcLineAdder setDcNode1(String dcNode1);

@@ -8,9 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.NetworkReports;
 
 import java.util.HashSet;
@@ -46,8 +44,8 @@ public final class ConnectDisconnectUtil {
         boolean isAlreadyConnected = true;
         boolean isNowConnected = true;
 
-        // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+        // Initialisation of a list to close in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForConnection = new HashSet<>();
 
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
@@ -62,7 +60,7 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
-                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForConnection);
             }
             // If it's a bus-breaker terminal, there is nothing to do
 
@@ -86,8 +84,8 @@ public final class ConnectDisconnectUtil {
             }
         }
 
-        // Disconnect all switches on node-breaker terminals
-        switchForDisconnection.forEach(sw -> sw.setOpen(false));
+        // Connect all switches on node-breaker terminals
+        switchForConnection.forEach(sw -> sw.setOpen(false));
         return isNowConnected;
     }
 
@@ -95,7 +93,7 @@ public final class ConnectDisconnectUtil {
      * Disconnect the specified terminals. It will disconnect all the specified terminals or none if at least one cannot
      * be disconnected.
      * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
-     * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
+     * @param terminals list of the terminals that should be disconnected. For a connectable, it should be its own
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
      *                  underlying boundary lines (respectively converter stations)
      * @param isSwitchOpenable type of switches that can be operated
@@ -147,5 +145,80 @@ public final class ConnectDisconnectUtil {
         // Disconnect all switches on node-breaker terminals
         switchForDisconnection.forEach(sw -> sw.setOpen(true));
         return isNowDisconnected;
+    }
+
+    /**
+     * Connect the specified DC terminals.
+     *
+     * @param identifiable network element to connect. It should be a DC connectable.
+     * @param dcTerminals list of the DC terminals that should be connected. It should be the DC terminals of the DC
+     *                    connectable.
+     * @param reportNode report node
+     * @return {@code true} if all the specified DC terminals have been connected, else {@code false}.
+     */
+    static boolean connectAllDcTerminals(Identifiable<?> identifiable, List<? extends DcTerminal> dcTerminals, ReportNode reportNode) {
+
+        // Booleans
+        boolean isAlreadyFullyConnected = true;
+
+        // Check if the element is already connected
+        for (DcTerminal dcTerminal : dcTerminals) {
+            if (dcTerminal.isConnected()) {
+                NetworkReports.alreadyConnectedIdentifiableDcTerminal(reportNode, identifiable.getId());
+            } else {
+                isAlreadyFullyConnected = false;
+            }
+        }
+
+        // Exit if the connectable is already fully connected
+        if (isAlreadyFullyConnected) {
+            return false;
+        }
+
+        // Connect all DC terminals
+        for (DcTerminal dcTerminal : dcTerminals) {
+            if (!dcTerminal.isConnected()) {
+                dcTerminal.setConnected(true);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Disconnect the specified DC terminals.
+     *
+     * @param identifiable network element to disconnect. It should be a DC connectable.
+     * @param dcTerminals list of the DC terminals that should be disconnected. It should be the DC terminals of the DC
+     *                    connectable.
+     * @param reportNode report node
+     * @return {@code true} if all the specified DC terminals have been disconnected, else {@code false}.
+     */
+    static boolean disconnectAllDcTerminals(Identifiable<?> identifiable, List<? extends DcTerminal> dcTerminals, ReportNode reportNode) {
+
+        // Booleans
+        boolean isAlreadyFullyDisconnected = true;
+
+        // Check if the element is already disconnected
+        for (DcTerminal dcTerminal : dcTerminals) {
+            if (!dcTerminal.isConnected()) {
+                NetworkReports.alreadyDisconnectedIdentifiableDcTerminal(reportNode, identifiable.getId());
+            } else {
+                // The DC terminal is connected
+                isAlreadyFullyDisconnected = false;
+            }
+        }
+
+        // Exit if the connectable is already fully disconnected
+        if (isAlreadyFullyDisconnected) {
+            return false;
+        }
+
+        // Disconnect all DC terminals
+        for (DcTerminal dcTerminal : dcTerminals) {
+            if (dcTerminal.isConnected()) {
+                dcTerminal.setConnected(false);
+            }
+        }
+        return true;
     }
 }

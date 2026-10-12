@@ -10,10 +10,10 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.commons.parameters.Parameter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -90,6 +90,7 @@ public interface Importer {
         }
 
         @Override
+        @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
         public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
             Network network = importer.importData(dataSource, networkFactory, parameters, reportNode);
             for (String name : names) {

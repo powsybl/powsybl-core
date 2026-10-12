@@ -60,6 +60,13 @@ public abstract class AbstractHvdcLineTest {
     }
 
     @Test
+    public void testHvdcLineInvalidSetter() {
+        HvdcLine l = network.getHvdcLine("L");
+        ValidationException e = assertThrows(ValidationException.class, () -> l.setR(-1.0));
+        assertTrue(e.getMessage().contains("r is invalid"));
+    }
+
+    @Test
     public void testAdder() {
         HvdcLine hvdcLine = network.newHvdcLine()
                                         .setId("hvdc_line")
@@ -87,9 +94,12 @@ public abstract class AbstractHvdcLineTest {
 
     @Test
     public void invalidR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        ValidationException e1 = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 440.0, 10.0, 20.0, "C1", "C2"));
-        assertTrue(e.getMessage().contains("r is invalid"));
+        assertTrue(e1.getMessage().contains("r is invalid"));
+        ValidationException e2 = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, -1.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+            440.0, 10.0, 20.0, "C1", "C2"));
+        assertTrue(e2.getMessage().contains("r is invalid"));
     }
 
     @Test
@@ -195,12 +205,7 @@ public abstract class AbstractHvdcLineTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            hvdcLine.getConvertersMode();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, hvdcLine::getConvertersMode);
     }
 
     private void createHvdcLine(String id, String name, double r, HvdcLine.ConvertersMode mode, double v,
@@ -251,6 +256,29 @@ public abstract class AbstractHvdcLineTest {
 
         // Connection on the other side fails since it's still connected
         assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+    }
+
+    @Test
+    void testConnectDisconnectWithFictitiousBreaker() {
+        Network hvdcNetworkWithFictitiousBreaker = HvdcTestNetwork.createLcc(NetworkFactory.findDefault(), true);
+        HvdcLine hvdcLine = hvdcNetworkWithFictitiousBreaker.getHvdcLine("L");
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        //Fails since disconnect cannot operate fictitious breakers by default
+        assertFalse(hvdcLine.disconnectConverterStations());
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        //Force open
+        assertTrue(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER));
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        //Fails since connect cannot operate fictitious breakers by default
+        assertFalse(hvdcLine.connectConverterStations());
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        //Force closed
+        assertTrue(hvdcLine.connectConverterStations(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR));
+        assertHvdcLineConnection(hvdcLine, true, true);
     }
 
     private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
