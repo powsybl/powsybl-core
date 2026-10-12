@@ -35,22 +35,18 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected List<S> steps;
 
-    private final String type;
-
-    protected final RegulatingPoint regulatingPoint;
+    protected final String type;
 
     // attributes depending on the variant
 
     protected final ArrayList<Integer> tapPosition;
 
-    protected final ExtendedDoubleArrayList targetDeadband;
-
     protected final ArrayList<Integer> solvedTapPosition;
 
     protected AbstractTapChanger(H parent,
-                                 int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
+                                 int lowTapPosition, List<S> steps,
                                  boolean loadTapChangingCapabilities,
-                                 Integer tapPosition, Integer solvedTapPosition, boolean regulating, double targetDeadband, String type) {
+                                 Integer tapPosition, Integer solvedTapPosition, String type) {
         // The Ref object should be the one corresponding to the subnetwork of the tap changer holder
         // (to avoid errors when the subnetwork is detached)
         this.network = parent.getParentNetwork().getRootNetworkRef();
@@ -60,11 +56,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.steps = steps;
         steps.forEach(s -> s.setParent(this));
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        regulatingPoint = createRegulatingPoint(variantArraySize, regulating);
-        regulatingPoint.setRegulatingTerminal(regulationTerminal);
         this.tapPosition = new ArrayList<>(variantArraySize);
         this.solvedTapPosition = new ArrayList<>(variantArraySize);
-        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize, targetDeadband);
         for (int i = 0; i < variantArraySize; i++) {
             this.tapPosition.add(tapPosition);
             this.solvedTapPosition.add(solvedTapPosition);
@@ -72,8 +65,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.type = Objects.requireNonNull(type);
         relativeNeutralPosition = getRelativeNeutralPosition();
     }
-
-    protected abstract RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating);
 
     protected NetworkImpl getNetwork() {
         return parent.getNetwork();
@@ -223,61 +214,14 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return getStep(solvedPosition);
     }
 
-    public boolean isRegulating() {
-        return regulatingPoint.isRegulating(network.get().getVariantIndex());
-    }
-
-    public C setRegulating(boolean regulating) {
-        NetworkImpl n = getNetwork();
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.getDouble(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        boolean oldValue = regulatingPoint.setRegulating(variantIndex, regulating);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
-        return (C) this;
-    }
-
-    public TerminalExt getRegulationTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
-    }
-
-    public C setRegulationTerminal(Terminal regulationTerminal) {
-        if (regulationTerminal != null && ((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
-            throw new ValidationException(parent, "regulation terminal is not part of the network");
-        }
-        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
-        regulatingPoint.setRegulatingTerminal((TerminalExt) regulationTerminal);
-        getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulationTerminal", oldValue, regulationTerminal);
-        return (C) this;
-    }
-
-    public double getTargetDeadband() {
-        return targetDeadband.getDouble(network.get().getVariantIndex());
-    }
-
-    public C setTargetDeadband(double targetDeadband) {
-        int variantIndex = network.get().getVariantIndex();
-        NetworkImpl n = getNetwork();
-        ValidationUtil.checkTargetDeadband(parent, type, regulatingPoint.isRegulating(variantIndex),
-                targetDeadband, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
-        return (C) this;
-    }
-
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        targetDeadband.growAndFill(number, targetDeadband.getDouble(sourceIndex));
         tapPosition.ensureCapacity(tapPosition.size() + number);
         solvedTapPosition.ensureCapacity(solvedTapPosition.size() + number);
         for (int i = 0; i < number; i++) {
             tapPosition.add(tapPosition.get(sourceIndex));
             solvedTapPosition.add(solvedTapPosition.get(sourceIndex));
         }
-        regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
@@ -288,13 +232,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         List<Integer> tmpSolvedTapPosition = new ArrayList<>(solvedTapPosition.subList(0, solvedTapPosition.size() - number));
         solvedTapPosition.clear();
         solvedTapPosition.addAll(tmpSolvedTapPosition);
-        targetDeadband.removeElements(number);
-        regulatingPoint.reduceVariantArraySize(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        regulatingPoint.deleteVariantArrayElement(index);
+        // nothing to do
     }
 
     @Override
@@ -302,9 +244,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         for (int index : indexes) {
             tapPosition.set(index, tapPosition.get(sourceIndex));
             solvedTapPosition.set(index, solvedTapPosition.get(sourceIndex));
-            targetDeadband.set(index, targetDeadband.getDouble(sourceIndex));
         }
-        regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
     private void throwIncorrectTapPosition(int tapPosition, int highTapPosition) {
@@ -320,6 +260,5 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public void remove() {
-        regulatingPoint.remove();
     }
 }

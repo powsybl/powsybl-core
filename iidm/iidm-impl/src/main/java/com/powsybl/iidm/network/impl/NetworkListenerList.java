@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
+@SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
 public class NetworkListenerList {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkListenerList.class);

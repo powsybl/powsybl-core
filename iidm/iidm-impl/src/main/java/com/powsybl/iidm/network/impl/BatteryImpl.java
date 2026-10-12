@@ -9,11 +9,9 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.*;
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@inheritDoc}
@@ -26,21 +24,32 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private final ExtendedDoubleArrayList targetP;
 
-    private final ExtendedDoubleArrayList targetQ;
+    private final ExtendedDoubleArrayList localTargetQ;
+
+    private final ExtendedDoubleArrayList localTargetV;
 
     private double minP;
 
     private double maxP;
 
-    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double targetP, double targetQ, double minP, double maxP) {
-        super(ref, id, name, fictitious);
+    private VoltageRegulationExt voltageRegulation;
+
+    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+               boolean equivalent, double targetP, double localTargetQ, double localTargetV,
+                VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes,
+                double minP, double maxP) {
+        super(ref, id, name, fictitious, equivalent);
         this.minP = minP;
         this.maxP = maxP;
+
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, Battery.class, ref, voltageRegulationAttributes);
+
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
-        this.targetQ = new ExtendedDoubleArrayList(variantArraySize, targetQ);
+        this.localTargetQ = new ExtendedDoubleArrayList(variantArraySize, localTargetQ);
+        this.localTargetV = new ExtendedDoubleArrayList(variantArraySize, localTargetV);
     }
 
     /**
@@ -74,26 +83,36 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public double getTargetQ() {
-        return targetQ.getDouble(getNetwork().getVariantIndex());
+        return this.getLocalTargetQ();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Battery setTargetQ(double targetQ) {
+        return setLocalTargetQ(targetQ);
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return localTargetQ.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public Battery setLocalTargetQ(double targetQ) {
         NetworkImpl network = getNetwork();
-        ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
         int variantIndex = network.getVariantIndex();
-        double oldValue = this.targetQ.set(variantIndex, targetQ);
+        double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         network.invalidateValidationLevel();
-        notifyUpdate("targetQ", variantId, oldValue, targetQ);
+        notifyUpdate("localTargetQ", variantId, oldValue, targetQ);
         return this;
     }
 
@@ -144,7 +163,29 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public TerminalExt getTerminal() {
-        return terminals.get(0);
+        return terminals.getFirst();
+    }
+
+    @Override
+    public Battery setLocalTargetV(double targetV) {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkLocalTargetQandV(this,
+                Battery.class,
+                targetV,
+                this.getLocalTargetQ(),
+                getVoltageRegulation(),
+                n.getMinValidationLevel(),
+                n.getReportNodeContext().getReportNode());
+        int variantIndex = n.getVariantIndex();
+        double oldValueLocalTargetV = this.localTargetV.set(variantIndex, targetV);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("localTargetV", variantId, oldValueLocalTargetV, targetV);
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return this.localTargetV.get(getNetwork().getVariantIndex());
     }
 
     /**
@@ -176,7 +217,12 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
+    }
+
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
     }
 
     /**
@@ -184,7 +230,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
     /**
@@ -194,7 +240,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         targetP.growAndFill(number, targetP.getDouble(sourceIndex));
-        targetQ.growAndFill(number, targetQ.getDouble(sourceIndex));
+        localTargetQ.growAndFill(number, localTargetQ.getDouble(sourceIndex));
+        localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
     }
 
     /**
@@ -204,7 +254,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
         targetP.removeElements(number);
-        targetQ.removeElements(number);
+        localTargetQ.removeElements(number);
+        localTargetV.removeElements(number);
+        if (voltageRegulation != null) {
+            voltageRegulation.reduceVariantArraySize(number);
+        }
     }
 
     /**
@@ -215,7 +269,63 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             targetP.set(index, targetP.getDouble(sourceIndex));
-            targetQ.set(index, targetQ.getDouble(sourceIndex));
+            localTargetQ.set(index, localTargetQ.getDouble(sourceIndex));
+            localTargetV.set(index, localTargetV.getDouble(sourceIndex));
         }
+        if (voltageRegulation != null) {
+            voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
+        }
+    }
+
+    @Override
+    public void remove() {
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+        }
+        super.remove();
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return this.voltageRegulation;
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl(Battery.class, this, this, getNetwork().getRef(), this::createOrUpdateVoltageRegulation);
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            this.getLocalTargetV(),
+            this.getLocalTargetQ(),
+            true,
+            false,
+            false,
+            null,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+            voltageRegulation = null;
+        }
+    }
+
+    /**
+     * <p>
+     * Creates or updates the voltage regulation corresponding to the provided attributes.
+     * </p>
+     * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
+     * @return The updated or newly created voltageRegulation.
+     */
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, Battery.class, getNetwork().getRef(), attributes);
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(attributes);
+        }
+        return this.voltageRegulation;
     }
 }

@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -124,7 +125,9 @@ class ShuntCompensatorUpdateTest {
         assertFlows(network, 0.0, 50.0, 1.0, 25.0, 2.0, -5.0);
     }
 
-    private static void assertFlows(Network network, double linearShuntCompensatorP, double linearShuntCompensatorQ, double nonLinearShuntCompensatorP, double nonLinearShuntCompensatorQ, double equivalentShuntP, double equivalentShuntQ) {
+    private static void assertFlows(Network network, double linearShuntCompensatorP, double linearShuntCompensatorQ,
+                                    double nonLinearShuntCompensatorP, double nonLinearShuntCompensatorQ,
+                                    double equivalentShuntP, double equivalentShuntQ) {
         assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), linearShuntCompensatorP, linearShuntCompensatorQ);
         assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), nonLinearShuntCompensatorP, nonLinearShuntCompensatorQ);
         assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), equivalentShuntP, equivalentShuntQ);
@@ -144,10 +147,12 @@ class ShuntCompensatorUpdateTest {
 
     private static void assertEq(ShuntCompensator shuntCompensator) {
         assertNotNull(shuntCompensator);
-        assertTrue(Double.isNaN(shuntCompensator.getTargetV()));
-        assertTrue(Double.isNaN(shuntCompensator.getTargetDeadband()));
+        if (shuntCompensator.getVoltageRegulation() != null) {
+            assertTrue(Double.isNaN(shuntCompensator.getVoltageRegulation().getTargetValue()));
+            assertTrue(Double.isNaN(shuntCompensator.getVoltageRegulation().getTargetDeadband()));
+        }
         assertNotNull(shuntCompensator.getRegulatingTerminal());
-        assertFalse(shuntCompensator.isVoltageRegulatorOn());
+        assertFalse(shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE));
 
         if (!shuntCompensator.getPropertyNames().contains(PROPERTY_IS_EQUIVALENT_SHUNT)) {
             assertNotNull(shuntCompensator.getProperty(PROPERTY_NORMAL_SECTIONS));
@@ -160,9 +165,11 @@ class ShuntCompensatorUpdateTest {
         assertNotNull(shuntCompensator);
         double tol = 0.0000001;
         assertEquals(sectionsCount, shuntCompensator.getSectionCount());
-        assertEquals(targetV, shuntCompensator.getTargetV(), tol);
-        assertEquals(targetDeadband, shuntCompensator.getTargetDeadband(), tol);
-        assertEquals(isRegulatingOn, shuntCompensator.isVoltageRegulatorOn());
+        double targetValue = shuntCompensator.getRegulatingTargetV();
+        assertEquals(targetV, targetValue, tol);
+        double actualTargetDeadband = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+        assertEquals(targetDeadband, actualTargetDeadband, tol);
+        assertEquals(isRegulatingOn, shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE));
     }
 
     private static void assertFlows(Terminal terminal, double p, double q) {

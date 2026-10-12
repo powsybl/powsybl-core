@@ -88,10 +88,8 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
 
             gneDeviceList.forEach(gneDevice -> {
                 List<String> records = new ArrayList<>();
-
                 String[] mainHeaders = context.getFieldNames(GNE_DEVICE);
                 records.add(super.recordGroup.buildRecord(gneDevice, mainHeaders, super.recordGroup.quotedFields(), context));
-
                 if (gneDevice.getNreal() > 0) {
                     String[] headers = ArrayUtils.subarray(PsseGneDevice.getFieldNames(1), 0, gneDevice.getNreal());
                     records.add(super.recordGroup.buildRecord(gneDevice, headers, super.recordGroup.quotedFields(), context));
@@ -104,7 +102,6 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
                     String[] headers = ArrayUtils.subarray(PsseGneDevice.getFieldNames(3), 0, gneDevice.getNchar());
                     records.add(super.recordGroup.buildRecord(gneDevice, headers, super.recordGroup.quotedFields(), context));
                 }
-
                 write(records, outputStream);
             });
             writeEnd(outputStream);

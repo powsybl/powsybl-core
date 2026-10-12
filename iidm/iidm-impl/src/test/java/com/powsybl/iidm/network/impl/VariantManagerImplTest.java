@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Country;
@@ -48,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class VariantManagerImplTest {
 
-    private static final class IdentifiableMock extends AbstractExtendable<IdentifiableMock> implements Identifiable<IdentifiableMock>, MultiVariantObject {
+    private static final class IdentifiableMock extends AbstractIdentifiable<IdentifiableMock> implements Identifiable<IdentifiableMock>, MultiVariantObject {
 
         private final String id;
 
@@ -61,6 +60,7 @@ class VariantManagerImplTest {
         private int reducedCount = 0;
 
         private IdentifiableMock(String id) {
+            super(id, "");
             this.id = id;
         }
 
@@ -85,7 +85,7 @@ class VariantManagerImplTest {
         }
 
         @Override
-        public Network getNetwork() {
+        public NetworkImpl getNetwork() {
             return null;
         }
 
@@ -157,6 +157,11 @@ class VariantManagerImplTest {
         @Override
         public IdentifiableType getType() {
             return null;
+        }
+
+        @Override
+        protected String getTypeDescription() {
+            throw new UnsupportedOperationException("Unimplemented method 'getTypeDescription'");
         }
     }
 
@@ -265,11 +270,7 @@ class VariantManagerImplTest {
         variantManager.setWorkingVariant("ClonedVariant1");
         // "middle" variant removing test
         variantManager.removeVariant("ClonedVariant1");
-        try {
-            assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId()); // because variant is not set
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, variantManager::getWorkingVariantId);
         assertEquals(3, variantManager.getVariantArraySize());
         assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant2"), variantManager.getVariantIds());
         assertEquals(Sets.newHashSet(0, 2), variantManager.getVariantIndexes());
@@ -419,6 +420,7 @@ class VariantManagerImplTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     void testMultipleSetAllowMultiThreadTrue() throws Exception {
         NetworkImpl network = (NetworkImpl) Network.create("testMultipleSetAllowMultiThreadTrue", "no-format");
         VariantManager variantManager = new VariantManagerImpl(network);

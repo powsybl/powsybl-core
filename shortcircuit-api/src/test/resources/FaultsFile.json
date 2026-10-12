@@ -30,6 +30,6 @@
   "r" : 0.0,
   "x" : 0.0,
   "connection" : "SERIES",
-  "faultType" : "LINE_TO_LINE",
+  "faultType" : "LINE_TO_LINE_WITH_EARTH_CONNECTION",
   "proportionalLocation" : 50.0
 } ]

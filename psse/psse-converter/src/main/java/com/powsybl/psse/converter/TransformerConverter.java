@@ -10,6 +10,7 @@ package com.powsybl.psse.converter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
@@ -139,7 +140,9 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private void createThreeWindingsTransformer() {
-        if (!getContainersMapping().isBusDefined(psseTransformer.getI()) || !getContainersMapping().isBusDefined(psseTransformer.getJ()) || !getContainersMapping().isBusDefined(psseTransformer.getK())) {
+        if (!getContainersMapping().isBusDefined(psseTransformer.getI())
+            || !getContainersMapping().isBusDefined(psseTransformer.getJ())
+            || !getContainersMapping().isBusDefined(psseTransformer.getK())) {
             return;
         }
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
@@ -235,11 +238,14 @@ class TransformerConverter extends AbstractConverter {
                 .setVoltageLevel(voltageLevel3Id);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_THREE_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-        legConnectivity(legAdder1, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I"), bus1Id, leg1IsConnected());
+        legConnectivity(legAdder1, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I"),
+            bus1Id, leg1IsConnected());
         legAdder1.add();
-        legConnectivity(legAdder2, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J"), bus2Id, leg2IsConnected());
+        legConnectivity(legAdder2, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J"),
+            bus2Id, leg2IsConnected());
         legAdder2.add();
-        legConnectivity(legAdder3, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K"), bus3Id, leg3IsConnected());
+        legConnectivity(legAdder3, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K"),
+            bus3Id, leg3IsConnected());
         legAdder3.add();
         ThreeWindingsTransformer twt = adder.add();
 
@@ -800,16 +806,20 @@ class TransformerConverter extends AbstractConverter {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
         }
-        rtc.setTargetV(targetV)
-                .setTargetDeadband(targetDeadBand)
-                .setRegulationTerminal(regulatingTerminal)
-                .setLoadTapChangingCapabilities(regulating)
-                .setRegulating(regulating);
+        rtc.setLoadTapChangingCapabilities(regulating);
+        rtc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(regulating)
+            .withTargetValue(targetV)
+            .withTargetDeadband(targetDeadBand)
+            .withTerminal(regulatingTerminal)
+            .build();
 
         return regulating;
     }
 
-    private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
+    private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding,
+                                                    PhaseTapChanger ptc, boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
         if (Math.abs(winding.getCod()) != 3) {
             return false;
         }
@@ -868,7 +878,8 @@ class TransformerConverter extends AbstractConverter {
         network.getTwoWindingsTransformers().forEach(t2w -> transformers.add(createTwoWindingsTransformer(t2w, contextExport, perUnitContext)));
         network.getThreeWindingsTransformers().forEach(t3w -> transformers.add(createThreeWindingsTransformer(t3w, contextExport, perUnitContext)));
         psseModel.addTransformers(transformers);
-        psseModel.replaceAllTransformers(psseModel.getTransformers().stream().sorted(Comparator.comparingInt(PsseTransformer::getI).thenComparingInt(PsseTransformer::getJ).thenComparingInt(PsseTransformer::getK).thenComparing(PsseTransformer::getCkt)).toList());
+        psseModel.replaceAllTransformers(psseModel.getTransformers().stream()
+            .sorted(Comparator.comparingInt(PsseTransformer::getI).thenComparingInt(PsseTransformer::getJ).thenComparingInt(PsseTransformer::getK).thenComparing(PsseTransformer::getCkt)).toList());
     }
 
     private static PsseTransformer createTwoWindingsTransformer(TwoWindingsTransformer t2w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
@@ -1081,19 +1092,19 @@ class TransformerConverter extends AbstractConverter {
                     getRegulatingTerminalNode(ptc.getRegulationTerminal(), contextExport),
                     getMaxAngle(ptc), getMinAngle(ptc), getSteps(ptc));
         } else {
-            int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+            int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulatingTerminal(), contextExport);
             return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
                     regulatingBusI,
-                    getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
+                    getRegulatingTerminalNode(rtc.getRegulatingTerminal(), contextExport),
                     getMaxRatio(rtc) * getRatio(ptc), getMinRatio(rtc) * getRatio(ptc), getSteps(rtc));
         }
     }
 
     private static RatioR findRatioDataRtc(RatioTapChanger rtc, double a0, ContextExport contextExport) {
-        int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+        int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulatingTerminal(), contextExport);
         return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc), 0.0,
                 regulatingBusI,
-                getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
+                getRegulatingTerminalNode(rtc.getRegulatingTerminal(), contextExport),
                 getMaxRatio(rtc), getMinRatio(rtc), getSteps(rtc));
     }
 
@@ -1217,7 +1228,13 @@ class TransformerConverter extends AbstractConverter {
         } else {
             double baskv1 = t2w.getTerminal1().getVoltageLevel().getNominalV();
             double nomV1 = getNomV(psseTransformer.getWinding1(), t2w.getTerminal1().getVoltageLevel());
-            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
+
+            double baskv2 = t2w.getTerminal2().getVoltageLevel().getNominalV();
+            double nomV2 = getNomV(psseTransformer.getWinding2(), t2w.getTerminal2().getVoltageLevel());
+            double w2 = defineRatio(psseTransformer.getWinding2().getWindv(), baskv2, nomV2, psseTransformer.getCw());
+
+            double ratio = getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()) * w2;
+            psseTransformer.getWinding1().setWindv(defineWindV(ratio, baskv1, nomV1, psseTransformer.getCw()));
             psseTransformer.getWinding1().setAng(getAngle(t2w.getPhaseTapChanger()));
 
             psseTransformer.setStat(getUpdatedStatus(t2w.getTerminal1(), t2w.getTerminal2()));

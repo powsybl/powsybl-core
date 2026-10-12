@@ -15,7 +15,10 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datasource.DirectoryDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
@@ -35,7 +38,8 @@ import java.util.Collections;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.CgmesExport.CIM_VERSION;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -153,7 +157,7 @@ class TopologyExportTest extends AbstractSerDeTest {
 
             Path boundary = tmpExportDir.resolve("boundary.zip");
             Repackager rb;
-            if (cimVersion.equals("16")) {
+            if ("16".equals(cimVersion)) {
                 rb = new Repackager(ds)
                         .with("pairedBoundaryLines_EQ_BD.xml", Repackager::eqBd)
                         .with("pairedBoundaryLines_TP_BD.xml", Repackager::tpBd);
@@ -187,7 +191,7 @@ class TopologyExportTest extends AbstractSerDeTest {
     private static ReadOnlyDataSource createBoundaryReadOnlyDataSource(String cimVersion) {
         String importDir = "/issues/export-paired-boundary-lines";
         ReadOnlyDataSource ds;
-        if (cimVersion.equals("16")) {
+        if ("16".equals(cimVersion)) {
             ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(importDir, "pairedBoundaryLinesCim16_EQ_BD.xml", "pairedBoundaryLinesCim16_TP_BD.xml"));
         } else {
             ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(importDir, "pairedBoundaryLinesCim100_EQ_BD.xml"));
@@ -198,7 +202,7 @@ class TopologyExportTest extends AbstractSerDeTest {
     private static Path createRepackaged(ReadOnlyDataSource ds, String cimVersion, Path tmpExportDir) throws IOException {
         Path repackaged = tmpExportDir.resolve("repackaged.zip");
         Repackager r;
-        if (cimVersion.equals("16")) {
+        if ("16".equals(cimVersion)) {
             r = new Repackager(ds)
                     .with("pairedBoundaryLines_exported_EQ.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_EQ.xml"))
                     .with("pairedBoundaryLines_exported_TP.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_TP.xml"))

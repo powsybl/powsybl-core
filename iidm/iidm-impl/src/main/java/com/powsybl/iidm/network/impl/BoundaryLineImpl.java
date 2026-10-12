@@ -177,6 +177,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         }
 
         @Override
+        public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+            return new ReactiveCapabilityShapeAdderImpl(this);
+        }
+
+        @Override
         public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
             return new MinMaxReactiveLimitsAdderImpl<>(this);
         }
@@ -249,8 +254,9 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     private final BoundaryLineBoundaryImplExt boundary;
 
-    BoundaryLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
-        super(network, id, name, fictitious);
+    BoundaryLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent,
+                     double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
+        super(network, id, name, fictitious, equivalent);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new ExtendedDoubleArrayList(variantArraySize, p0);
@@ -263,14 +269,6 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new BoundaryLineBoundaryImplExt(this);
         this.generation = generation != null ? generation.attach(this) : null;
-    }
-
-    @Override
-    void replaceId(String newId) {
-        NetworkIndex.checkId(newId);
-        network.get().getIndex().remove(this);
-        id = newId;
-        network.get().getIndex().checkAndAdd(this);
     }
 
     void setTieLine(TieLineImpl tieLine) {

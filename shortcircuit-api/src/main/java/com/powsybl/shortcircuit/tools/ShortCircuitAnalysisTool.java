@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
-import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
@@ -130,7 +129,8 @@ public class ShortCircuitAnalysisTool implements Tool {
         // ShortCircuit inputs (faults, parameters & faultParameters) loading
         ShortCircuitInput executionInput = readInput(line, context);
         // Execution
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, executionInput.getFaults(), executionInput.getParameters(), computationManager, executionInput.getFaultParameters()).join();
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, executionInput.getFaults(),
+            executionInput.getParameters(), computationManager, executionInput.getFaultParameters()).join();
         // Results
         if (shortCircuitAnalysisResult != null) {
             if (outputFile != null) {

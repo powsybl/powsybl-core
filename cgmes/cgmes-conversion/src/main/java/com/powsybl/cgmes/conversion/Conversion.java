@@ -287,7 +287,6 @@ public class Conversion {
         Context updateContext = createUpdateContext(network, reportNode);
 
         // add processes to create new equipment using update data (ssh and sv data)
-        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
         createTieLinesWhenThereAreMoreThanTwoBoundaryLinesAtBoundaryNodeDuringUpdate(network, updateContext);
         createFictitiousLoadsForSvInjectionsDuringUpdate(network, cgmes, updateContext);
 
@@ -355,6 +354,7 @@ public class Conversion {
         // Switches are updated first because the subsequent update of the terminals
         // is configurable and, if activated, may modify their state.
         // Then, the update of the terminals can overwrite the state of the switches
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
         updateSwitches(network, updateContext);
 
         updateLoads(network, cgmes, updateContext);
@@ -468,7 +468,8 @@ public class Conversion {
         final double p0Adjusted = p0 / count;
         final double q0Adjusted = q0 / count;
         dls.forEach(bl -> {
-            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for boundary line {}.", p0, q0, p0Adjusted, q0Adjusted, bl.getId());
+            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for boundary line {}.",
+                p0, q0, p0Adjusted, q0Adjusted, bl.getId());
             CgmesReports.multipleUnpairedBoundaryLinesAtSameBoundaryReport(context.getReportNode(), bl.getId(), p0, q0, p0Adjusted, q0Adjusted);
             bl.setP0(p0Adjusted);
             bl.setQ0(q0Adjusted);
@@ -1060,10 +1061,6 @@ public class Conversion {
             return disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected;
         }
 
-        public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
-            return UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL;
-        }
-
         public List<DefaultValue> updateDefaultValuesPriority() {
             return usePreviousValuesDuringUpdate
                     ? List.of(DefaultValue.PREVIOUS, DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY)
@@ -1139,7 +1136,6 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
-        private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
         private boolean usePreviousValuesDuringUpdate = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
@@ -1208,7 +1204,6 @@ public class Conversion {
     public static final String PROPERTY_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID;
     public static final String PROPERTY_REGION_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME;
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL;
-    public static final String PROPERTY_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
     public static final String PROPERTY_SUB_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID;
     public static final String PROPERTY_SVC_EQ_VOLTAGE_SET_POINT = CGMES_PREFIX_ALIAS_PROPERTIES + SVC_EQ_VOLTAGE_SET_POINT;
     public static final String PROPERTY_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";

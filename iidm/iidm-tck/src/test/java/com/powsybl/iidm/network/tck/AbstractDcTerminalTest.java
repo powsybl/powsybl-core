@@ -149,7 +149,7 @@ public abstract class AbstractDcTerminalTest {
         Terminal converterAcTerminal1 = converter.getTerminal1().setP(5.);
 
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
 

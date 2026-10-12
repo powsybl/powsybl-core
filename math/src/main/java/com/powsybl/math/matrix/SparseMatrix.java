@@ -25,13 +25,14 @@ import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
 
 /**
- * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a></a> format.
+ * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a> format.
  * This implementation rely on a native library which is a wrapper around KLU module of
  * <a href="http://faculty.cse.tamu.edu/davis/suitesparse.html">SuiteSparse</a> project.
  *
@@ -138,21 +139,6 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         currentColumn = columnCount - 1;
     }
 
-    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, ExtendedDoubleArrayList values) {
-        int lastNonEmptyColumn = -1;
-        for (int column = 0; column < columnCount; column++) {
-            if (columnStart[column] != -1) {
-                if (lastNonEmptyColumn != -1) {
-                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
-                }
-                lastNonEmptyColumn = column;
-            }
-        }
-        if (lastNonEmptyColumn != -1) {
-            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
-        }
-    }
-
     /**
      * Create an empty sparse matrix.
      *
@@ -170,6 +156,21 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         this.columnStart[columnCount] = 0;
         rowIndices = new ExtendedIntArrayList(estimatedValueCount);
         values = new ExtendedDoubleArrayList(estimatedValueCount);
+    }
+
+    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
+        int lastNonEmptyColumn = -1;
+        for (int column = 0; column < columnCount; column++) {
+            if (columnStart[column] != -1) {
+                if (lastNonEmptyColumn != -1) {
+                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
+                }
+                lastNonEmptyColumn = column;
+            }
+        }
+        if (lastNonEmptyColumn != -1) {
+            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
+        }
     }
 
     private static void checkSize(int rowCount, int columnCount) {
@@ -461,18 +462,15 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
     }
 
     @Override
-    public void print(PrintStream out) {
-        print(out, null, null);
-    }
-
-    @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
-        out.println("values=" + values);
+        getFormatter(config).ifPresentOrElse(
+                decimalFormat -> out.println("values=" + formatValues(decimalFormat)),
+                () -> out.println("values=" + values));
     }
 
     @Override
@@ -535,4 +533,11 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
             throw new UncheckedIOException(e);
         }
     }
+
+    public String formatValues(DecimalFormat decimalFormat) {
+        return Arrays.stream(getValues())
+                .mapToObj(decimalFormat::format)
+                .collect(Collectors.joining(", ", "{", "}"));
+    }
+
 }

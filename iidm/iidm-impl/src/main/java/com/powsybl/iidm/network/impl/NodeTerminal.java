@@ -11,11 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TerminalNumber;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.TopologyPoint;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraversalType;
 
 import java.util.Set;
@@ -92,7 +88,6 @@ class NodeTerminal extends AbstractTerminal {
             }
             getConnectable().move(NodeTerminal.this, busId, connected);
         }
-
     };
 
     @Override

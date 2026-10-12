@@ -107,7 +107,7 @@ public class ReferenceDataProvider {
     private void loadReferenceData(ReadOnlyDataSource ds) {
         try {
             referenceData = cgmesImport.readCgmes(ds, params, ReportNode.NO_OP);
-        } catch (CgmesModelException x) {
+        } catch (CgmesModelException e) {
             // We have made an attempt to load it and discovered it is invalid
             referenceData = null;
         }

@@ -23,6 +23,7 @@ public final class ModificationReports {
     private static final String SUBSTATION_ID = "substationId";
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String LINE_ID = "lineId";
+    private static final String SIDE = "side";
     private static final String BBS_ID = "bbsId";
     private static final String CONNECTABLE_ID = "connectableId";
     private static final String IDENTIFIABLE_ID = "identifiableId";
@@ -455,6 +456,14 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void voltageLevelForceRemovedWithNoBranch(ReportNode reportNode, String vlId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelForceRemovedWithNoBranch")
+                .withUntypedValue("vlId", vlId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     // ERROR
     public static void notFoundBusOrBusbarSectionReport(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
@@ -657,6 +666,15 @@ public final class ModificationReports {
                 .withUntypedValue(IDENTIFIABLE_ID, identifiable.getId())
                 .withUntypedValue(IDENTIFIABLE_TYPE, identifiable.getType().name())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void createPositionExtensionForNewLine(ReportNode reportNode, Identifiable<?> identifiable, TwoSides side, String messageTemplate) {
+        reportNode.newReportNode()
+                .withMessageTemplate(messageTemplate)
+                .withUntypedValue(LINE_ID, identifiable.getId())
+                .withUntypedValue(SIDE, side.name())
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 

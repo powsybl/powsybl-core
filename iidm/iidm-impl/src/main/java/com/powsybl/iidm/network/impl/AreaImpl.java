@@ -11,21 +11,9 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
-import com.powsybl.iidm.network.Area;
-import com.powsybl.iidm.network.AreaBoundary;
-import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 

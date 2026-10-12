@@ -114,8 +114,8 @@ class MatpowerRoundTripTest {
         VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
         VscConverterStation vscConverterStation1 = (VscConverterStation) hvdcConverterStation1;
 
-        assertEquals(vscConverterStation.getVoltageSetpoint(), vscConverterStation1.getVoltageSetpoint(), tol);
-        assertEquals(vscConverterStation.getReactivePowerSetpoint(), vscConverterStation1.getReactivePowerSetpoint(), tol);
+        assertEquals(vscConverterStation.getRegulatingTargetV(), vscConverterStation1.getRegulatingTargetV(), tol);
+        assertEquals(vscConverterStation.getRegulatingTargetQ(), vscConverterStation1.getRegulatingTargetQ(), tol);
         if (vscConverterStation.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX) && vscConverterStation1.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
             assertEquals(vscConverterStation.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ(), vscConverterStation1.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ(), tol);
             assertEquals(vscConverterStation.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ(), vscConverterStation1.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ(), tol);

@@ -7,17 +7,19 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseSwitchedShunt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_SWITCHED_SHUNT;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
@@ -95,17 +97,25 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         double vLow = psseSwitchedShunt.getVswlo() * vnom;
         double vHigh = psseSwitchedShunt.getVswhi() * vnom;
         double targetV = 0.5 * (vLow + vHigh);
-        boolean voltageRegulatorOn = false;
+        boolean regulating = false;
         double targetDeadband = 0.0;
         if (targetV != 0.0) {
             targetDeadband = vHigh - vLow;
-            voltageRegulatorOn = psseVoltageRegulatorOn;
+            regulating = psseVoltageRegulatorOn;
         }
-
-        shunt.setTargetV(targetV)
-            .setTargetDeadband(targetDeadband)
-            .setVoltageRegulatorOn(voltageRegulatorOn)
-            .setRegulatingTerminal(regulatingTerminal);
+        boolean isLocalTerminal = regulatingTerminal.getConnectable().equals(shunt);
+        if (isLocalTerminal) {
+            shunt.setLocalTargetV(targetV);
+        }
+        VoltageRegulationBuilder voltageRegulationBuilder = shunt.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(regulating)
+            .withTargetDeadband(targetDeadband);
+        if (!isLocalTerminal) {
+            voltageRegulationBuilder.withTerminal(regulatingTerminal)
+                .withTargetValue(targetV);
+        }
+        voltageRegulationBuilder.build();
     }
 
     private static boolean isControllingVoltage(PsseSwitchedShunt psseSwitchedShunt) {
@@ -158,7 +168,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         return sectionCount;
     }
 
-// IIDM only considers consecutive sections
+    // IIDM only considers consecutive sections
     private static List<ShuntBlock> defineShuntBlocks(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
         List<ShuntBlock> psseBlocks = collectShuntBlocks(psseSwitchedShunt, version);
         List<ShuntBlock> psseReactorBlocks = psseBlocks.stream().filter(sb -> sb.getB() < 0.0)
@@ -210,7 +220,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         return bAdd;
     }
 
-// defined blocks can be reactors (< 0) or / and capacitors ( > 0)
+    // defined blocks can be reactors (< 0) or / and capacitors ( > 0)
     private static List<ShuntBlock> collectShuntBlocks(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
         if (version.major() == V35) {
@@ -307,24 +317,26 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static int getModsw(ShuntCompensator shuntCompensator) {
-        return shuntCompensator.isVoltageRegulatorOn() ? 1 : 0;
+        return shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE) ? 1 : 0;
     }
 
     private static double getVswhi(ShuntCompensator shuntCompensator) {
-        double targetV = shuntCompensator.getTargetV() + shuntCompensator.getTargetDeadband() * 0.5;
+        double targetV = shuntCompensator.getRegulatingTargetV() + shuntCompensator.getVoltageRegulation().getTargetDeadband() * 0.5;
         double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
         return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;
     }
 
     private static double getVswlo(ShuntCompensator shuntCompensator) {
-        double targetV = shuntCompensator.getTargetV() - shuntCompensator.getTargetDeadband() * 0.5;
+        double targetV = shuntCompensator.getRegulatingTargetV() - shuntCompensator.getVoltageRegulation().getTargetDeadband() * 0.5;
         double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
 
         return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;
     }
 
     private static double getRegulatingTerminalNominalV(ShuntCompensator shuntCompensator) {
-        return shuntCompensator.getRegulatingTerminal() != null ? shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV() : shuntCompensator.getTerminal().getVoltageLevel().getNominalV();
+        return shuntCompensator.getRegulatingTerminal() != null ?
+            shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV() :
+            shuntCompensator.getTerminal().getVoltageLevel().getNominalV();
     }
 
     private static void setShuntBlocks(ShuntCompensator shuntCompensator, PsseSwitchedShunt psseSwitchedShunt) {

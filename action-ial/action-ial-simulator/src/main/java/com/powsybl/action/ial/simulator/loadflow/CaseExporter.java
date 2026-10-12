@@ -11,9 +11,9 @@ import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.iidm.network.ExportersLoader;
 import com.powsybl.iidm.network.ExportersServiceLoader;
-import com.powsybl.contingency.violations.LimitViolation;
 
 import java.nio.file.Path;
 import java.util.List;

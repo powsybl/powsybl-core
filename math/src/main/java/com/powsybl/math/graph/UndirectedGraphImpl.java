@@ -26,8 +26,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -515,11 +514,14 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private void traverseVertex(int vToTraverse, boolean[] vEncountered, Deque<DirectedEdge> edgesToTraverse,
-                                IntArrayList[] adjacencyList, TraversalType traversalType) {
+                                IntArrayList[] adjacencyList, TraversalType traversalType, IntConsumer vertexVisitor) {
         if (vEncountered[vToTraverse]) {
             return;
         }
         vEncountered[vToTraverse] = true;
+
+        vertexVisitor.accept(vToTraverse);
+
         IntArrayList adjacentEdges = adjacencyList[vToTraverse];
         for (int i = 0; i < adjacentEdges.size(); i++) {
             // For depth-first traversal, we're going to poll the last element added in the deque. Hence, edges have to
@@ -555,11 +557,22 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
 
         boolean[] encounteredEdges = new boolean[edges.size()];
+        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges);
+    }
+
+    private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges) {
+        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges, vIndex -> {
+        });
+    }
+
+    private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges, IntConsumer vertexVisitor) {
+        Objects.requireNonNull(traverser);
+
         IntArrayList[] adjacencyList = getAdjacencyList();
         boolean keepGoing = true;
 
         Deque<DirectedEdge> edgesToTraverse = new ArrayDeque<>();
-        traverseVertex(v, encounteredVertices, edgesToTraverse, adjacencyList, traversalType);
+        traverseVertex(v, encounteredVertices, edgesToTraverse, adjacencyList, traversalType, vertexVisitor);
         while (!edgesToTraverse.isEmpty() && keepGoing) {
             DirectedEdge directedEdge = switch (traversalType) {
                 case DEPTH_FIRST -> edgesToTraverse.pollLast();
@@ -575,7 +588,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
                 TraverseResult traverserResult = traverser.traverse(vOrigin, directedEdge.index, vDest);
                 switch (traverserResult) {
-                    case CONTINUE -> traverseVertex(vDest, encounteredVertices, edgesToTraverse, adjacencyList, traversalType);
+                    case CONTINUE -> traverseVertex(vDest, encounteredVertices, edgesToTraverse, adjacencyList, traversalType, vertexVisitor);
                     case TERMINATE_TRAVERSER -> keepGoing = false; // the whole traversing needs to stop
                     case TERMINATE_PATH -> {
                         // Path ends on edge e before reaching vDest, continuing with next edge in the deque
@@ -587,18 +600,41 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public <C> List<C> computeTraversalPartitions(Traverser traverser, Supplier<C> partitionFactory, ObjIntConsumer<C> vertexCollector) {
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(partitionFactory);
+        Objects.requireNonNull(vertexCollector);
+
+        boolean[] encounteredVertices = new boolean[vertices.size()];
+        boolean[] encounteredEdges = new boolean[edges.size()];
+        List<C> components = new ArrayList<>();
+
+        for (int v = 0; v < vertices.size(); v++) {
+            if (vertices.get(v) != null && !encounteredVertices[v]) {
+                C component = partitionFactory.get();
+                boolean keepGoing = traverse(v, TraversalType.BREADTH_FIRST, traverser, encounteredVertices, encounteredEdges, visitedV -> vertexCollector.accept(component, visitedV));
+                components.add(component);
+                if (!keepGoing) {
+                    break;
+                }
+            }
+        }
+        return components;
+    }
+
+    @Override
     public boolean traverse(int v, TraversalType traversalType, Traverser traverser) {
-        boolean[] encountered = new boolean[vertices.size()];
-        Arrays.fill(encountered, false);
-        return traverse(v, traversalType, traverser, encountered);
+        boolean[] encounteredVertices = new boolean[vertices.size()];
+        boolean[] encounteredEdges = new boolean[edges.size()];
+        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges);
     }
 
     @Override
     public boolean traverse(int[] startingVertices, TraversalType traversalType, Traverser traverser) {
-        boolean[] encountered = new boolean[vertices.size()];
-        Arrays.fill(encountered, false);
+        boolean[] encounteredVertices = new boolean[vertices.size()];
+        boolean[] encounteredEdges = new boolean[edges.size()];
         for (int startingVertex : startingVertices) {
-            if (!encountered[startingVertex] && !traverse(startingVertex, traversalType, traverser, encountered)) {
+            if (!encounteredVertices[startingVertex] && !traverse(startingVertex, traversalType, traverser, encounteredVertices, encounteredEdges)) {
                 return false;
             }
         }
@@ -669,8 +705,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     /**
-     * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or {@link #findAllPaths(int, int, Predicate, Predicate, IntArrayList, BitSet, List)}.
-     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Predicate, Predicate, IntArrayList, BitSet, List)}.
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * For each adjacent edge for which the pathCanceled returns {@literal false}, traverse the other vertex calling
+     * {@link #findAllPaths(int, int, Predicate, Predicate, IntArrayList, BitSet, List)}.
      *
      * @param v the current vertex
      * @param pathComplete a function that returns true when the target vertex is found.

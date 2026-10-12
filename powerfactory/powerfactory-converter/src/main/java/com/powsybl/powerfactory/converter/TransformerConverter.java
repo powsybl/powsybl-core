@@ -11,11 +11,11 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
-
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.slf4j.Logger;
@@ -1077,12 +1077,15 @@ class TransformerConverter extends AbstractConverter {
             return;
         }
         double nominalV = parameters.regulatingTerminal().getVoltageLevel().getNominalV();
-        rtc.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setTargetV(parameters.targetVpu() * nominalV)
-                .setRegulationTerminal(parameters.regulatingTerminal())
-                .setTargetDeadband(parameters.targetDeadbandPu() * nominalV)
-                .setLoadTapChangingCapabilities(parameters.regulating())
-                .setRegulating(parameters.isRegulationOn());
+
+        rtc.setLoadTapChangingCapabilities(parameters.regulating());
+        rtc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(parameters.regulatingTerminal())
+            .withTargetValue(parameters.targetVpu() * nominalV)
+            .withTargetDeadband(parameters.targetDeadbandPu() * nominalV)
+            .withRegulating(parameters.isRegulationOn())
+            .build();
     }
 
     private record VoltageControlParameters(Terminal regulatingTerminal, double targetVpu, double targetDeadbandPu,
@@ -1096,12 +1099,15 @@ class TransformerConverter extends AbstractConverter {
         if (parameters.regulatingTerminal == null) {
             return;
         }
-        rtc.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(parameters.targetQ())
-                .setRegulationTerminal(parameters.regulatingTerminal())
-                .setTargetDeadband(parameters.targetDeadband())
-                .setLoadTapChangingCapabilities(parameters.regulating())
-                .setRegulating(parameters.isRegulationOn());
+
+        rtc.setLoadTapChangingCapabilities(parameters.regulating());
+        rtc.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(parameters.regulatingTerminal())
+            .withTargetValue(parameters.targetQ())
+            .withTargetDeadband(parameters.targetDeadband())
+            .withRegulating(parameters.isRegulationOn())
+            .build();
     }
 
     private record ReactivePowerControlParameters(Terminal regulatingTerminal, double targetQ, double targetDeadband,

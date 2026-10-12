@@ -8,7 +8,7 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -32,17 +32,19 @@ class ExtendedAmplExporterV3Test extends ExtendedAmplExporterV2Test {
     Network getBatteriesTestNetwork() {
         Network network = BatteryNetworkFactory.create();
         Battery battery3 = addNewBattery(network, "BAT3");
-        battery3.newExtension(VoltageRegulationAdder.class)
-                .withVoltageRegulatorOn(false)
-                .withTargetV(123.4)
-                .withRegulatingTerminal(battery3.getTerminal())
-                .add();
+        battery3.newVoltageRegulation()
+            .withRegulating(false)
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(battery3.getTerminal())
+            .withTargetValue(123.4)
+            .build();
         Battery battery4 = addNewBattery(network, "BAT4");
-        battery4.newExtension(VoltageRegulationAdder.class)
-                .withVoltageRegulatorOn(true)
-                .withTargetV(234.5)
-                .withRegulatingTerminal(network.getGenerator("GEN").getTerminal())
-                .add();
+        battery4.newVoltageRegulation()
+            .withRegulating(true)
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(network.getGenerator("GEN").getTerminal())
+            .withTargetValue(234.5)
+            .build();
         return network;
     }
 
@@ -55,7 +57,7 @@ class ExtendedAmplExporterV3Test extends ExtendedAmplExporterV2Test {
                 .setBus(nbat.getId())
                 .setConnectableBus(nbat.getId())
                 .setTargetP(100)
-                .setTargetQ(200)
+                .setLocalTargetQ(200)
                 .setMinP(-200)
                 .setMaxP(200)
                 .add();

@@ -17,6 +17,10 @@ import java.util.TreeMap;
  */
 public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> implements CurrentLimits {
 
+    CurrentLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, permanentLimitName, temporaryLimits);
+    }
+
     /**
      * Create a {@link CurrentLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#HIGH}.
      */

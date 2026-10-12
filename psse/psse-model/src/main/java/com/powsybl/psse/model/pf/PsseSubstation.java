@@ -96,16 +96,16 @@ public class PsseSubstation {
     }
 
     public static boolean isOneBus(String type) {
-        return type.equals("L") || type.equals("F") || type.equals("M")
-                || type.equals("S") || type.equals("I") || type.equals("D")
-                || type.equals("V") || type.equals("N") || type.equals("A");
+        return "L".equals(type) || "F".equals(type) || "M".equals(type)
+                || "S".equals(type) || "I".equals(type) || "D".equals(type)
+                || "V".equals(type) || "N".equals(type) || "A".equals(type);
     }
 
     public static boolean isTwoBuses(String type) {
-        return type.equals("B") || type.equals("2");
+        return "B".equals(type) || "2".equals(type);
     }
 
     public static boolean isThreeBuses(String type) {
-        return type.equals("3");
+        return "3".equals(type);
     }
 }

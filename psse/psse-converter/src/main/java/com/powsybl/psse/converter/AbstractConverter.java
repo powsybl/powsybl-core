@@ -7,11 +7,10 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.*;
-import java.util.stream.Stream;
-
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
@@ -19,7 +18,8 @@ import com.powsybl.psse.model.pf.*;
 import com.powsybl.psse.model.pf.internal.PsseSubstationSwitchingDevice;
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.iidm.network.util.ContainersMapping;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -220,8 +220,8 @@ public abstract class AbstractConverter {
             return false;
         } else {
             return shunt.getMaximumSectionCount() == 1
-                    && !shunt.isVoltageRegulatorOn()
-                    && Double.isNaN(shunt.getTargetV());
+                    && !shunt.isRegulatingWithMode(RegulationMode.VOLTAGE)
+                    && Double.isNaN(shunt.getRegulatingTargetV());
         }
     }
 
@@ -461,7 +461,7 @@ public abstract class AbstractConverter {
     private static boolean withLocalRegulatingControl(Generator generator) {
         Bus generatorBus = generator.getTerminal().getBusView().getBus();
         Bus regulatedBus = generator.getRegulatingTerminal().getBusView().getBus();
-        return generator.isVoltageRegulatorOn() && generatorBus != null && regulatedBus != null && generatorBus.getId().equals(regulatedBus.getId());
+        return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && generatorBus != null && regulatedBus != null && generatorBus.getId().equals(regulatedBus.getId());
     }
 
     // node numbers in psse must be between 1 and 999
@@ -537,11 +537,13 @@ public abstract class AbstractConverter {
     }
 
     static double getHighVm(Bus bus) {
-        return bus != null && Double.isFinite(bus.getVoltageLevel().getHighVoltageLimit()) && bus.getVoltageLevel().getHighVoltageLimit() > 0.0 ? bus.getVoltageLevel().getHighVoltageLimit() / bus.getVoltageLevel().getNominalV() : 1.1;
+        return bus != null && Double.isFinite(bus.getVoltageLevel().getHighVoltageLimit()) && bus.getVoltageLevel().getHighVoltageLimit() > 0.0 ?
+            bus.getVoltageLevel().getHighVoltageLimit() / bus.getVoltageLevel().getNominalV() : 1.1;
     }
 
     static double getLowVm(Bus bus) {
-        return bus != null && Double.isFinite(bus.getVoltageLevel().getLowVoltageLimit()) && bus.getVoltageLevel().getLowVoltageLimit() > 0.0 ? bus.getVoltageLevel().getLowVoltageLimit() / bus.getVoltageLevel().getNominalV() : 0.9;
+        return bus != null && Double.isFinite(bus.getVoltageLevel().getLowVoltageLimit()) && bus.getVoltageLevel().getLowVoltageLimit() > 0.0 ?
+            bus.getVoltageLevel().getLowVoltageLimit() / bus.getVoltageLevel().getNominalV() : 0.9;
     }
 
     static double getVm(Bus bus) {

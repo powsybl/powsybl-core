@@ -7,25 +7,20 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
-import com.powsybl.commons.extensions.AbstractExtensionSerDe;
-import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.DeserializerContext;
-import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -38,8 +33,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -85,7 +80,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         line.addSelectedOperationalLimitsGroups(TwoSides.ONE, name, name2);
         Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml", CURRENT_IIDM_VERSION);
         assertEquals(6, networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getOperationalLimitsGroups1().size());
-        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE),
+            networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
     }
 
     @Test
@@ -108,8 +104,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         twt.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
         n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
         //network with some inactive groups, export only active
-        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
-        assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION,
+            new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO),
+            networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
     }
 
     @Test
@@ -172,7 +170,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testImportOnlyActiveGroups() throws URISyntaxException {
         ImportOptions importOptions = new ImportOptions().setOnlySelectedOperationalLimitsGroups(true);
         //read only active groups
-        Network onlyActiveGroupsNetwork = NetworkSerDe.read(Paths.get(getClass().getResource(getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION)).toURI()), importOptions);
+        Network onlyActiveGroupsNetwork = NetworkSerDe.read(Paths.get(getClass().getResource(getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml",
+            CURRENT_IIDM_VERSION)).toURI()), importOptions);
         Line line1 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), TwoSides.ONE);
         assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE), TwoSides.TWO);
@@ -190,29 +189,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertEquals(0, allGroupsSize - line.getAllSelectedOperationalLimitsGroups(side).size());
     }
 
-    @Test
-    void checkNoExportOfLowLimits() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
-        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
-            .newOperationalLimitsGroup1("low limits")
-            .newApparentPowerLimits()
-            .setDetectionKind(DetectionKind.LOW)
-            .beginTemporaryLimit()
-            .setValue(1000)
-            .setAcceptableDuration(60)
-            .setName("1'")
-            .endTemporaryLimit()
-            .add();
-        String referenceFilename = getVersionedNetworkPath("eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17);
-        assertThrows(NotImplementedException.class, () -> writeXmlTest(network,
-            (n, p) -> NetworkSerDe.write(n, new ExportOptions().setVersion(IidmVersion.V_1_17.toString(".")), p),
-            referenceFilename
-            ));
-        allFormatsRoundTripTest(network, "eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17, new ExportOptions().setForceExportNetworkWithBetaFeatures(true));
-    }
-
     @ParameterizedTest
-    @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
+    @EnumSource(TreeDataFormat.class)
     void testSkippedExtension(TreeDataFormat format) throws IOException {
         Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
         Path file = tmpDir.resolve("data");
@@ -325,28 +303,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Path file3 = tmpDir.resolve("n3.xml");
         NetworkSerDe.write(network3, file3);
         assertTxtEquals(file1, file3);
-    }
-
-    @AutoService(ExtensionSerDe.class)
-    public static class BusbarSectionExtSerDe extends AbstractExtensionSerDe<BusbarSection, BusbarSectionExt> {
-
-        public BusbarSectionExtSerDe() {
-            super("busbarSectionExt", "network", BusbarSectionExt.class, "busbarSectionExt.xsd",
-                    "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
-        }
-
-        @Override
-        public void write(BusbarSectionExt busbarSectionExt, SerializerContext context) {
-            // this method is abstract
-        }
-
-        @Override
-        public BusbarSectionExt read(BusbarSection busbarSection, DeserializerContext context) {
-            context.getReader().readEndNode();
-            var bbsExt = new BusbarSectionExt(busbarSection);
-            busbarSection.addExtension(BusbarSectionExt.class, bbsExt);
-            return bbsExt;
-        }
     }
 
     static Network writeAndRead(Network network, ExportOptions options) throws IOException {
@@ -475,10 +431,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                     .setConnectableBus(busId)
                     .setMinP(-9999.99)
                     .setMaxP(9999.99)
-                    .setVoltageRegulatorOn(true)
-                    .setTargetV(24.5)
+                    .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                    .setLocalTargetV(24.5)
                     .setTargetP(607.0)
-                    .setTargetQ(301.0)
+                    .setLocalTargetQ(301.0)
                     .add();
             generator.newMinMaxReactiveLimits()
                     .setMinQ(-9999.99)
@@ -593,7 +549,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testValidateByVersionWhenInSupportedEnumValue() throws IOException {
         try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/gen_enum_not_supported.xml"))) {
-            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_17))
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, CURRENT_IIDM_VERSION))
                     .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
                     .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
                             "'[HYDRO, NUCLEAR, WIND, THERMAL, SOLAR, OTHER]'. It must be a value from the enumeration.");

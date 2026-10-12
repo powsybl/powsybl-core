@@ -61,10 +61,14 @@ class LineConverter extends AbstractConverter {
         double rEu = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(psseLine.getR(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
         double xEu = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(psseLine.getX(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
         Complex yEu = new Complex(rEu, xEu).reciprocal();
-        double g1Eu = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(), psseLine.getGi(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
-        double b1Eu = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(), psseLine.getB() * 0.5 + psseLine.getBi(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
-        double g2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(), psseLine.getGj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
-        double b2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(), psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
+        double g1Eu = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(),
+            psseLine.getGi(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
+        double b1Eu = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(),
+            psseLine.getB() * 0.5 + psseLine.getBi(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
+        double g2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(),
+            psseLine.getGj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
+        double b2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(),
+            psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
 
         String name = getNameOrNull();
 
@@ -136,7 +140,8 @@ class LineConverter extends AbstractConverter {
         List<PsseNonTransformerBranch> branches = new ArrayList<>();
         network.getLines().forEach(line -> branches.add(createLine(line, contextExport, perUnitContext)));
         psseModel.addNonTransformerBranches(branches);
-        psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
+        psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream()
+            .sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
     }
 
     private static PsseNonTransformerBranch createLine(Line line, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {

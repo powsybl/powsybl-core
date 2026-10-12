@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
-import com.powsybl.shortcircuit.ShortCircuitBusResults;
 import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
+import com.powsybl.shortcircuit.ShortCircuitBusResults;
 
 import java.io.IOException;
 import java.util.Objects;

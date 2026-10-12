@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T>> extends AbstractConnectableAdder<T> {
 
     protected String dcNode1Id;
     protected boolean dcConnected1 = true;
@@ -36,6 +36,8 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
 
     private String connectableBus2;
 
+    protected double minP = -Double.MAX_VALUE;
+    protected double maxP = Double.MAX_VALUE;
     protected double idleLoss = 0.;
     protected double switchingLoss = 0.;
     protected double resistiveLoss = 0.;
@@ -122,6 +124,16 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         return Optional.empty();
     }
 
+    public T setMinP(double minP) {
+        this.minP = minP;
+        return self();
+    }
+
+    public T setMaxP(double maxP) {
+        this.maxP = maxP;
+        return self();
+    }
+
     public T setIdleLoss(double idleLoss) {
         this.idleLoss = idleLoss;
         return self();
@@ -162,9 +174,12 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkAcDcConverterPccTerminal(this, pccTerminal, voltageLevel);
+        ValidationUtil.checkMinP(this, minP);
+        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
     }
 
-    private boolean hasTwoAcTerminals() {
+    public boolean hasTwoAcTerminals() {
         return bus2 != null || connectableBus2 != null || node2 != null;
     }
 
@@ -177,8 +192,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         dcConverter.addTerminal(terminal1);
         voltageLevel.getTopologyModel().attach(terminal1, false);
         if (pccTerminal == null) {
-            // default to use terminal1 as pccTerminal
-            dcConverter.setPccTerminal(terminal1);
+            dcConverter.setDefaultPccTerminal();
         }
         terminal2.ifPresent(terminal -> {
             dcConverter.addTerminal(terminal);

@@ -12,6 +12,9 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Coordinate;
+import com.powsybl.iidm.network.extensions.LinePosition;
+import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -321,6 +324,80 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importGeoDataTest() {
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("Geodata", new ResourceSet("/", "Geodata.dgs")),
+                        NetworkFactory.findDefault(),
+                        null);
+        assertNotNull(network);
+
+        assertNullSubstationCoordinates(network, "Substation_A");
+        assertNullSubstationCoordinates(network, "S4");
+        assertNullSubstationCoordinates(network, "S5");
+        assertNullSubstationCoordinates(network, "S6");
+
+        assertNullLineCoordinates(network, "Line_A_B_1");
+        assertNullLineCoordinates(network, "Line_B_C_1");
+        assertNullLineCoordinates(network, "Line_C_D_1");
+
+        Properties parameters = new Properties();
+        parameters.put(PowerFactoryImporter.IMPORT_GEODATA, "true");
+        network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("Geodata", new ResourceSet("/", "Geodata.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+
+        assertSubstationCoordinates(network, "Substation_A", 49.95, 11.45);
+        assertSubstationCoordinates(network, "S4", 48.95, 10.45);
+        assertSubstationCoordinates(network, "S5", 47.95, 9.45);
+        assertSubstationCoordinates(network, "S6", 46.95, 8.45);
+
+        assertLineCoordinates(network, "Line_A_B_1", List.of(new Coordinate(45.2, 9.2), new Coordinate(45.1, 9.1), new Coordinate(45.0, 9.0)));
+        assertLineCoordinates(network, "Line_B_C_1", List.of(new Coordinate(44.2, 8.2), new Coordinate(44.1, 8.1), new Coordinate(44.0, 8.0)));
+        assertLineCoordinates(network, "Line_C_D_1", List.of(new Coordinate(43.2, 7.2), new Coordinate(43.1, 7.1), new Coordinate(43.0, 7.0)));
+    }
+
+    private static void assertNullSubstationCoordinates(Network network, String substationId) {
+        Substation substation = network.getSubstation(substationId);
+        assertNotNull(substation);
+        SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
+        assertNull(substationPosition);
+    }
+
+    private static void assertSubstationCoordinates(Network network, String substationId, double latitude, double longitude) {
+        Substation substation = network.getSubstation(substationId);
+        assertNotNull(substation);
+        SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
+        assertNotNull(substationPosition);
+        assertEquals(latitude, substationPosition.getCoordinate().getLatitude(), 0.0001);
+        assertEquals(longitude, substationPosition.getCoordinate().getLongitude(), 0.0001);
+    }
+
+    private static void assertNullLineCoordinates(Network network, String lineId) {
+        Line line = network.getLine(lineId);
+        assertNotNull(line);
+        LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
+        assertNull(linePosition);
+    }
+
+    private static void assertLineCoordinates(Network network, String lineId, List<Coordinate> coordinates) {
+        Line line = network.getLine(lineId);
+        assertNotNull(line);
+        LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
+        assertNotNull(linePosition);
+
+        assertEquals(coordinates.size(), linePosition.getCoordinates().size());
+        for (int index = 0; index < coordinates.size(); index++) {
+            Coordinate expected = coordinates.get(index);
+            Coordinate actual = linePosition.getCoordinates().get(index);
+
+            assertEquals(expected.getLatitude(), actual.getLatitude(), 0.0001);
+            assertEquals(expected.getLongitude(), actual.getLongitude(), 0.0001);
+        }
+    }
+
+    @Test
     void twoWindingsTransformerVoltageControlTest() {
         assertTrue(importAndCompareXiidm("TwoWindingsTransformerVoltageControl"));
     }
@@ -555,12 +632,12 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
         // The case does not have the reactive power of the generator. We set it manually
-        generator2.setTargetQ(targetQ);
+        generator2.setLocalTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) - generator2.getLocalTargetQ(), tol);
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + load7.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + load7.getQ0(), tol);
     }
@@ -651,12 +728,12 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
         // The case does not have the reactive power of the generator. We set it manually
-        generator2.setTargetQ(targetQ);
+        generator2.setLocalTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) + t2wtData62.getComputedQ2() - generator2.getLocalTargetQ(), tol);
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
     }

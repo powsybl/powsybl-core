@@ -8,12 +8,11 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

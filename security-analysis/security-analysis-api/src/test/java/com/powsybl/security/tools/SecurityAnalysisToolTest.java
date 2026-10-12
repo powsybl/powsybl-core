@@ -28,10 +28,10 @@ import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.results.PreContingencyResult;
 import com.powsybl.tools.Command;
-import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,7 +93,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(options, "monitoring-file", false, true);
         assertOption(options, "strategies-file", false, true);
         assertOption(options, "actions-file", false, true);
-        assertOption(options, "limit-reductions-file", false, true);
+        assertOption(options, "limit-scalings-file", false, true);
     }
 
     @Test
@@ -185,15 +185,11 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Test
     void readNetwork() {
-        try {
-            ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
-                    mock(ComputationManager.class), mock(ComputationManager.class));
-            CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-            Network network = SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
-            assertNotNull(network);
-        } catch (Exception e) {
-            fail(e);
-        }
+        ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
+                mock(ComputationManager.class), mock(ComputationManager.class));
+        CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
+        Network network = assertDoesNotThrow(() -> SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock())));
+        assertNotNull(network);
     }
 
     @Test
@@ -303,20 +299,20 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    void shouldSucceedParseLimitReductionsFile() throws IOException {
+    void shouldSucceedParseLimitScalingsFile() throws IOException {
         //Given
-        byte[] limitReductionsBytes;
-        try (InputStream is = getClass().getResourceAsStream("/LimitReductionsV1.1.json")) {
+        byte[] limitScalingsBytes;
+        try (InputStream is = getClass().getResourceAsStream("/LimitScalings.json")) {
             assertNotNull(is);
-            limitReductionsBytes = is.readAllBytes();
+            limitScalingsBytes = is.readAllBytes();
         }
-        Files.write(fileSystem.getPath("limit-reductions"), limitReductionsBytes);
-        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_REDUCTIONS_FILE, "limit-reductions"));
+        Files.write(fileSystem.getPath("limit-scalings"), limitScalingsBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_SCALINGS_FILE, "limit-scalings"));
         //When
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         tool.updateInput(options, input);
         //Then
-        assertThat(input.getLimitReductions()).isNotEmpty();
+        assertThat(input.getLimitScalings()).isNotEmpty();
     }
 
     @AutoService(SecurityAnalysisProvider.class)

@@ -58,15 +58,19 @@ public class ValidationConfig {
         double threshold = config.map(c -> c.getOptionalDoubleProperty("threshold").orElse(THRESHOLD_DEFAULT)).orElse(THRESHOLD_DEFAULT);
         boolean verbose = config.flatMap(c -> c.getOptionalBooleanProperty("verbose")).orElse(VERBOSE_DEFAULT);
         String loadFlowName = config.flatMap(c -> c.getOptionalStringProperty("load-flow-name")).orElse(null);
-        Class<? extends TableFormatterFactory> tableFormatterFactory = config.flatMap(c -> c.getOptionalClassProperty("table-formatter-factory", TableFormatterFactory.class)).orElse(TABLE_FORMATTER_FACTORY_DEFAULT);
+        Class<? extends TableFormatterFactory> tableFormatterFactory = config.flatMap(c -> c.getOptionalClassProperty("table-formatter-factory", TableFormatterFactory.class))
+            .orElse(TABLE_FORMATTER_FACTORY_DEFAULT);
         double epsilonX = config.map(c -> c.getOptionalDoubleProperty("epsilon-x").orElse(EPSILON_X_DEFAULT)).orElse(EPSILON_X_DEFAULT);
         boolean applyReactanceCorrection = config.flatMap(c -> c.getOptionalBooleanProperty("apply-reactance-correction")).orElse(APPLY_REACTANCE_CORRECTION_DEFAULT);
-        ValidationOutputWriter validationOutputWriter = config.flatMap(c -> c.getOptionalEnumProperty("output-writer", ValidationOutputWriter.class)).orElse(VALIDATION_OUTPUT_WRITER_DEFAULT);
+        ValidationOutputWriter validationOutputWriter = config.flatMap(c -> c.getOptionalEnumProperty("output-writer", ValidationOutputWriter.class))
+            .orElse(VALIDATION_OUTPUT_WRITER_DEFAULT);
         boolean okMissingValues = config.flatMap(c -> c.getOptionalBooleanProperty("ok-missing-values")).orElse(OK_MISSING_VALUES_DEFAULT);
-        boolean noRequirementIfReactiveBoundInversion = config.flatMap(c -> c.getOptionalBooleanProperty("no-requirement-if-reactive-bound-inversion")).orElse(NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+        boolean noRequirementIfReactiveBoundInversion = config.flatMap(c -> c.getOptionalBooleanProperty("no-requirement-if-reactive-bound-inversion"))
+            .orElse(NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
         boolean compareResults = config.flatMap(c -> c.getOptionalBooleanProperty("compare-results")).orElse(COMPARE_RESULTS_DEFAULT);
         boolean checkMainComponentOnly = config.flatMap(c -> c.getOptionalBooleanProperty("check-main-component-only")).orElse(CHECK_MAIN_COMPONENT_ONLY_DEFAULT);
-        boolean noRequirementIfSetpointOutsidePowerBounds = config.flatMap(c -> c.getOptionalBooleanProperty("no-requirement-if-setpoint-outside-power-bounds")).orElse(NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+        boolean noRequirementIfSetpointOutsidePowerBounds = config.flatMap(c -> c.getOptionalBooleanProperty("no-requirement-if-setpoint-outside-power-bounds"))
+            .orElse(NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
 
         return new ValidationConfig(threshold, verbose, loadFlowName, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
                                     okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);

@@ -27,6 +27,8 @@ import java.util.Optional;
  */
 abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends AbstractConnectable<I> implements AcDcConverter<I>, MultiVariantObject {
 
+    public static final String MIN_P = "minP";
+    public static final String MAX_P = "maxP";
     public static final String IDLE_LOSS = "idleLoss";
     public static final String SWITCHING_LOSS = "switchingLoss";
     public static final String RESISTIVE_LOSS = "resistiveLoss";
@@ -36,6 +38,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     public static final String TARGET_VDC = "targetVdc";
     protected final List<DcTerminalImpl> dcTerminals = new ArrayList<>();
 
+    private double minP;
+    private double maxP;
     private double idleLoss;
     private double switchingLoss;
     private double resistiveLoss;
@@ -50,10 +54,13 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     private final ExtendedDoubleArrayList targetVdc;
 
-    AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+    AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent,
+                          double minP, double maxP,
                           double idleLoss, double switchingLoss, double resistiveLoss,
                           TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
-        super(ref, id, name, fictitious);
+        super(ref, id, name, fictitious, equivalent);
+        this.minP = minP;
+        this.maxP = maxP;
         this.idleLoss = idleLoss;
         this.switchingLoss = switchingLoss;
         this.resistiveLoss = resistiveLoss;
@@ -169,6 +176,44 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
+    public double getMinP() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, MIN_P);
+        return this.minP;
+    }
+
+    @Override
+    public I setMinP(double minP) {
+        // We do no consistency check with target P here to avoid blocking the user
+        // when editing the network.
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, MIN_P);
+        ValidationUtil.checkMinP(this, minP);
+        ValidationUtil.checkActivePowerLimits(this, minP, this.maxP);
+        double oldValue = this.minP;
+        this.minP = minP;
+        getNetwork().getListeners().notifyUpdate(this, MIN_P, oldValue, minP);
+        return self();
+    }
+
+    @Override
+    public double getMaxP() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, MAX_P);
+        return this.maxP;
+    }
+
+    @Override
+    public I setMaxP(double maxP) {
+        // We do no consistency check with target P here to avoid blocking the user
+        // when editing the network.
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, MAX_P);
+        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkActivePowerLimits(this, this.minP, maxP);
+        double oldValue = this.maxP;
+        this.maxP = maxP;
+        getNetwork().getListeners().notifyUpdate(this, MAX_P, oldValue, maxP);
+        return self();
+    }
+
+    @Override
     public double getIdleLoss() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, IDLE_LOSS);
         return this.idleLoss;
@@ -256,6 +301,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public I setTargetP(double targetP) {
+        // We do no consistency check with min/max P here to avoid blocking the user
+        // when editing the network.
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_P);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, getControlMode(), targetP, getTargetVdc(),
@@ -364,6 +411,11 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     void setDroopCurve(DroopCurve droopCurve) {
         this.droopCurve = Objects.requireNonNull(droopCurve);
+    }
+
+    protected void setDefaultPccTerminal() {
+        // default to use terminal1 as pccTerminal
+        setPccTerminal(getTerminal1());
     }
 
     protected abstract I self();

@@ -27,22 +27,29 @@ import java.util.function.Supplier;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
-                          implements PhaseTapChanger {
+    implements PhaseTapChanger {
 
     private RegulationMode regulationMode;
+
+    protected final RegulatingPoint regulatingPoint;
 
     // attributes depending on the variant
 
     private final ExtendedDoubleArrayList regulationValue;
 
+    protected final ExtendedDoubleArrayList targetDeadband;
+
     PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
                         Integer tapPosition, Integer solvedTapPosition, Boolean regulating,
                         RegulationMode regulationMode, double regulationValue, double targetDeadband) {
-        super(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, targetDeadband, "phase tap changer");
+        super(parent, lowTapPosition, steps, loadTapChangingCapabilities, tapPosition, solvedTapPosition, "phase tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
         this.regulationValue = new ExtendedDoubleArrayList(variantArraySize, regulationValue);
+        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize, targetDeadband);
+        this.regulatingPoint = createRegulatingPoint(variantArraySize, regulating);
+        this.regulatingPoint.setRegulatingTerminal(regulationTerminal);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
@@ -64,7 +71,11 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     }
 
     @Override
-    protected RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating) {
+    public boolean isRegulating() {
+        return regulatingPoint.isRegulating(network.get().getVariantIndex());
+    }
+
+    private RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating) {
         return new RegulatingPoint(parent.getTransformer().getId(), () -> null, variantArraySize, regulating, false);
     }
 
@@ -83,14 +94,43 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setRegulating(boolean regulating) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating,
-                hasLoadTapChangingCapabilities(), getRegulationTerminal(), n, n.getMinValidationLevel(),
-                n.getReportNodeContext().getReportNode());
+            hasLoadTapChangingCapabilities(), getRegulationTerminal(), n, n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
-                regulating, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            regulating, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         n.invalidateValidationLevel();
-        return super.setRegulating(regulating);
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        boolean oldValue = regulatingPoint.setRegulating(variantIndex, regulating);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
+        return this;
+    }
+
+    @Override
+    public TerminalExt getRegulationTerminal() {
+        return regulatingPoint.getRegulatingTerminal();
+    }
+
+    @Override
+    public double getTargetDeadband() {
+        return targetDeadband.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public PhaseTapChangerImpl setTargetDeadband(double targetDeadband) {
+        int variantIndex = network.get().getVariantIndex();
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkTargetDeadband(parent, type, regulatingPoint.isRegulating(variantIndex),
+            targetDeadband, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
+        return this;
     }
 
     @Override
@@ -102,8 +142,8 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(),
-                isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), n, n.getMinValidationLevel(),
-                n.getReportNodeContext().getReportNode());
+            isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), n, n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
         n.invalidateValidationLevel();
@@ -120,8 +160,8 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue,
-                isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), n, n.getMinValidationLevel(),
-                n.getReportNodeContext().getReportNode());
+            isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), n, n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -134,9 +174,15 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(),
-                hasLoadTapChangingCapabilities(), regulationTerminal, n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            hasLoadTapChangingCapabilities(), regulationTerminal, n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         n.invalidateValidationLevel();
-        return super.setRegulationTerminal(regulationTerminal);
+        if (regulationTerminal != null && ((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
+            throw new ValidationException(parent, "regulation terminal is not part of the network");
+        }
+        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
+        regulatingPoint.setRegulatingTerminal((TerminalExt) regulationTerminal);
+        getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulationTerminal", oldValue, regulationTerminal);
+        return this;
     }
 
     @Override
@@ -148,7 +194,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(),
-                loadTapChangingCapabilities, getRegulationTerminal(), n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            loadTapChangingCapabilities, getRegulationTerminal(), n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         boolean oldValue = this.loadTapChangingCapabilities;
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         n.invalidateValidationLevel();
@@ -159,6 +205,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public void remove() {
         super.remove();
+        regulatingPoint.remove();
         parent.setPhaseTapChanger(null);
     }
 
@@ -166,17 +213,22 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         regulationValue.growAndFill(number, regulationValue.getDouble(sourceIndex));
+        targetDeadband.growAndFill(number, targetDeadband.getDouble(sourceIndex));
+        regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
         regulationValue.removeElements(number);
+        targetDeadband.removeElements(number);
+        regulatingPoint.reduceVariantArraySize(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
+        regulatingPoint.deleteVariantArrayElement(index);
         // nothing to do
     }
 
@@ -185,7 +237,9 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             regulationValue.set(index, regulationValue.getDouble(sourceIndex));
+            targetDeadband.set(index, targetDeadband.getDouble(sourceIndex));
         }
+        regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
     @Override

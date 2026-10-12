@@ -7,9 +7,10 @@
  */
 package com.powsybl.security.converter;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.contingency.*;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.strategy.ConditionalActions;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.condition.*;
@@ -20,7 +21,10 @@ import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.NetworkMetadata;
+import com.powsybl.security.PostContingencyComputationStatus;
+import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
@@ -32,7 +36,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -94,7 +101,8 @@ class ExporterTest extends AbstractSerDeTest {
                 new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
                 NetworkResult.empty(),
                 ConnectivityResult.empty(),
-                2.34
+                2.34,
+                Collections.emptyList()
         );
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
@@ -114,10 +122,26 @@ class ExporterTest extends AbstractSerDeTest {
 
         OperatorStrategy operatorStrategy2 = new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
                 List.of(
-                        new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE), List.of("actionId3")),
-                        new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1", AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE), List.of("actionId3")),
-                        new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
-                        new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5"))
+                        new ConditionalActions("stage1",
+                            new BranchThresholdCondition("Line1",
+                                AbstractThresholdCondition.Variable.CURRENT,
+                                AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE),
+                            List.of("actionId3")),
+                        new ConditionalActions("stage1",
+                            new ThreeWindingsTransformerThresholdCondition("3WTransformer1",
+                                AbstractThresholdCondition.Variable.REACTIVE_POWER,
+                                AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE),
+                            List.of("actionId3")),
+                        new ConditionalActions("stage2",
+                            new InjectionThresholdCondition("Gen2",
+                                AbstractThresholdCondition.Variable.ACTIVE_POWER,
+                                AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0),
+                            List.of("actionId3", "actionId4")),
+                        new ConditionalActions("stage3",
+                            new AcDcConverterThresholdCondition("Converter1",
+                                AbstractThresholdCondition.Variable.CURRENT,
+                                AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO),
+                            List.of("actionId3", "actionId4", "actionId5"))
                 )
         );
         var opStrategyResult2 = new OperatorStrategyResult(operatorStrategy2,
@@ -131,7 +155,9 @@ class ExporterTest extends AbstractSerDeTest {
         operatorStrategyResults.add(opStrategyResult1);
         operatorStrategyResults.add(opStrategyResult2);
         SecurityAnalysisResult result = new SecurityAnalysisResult(
-                new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23),
+                new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult,
+                    new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23,
+                    List.of(new ChangedPhaseTapChanger("T1", ThreeSides.ONE, 2, 4))),
                 Collections.singletonList(postContingencyResult), operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
@@ -143,7 +169,7 @@ class ExporterTest extends AbstractSerDeTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(100)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(110.0)
             .side1()
             .build();
@@ -189,7 +215,8 @@ class ExporterTest extends AbstractSerDeTest {
             Arguments.of("/SecurityAnalysisResultV1.5.json"),
             Arguments.of("/SecurityAnalysisResultV1.6.json"),
             Arguments.of("/SecurityAnalysisResultV1.7.json"),
-            Arguments.of("/SecurityAnalysisResultV1.8.json")
+            Arguments.of("/SecurityAnalysisResultV1.8.json"),
+            Arguments.of("/SecurityAnalysisResultV1.9.json")
         );
     }
 
@@ -199,6 +226,20 @@ class ExporterTest extends AbstractSerDeTest {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().get(0).getStatus());
+    }
+
+    @Test
+    void testReductionScalingNamingVersion() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.9_wrong_scaling_naming.json")) {
+            //should throw, since limitScaling is valid only starting from version 1.10 included
+            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
+            assertTrue(e.getMessage().contains("limit-violation. limitScaling is not valid for this version"));
+        }
+        try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.10_wrong_reduction_naming.json")) {
+            //should throw, since limitScaling is valid only until version 1.9 included
+            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
+            assertTrue(e.getMessage().contains("limit-violation. limitReduction is not valid for this version"));
+        }
     }
 
     @Test

@@ -11,23 +11,19 @@ import com.google.common.base.Functions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-import com.powsybl.math.graph.TraversalType;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.UndirectedGraphImpl;
-import com.powsybl.math.graph.UndirectedGraphListener;
-import org.anarres.graphviz.builder.GraphVizAttribute;
-import org.anarres.graphviz.builder.GraphVizEdge;
-import org.anarres.graphviz.builder.GraphVizGraph;
-import org.anarres.graphviz.builder.GraphVizScope;
+import com.powsybl.math.graph.*;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTSubgraph;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,6 +35,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -197,9 +195,9 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
      */
     class CalculatedBusTopology {
 
-        protected boolean isBusValid(Set<ConfiguredBus> busSet) {
+        protected boolean isBusValid(List<ConfiguredBus> buses) {
             int feederCount = 0;
-            for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
+            for (TerminalExt terminal : FluentIterable.from(buses).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
                     case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION,
@@ -214,11 +212,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             return Networks.isBusValid(feederCount);
         }
 
-        private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
+        private MergedBus createMergedBus(int busNum, List<ConfiguredBus> buses) {
             String suffix = "_" + busNum;
             String mergedBusId = Identifiables.getUniqueId(voltageLevel.getId() + suffix, getNetwork().getIndex()::contains);
             String mergedBusName = voltageLevel.getOptionalName().map(name -> name + suffix).orElse(null);
-            return new MergedBus(mergedBusId, mergedBusName, voltageLevel.isFictitious(), busSet);
+            return new MergedBus(mergedBusId, mergedBusName, voltageLevel.isFictitious(), buses);
         }
 
         private void updateCache() {
@@ -230,27 +228,26 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
             // mapping between configured buses and merged buses
             Map<ConfiguredBus, MergedBus> mapping = new IdentityHashMap<>();
-
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            Arrays.fill(encountered, false);
             int busNum = 0;
-            for (int v : graph.getVertices()) {
-                if (!encountered[v]) {
-                    final Set<ConfiguredBus> busSet = new LinkedHashSet<>(1);
-                    busSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
-                        SwitchImpl aSwitch = graph.getEdgeObject(e);
-                        if (aSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE_PATH;
-                        } else {
-                            busSet.add(graph.getVertexObject(v2));
-                            return TraverseResult.CONTINUE;
-                        }
-                    }, encountered);
-                    if (isBusValid(busSet)) {
-                        MergedBus mergedBus = createMergedBus(busNum++, busSet);
-                        mergedBuses.put(mergedBus.getId(), mergedBus);
-                        busSet.forEach(bus -> mapping.put(bus, mergedBus));
+
+            List<List<ConfiguredBus>> connectedComponents = graph.computeTraversalPartitions(
+                (v1, e, v2) -> {
+                    SwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && sw.isOpen()) {
+                        return TraverseResult.TERMINATE_PATH;
+                    }
+                    return TraverseResult.CONTINUE;
+                },
+                ArrayList::new,
+                (component, vertexIndex) -> component.add(graph.getVertexObject(vertexIndex))
+            );
+
+            for (List<ConfiguredBus> component : connectedComponents) {
+                if (isBusValid(component)) {
+                    MergedBus mergedBus = createMergedBus(busNum++, component);
+                    mergedBuses.put(mergedBus.getId(), mergedBus);
+                    for (ConfiguredBus bus : component) {
+                        mapping.put(bus, mergedBus);
                     }
                 }
             }
@@ -1005,6 +1002,15 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         return disconnect(terminal);
     }
 
+    @Override
+    public void updateBusId(String id, String newId) {
+        if (buses.get(id) == null) {
+            throw new PowsyblException("Bus with id " + id + " does not exist in the voltage level bus breaker topology model");
+        }
+        Integer v = buses.remove(id);
+        buses.put(newId, v);
+    }
+
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {
         traverse(terminal, traverser, new HashSet<>(), traversalType);
     }
@@ -1118,7 +1124,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             StringBuilder builder = new StringBuilder();
             builder.append(bus.getId())
                     .append(" [");
-            for (Iterator<TerminalExt> it = bus.getConnectedTerminals().iterator(); it.hasNext(); ) {
+            for (Iterator<TerminalExt> it = bus.getConnectedTerminals().iterator(); it.hasNext();) {
                 TerminalExt terminal = it.next();
                 builder.append(dict != null ? dict.getShortId(terminal.getConnectable().getId()) : terminal.getConnectable().getId());
                 if (it.hasNext()) {
@@ -1152,64 +1158,77 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public void exportTopology(Writer writer, Random random) {
-        Objects.requireNonNull(writer);
-        Objects.requireNonNull(random);
-
-        GraphVizScope scope = new GraphVizScope.Impl();
-        GraphVizGraph gvGraph = new GraphVizGraph();
-
-        String[] colors = Colors.generateColorScale(graph.getVertexCount(), random);
-        int i = 0;
-        for (ConfiguredBus bus : graph.getVerticesObj()) {
-            gvGraph.node(scope, bus.getId())
-                    .label("BUS" + System.lineSeparator() + bus.getId())
-                    .shape("ellipse")
-                    .style("filled")
-                    .attr(GraphVizAttribute.fillcolor, colors[i]);
-            for (TerminalExt terminal : bus.getTerminals()) {
-                AbstractConnectable connectable = terminal.getConnectable();
-                String label = connectable.getType().toString()
-                    + System.lineSeparator() + connectable.getId()
-                    + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
-                gvGraph.node(scope, connectable.getId())
-                        .label(label)
-                        .shape("ellipse")
-                        .style("filled")
-                        .attr(GraphVizAttribute.fillcolor, colors[i]);
-            }
-            i++;
-        }
+    protected void exportVertices(Map<String, Map<String, Attribute>> vertexAttributes,
+                                  Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                                  Random random,
+                                  Graph<String, DefaultEdge> jGraph,
+                                  Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs) {
+        // create bus color scale
+        Map<String, String> busColor = createBusColorScale(random,
+            graph.getVertexObjectStream().map(BusExt::getId).toList());
+        int nextVertexId = 0;
 
         for (ConfiguredBus bus : graph.getVerticesObj()) {
+            String busId = bus.getId();
+            String busVertexId = String.valueOf(nextVertexId++);
+            jGraph.addVertex(busVertexId);
+
+            Map<String, Attribute> busAttrs = new LinkedHashMap<>();
+            busAttrs.put(LABEL, DefaultAttribute.createAttribute("BUS" + LINE_SEPARATOR + busId));
+            busAttrs.put(SHAPE, DefaultAttribute.createAttribute("ellipse"));
+            busAttrs.put(STYLE, DefaultAttribute.createAttribute("filled"));
+            busAttrs.put(FILL_COLOR, DefaultAttribute.createAttribute(busColor.get(bus.getId())));
+            vertexAttributes.put(busVertexId, busAttrs);
+
             for (TerminalExt terminal : bus.getTerminals()) {
-                AbstractConnectable connectable = terminal.getConnectable();
-                gvGraph.edge(scope, bus.getId(), connectable.getId())
-                        .style(terminal.isConnected() ? "solid" : "dotted");
+                AbstractConnectable<?> connectable = terminal.getConnectable();
+                String termId = connectable.getId();
+                String terminalVertexId = String.valueOf(nextVertexId++);
+                jGraph.addVertex(terminalVertexId);
+
+                // Vertex
+                String termLabel = connectable.getType().toString()
+                    + LINE_SEPARATOR + termId
+                    + connectable.getOptionalName().map(name -> LINE_SEPARATOR + name).orElse("");
+                Map<String, Attribute> termAttrs = new LinkedHashMap<>();
+                termAttrs.put(LABEL, DefaultAttribute.createAttribute(termLabel));
+                termAttrs.put(SHAPE, DefaultAttribute.createAttribute("ellipse"));
+                termAttrs.put(STYLE, DefaultAttribute.createAttribute("filled"));
+                termAttrs.put(FILL_COLOR, DefaultAttribute.createAttribute(busColor.get(bus.getId())));
+                vertexAttributes.put(terminalVertexId, termAttrs);
+
+                // Edge
+                DefaultEdge edge = jGraph.addEdge(busVertexId, terminalVertexId);
+                Map<String, Attribute> ea = new LinkedHashMap<>();
+                ea.put(STYLE, DefaultAttribute.createAttribute(terminal.isConnected() ? "solid" : "dotted"));
+                edgeAttributes.put(edge, ea);
             }
         }
+    }
+
+    @Override
+    protected void exportEdges(Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                               Graph<String, DefaultEdge> jGraph) {
         for (int e = 0; e < graph.getEdgeCount(); e++) {
             int v1 = graph.getEdgeVertex1(e);
             int v2 = graph.getEdgeVertex2(e);
             SwitchImpl sw = graph.getEdgeObject(e);
             ConfiguredBus bus1 = graph.getVertexObject(v1);
             ConfiguredBus bus2 = graph.getVertexObject(v2);
-            // Assign an id to the edge to allow parallel edges (multigraph)
-            GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId(), sw.getId())
-                    .style(sw.isOpen() ? "dotted" : "solid");
+            String id1 = bus1.getId();
+            String id2 = bus2.getId();
+
+            DefaultEdge edge = jGraph.addEdge(id1, id2);
+            Map<String, Attribute> attrs = new LinkedHashMap<>();
+            attrs.put(STYLE, DefaultAttribute.createAttribute(sw.isOpen() ? "dotted" : "solid"));
             if (DRAW_SWITCH_ID) {
                 String label = sw.getKind().toString()
-                    + System.lineSeparator() + sw.getId()
-                    + sw.getOptionalName().map(n -> System.lineSeparator() + n).orElse("");
-                edge.label(label)
-                        .attr(GraphVizAttribute.fontsize, "10");
+                    + LINE_SEPARATOR + sw.getId()
+                    + sw.getOptionalName().map(n -> LINE_SEPARATOR + n).orElse("");
+                attrs.put(LABEL, DefaultAttribute.createAttribute(label));
+                attrs.put(FONT_SIZE, DefaultAttribute.createAttribute("10"));
             }
-        }
-
-        try {
-            gvGraph.writeTo(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            edgeAttributes.put(edge, attrs);
         }
     }
 

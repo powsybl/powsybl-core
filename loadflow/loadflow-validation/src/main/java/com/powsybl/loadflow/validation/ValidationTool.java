@@ -28,11 +28,12 @@ import org.apache.commons.cli.Options;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.readProperties;
 
 /**
  *
