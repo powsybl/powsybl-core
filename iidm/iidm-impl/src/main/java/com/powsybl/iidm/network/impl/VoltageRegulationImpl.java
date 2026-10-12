@@ -9,20 +9,13 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -48,11 +41,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     // Attributes
     private TerminalExt terminal;
     // Attributes depending on the variant
-    private final TDoubleArrayList targetValue;
-    private final TDoubleArrayList targetDeadband;
-    private final TDoubleArrayList slope;
-    private final TBooleanArrayList regulating;
-    private final TIntArrayList regulationMode;
+    private final ExtendedDoubleArrayList targetValue;
+    private final ExtendedDoubleArrayList targetDeadband;
+    private final ExtendedDoubleArrayList slope;
+    private final ExtendedBooleanArrayList regulating;
+    private final ExtendedIntArrayList regulationMode;
     //
     private static final int UNDEFINED_REGULATION_MODE = -1;
 
@@ -74,11 +67,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         this.classHolder = classHolder;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.targetValue = new TDoubleArrayList(variantArraySize);
-        this.targetDeadband = new TDoubleArrayList(variantArraySize);
-        this.slope = new TDoubleArrayList(variantArraySize);
-        this.regulating = new TBooleanArrayList(variantArraySize);
-        this.regulationMode = new TIntArrayList(variantArraySize);
+        this.targetValue = new ExtendedDoubleArrayList(variantArraySize);
+        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize);
+        this.slope = new ExtendedDoubleArrayList(variantArraySize);
+        this.regulating = new ExtendedBooleanArrayList(variantArraySize);
+        this.regulationMode = new ExtendedIntArrayList(variantArraySize);
         initVariantAttributes(attributes.targetValue(),
             attributes.targetDeadband(),
             attributes.slope(),
@@ -124,7 +117,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public double getTargetValue() {
-        return targetValue.get(getCurrentVariantIndex());
+        return targetValue.getDouble(getCurrentVariantIndex());
     }
 
     /**
@@ -149,7 +142,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public double getTargetDeadband() {
-        return targetDeadband.get(getCurrentVariantIndex());
+        return targetDeadband.getDouble(getCurrentVariantIndex());
     }
 
     /**
@@ -174,7 +167,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public double getSlope() {
-        return slope.get(getCurrentVariantIndex());
+        return slope.getDouble(getCurrentVariantIndex());
     }
 
     /**
@@ -242,7 +235,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public @Nullable RegulationMode getMode() {
-        int modeIndex = regulationMode.get(getCurrentVariantIndex());
+        int modeIndex = regulationMode.getInt(getCurrentVariantIndex());
         return UNDEFINED_REGULATION_MODE == modeIndex ? null : RegulationMode.fromIndex(modeIndex);
     }
 
@@ -275,7 +268,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public boolean isRegulating() {
-        return regulating.get(getCurrentVariantIndex());
+        return regulating.getBoolean(getCurrentVariantIndex());
     }
 
     /**
@@ -325,27 +318,20 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        targetValue.ensureCapacity(targetValue.size() + number);
-        targetDeadband.ensureCapacity(targetDeadband.size() + number);
-        slope.ensureCapacity(slope.size() + number);
-        regulating.ensureCapacity(regulating.size() + number);
-        regulationMode.ensureCapacity(regulationMode.size() + number);
-        for (int i = 0; i < number; i++) {
-            targetValue.add(targetValue.get(sourceIndex));
-            targetDeadband.add(targetDeadband.get(sourceIndex));
-            slope.add(slope.get(sourceIndex));
-            regulating.add(regulating.get(sourceIndex));
-            regulationMode.add(regulationMode.get(sourceIndex));
-        }
+        targetValue.growAndFill(number, targetValue.getDouble(sourceIndex));
+        targetDeadband.growAndFill(number, targetDeadband.getDouble(sourceIndex));
+        slope.growAndFill(number, slope.getDouble(sourceIndex));
+        regulating.growAndFill(number, regulating.getBoolean(sourceIndex));
+        regulationMode.growAndFill(number, regulationMode.getInt(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        targetValue.remove(targetValue.size() - number, number);
-        targetDeadband.remove(targetDeadband.size() - number, number);
-        slope.remove(slope.size() - number, number);
-        regulating.remove(regulating.size() - number, number);
-        regulationMode.remove(regulationMode.size() - number, number);
+        targetValue.removeElements(number);
+        targetDeadband.removeElements(number);
+        slope.removeElements(number);
+        regulating.removeElements(number);
+        regulationMode.removeElements(number);
     }
 
     @Override
@@ -356,11 +342,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            targetValue.set(index, targetValue.get(sourceIndex));
-            targetDeadband.set(index, targetDeadband.get(sourceIndex));
-            slope.set(index, slope.get(sourceIndex));
-            regulating.set(index, regulating.get(sourceIndex));
-            regulationMode.set(index, regulationMode.get(sourceIndex));
+            targetValue.set(index, targetValue.getDouble(sourceIndex));
+            targetDeadband.set(index, targetDeadband.getDouble(sourceIndex));
+            slope.set(index, slope.getDouble(sourceIndex));
+            regulating.set(index, regulating.getBoolean(sourceIndex));
+            regulationMode.set(index, regulationMode.getInt(sourceIndex));
         }
     }
 

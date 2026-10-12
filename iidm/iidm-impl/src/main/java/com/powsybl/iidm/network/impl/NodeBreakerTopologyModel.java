@@ -265,12 +265,12 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return CALCULATED_BUS_CHECKER;
         }
 
-        private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
+        private void addBus(ExtendedIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
                             String busId) {
             String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
             CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
             for (int i = 0; i < nodes.size(); i++) {
-                NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
+                NodeTerminal terminal = graph.getVertexObject(nodes.getInt(i));
                 if (terminal != null) {
                     terminals.add(terminal);
                 }
@@ -290,7 +290,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
 
-            List<TIntArrayList> components = graph.computeTraversalPartitions((v1, e, v2) -> {
+            List<ExtendedIntArrayList> components = graph.computeTraversalPartitions((v1, e, v2) -> {
                 SwitchImpl sw = graph.getEdgeObject(e);
                 if (sw != null && terminate.test(sw)) {
                     return TraverseResult.TERMINATE_PATH;
@@ -298,7 +298,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 return TraverseResult.CONTINUE;
             });
 
-            for (TIntArrayList nodes : components) {
+            for (ExtendedIntArrayList nodes : components) {
                 if (getBusChecker().isValid(graph, nodes)) {
                     String busId = Identifiables.getUniqueId(
                         NAMING_STRATEGY.getId(voltageLevel, nodes),

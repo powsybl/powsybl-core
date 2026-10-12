@@ -7,6 +7,7 @@
  */
 package com.powsybl.math.graph;
 
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.io.PrintStream;
@@ -337,19 +338,19 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Computes the connected components of the graph based on the given traversal rules,
-     * collecting visited vertex indices into {@link TIntArrayList} partitions.
+     * collecting visited vertex indices into {@link ExtendedIntArrayList} partitions.
      * <p>
      * This is a convenience overload of {@link #computeTraversalPartitions(Traverser, Supplier, ObjIntConsumer)}
-     * using {@link TIntArrayList} as the partition type.
+     * using {@link ExtendedIntArrayList} as the partition type.
      * </p>
      *
      * @param traverser the traversal logic that controls which edges to follow and when to stop
-     * @return a list of {@link TIntArrayList}, one per connected component found;
+     * @return a list of {@link ExtendedIntArrayList}, one per connected component found;
      * may be incomplete if traversal is terminated early by {@link TraverseResult#TERMINATE_TRAVERSER}
      * @see #computeTraversalPartitions(Traverser, Supplier, ObjIntConsumer)
      */
-    default List<TIntArrayList> computeTraversalPartitions(Traverser traverser) {
-        return computeTraversalPartitions(traverser, TIntArrayList::new, TIntArrayList::add);
+    default List<ExtendedIntArrayList> computeTraversalPartitions(Traverser traverser) {
+        return computeTraversalPartitions(traverser, ExtendedIntArrayList::new, ExtendedIntArrayList::add);
     }
 
     /**

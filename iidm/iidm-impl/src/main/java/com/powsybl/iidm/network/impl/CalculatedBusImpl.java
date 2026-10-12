@@ -35,7 +35,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, ExtendedIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
-        this.nodes = Objects.requireNonNull(nodes).elements();
+        this.nodes = Objects.requireNonNull(nodes).toIntArray();
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 

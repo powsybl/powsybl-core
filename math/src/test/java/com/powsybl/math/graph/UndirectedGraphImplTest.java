@@ -8,6 +8,7 @@
 package com.powsybl.math.graph;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -709,12 +710,12 @@ class UndirectedGraphImplTest {
         graph.addEdge(1, 2, null); // 1
         graph.addEdge(3, 4, null); // 2
 
-        List<TIntArrayList> components = graph.computeTraversalPartitions(
+        List<ExtendedIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> TraverseResult.CONTINUE);
 
         assertEquals(2, components.size());
-        assertArrayEquals(new int[]{0, 1, 2}, components.get(0).toArray());
-        assertArrayEquals(new int[]{3, 4}, components.get(1).toArray());
+        assertArrayEquals(new int[]{0, 1, 2}, components.get(0).toIntArray());
+        assertArrayEquals(new int[]{3, 4}, components.get(1).toIntArray());
     }
 
     /**
@@ -735,14 +736,14 @@ class UndirectedGraphImplTest {
         graph.addEdge(1, 2, "closed"); // 1
         graph.addEdge(2, 3, "open");   // 2
 
-        List<TIntArrayList> components = graph.computeTraversalPartitions(
+        List<ExtendedIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> "closed".equals(graph.getEdgeObject(e))
                         ? TraverseResult.TERMINATE_PATH
                         : TraverseResult.CONTINUE);
 
         assertEquals(2, components.size());
-        assertArrayEquals(new int[]{0, 1}, components.get(0).toArray());
-        assertArrayEquals(new int[]{2, 3}, components.get(1).toArray());
+        assertArrayEquals(new int[]{0, 1}, components.get(0).toIntArray());
+        assertArrayEquals(new int[]{2, 3}, components.get(1).toIntArray());
     }
 
     /**
@@ -759,13 +760,13 @@ class UndirectedGraphImplTest {
         graph.addEdge(0, 1, null); // 0
         graph.addEdge(0, 1, null); // 1
 
-        List<TIntArrayList> components = graph.computeTraversalPartitions(
+        List<ExtendedIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> TraverseResult.CONTINUE);
 
         assertEquals(1, components.size());
-        TIntArrayList component = components.getFirst();
+        ExtendedIntArrayList component = components.getFirst();
         assertEquals(2, component.size());
-        assertArrayEquals(new int[]{0, 1}, component.toArray());
+        assertArrayEquals(new int[]{0, 1}, component.toIntArray());
     }
 
     /**

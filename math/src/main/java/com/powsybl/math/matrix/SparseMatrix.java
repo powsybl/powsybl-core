@@ -158,7 +158,7 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         values = new ExtendedDoubleArrayList(estimatedValueCount);
     }
 
-    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
+    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, ExtendedDoubleArrayList values) {
         int lastNonEmptyColumn = -1;
         for (int column = 0; column < columnCount; column++) {
             if (columnStart[column] != -1) {

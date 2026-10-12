@@ -10,6 +10,9 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -150,15 +153,15 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getTargetP() {
-        return targetP.getDouble(network.get().getVariantIndex());
+        return targetP.getDouble(getCurrentIndex());
     }
 
     @Override
     public GeneratorImpl setTargetP(double targetP) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkActivePowerSetpoint(this, targetP, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        int variantIndex = network.get().getVariantIndex();
-        double oldValue = this.targetP.set(network.get().getVariantIndex(), targetP);
+        int variantIndex = getCurrentIndex();
+        double oldValue = this.targetP.set(getCurrentIndex(), targetP);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("targetP", variantId, oldValue, targetP);
@@ -172,7 +175,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getLocalTargetQ() {
-        return this.localTargetQ.get(network.get().getVariantIndex());
+        return this.localTargetQ.getDouble(getCurrentIndex());
     }
 
     @Override
@@ -185,7 +188,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
                 getVoltageRegulation(),
                 n.getMinValidationLevel(),
                 n.getReportNodeContext().getReportNode());
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getCurrentIndex();
         double oldValue = this.localTargetQ.set(variantIndex, localTargetQ);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -223,7 +226,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.getDouble(network.get().getVariantIndex());
+        return this.localTargetV.getDouble(getCurrentIndex());
     }
 
     @Override
