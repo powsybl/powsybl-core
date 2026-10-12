@@ -18,14 +18,14 @@
             </iidm:busBreakerTopology>
             <iidm:battery id="BAT" targetP="9999.99" localTargetV="100.0" localTargetQ="9999.99" minP="-9999.99" maxP="9999.99" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="false"/>
             </iidm:battery>
             <iidm:battery id="BAT2" targetP="100.0" localTargetQ="200.0" minP="-200.0" maxP="200.0" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>
                     <iidm:point p="70.0" minQ="-54.55" maxQ="46.25"/>
                 </iidm:reactiveCapabilityCurve>
-                <iidm:voltageRegulation targetValue="100.0" mode="VOLTAGE" regulating="true">
+                <iidm:voltageRegulation targetValue="90.0" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="GEN"/>
                 </iidm:voltageRegulation>
             </iidm:battery>
