@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,6 +86,78 @@ class YamlPlatformConfigTest {
             assertEquals(Arrays.asList(fileSystem.getPath("/work/a"), fileSystem.getPath("/work/b")), module1.getPathListProperty("pl"));
             assertEquals(String.class, module1.getClassProperty("cl", String.class));
             assertEquals(ZonedDateTime.parse("2015-01-01T00:00:00Z"), module1.getDateTimeProperty("dt"));
+        }
+    }
+
+    @Test
+    void testEnvVarSubstitution() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
+            try (Writer writer = Files.newBufferedWriter(cfgDir.resolve("config.yml"), StandardCharsets.UTF_8)) {
+                writer.write(String.join(System.lineSeparator(),
+                        "module1:",
+                        "    s: ${MY_STRING}",
+                        "    embedded: prefix-${MY_STRING}-suffix",
+                        "    i: \"${MY_INT}\"",
+                        "    b: \"${MY_BOOL}\"",
+                        "    p: ${MY_DIR}/a",
+                        "    sl:",
+                        "        - ${MY_STRING}",
+                        "        - literal",
+                        "    withDefault: ${NOT_SET:-fallback}",
+                        "    unresolved: ${NOT_SET}"));
+            }
+
+            Map<String, String> env = Map.of(
+                    "MY_STRING", "hello",
+                    "MY_INT", "7",
+                    "MY_BOOL", "true",
+                    "MY_DIR", "/work");
+
+            PlatformConfig config = new PlatformConfig(
+                    new YamlModuleConfigRepository(cfgDir.resolve("config.yml"), env), cfgDir);
+            ModuleConfig module1 = config.getOptionalModuleConfig("module1").orElseThrow();
+
+            // simple and embedded string substitution
+            assertEquals("hello", module1.getStringProperty("s"));
+            assertEquals("prefix-hello-suffix", module1.getStringProperty("embedded"));
+
+            // substitution works for non-string typed properties (value is resolved before parsing)
+            assertEquals(7, module1.getIntProperty("i"));
+            assertTrue(module1.getBooleanProperty("b"));
+            assertEquals(fileSystem.getPath("/work/a"), module1.getPathProperty("p"));
+
+            // substitution inside a list
+            assertEquals(Arrays.asList("hello", "literal"), module1.getStringListProperty("sl"));
+
+            // default value used when the variable is not set
+            assertEquals("fallback", module1.getStringProperty("withDefault"));
+
+            // unset variable with no default is left untouched
+            assertEquals("${NOT_SET}", module1.getStringProperty("unresolved"));
+        }
+    }
+
+    @Test
+    void testConfigDirSubstitution() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path cfgDir = Files.createDirectories(fileSystem.getPath("/etc/powsybl"));
+            try (Writer writer = Files.newBufferedWriter(cfgDir.resolve("config.yml"), StandardCharsets.UTF_8)) {
+                writer.write(String.join(System.lineSeparator(),
+                        "module1:",
+                        "    resource: ${config_dir}/resources/data.txt",
+                        "    dir: ${config_dir}"));
+            }
+
+            // config_dir is a built-in and takes precedence over an environment variable of the same name
+            Map<String, String> env = Map.of("config_dir", "/should/be/ignored");
+
+            PlatformConfig config = new PlatformConfig(
+                    new YamlModuleConfigRepository(cfgDir.resolve("config.yml"), env), cfgDir);
+            ModuleConfig module1 = config.getOptionalModuleConfig("module1").orElseThrow();
+
+            assertEquals(fileSystem.getPath("/etc/powsybl/resources/data.txt"), module1.getPathProperty("resource"));
+            assertEquals(fileSystem.getPath("/etc/powsybl"), module1.getPathProperty("dir"));
         }
     }
 }

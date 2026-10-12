@@ -59,6 +59,39 @@ Configuration properties can also be overridden using system's environment varia
 | UPPER_CAMEL__PROPERTY4=4  | UpperCamel   | property4     |
 | SNAKE_CASE__PROPERTY5=5   | snake_case   | property5     |
 
+This mechanism *replaces* a whole property from outside the configuration file, whatever its format (XML or YAML). To instead *inject* an environment variable inside a value of a YAML file, see [Environment variables inside YAML values](#environment-variables-inside-yaml-values) below.
+
+### Environment variables inside YAML values
+Unlike the [System's environment variables](#systems-environment-variables) mechanism above, which overrides a whole property from outside the file, the `${VAR}` syntax lets you reference an environment variable *within* a value. It applies only to YAML files.
+
+In a YAML configuration file, values can also reference environment variables using the `${VAR}` syntax. A default value
+can be provided with `${VAR:-default}`, which is used when the variable is not set. A placeholder whose variable is not
+set and which has no default is left unchanged. The substitution is performed while the file is loaded, before values
+are parsed, so it applies to every property type (integer, boolean, path, list, ...). To use an environment variable in
+a non-string value, quote it so that YAML keeps it as text:
+
+```yaml
+module1:
+    directory: ${MY_HOME}/data
+    max-iterations: "${MAX_ITERATIONS:-30}"
+```
+
+With `MY_HOME=/opt/powsybl` and `MAX_ITERATIONS` unset, `directory` resolves to `/opt/powsybl/data` and
+`max-iterations` falls back to `30`.
+
+#### Referencing the configuration file location
+In addition to environment variables, the reserved placeholder `${config_dir}` resolves to the absolute path of the
+directory containing the YAML configuration file. It allows resources to be located relatively to the configuration
+file, independently of the working directory. It takes precedence over an environment variable of the same name.
+
+```yaml
+module1:
+    my-resource: ${config_dir}/resources/data.txt
+```
+
+If the configuration file is `/etc/powsybl/config.yml`, then `my-resource` resolves to
+`/etc/powsybl/resources/data.txt`.
+
 ## Modules
 
 The module list is available [here](modules.md).
