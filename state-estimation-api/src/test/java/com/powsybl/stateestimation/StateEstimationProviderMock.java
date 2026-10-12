@@ -11,7 +11,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -109,8 +108,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
     /** One component, one estimated bus, one measurement. */
     private static StateEstimationResult result() {
         StateEstimationResult.ComponentResult component = new StateEstimationResultImpl.ComponentResultImpl(
-                0, 0, StateEstimationResult.ComponentResult.Status.ESTIMATED, "estimated",
-                3, BUS_ID, 1.25, Map.of());
+                StateEstimationResult.ComponentResult.Status.ESTIMATED, "estimated", 3, BUS_ID, 1.25);
 
         StateEstimationResult.BusResult bus =
                 new StateEstimationResultImpl.BusResultImpl(BUS_ID, ESTIMATED_V, ESTIMATED_ANGLE);
@@ -118,8 +116,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
         StateEstimationResult.MeasurementResult measurement =
                 new StateEstimationResultImpl.MeasurementResultImpl(MEASUREMENT_ID, 100.0, 99.5, 0.5, false);
 
-        return new StateEstimationResultImpl(StateEstimationResult.Status.FULLY_ESTIMATED,
-                Map.of("mock", "true"), "",
+        return new StateEstimationResultImpl(StateEstimationResult.Status.FULLY_ESTIMATED, "",
                 List.of(component), List.of(bus), List.of(measurement));
     }
 
@@ -134,12 +131,13 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
         ObservabilityResult.ElementObservability element =
                 new ObservabilityResultImpl.ElementObservabilityImpl(BUS_ID, true, List.of(quality));
 
-        return new ObservabilityResultImpl(List.of(area), List.of(element));
+        return new ObservabilityResultImpl(ObservabilityResult.Status.COMPLETED, "",
+                List.of(area), List.of(element));
     }
 
     /** Nothing suspect, and one measurement that could not be tested. */
     private static BadDataResult badData() {
-        return new BadDataResultImpl(BadDataResult.Status.NO_BAD_DATA, List.of(),
-                Set.of(CRITICAL_MEASUREMENT_ID), Map.of("test", "chi2"));
+        return new BadDataResultImpl(BadDataResult.Status.NO_BAD_DATA, "",
+                List.of(), Set.of(CRITICAL_MEASUREMENT_ID));
     }
 }

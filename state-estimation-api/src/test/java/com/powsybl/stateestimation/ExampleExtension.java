@@ -10,25 +10,25 @@ package com.powsybl.stateestimation;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
- * A result this module does not model, here the chi-square statistic of a bad data test, used to
- * check that an implementation can attach its own without the interface changing.
+ * A stand-in for a result this module does not model, used to check that an implementation can
+ * attach its own without the interface changing. The value it carries is arbitrary.
  *
  * @author Šime Pavlić {@literal <sime.pavlic at kickstage.com>}
  */
-public class ChiSquareExtension extends AbstractExtension<StateEstimationResult> {
+public class ExampleExtension extends AbstractExtension<StateEstimationResult> {
 
-    private final double chiSquare;
+    private final double value;
 
-    public ChiSquareExtension(double chiSquare) {
-        this.chiSquare = chiSquare;
+    public ExampleExtension(double value) {
+        this.value = value;
     }
 
     @Override
     public String getName() {
-        return "chiSquare";
+        return "example";
     }
 
-    public double getChiSquare() {
-        return chiSquare;
+    public double getValue() {
+        return value;
     }
 }

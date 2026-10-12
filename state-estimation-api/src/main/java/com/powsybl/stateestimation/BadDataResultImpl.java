@@ -10,7 +10,6 @@ package com.powsybl.stateestimation;
 import com.powsybl.commons.extensions.AbstractExtendable;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -22,29 +21,34 @@ import java.util.Set;
 public class BadDataResultImpl extends AbstractExtendable<BadDataResult> implements BadDataResult {
 
     private final Status status;
+    private final String statusText;
     private final List<SuspectMeasurement> suspectMeasurements;
     private final Set<String> uncheckableMeasurementIds;
-    private final Map<String, String> metrics;
 
     /**
-     * No argument may be null.
+     * {@code statusText} may be null and is read as empty; nothing else may.
      *
      * @param status the outcome being recorded
+     * @param statusText text explaining the status, or null for none
      * @param suspectMeasurements the measurements that disagree with the estimate, worst first
      * @param uncheckableMeasurementIds the identifiers of the measurements that could not be tested
-     * @param metrics implementation-defined diagnostics, keyed by name
      */
-    public BadDataResultImpl(Status status, List<SuspectMeasurement> suspectMeasurements,
-                             Set<String> uncheckableMeasurementIds, Map<String, String> metrics) {
+    public BadDataResultImpl(Status status, String statusText, List<SuspectMeasurement> suspectMeasurements,
+                             Set<String> uncheckableMeasurementIds) {
         this.status = Objects.requireNonNull(status);
+        this.statusText = Objects.requireNonNullElse(statusText, "");
         this.suspectMeasurements = List.copyOf(Objects.requireNonNull(suspectMeasurements));
         this.uncheckableMeasurementIds = Set.copyOf(Objects.requireNonNull(uncheckableMeasurementIds));
-        this.metrics = Map.copyOf(Objects.requireNonNull(metrics));
     }
 
     @Override
     public Status getStatus() {
         return status;
+    }
+
+    @Override
+    public String getStatusText() {
+        return statusText;
     }
 
     @Override
@@ -55,11 +59,6 @@ public class BadDataResultImpl extends AbstractExtendable<BadDataResult> impleme
     @Override
     public Set<String> getUncheckableMeasurementIds() {
         return uncheckableMeasurementIds;
-    }
-
-    @Override
-    public Map<String, String> getMetrics() {
-        return metrics;
     }
 
     /** Immutable {@link SuspectMeasurement}. */

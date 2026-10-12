@@ -29,10 +29,6 @@ public class StateEstimationRunParameters {
     private ComputationManager computationManager;
     private ReportNode reportNode = ReportNode.NO_OP;
 
-    /** Nothing set. The estimation settings and the computation manager are filled in on first use. */
-    public StateEstimationRunParameters() {
-    }
-
     /** Run parameters holding the configured estimation settings and the default computation manager. */
     public static StateEstimationRunParameters getDefault() {
         return new StateEstimationRunParameters()

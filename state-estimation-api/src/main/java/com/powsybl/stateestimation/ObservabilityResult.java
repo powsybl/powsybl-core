@@ -45,6 +45,23 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
         BORDER
     }
 
+    /** Whether the analysis ran. */
+    enum Status {
+        /** The analysis ran and the areas and element observabilities describe the network. */
+        COMPLETED,
+        /** The analysis could not be carried out, so nothing below is meaningful. */
+        FAILED
+    }
+
+    /** Whether the analysis ran. */
+    Status getStatus();
+
+    /**
+     * Implementation-defined text explaining the status, typically why the analysis could not be
+     * carried out. Empty when the implementation has nothing to add.
+     */
+    String getStatusText();
+
     /** The observable, non-observable and border areas, in no guaranteed order. */
     List<Area> getAreas();
 
@@ -67,7 +84,11 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
      */
     Optional<ElementObservability> getElementObservability(String elementId);
 
-    /** A connected set of buses sharing one observability status. */
+    /**
+     * A connected set of buses sharing one observability status. These are observable islands,
+     * which depend on where the measurements are rather than on connectivity, so one connected
+     * component of the network can hold several of them.
+     */
     interface Area {
 
         /** The area number, as {@code ObservabilityArea.AreaCharacteristics} numbers it. */

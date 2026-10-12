@@ -62,8 +62,9 @@ class StateEstimationTest {
         StateEstimationResult estimate = runner.estimate(network);
         BadDataResult badData = runner.detectBadData(network, estimate, observability);
 
+        assertEquals(ObservabilityResult.Status.COMPLETED, observability.getStatus());
         assertEquals(ObservabilityResult.AreaStatus.OBSERVABLE, observability.getAreas().get(0).getStatus());
-        assertTrue(estimate.isFullyEstimated());
+        assertEquals(StateEstimationResult.Status.FULLY_ESTIMATED, estimate.getStatus());
         assertEquals(BadDataResult.Status.NO_BAD_DATA, badData.getStatus());
     }
 
@@ -130,7 +131,7 @@ class StateEstimationTest {
                 .estimateAsync(network, network.getVariantManager().getWorkingVariantId(),
                         StateEstimationRunParameters.getDefault())
                 .get();
-        assertTrue(result.isFullyEstimated());
+        assertEquals(StateEstimationResult.Status.FULLY_ESTIMATED, result.getStatus());
     }
 
     @Test
@@ -138,7 +139,6 @@ class StateEstimationTest {
         StateEstimationResult result = StateEstimation.estimate(network);
 
         assertEquals(StateEstimationResult.Status.FULLY_ESTIMATED, result.getStatus());
-        assertTrue(result.isFullyEstimated());
 
         assertEquals(1, result.getComponentResults().size());
         StateEstimationResult.ComponentResult component = result.getComponentResults().get(0);
@@ -159,6 +159,7 @@ class StateEstimationTest {
         ObservabilityResult observability = StateEstimation.analyseObservability(network);
 
         assertEquals(1, observability.getAreas().size());
+        assertEquals(ObservabilityResult.Status.COMPLETED, observability.getStatus());
         assertEquals(ObservabilityResult.AreaStatus.OBSERVABLE, observability.getAreas().get(0).getStatus());
         assertTrue(observability.getArea(StateEstimationProviderMock.BUS_ID).isPresent());
         assertTrue(observability.getArea("NotEstimated").isEmpty());
@@ -200,11 +201,11 @@ class StateEstimationTest {
     @Test
     void carriesAnImplementationsOwnResultsAsAnExtension() {
         StateEstimationResultImpl result = (StateEstimationResultImpl) StateEstimation.estimate(network);
-        ChiSquareExtension statistic = new ChiSquareExtension(21.4);
+        ExampleExtension statistic = new ExampleExtension(21.4);
 
-        result.addExtension(ChiSquareExtension.class, statistic);
+        result.addExtension(ExampleExtension.class, statistic);
 
-        assertSame(statistic, result.getExtension(ChiSquareExtension.class));
+        assertSame(statistic, result.getExtension(ExampleExtension.class));
         assertEquals(1, result.getExtensions().size());
     }
 }

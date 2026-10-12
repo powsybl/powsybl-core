@@ -10,7 +10,6 @@ package com.powsybl.stateestimation;
 import com.powsybl.commons.extensions.Extendable;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The outcome of a state estimation.
@@ -39,24 +38,6 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
 
     /** The outcome over every component in scope. */
     Status getStatus();
-
-    /** Whether the status is {@link Status#FULLY_ESTIMATED}. */
-    default boolean isFullyEstimated() {
-        return getStatus() == Status.FULLY_ESTIMATED;
-    }
-
-    /** Whether the status is {@link Status#PARTIALLY_ESTIMATED}. */
-    default boolean isPartiallyEstimated() {
-        return getStatus() == Status.PARTIALLY_ESTIMATED;
-    }
-
-    /** Whether the status is {@link Status#FAILED}. */
-    default boolean isFailed() {
-        return getStatus() == Status.FAILED;
-    }
-
-    /** Implementation-defined diagnostics, keyed by name. */
-    Map<String, String> getMetrics();
 
     /**
      * Text the implementation returns alongside the result, such as a solver log. This is separate
@@ -92,12 +73,6 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
             FAILED
         }
 
-        /** The connected component number, as {@link com.powsybl.iidm.network.Bus#getConnectedComponent()} numbers it. */
-        int getConnectedComponentNum();
-
-        /** The synchronous component number, as {@link com.powsybl.iidm.network.Bus#getSynchronousComponent()} numbers it. */
-        int getSynchronousComponentNum();
-
         /** Whether this component was estimated. */
         Status getStatus();
 
@@ -111,8 +86,8 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
         int getIterationCount();
 
         /**
-         * The bus whose voltage angle was held fixed. Only angle differences are physical, so one
-         * angle per synchronous component is not an unknown.
+         * The bus whose voltage angle was held fixed, which also identifies the component. Only
+         * angle differences are physical, so one angle per synchronous component is not an unknown.
          */
         String getReferenceBusId();
 
@@ -122,8 +97,6 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
          */
         double getObjectiveFunctionValue();
 
-        /** Implementation-defined diagnostics for this component, keyed by name. */
-        Map<String, String> getMetrics();
     }
 
     /**
@@ -160,7 +133,11 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
         /** Measured minus estimated. */
         double getResidual();
 
-        /** The residual divided by its own standard deviation, so comparable across meters. */
+        /**
+         * The residual divided by its own standard deviation, so comparable across meters. Signed:
+         * a positive value means the meter read above the estimate. Flagging compares its absolute
+         * value against the threshold.
+         */
         double getNormalizedResidual();
 
         /**

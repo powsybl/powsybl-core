@@ -118,10 +118,6 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
     private double residualFlaggingThreshold = DEFAULT_RESIDUAL_FLAGGING_THRESHOLD;
     private boolean writeResultsToNetwork = DEFAULT_WRITE_RESULTS_TO_NETWORK;
 
-    /** Every setting at its default. */
-    public StateEstimationParameters() {
-    }
-
     /**
      * Parameters read from the default platform configuration, with the implementations' specific
      * parameters attached as extensions.

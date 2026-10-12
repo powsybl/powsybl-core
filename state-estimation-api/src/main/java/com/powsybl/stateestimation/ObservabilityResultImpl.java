@@ -23,18 +23,35 @@ import java.util.Set;
 public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityResult>
         implements ObservabilityResult {
 
+    private final Status status;
+    private final String statusText;
     private final List<Area> areas;
     private final List<ElementObservability> elementObservabilities;
 
     /**
-     * No argument may be null.
+     * {@code statusText} may be null and is read as empty; nothing else may.
      *
+     * @param status whether the analysis ran
+     * @param statusText text explaining the status, or null for none
      * @param areas the observable, non-observable and border areas
      * @param elementObservabilities the observability of each element reported on
      */
-    public ObservabilityResultImpl(List<Area> areas, List<ElementObservability> elementObservabilities) {
+    public ObservabilityResultImpl(Status status, String statusText, List<Area> areas,
+                                   List<ElementObservability> elementObservabilities) {
+        this.status = Objects.requireNonNull(status);
+        this.statusText = Objects.requireNonNullElse(statusText, "");
         this.areas = List.copyOf(Objects.requireNonNull(areas));
         this.elementObservabilities = List.copyOf(Objects.requireNonNull(elementObservabilities));
+    }
+
+    @Override
+    public Status getStatus() {
+        return status;
+    }
+
+    @Override
+    public String getStatusText() {
+        return statusText;
     }
 
     @Override

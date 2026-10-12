@@ -10,7 +10,6 @@ package com.powsybl.stateestimation;
 import com.powsybl.commons.extensions.Extendable;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,6 +35,12 @@ public interface BadDataResult extends Extendable<BadDataResult> {
     /** Whether the test ran, and what it found. */
     Status getStatus();
 
+    /**
+     * Implementation-defined text explaining the status, typically why the test was inconclusive.
+     * Empty when the implementation has nothing to add.
+     */
+    String getStatusText();
+
     /** The measurements that disagree with the estimate, worst first. */
     List<SuspectMeasurement> getSuspectMeasurements();
 
@@ -46,16 +51,17 @@ public interface BadDataResult extends Extendable<BadDataResult> {
      */
     Set<String> getUncheckableMeasurementIds();
 
-    /** Metrics are generic key/value pairs and are specific to a state estimation implementation. */
-    Map<String, String> getMetrics();
-
     /** One measurement whose value disagrees with the estimate. */
     interface SuspectMeasurement {
 
         /** The identifier of the IIDM measurement this reading came from. */
         String getMeasurementId();
 
-        /** The residual divided by its own standard deviation. */
+        /**
+         * The residual divided by its own standard deviation. Signed: a positive value means the
+         * meter read above the estimate. The test compares its absolute value against the
+         * threshold, so a suspect measurement can fall either side of it.
+         */
         double getNormalizedResidual();
     }
 }
