@@ -86,12 +86,12 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getNetwork().getVariantIndex());
+        return this.localTargetV.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
     public double getLocalTargetQ() {
-        return this.localTargetQ.get(getNetwork().getVariantIndex());
+        return this.localTargetQ.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override

@@ -83,7 +83,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getCurrentIndex());
+        return this.localTargetV.getDouble(getCurrentIndex());
     }
 
     @Override

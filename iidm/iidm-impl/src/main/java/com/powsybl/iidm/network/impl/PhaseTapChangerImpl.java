@@ -98,7 +98,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
             regulating, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         n.invalidateValidationLevel();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.getDouble(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         boolean oldValue = regulatingPoint.setRegulating(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -113,7 +113,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public double getTargetDeadband() {
-        return targetDeadband.get(network.get().getVariantIndex());
+        return targetDeadband.getDouble(network.get().getVariantIndex());
     }
 
     @Override
