@@ -50,7 +50,7 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
 
     @Override
     public String getSerializationName(String extensionVersion) {
-        return versionOf(extensionVersion).getSerializationName();
+        return versionOf(extensionVersion, true).getSerializationName();
     }
 
     @Override
