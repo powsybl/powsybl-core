@@ -576,20 +576,20 @@ public final class CgmesExportUtil {
     }
 
     /**
-     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network using breadth first search
+     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network using a breadth first search
      * starting from ACDCConverter DCNodes and using only DcSwitches (regardless of their open/closed state) to navigate
      * from one DC node to another.
-     * DcNodes that are not connected to a converter by DcSwitches but by DcLines are not included here.
-     * This is used to infer the DcConverterUnit operation mode (it requires to have only DC Nodes connectable to the
-     * converter)
+     * DcNodes that are connected to a converter through DcLines rather than DcSwitches are not included.
+     * This is used to infer the DCConverterUnit operation mode, which requires *only* the DC Nodes that can be
+     * connected to the converter.
      * <p>
      * Tie-break rule, which makes the result deterministic:
      *  - Converters are sorted by id, so a DcNode shared by several converters (e.g. the neutral node of a bipole)
      *  is associated to the converter with the lowest id.
      *
      * @param network            An IIDM network
-     * @param acDcConvertersUnit A map associating an IIDM AcDcConverter to a DCConverterUnit
-     * @return A map associating an IIDM DcNode to a DCConverterUnit.
+     * @param acDcConvertersUnit A map associating each IIDM AcDcConverter with a DCConverterUnit
+     * @return A map associating an IIDM DcNode with a DCConverterUnit.
      */
     public static Map<DcNode, DCConverterUnit> getConvertersDcNodeConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
@@ -597,13 +597,13 @@ public final class CgmesExportUtil {
     }
 
     /**
-     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network using breadth first search
+     * Build the IIDM DcNode to DCConverterUnit association by traversing the DC network using a breadth first search
      * starting from ACDCConverter DCNodes with both DcSwitches (regardless of their open/closed state) and DcLines
      * (regardless of their connected/disconnected state) to navigate from one DC node to another.
-     * Therefore, DcNodes that are connected to a converter by DcLines are included here.
+     * As a result, DcNodes that are connected to a converter through DcLines are included.
      * This is used to compute the dcEquipmentContainerId field of DC Nodes
      * <p>
-     * Tie-break rules, which makes the result deterministic:
+     * Tie-break rules, which make the result deterministic:
      *  - Converters are sorted by id, so a DcNode shared by several converters (e.g. the neutral node of a bipole)
      *  is associated to the converter with the lowest id.
      *  - A DcNode that is not connected to a converter (e.g. an intermediate node of an MTDC grid) is associated to
@@ -611,8 +611,8 @@ public final class CgmesExportUtil {
      *  id wins, since its DcNodes are queued first.
      *
      * @param network            An IIDM network
-     * @param acDcConvertersUnit A map associating an IIDM AcDcConverter to a DCConverterUnit
-     * @return A map associating each IIDM DcNode to a DCConverterUnit.
+     * @param acDcConvertersUnit A map associating each IIDM AcDcConverter with a DCConverterUnit
+     * @return A map associating each IIDM DcNode with a DCConverterUnit.
      */
     public static Map<DcNode, DCConverterUnit> getAllDcNodesConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
@@ -623,7 +623,7 @@ public final class CgmesExportUtil {
 
     private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit, List<DCEquipment> dcEquipmentForTraversal) {
         // Build the DcNode to AcDcConverter associations by traversing the dc network
-        // using breadth first search starting from ACDCConverter DCNodes.
+        // using a breadth first search starting from ACDCConverter DCNodes.
         List<DCEquipment> converters = getDCEquipmentConverters(network);
         Map<String, String> dcNodesConverter = new HashMap<>();
         Queue<String> queue = new LinkedList<>();
@@ -656,13 +656,13 @@ public final class CgmesExportUtil {
     }
 
     /**
-     * Create a map matching each DcBus to a DcConverterUnit based on a map matching each DcNode to a DcConverterUnit.
-     * If the DcBus contains several DcNodes (which may be mapped to different DcConverterUnit), the one of the
-     * lowest-id is kept.
+     * Create a map matching each DcBus with a DCConverterUnit based on a map matching each DcNode with a DcConverterUnit.
+     * If the DcBus contains several DcNodes (which may be mapped to different DCConverterUnit), the DcConverterUnit of
+     * the DcNode with the lowest-id is kept.
      *
      * @param network              An IIDM network
-     * @param dcNodesConverterUnit A map matching each DcNode to a DcConverterUnit
-     * @return A map matching each DcBus to a DcConverterUnit
+     * @param dcNodesConverterUnit A map matching each DcNode with a DCConverterUnit
+     * @return A map matching each DcBus with a DCConverterUnit
      */
     static Map<DcBus, DCConverterUnit> getDcBusesConverterUnit(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit) {
         Map<DcBus, DCConverterUnit> dcBusesConverterUnit = new HashMap<>();

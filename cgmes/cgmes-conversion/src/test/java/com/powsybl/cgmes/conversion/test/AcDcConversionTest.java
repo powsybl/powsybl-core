@@ -379,13 +379,13 @@ class AcDcConversionTest extends AbstractSerDeTest {
     }
 
     /**
-     * This test ensures that DCNode.DCEquipmentContainer field is present in each DC node, not only in the ones
+     * This test ensures that the DCNode.DCEquipmentContainer field is present in every DC node, not only in the ones
      * belonging to a DC bus connected to a converter.
      */
     @Test
     void dcNetworkWithCentralDcNodeEqExportTest() throws IOException {
         // IIDM network:
-        //   A HVDC bipole with VSC, and DC nodes in the middle belonging to no converters
+        //   A HVDC bipole with VSC, and DC nodes in the middle that do not belong to any converters
         // CGMES network:
         //   All DCNodes reference a DCEquipmentContainer.
         Network network = DcDetailedNetworkFactory.createVscBipoleWithCentralNode();
@@ -418,7 +418,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
     /**
      * This test ensures that the DCConverterUnit.operationMode is not affected by intermediate DC nodes,
-     * i.e. a DC line split in several segments must not be mistaken for a metallic return.
+     * i.e. a DC line split into several segments must not be mistaken for a metallic return.
      */
     @Test
     void dcNetworkWithCentralDcNodeOperationModeEqExportTest() throws IOException {
@@ -636,7 +636,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0, getElementCount(eqFile, "DCNode"));
         assertFalse(eqFile.contains("DCBaseTerminal.DCNode"));
 
-        // However, the TP profile must include DCEquipmentContainer in the DCTopologicalNode
+        // However, the TP profile must include the DCEquipmentContainer field in the DCTopologicalNode
         String tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
         assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
         String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
@@ -647,7 +647,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
         assertEquals(6, getElementCount(eqFile, "DCNode"));
 
-        // Therefore, DCEquipmentContainer should not be exported in the TP profile
+        // Therefore, DCEquipmentContainer shall not be exported in the TP profile
         tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
         assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
         dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
@@ -669,7 +669,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
                 .filter(node -> !node.getVoltageSourceConverterStream().toList().isEmpty())
                 .collect(Collectors.toSet());
 
-        // Graph traversal with DC Switches only
+        // Graph traversal with DC switches only
         Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesMap = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
         assertEquals(allDcNodesExceptCentrals, dcNodesMap.keySet());
 
@@ -687,10 +687,10 @@ class AcDcConversionTest extends AbstractSerDeTest {
     }
 
     /**
-     * Create a Multi-terminal DC grid in IIDM node-breaker with both VSC and LCC. Export it to CGMES and import it back
-     * to verify every element has been reloaded.
+     * Create a multi-terminal DC grid in IIDM with a node-breaker topology and both VSC and LCC. Export it to CGMES and
+     * import it back to verify that every element has been reloaded.
      * The test is run with the following configurations:
-     * - CGMES node-breaker topology (CIM version 16 and 100, which should not be different)
+     * - CGMES node-breaker topology (CIM version 16 and 100, which should be identical)
      * - CGMES bus-branch topology, CIM version 16
      * - CGMES bus-branch topology, CIM version 100
      */
@@ -711,19 +711,19 @@ class AcDcConversionTest extends AbstractSerDeTest {
         importParams.put(CgmesImport.USE_DETAILED_DC_MODEL, "true");
         Network loadedNetwork = Network.read(new DirectoryDataSource(tmpDir, "tmp"), importParams);
 
-        // Check all elements are here
+        // Check that all elements are present
         assertEquals(12, loadedNetwork.getDcNodeCount());
         assertEquals(9, loadedNetwork.getDcLineCount());
         assertEquals(1, loadedNetwork.getDcGroundCount());
         assertEquals(4, loadedNetwork.getVoltageSourceConverterCount());
         assertEquals(2, loadedNetwork.getLineCommutatedConverterCount());
 
-        // Check the dc topology has been preserved
+        // Check that the DC topology has been preserved
         assertSameDcTopology(network, loadedNetwork);
     }
 
     /**
-     * Check that the dc topology of the actual network is the same as the one of the expected network.
+     * Check that the DC topology of the actual network is the same as the one of the expected network.
      * DcNode ids are not necessarily preserved (e.g. in bus-branch, DcNodes are recreated from DcBuses), hence
      * DcNodes are matched through the equipment connected to them. The resulting matching must be one-to-one.
      */

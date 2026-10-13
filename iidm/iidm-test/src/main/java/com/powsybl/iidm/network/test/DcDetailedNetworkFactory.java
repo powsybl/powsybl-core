@@ -943,7 +943,7 @@ public final class DcDetailedNetworkFactory {
         vl1.getNodeBreakerView().newBusbarSection().setId("B1").setNode(0).add();
         vl2.getNodeBreakerView().newBusbarSection().setId("B2").setNode(0).add();
 
-        // Create Generator, load and AC line
+        // Create the generator, load and AC line
         vl1.newGenerator()
                 .setId("G1")
                 .setNode(1)
@@ -978,7 +978,7 @@ public final class DcDetailedNetworkFactory {
         VoltageLevel vl1 = acDcNetwork.getVoltageLevel("VL1");
         VoltageLevel vl2 = acDcNetwork.getVoltageLevel("VL2");
 
-        // Create the MTDC network
+        // Create the DC network
         acDcNetwork.newDcNode().setId("dn1_pos").setNominalV(320).add();
         acDcNetwork.newDcNode().setId("dn1_neg").setNominalV(320).add();
         acDcNetwork.newDcNode().setId("dn1_neutral").setNominalV(320).add();
@@ -1072,7 +1072,7 @@ public final class DcDetailedNetworkFactory {
         VoltageLevel vl1 = acDcNetwork.getVoltageLevel("VL1");
         VoltageLevel vl2 = acDcNetwork.getVoltageLevel("VL2");
 
-        // Create the MTDC network
+        // Create the DC network
         acDcNetwork.newDcNode().setId("dn1_pos").setNominalV(320).add();
         acDcNetwork.newDcNode().setId("dn1_neg").setNominalV(320).add();
         acDcNetwork.newDcNode().setId("dn2_pos").setNominalV(320).add();
