@@ -9,10 +9,18 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.triplestore.api.TripleStoreFactory;
+import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,6 +30,9 @@ import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CL
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -62,6 +73,24 @@ class SwitchUpdateTest extends AbstractSerDeTest {
 
         readCgmesResources(network, DIR, "switch_SSH_1.xml");
         assertSecondSsh(network);
+    }
+
+    @Test
+    void terminalsQueriedOnceDuringUpdateTest() {
+        Network network = readCgmesResources(DIR, "switch_EQ.xml");
+        assertEquals(4, network.getSwitchCount());
+
+        // Same model as CgmesImport.update builds, spied to count the terminals query
+        TripleStoreOptions options = new TripleStoreOptions();
+        options.setQueryCatalog(Conversion.QUERY_CATALOG_NAME_UPDATE);
+        CgmesModel cgmes = spy(CgmesModelFactory.create(new ResourceDataSource("SSH", new ResourceSet(DIR, "switch_SSH.xml")),
+                null, TripleStoreFactory.DEFAULT_IMPLEMENTATION, ReportNode.NO_OP, options));
+        new Conversion(cgmes, new Conversion.Config()).update(network, ReportNode.NO_OP);
+
+        // The update cache and the creation of fictitious switches for disconnected terminals share one query
+        verify(cgmes, times(1)).terminals();
+        assertFirstSsh(network);
+        assertEquals(9, network.getSwitchCount()); // The 5 fictitious switches for the disconnected terminals are still created
     }
 
     @Test
