@@ -50,11 +50,11 @@ the measurement graph. A numerical one builds the gain matrix and examines its r
 doing most of an estimation before answering.
 
 The topological approach comes from Krumpholz, Clements and Davis, *Power System Observability: A
-Practical Algorithm Using Network Topology* (IEEE Trans. PAS-99, 1534-1542, 1980). The numerical
-one, and the observable islands it reports, come from a pair of companion papers in the same
-issue: Wu and Monticelli, *Network Observability: Theory*, and Monticelli and Wu, *Network
-Observability: Identification of Observable Islands and Measurement Placement* (IEEE Trans.
-PAS-104(5), 1042-1048 and 1035-1041, 1985).
+Practical Algorithm Using Network Topology* (IEEE Trans. PAS-99(4), 1534-1542, 1980). The numerical
+one, and the observable islands it reports, come from a pair of companion papers published
+together five years later: Wu and Monticelli, *Network Observability: Theory*, and Monticelli and
+Wu, *Network Observability: Identification of Observable Islands and Measurement Placement* (IEEE
+Trans. PAS-104(5), 1042-1048 and 1035-1041, 1985).
 
 What the numerical way costs is that the same factorization is built twice, once to answer the
 observability question and again when `estimate` runs. That is a performance question inside an

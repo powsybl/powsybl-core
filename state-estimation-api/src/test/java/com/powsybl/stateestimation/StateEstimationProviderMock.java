@@ -116,7 +116,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
         StateEstimationResult.MeasurementResult measurement =
                 new StateEstimationResultImpl.MeasurementResultImpl(MEASUREMENT_ID, 100.0, 99.5, 0.5, false);
 
-        return new StateEstimationResultImpl(StateEstimationResult.Status.FULLY_ESTIMATED, "",
+        return new StateEstimationResultImpl(StateEstimationResult.Status.FULLY_ESTIMATED,
                 List.of(component), List.of(bus), List.of(measurement));
     }
 

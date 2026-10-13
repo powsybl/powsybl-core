@@ -47,5 +47,8 @@ maxdepth: 2
 hidden: true
 ---
 
+parameters.md
+inputs.md
+outputs.md
 limitations.md
 ```

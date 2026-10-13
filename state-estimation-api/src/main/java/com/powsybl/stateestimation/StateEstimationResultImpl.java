@@ -21,48 +21,39 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         implements StateEstimationResult {
 
     private final Status status;
-    private final String logs;
     private final List<ComponentResult> componentResults;
     private final List<BusResult> busResults;
     private final List<MeasurementResult> measurementResults;
 
     /**
-     * {@code logs} may be null; nothing else may.
+     * Records the outcome of an estimation.
      *
      * @param status the outcome being recorded
-     * @param logs text to return alongside the result, or null
      * @param componentResults one entry per connected component
      * @param busResults the estimated state, one entry per bus
      * @param measurementResults one entry per measurement the estimation consumed
      */
-    public StateEstimationResultImpl(Status status, String logs,
+    public StateEstimationResultImpl(Status status,
                                      List<ComponentResult> componentResults, List<BusResult> busResults,
                                      List<MeasurementResult> measurementResults) {
         this.status = Objects.requireNonNull(status);
-        this.logs = logs;
         this.componentResults = List.copyOf(Objects.requireNonNull(componentResults));
         this.busResults = List.copyOf(Objects.requireNonNull(busResults));
         this.measurementResults = List.copyOf(Objects.requireNonNull(measurementResults));
     }
 
     /**
-     * A failed estimation, carrying only the logs.
+     * An estimation that produced nothing.
      *
-     * @param logs text to return alongside the result, or null
-     * @return a failed estimation, carrying only the logs
+     * @return a failed estimation, holding no component, bus or measurement results
      */
-    public static StateEstimationResultImpl failed(String logs) {
-        return new StateEstimationResultImpl(Status.FAILED, logs, List.of(), List.of(), List.of());
+    public static StateEstimationResultImpl failed() {
+        return new StateEstimationResultImpl(Status.FAILED, List.of(), List.of(), List.of());
     }
 
     @Override
     public Status getStatus() {
         return status;
-    }
-
-    @Override
-    public String getLogs() {
-        return logs;
     }
 
     @Override

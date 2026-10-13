@@ -39,13 +39,6 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
     /** The outcome over every component in scope. */
     Status getStatus();
 
-    /**
-     * Text the implementation returns alongside the result, such as a solver log. This is separate
-     * from the application's logging stack: an implementation that logs only through slf4j returns
-     * an empty string here.
-     */
-    String getLogs();
-
     /** One entry per connected component the estimation covered. */
     List<ComponentResult> getComponentResults();
 
