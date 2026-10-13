@@ -951,8 +951,11 @@ public final class DcDetailedNetworkFactory {
                 .setMaxP(500)
                 .setTargetP(200)
                 .setLocalTargetV(400)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
-                .add();
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()  // VoltageRegulationAdder
+                .add();  // GeneratorAdder
         vl2.newLoad().setId("LD1").setNode(1).setP0(300).setQ0(50.0).add();
 
         network.newLine().setId("AC_LINE").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(2).setNode2(2).setR(1.0).setX(15.0).add();

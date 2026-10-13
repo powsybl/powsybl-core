@@ -388,22 +388,18 @@ class AcDcConversionTest extends AbstractSerDeTest {
         //   A HVDC bipole with VSC, and DC nodes in the middle that do not belong to any converters
         // CGMES network:
         //   All DCNodes reference a DCEquipmentContainer.
-        Network network = DcDetailedNetworkFactory.createVscBipoleWithCentralNode();
+        Network network = DcDetailedNetworkFactory.createVscMonopoleWithGroundReturnWithCentralNode();
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir, new Properties());
 
-        assertEquals(4, getElementCount(eqFile, "DCConverterUnit"));
-        assertEquals(9, getElementCount(eqFile, "DCNode"));
+        assertEquals(2, getElementCount(eqFile, "DCConverterUnit"));
+        assertEquals(5, getElementCount(eqFile, "DCNode"));
 
         Map<String, String> expectedDcEquipmentContainerMapping = Map.of(
-                "dn1_pos", "vsc1_pos_VSC_DCCU",
-                "dn1_neg", "vsc1_neg_VSC_DCCU",
-                "dn1_neutral", "vsc1_neg_VSC_DCCU",
-                "dn2_pos", "vsc2_pos_VSC_DCCU",
-                "dn2_neg", "vsc2_neg_VSC_DCCU",
-                "dn2_neutral", "vsc2_neg_VSC_DCCU",
-                "dn3_pos", "vsc1_pos_VSC_DCCU",
-                "dn3_neg", "vsc1_neg_VSC_DCCU",
-                "dn3_neutral", "vsc1_neg_VSC_DCCU"
+                "dn1_pos", "vsc1_VSC_DCCU",
+                "dn1_neg", "vsc1_VSC_DCCU",
+                "dn2_pos", "vsc2_VSC_DCCU",
+                "dn2_neg", "vsc2_VSC_DCCU",
+                "dn3_pos", "vsc1_VSC_DCCU"
         );
         Set<String> expectedDcNodesIds = expectedDcEquipmentContainerMapping.keySet();
 
@@ -654,6 +650,10 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
     }
 
+    /**
+     * This test ensures that DC nodes that are not connected to an AC/DC converter are not registered by
+     * getConvertersDcNodeConvertersUnit() but that getAllDcNodesConvertersUnit() includes them.
+     */
     @Test
     void getDcNodesConverterUnitTest() {
         Network network = DcDetailedNetworkFactory.createVscBipoleWithCentralNode();
@@ -676,6 +676,51 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // Graph traversal with DC switches and DC lines
         Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesMapFull = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
         assertEquals(allDcNodes, dcNodesMapFull.keySet());
+    }
+
+    /**
+     * This test checks that a DC node connected to two converters selects the one with the lowest id as DCConverterUnit.
+     */
+    @Test
+    void getDcNodesConverterUnitTestAssignDcNodeWithToConvertersWithTheOneWithTheLowestId() {
+        // Create a very simple network with 2 converters
+        Network network = Network.create("simpleNetWithTwoVsc", "test");
+        network.newDcNode().setId("dn_A").setNominalV(320).add();
+        DcNode dnB = network.newDcNode().setId("dn_B").setNominalV(320).add();
+        network.newDcNode().setId("dn_C").setNominalV(320).add();
+        VoltageLevel vl1 = network.newVoltageLevel().setId("vl1").setNominalV(400).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1.getBusBreakerView().newBus().setId("b1").add();
+        VoltageSourceConverter vscA = vl1.newVoltageSourceConverter()
+                .setId("vsc_A")
+                .setBus1("b1")
+                .setDcNode1("dn_A")
+                .setDcNode2("dn_B")
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(0)
+                .setLocalTargetQ(0)
+                .add();
+        VoltageSourceConverter vscB = vl1.newVoltageSourceConverter()
+                .setId("vsc_B")
+                .setBus1("b1")
+                .setDcNode1("dn_C")
+                .setDcNode2("dn_B")
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(0)
+                .setLocalTargetQ(0)
+                .add();
+
+        // Plausible AcDcConverter to DCConverterUnit map
+        CgmesExportUtil.DCConverterUnit converterUnitA = new CgmesExportUtil.DCConverterUnit("vscA_VSC_DCCU", "vscA_neg Unit", "S1");
+        CgmesExportUtil.DCConverterUnit converterUnitB = new CgmesExportUtil.DCConverterUnit("vscB_VSC_DCCU", "vscB_neg Unit", "S1");
+
+        Map<AcDcConverter<?>, CgmesExportUtil.DCConverterUnit> acDcConvertersUnit = Map.of(
+                vscA, converterUnitA,
+                vscB, converterUnitB
+        );
+
+        // Run function and check that DC node B is assigned to the first DCConverterUnit
+        Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesMap = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
+        assertEquals(converterUnitA, dcNodesMap.get(dnB));
     }
 
     static Stream<Arguments> exportParameters() {
