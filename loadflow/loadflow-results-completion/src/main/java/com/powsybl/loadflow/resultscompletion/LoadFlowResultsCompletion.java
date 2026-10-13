@@ -166,8 +166,9 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                 terminal.setP(-generator.getTargetP());
             }
             if (Double.isNaN(terminal.getQ())) {
-                LOGGER.debug("Generator {}, setting q = {}", generator.getId(), -generator.getTargetQ());
-                terminal.setQ(-generator.getTargetQ());
+                double q = -generator.getRegulatingTargetQ();
+                LOGGER.debug("Generator {}, setting q = {}", generator.getId(), q);
+                terminal.setQ(q);
             }
         }
     }

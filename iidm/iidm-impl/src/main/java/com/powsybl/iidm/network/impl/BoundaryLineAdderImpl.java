@@ -112,7 +112,7 @@ class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl
             generation = generationAdder.build();
         }
 
-        BoundaryLineImpl boundaryLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
+        BoundaryLineImpl boundaryLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), isEquivalent(), p0, q0, r, x, g, b, pairingKey, generation);
         boundaryLine.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(boundaryLine);
