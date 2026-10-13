@@ -10,14 +10,14 @@
         <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
         <md:Model.Supersedes rdf:resource="urn:uuid:52b712d1-f3b0-4a59-9191-79f2fb1e4c4e"/>
     </md:FullModel>
-    <cim:Terminal rdf:about="#_67bb74f1-8620-4a32-9d7d-a44092d11d22">
+    <cim:Terminal rdf:about="#_T_SVC_1_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:StaticVarCompensator rdf:about="#_3c69652c-ff14-4550-9a87-b6fdaccbb5f4">
+    <cim:StaticVarCompensator rdf:about="#_SVC_1">
         <cim:StaticVarCompensator.q>0e+000</cim:StaticVarCompensator.q>
         <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
     </cim:StaticVarCompensator>
-    <cim:RegulatingControl rdf:about="#_caf65447-3cfb-48d7-aaaa-cd9af3d34261">
+    <cim:RegulatingControl rdf:about="#_RC_SVC_1">
         <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
         <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
         <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>

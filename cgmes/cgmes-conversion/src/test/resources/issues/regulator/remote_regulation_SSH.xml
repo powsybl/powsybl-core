@@ -9,39 +9,39 @@
         <md:Model.modelingAuthoritySet>http://A1.de/Planning/ENTSOE/2</md:Model.modelingAuthoritySet>
         <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd2-9a39-11e0-aa80-0800200c9a66_EU"/>
     </md:FullModel>
-    <cim:Terminal rdf:about="#_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d">
+    <cim:Terminal rdf:about="#_T_PT_T1_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_82611054-72b9-4cb0-8621-e418b8962cb1">
+    <cim:Terminal rdf:about="#_T_PT_T1_2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_eb8ed3e6-c0de-47e2-9dd5-52b321d51b70">
+    <cim:Terminal rdf:about="#_T_PT_T4_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_e59d3a8c-8382-413a-95ae-6354dfe85565">
+    <cim:Terminal rdf:about="#_T_PT_T4_2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_5af3b857-165c-4f96-b415-0d6e2e9ca27f">
+    <cim:Terminal rdf:about="#_T_PT_T4_3">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_1dfffea9-1fac-48f1-b466-1312643f3a47">
+    <cim:Terminal rdf:about="#_T_PT_T3_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_d5b02a21-e6f5-441c-81f2-4accb1a56ddd">
+    <cim:Terminal rdf:about="#_T_PT_T3_2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_01a240e9-5607-4844-9d53-5c8b08b5c9a8">
+    <cim:Terminal rdf:about="#_T_PT_T3_3">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:RatioTapChanger rdf:about="#_0522ca48-e644-4d3a-9721-22bb0abd1c8b">
+    <cim:RatioTapChanger rdf:about="#_RTC_T1">
         <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
         <cim:TapChanger.step>13</cim:TapChanger.step>
     </cim:RatioTapChanger>
-    <cim:RatioTapChanger rdf:about="#_8de2d157-15d1-42c7-b376-a8ae5b6c0e77">
+    <cim:RatioTapChanger rdf:about="#_RTC_T3">
         <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
         <cim:TapChanger.step>17</cim:TapChanger.step>
     </cim:RatioTapChanger>
-    <cim:RatioTapChanger rdf:about="#_4a8a5456-91ac-4bc9-b8e2-64eeeef78a1a">
+    <cim:RatioTapChanger rdf:about="#_RTC_T4">
         <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
         <cim:TapChanger.step>17</cim:TapChanger.step>
     </cim:RatioTapChanger>

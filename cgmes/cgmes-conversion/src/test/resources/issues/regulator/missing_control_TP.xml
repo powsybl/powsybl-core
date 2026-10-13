@@ -11,43 +11,43 @@
         <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
         <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
     </md:FullModel>
-    <cim:TopologicalNode rdf:ID="_e44141af-f1dc-44d3-bfa4-b674e5c953d7">
+    <cim:TopologicalNode rdf:ID="_TN_BE_TR_BUS2">
         <cim:IdentifiedObject.name>BE_TR_BUS2</cim:IdentifiedObject.name>
-        <cim:TopologicalNode.BaseVoltage rdf:resource="#_35cf638d-9a9d-4ae5-ae90-2f01ef898cb6"/>
-        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_469df5f7-058f-4451-a998-57a48e8a56fe"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_380_kV"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_380_0"/>
     </cim:TopologicalNode>
-    <cim:TopologicalNode rdf:ID="_99b219f3-4593-428b-a4da-124a54630178">
+    <cim:TopologicalNode rdf:ID="_TN_BE_TR_BUS4">
         <cim:IdentifiedObject.name>BE_TR_BUS4</cim:IdentifiedObject.name>
-        <cim:TopologicalNode.BaseVoltage rdf:resource="#_63893f24-5b4e-407c-9a1e-4ff71121f33c"/>
-        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_225_kV"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_225_0"/>
     </cim:TopologicalNode>
-    <cim:TopologicalNode rdf:ID="_5c74cb26-ce2f-40c6-951d-89091eb781b6">
+    <cim:TopologicalNode rdf:ID="_TN_BE_Busbar_6">
         <cim:IdentifiedObject.name>BE-Busbar_6</cim:IdentifiedObject.name>
         <entsoe:IdentifiedObject.shortName>BE-B_6</entsoe:IdentifiedObject.shortName>
         <cim:IdentifiedObject.description>BBRUS151; BGENT_51</cim:IdentifiedObject.description>
-        <cim:TopologicalNode.BaseVoltage rdf:resource="#_00b17311-075f-48f6-a79b-597f42af4694"/>
-        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_110_00_kV"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_110_0"/>
     </cim:TopologicalNode>
-    <cim:TopologicalNode rdf:ID="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e">
+    <cim:TopologicalNode rdf:ID="_TN_BE_Busbar_4">
         <cim:IdentifiedObject.name>BE-Busbar_4</cim:IdentifiedObject.name>
         <entsoe:IdentifiedObject.shortName>BE-B_4</entsoe:IdentifiedObject.shortName>
         <cim:IdentifiedObject.description>BGENT_71; This is the old UCTE code from UCTE DEF</cim:IdentifiedObject.description>
-        <cim:TopologicalNode.BaseVoltage rdf:resource="#_862a4658-6b03-4550-9de2-b5c413912b75"/>
-        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_10_50_kV"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_10_5"/>
     </cim:TopologicalNode>
-    <cim:Terminal rdf:about="#_c3774d3f-f48c-4954-a0cf-b4572eb714fd">
-        <cim:Terminal.TopologicalNode rdf:resource="#_e44141af-f1dc-44d3-bfa4-b674e5c953d7"/>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_1">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_BE_TR_BUS2"/>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_2cd21c77-b8b1-4896-95fb-240f45b9ac89">
-        <cim:Terminal.TopologicalNode rdf:resource="#_5c74cb26-ce2f-40c6-951d-89091eb781b6"/>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_2">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_BE_Busbar_6"/>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_4c19ace6-c825-4c5b-87d9-031e6e6a3379">
-        <cim:Terminal.TopologicalNode rdf:resource="#_99b219f3-4593-428b-a4da-124a54630178"/>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_2_1">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_BE_TR_BUS4"/>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_ab7ece75-d726-48c8-a924-b0a9325e6d51">
-        <cim:Terminal.TopologicalNode rdf:resource="#_5c74cb26-ce2f-40c6-951d-89091eb781b6"/>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_2_2">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_BE_Busbar_6"/>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_beffa353-7d10-421d-9c08-036b744b1cee">
-        <cim:Terminal.TopologicalNode rdf:resource="#_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e"/>
+    <cim:Terminal rdf:about="#_T_SM_BE_G1_1">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_BE_Busbar_4"/>
     </cim:Terminal>
 </rdf:RDF>

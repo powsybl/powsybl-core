@@ -30,7 +30,7 @@ class RegulatingTerminalConversionTest {
                 "switch_cim100_EQ.xml", "switch_cim100_SSH.xml", "switch_cim100_TP.xml");
 
         // Flow control in transformer
-        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("PT_BE_TR2_1");
         assertNotNull(tw2t);
         PhaseTapChanger ptc = tw2t.getPhaseTapChanger();
         assertNotNull(ptc);
@@ -44,7 +44,7 @@ class RegulatingTerminalConversionTest {
         assertEquals(65.0, regulationValue, 0.0);
 
         // Voltage control
-        Generator gen = n.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator gen = n.getGenerator("SM_BE_G2");
         assertNotNull(gen);
 
         regulatingTerminal = gen.getRegulatingTerminal();
@@ -62,7 +62,7 @@ class RegulatingTerminalConversionTest {
                 "switch_cim16_EQ.xml", "switch_cim16_SSH.xml", "switch_cim16_TP.xml");
 
         // Flow control in transformer
-        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("PT_BE_TR2_1");
         assertNotNull(tw2t);
         PhaseTapChanger ptc = tw2t.getPhaseTapChanger();
         assertNotNull(ptc);
@@ -76,7 +76,7 @@ class RegulatingTerminalConversionTest {
         assertEquals(-65.0, regulationValue, 0.0);
 
         // Voltage control
-        Generator gen = n.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator gen = n.getGenerator("SM_BE_G2");
         assertNotNull(gen);
 
         regulatingTerminal = gen.getRegulatingTerminal();

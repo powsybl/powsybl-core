@@ -9,16 +9,16 @@
         <md:Model.modelingAuthoritySet>http://A1.de/Planning/ENTSOE/2</md:Model.modelingAuthoritySet>
         <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd2-9a39-11e0-aa80-0800200c9a66_EU"/>
     </md:FullModel>
-    <cim:Terminal rdf:about="#_1dfffea9-1fac-48f1-b466-1312643f3a47">
+    <cim:Terminal rdf:about="#_T_PT_T3_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_d5b02a21-e6f5-441c-81f2-4accb1a56ddd">
+    <cim:Terminal rdf:about="#_T_PT_T3_2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_01a240e9-5607-4844-9d53-5c8b08b5c9a8">
+    <cim:Terminal rdf:about="#_T_PT_T3_3">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:RatioTapChanger rdf:about="#_8de2d157-15d1-42c7-b376-a8ae5b6c0e77">
+    <cim:RatioTapChanger rdf:about="#_RTC_T3">
         <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
         <cim:TapChanger.step>17</cim:TapChanger.step>
     </cim:RatioTapChanger>

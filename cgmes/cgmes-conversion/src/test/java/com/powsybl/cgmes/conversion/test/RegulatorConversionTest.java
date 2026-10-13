@@ -39,26 +39,26 @@ class RegulatorConversionTest {
         Network network = readCgmesResources(importParams, "/issues/regulator",
                 "invalid_control_EQ.xml", "invalid_control_SSH.xml", "invalid_control_TP.xml");
 
-        Generator generator1 = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
+        Generator generator1 = network.getGenerator("SM_BE_G1");
         assertNull(generator1.getVoltageRegulation());
         assertTrue(Double.isNaN(generator1.getLocalTargetV()));
         assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
 
-        RatioTapChanger rtc = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("PT_BE_TR2_3").getRatioTapChanger();
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getRegulatingTargetV()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulatingTerminal());
 
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("PT_BE_TR2_1").getPhaseTapChanger();
         assertNotNull(ptc);
         assertEquals(CURRENT_LIMITER, ptc.getRegulationMode());
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
         assertFalse(ptc.isRegulating());
         assertNull(ptc.getRegulationTerminal());
 
-        Generator generator2 = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator generator2 = network.getGenerator("SM_BE_G2");
         assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getLocalTargetV(), 0.0);
         assertEquals(VOLTAGE, generator2.getVoltageRegulation().getMode());
     }
@@ -68,18 +68,18 @@ class RegulatorConversionTest {
         Network network = readCgmesResources(importParams, "/issues/regulator",
                 "missing_control_EQ.xml", "missing_control_SSH.xml", "missing_control_TP.xml");
 
-        Generator generator = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
+        Generator generator = network.getGenerator("SM_BE_G1");
         assertNull(generator.getVoltageRegulation());
         assertTrue(Double.isNaN(generator.getLocalTargetV()));
 
-        RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("PT_BE_TR2_2").getRatioTapChanger();
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getRegulatingTargetV()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulatingTerminal());
 
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("PT_BE_TR2_1").getPhaseTapChanger();
         assertNotNull(ptc);
         assertEquals(CURRENT_LIMITER, ptc.getRegulationMode());
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
@@ -91,7 +91,7 @@ class RegulatorConversionTest {
     void shuntWithoutRegulatingControl() {
         Network network = readCgmesResources(importParams, "/issues/regulator",
                 "missing_shunt_control_EQ.xml", "missing_shunt_control_SSH.xml", "missing_shunt_control_TP.xml");
-        ShuntCompensator shunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        ShuntCompensator shunt = network.getShuntCompensator("LSC_BE_S1");
         assertNull(shunt.getVoltageRegulation());
     }
 
@@ -99,7 +99,7 @@ class RegulatorConversionTest {
     void svcInvalidControlModeDefaultsToVoltage() {
         Network network = readCgmesResources(importParams, "/issues/regulator",
                 "svc_invalid_cim16_EQ.xml", "svc_invalid_cim16_SSH.xml", "svc_invalid_cim16_TP.xml");
-        StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC_1");
         assertNotNull(svc);
         assertTrue(svc.getVoltageRegulation().isRegulating());
         assertEquals(VOLTAGE, svc.getVoltageRegulation().getMode());
@@ -184,19 +184,19 @@ class RegulatorConversionTest {
         Network network = readCgmesResources(importParams, "/issues/regulator",
                 "remote_regulation_EQ.xml", "remote_regulation_SSH.xml", "remote_regulation_TP.xml");
 
-        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("PT_T1");
         RatioTapChanger rtc = twt2.getRatioTapChanger();
         assertNotNull(rtc);
         Terminal regulatingTerminal = rtc.getRegulatingTerminal();
         assertNotNull(regulatingTerminal);
         assertSame(twt2.getTerminal1().getBusBreakerView().getBus(), regulatingTerminal.getBusBreakerView().getBus());
 
-        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
+        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("PT_T3");
         RatioTapChanger rtc2 = twt3.getLeg3().getRatioTapChanger();
         assertNotNull(rtc2);
         Terminal regulatingTerminal2 = rtc2.getRegulatingTerminal();
         assertNotNull(regulatingTerminal2);
-        assertSame(network.getVoltageLevel("93778e52-3fd5-456d-8b10-987c3e6bc47e").getBusBreakerView().getBus("03163ede-7eec-457f-8641-365982227d7c"),
+        assertSame(network.getVoltageLevel("VL_S1_30kV").getBusBreakerView().getBus("TN_H"),
                 regulatingTerminal2.getBusBreakerView().getBus());
     }
 
@@ -205,7 +205,7 @@ class RegulatorConversionTest {
         Network network = readCgmesResources(importParams, "/issues/regulator",
                 "two_regulating_controls_EQ.xml", "two_regulating_controls_SSH.xml", "two_regulating_controls_TP.xml");
 
-        ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
+        ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("PT_T3");
         RatioTapChanger leg2TapChanger = transformer.getLeg2().getRatioTapChanger();
         assertNotNull(leg2TapChanger);
         assertNotNull(leg2TapChanger.getRegulatingTerminal());
