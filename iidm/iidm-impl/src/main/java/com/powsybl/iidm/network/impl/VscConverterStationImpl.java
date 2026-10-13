@@ -89,7 +89,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getNetwork().getVariantIndex());
+        return this.localTargetV.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -131,7 +131,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public double getLocalTargetQ() {
-        return this.localTargetQ.get(getNetwork().getVariantIndex());
+        return this.localTargetQ.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
