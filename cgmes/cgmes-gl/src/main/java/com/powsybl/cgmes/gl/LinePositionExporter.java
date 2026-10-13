@@ -7,13 +7,15 @@
  */
 package com.powsybl.cgmes.gl;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.LinePosition;
-import com.powsybl.triplestore.api.TripleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.XMLStreamWriter;
 import java.util.Objects;
 
 /**
@@ -24,31 +26,28 @@ public class LinePositionExporter extends AbstractPositionExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinePositionExporter.class);
 
-    public LinePositionExporter(TripleStore tripleStore, ExportContext context) {
-        super(tripleStore, context);
+    public LinePositionExporter(XMLStreamWriter writer, CgmesExportContext context, String coordinateSystemId) {
+        super(writer, context, coordinateSystemId);
     }
 
     public void exportPosition(Line line) {
         Objects.requireNonNull(line);
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
-        exportPosition(line.getId(), line.getNameOrId(), linePosition);
+        exportPosition(line, linePosition);
     }
 
     public void exportPosition(BoundaryLine boundaryLine) {
         Objects.requireNonNull(boundaryLine);
         LinePosition<BoundaryLine> linePosition = boundaryLine.getExtension(LinePosition.class);
-        exportPosition(boundaryLine.getId(), boundaryLine.getNameOrId(), linePosition);
+        exportPosition(boundaryLine, linePosition);
     }
 
-    private void exportPosition(String id, String name, LinePosition<?> linePosition) {
+    private void exportPosition(Identifiable<?> line, LinePosition<?> linePosition) {
         if (linePosition == null) {
-            LOG.warn("Cannot find position data of line {}, name {}: skipping export of line position", id, name);
+            LOG.warn("Cannot find position data of line {}, name {}: skipping export of line position", line.getId(), line.getNameOrId());
             return;
         }
-        String locationId = addLocation(id, name);
-        for (int i = 0; i < linePosition.getCoordinates().size(); i++) {
-            addLocationPoint(locationId, linePosition.getCoordinates().get(i), i + 1);
-        }
+        writeLocation(line, linePosition.getCoordinates(), true);
     }
 
 }
