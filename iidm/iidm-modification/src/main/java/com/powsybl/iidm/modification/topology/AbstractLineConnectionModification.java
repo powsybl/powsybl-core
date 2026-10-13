@@ -150,7 +150,35 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
     }
 
-    protected void createConnectablePositionExtensionForNewLine(Line line, TwoSides twoSides, Integer positionForNewLine, ReportNode reportNode, boolean throwException) {
+    protected static class ConnectablePositionData {
+        private final String name;
+
+        private final Integer order;
+
+        private final ConnectablePosition.Direction direction;
+
+        public ConnectablePositionData(ConnectablePosition.Feeder feeder) {
+            this.name = feeder.getName().orElse(null);
+            this.order = feeder.getOrder().orElse(null);
+            this.direction = feeder.getDirection();
+        }
+
+        public ConnectablePosition.Direction getDirection() {
+            return direction;
+        }
+
+        public Integer getOrder() {
+            return order;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    protected void createConnectablePositionExtensionForNewLine(Line line, TwoSides twoSides, Integer positionForNewLine,
+                                                                ConnectablePositionData connectablePositionData, ReportNode reportNode,
+                                                                boolean throwException) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (positionForNewLine == null) {
             return;
@@ -192,6 +220,16 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
                 .withOrder(positionForNewLine)
                 .withName(line.getId())
                 .add();
+        if (connectablePositionData != null) {
+            ConnectablePositionAdder.FeederAdder<?> feederAdder2 = switch (twoSides) {
+                case TWO -> positionAdder.newFeeder1();
+                case ONE -> positionAdder.newFeeder2();
+            };
+            feederAdder2.withDirection(connectablePositionData.getDirection())
+                    .withOrder(connectablePositionData.getOrder())
+                    .withName(connectablePositionData.getName())
+                    .add();
+        }
         positionAdder.add();
     }
 }
