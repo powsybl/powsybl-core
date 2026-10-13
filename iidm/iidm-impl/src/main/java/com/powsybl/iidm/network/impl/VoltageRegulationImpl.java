@@ -67,40 +67,27 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         this.classHolder = classHolder;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.targetValue = new ExtendedDoubleArrayList(variantArraySize);
-        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize);
-        this.slope = new ExtendedDoubleArrayList(variantArraySize);
-        this.regulating = new ExtendedBooleanArrayList(variantArraySize);
-        this.regulationMode = new ExtendedIntArrayList(variantArraySize);
-        initVariantAttributes(attributes.targetValue(),
-            attributes.targetDeadband(),
-            attributes.slope(),
-            attributes.isRegulating(),
-            attributes.mode(),
-            variantArraySize);
+
+        // Initialize the variant attributes with default values and defined as not regulating
+        this.targetValue = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
+        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
+        this.slope = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
+        this.regulating = new ExtendedBooleanArrayList(variantArraySize, false);
+        this.regulationMode = new ExtendedIntArrayList(variantArraySize, UNDEFINED_REGULATION_MODE);
+
+        // Set the initial values for the current variant
+        Integer regulationModeIndex = RegulationMode.getIndexFromMode(attributes.mode());
+        int currentVariantIndex = getCurrentVariantIndex();
+        this.targetValue.set(currentVariantIndex, attributes.targetValue());
+        this.targetDeadband.set(currentVariantIndex, attributes.targetDeadband());
+        this.slope.set(currentVariantIndex, attributes.slope());
+        this.regulating.set(currentVariantIndex, attributes.isRegulating());
+        this.regulationMode.set(currentVariantIndex, regulationModeIndex != null ? regulationModeIndex : UNDEFINED_REGULATION_MODE);
+
         if (attributes.terminal() != null) {
             this.setTerminal(attributes.terminal(), attributes.targetValue(), false);
         }
         notifyUpdate(NotifyUpdateKey.NEW_REGULATION, null, this);
-    }
-
-    private void initVariantAttributes(double targetValue, double targetDeadband, double slope, boolean regulating, RegulationMode mode, int variantArraySize) {
-        Integer regulationModeIndex = RegulationMode.getIndexFromMode(mode);
-        for (int i = 0; i < variantArraySize; i++) {
-            // When the VoltageRegulation object is created and there are already other variants,
-            // it is created with "empty" values and defined as not regulating for the other variants.
-            this.targetValue.add(Double.NaN);
-            this.targetDeadband.add(Double.NaN);
-            this.slope.add(Double.NaN);
-            this.regulating.add(false);
-            this.regulationMode.add(UNDEFINED_REGULATION_MODE);
-        }
-        int currentVariantIndex = getCurrentVariantIndex();
-        this.targetValue.set(currentVariantIndex, targetValue);
-        this.targetDeadband.set(currentVariantIndex, targetDeadband);
-        this.slope.set(currentVariantIndex, slope);
-        this.regulating.set(currentVariantIndex, regulating);
-        this.regulationMode.set(currentVariantIndex, regulationModeIndex != null ? regulationModeIndex : UNDEFINED_REGULATION_MODE);
     }
 
     private void checkAttributes(VoltageRegulationAttributes newAttributes) {
