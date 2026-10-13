@@ -7,6 +7,11 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
@@ -14,8 +19,6 @@ import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.ReferencePriorityAdder;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-
-import java.util.*;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -26,8 +29,11 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
 
     ReferencePrioritiesImpl(C extendable) {
         super(extendable);
-        this.referencePrioritiesPerVariant = new ArrayList<>(
-                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashMap<>()));
+        int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
+        this.referencePrioritiesPerVariant = new ArrayList<>(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.referencePrioritiesPerVariant.add(new LinkedHashMap<>());
+        }
     }
 
     ReferencePrioritiesImpl<C> add(ReferencePriority referencePriority) {
