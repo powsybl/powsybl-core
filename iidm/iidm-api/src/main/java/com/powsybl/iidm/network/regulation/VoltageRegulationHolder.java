@@ -7,9 +7,13 @@
  */
 package com.powsybl.iidm.network.regulation;
 
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 
 /**
  * This interface defines methods for managing voltageRegulation
@@ -71,18 +75,14 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * @return the current instance for method chaining
      * @see VariantManager
      */
-    default T setLocalTargetQ(double localTargetQ) {
-        throw new UnsupportedOperationException();
-    }
+    T setLocalTargetQ(double localTargetQ);
 
     /**
      * Gets the target reactive power value
      *
      * @return the target reactive power value, or Double.NaN if not applicable
      */
-    default double getLocalTargetQ() {
-        return Double.NaN;
-    }
+    double getLocalTargetQ();
 
     /**
      * Checks if the object is associated with the specified regulation mode.
@@ -127,7 +127,13 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     }
 
     /**
-     * Gets the regulating target voltage value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#VOLTAGE}
+     * <p>
+     * Retrieves the regulating target voltage value in kV.
+     * </p>
+     *
+     * If the object is regulating in {@link RegulationMode#VOLTAGE} or {@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}
+     * and a regulating terminal is explicitly configured, the target value is returned.
+     * Otherwise, the local target voltage value is returned.
      */
     default double getRegulatingTargetV() {
         if ((isWithMode(RegulationMode.VOLTAGE) || isWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)) && hasRegulatingTerminal()) {
@@ -137,11 +143,26 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     }
 
     /**
-     * Gets the regulating target reactive power value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#REACTIVE_POWER}
+     * <p>
+     * Retrieves the target reactive power value, in MVar, using the sign convention
+     * of the holder when applicable.
+     * </p>
+     * <p>
+     * If this object is regulating in {@link RegulationMode#REACTIVE_POWER} mode and
+     * a regulating terminal is explicitly configured, the configured regulation target value
+     * is returned using the holder's sign convention. Otherwise, the local target
+     * reactive power value is returned.
+     * </p>
+     * <p>
+     * For equipment using the generator sign convention, such as {@link Generator},
+     * {@link Battery} and {@link VscConverterStation}, the returned target value is
+     * negated. Otherwise, the target value is returned as-is.
+     * </p>
      */
     default double getRegulatingTargetQ() {
         if (isWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
-            return getVoltageRegulation().getTargetValue();
+            int signToUseLoadConvention = VoltageRegulationUtils.getSignToUseLoadSignConvention(this);
+            return signToUseLoadConvention * getVoltageRegulation().getTargetValue();
         }
         return getLocalTargetQ();
     }
@@ -193,7 +214,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
      * </p>
      * <p>
      *     If the reactive power regulation mode is enabled and regulation is performed remotely,
-     *     the target value is updated to the negated reactive power value at the remote terminal
+     *     the target value is updated to the reactive power value at the remote terminal
      * </p>
      */
     default void setTargetQToQ() {
@@ -201,13 +222,16 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
         if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && hasRegulatingTerminal()) {
             double remoteQ = getVoltageRegulation().getTerminal().getQ();
             if (!Double.isNaN(remoteQ)) {
-                getVoltageRegulation().setTargetValue(-remoteQ);
+                // The target value uses the load sign convention, same as the terminal.
+                getVoltageRegulation().setTargetValue(remoteQ);
             }
         }
-        double q = this.getTerminal().getQ();
-        if (!Double.isNaN(q)) {
-            // In any cases we set the localTargetQ
-            this.setLocalTargetQ(-this.getTerminal().getQ());
+        if (this.getTerminal() != null) {
+            double q = this.getTerminal().getQ();
+            if (!Double.isNaN(q)) {
+                // In any cases we set the localTargetQ
+                this.setLocalTargetQ(-q);
+            }
         }
     }
 
@@ -230,10 +254,12 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
                 getVoltageRegulation().setTargetValue(remoteBus.getV());
             }
         }
-        Bus bus = this.getTerminal().getBusView().getBus();
-        if (bus != null && !Double.isNaN(bus.getV())) {
-            // In any cases we set the localTargetV
-            this.setLocalTargetV(bus.getV());
+        if (this.getTerminal() != null) {
+            Bus bus = this.getTerminal().getBusView().getBus();
+            if (bus != null && !Double.isNaN(bus.getV())) {
+                // In any cases we set the localTargetV
+                this.setLocalTargetV(bus.getV());
+            }
         }
     }
 

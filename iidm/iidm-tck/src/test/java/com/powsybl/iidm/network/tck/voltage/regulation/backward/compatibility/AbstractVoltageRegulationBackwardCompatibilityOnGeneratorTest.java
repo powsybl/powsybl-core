@@ -306,19 +306,13 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         // WHEN
         generator.setTargetQ(newTargetQ);
         // THEN
-        assertEquals(2, listener.getEvents().size());
+        assertEquals(1, listener.getEvents().size());
         NetworkEvent firstEvent = listener.getEvents().getFirst();
         assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
         assertEquals("localTargetQ", ((UpdateNetworkEvent) firstEvent).attribute());
         assertEquals(newTargetQ, ((UpdateNetworkEvent) firstEvent).newValue());
         assertEquals(oldTargetQ, ((UpdateNetworkEvent) firstEvent).oldValue());
         assertEquals(id, ((UpdateNetworkEvent) firstEvent).id());
-        NetworkEvent secondEvent = listener.getEvents().get(1);
-        assertEquals(NetworkEvent.Type.UPDATE, secondEvent.getType());
-        assertEquals("targetQ", ((UpdateNetworkEvent) secondEvent).attribute());
-        assertEquals(newTargetQ, ((UpdateNetworkEvent) secondEvent).newValue());
-        assertEquals(oldTargetQ, ((UpdateNetworkEvent) secondEvent).oldValue());
-        assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
     }
 
     @Test
@@ -333,25 +327,13 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         // WHEN
         generator.setTargetV(newTargetV);
         // THEN
-        assertEquals(3, listener.getEvents().size());
+        assertEquals(1, listener.getEvents().size());
         NetworkEvent firstEvent = listener.getEvents().getFirst();
         assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
         assertEquals("localTargetV", ((UpdateNetworkEvent) firstEvent).attribute());
         assertEquals(newTargetV, ((UpdateNetworkEvent) firstEvent).newValue());
         assertEquals(oldTargetV, ((UpdateNetworkEvent) firstEvent).oldValue());
         assertEquals(id, ((UpdateNetworkEvent) firstEvent).id());
-        NetworkEvent secondEvent = listener.getEvents().get(1);
-        assertEquals(NetworkEvent.Type.UPDATE, secondEvent.getType());
-        assertEquals("targetV", ((UpdateNetworkEvent) secondEvent).attribute());
-        assertEquals(newTargetV, ((UpdateNetworkEvent) secondEvent).newValue());
-        assertEquals(oldTargetV, ((UpdateNetworkEvent) secondEvent).oldValue());
-        assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
-        NetworkEvent thirdEvent = listener.getEvents().get(2);
-        assertEquals(NetworkEvent.Type.UPDATE, thirdEvent.getType());
-        assertEquals("equivalentLocalTargetV", ((UpdateNetworkEvent) thirdEvent).attribute());
-        assertEquals(newTargetV, ((UpdateNetworkEvent) thirdEvent).newValue());
-        assertEquals(oldTargetV, ((UpdateNetworkEvent) thirdEvent).oldValue());
-        assertEquals(id, ((UpdateNetworkEvent) thirdEvent).id());
     }
 
     @Test
@@ -368,7 +350,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         // WHEN
         generator.setTargetV(newTargetV, newEquivalentTargetV);
         // THEN
-        assertEquals(4, listener.getEvents().size());
+        assertEquals(2, listener.getEvents().size());
         NetworkEvent firstEvent = listener.getEvents().getFirst();
         assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
         assertEquals("localTargetV", ((UpdateNetworkEvent) firstEvent).attribute());
@@ -381,18 +363,48 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnGeneratorT
         assertEquals(newTargetV, ((UpdateNetworkEvent) secondEvent).newValue());
         assertEquals(oldTargetV, ((UpdateNetworkEvent) secondEvent).oldValue());
         assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
-        NetworkEvent thirdEvent = listener.getEvents().get(2);
-        assertEquals(NetworkEvent.Type.UPDATE, thirdEvent.getType());
-        assertEquals("targetV", ((UpdateNetworkEvent) thirdEvent).attribute());
-        assertEquals(newTargetV, ((UpdateNetworkEvent) thirdEvent).newValue());
-        assertEquals(oldTargetV, ((UpdateNetworkEvent) thirdEvent).oldValue());
-        assertEquals(id, ((UpdateNetworkEvent) thirdEvent).id());
-        NetworkEvent fourthEvent = listener.getEvents().get(3);
-        assertEquals(NetworkEvent.Type.UPDATE, fourthEvent.getType());
-        assertEquals("equivalentLocalTargetV", ((UpdateNetworkEvent) fourthEvent).attribute());
-        assertEquals(newEquivalentTargetV, ((UpdateNetworkEvent) fourthEvent).newValue());
-        assertEquals(oldTargetV, ((UpdateNetworkEvent) fourthEvent).oldValue());
-        assertEquals(id, ((UpdateNetworkEvent) fourthEvent).id());
+    }
+
+    @Test
+    void testSetRegulatingTerminal() {
+        // GIVEN
+        int expectedTargetQ = 10;
+        Generator generatorWithRemoteReactiveRegulationOff = voltageLevel.newGenerator()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOff")
+            .setConnectableBus(LOCAL_BUS)
+            .setMinP(0)
+            .setTargetP(20)
+            .setMaxP(100)
+            .setLocalTargetQ(expectedTargetQ)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(false)
+                .add()
+            .add();
+        Generator generatorWithRemoteReactiveRegulationOn = voltageLevel.newGenerator()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOn")
+            .setConnectableBus(LOCAL_BUS)
+            .setMinP(0)
+            .setTargetP(20)
+            .setMaxP(100)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(remoteTerminal)
+                .withRegulating(true)
+                .withTargetValue(-expectedTargetQ)
+                .add()
+            .add();
+        // WHEN
+        generatorWithRemoteReactiveRegulationOff.setRegulatingTerminal(remoteTerminal);
+        generatorWithRemoteReactiveRegulationOn.setRegulatingTerminal(remoteTerminal);
+        // THEN
+        assertEquals(-expectedTargetQ, generatorWithRemoteReactiveRegulationOff.getVoltageRegulation().getTargetValue());
+        assertEquals(expectedTargetQ, generatorWithRemoteReactiveRegulationOff.getLocalTargetQ());
+        assertEquals(expectedTargetQ, generatorWithRemoteReactiveRegulationOff.getRegulatingTargetQ());
+
+        assertEquals(-expectedTargetQ, generatorWithRemoteReactiveRegulationOn.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(generatorWithRemoteReactiveRegulationOn.getLocalTargetQ()));
+        assertEquals(expectedTargetQ, generatorWithRemoteReactiveRegulationOn.getRegulatingTargetQ());
     }
 
 }

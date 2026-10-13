@@ -287,12 +287,12 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         RatioTapChanger ratioTapChanger = ratioTapChangerAdder
                 .setLoadTapChangingCapabilities(true)
                 .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(220)
-                .withTerminal(remoteTerminal)
-                .withRegulating(true)
-                .withTargetDeadband(10)
-                .add()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(220)
+                    .withTerminal(remoteTerminal)
+                    .withRegulating(true)
+                    .withTargetDeadband(10)
+                    .add()
                 .add();
 
         List<String> notifications = new ArrayList<>();

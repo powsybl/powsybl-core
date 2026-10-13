@@ -123,19 +123,13 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBatteryTes
         // WHEN
         battery.setTargetQ(newTargetQ);
         // THEN
-        assertEquals(2, listener.getEvents().size());
+        assertEquals(1, listener.getEvents().size());
         NetworkEvent firstEvent = listener.getEvents().getFirst();
         assertEquals(NetworkEvent.Type.UPDATE, firstEvent.getType());
         assertEquals("localTargetQ", ((UpdateNetworkEvent) firstEvent).attribute());
         assertEquals(newTargetQ, ((UpdateNetworkEvent) firstEvent).newValue());
         assertEquals(oldTargetQ, ((UpdateNetworkEvent) firstEvent).oldValue());
         assertEquals(id, ((UpdateNetworkEvent) firstEvent).id());
-        NetworkEvent secondEvent = listener.getEvents().get(1);
-        assertEquals(NetworkEvent.Type.UPDATE, secondEvent.getType());
-        assertEquals("targetQ", ((UpdateNetworkEvent) secondEvent).attribute());
-        assertEquals(newTargetQ, ((UpdateNetworkEvent) secondEvent).newValue());
-        assertEquals(oldTargetQ, ((UpdateNetworkEvent) secondEvent).oldValue());
-        assertEquals(id, ((UpdateNetworkEvent) secondEvent).id());
     }
 
 }

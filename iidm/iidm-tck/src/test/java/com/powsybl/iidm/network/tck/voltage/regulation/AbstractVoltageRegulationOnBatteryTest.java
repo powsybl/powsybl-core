@@ -367,6 +367,20 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
         this.testMergeWithTerminalInMultiVariant(battery, battery1, equipmentType);
     }
 
+    @Test
+    void testNotifyUpdate() {
+        String batteryId = "battery";
+        DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(batteryId,
+            RegulationMode.VOLTAGE,
+            true,
+            220,
+            24.5,
+            10,
+            true);
+        Battery battery = createBattery(dataVoltageRegulationHolderCreator);
+        this.testNotifyCommon(battery, battery.getId());
+    }
+
     private Battery createBattery(DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator) {
         BatteryAdder batteryAdder = newBatteryAdder(dataVoltageRegulationHolderCreator.id())
             .setLocalTargetV(dataVoltageRegulationHolderCreator.localTargetV())
