@@ -951,10 +951,7 @@ public final class DcDetailedNetworkFactory {
                 .setMaxP(500)
                 .setTargetP(200)
                 .setLocalTargetV(400)
-                .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(true)
-                .add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
         vl2.newLoad().setId("LD1").setNode(1).setP0(300).setQ0(50.0).add();
 

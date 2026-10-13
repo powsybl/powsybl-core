@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -378,7 +379,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
     }
 
     /**
-     * This test ensures that DCNode.DCEquipmentContainer field is present in each DC node, not simply the ones
+     * This test ensures that DCNode.DCEquipmentContainer field is present in each DC node, not only in the ones
      * belonging to a DC bus connected to a converter.
      */
     @Test
@@ -651,6 +652,30 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
         dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
         assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
+    }
+
+    @Test
+    void getDcNodesConverterUnitTest() {
+        Network network = DcDetailedNetworkFactory.createVscBipoleWithCentralNode();
+        Map<AcDcConverter<?>, CgmesExportUtil.DCConverterUnit> acDcConvertersUnit = Map.of(
+                network.getVoltageSourceConverter("vsc2_neg"), new CgmesExportUtil.DCConverterUnit("vsc2_neg_VSC_DCCU", "vsc2_neg Unit", "S2"),
+                network.getVoltageSourceConverter("vsc1_neg"), new CgmesExportUtil.DCConverterUnit("vsc1_neg_VSC_DCCU", "vsc1_neg Unit", "S1"),
+                network.getVoltageSourceConverter("vsc2_pos"), new CgmesExportUtil.DCConverterUnit("vsc2_ps_VSC_DCCU", "vsc2_pos Unit", "S2"),
+                network.getVoltageSourceConverter("vsc1_pos"), new CgmesExportUtil.DCConverterUnit("vsc1_ps_VSC_DCCU", "vsc1_pos Unit", "S1")
+        );
+
+        Set<DcNode> allDcNodes = network.getDcNodeStream().collect(Collectors.toSet());
+        Set<DcNode> allDcNodesExceptCentrals = network.getDcNodeStream()
+                .filter(node -> !node.getVoltageSourceConverterStream().toList().isEmpty())
+                .collect(Collectors.toSet());
+
+        // Graph traversal with DC Switches only
+        Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesMap = CgmesExportUtil.getConvertersDcNodeConvertersUnit(network, acDcConvertersUnit);
+        assertEquals(allDcNodesExceptCentrals, dcNodesMap.keySet());
+
+        // Graph traversal with DC switches and DC lines
+        Map<DcNode, CgmesExportUtil.DCConverterUnit> dcNodesMapFull = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
+        assertEquals(allDcNodes, dcNodesMapFull.keySet());
     }
 
     static Stream<Arguments> exportParameters() {
