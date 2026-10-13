@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:2399cbd2-9a39-11e0-aa80-0800200c9a66_EU">
+        <md:Model.scenarioTime>2030-01-02T09:00:00</md:Model.scenarioTime>
+        <md:Model.created>2015-02-05T12:20:50.830</md:Model.created>
+        <md:Model.description>CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E &quot;as it is&quot;. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+        <md:Model.version>4</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentShortCircuit/3/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>http://A1.de/Planning/ENTSOE/2</md:Model.modelingAuthoritySet>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+    </md:FullModel>
+    <cim:BusbarSection rdf:ID="FICTIVE_BBS1">
+        <cim:IdentifiedObject.name>Fict_BBS_1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_ST_Sub3"/>
+        <cim:BusbarSection.ipMax>0e+000</cim:BusbarSection.ipMax>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="BBS1_TERMINAL">
+        <cim:IdentifiedObject.name>BE-Busbar_1_Busbar_Section</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BB</entsoe:IdentifiedObject.shortName>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#FICTIVE_BBS1"/>
+        <cim:IdentifiedObject.description>Busbar Section</cim:IdentifiedObject.description>
+    </cim:Terminal>
+    <cim:TapChangerControl rdf:ID="RATIO_TAP_CONTROL">
+        <cim:IdentifiedObject.name>RTC_ADDED</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>RTC_ADDED</entsoe:IdentifiedObject.shortName>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#BBS1_TERMINAL"/>
+    </cim:TapChangerControl>
+    <cim:BusbarSection rdf:ID="FICTIVE_BBS2">
+        <cim:IdentifiedObject.name>Fict_BBS_2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL_S1_30kV"/>
+        <cim:BusbarSection.ipMax>0e+000</cim:BusbarSection.ipMax>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="BBS2_TERMINAL">
+        <cim:IdentifiedObject.name>BE-Busbar_1_Busbar_Section</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BB</entsoe:IdentifiedObject.shortName>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#FICTIVE_BBS2"/>
+        <cim:IdentifiedObject.description>Busbar Section</cim:IdentifiedObject.description>
+    </cim:Terminal>
+    <cim:TapChangerControl rdf:ID="RATIO_TAP_CONTROL_T3">
+        <cim:IdentifiedObject.name>RTC_T3_ADDED</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>RTC_T3_ADDED</entsoe:IdentifiedObject.shortName>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#BBS2_TERMINAL"/>
+    </cim:TapChangerControl>
+    <cim:RatioTapChanger rdf:ID="RATIO_TAP_CHANGER_T3">
+        <cim:IdentifiedObject.name>BE-TR3_3</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE-T_3</entsoe:IdentifiedObject.shortName>
+        <cim:TapChanger.neutralU>120.000000</cim:TapChanger.neutralU>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.highStep>33</cim:TapChanger.highStep>
+        <cim:TapChanger.neutralStep>17</cim:TapChanger.neutralStep>
+        <cim:TapChanger.normalStep>17</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.stepVoltageIncrement>0.625000</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.TapChangerControl rdf:resource="#RATIO_TAP_CONTROL_T3"/>
+        <cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.volt"/>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#_PTE_PT_T3_3"/>
+    </cim:RatioTapChanger>
+    <cim:Terminal rdf:ID="_T_PT_T1_1">
+        <cim:IdentifiedObject.name>T1_0</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_T1_2">
+        <cim:IdentifiedObject.name>T1_1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_T4_1">
+        <cim:IdentifiedObject.name>T4_0</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T4"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_T4_2">
+        <cim:IdentifiedObject.name>T4_1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T4"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_T4_3">
+        <cim:IdentifiedObject.name>T4_2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>3</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T4"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_T3_1">
+        <cim:IdentifiedObject.name>T3_0</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T3"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_T3_2">
+        <cim:IdentifiedObject.name>T3_1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T3"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_T3_3">
+        <cim:IdentifiedObject.name>T3_2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>3</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_T3"/>
+    </cim:Terminal>
+    <cim:BaseVoltage rdf:ID="_BV_380kV">
+        <cim:IdentifiedObject.name>380kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BV_21kV">
+        <cim:IdentifiedObject.name>21kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>21</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BV_110kV">
+        <cim:IdentifiedObject.name>110kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BV_30kV">
+        <cim:IdentifiedObject.name>30kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>30</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VL_S3_21kV">
+        <cim:IdentifiedObject.name>S3 21kV</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_Sub3"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_21kV"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VL_S3_110kV">
+        <cim:IdentifiedObject.name>S3 110kV</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_Sub3"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110kV"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VL_S1_380kV">
+        <cim:IdentifiedObject.name>S1 380kV</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_Sub1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_380kV"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VL_S1_30kV">
+        <cim:IdentifiedObject.name>S1 30kV</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_Sub1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_30kV"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VL_S1_110kV">
+        <cim:IdentifiedObject.name>S1 110kV</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_Sub1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110kV"/>
+    </cim:VoltageLevel>
+    <cim:Substation rdf:ID="_ST_Sub1">
+        <cim:IdentifiedObject.name>Sub1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SGR_Z1"/>
+    </cim:Substation>
+    <cim:Substation rdf:ID="_ST_Sub3">
+        <cim:IdentifiedObject.name>Sub3</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SGR_Z1"/>
+    </cim:Substation>
+    <cim:GeographicalRegion rdf:ID="_GR_AA">
+        <cim:IdentifiedObject.name>AA</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SGR_Z1">
+        <cim:IdentifiedObject.name>Z1</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GR_AA"/>
+    </cim:SubGeographicalRegion>
+    <cim:PowerTransformer rdf:ID="_PT_T1">
+        <cim:IdentifiedObject.description>Trafo-4</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_ST_Sub3"/>
+        <cim:PowerTransformer.highSideMinOperatingU>115</cim:PowerTransformer.highSideMinOperatingU>
+        <cim:PowerTransformer.isPartOfGeneratorUnit>true</cim:PowerTransformer.isPartOfGeneratorUnit>
+        <cim:PowerTransformer.operationalValuesConsidered>false</cim:PowerTransformer.operationalValuesConsidered>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T1_2">
+        <cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T1_1"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_21kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.D"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>5</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>150</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>21</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0.0147</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0.0147</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>0.47017</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>0.446662</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T1"/>
+    </cim:PowerTransformerEnd>
+    <cim:RatioTapChanger rdf:ID="_RTC_T1">
+        <cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
+        <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+        <cim:TapChanger.neutralU>21</cim:TapChanger.neutralU>
+        <cim:TapChanger.normalStep>13</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.volt"/>
+        <cim:RatioTapChanger.stepVoltageIncrement>1</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.TapChangerControl rdf:resource="#RATIO_TAP_CONTROL"/>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#_PTE_PT_T1_2"/>
+    </cim:RatioTapChanger>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T1_1">
+        <cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>true</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.xground>22</cim:TransformerEnd.xground>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T1_2"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Yn"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>150</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>115</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>0</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T1"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformer rdf:ID="_PT_T4">
+        <cim:IdentifiedObject.name>T4</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_ST_Sub1"/>
+        <cim:PowerTransformer.isPartOfGeneratorUnit>false</cim:PowerTransformer.isPartOfGeneratorUnit>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T4_3">
+        <cim:IdentifiedObject.name>T4</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T4_1"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_30kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.D"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>5</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>50</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>30</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0.0254571438</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0.0254571438</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>1.259741</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>1.176919</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T4"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T4_2">
+        <cim:IdentifiedObject.name>T4</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>true</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T4_2"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Yn"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>350</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>120</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0.05348571429</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0.05348571429</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>-0.001121283618</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>-0.6881</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T4"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T4_1">
+        <cim:IdentifiedObject.name>T4</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T4_3"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_380kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Y"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>350</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0.5942857143</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0.5942857143</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>96.0051006</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>95.05666</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T4"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformer rdf:ID="_PT_T3">
+        <cim:IdentifiedObject.description>Trafo-5</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>T3</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_ST_Sub1"/>
+        <cim:PowerTransformer.isPartOfGeneratorUnit>false</cim:PowerTransformer.isPartOfGeneratorUnit>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T3_1">
+        <cim:IdentifiedObject.name>T3</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>true</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T3_1"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_380kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Yn"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>350</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0.5942857143</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0.5942857143</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>96.0051006</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>95.05666</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T3"/>
+    </cim:PowerTransformerEnd>
+    <cim:RatioTapChanger rdf:ID="_RTC_T3">
+        <cim:IdentifiedObject.name>T3</cim:IdentifiedObject.name>
+        <cim:TapChanger.highStep>33</cim:TapChanger.highStep>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.neutralStep>17</cim:TapChanger.neutralStep>
+        <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+        <cim:TapChanger.normalStep>17</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.volt"/>
+        <cim:RatioTapChanger.stepVoltageIncrement>1</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#_PTE_PT_T3_1"/>
+    </cim:RatioTapChanger>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T3_2">
+        <cim:IdentifiedObject.name>T3</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T3_2"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Y"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>350</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>120</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0.05348571429</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0.05348571429</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>-0.001121283618</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>-0.6881</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T3"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_T3_3">
+        <cim:IdentifiedObject.name>T3</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_T3_3"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_30kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.D"/>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.phaseAngleClock>5</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.ratedS>50</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.ratedU>30</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.r>0.02545714286</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0.02545714286</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.x>1.259740894</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>1.176919</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_T3"/>
+    </cim:PowerTransformerEnd>
+    <cim:RatioTapChanger rdf:ID="_RTC_T4">
+        <cim:IdentifiedObject.name>T4</cim:IdentifiedObject.name>
+        <cim:TapChanger.highStep>33</cim:TapChanger.highStep>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.neutralStep>17</cim:TapChanger.neutralStep>
+        <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+        <cim:TapChanger.normalStep>17</cim:TapChanger.normalStep>
+        <cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.volt"/>
+        <cim:RatioTapChanger.stepVoltageIncrement>1</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:RatioTapChanger.TransformerEnd rdf:resource="#_PTE_PT_T4_1"/>
+    </cim:RatioTapChanger>
+</rdf:RDF>

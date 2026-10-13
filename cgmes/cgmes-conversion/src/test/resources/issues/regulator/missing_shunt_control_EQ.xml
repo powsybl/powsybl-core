@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2014-10-24T11:42:40</md:Model.created>
+        <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.description>Shunt compensator without a regulating control</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentShortCircuit/3/1</md:Model.profile>
+    </md:FullModel>
+    <cim:BaseVoltage rdf:ID="_BV_110_00_kV">
+        <cim:BaseVoltage.nominalVoltage>110.00</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.description>Base Voltage Level</cim:IdentifiedObject.description>
+        <entsoe:IdentifiedObject.shortName>110.00</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.name>110.00 kV</cim:IdentifiedObject.name>
+    </cim:BaseVoltage>
+    <cim:GeographicalRegion rdf:ID="_GR_BE">
+        <cim:IdentifiedObject.name>BE</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:LinearShuntCompensator rdf:ID="_LSC_BE_S1">
+        <cim:IdentifiedObject.name>BE_S1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE_S1</entsoe:IdentifiedObject.shortName>
+        <cim:IdentifiedObject.description>shunt with 4 sections</cim:IdentifiedObject.description>
+        <cim:ShuntCompensator.normalSections>1</cim:ShuntCompensator.normalSections>
+        <cim:ShuntCompensator.maximumSections>1</cim:ShuntCompensator.maximumSections>
+        <cim:LinearShuntCompensator.bPerSection>0.024793</cim:LinearShuntCompensator.bPerSection>
+        <cim:LinearShuntCompensator.gPerSection>0e+000</cim:LinearShuntCompensator.gPerSection>
+        <cim:LinearShuntCompensator.b0PerSection>-0e+000</cim:LinearShuntCompensator.b0PerSection>
+        <cim:LinearShuntCompensator.g0PerSection>0e+000</cim:LinearShuntCompensator.g0PerSection>
+        <cim:ShuntCompensator.nomU>110.000000</cim:ShuntCompensator.nomU>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL_110_0"/>
+    </cim:LinearShuntCompensator>
+    <cim:SubGeographicalRegion rdf:ID="_SGR_ELIA_Brussels">
+        <cim:IdentifiedObject.name>ELIA-Brussels</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GR_BE"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_ST_PP_Brussels">
+        <cim:IdentifiedObject.name>PP_Brussels</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>PP_Brussels</entsoe:IdentifiedObject.shortName>
+        <cim:Substation.Region rdf:resource="#_SGR_ELIA_Brussels"/>
+    </cim:Substation>
+    <cim:Terminal rdf:ID="_T_LSC_BE_S1_1">
+        <cim:IdentifiedObject.name>BE_S1 - T1</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>BE_S1</entsoe:IdentifiedObject.shortName>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LSC_BE_S1"/>
+    </cim:Terminal>
+    <cim:VoltageLevel rdf:ID="_VL_110_0">
+        <cim:IdentifiedObject.name>110.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.lowVoltageLimit>99.000000</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.highVoltageLimit>121.000000</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_PP_Brussels"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110_00_kV"/>
+    </cim:VoltageLevel>
+    <cim:BaseVoltage rdf:ID="_BV_220_kV">
+        <cim:IdentifiedObject.description>Base Voltage 220 kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>220 kV</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>220</entsoe:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>220</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BV_225_kV">
+        <cim:IdentifiedObject.description>Base Voltage 225 kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>225 kV</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>225</entsoe:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>225</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BV_380_kV">
+        <cim:IdentifiedObject.description>Base Voltage 380 kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>380 kV</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>380</entsoe:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BV_400_kV">
+        <cim:IdentifiedObject.description>Base Voltage 400 kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>400</entsoe:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+</rdf:RDF>

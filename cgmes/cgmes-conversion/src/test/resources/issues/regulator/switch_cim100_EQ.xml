@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:9e7050a8-960b-4e1a-8e34-7f56bc2b2a7b">
+        <md:Model.created>2021-02-09T19:28:14Z</md:Model.created>
+        <md:Model.scenarioTime>2021-02-09T19:30:00Z</md:Model.scenarioTime>
+        <md:Model.description>Regulating terminals connected through switches</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://elia.be/CGMES</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/Operation-EU/3.0</md:Model.profile>
+        <md:Model.version>5</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/ShortCircuit-EU/3.0</md:Model.profile>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="_GR_BE">
+        <cim:IdentifiedObject.name>BE</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.mRID>_GR_BE</cim:IdentifiedObject.mRID>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SGR_ELIA_Brussels">
+        <cim:IdentifiedObject.name>ELIA-Brussels</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GR_BE"/>
+        <cim:IdentifiedObject.mRID>SGR_ELIA_Brussels</cim:IdentifiedObject.mRID>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_ST_PP_Brussels">
+        <cim:IdentifiedObject.name>PP_Brussels</cim:IdentifiedObject.name>
+        <eu:IdentifiedObject.shortName>PP_Brussels</eu:IdentifiedObject.shortName>
+        <cim:Substation.Region rdf:resource="#_SGR_ELIA_Brussels"/>
+        <cim:IdentifiedObject.mRID>ST_PP_Brussels</cim:IdentifiedObject.mRID>
+    </cim:Substation>
+    <cim:VoltageLevel rdf:ID="_VL_110_0">
+        <cim:IdentifiedObject.name>110.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>121</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>99</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_PP_Brussels"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110_00_kV"/>
+        <cim:IdentifiedObject.mRID>VL_110_0</cim:IdentifiedObject.mRID>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VL_380_0">
+        <cim:IdentifiedObject.name>380.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>418</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>342</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_PP_Brussels"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_380_kV"/>
+        <cim:IdentifiedObject.mRID>VL_380_0</cim:IdentifiedObject.mRID>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_CN_BE_TR_BUS1">
+        <cim:IdentifiedObject.name>BE_TR_BUS1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_110_0"/>
+        <cim:IdentifiedObject.mRID>CN_BE_TR_BUS1</cim:IdentifiedObject.mRID>
+    </cim:ConnectivityNode>
+    <cim:VoltageLevel rdf:ID="_VL_21_0">
+        <cim:IdentifiedObject.name>21.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>23.1</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>18.9</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_PP_Brussels"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_21_00_kV"/>
+        <cim:IdentifiedObject.mRID>VL_21_0</cim:IdentifiedObject.mRID>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_CN_BE_BUSBAR_10">
+        <cim:IdentifiedObject.name>BE_BUSBAR_10</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_21_0"/>
+        <cim:IdentifiedObject.mRID>CN_BE_BUSBAR_10</cim:IdentifiedObject.mRID>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_CN_BE_Busbar_5">
+        <cim:IdentifiedObject.name>BE-Busbar_5</cim:IdentifiedObject.name>
+        <eu:IdentifiedObject.shortName>BE-B_5</eu:IdentifiedObject.shortName>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_21_0"/>
+        <cim:IdentifiedObject.mRID>CN_BE_Busbar_5</cim:IdentifiedObject.mRID>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_CN_BE_Busbar_6">
+        <cim:IdentifiedObject.name>BE-Busbar_6</cim:IdentifiedObject.name>
+        <eu:IdentifiedObject.shortName>BE-B_6</eu:IdentifiedObject.shortName>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_110_0"/>
+        <cim:IdentifiedObject.mRID>CN_BE_Busbar_6</cim:IdentifiedObject.mRID>
+    </cim:ConnectivityNode>
+    <cim:BusbarSection rdf:ID="_BBS_BE_Busbar_6">
+        <cim:IdentifiedObject.name>BE-Busbar_6</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL_110_0"/>
+        <cim:BusbarSection.ipMax>5000</cim:BusbarSection.ipMax>
+        <cim:IdentifiedObject.mRID>BBS_BE_Busbar_6</cim:IdentifiedObject.mRID>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_T_BBS_BE_Busbar_6_1">
+        <cim:IdentifiedObject.name>BE-Busbar_6_Busbar_Section</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS_BE_Busbar_6"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_Busbar_6"/>
+        <cim:IdentifiedObject.mRID>T_BBS_BE_Busbar_6_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:ConnectivityNode rdf:ID="_CN_BE_TR_BUS2">
+        <cim:IdentifiedObject.name>BE_TR_BUS2</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_380_0"/>
+        <cim:IdentifiedObject.mRID>CN_BE_TR_BUS2</cim:IdentifiedObject.mRID>
+    </cim:ConnectivityNode>
+    <cim:Breaker rdf:ID="_BR_BE_Breaker_10">
+        <cim:IdentifiedObject.name>BE_Breaker_10</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL_21_0"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+        <cim:IdentifiedObject.mRID>BR_BE_Breaker_10</cim:IdentifiedObject.mRID>
+    </cim:Breaker>
+    <cim:Breaker rdf:ID="_BR_BE_Breaker_1">
+        <cim:IdentifiedObject.name>BE_Breaker_1</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL_110_0"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+        <cim:IdentifiedObject.mRID>BR_BE_Breaker_1</cim:IdentifiedObject.mRID>
+    </cim:Breaker>
+    <cim:SynchronousMachine rdf:ID="_SM_BE_G2">
+        <cim:IdentifiedObject.name>BE-G2</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Machine</cim:IdentifiedObject.description>
+        <eu:IdentifiedObject.shortName>BE-G2</eu:IdentifiedObject.shortName>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL_21_0"/>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_BE_G2"/>
+        <cim:RotatingMachine.ratedPowerFactor>0.85</cim:RotatingMachine.ratedPowerFactor>
+        <cim:RotatingMachine.ratedS>300</cim:RotatingMachine.ratedS>
+        <cim:RotatingMachine.ratedU>21</cim:RotatingMachine.ratedU>
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GU_1"/>
+        <cim:SynchronousMachine.earthing>true</cim:SynchronousMachine.earthing>
+        <cim:SynchronousMachine.earthingStarPointR>0</cim:SynchronousMachine.earthingStarPointR>
+        <cim:SynchronousMachine.earthingStarPointX>0</cim:SynchronousMachine.earthingStarPointX>
+        <cim:SynchronousMachine.ikk>0</cim:SynchronousMachine.ikk>
+        <cim:SynchronousMachine.maxQ>200</cim:SynchronousMachine.maxQ>
+        <cim:SynchronousMachine.minQ>-200</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.mu>0</cim:SynchronousMachine.mu>
+        <cim:SynchronousMachine.qPercent>100</cim:SynchronousMachine.qPercent>
+        <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+        <cim:SynchronousMachine.r0>0</cim:SynchronousMachine.r0>
+        <cim:SynchronousMachine.r2>0</cim:SynchronousMachine.r2>
+        <cim:SynchronousMachine.satDirectSubtransX>0.2</cim:SynchronousMachine.satDirectSubtransX>
+        <cim:SynchronousMachine.satDirectSyncX>2</cim:SynchronousMachine.satDirectSyncX>
+        <cim:SynchronousMachine.satDirectTransX>0</cim:SynchronousMachine.satDirectTransX>
+        <cim:SynchronousMachine.shortCircuitRotorType rdf:resource="http://iec.ch/TC57/CIM100#ShortCircuitRotorKind.turboSeries1"/>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator"/>
+        <cim:SynchronousMachine.voltageRegulationRange>0</cim:SynchronousMachine.voltageRegulationRange>
+        <cim:SynchronousMachine.x0>0.13</cim:SynchronousMachine.x0>
+        <cim:SynchronousMachine.x2>0.17</cim:SynchronousMachine.x2>
+        <cim:IdentifiedObject.mRID>SM_BE_G2</cim:IdentifiedObject.mRID>
+    </cim:SynchronousMachine>
+    <cim:GeneratingUnit rdf:ID="_GU_1">
+        <cim:IdentifiedObject.name>Gen-1229753024</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Machine</cim:IdentifiedObject.description>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_ST_PP_Brussels"/>
+        <cim:GeneratingUnit.genControlSource rdf:resource="http://iec.ch/TC57/CIM100#GeneratorControlSource.offAGC"/>
+        <cim:GeneratingUnit.maxOperatingP>200</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.minOperatingP>50</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.nominalP>255</cim:GeneratingUnit.nominalP>
+        <cim:IdentifiedObject.mRID>GU_1</cim:IdentifiedObject.mRID>
+    </cim:GeneratingUnit>
+    <cim:PowerTransformer rdf:ID="_PT_BE_TR2_1">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>T1 that is after maintenance</cim:IdentifiedObject.description>
+        <eu:IdentifiedObject.shortName>BE-T_1</eu:IdentifiedObject.shortName>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_ST_PP_Brussels"/>
+        <cim:PowerTransformer.isPartOfGeneratorUnit>false</cim:PowerTransformer.isPartOfGeneratorUnit>
+        <cim:PowerTransformer.operationalValuesConsidered>false</cim:PowerTransformer.operationalValuesConsidered>
+        <cim:IdentifiedObject.mRID>PT_BE_TR2_1</cim:IdentifiedObject.mRID>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_BE_TR2_1_1">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_BE_TR2_1_1"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_380_kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.r>2.707692</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>2.72</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.ratedS>650</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>14.5189</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>14.5166</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_BE_TR2_1"/>
+        <cim:IdentifiedObject.mRID>PTE_PT_BE_TR2_1_1</cim:IdentifiedObject.mRID>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="_PTE_PT_BE_TR2_1_2">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+        <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+        <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T_PT_BE_TR2_1_2"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BV_110_00_kV"/>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.b0>0</cim:PowerTransformerEnd.b0>
+        <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection.Y"/>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.g0>0</cim:PowerTransformerEnd.g0>
+        <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+        <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.r0>0</cim:PowerTransformerEnd.r0>
+        <cim:PowerTransformerEnd.ratedS>650</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>110</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.x0>0</cim:PowerTransformerEnd.x0>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_PT_BE_TR2_1"/>
+        <cim:IdentifiedObject.mRID>PTE_PT_BE_TR2_1_2</cim:IdentifiedObject.mRID>
+    </cim:PowerTransformerEnd>
+    <cim:TapChangerControl rdf:ID="_TCC_BE_TR2_1">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.activePower"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_BR_BE_Breaker_1_2"/>
+        <cim:IdentifiedObject.mRID>TCC_BE_TR2_1</cim:IdentifiedObject.mRID>
+    </cim:TapChangerControl>
+    <cim:PhaseTapChangerSymmetrical rdf:ID="_PTC_BE_TR2_1">
+        <cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
+        <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+        <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+        <cim:TapChanger.normalStep>10</cim:TapChanger.normalStep>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_TCC_BE_TR2_1"/>
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#_PTE_PT_BE_TR2_1_1"/>
+        <cim:PhaseTapChangerNonLinear.voltageStepIncrement>1.25</cim:PhaseTapChangerNonLinear.voltageStepIncrement>
+        <cim:PhaseTapChangerNonLinear.xMax>16.93872</cim:PhaseTapChangerNonLinear.xMax>
+        <cim:PhaseTapChangerNonLinear.xMin>14.5189</cim:PhaseTapChangerNonLinear.xMin>
+        <cim:IdentifiedObject.mRID>PTC_BE_TR2_1</cim:IdentifiedObject.mRID>
+    </cim:PhaseTapChangerSymmetrical>
+    <cim:BaseVoltage rdf:ID="_BV_110_00_kV">
+        <cim:IdentifiedObject.name>110.00 kV</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Base Voltage Level</cim:IdentifiedObject.description>
+        <eu:IdentifiedObject.shortName>110.00</eu:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.mRID>BV_110_00_kV</cim:IdentifiedObject.mRID>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BV_21_00_kV">
+        <cim:IdentifiedObject.name>21.00 kV</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Base Voltage Level</cim:IdentifiedObject.description>
+        <eu:IdentifiedObject.shortName>21.00</eu:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>21</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.mRID>BV_21_00_kV</cim:IdentifiedObject.mRID>
+    </cim:BaseVoltage>
+    <cim:Terminal rdf:ID="_T_PT_BE_TR2_1_2">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_BE_TR2_1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_TR_BUS1"/>
+        <cim:IdentifiedObject.mRID>T_PT_BE_TR2_1_2</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_PT_BE_TR2_1_1">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_PT_BE_TR2_1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_TR_BUS2"/>
+        <cim:IdentifiedObject.mRID>T_PT_BE_TR2_1_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_BR_BE_Breaker_10_1">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BR_BE_Breaker_10"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_Busbar_5"/>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_10_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_BR_BE_Breaker_10_2">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BR_BE_Breaker_10"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_BUSBAR_10"/>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_10_2</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_SM_BE_G2_1">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SM_BE_G2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_Busbar_5"/>
+        <cim:IdentifiedObject.mRID>T_SM_BE_G2_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_BR_BE_Breaker_1_2">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BR_BE_Breaker_1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_TR_BUS1"/>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_1_2</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_T_BR_BE_Breaker_1_1">
+        <cim:IdentifiedObject.name>Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BR_BE_Breaker_1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN_BE_Busbar_6"/>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_1_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_RC_BE_G2">
+        <cim:IdentifiedObject.name>BE-G2</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_BR_BE_Breaker_10_1"/>
+        <cim:IdentifiedObject.mRID>RC_BE_G2</cim:IdentifiedObject.mRID>
+    </cim:RegulatingControl>
+    <cim:BaseVoltage rdf:ID="_BV_380_kV">
+        <cim:IdentifiedObject.description>Base Voltage 380 kV</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>380 kV</cim:IdentifiedObject.name>
+        <eu:IdentifiedObject.shortName>380</eu:IdentifiedObject.shortName>
+        <cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+        <cim:IdentifiedObject.mRID>BV_380_kV</cim:IdentifiedObject.mRID>
+    </cim:BaseVoltage>
+</rdf:RDF>

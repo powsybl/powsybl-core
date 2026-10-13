@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:3a2a0416-c6a8-49a9-9f23-b8ec7cb29bae">
+        <md:Model.created>2021-02-09T19:28:14Z</md:Model.created>
+        <md:Model.scenarioTime>2021-02-09T19:30:00Z</md:Model.scenarioTime>
+        <md:Model.description>Regulating terminals connected through switches</md:Model.description>
+        <md:Model.modelingAuthoritySet>http://elia.be/CGMES</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+        <md:Model.version>5</md:Model.version>
+        <md:Model.DependentOn rdf:resource="urn:uuid:9e7050a8-960b-4e1a-8e34-7f56bc2b2a7b"/>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_PT_BE_TR2_1_2</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_PT_BE_TR2_1_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_10_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_10_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_10_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_10_2</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SM_BE_G2_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_SM_BE_G2_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_1_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_1_2</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_1_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_BR_BE_Breaker_1_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BBS_BE_Busbar_6_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+        <cim:IdentifiedObject.mRID>T_BBS_BE_Busbar_6_1</cim:IdentifiedObject.mRID>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:about="#_RC_BE_G2">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>21.987</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k"/>
+        <cim:IdentifiedObject.mRID>RC_BE_G2</cim:IdentifiedObject.mRID>
+    </cim:RegulatingControl>
+    <cim:SynchronousMachine rdf:about="#_SM_BE_G2">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-118</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>-18.7203</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineOperatingMode.generator"/>
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+        <cim:IdentifiedObject.mRID>SM_BE_G2</cim:IdentifiedObject.mRID>
+    </cim:SynchronousMachine>
+    <cim:GeneratingUnit rdf:about="#_GU_1">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:GeneratingUnit.normalPF>0</cim:GeneratingUnit.normalPF>
+        <cim:IdentifiedObject.mRID>GU_1</cim:IdentifiedObject.mRID>
+    </cim:GeneratingUnit>
+    <cim:TapChangerControl rdf:about="#_TCC_BE_TR2_1">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetDeadband>1.625</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValue>-65</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.M"/>
+        <cim:IdentifiedObject.mRID>TCC_BE_TR2_1</cim:IdentifiedObject.mRID>
+    </cim:TapChangerControl>
+    <cim:PhaseTapChangerSymmetrical rdf:about="#_PTC_BE_TR2_1">
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+        <cim:TapChanger.step>10</cim:TapChanger.step>
+        <cim:IdentifiedObject.mRID>PTC_BE_TR2_1</cim:IdentifiedObject.mRID>
+    </cim:PhaseTapChangerSymmetrical>
+    <cim:Breaker rdf:about="#_BR_BE_Breaker_10">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:Switch.open>false</cim:Switch.open>
+        <cim:IdentifiedObject.mRID>BR_BE_Breaker_10</cim:IdentifiedObject.mRID>
+        <cim:Switch.locked>false</cim:Switch.locked>
+    </cim:Breaker>
+    <cim:Breaker rdf:about="#_BR_BE_Breaker_1">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:Switch.open>false</cim:Switch.open>
+        <cim:IdentifiedObject.mRID>BR_BE_Breaker_1</cim:IdentifiedObject.mRID>
+        <cim:Switch.locked>false</cim:Switch.locked>
+    </cim:Breaker>
+    <cim:Equipment rdf:about="#_BBS_BE_Busbar_6">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:IdentifiedObject.mRID>BBS_BE_Busbar_6</cim:IdentifiedObject.mRID>
+    </cim:Equipment>
+    <cim:Equipment rdf:about="#_PT_BE_TR2_1">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:IdentifiedObject.mRID>PT_BE_TR2_1</cim:IdentifiedObject.mRID>
+    </cim:Equipment>
+</rdf:RDF>

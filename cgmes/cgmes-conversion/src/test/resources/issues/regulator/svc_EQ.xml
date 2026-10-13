@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:svc-EQ">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Static var compensator regulation test cases</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="_GR">
+        <cim:IdentifiedObject.name>Region</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SGR">
+        <cim:IdentifiedObject.name>Subregion</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_ST">
+        <cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SGR"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BV">
+        <cim:BaseVoltage.nominalVoltage>225</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VL">
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_CN">
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL"/>
+    </cim:ConnectivityNode>
+    <cim:BusbarSection rdf:ID="_BBS">
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_T_BBS">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BBS"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:StaticVarCompensator rdf:ID="_SVC_BASE">
+        <cim:IdentifiedObject.name>Baseline SVC</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_BASE"/>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>229.5</cim:StaticVarCompensator.voltageSetPoint>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_BASE">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_BASE"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_RC_BASE">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_BASE"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_SVC_INVALID_MODE">
+        <cim:IdentifiedObject.name>SVC with invalid regulating mode</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_INVALID_MODE"/>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.badMode"/>
+        <cim:StaticVarCompensator.voltageSetPoint>229.5</cim:StaticVarCompensator.voltageSetPoint>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_INVALID_MODE">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_INVALID_MODE"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_RC_INVALID_MODE">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_INVALID_MODE"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_SVC_REACTIVE">
+        <cim:IdentifiedObject.name>Reactive power SVC</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_REACTIVE"/>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>229.5</cim:StaticVarCompensator.voltageSetPoint>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_REACTIVE">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_REACTIVE"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_RC_REACTIVE">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.reactivePower"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_REACTIVE"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_SVC_OFF">
+        <cim:IdentifiedObject.name>Disabled SVC</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_OFF"/>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>229.5</cim:StaticVarCompensator.voltageSetPoint>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_OFF">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_OFF"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_RC_OFF">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_OFF"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_SVC_OFF_229">
+        <cim:IdentifiedObject.name>Disabled SVC at 229.5 kV</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_OFF_229"/>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>229.5</cim:StaticVarCompensator.voltageSetPoint>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_OFF_229">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_OFF_229"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_RC_OFF_229">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_OFF_229"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_SVC_OFF_231">
+        <cim:IdentifiedObject.name>Disabled SVC at 231.123 kV</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_OFF_231"/>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>231.123</cim:StaticVarCompensator.voltageSetPoint>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_OFF_231">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_OFF_231"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_RC_OFF_231">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_OFF_231"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_SVC_NO_CONTROL">
+        <cim:IdentifiedObject.name>SVC without control</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>159.5</cim:StaticVarCompensator.voltageSetPoint>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_NO_CONTROL">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_NO_CONTROL"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+    <cim:StaticVarCompensator rdf:ID="_SVC_NO_REACTIVE_CONTROL">
+        <cim:IdentifiedObject.name>Reactive SVC without control</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/CIM100#SVCControlMode.reactivePower"/>
+    </cim:StaticVarCompensator>
+    <cim:Terminal rdf:ID="_T_SVC_NO_REACTIVE_CONTROL">
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_NO_REACTIVE_CONTROL"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_CN"/>
+    </cim:Terminal>
+</rdf:RDF>
