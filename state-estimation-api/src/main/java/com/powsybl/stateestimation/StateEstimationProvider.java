@@ -14,6 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.iidm.network.Network;
 
@@ -165,7 +166,7 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
      * configuration applied.
      */
     default List<Parameter> getSpecificParameters() {
-        return getRawSpecificParameters();
+        return getSpecificParameters(PlatformConfig.defaultConfig());
     }
 
     /**
@@ -176,7 +177,7 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
      * @return this implementation's specific parameters with the defaults from the given platform configuration applied
      */
     default List<Parameter> getSpecificParameters(PlatformConfig config) {
-        return getRawSpecificParameters();
+        return ConfiguredParameter.load(getRawSpecificParameters(), getModuleConfig(config).orElse(null));
     }
 
     /**

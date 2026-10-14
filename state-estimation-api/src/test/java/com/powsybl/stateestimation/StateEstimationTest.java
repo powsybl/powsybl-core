@@ -8,6 +8,9 @@
 package com.powsybl.stateestimation;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -208,4 +212,62 @@ class StateEstimationTest {
         assertSame(statistic, result.getExtension(ExampleExtension.class));
         assertEquals(1, result.getExtensions().size());
     }
+
+    @Test
+    void writesItsFunctionalLogsToTheReportNodeItWasGiven() {
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testStateEstimation")
+                .build();
+
+        StateEstimation.estimate(network, "InitialState",
+                StateEstimationRunParameters.getDefault().setReportNode(reportRoot));
+
+        assertEquals(1, reportRoot.getChildren().size());
+        assertEquals("State estimation test variantId = InitialState", reportRoot.getChildren().get(0).getMessage());
+    }
+
+    @Test
+    void reportsWhichSettingAnImplementationCannotHonor() {
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testStateEstimation")
+                .withUntypedValue("variantId", "InitialState")
+                .build();
+
+        StateEstimationRunParameters runParameters = new StateEstimationRunParameters()
+                .setParameters(new StateEstimationParameters()
+                        .setZeroInjectionMode(StateEstimationParameters.ZeroInjectionMode.EQUALITY_CONSTRAINT))
+                .setReportNode(reportRoot);
+
+        assertFalse(StateEstimation.checkParameters(runParameters));
+        assertEquals(1, reportRoot.getChildren().size());
+        assertEquals("State estimation parameter zeroInjectionMode value EQUALITY_CONSTRAINT is not supported",
+                reportRoot.getChildren().get(0).getMessage());
+    }
+
+    @Test
+    void honorsTheDefaultSettings() {
+        assertTrue(StateEstimation.checkDefaultParameters(ReportNode.NO_OP));
+        assertTrue(StateEstimation.find().checkDefaultParameters(ReportNode.NO_OP));
+        assertTrue(StateEstimation.find().checkParameters(StateEstimationRunParameters.getDefault()));
+    }
+
+    @Test
+    void reportsAMeasurementThatDisagreesWithTheEstimate() {
+        ObservabilityResult observability = StateEstimation.analyseObservability(network);
+        StateEstimationResult estimate = StateEstimation.estimate(network);
+
+        StateEstimationRunParameters strict = new StateEstimationRunParameters()
+                .setParameters(new StateEstimationParameters().setResidualFlaggingThreshold(2.0));
+        BadDataResult badData = StateEstimation.detectBadData(network, estimate, observability, strict);
+
+        assertEquals(BadDataResult.Status.BAD_DATA_DETECTED, badData.getStatus());
+        assertEquals(1, badData.getSuspectMeasurements().size());
+
+        BadDataResult.SuspectMeasurement suspect = badData.getSuspectMeasurements().get(0);
+        assertEquals(StateEstimationProviderMock.MEASUREMENT_ID, suspect.getMeasurementId());
+        assertEquals(StateEstimationProviderMock.NORMALIZED_RESIDUAL, suspect.getNormalizedResidual());
+    }
+
 }

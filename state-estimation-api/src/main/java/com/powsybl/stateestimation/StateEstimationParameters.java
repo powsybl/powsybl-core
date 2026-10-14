@@ -10,11 +10,9 @@ package com.powsybl.stateestimation;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Settings that change what an estimate means, independently of how it is computed.
@@ -156,12 +154,8 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void loadExtensions(PlatformConfig platformConfig) {
         for (StateEstimationProvider provider : new ServiceLoaderCache<>(StateEstimationProvider.class).getServices()) {
-            provider.getSpecificParametersClass().ifPresent(clazz -> {
-                Optional<Extension<StateEstimationParameters>> extension = Optional.ofNullable(getExtension(clazz));
-                extension.ifPresentOrElse(ext -> provider.updateSpecificParameters(ext, platformConfig),
-                        () -> provider.loadSpecificParameters(platformConfig)
-                                .ifPresent(ext -> addExtension((Class) ext.getClass(), ext)));
-            });
+            provider.loadSpecificParameters(platformConfig)
+                    .ifPresent(extension -> addExtension((Class) extension.getClass(), extension));
         }
     }
 
