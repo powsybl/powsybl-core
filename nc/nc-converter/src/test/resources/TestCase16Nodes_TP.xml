@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <md:FullModel rdf:about="urn:uuid:6ad6efea-c288-4de6-a78d-e71d7066f152">
+    <md:Model.scenarioTime>2024-01-31T12:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2024-01-31T12:00:00Z</md:Model.created>
+    <md:Model.description>Minimal topology for NC converter integration tests</md:Model.description>
+    <md:Model.version>1</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+  </md:FullModel>
+
+  <cim:Terminal rdf:about="#_80a37d10-b498-4f77-a748-d910caf3a7b2"><cim:Terminal.TopologicalNode rdf:resource="#_BBE1AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_dc3fb15b-c700-4a8f-90a7-f1b25f565063"><cim:Terminal.TopologicalNode rdf:resource="#_BBE4AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_ecef941b-5a7a-4ebe-8a1a-835c01fb1b31"><cim:Terminal.TopologicalNode rdf:resource="#_DDE3AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_dcc91dff-319d-4692-8491-bae26aa41e95"><cim:Terminal.TopologicalNode rdf:resource="#_DDE4AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_56c3e027-4665-4cca-bc7b-9386d57d3551"><cim:Terminal.TopologicalNode rdf:resource="#_FFR1AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_b98b8a17-ee22-41d4-8ac2-8fe6aecc6072"><cim:Terminal.TopologicalNode rdf:resource="#_FFR3AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_3ae687ca-a991-4f50-a99e-178d99e6b7b6"><cim:Terminal.TopologicalNode rdf:resource="#_BBE2AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_632226cb-5857-4516-bd60-6562bea2d9fc"><cim:Terminal.TopologicalNode rdf:resource="#_BBE3AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_bbe2aa6-transformer-terminal"><cim:Terminal.TopologicalNode rdf:resource="#_BBE2AA6_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_6b1a40de-1490-4c9b-b69e-f15bdce2cbc0"><cim:Terminal.TopologicalNode rdf:resource="#_FFR2AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_1c003dcd-596e-4b27-a6f1-ef706b701267"><cim:Terminal.TopologicalNode rdf:resource="#_FFR3AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_b1d56b67-4651-44e4-acdd-3a953c9284e7"><cim:Terminal.TopologicalNode rdf:resource="#_BBE1AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_a92feab2-bf88-40db-ba7b-53ab177ccd56"><cim:Terminal.TopologicalNode rdf:resource="#_BBE3AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_2a312a37-189a-4f9d-a5bd-56e4ff27fa76"><cim:Terminal.TopologicalNode rdf:resource="#_FFR3AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_07ffa798-6053-4768-bf6b-e7e9a8ca6529"><cim:Terminal.TopologicalNode rdf:resource="#_FFR5AA1_TN"/></cim:Terminal>
+  <cim:Terminal rdf:about="#_ffr3aa1-busbar-terminal"><cim:Terminal.TopologicalNode rdf:resource="#_FFR3AA1_TN"/></cim:Terminal>
+
+  <cim:TopologicalNode rdf:ID="_BBE1AA1_TN"><cim:IdentifiedObject.name>BBE1AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BBE1AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_BBE2AA1_TN"><cim:IdentifiedObject.name>BBE2AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BBE2AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_BBE3AA1_TN"><cim:IdentifiedObject.name>BBE3AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BBE2AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_BBE2AA6_TN"><cim:IdentifiedObject.name>BBE2AA6</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BBE2AA6"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_base-voltage-6kv"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_BBE4AA1_TN"><cim:IdentifiedObject.name>BBE4AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BBE1AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_DDE3AA1_TN"><cim:IdentifiedObject.name>DDE3AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_DDE3AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_DDE4AA1_TN"><cim:IdentifiedObject.name>DDE4AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_DDE3AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_FFR1AA1_TN"><cim:IdentifiedObject.name>FFR1AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_FFR1AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_FFR2AA1_TN"><cim:IdentifiedObject.name>FFR2AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_FFR2AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_FFR3AA1_TN"><cim:IdentifiedObject.name>FFR3AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_FFR3AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_FFR5AA1_TN"><cim:IdentifiedObject.name>FFR5AA1</cim:IdentifiedObject.name><cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_FFR5AA1"/><cim:TopologicalNode.BaseVoltage rdf:resource="#_1368bf64-618a-498e-b3b0-e46dc07c0ba1"/></cim:TopologicalNode>
+</rdf:RDF>
