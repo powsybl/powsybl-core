@@ -164,6 +164,12 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setLocalTargetQ(10.0)
             .setCondenser(true)
             .add();
+        generator2.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(generator2.getTerminal())
+            .withTargetValue(10.0)
+            .build();
+
         generator2.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
 

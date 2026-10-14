@@ -411,7 +411,8 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
-        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Battery || i instanceof Generator gen && gen.isCondenser());
+        boolean isCondenser = i instanceof Battery || i instanceof Generator gen && gen.isCondenser();
+        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), isCondenser);
         return obtainOperatingMode(targetP, i, calculatedKind);
     }
 
@@ -421,7 +422,8 @@ public final class SteadyStateHypothesisExport {
         } else if (targetP > 0) {
             return OPERATING_MODE_GENERATOR;
         } else {
-            if (isOperatingAsACondenser(injection) && calculatedKind.toLowerCase().contains(OPERATING_MODE_CONDENSER)) {
+            VoltageRegulation voltageRegulation = ((VoltageRegulationHolder<?>) injection).getVoltageRegulation();
+            if (voltageRegulation != null && voltageRegulation.isRegulating() && calculatedKind.toLowerCase().contains(OPERATING_MODE_CONDENSER)) {
                 return OPERATING_MODE_CONDENSER;
             } else {
                 if (calculatedKind.toLowerCase().contains(OPERATING_MODE_GENERATOR)) {
@@ -432,20 +434,6 @@ public final class SteadyStateHypothesisExport {
                     return OPERATING_MODE_CONDENSER;
                 }
             }
-        }
-    }
-
-    private static boolean isOperatingAsACondenser(Injection<?> injection) {
-        switch (injection) {
-            case Generator generator -> {
-                return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getLocalTargetV())
-                    || !Double.isNaN(generator.getRegulatingTargetQ()) && generator.getRegulatingTargetQ() != 0;
-            }
-            case Battery battery -> {
-                return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(battery.getLocalTargetV())
-                    || !Double.isNaN(battery.getRegulatingTargetQ()) && battery.getRegulatingTargetQ() != 0;
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + injection);
         }
     }
 
