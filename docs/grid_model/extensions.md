@@ -754,15 +754,19 @@ A control zone groups a pilot point with the generators that regulate its voltag
 | Attribute    | Type              | Unit | Required | Default value | Description                                                                                                          |
 |--------------|-------------------|------|----------|---------------|----------------------------------------------------------------------------------------------------------------------|
 | name         | String            | -    | yes      | -             | The unique name of the control zone                                                                                  |
-| pilotPoint   | PilotPoint        | -    | yes      | -             | The pilot point whose voltage is regulated (has a target voltage and a list of regulated busbar sections or bus IDs) |
+| pilotPoint   | PilotPoint        | -    | yes      | -             | The pilot point whose voltage is regulated (has a target voltage and a list of regulated buses and busbar sections) |
 | controlUnits | List<ControlUnit> | -    | yes      | -             | The list of control units (generators) with their active flag to indicate their participation in the zone control    |
 
 **Pilot point**
 
-| Attribute                | Type         | Unit | Required | Default value | Description                                                     |
-|--------------------------|--------------|------|----------|---------------|-----------------------------------------------------------------|
-| busbarSectionsOrBusesIds | List<String> | -    | yes      | -             | The IDs of the busbar sections or buses forming the pilot point |
-| targetV                  | double       | kV   | yes      | -             | The target voltage at the pilot point                           |
+| Attribute                  | Type         | Unit | Required | Default value | Description                                                                                       |
+|----------------------------|--------------|------|----------|---------------|---------------------------------------------------------------------------------------------------|
+| busIds                     | List<String> | -    | no       | empty         | The IDs of the buses of the bus/breaker view forming the pilot point                              |
+| busbarSectionIds           | List<String> | -    | no       | empty         | The IDs of the busbar sections forming the pilot point                                            |
+| activeBusOrBusbarSectionId | String       | -    | no       | -             | The ID of the bus or busbar section currently active, which must be one of the pilot point's buses or busbar sections |
+| targetV                    | double       | kV   | yes      | -             | The target voltage at the pilot point                                                             |
+
+At least one bus or busbar section is required to define a pilot point.
 
 **Control unit**
 
@@ -771,7 +775,7 @@ A control zone groups a pilot point with the generators that regulate its voltag
 | id          | String  | -    | yes      | -             | The ID of the generator used as a control unit            |
 | participate | boolean | -    | no       | true          | Whether the generator participates in the voltage control |
 
-The `targetV` and `participate` attributes are multi-variants: they can vary from one variant to another.
+The `targetV`, `activeBusOrBusbarSectionId` and `participate` attributes are multi-variants: they can vary from one variant to another.
 
 Here is how to add a secondary voltage control extension to a network:
 ```java
@@ -779,7 +783,7 @@ network.newExtension(SecondaryVoltageControlAdder.class)
     .newControlZone()
         .withName("z1")
         .newPilotPoint()
-            .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+            .withBusIds(List.of("NLOAD"))
             .withTargetV(15d)
         .add()
         .newControlUnit()
