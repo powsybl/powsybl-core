@@ -326,6 +326,55 @@ public abstract class AbstractVoltageRegulationOnRatioTapChangerTest {
         assertTrue(notifications.contains("ratioTapChanger2.VoltageRegulation.TargetValue"));
     }
 
+    @Test
+    public void testRatioTapChangerReactivePowerModeStatus() {
+        RatioTapChangerAdder ratioTapChangerAdder = newRatioTapChangerAdder(false);
+        RatioTapChanger ratioTapChangerVoltageRegulationMissing = ratioTapChangerAdder
+            .setLoadTapChangingCapabilities(true)
+            .add();
+        assertFalse(ratioTapChangerVoltageRegulationMissing.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertFalse(ratioTapChangerVoltageRegulationMissing.isWithMode(RegulationMode.REACTIVE_POWER));
+
+        RatioTapChanger ratioTapChangerVoltageModeOff = ratioTapChangerAdder
+            .setLoadTapChangingCapabilities(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(220)
+                .withTerminal(remoteTerminal)
+                .withRegulating(false)
+                .withTargetDeadband(10)
+                .add()
+            .add();
+        assertFalse(ratioTapChangerVoltageModeOff.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertFalse(ratioTapChangerVoltageModeOff.isWithMode(RegulationMode.REACTIVE_POWER));
+
+        RatioTapChanger ratioTapChangerReactivePowerModeOff = ratioTapChangerAdder
+            .setLoadTapChangingCapabilities(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(220)
+                .withTerminal(remoteTerminal)
+                .withRegulating(false)
+                .withTargetDeadband(10)
+                .add()
+            .add();
+        assertFalse(ratioTapChangerReactivePowerModeOff.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertTrue(ratioTapChangerReactivePowerModeOff.isWithMode(RegulationMode.REACTIVE_POWER));
+
+        RatioTapChanger ratioTapChangerReactivePowerModeOn = ratioTapChangerAdder
+            .setLoadTapChangingCapabilities(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(220)
+                .withTerminal(remoteTerminal)
+                .withRegulating(true)
+                .withTargetDeadband(10)
+                .add()
+            .add();
+        assertTrue(ratioTapChangerReactivePowerModeOn.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertTrue(ratioTapChangerReactivePowerModeOn.isWithMode(RegulationMode.REACTIVE_POWER));
+    }
+
     private RatioTapChangerAdder newRatioTapChangerAdder(boolean loadTapChangingCapabilities) {
         return twoWindingsTransformer.newRatioTapChanger()
             .setTapPosition(0)
