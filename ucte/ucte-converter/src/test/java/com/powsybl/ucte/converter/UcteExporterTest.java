@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -27,6 +26,7 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
+import static com.powsybl.ucte.converter.UcteExporterTestUtils.reimport;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -49,18 +49,6 @@ class UcteExporterTest extends AbstractSerDeTest {
     private static Network loadNetworkFromResourceFile(String filePath, Properties parameters) {
         ReadOnlyDataSource dataSource = new ResourceDataSource(FilenameUtils.getBaseName(filePath), new ResourceSet(FilenameUtils.getPath(filePath), FilenameUtils.getName(filePath)));
         return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), parameters);
-    }
-
-    /**
-     * Re-imports a network exported to a {@link MemDataSource}. A plain {@link MemDataSource} always stores its
-     * content under an empty base name, which {@link UcteImporter} would otherwise turn into an invalid empty
-     * network id, so the exported bytes are copied into a named {@link ReadOnlyMemDataSource} first.
-     */
-    private static Network reimport(MemDataSource dataSource) {
-        byte[] exported = dataSource.getData(null, "uct");
-        ReadOnlyMemDataSource namedDataSource = new ReadOnlyMemDataSource("network");
-        namedDataSource.putData("network.uct", exported);
-        return new UcteImporter().importData(namedDataSource, NetworkFactory.findDefault(), null);
     }
 
     private static void testExporter(Network network, String reference) throws IOException {
@@ -276,10 +264,16 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testNominalPowerExportedFromRatedS() {
+    void testNominalPowerExport() {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1");
-        transformer.setRatedS(1234.5);
+        // Transformer 1: nominal power from ratedS
+        network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").setRatedS(1234.5);
+        // Transformer 2: no ratedS, nominal power from the legacy property
+        TwoWindingsTransformer legacyTransformer = network.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1");
+        legacyTransformer.setRatedS(Double.NaN);
+        legacyTransformer.setProperty(UcteConverterConstants.NOMINAL_POWER_KEY, "1200.0");
+        // Transformer 3: no nominal power at all
+        network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").setRatedS(Double.NaN);
 
         MemDataSource dataSource = new MemDataSource();
         new UcteExporter().export(network, new Properties(), dataSource);
@@ -287,34 +281,8 @@ class UcteExporterTest extends AbstractSerDeTest {
 
         // Here, we accept a difference of 1 (the exporter can only export 5 characters, so exported value is '1234.')
         assertEquals(1234.5, reimported.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS(), 1);
-    }
-
-    @Test
-    void testNominalPowerExportedFromLegacyPropertyWhenRatedSMissing() {
-        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1");
-        transformer.setRatedS(Double.NaN);
-        transformer.setProperty(UcteConverterConstants.NOMINAL_POWER_KEY, "1200.0");
-
-        MemDataSource dataSource = new MemDataSource();
-        new UcteExporter().export(network, new Properties(), dataSource);
-        Network reimported = reimport(dataSource);
-
-        assertEquals(1200.0, reimported.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS());
-    }
-
-    @Test
-    void testNominalPowerDefaultedWhenNotProvided() {
-        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1");
-        transformer.setRatedS(Double.NaN);
-
-        MemDataSource dataSource = new MemDataSource();
-        new UcteExporter().export(network, new Properties(), dataSource);
-        Network reimported = reimport(dataSource);
-
-        assertEquals(UcteExporter.NOMINAL_POWER_NOVALUE,
-                reimported.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS());
+        assertEquals(1200.0, reimported.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").getRatedS());
+        assertEquals(99999, reimported.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getRatedS());
     }
 
     @Test
