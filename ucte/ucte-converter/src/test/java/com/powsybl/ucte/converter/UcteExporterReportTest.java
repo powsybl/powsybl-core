@@ -381,7 +381,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          FTEST111 FTEST211 1 [ratio tap changer] - tap position range extended on the low side to stay symmetric (low side spans 1 positions, high side spans 3)
                          FTEST311 FTEST411 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE linear model
                          FTEST711 FTEST811 1 [angle tap changer (SYMM)] - differences found between original tap steps and the exported UCTE linear model
-                         FTEST911 FTESTA11 1 [angle tap changer (ASSYM)] - differences found between original tap steps and the exported UCTE linear model
+                         FTEST911 FTESTA11 1 [angle tap changer (ASYM)] - differences found between original tap steps and the exported UCTE linear model
                    Network exported to file .uct
                 """, reportNode));
     }

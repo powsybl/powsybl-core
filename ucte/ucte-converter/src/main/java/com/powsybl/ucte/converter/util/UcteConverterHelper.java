@@ -431,7 +431,7 @@ public final class UcteConverterHelper {
             double actualRho = 1 / tapChanger.getStep(p).getRho();
             Complex actual = ComplexUtils.polar2Complex(actualRho, actualAlpha);
             if (predicted.subtract(actual).abs() > DEVIATION_EPSILON) {
-                logDeviationWarning(equipmentId, "angle tap changer (ASSYM)", reportNode);
+                logDeviationWarning(equipmentId, "angle tap changer (ASYM)", reportNode);
                 return;
             }
         }
