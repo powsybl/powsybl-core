@@ -209,7 +209,13 @@ public final class LimitViolationUtils {
                     limit = container.getOriginalPermanentLimit();
                     scaling = container.getPermanentLimitScaling();
                 } else {
-                    limit = container.getOriginalTemporaryLimit(previousAcceptableDuration);
+                    Double tempLimit = container.getOriginalTemporaryLimit(previousAcceptableDuration);
+                    if (tempLimit != null) {
+                        limit = tempLimit;
+                    } else {
+                        // This should never happen, since we can't create an overload with a duration that does not correspond to a limit
+                        throw new IllegalStateException("No temporary limit corresponds to the acceptable duration " + previousAcceptableDuration + " in the limits container");
+                    }
                     scaling = container.getTemporaryLimitScaling(previousAcceptableDuration);
                 }
             }
