@@ -100,6 +100,7 @@ public class UcteExporter implements Exporter {
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
         namingStrategy.initializeNetwork(network);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
+
         List<String> postProcessorNames = Parameter.readStringList(getFormat(), parameters, POST_PROCESSORS_PARAMETER, defaultValueConfig);
         // same as for naming strategies, new instances for each export so that post-processors may keep per-export state
         List<UcteExportPostProcessor> postProcessors = findPostProcessors(postProcessorNames,
@@ -108,21 +109,25 @@ public class UcteExporter implements Exporter {
                         .map(ServiceLoader.Provider::get)
                         .toList());
 
+        // convert IIDM Network to UcteNetwork
         UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
         UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(UcteExporterReports.networkCreation(reportNode)));
 
+        // apply post-processors modifications
         List<UcteExporterContext> postProcessorContexts = postProcessors.stream()
                 .map(postProcessor -> context.withReportNode(UcteExporterReports.postProcessor(reportNode, postProcessor.getName())))
                 .toList();
         for (int i = 0; i < postProcessors.size(); i++) {
             postProcessors.get(i).process(network, ucteNetwork, postProcessorContexts.get(i));
         }
+        // get post-processors UcteNode comparators
         Comparator<UcteNode> nodeComparator = IntStream.range(0, postProcessors.size())
                 .mapToObj(i -> postProcessors.get(i).getNodeComparator(network, ucteNetwork, postProcessorContexts.get(i)))
                 .flatMap(Optional::stream)
                 .reduce(Comparator::thenComparing)
                 .orElse(Comparator.naturalOrder());
 
+        // write - the node sorting within each country is performed by the writer using the UcteNode comparator
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork, nodeComparator).write(writer);

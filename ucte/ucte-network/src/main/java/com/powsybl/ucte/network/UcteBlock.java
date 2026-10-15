@@ -10,9 +10,6 @@ package com.powsybl.ucte.network;
 
 /**
  * Top-level blocks of a UCTE-DEF file in front of which a comment block can be written.
- * <p>
- * A comment block inside the node block, e.g. in front of a ##Z block, is not supported, because
- * it could not be read back.
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
