@@ -13,9 +13,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.ucte.converter.UcteExporterTestNetworks;
 import com.powsybl.ucte.converter.UcteImporter;
 import com.powsybl.ucte.converter.util.UcteConverterHelper.VoltageCandidate;
@@ -26,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-
 import java.util.List;
 
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -171,6 +167,7 @@ class UcteConverterHelperTest {
     private static void assertCandidates(Network network, String busId, List<VoltageCandidate> expected) {
         assertEquals(expected, getVoltageCandidatesByRelevance(network.getBusBreakerView().getBus(busId)), busId);
     }
+
     @Test
     void computeTapPositionRangeTrivialCaseTest() {
         TwoWindingsTransformer twt = createTestTransformer("TRIVIAL_TWT");
