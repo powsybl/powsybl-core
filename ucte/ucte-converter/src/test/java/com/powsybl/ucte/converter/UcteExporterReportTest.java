@@ -246,4 +246,39 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
         adder.add();
     }
+
+    /**
+     * Checks the entries reported for tap changers that don't fit the UCTE-DEF model: tap range extended to stay
+     * symmetric around the neutral tap, and tap steps deviating from the linear model. See
+     * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
+     */
+    @Test
+    void testTapChangerReports() {
+        Network network = UcteExporterTestNetworks.createWithTapChangers();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - tap position range extended on the high side to stay symmetric (low side spans 3 positions, high side spans 1)
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE linear model
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - tap position range extended on the low side to stay symmetric (low side spans 0 positions, high side spans 1)
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE linear model
+                         FRLOWX11 FRLOWX12 1 [ratio tap changer] - tap position range extended on the low side to stay symmetric (low side spans 1 positions, high side spans 3)
+                         FRDEVI11 FRDEVI12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE linear model
+                         FPCLOS11 FPCLOS12 1 [phase tap changer] - tap position range extended on the high side to stay symmetric (low side spans 3 positions, high side spans 1)
+                         FPCLOS11 FPCLOS12 1 [angle tap changer (SYMM)] - differences found between original tap steps and the exported UCTE linear model
+                         FPTIEB11 FPTIEB12 1 [angle tap changer (ASYM)] - differences found between original tap steps and the exported UCTE linear model
+                         FSDEVI11 FSDEVI12 1 [angle tap changer (SYMM)] - differences found between original tap steps and the exported UCTE linear model
+                         FADEVI11 FADEVI12 1 [angle tap changer (ASYM)] - differences found between original tap steps and the exported UCTE linear model
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
 }
