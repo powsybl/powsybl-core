@@ -8,9 +8,15 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.time.ZonedDateTime;
 
@@ -144,5 +150,196 @@ final class UcteExporterTestNetworks {
                     .setPairingKey("XXXXXX11")
                     .add();
         return network;
+    }
+
+    /**
+     * One French 380 kV node {@code FREMOT11} holding load {@code L380}, and one 21 kV node {@code F<case>71} per case
+     * holding several loads or generators. Equipment ids are prefixed by the case name.
+     * <ul>
+     *     <li>{@code CASE1}: loads {@code LA} (10 MW, 2 MVar) and {@code LB} (5 MW, 1 MVar);</li>
+     *     <li>{@code CASE2}: generators {@code GA} (P = 100, Q = 5, P in [10, 200], Q in [-50, 50]) and {@code GB}
+     *     (P = 50, Q = 3, P in [5, 100], Q in [-20, 20]);</li>
+     *     <li>{@code CASE3}: generators {@code GA} (P = 50) and {@code GB} (P = 150), both with the reactive capability
+     *     curve {@code minQ = -10 - P, maxQ = 10 + P} on [0, 200]: Q in [-60, 60] and [-160, 160] at their own P;</li>
+     *     <li>{@code CASE4}: generators {@code GA} (maxP = 9999, the "no limit" value) and {@code GB} (maxP = 100);</li>
+     *     <li>{@code CASE5}: same as {@code CASE4}, with {@code GA}'s maxP = {@code Double.MAX_VALUE};</li>
+     *     <li>{@code CASE6}: generators {@code GA} and {@code GB}, both with maxP = 6000 (sum out of bounds);</li>
+     *     <li>{@code CASE7}: generators {@code GA} (hydro) and {@code GB} (thermal);</li>
+     *     <li>{@code CASE8}: generators {@code GA} and {@code GB}, both hydro.</li>
+     * </ul>
+     */
+    static Network createWithMultipleInjections() {
+        Network network = createWithRemoteNode("multipleInjections");
+        VoltageLevel vl21 = network.getVoltageLevel("VL21");
+
+        String bus = addBus(vl21, "CASE1");
+        addLoad(vl21, "CASE1_LA", bus, 10, 2);
+        addLoad(vl21, "CASE1_LB", bus, 5, 1);
+
+        bus = addBus(vl21, "CASE2");
+        addGenerator(vl21, "CASE2_GA", bus, 100, 10, 200).setLocalTargetQ(5)
+                .newMinMaxReactiveLimits().setMinQ(-50).setMaxQ(50).add();
+        addGenerator(vl21, "CASE2_GB", bus, 50, 5, 100).setLocalTargetQ(3)
+                .newMinMaxReactiveLimits().setMinQ(-20).setMaxQ(20).add();
+
+        bus = addBus(vl21, "CASE3");
+        for (Generator generator : new Generator[] {addGenerator(vl21, "CASE3_GA", bus, 50, 0, 200),
+                                                    addGenerator(vl21, "CASE3_GB", bus, 150, 0, 200)}) {
+            generator.newReactiveCapabilityCurve()
+                     .beginPoint().setP(0).setMinQ(-10).setMaxQ(10).endPoint()
+                     .beginPoint().setP(200).setMinQ(-210).setMaxQ(210).endPoint()
+                     .add();
+        }
+
+        bus = addBus(vl21, "CASE4");
+        addGenerator(vl21, "CASE4_GA", bus, 10, 1, 9999);
+        addGenerator(vl21, "CASE4_GB", bus, 10, 2, 100);
+
+        bus = addBus(vl21, "CASE5");
+        addGenerator(vl21, "CASE5_GA", bus, 10, 1, Double.MAX_VALUE);
+        addGenerator(vl21, "CASE5_GB", bus, 10, 2, 100);
+
+        bus = addBus(vl21, "CASE6");
+        addGenerator(vl21, "CASE6_GA", bus, 10, 0, 6000);
+        addGenerator(vl21, "CASE6_GB", bus, 10, 0, 6000);
+
+        bus = addBus(vl21, "CASE7");
+        addGenerator(vl21, "CASE7_GA", bus, 10, 0, 100).setEnergySource(EnergySource.HYDRO);
+        addGenerator(vl21, "CASE7_GB", bus, 10, 0, 100).setEnergySource(EnergySource.THERMAL);
+
+        bus = addBus(vl21, "CASE8");
+        addGenerator(vl21, "CASE8_GA", bus, 10, 0, 100).setEnergySource(EnergySource.HYDRO);
+        addGenerator(vl21, "CASE8_GB", bus, 10, 0, 100).setEnergySource(EnergySource.HYDRO);
+        return network;
+    }
+
+    /**
+     * One French 380 kV node {@code FREMOT11} holding load {@code L380}, and one 21 kV node {@code F<case>71} per case
+     * holding several generators providing voltage targets. Equipment ids are prefixed by the case name.
+     * <ul>
+     *     <li>{@code CASE1}: regulating generators {@code GA} (P = 100, 22 kV) and {@code GB} (P = 200, 23 kV);</li>
+     *     <li>{@code CASE2}: regulating generators {@code GB} (P = 100, 23 kV) and {@code GA} (P = 100, 22 kV), added in
+     *     this order to rule out an iteration-order effect on the tie-break;</li>
+     *     <li>{@code CASE3}: load {@code L} and generator {@code GA} (P = 100) regulating {@code L}'s terminal at 22.5 kV,
+     *     without local target;</li>
+     *     <li>{@code CASE4}: generator {@code GA} (P = 100) regulating {@code FREMOT11} at 405 kV;</li>
+     *     <li>{@code CASE5}: regulating generator {@code GA} (P = 10, 22 kV) and generator {@code GB} (P = 500)
+     *     regulating {@code FREMOT11} at 405 kV;</li>
+     *     <li>{@code CASE6}: non-regulating generators {@code GA} (P = 10, 22 kV) and {@code GB} (P = 20, 23 kV).</li>
+     * </ul>
+     */
+    static Network createWithMultipleVoltageTargets() {
+        Network network = createWithRemoteNode("multipleVoltageTargets");
+        VoltageLevel vl21 = network.getVoltageLevel("VL21");
+        Terminal remoteTerminal = network.getLoad("L380").getTerminal();
+
+        String bus = addBus(vl21, "CASE1");
+        addRegulatingGenerator(vl21, "CASE1_GA", bus, 100, 22.0);
+        addRegulatingGenerator(vl21, "CASE1_GB", bus, 200, 23.0);
+
+        bus = addBus(vl21, "CASE2");
+        addRegulatingGenerator(vl21, "CASE2_GB", bus, 100, 23.0);
+        addRegulatingGenerator(vl21, "CASE2_GA", bus, 100, 22.0);
+
+        bus = addBus(vl21, "CASE3");
+        addLoad(vl21, "CASE3_L", bus, 1, 1);
+        addRemoteRegulatingGenerator(vl21, "CASE3_GA", bus, 100, network.getLoad("CASE3_L").getTerminal(), 22.5);
+
+        bus = addBus(vl21, "CASE4");
+        addRemoteRegulatingGenerator(vl21, "CASE4_GA", bus, 100, remoteTerminal, 405);
+
+        bus = addBus(vl21, "CASE5");
+        addRegulatingGenerator(vl21, "CASE5_GA", bus, 10, 22.0);
+        addRemoteRegulatingGenerator(vl21, "CASE5_GB", bus, 500, remoteTerminal, 405);
+
+        bus = addBus(vl21, "CASE6");
+        addGenerator(vl21, "CASE6_GA", bus, 10, 0, 100).setLocalTargetV(22.0);
+        addGenerator(vl21, "CASE6_GB", bus, 20, 0, 100).setLocalTargetV(23.0);
+        return network;
+    }
+
+    /**
+     * A French substation with a 380 kV voltage level holding node {@code FREMOT11} and its load {@code L380}, and an
+     * empty 21 kV voltage level {@code VL21}.
+     */
+    private static Network createWithRemoteNode(String networkId) {
+        Network network = Network.create(networkId, "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+        Substation substation = network.newSubstation()
+                                       .setId("SUBSTATION")
+                                       .setCountry(Country.FR)
+                                       .add();
+        VoltageLevel vl380 = substation.newVoltageLevel()
+                                       .setId("VL380")
+                                       .setNominalV(380)
+                                       .setTopologyKind(TopologyKind.BUS_BREAKER)
+                                       .add();
+        vl380.getBusBreakerView().newBus()
+             .setId("FREMOT11")
+             .add();
+        addLoad(vl380, "L380", "FREMOT11", 1, 1);
+        substation.newVoltageLevel()
+                  .setId("VL21")
+                  .setNominalV(21)
+                  .setTopologyKind(TopologyKind.BUS_BREAKER)
+                  .add();
+        return network;
+    }
+
+    /**
+     * Add a bus {@code F<name>71} to the given voltage level and return its id.
+     */
+    private static String addBus(VoltageLevel voltageLevel, String name) {
+        String busId = "F" + name + "71";
+        voltageLevel.getBusBreakerView().newBus()
+                    .setId(busId)
+                    .add();
+        return busId;
+    }
+
+    private static void addLoad(VoltageLevel voltageLevel, String id, String busId, double p0, double q0) {
+        voltageLevel.newLoad().setId(id).setBus(busId).setConnectableBus(busId).setP0(p0).setQ0(q0).add();
+    }
+
+    private static GeneratorAdder generatorAdder(VoltageLevel voltageLevel, String id, String busId, double targetP,
+                                                 double minP, double maxP) {
+        return voltageLevel.newGenerator()
+                           .setId(id)
+                           .setBus(busId)
+                           .setConnectableBus(busId)
+                           .setEnergySource(EnergySource.OTHER)
+                           .setTargetP(targetP)
+                           .setMinP(minP)
+                           .setMaxP(maxP)
+                           .setLocalTargetQ(0);
+    }
+
+    /**
+     * Add a generator without voltage regulation (PQ).
+     */
+    private static Generator addGenerator(VoltageLevel voltageLevel, String id, String busId, double targetP,
+                                          double minP, double maxP) {
+        return generatorAdder(voltageLevel, id, busId, targetP, minP, maxP).add();
+    }
+
+    /**
+     * Add a voltage-regulating generator with a local target.
+     */
+    private static void addRegulatingGenerator(VoltageLevel voltageLevel, String id, String busId, double targetP,
+                                               double targetV) {
+        GeneratorAdder adder = generatorAdder(voltageLevel, id, busId, targetP, 0, 1000).setLocalTargetV(targetV);
+        adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
+        adder.add();
+    }
+
+    /**
+     * Add a voltage-regulating generator with no local target, regulating {@code terminal} at {@code targetValue}.
+     */
+    private static void addRemoteRegulatingGenerator(VoltageLevel voltageLevel, String id, String busId,
+                                                     double targetP, Terminal terminal, double targetValue) {
+        GeneratorAdder adder = generatorAdder(voltageLevel, id, busId, targetP, 0, 1000);
+        adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true)
+             .withTerminal(terminal).withTargetValue(targetValue).add();
+        adder.add();
     }
 }

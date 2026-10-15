@@ -162,12 +162,16 @@ class UcteExporterReportTest extends AbstractSerDeTest {
      *   FFFFFF73 --- generator GC regulating FFFFFF11 at 420 kV                         -&gt; rescaled remote target
      *   FFFFFF74 --- generators GD1 and GD2, both with maxP = 6000                      -&gt; aggregated maxP out of bounds
      *   FFFFFF75 --- generator GE regulating FFFFFF71 (same nominal voltage) at 22 kV  -&gt; no rescaling, not reported
+     *   FFFFFF76 --- generator GF regulating voltage, without any voltage target        -&gt; missing voltage target
      *   FFFFFF11 --- load L400 (regulating terminal of GC)
      * </pre>
+     * A generator without voltage target such as GF is only accepted at the {@link ValidationLevel#EQUIPMENT}
+     * validation level.
      */
     @Test
     void testAggregationReports() {
         Network network = NetworkFactory.findDefault().createNetwork("aggregation-test", "test");
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Substation substation = network.newSubstation().setId("S").setCountry(Country.FR).add();
         VoltageLevel vl400 = substation.newVoltageLevel().setId("VL400").setNominalV(400)
                 .setTopologyKind(TopologyKind.BUS_BREAKER).add();
@@ -175,7 +179,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         vl400.newLoad().setId("L400").setBus("FFFFFF11").setConnectableBus("FFFFFF11").setP0(1).setQ0(1).add();
         VoltageLevel vl21 = substation.newVoltageLevel().setId("VL21").setNominalV(21)
                 .setTopologyKind(TopologyKind.BUS_BREAKER).add();
-        for (String busId : new String[] {"FFFFFF71", "FFFFFF72", "FFFFFF73", "FFFFFF74", "FFFFFF75"}) {
+        for (String busId : new String[] {"FFFFFF71", "FFFFFF72", "FFFFFF73", "FFFFFF74", "FFFFFF75", "FFFFFF76"}) {
             vl21.getBusBreakerView().newBus().setId(busId).add();
         }
 
@@ -200,6 +204,10 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                 .withTerminal(network.getLoad("LA1").getTerminal()).withTargetValue(22).add();
         sameNominalVAdder.add();
 
+        GeneratorAdder missingTargetAdder = addGenerator(vl21, "GF", "FFFFFF76", 100, 1000, EnergySource.OTHER);
+        missingTargetAdder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
+        missingTargetAdder.add();
+
         ReportNode rootReportNode = newTestRootReportNode();
         new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
 
@@ -211,44 +219,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          Bus FFFFFF72: generators have different voltage targets, 23.0 kV from generator GB2 is used
                          Bus FFFFFF73: generator GC, connected to this bus, regulates the voltage of remote bus FFFFFF11; its target 420.0 kV is rescaled to 22.05 kV
                          Bus FFFFFF74: aggregated maxP (12000.0) reaches or exceeds 9999 in absolute value ("no limit" value) and is left undefined
-                      Boundary Lines
-                      Lines
-                      Tie-Lines
-                      Transformers
-                   Network exported to file .uct
-                """, rootReportNode));
-    }
-
-    /**
-     * Checks that a PU node whose generators provide no voltage target is reported.
-     * <p>
-     * Network layout:
-     * <pre>
-     *   VL21
-     *   FFFFFF71 --- generator G, regulating voltage, with neither a local target voltage nor a regulation target value
-     * </pre>
-     * Such a generator is only accepted at the {@link ValidationLevel#EQUIPMENT} validation level.
-     */
-    @Test
-    void testVoltageTargetMissingReported() {
-        Network network = NetworkFactory.findDefault().createNetwork("missing-target-test", "test");
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        Substation substation = network.newSubstation().setId("S").setCountry(Country.FR).add();
-        VoltageLevel vl21 = substation.newVoltageLevel().setId("VL21").setNominalV(21)
-                .setTopologyKind(TopologyKind.BUS_BREAKER).add();
-        vl21.getBusBreakerView().newBus().setId("FFFFFF71").add();
-        GeneratorAdder adder = addGenerator(vl21, "G", "FFFFFF71", 100, 1000, EnergySource.OTHER);
-        adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
-        adder.add();
-
-        ReportNode rootReportNode = newTestRootReportNode();
-        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
-
-        assertTrue(checkReportNode("""
-                + Test exporting UCTE network
-                   + Creating UCTE Network
-                      + Buses and Switches
-                         Bus FFFFFF71: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
+                         Bus FFFFFF76: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
                       Boundary Lines
                       Lines
                       Tie-Lines
