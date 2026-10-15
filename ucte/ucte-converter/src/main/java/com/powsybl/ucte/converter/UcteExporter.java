@@ -359,7 +359,7 @@ public class UcteExporter implements Exporter {
 
     /**
      * Given a non-null {@link BoundaryLine.Generation} from the original boundary line, apply it to the exported
-     * {@link UcteNode}
+     * {@link UcteNode}.
      *
      * @param generation The {@link BoundaryLine.Generation} associated to the {@link BoundaryLine} at the origin of
      *                   {@code ucteNode}
@@ -380,7 +380,6 @@ public class UcteExporter implements Exporter {
             setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
         }
     }
-
 
     /**
      * Generator min power limits must be strictly greater than -9999 (see
