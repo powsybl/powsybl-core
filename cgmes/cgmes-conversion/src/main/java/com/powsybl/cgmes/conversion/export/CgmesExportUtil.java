@@ -317,7 +317,7 @@ public final class CgmesExportUtil {
     }
 
     public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
-        if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+        if (HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER.equals(converterStation.getHvdcLine().getConvertersMode())) {
             return converterStation.getHvdcLine().getConverterStation1().equals(converterStation);
         } else {
             return converterStation.getHvdcLine().getConverterStation2().equals(converterStation);
