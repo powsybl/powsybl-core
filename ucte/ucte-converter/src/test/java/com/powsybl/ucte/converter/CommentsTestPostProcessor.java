@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Adds comments to the first comment block, mapping IIDM buses to UCTE nodes, and in front of some blocks.
+ * Adds comments to the first comment block, and in front of the other blocks.
  * Orders French nodes by nominal voltage of the IIDM voltage level, leaving the order of other countries unchanged.
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -38,21 +38,18 @@ public class CommentsTestPostProcessor implements UcteExportPostProcessor {
 
     @Override
     public void process(Network network, UcteNetwork ucteNetwork, UcteExporterContext context) {
-        int count = 0;
-        for (Bus bus : network.getBusBreakerView().getBuses()) {
-            UcteNode node = ucteNetwork.getNode(context.getNamingStrategy().getUcteNodeCode(bus));
-            ucteNetwork.getComments().add(node.getCode() + " <- " + bus.getId());
-            count++;
-        }
-        context.getReportNode().newReportNode()
-                .withMessageTemplate("testNodesMapped")
-                .withUntypedValue("count", count)
-                .add();
+        ucteNetwork.getComments().add("Test first comment block first comment");
+        ucteNetwork.getComments().add("Test first comment block second comment");
 
         ucteNetwork.getComments(UcteBlock.NODES).add("Nodes: " + ucteNetwork.getNodes().size());
         ucteNetwork.getComments(UcteBlock.LINES).add("Lines: " + ucteNetwork.getLines().size());
         ucteNetwork.getComments(UcteBlock.LINES).add("Second comment line");
         ucteNetwork.getComments(UcteBlock.REGULATIONS).add("Regulations: " + ucteNetwork.getRegulations().size());
+
+        context.getReportNode().newReportNode()
+                .withMessageTemplate("testNodesMapped")
+                .withUntypedValue("count", ucteNetwork.getNodes().size())
+                .add();
     }
 
     @Override
