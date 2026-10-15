@@ -192,7 +192,7 @@ the same conventions as [node conversion](#node-conversion) above.
 | X/R ratio                                              | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
 | Power plant type                                       | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
 
-##### boundary line without generation
+##### Boundary line without generation
 
 If the original boundary line has no generation part, its X-node is exported as a `PQ` node without generation:
 
