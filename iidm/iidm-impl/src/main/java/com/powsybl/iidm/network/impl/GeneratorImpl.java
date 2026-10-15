@@ -8,9 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.regulation.*;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -37,11 +39,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList targetP;
+    private final ExtendedDoubleArrayList targetP;
 
-    private final TDoubleArrayList localTargetQ;
+    private final ExtendedDoubleArrayList localTargetQ;
 
-    private final TDoubleArrayList localTargetV;
+    private final ExtendedDoubleArrayList localTargetV;
 
     private final boolean isCondenser;
 
@@ -60,14 +62,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.targetP = new TDoubleArrayList(variantArraySize);
-        this.localTargetQ = new TDoubleArrayList(variantArraySize);
-        this.localTargetV = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.targetP.add(targetP);
-            this.localTargetQ.add(localTargetQ);
-            this.localTargetV.add(localTargetV);
-        }
+        this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
+        this.localTargetQ = new ExtendedDoubleArrayList(variantArraySize, localTargetQ);
+        this.localTargetV = new ExtendedDoubleArrayList(variantArraySize, localTargetV);
         this.isCondenser = isCondenser;
     }
 
@@ -156,15 +153,15 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getTargetP() {
-        return targetP.get(network.get().getVariantIndex());
+        return targetP.getDouble(getCurrentIndex());
     }
 
     @Override
     public GeneratorImpl setTargetP(double targetP) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkActivePowerSetpoint(this, targetP, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        int variantIndex = network.get().getVariantIndex();
-        double oldValue = this.targetP.set(network.get().getVariantIndex(), targetP);
+        int variantIndex = getCurrentIndex();
+        double oldValue = this.targetP.set(getCurrentIndex(), targetP);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("targetP", variantId, oldValue, targetP);
@@ -178,7 +175,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getLocalTargetQ() {
-        return this.localTargetQ.get(network.get().getVariantIndex());
+        return this.localTargetQ.getDouble(getCurrentIndex());
     }
 
     @Override
@@ -191,7 +188,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
                 getVoltageRegulation(),
                 n.getMinValidationLevel(),
                 n.getReportNodeContext().getReportNode());
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = getCurrentIndex();
         double oldValue = this.localTargetQ.set(variantIndex, localTargetQ);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -229,7 +226,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getCurrentIndex());
+        return this.localTargetV.getDouble(getCurrentIndex());
     }
 
     @Override
@@ -328,14 +325,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        targetP.ensureCapacity(targetP.size() + number);
-        localTargetQ.ensureCapacity(localTargetQ.size() + number);
-        localTargetV.ensureCapacity(localTargetV.size() + number);
-        for (int i = 0; i < number; i++) {
-            targetP.add(targetP.get(sourceIndex));
-            localTargetQ.add(localTargetQ.get(sourceIndex));
-            localTargetV.add(localTargetV.get(sourceIndex));
-        }
+        targetP.growAndFill(number, targetP.getDouble(sourceIndex));
+        localTargetQ.growAndFill(number, localTargetQ.getDouble(sourceIndex));
+        localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
         if (voltageRegulation != null) {
             voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
@@ -344,9 +336,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        targetP.remove(targetP.size() - number, number);
-        localTargetQ.remove(localTargetQ.size() - number, number);
-        localTargetV.remove(localTargetV.size() - number, number);
+        targetP.removeElements(number);
+        localTargetQ.removeElements(number);
+        localTargetV.removeElements(number);
         if (voltageRegulation != null) {
             voltageRegulation.reduceVariantArraySize(number);
         }
@@ -364,9 +356,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            targetP.set(index, targetP.get(sourceIndex));
-            localTargetQ.set(index, localTargetQ.get(sourceIndex));
-            localTargetV.set(index, localTargetV.get(sourceIndex));
+            targetP.set(index, targetP.getDouble(sourceIndex));
+            localTargetQ.set(index, localTargetQ.getDouble(sourceIndex));
+            localTargetV.set(index, localTargetV.getDouble(sourceIndex));
         }
         if (voltageRegulation != null) {
             voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);

@@ -8,11 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -25,9 +25,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final TDoubleArrayList localTargetQ;
+    private final ExtendedDoubleArrayList localTargetQ;
 
-    private final TDoubleArrayList localTargetV;
+    private final ExtendedDoubleArrayList localTargetV;
 
     private VoltageRegulationExt voltageRegulation;
 
@@ -35,10 +35,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
                             double localTargetQ, double localTargetV, VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         super(ref, id, name, fictitious, equivalent, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.localTargetQ = new TDoubleArrayList(variantArraySize);
-        this.localTargetV = new TDoubleArrayList(variantArraySize);
-        this.localTargetQ.fill(0, variantArraySize, localTargetQ);
-        this.localTargetV.fill(0, variantArraySize, localTargetV);
+        this.localTargetQ = new ExtendedDoubleArrayList(variantArraySize, localTargetQ);
+        this.localTargetV = new ExtendedDoubleArrayList(variantArraySize, localTargetV);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VscConverterStation.class, ref, voltageRegulationAttributes);
     }
@@ -91,7 +89,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getNetwork().getVariantIndex());
+        return this.localTargetV.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -133,7 +131,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public double getLocalTargetQ() {
-        return this.localTargetQ.get(getNetwork().getVariantIndex());
+        return this.localTargetQ.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -180,11 +178,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-
-        localTargetQ.ensureCapacity(localTargetQ.size() + number);
-        localTargetQ.fill(initVariantArraySize, initVariantArraySize + number, localTargetQ.get(sourceIndex));
-        localTargetV.ensureCapacity(localTargetV.size() + number);
-        localTargetV.fill(initVariantArraySize, initVariantArraySize + number, localTargetV.get(sourceIndex));
+        localTargetQ.growAndFill(number, localTargetQ.getDouble(sourceIndex));
+        localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
         if (voltageRegulation != null) {
             voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
@@ -193,8 +188,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        localTargetQ.remove(localTargetQ.size() - number, number);
-        localTargetV.remove(localTargetV.size() - number, number);
+        localTargetQ.removeElements(number);
+        localTargetV.removeElements(number);
         if (voltageRegulation != null) {
             voltageRegulation.reduceVariantArraySize(number);
         }
@@ -204,8 +199,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            localTargetQ.set(index, localTargetQ.get(sourceIndex));
-            localTargetV.set(index, localTargetV.get(sourceIndex));
+            localTargetQ.set(index, localTargetQ.getDouble(sourceIndex));
+            localTargetV.set(index, localTargetV.getDouble(sourceIndex));
         }
         if (voltageRegulation != null) {
             voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);

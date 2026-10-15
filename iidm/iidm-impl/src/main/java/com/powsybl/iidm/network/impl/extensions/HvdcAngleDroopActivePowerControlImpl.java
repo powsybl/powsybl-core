@@ -8,11 +8,11 @@
 
 package com.powsybl.iidm.network.impl.extensions;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedFloatArrayList;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import gnu.trove.list.array.TFloatArrayList;
 
 import java.util.Objects;
 
@@ -28,45 +28,42 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
     /**
      * Active power offset in MW
      */
-    private TFloatArrayList p0;
+    private final ExtendedFloatArrayList p0;
 
     /**
      * Droop in MW/degree
      */
-    private TFloatArrayList droop;
+    private final ExtendedFloatArrayList droop;
 
     /**
      * Enables or disables this active power control mode.
      * If this active power control mode is disabled, use the setpoint mode by default.
      */
-    private TBooleanArrayList enabled;
+    private final ExtendedBooleanArrayList enabled;
 
     public HvdcAngleDroopActivePowerControlImpl(HvdcLine hvdcLine, float p0, float droop, boolean enabled) {
         super(hvdcLine);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.p0 = new TFloatArrayList(variantArraySize);
-        this.droop = new TFloatArrayList(variantArraySize);
-        this.enabled = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.p0.add(checkP0(p0, hvdcLine));
-            this.droop.add(checkDroop(droop, hvdcLine));
-            this.enabled.add(enabled);
-        }
+        checkP0(p0, hvdcLine);
+        checkDroop(droop, hvdcLine);
+        this.p0 = new ExtendedFloatArrayList(variantArraySize, p0);
+        this.droop = new ExtendedFloatArrayList(variantArraySize, droop);
+        this.enabled = new ExtendedBooleanArrayList(variantArraySize, enabled);
     }
 
     @Override
     public float getP0() {
-        return p0.get(getVariantIndex());
+        return p0.getFloat(getVariantIndex());
     }
 
     @Override
     public float getDroop() {
-        return droop.get(getVariantIndex());
+        return droop.getFloat(getVariantIndex());
     }
 
     @Override
     public boolean isEnabled() {
-        return enabled.get(getVariantIndex());
+        return enabled.getBoolean(getVariantIndex());
     }
 
     @Override
@@ -128,21 +125,16 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        p0.ensureCapacity(p0.size() + number);
-        droop.ensureCapacity(droop.size() + number);
-        enabled.ensureCapacity(enabled.size() + number);
-        for (int i = 0; i < number; ++i) {
-            p0.add(p0.get(sourceIndex));
-            droop.add(droop.get(sourceIndex));
-            enabled.add(enabled.get(sourceIndex));
-        }
+        p0.growAndFill(number, p0.getFloat(sourceIndex));
+        droop.growAndFill(number, droop.getFloat(sourceIndex));
+        enabled.growAndFill(number, enabled.getBoolean(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        p0.remove(p0.size() - number, number);
-        droop.remove(droop.size() - number, number);
-        enabled.remove(enabled.size() - number, number);
+        p0.removeElements(number);
+        droop.removeElements(number);
+        enabled.removeElements(number);
     }
 
     @Override
@@ -153,9 +145,9 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            p0.set(index, p0.get(sourceIndex));
-            droop.set(index, droop.get(sourceIndex));
-            enabled.set(index, enabled.get(sourceIndex));
+            p0.set(index, p0.getFloat(sourceIndex));
+            droop.set(index, droop.getFloat(sourceIndex));
+            enabled.set(index, enabled.getBoolean(sourceIndex));
         }
     }
 }

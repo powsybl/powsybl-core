@@ -8,13 +8,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -31,8 +31,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     private VoltageRegulationExt voltageRegulation;
 
     // attributes depending on the variant
-    private final TDoubleArrayList localTargetQ;
-    private final TDoubleArrayList localTargetV;
+    private final ExtendedDoubleArrayList localTargetQ;
+    private final ExtendedDoubleArrayList localTargetV;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, boolean equivalent, double bMin, double bMax,
                              VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes, Ref<NetworkImpl> ref, double localTargetQ, double localTargetV) {
@@ -41,12 +41,9 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         this.bMax = bMax;
         this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, StaticVarCompensator.class, ref, voltageRegulationAttributes);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.localTargetQ = new TDoubleArrayList(variantArraySize);
-        this.localTargetV = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.localTargetQ.add(localTargetQ);
-            this.localTargetV.add(localTargetV);
-        }
+        this.localTargetQ = new ExtendedDoubleArrayList(variantArraySize, localTargetQ);
+        this.localTargetV = new ExtendedDoubleArrayList(variantArraySize, localTargetV);
+
     }
 
     @Override
@@ -89,12 +86,12 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public double getLocalTargetV() {
-        return this.localTargetV.get(getNetwork().getVariantIndex());
+        return this.localTargetV.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
     public double getLocalTargetQ() {
-        return this.localTargetQ.get(getNetwork().getVariantIndex());
+        return this.localTargetQ.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -200,10 +197,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        for (int i = 0; i < number; i++) {
-            localTargetQ.add(localTargetQ.get(sourceIndex));
-            localTargetV.add(localTargetV.get(sourceIndex));
-        }
+        localTargetQ.growAndFill(number, localTargetQ.getDouble(sourceIndex));
+        localTargetV.growAndFill(number, localTargetV.getDouble(sourceIndex));
         if (voltageRegulation != null) {
             voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
@@ -212,8 +207,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        localTargetQ.remove(localTargetQ.size() - number, number);
-        localTargetV.remove(localTargetV.size() - number, number);
+        localTargetQ.removeElements(number);
+        localTargetV.removeElements(number);
         if (voltageRegulation != null) {
             voltageRegulation.deleteVariantArrayElement(number);
         }
@@ -231,8 +226,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            localTargetQ.set(index, localTargetQ.get(sourceIndex));
-            localTargetV.set(index, localTargetV.get(sourceIndex));
+            localTargetQ.set(index, localTargetQ.getDouble(sourceIndex));
+            localTargetV.set(index, localTargetV.getDouble(sourceIndex));
         }
         if (voltageRegulation != null) {
             voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);

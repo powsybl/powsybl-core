@@ -8,7 +8,8 @@
 package com.powsybl.math.graph;
 
 import com.powsybl.commons.PowsyblException;
-import gnu.trove.list.array.TIntArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
@@ -327,11 +334,11 @@ class UndirectedGraphImplTest {
         graph.addEdge(2, 4, null); // 4
         graph.addEdge(4, 5, null); // 5
         graph.addEdge(3, 5, null); // 6
-        List<TIntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
+        List<IntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
         assertEquals(3, paths.size());
-        assertArrayEquals(new int[] {2, 6}, paths.get(0).toArray());
-        assertArrayEquals(new int[] {0, 3, 5}, paths.get(1).toArray());
-        assertArrayEquals(new int[] {1, 4, 5}, paths.get(2).toArray());
+        assertArrayEquals(new int[] {2, 6}, paths.get(0).toIntArray());
+        assertArrayEquals(new int[] {0, 3, 5}, paths.get(1).toIntArray());
+        assertArrayEquals(new int[] {1, 4, 5}, paths.get(2).toIntArray());
     }
 
     /**
@@ -703,12 +710,12 @@ class UndirectedGraphImplTest {
         graph.addEdge(1, 2, null); // 1
         graph.addEdge(3, 4, null); // 2
 
-        List<TIntArrayList> components = graph.computeTraversalPartitions(
+        List<ExtendedIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> TraverseResult.CONTINUE);
 
         assertEquals(2, components.size());
-        assertArrayEquals(new int[]{0, 1, 2}, components.get(0).toArray());
-        assertArrayEquals(new int[]{3, 4}, components.get(1).toArray());
+        assertArrayEquals(new int[]{0, 1, 2}, components.get(0).toIntArray());
+        assertArrayEquals(new int[]{3, 4}, components.get(1).toIntArray());
     }
 
     /**
@@ -729,14 +736,14 @@ class UndirectedGraphImplTest {
         graph.addEdge(1, 2, "closed"); // 1
         graph.addEdge(2, 3, "open");   // 2
 
-        List<TIntArrayList> components = graph.computeTraversalPartitions(
+        List<ExtendedIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> "closed".equals(graph.getEdgeObject(e))
                         ? TraverseResult.TERMINATE_PATH
                         : TraverseResult.CONTINUE);
 
         assertEquals(2, components.size());
-        assertArrayEquals(new int[]{0, 1}, components.get(0).toArray());
-        assertArrayEquals(new int[]{2, 3}, components.get(1).toArray());
+        assertArrayEquals(new int[]{0, 1}, components.get(0).toIntArray());
+        assertArrayEquals(new int[]{2, 3}, components.get(1).toIntArray());
     }
 
     /**
@@ -753,13 +760,13 @@ class UndirectedGraphImplTest {
         graph.addEdge(0, 1, null); // 0
         graph.addEdge(0, 1, null); // 1
 
-        List<TIntArrayList> components = graph.computeTraversalPartitions(
+        List<ExtendedIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> TraverseResult.CONTINUE);
 
         assertEquals(1, components.size());
-        TIntArrayList component = components.getFirst();
+        ExtendedIntArrayList component = components.getFirst();
         assertEquals(2, component.size());
-        assertArrayEquals(new int[]{0, 1}, component.toArray());
+        assertArrayEquals(new int[]{0, 1}, component.toIntArray());
     }
 
     /**

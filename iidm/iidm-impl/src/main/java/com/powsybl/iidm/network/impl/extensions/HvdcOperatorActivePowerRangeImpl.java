@@ -8,11 +8,11 @@
 
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.util.fastutil.ExtendedFloatArrayList;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import gnu.trove.list.array.TFloatArrayList;
 
 import java.util.Objects;
 
@@ -25,27 +25,25 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdenti
     /**
      * Operator active power range from the converter station 1 to the converter station 2 in MW.
      */
-    private TFloatArrayList oprFromCS1toCS2;
+    private final ExtendedFloatArrayList oprFromCS1toCS2;
 
     /**
      * Operator active power range from the converter station 2 to the converter station 1 in MW.
      */
-    private TFloatArrayList oprFromCS2toCS1;
+    private final ExtendedFloatArrayList oprFromCS2toCS1;
 
     public HvdcOperatorActivePowerRangeImpl(HvdcLine hvdcLine, float oprFromCS1toCS2, float oprFromCS2toCS1) {
         super(hvdcLine);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.oprFromCS1toCS2 = new TFloatArrayList(variantArraySize);
-        this.oprFromCS2toCS1 = new TFloatArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.oprFromCS1toCS2.add(checkOPR(oprFromCS1toCS2, hvdcLine.getConverterStation1(), hvdcLine.getConverterStation2()));
-            this.oprFromCS2toCS1.add(checkOPR(oprFromCS2toCS1, hvdcLine.getConverterStation2(), hvdcLine.getConverterStation1()));
-        }
+        checkOPR(oprFromCS1toCS2, hvdcLine.getConverterStation1(), hvdcLine.getConverterStation2());
+        checkOPR(oprFromCS2toCS1, hvdcLine.getConverterStation2(), hvdcLine.getConverterStation1());
+        this.oprFromCS1toCS2 = new ExtendedFloatArrayList(variantArraySize, oprFromCS1toCS2);
+        this.oprFromCS2toCS1 = new ExtendedFloatArrayList(variantArraySize, oprFromCS2toCS1);
     }
 
     @Override
     public float getOprFromCS1toCS2() {
-        return oprFromCS1toCS2.get(getVariantIndex());
+        return oprFromCS1toCS2.getFloat(getVariantIndex());
     }
 
     @Override
@@ -57,7 +55,7 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdenti
 
     @Override
     public float getOprFromCS2toCS1() {
-        return oprFromCS2toCS1.get(getVariantIndex());
+        return oprFromCS2toCS1.getFloat(getVariantIndex());
     }
 
     @Override
@@ -95,18 +93,14 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdenti
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        oprFromCS1toCS2.ensureCapacity(oprFromCS1toCS2.size() + number);
-        oprFromCS2toCS1.ensureCapacity(oprFromCS2toCS1.size() + number);
-        for (int i = 0; i < number; ++i) {
-            oprFromCS1toCS2.add(oprFromCS1toCS2.get(sourceIndex));
-            oprFromCS2toCS1.add(oprFromCS2toCS1.get(sourceIndex));
-        }
+        oprFromCS1toCS2.growAndFill(number, oprFromCS1toCS2.getFloat(sourceIndex));
+        oprFromCS2toCS1.growAndFill(number, oprFromCS2toCS1.getFloat(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        oprFromCS1toCS2.remove(oprFromCS1toCS2.size() - number, number);
-        oprFromCS2toCS1.remove(oprFromCS2toCS1.size() - number, number);
+        oprFromCS1toCS2.removeElements(number);
+        oprFromCS2toCS1.removeElements(number);
     }
 
     @Override
@@ -117,8 +111,8 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdenti
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            oprFromCS1toCS2.set(index, oprFromCS1toCS2.get(sourceIndex));
-            oprFromCS2toCS1.set(index, oprFromCS2toCS1.get(sourceIndex));
+            oprFromCS1toCS2.set(index, oprFromCS1toCS2.getFloat(sourceIndex));
+            oprFromCS2toCS1.set(index, oprFromCS2toCS1.getFloat(sourceIndex));
         }
     }
 }

@@ -36,6 +36,7 @@ List of third-party dependencies grouped by their license type.
         * docker-java-transport-zerodep (com.github.docker-java:docker-java-transport-zerodep:3.4.2 - https://github.com/docker-java/docker-java)
         * EJML (org.ejml:ejml-core:0.45.1 - https://ejml.org/)
         * error-prone annotations (com.google.errorprone:error_prone_annotations:2.47.0 - https://errorprone.info/error_prone_annotations)
+        * fastutil (it.unimi.dsi:fastutil:8.5.16 - http://fastutil.di.unimi.it/)
         * Guava: Google Core Libraries for Java (com.google.guava:guava:33.6.0-jre - https://github.com/google/guava)
         * Guava InternalFutureFailureAccess and InternalFutures (com.google.guava:failureaccess:1.0.3 - https://github.com/google/guava/failureaccess)
         * Guava ListenableFuture only (com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava - https://github.com/google/guava/listenablefuture)
@@ -148,10 +149,6 @@ List of third-party dependencies grouped by their license type.
 
         * Logback Classic Module (ch.qos.logback:logback-classic:1.5.34 - http://logback.qos.ch/logback-classic)
         * Logback Core Module (ch.qos.logback:logback-core:1.5.34 - http://logback.qos.ch/logback-core)
-
-    GNU Lesser General Public License v2.1
-
-        * GNU Trove (net.sf.trove4j:trove4j:3.0.3 - http://trove4j.sf.net)
 
     Go License
 

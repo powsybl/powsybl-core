@@ -8,11 +8,16 @@
 package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -82,7 +87,7 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
     @Override
     public StringDataChunk tryToCompress() {
         List<String> stepValues = new ArrayList<>();
-        TIntArrayList stepLengths = new TIntArrayList();
+        IntArrayList stepLengths = new IntArrayList();
         int compressedEstimatedSize = 0;
         for (String value : values) {
             if (stepValues.isEmpty()) {
@@ -94,7 +99,7 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
                 int previousIndex = stepValues.size() - 1;
                 String previousValue = stepValues.get(previousIndex);
                 if (Objects.equals(previousValue, value)) {
-                    stepLengths.set(previousIndex, stepLengths.getQuick(previousIndex) + 1);
+                    stepLengths.set(previousIndex, stepLengths.getInt(previousIndex) + 1);
                 } else {
                     // create a new step
                     stepValues.add(value);
@@ -108,7 +113,7 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
             }
         }
         return new CompressedStringDataChunk(offset, values.length, stepValues.toArray(new String[0]),
-                                              stepLengths.toArray());
+                                              stepLengths.toIntArray());
     }
 
     @Override
