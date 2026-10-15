@@ -262,7 +262,9 @@ public final class UcteConverterHelper {
     }
 
     /**
-     * Finds the tap position whose {@code rho} is closest to {@code 1.0}. Ties break to the lower tap position.
+     * Finds the neutral tap position: the exact neutral step if any ({@code rho = 1} and {@code alpha = 0}, see
+     * {@link TapChanger#getNeutralPosition()}), otherwise the tap position whose {@code rho} is closest to {@code 1.0}.
+     * Ties break to the tap position closest to the middle of the tap range.
      *
      * @param tapChanger the ratio tap changer
      * @return the neutral tap position
@@ -275,9 +277,10 @@ public final class UcteConverterHelper {
     }
 
     /**
-     * Finds the tap position whose {@code alpha} is closest to {@code 0.0}. Ties (including the degenerate case
-     * where every step has the same {@code alpha}, e.g. an all-zero asymmetrical regulation) break to the step
-     * whose {@code rho} is closest to {@code 1.0}; further ties break to the lower tap position.
+     * Finds the neutral tap position: the exact neutral step if any ({@code rho = 1} and {@code alpha = 0}, see
+     * {@link TapChanger#getNeutralPosition()}), otherwise the tap position whose {@code alpha} is closest to
+     * {@code 0.0}. Ties (including the degenerate case where every step has the same {@code alpha}, e.g. an all-zero
+     * asymmetrical regulation) break to the tap position closest to the middle of the tap range.
      *
      * @param tapChanger the phase tap changer
      * @return the neutral tap position
