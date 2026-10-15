@@ -107,7 +107,6 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
                 .setType(type)
                 .setTapChanger(tapChanger);
         switch (valueType) {
-            case null -> throw new PowsyblException("Missing valueType in 'discreteMeasurement'");
             case BOOLEAN -> adder.setValue(reader.readBooleanAttribute(VALUE));
             case INT -> adder.setValue(reader.readIntAttribute(VALUE));
             case STRING -> adder.setValue(reader.readStringAttribute(VALUE));
