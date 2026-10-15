@@ -377,8 +377,8 @@ class UcteExporterTest extends AbstractSerDeTest {
 
     /**
      * The voltage reference of a node with several generators: local targets are preferred over rescaled remote
-     * ones, then the target of the generator with the largest targetP is kept (smallest id on ties). See
-     * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases.
+     * ones, themselves preferred over targets of non-regulating generators, then the target of the generator with
+     * the largest targetP is kept (smallest id on ties). See {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases.
      */
     @Test
     void testExportMultipleGeneratorsVoltageReference() throws IOException {
@@ -396,6 +396,9 @@ class UcteExporterTest extends AbstractSerDeTest {
                 FCASE471              0 2 22.381 0.00000 0.00000 -100.00 0.00000 -0.0000 -1000.0                                               F
                 FCASE571              0 2 22.000 0.00000 0.00000 -510.00 0.00000 -0.0000 -2000.0                                               F
                 FCASE671              0 0 23.000 0.00000 0.00000 -30.000 0.00000 -0.0000 -200.00                                               F
+                FCASE771              0 2 22.000 0.00000 0.00000 -510.00 0.00000 -0.0000 -2000.0                                               F
+                FCASE871              0 2 22.381 0.00000 0.00000 -510.00 0.00000 -0.0000 -2000.0                                               F
+                FCASE971              0 0        0.00000 0.00000 -10.000 0.00000 -0.0000 -100.00                                               F
                 FREMOT11              0 0        1.00000 1.00000 0.00000 0.00000
                 ##L
                 ##T
