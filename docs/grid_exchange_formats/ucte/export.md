@@ -449,5 +449,5 @@ following situations are reported:
 | A generator regulates the voltage of a disconnected terminal; its voltage target is ignored                  | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
-| The tap range of a tap changer is not symmetric around its neutral tap                                       | `INFO`   | [Tap numbering](#tap-numbering)                                                             |
-| The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `INFO`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
+| The tap range of a tap changer is not symmetric around its neutral tap                                       | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
+| The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `WARN`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
