@@ -589,7 +589,8 @@ public final class CgmesExportUtil {
      *
      * @param network            An IIDM network
      * @param acDcConvertersUnit A map associating each IIDM AcDcConverter with a DCConverterUnit
-     * @return A map associating an IIDM DcNode with a DCConverterUnit.
+     * @return A map whose key are all DcNodes that are adjacent to DCConverterUnits, and that maps them to one of their
+     * adjacent DCConverterUnits.
      */
     public static Map<DcNode, DCConverterUnit> getConvertersDcNodeConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
@@ -612,7 +613,7 @@ public final class CgmesExportUtil {
      *
      * @param network            An IIDM network
      * @param acDcConvertersUnit A map associating each IIDM AcDcConverter with a DCConverterUnit
-     * @return A map associating each IIDM DcNode with a DCConverterUnit.
+     * @return A map whose key are all DcNodes of the network, and that maps them to the nearest DCConverterUnit.
      */
     public static Map<DcNode, DCConverterUnit> getAllDcNodesConvertersUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
