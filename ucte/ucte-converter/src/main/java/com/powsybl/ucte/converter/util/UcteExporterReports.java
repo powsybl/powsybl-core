@@ -70,4 +70,12 @@ public final class UcteExporterReports {
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
+
+    public static void orphanVoltageLevelNotExported(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.orphanVoltageLevelNotExported")
+                .withUntypedValue("voltageLevelId", voltageLevelId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
 }
