@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
  *
  * @author Arthur Michaut {@literal <arthur.michaut at artelys.com>}
  */
-final class UcteExporterTestNetworks {
+public final class UcteExporterTestNetworks {
 
     private UcteExporterTestNetworks() {
     }
@@ -228,7 +228,7 @@ final class UcteExporterTestNetworks {
      *     <li>{@code CASE6}: non-regulating generators {@code GA} (P = 10, 22 kV) and {@code GB} (P = 20, 23 kV).</li>
      * </ul>
      */
-    static Network createWithMultipleVoltageTargets() {
+    public static Network createWithMultipleVoltageTargets() {
         Network network = createWithRemoteNode("multipleVoltageTargets");
         VoltageLevel vl21 = network.getVoltageLevel("VL21");
         Terminal remoteTerminal = network.getLoad("L380").getTerminal();
