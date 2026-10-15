@@ -36,7 +36,6 @@ import java.util.*;
 import java.util.function.DoublePredicate;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -289,22 +288,18 @@ public class UcteExporter implements Exporter {
                 aggregateLimit(UcteExporter::ownMaxReactiveLimit, UcteExporter::isMaxLimitInbounds, "maxQ", bus, reportNode));
     }
 
-    private static double ownTargetP(Generator generator) {
-        return Double.isNaN(generator.getTargetP()) ? 0 : generator.getTargetP();
-    }
-
     /**
      * @return the minimum reactive limit of the generator, evaluated at its own target active power
      */
     private static double ownMinReactiveLimit(Generator generator) {
-        return generator.getReactiveLimits().getMinQ(ownTargetP(generator));
+        return generator.getReactiveLimits().getMinQ(getGenTargetP(generator));
     }
 
     /**
      * @return the maximum reactive limit of the generator, evaluated at its own target active power
      */
     private static double ownMaxReactiveLimit(Generator generator) {
-        return generator.getReactiveLimits().getMaxQ(ownTargetP(generator));
+        return generator.getReactiveLimits().getMaxQ(getGenTargetP(generator));
     }
 
     /**
@@ -338,13 +333,6 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * A candidate voltage reference for a node: its value (in the node's voltage level) and, for remote regulation,
-     * the regulated bus and the original target.
-     */
-    private record VoltageCandidate(Generator generator, double value, Bus remoteBus, double remoteTargetV) {
-    }
-
-    /**
      * Select the voltage reference of a node. A UCTE-DEF node has a single voltage reference, so when several
      * generators are connected to the bus, the target voltage of one of them has to be selected.
      * <p>
@@ -367,43 +355,10 @@ public class UcteExporter implements Exporter {
      * @return the voltage reference, or NaN if there is no candidate
      */
     private static double selectVoltageReference(Bus bus, ReportNode reportNode) {
-        List<VoltageCandidate> local = new ArrayList<>();
-        List<VoltageCandidate> remote = new ArrayList<>();
-        List<VoltageCandidate> nonRegulating = new ArrayList<>();
-        List<Generator> sortedGenerators = bus.getGeneratorStream()
-                                              .sorted(Comparator.comparingDouble(UcteExporter::ownTargetP)
-                                                                .reversed().thenComparing(Generator::getId))
-                                              .toList();
-        for (Generator generator : sortedGenerators) {
-            double localTargetV = generator.getLocalTargetV();
-            if (!generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
-                if (!Double.isNaN(localTargetV)) {
-                    nonRegulating.add(new VoltageCandidate(generator, localTargetV, null, Double.NaN));
-                }
-            } else if (!Double.isNaN(localTargetV)) {
-                local.add(new VoltageCandidate(generator, localTargetV, null, Double.NaN));
-            } else if (generator.getVoltageRegulation() != null &&
-                    !Double.isNaN(generator.getVoltageRegulation().getTargetValue())) {
-                Terminal regulatingTerminal = generator.getRegulatingTerminal();
-                Bus regulatedBus = regulatingTerminal.getBusBreakerView().getBus() != null
-                                   ? regulatingTerminal.getBusBreakerView().getBus()
-                                   : regulatingTerminal.getBusBreakerView().getConnectableBus();
-                double targetValue = generator.getVoltageRegulation().getTargetValue();
-                if (regulatedBus.getId().equals(bus.getId())) {
-                    local.add(new VoltageCandidate(generator, targetValue, null, Double.NaN));
-                } else {
-                    double rescaled = targetValue * bus.getVoltageLevel().getNominalV() /
-                            regulatedBus.getVoltageLevel().getNominalV();
-                    remote.add(new VoltageCandidate(generator, rescaled, regulatedBus, targetValue));
-                }
-            }
-        }
-        List<VoltageCandidate> candidates = Stream.of(local, remote, nonRegulating)
-                                                  .filter(list -> !list.isEmpty())
-                                                  .findFirst()
-                                                  .orElse(List.of());
+        List<VoltageCandidate> candidates = getVoltageCandidatesByRelevance(bus);
         if (candidates.isEmpty()) {
-            if (sortedGenerators.stream().anyMatch(generator -> generator.isRegulatingWithMode(RegulationMode.VOLTAGE))) {
+            if (bus.getGeneratorStream()
+                   .anyMatch(generator -> generator.isRegulatingWithMode(RegulationMode.VOLTAGE))) {
                 UcteExporterReports.voltageTargetMissing(reportNode, bus.getId());
             }
             return Double.NaN;

@@ -7,9 +7,8 @@
  */
 package com.powsybl.ucte.converter.util;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.network.UcteAngleRegulation;
 import com.powsybl.ucte.network.UctePhaseRegulation;
 import org.apache.commons.math3.complex.Complex;
@@ -17,6 +16,10 @@ import org.apache.commons.math3.complex.ComplexUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
@@ -121,5 +124,100 @@ public final class UcteConverterHelper {
 
         return ComplexUtils.polar2Complex(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(),
                                           theta);
+    }
+
+    /**
+     * A candidate voltage reference for a node: its value (in the node's voltage level) and, for remote regulation,
+     * the regulated bus and the original target.
+     */
+    public record VoltageCandidate(Generator generator, double value, Bus remoteBus, double remoteTargetV) {
+    }
+
+    /**
+     * @param generator a Generator
+     * @return the generator's {@code targetP} if it is defined (not {@code NaN}), 0 otherwise.
+     */
+    public static double getGenTargetP(Generator generator) {
+        return Double.isNaN(generator.getTargetP()) ? 0 : generator.getTargetP();
+    }
+
+    /**
+     * Classify the generators connected to the provided {@code bus} into categories of {@link VoltageCandidate},
+     * depending on the way they regulate voltage, and return the candidates of the highest priority category that is
+     * not empty:
+     * <ol>
+     *     <li>
+     *         <strong>Higher priority category (local regulation)</strong>: The generator declares a
+     *         {@link RegulationMode#VOLTAGE} regulation mode. It carries its own local target voltage (see
+     *         {@link Generator#getLocalTargetV()}) <i>OR</i> it regulates voltage on the provided {@code bus}.
+     *     </li>
+     *     <li>
+     *         <strong>Middle priority category (remote regulation)</strong>: The generator declares a
+     *         {@link RegulationMode#VOLTAGE} regulation mode and regulates voltage on a remote bus.
+     *     </li>
+     *     <li>
+     *         <strong>Lower priority category (no voltage regulation)</strong>: The generator doesn't declare a
+     *         {@link RegulationMode#VOLTAGE} regulation mode, but it carries a local target voltage
+     *         ({@link Generator#getLocalTargetV()} not {@code NaN})
+     *     </li>
+     * </ol>
+     * Within a category, candidates are sorted by their generator's {@code targetP} (higher first), then by generator id.
+     *
+     * @param bus a Bus
+     * @return the candidates of the highest priority non-empty category, or an empty {@code List} if there is none
+     */
+    public static List<VoltageCandidate> getVoltageCandidatesByRelevance(Bus bus) {
+        List<VoltageCandidate> local = new ArrayList<>();
+        List<VoltageCandidate> remote = new ArrayList<>();
+        List<VoltageCandidate> nonRegulating = new ArrayList<>();
+        List<Generator> sortedGenerators = bus.getGeneratorStream()
+                                              .sorted(Comparator.comparingDouble(UcteConverterHelper::getGenTargetP)
+                                                                .reversed().thenComparing(Generator::getId))
+                                              .toList();
+        for (Generator generator : sortedGenerators) {
+            double localTargetV = generator.getLocalTargetV();
+            if (!generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+                if (!Double.isNaN(localTargetV)) {
+                    nonRegulating.add(new VoltageCandidate(generator, localTargetV, null, Double.NaN));
+                }
+            } else if (!Double.isNaN(localTargetV)) {
+                local.add(new VoltageCandidate(generator, localTargetV, null, Double.NaN));
+            } else if (generator.getVoltageRegulation() != null &&
+                    !Double.isNaN(generator.getVoltageRegulation().getTargetValue())) {
+                Bus regulatedBus = getRegulatedBus(generator);
+                double targetValue = generator.getVoltageRegulation().getTargetValue();
+                if (regulatedBus.getId().equals(bus.getId())) {
+                    local.add(new VoltageCandidate(generator, targetValue, null, Double.NaN));
+                } else {
+                    double rescaled = targetValue * bus.getVoltageLevel().getNominalV() /
+                            regulatedBus.getVoltageLevel().getNominalV();
+                    remote.add(new VoltageCandidate(generator, rescaled, regulatedBus, targetValue));
+                }
+            }
+        }
+        return Stream.of(local, remote, nonRegulating)
+                     .filter(list -> !list.isEmpty())
+                     .findFirst()
+                     .orElse(List.of());
+    }
+
+    /**
+     * Find the {@link Bus} whose voltage is regulated by {@code generator}.
+     * Extraction is performed on the generator's regulating terminal (see {@link Generator#getRegulatingTerminal()}),
+     * in bus-breaker view:
+     * <ol>
+     *     <li>If the terminal has a {@link Bus}, return it (see {@link Terminal.BusBreakerView#getBus()})</li>
+     *     <li>Otherwise, return the terminal's {@code connectableBus} (see {@link Terminal.BusBreakerView#getConnectableBus()})</li>
+     * </ol>
+     * Note that the generator has to comply with a few rules: regulating in mode {@link RegulationMode#VOLTAGE} and an
+     * undefined ({@code NaN}) local {@code targetV} (see {@link Generator#getLocalTargetV()})
+     * @param generator a generator
+     * @return the bus whose voltage is regulated by {@code generator}
+     */
+    private static Bus getRegulatedBus(Generator generator) {
+        Terminal regulatingTerminal = generator.getRegulatingTerminal();
+        return regulatingTerminal.getBusBreakerView().getBus() != null
+                           ? regulatingTerminal.getBusBreakerView().getBus()
+                           : regulatingTerminal.getBusBreakerView().getConnectableBus();
     }
 }
