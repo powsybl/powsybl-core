@@ -89,10 +89,10 @@ public interface RatioTapChanger extends TapChanger<
     }
 
     /**
-     * Checks if the object is associated with the specified regulation mode.
+     * Checks if the object is regulating with the specified mode.
      *
      * @param mode the regulation mode to check
-     * @return true if associated with the specified mode, false otherwise
+     * @return true if regulating with the specified mode, false otherwise
      */
     @Override
     default boolean isRegulatingWithMode(RegulationMode mode) {
@@ -103,10 +103,10 @@ public interface RatioTapChanger extends TapChanger<
     }
 
     /**
-     * Checks if the object is regulating with the specified mode.
+     * Checks if the object is associated with the specified regulation mode.
      *
      * @param mode the regulation mode to check
-     * @return true if regulating with the specified mode, false otherwise
+     * @return true if associated with the specified mode, false otherwise
      */
     @Override
     default boolean isWithMode(RegulationMode mode) {
