@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,5 +59,20 @@ class CountryConversionTest {
                 .forEach((name, country) -> assertEquals(country,
                         CountryConversion.fromSubregionName(name).get()));
         assertEquals(Optional.empty(), CountryConversion.fromSubregionName("XYZ"));
+    }
+
+    @Test
+    void countryConversionIsLocaleIndependent() {
+        // In the Turkish locale 'i'/'I' fold to the dotted/dotless forms, so default-locale
+        // case folding would turn "it" into "İT" and miss the Country enum / subregion labels.
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr"));
+            assertEquals(Country.IT, CountryConversion.fromIsoCode("it").orElseThrow());
+            assertEquals(Country.IN, CountryConversion.fromIsoCode("in").orElseThrow());
+            assertEquals(Country.FI, CountryConversion.fromSubregionName("fi1").orElseThrow());
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 }

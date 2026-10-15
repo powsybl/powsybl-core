@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Country;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -47,7 +48,7 @@ public final class CountryConversion {
         if (name == null) {
             return Optional.empty();
         }
-        return switch (name.trim().toUpperCase()) {
+        return switch (name.trim().toUpperCase(Locale.ROOT)) {
             case "NO1", "NO2", "NO3", "NO4", "NO5" -> Optional.of(Country.NO);
             case "SE1", "SE2", "SE3", "SE4" -> Optional.of(Country.SE);
             case "FI1" -> Optional.of(Country.FI);
@@ -64,7 +65,7 @@ public final class CountryConversion {
             return Optional.empty();
         }
         try {
-            return Optional.of(Country.valueOf(iso.trim().toUpperCase()));
+            return Optional.of(Country.valueOf(iso.trim().toUpperCase(Locale.ROOT)));
         } catch (IllegalArgumentException ignored) {
             // Ignore
         }
