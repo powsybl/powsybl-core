@@ -17,7 +17,6 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.*;
@@ -81,8 +80,10 @@ public class CimAnonymizer {
         private final Set<String> rdfIdValues;
         private final Set<String> skipped;
 
-        private boolean identifiedObjectName = false;
-        private boolean identifiedObjectDescription = false;
+        // Non null while the writer is inside an element whose text has to be anonymized,
+        // holding the values that must be left untouched for that element.
+        private Set<String> textExclusions = null;
+        private final StringBuilder text = new StringBuilder();
 
         XmlAnonymizer(XMLEventWriter out, XmlStaxContext xmlStaxContext, StringAnonymizer dictionary, Set<String> rdfIdValues, Set<String> skipped) {
             super(out);
@@ -90,16 +91,6 @@ public class CimAnonymizer {
             this.dictionary = Objects.requireNonNull(dictionary);
             this.rdfIdValues = rdfIdValues;
             this.skipped = Objects.requireNonNull(skipped);
-        }
-
-        private static XMLEvent anonymizeCharacters(Characters characters, Set<String> exclude, Set<String> skipped, XMLEventFactory eventFactory,
-                                                    StringAnonymizer dictionary) {
-            if (exclude.contains(characters.getData())) {
-                skipped.add(characters.getData());
-                return null;
-            } else {
-                return eventFactory.createCharacters(dictionary.anonymize(characters.getData()));
-            }
         }
 
         private static final class AttributeValue {
@@ -159,9 +150,9 @@ public class CimAnonymizer {
 
         private XMLEvent anonymizeStartElement(StartElement startElement) {
             if (startElement.getName().getLocalPart().equals("IdentifiedObject.name")) {
-                identifiedObjectName = true;
+                textExclusions = NAMES_TO_EXCLUDE;
             } else if (startElement.getName().getLocalPart().equals("IdentifiedObject.description")) {
-                identifiedObjectDescription = true;
+                textExclusions = DESCRIPTIONS_TO_EXCLUDE;
             } else {
                 Iterator<Attribute> it = startElement.getAttributes();
                 if (it.hasNext()) {
@@ -179,27 +170,39 @@ public class CimAnonymizer {
             return null;
         }
 
-        private XMLEvent anonymizeCharacters(Characters characters) {
-            if (identifiedObjectName) {
-                identifiedObjectName = false;
-                return anonymizeCharacters(characters, NAMES_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
-            } else if (identifiedObjectDescription) {
-                identifiedObjectDescription = false;
-                return anonymizeCharacters(characters, DESCRIPTIONS_TO_EXCLUDE, skipped, xmlStaxContext.eventFactory, dictionary);
+        private void writeAnonymizedText() throws XMLStreamException {
+            Set<String> exclude = textExclusions;
+            textExclusions = null;
+            if (text.isEmpty()) {
+                return;
             }
-            return null;
+            String value = text.toString();
+            text.setLength(0);
+            if (exclude.contains(value)) {
+                skipped.add(value);
+                super.add(xmlStaxContext.eventFactory.createCharacters(value));
+            } else {
+                super.add(xmlStaxContext.eventFactory.createCharacters(dictionary.anonymize(value)));
+            }
         }
 
         @Override
         public void add(XMLEvent event) throws XMLStreamException {
-            XMLEvent newEvent = null;
+            if (textExclusions != null) {
+                if (event.isCharacters()) {
+                    // The parser reports the text of an element as several events as soon as it holds a
+                    // CDATA section, an entity or character reference, or more characters than its input
+                    // buffer, so the whole content has to be gathered before being anonymized.
+                    text.append(event.asCharacters().getData());
+                    return;
+                }
+                writeAnonymizedText();
+            }
 
+            XMLEvent newEvent = null;
             if (event.isStartElement()) {
                 StartElement startElement = event.asStartElement();
                 newEvent = anonymizeStartElement(startElement);
-            } else if (event.isCharacters()) {
-                Characters characters = event.asCharacters();
-                newEvent = anonymizeCharacters(characters);
             }
 
             super.add(newEvent != null ? newEvent : event);
