@@ -15,11 +15,6 @@ import a UCTE-DEF file in PowSyBl, you can update some elements and then export 
 exporting to UCTE-DEF format a file imported from another format most often leads at best to incorrect file content, at
 worst to an exporter failure. Some examples are listed here after.
 
-**At most one load and one generator per bus**: The export fails with a `UcteException` if a bus has more than one
-[load](../../grid_model/network_subnetwork.md#load) or more than one [generator](../../grid_model/network_subnetwork.md#generator)
-connected to it. See [node conversion](#node-conversion) below for how the node's load and generation attributes are
-sourced from the load and the generator.
-
 **Transformers Tap Changers**: UCTE-DEF describes a tap changer with a linear model: taps are numbered symmetrically
 around a neutral tap at position `0`, and the voltage (or angle) step between two consecutive taps is constant. IIDM tap
 changers have no such constraints: low and high positions can be any integer and each one is associated to a free value.
@@ -425,6 +420,6 @@ following situations are reported:
 | The generators of a bus have different candidate voltage targets; the kept value and its generator are given | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The kept voltage target comes from a remote regulation                                                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
+| The tap range of a tap changer is not symmetric around its neutral tap                                       | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
+| The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `WARN`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
-| The tap range of a tap changer is not symmetric around its neutral tap                                       | `INFO`   | [Tap numbering](#tap-numbering)                                                             |
-| The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `INFO`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
