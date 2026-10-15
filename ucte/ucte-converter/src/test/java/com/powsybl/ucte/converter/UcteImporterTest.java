@@ -351,6 +351,15 @@ class UcteImporterTest {
     }
 
     @Test
+    void testNominalPowerAndMissingNominalPowerImport() {
+        ResourceDataSource dataSource =
+                new ResourceDataSource("nominalPower", new ResourceSet("/", "nominalPower.uct"));
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        assertEquals(5000., network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS());
+        assertTrue(Double.isNaN(network.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").getRatedS()));
+    }
+
+    @Test
     void testMetaInfos() throws IOException {
         try (var fs = Jimfs.newFileSystem(Configuration.unix())) {
             var importer = new UcteImporter(new InMemoryPlatformConfig(fs));
