@@ -80,6 +80,18 @@ class SafeZipInputStreamTest {
     }
 
     @Test
+    void testReadSingleByteArrayExceedsMaxBytes() throws IOException {
+        byte[] buffer = new byte[10];
+        when(zipInputStream.read(buffer, 0, 10)).thenReturn(10);
+
+        safeZipInputStream = new SafeZipInputStream(zipInputStream, 1, 5);
+        safeZipInputStream.getNextEntry();
+
+        IOException exception = assertThrows(IOException.class, () -> safeZipInputStream.read(buffer));
+        assertEquals("Max bytes to read exceeded", exception.getMessage());
+    }
+
+    @Test
     void testReadByteArrayExceedsMaxBytes() throws IOException {
         byte[] buffer = new byte[10];
         when(zipInputStream.read(buffer, 0, 10)).thenReturn(10);

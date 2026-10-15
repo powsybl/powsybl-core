@@ -9,18 +9,18 @@ package com.powsybl.commons.io;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteSource;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
+import com.powsybl.commons.compress.SafeZipInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -28,6 +28,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class FileUtil {
+
+    private static final int MAX_UNZIP_ENTRIES = 10000;
+    private static final long MAX_UNZIP_BYTES = 1024L * 1024 * 1024;
 
     private FileUtil() {
     }
@@ -114,25 +117,35 @@ public final class FileUtil {
     public static void unzipArchive(Path workingDir, Path path) throws IOException {
         Objects.requireNonNull(workingDir);
         Objects.requireNonNull(path);
-        try (ZipFile zipFile = ZipFile.builder()
-                .setSeekableByteChannel(Files.newByteChannel(path))
-                .get()) {
-            Path normalizedWorkingDir = workingDir.toAbsolutePath().normalize();
-            List<ZipArchiveEntry> entries = Collections.list(zipFile.getEntries());
-            // Check that all entries are inside the working directory
-            for (ZipEntry ze : entries) {
-                Path target = normalizedWorkingDir.resolve(ze.getName()).normalize();
-                if (!target.startsWith(normalizedWorkingDir)) {
-                    throw new IOException("Archive entry '" + ze.getName()
-                            + "' would extract outside of the working directory");
+        Path normalizedWorkingDir = workingDir.toAbsolutePath().normalize();
+        // Extract into a staging directory so that nothing is written to the working directory unless all entries are valid
+        Path stagingDir = Files.createTempDirectory(normalizedWorkingDir, ".unzip-");
+        try {
+            List<Path> extracted = new ArrayList<>();
+            try (SafeZipInputStream zis = openSafeZipInputStream(path)) {
+                ZipEntry ze;
+                while ((ze = zis.getNextEntry()) != null) {
+                    Path target = normalizedWorkingDir.resolve(ze.getName()).normalize();
+                    if (!target.startsWith(normalizedWorkingDir)) {
+                        throw new IOException("Archive entry '" + ze.getName()
+                                + "' would extract outside of the working directory");
+                    }
+                    Path relative = normalizedWorkingDir.relativize(target);
+                    Files.copy(zis, stagingDir.resolve(relative), REPLACE_EXISTING);
+                    extracted.add(relative);
                 }
             }
-            // Copy all entries inside the working directory
-            for (ZipEntry ze : entries) {
-                Files.copy(zipFile.getInputStream(zipFile.getEntry(ze.getName())),
-                        workingDir.resolve(ze.getName()), REPLACE_EXISTING);
+            for (Path relative : extracted) {
+                Files.move(stagingDir.resolve(relative), normalizedWorkingDir.resolve(relative), REPLACE_EXISTING);
             }
+        } finally {
+            removeDir(stagingDir);
         }
+    }
+
+    private static SafeZipInputStream openSafeZipInputStream(Path path) throws IOException {
+        return new SafeZipInputStream(new ZipInputStream(Files.newInputStream(path)),
+                MAX_UNZIP_ENTRIES, MAX_UNZIP_BYTES);
     }
 
 }
