@@ -225,7 +225,12 @@ public final class UcteExporterTestNetworks {
      *     <li>{@code CASE4}: generator {@code GA} (P = 100) regulating {@code FREMOT11} at 405 kV;</li>
      *     <li>{@code CASE5}: regulating generator {@code GA} (P = 10, 22 kV) and generator {@code GB} (P = 500)
      *     regulating {@code FREMOT11} at 405 kV;</li>
-     *     <li>{@code CASE6}: non-regulating generators {@code GA} (P = 10, 22 kV) and {@code GB} (P = 20, 23 kV).</li>
+     *     <li>{@code CASE6}: non-regulating generators {@code GA} (P = 10, 22 kV) and {@code GB} (P = 20, 23 kV);</li>
+     *     <li>{@code CASE7}: regulating generator {@code GA} (P = 10, 22 kV) and non-regulating generator {@code GB}
+     *     (P = 500, 23 kV);</li>
+     *     <li>{@code CASE8}: generator {@code GA} (P = 10) regulating {@code FREMOT11} at 405 kV and non-regulating
+     *     generator {@code GB} (P = 500, 23 kV);</li>
+     *     <li>{@code CASE9}: non-regulating generator {@code GA} (P = 10) without voltage target.</li>
      * </ul>
      */
     public static Network createWithMultipleVoltageTargets() {
@@ -255,6 +260,17 @@ public final class UcteExporterTestNetworks {
         bus = addBus(vl21, "CASE6");
         addGenerator(vl21, "CASE6_GA", bus, 10, 0, 100).setLocalTargetV(22.0);
         addGenerator(vl21, "CASE6_GB", bus, 20, 0, 100).setLocalTargetV(23.0);
+
+        bus = addBus(vl21, "CASE7");
+        addRegulatingGenerator(vl21, "CASE7_GA", bus, 10, 22.0);
+        addGenerator(vl21, "CASE7_GB", bus, 500, 0, 1000).setLocalTargetV(23.0);
+
+        bus = addBus(vl21, "CASE8");
+        addRemoteRegulatingGenerator(vl21, "CASE8_GA", bus, 10, remoteTerminal, 405);
+        addGenerator(vl21, "CASE8_GB", bus, 500, 0, 1000).setLocalTargetV(23.0);
+
+        bus = addBus(vl21, "CASE9");
+        addGenerator(vl21, "CASE9_GA", bus, 10, 0, 100);
         return network;
     }
 
