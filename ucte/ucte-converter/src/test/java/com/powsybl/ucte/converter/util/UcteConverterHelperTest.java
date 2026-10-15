@@ -13,8 +13,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.BeforeAll;

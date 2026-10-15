@@ -391,5 +391,5 @@ following situations are reported:
 |--------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
 | A switch has no usable `currentLimit` property                                                               | `WARN`   | [Current limit](#current-limit)                                                             |
 | A two-winding transformer has no usable nominal power                                                        | `WARN`   | [Nominal power](#nominal-power)                                                             |
-| The tap range of a tap changer is not symmetric around its neutral tap                                       | `INFO`   | [Tap numbering](#tap-numbering)                                                             |
-| The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `INFO`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
+| The tap range of a tap changer is not symmetric around its neutral tap                                       | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
+| The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `WARN`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
