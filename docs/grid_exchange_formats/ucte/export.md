@@ -353,7 +353,7 @@ points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps. If the [
 option is enabled and the transformer also has a ratio tap changer, the computed δu (%) is divided by the ρ of the ratio
 tap changer's current step.
 
-**Note:** the sign of α is inverted in both cases, because the phase tap changer is on side 2 in the
+**Note:** the sign of α is inverted in both cas, because the phase tap changer is on side 2 in the
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf),
 and on side 1 in IIDM.
 
@@ -369,6 +369,6 @@ following situations are reported:
 | A two-winding transformer has no usable nominal power                                                        | `WARN`   | [Nominal power](#nominal-power)                                                             |
 | A node regulates voltage but none of its generators provides a voltage target                                | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The generators of a bus have different candidate voltage targets; the kept value and its generator are given | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
-| The kept voltage target comes from a remote regulation and is rescaled                                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
-| The sum of finite generator power limits reaches or exceeds `9999` in absolute value and is left undefined   | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
-| The generators of a bus have different power plant types and type `F` (further) is used                      | `INFO`   | [Power plant type](#power-plant-type)                                                       |
+| The kept voltage target comes from a remote regulation                                                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
+| The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
