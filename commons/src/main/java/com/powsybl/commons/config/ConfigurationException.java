@@ -21,4 +21,8 @@ public class ConfigurationException extends PowsyblException {
     public ConfigurationException(Throwable throwable) {
         super(throwable);
     }
+
+    public ConfigurationException(String msg, Throwable throwable) {
+        super(msg, throwable);
+    }
 }
