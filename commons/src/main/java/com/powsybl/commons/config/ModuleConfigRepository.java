@@ -8,6 +8,7 @@
 package com.powsybl.commons.config;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -15,4 +16,13 @@ import java.util.Optional;
 public interface ModuleConfigRepository {
 
     Optional<ModuleConfig> getModuleConfig(String name);
+
+    /**
+     * Names of the modules this repository defines, when it can enumerate them. The default
+     * implementation returns an empty set, meaning "unknown or not enumerable": it is used for
+     * diagnostics only (see {@link RuntimeConfigRepositories}) and never to resolve a value.
+     */
+    default Set<String> getModuleNames() {
+        return Set.of();
+    }
 }

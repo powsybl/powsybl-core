@@ -145,37 +145,34 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     List<Parameter> getRawSpecificParameters();
 
     /**
-     * Returns the parameters of the parameters extension associated with this provider. If a LoadFlowDefaultParameterLoader
-     * is available, the parameters should reflect the default values.
+     * Returns the parameters of the parameters extension associated with this provider, with the overrides
+     * of the default platform configuration (including the runtime configuration layer) applied.
      *
      * @return the parameters of the parameters extension associated with this provider.
      */
     default List<Parameter> getSpecificParameters() {
-        return LoadFlowProviderUtil.getSpecificParameters(this, PlatformConfig.defaultConfig());
+        return getSpecificParameters(PlatformConfig.defaultConfig());
     }
 
     /**
      * Retrieves the parameters of the extension associated with this provider,
-     * incorporating any overrides from the PlatformConfig and from the loadFlowDefaultParameterLoader
-     * if available.
+     * incorporating any overrides from the PlatformConfig (user configuration and runtime configuration layer).
      *
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
      */
-    default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
-        return ConfiguredParameter.load(
-                LoadFlowProviderUtil.getSpecificParameters(this, platformConfigConfig),
-                getModuleConfig(platformConfigConfig).orElse(null)
-        );
+    default List<Parameter> getSpecificParameters(PlatformConfig platformConfig) {
+        return ConfiguredParameter.load(getRawSpecificParameters(), getModuleConfig(platformConfig).orElse(null));
     }
 
     /**
      * Retrieves the configuration of the specific module for this provider from the provided PlatformConfig.
      *
      * @param platformConfig The platform configuration containing potential module configurations.
-     * @return An Optional containing the ModuleConfig if present, otherwise an empty Optional.
+     * @return An Optional containing the ModuleConfig if present, otherwise an empty Optional (also the default
+     * for providers that do not define a specific module).
      */
     default Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
-        throw new UnsupportedOperationException("Not implemented");
+        return Optional.empty();
     }
 
     /**
