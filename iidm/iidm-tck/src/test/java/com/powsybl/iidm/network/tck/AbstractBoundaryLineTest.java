@@ -78,6 +78,7 @@ public abstract class AbstractBoundaryLineTest {
                         .setPairingKey(pairingKey)
                         .setBus(BUS_VL_ID)
                         .setConnectableBus(BUS_VL_ID)
+                        .setEquivalent(true)
                     .add();
         BoundaryLine boundaryLine = network.getBoundaryLine(id);
         // adder
@@ -93,6 +94,7 @@ public abstract class AbstractBoundaryLineTest {
         assertEquals(name, boundaryLine.getNameOrId());
         assertEquals(pairingKey, boundaryLine.getPairingKey());
         assertNull(boundaryLine.getGeneration());
+        assertTrue(boundaryLine.isEquivalent());
 
         // setter getter
         double r2 = 11.0;
@@ -115,6 +117,8 @@ public abstract class AbstractBoundaryLineTest {
         assertEquals(q02, boundaryLine.getQ0(), 0.0);
         boundaryLine.setPairingKey(newPairingKey);
         assertEquals(newPairingKey, boundaryLine.getPairingKey());
+        boundaryLine.setEquivalent(false);
+        assertFalse(boundaryLine.isEquivalent());
 
         boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
@@ -152,6 +156,7 @@ public abstract class AbstractBoundaryLineTest {
         BoundaryLine boundaryLine = network.getBoundaryLine("boundaryId");
         assertEquals(0.0, boundaryLine.getG(), 0.0);
         assertEquals(0.0, boundaryLine.getB(), 0.0);
+        assertFalse(boundaryLine.isEquivalent());
     }
 
     @Test

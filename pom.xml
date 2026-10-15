@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>7.4.0-SNAPSHOT</version>
+    <version>7.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -117,7 +117,7 @@
         <groovy.version>4.0.32</groovy.version>
         <guava.version>33.6.0-jre</guava.version>
         <!-- jackson-core can be updated to v3 -->
-        <jackson.version>2.21.5</jackson.version>
+        <jackson.version>2.21.7</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.3</jgrapht.version>
@@ -596,6 +596,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-security-analysis-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-twopass-security-analysis</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

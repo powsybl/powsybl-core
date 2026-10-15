@@ -212,7 +212,13 @@ public final class ConnectableSerDeUtil {
         double p = reader.readDoubleAttribute("p" + indexToString(index));
         double q = reader.readDoubleAttribute("q" + indexToString(index));
         t.setP(p)
-                .setQ(q);
+            .setQ(q);
+    }
+
+    public static <I extends Injection<I>> void readPQ(List<Consumer<I>> toApply, TreeDataReader reader) {
+        double p = reader.readDoubleAttribute("p");
+        double q = reader.readDoubleAttribute("q");
+        toApply.add(injection -> injection.getTerminal().setP(p).setQ(q));
     }
 
     public static void readOptionalPQ(Integer index, Terminal t, TreeDataReader reader) {
@@ -690,4 +696,16 @@ public final class ConnectableSerDeUtil {
         }
         writer.writeEndNodes();
     }
+
+    public static void writeEquivalent(Connectable<?> connectable, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeBooleanAttribute("equivalent", connectable.isEquivalent(), false));
+    }
+
+    public static void readEquivalent(ConnectableAdder<?, ?> connectableAdder, NetworkDeserializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            boolean equivalent = context.getReader().readBooleanAttribute("equivalent", false);
+            connectableAdder.setEquivalent(equivalent);
+        });
+    }
+
 }

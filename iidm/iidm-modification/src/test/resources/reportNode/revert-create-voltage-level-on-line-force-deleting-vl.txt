@@ -1,0 +1,10 @@
++ Testing reportNode to revert connecting a voltage level on a line and force deleting the voltage level
+   Switch CJ_1_BREAKER removed
+   Switch CJ_1_DISCONNECTOR_2_0 removed
+   Line CJ_1 removed
+   Switch CJ_2_BREAKER removed
+   Switch CJ_2_DISCONNECTOR_3_0 removed
+   Line CJ_2 removed
+   Line CJ_NEW created
+   Voltage level VLTEST contains no branches but still contains equipment, force remove is enable all equipment and voltage level are removed.
+   Voltage level VLTEST removed
