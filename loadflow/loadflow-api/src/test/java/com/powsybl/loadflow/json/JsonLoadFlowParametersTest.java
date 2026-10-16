@@ -10,12 +10,16 @@ package com.powsybl.loadflow.json;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -27,6 +31,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
@@ -288,6 +294,141 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         assertNotEquals(oldExtension.getParameterString(), extension.getParameterString());
     }
 
+    @Test
+    void roundTripNonProviderExtension() {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        parameters.addExtension(DummyExtension.class, new DummyExtension());
+        parameters.addExtension(BusinessExtension.class, new BusinessExtension().setValue("foo"));
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        JsonLoadFlowParameters.write(parameters, os);
+
+        LoadFlowParameters read = JsonLoadFlowParameters.read(new ByteArrayInputStream(os.toByteArray()));
+        assertEquals(2, read.getExtensions().size());
+        assertNotNull(read.getExtension(DummyExtension.class));
+        assertEquals("foo", read.getExtension(BusinessExtension.class).getValue());
+    }
+
+    @Test
+    void providerSerializerAlsoRegisteredInCategory() {
+        assertInstanceOf(DummySerializer.class, JsonLoadFlowParameters.getExtensionSerializers().get("dummy-extension"));
+        assertInstanceOf(BusinessExtensionSerializer.class, JsonLoadFlowParameters.getExtensionSerializers().get("business-extension"));
+    }
+
+    /**
+     * An extension which is not the specific parameters of any provider.
+     */
+    public static class BusinessExtension extends AbstractExtension<LoadFlowParameters> {
+
+        private String value = "default";
+
+        @Override
+        public String getName() {
+            return "business-extension";
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public BusinessExtension setValue(String value) {
+            this.value = value;
+            return this;
+        }
+    }
+
+    @AutoService(ExtensionJsonSerializer.class)
+    public static class BusinessExtensionSerializer implements ExtensionJsonSerializer<LoadFlowParameters, BusinessExtension> {
+
+        @Override
+        public void serialize(BusinessExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("value", extension.getValue());
+            jsonGenerator.writeEndObject();
+        }
+
+        @Override
+        public BusinessExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            BusinessExtension extension = new BusinessExtension();
+            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                if ("value".equals(jsonParser.currentName())) {
+                    extension.setValue(jsonParser.nextTextValue());
+                }
+            }
+            return extension;
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "business-extension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return LoadFlowParameters.EXTENSIONS_CATEGORY;
+        }
+
+        @Override
+        public Class<? super BusinessExtension> getExtensionClass() {
+            return BusinessExtension.class;
+        }
+    }
+
+    @AutoService(ExtensionConfigLoader.class)
+    public static class BusinessExtensionConfigLoader implements ExtensionConfigLoader<LoadFlowParameters, BusinessExtension> {
+
+        @Override
+        public BusinessExtension load(PlatformConfig platformConfig) {
+            return platformConfig.getOptionalModuleConfig("business-extension")
+                    .map(config -> new BusinessExtension().setValue(config.getStringProperty("value")))
+                    .orElse(null);
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "business-extension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return LoadFlowParameters.EXTENSIONS_CATEGORY;
+        }
+
+        @Override
+        public Class<? super BusinessExtension> getExtensionClass() {
+            return BusinessExtension.class;
+        }
+    }
+
+    /**
+     * Loads the provider specific extension: must not overwrite the one loaded by the provider.
+     */
+    @AutoService(ExtensionConfigLoader.class)
+    public static class DummyExtensionConfigLoader implements ExtensionConfigLoader<LoadFlowParameters, DummyExtension> {
+
+        @Override
+        public DummyExtension load(PlatformConfig platformConfig) {
+            DummyExtension extension = new DummyExtension();
+            extension.setParameterString("from-config-loader");
+            return extension;
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "dummy-extension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return LoadFlowParameters.EXTENSIONS_CATEGORY;
+        }
+
+        @Override
+        public Class<? super DummyExtension> getExtensionClass() {
+            return DummyExtension.class;
+        }
+    }
+
+    @AutoService(ExtensionJsonSerializer.class)
     public static class DummySerializer implements ExtensionJsonSerializer<LoadFlowParameters, DummyExtension> {
 
         @Override
