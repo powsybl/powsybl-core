@@ -271,6 +271,11 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="GeneratorVariantAttributes">
+        <xs:attribute name="targetP" use="optional" type="xs:double"/>
+        <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
+        <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="Generator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
@@ -285,9 +290,7 @@
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
                 <xs:attribute name="minP" use="required" type="xs:double"/>
                 <xs:attribute name="ratedS" use="optional" type="xs:double"/>
-                <xs:attribute name="targetP" use="optional" type="xs:double"/>
-                <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
-                <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:GeneratorVariantAttributes"/>
                 <xs:attribute name="isCondenser" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
