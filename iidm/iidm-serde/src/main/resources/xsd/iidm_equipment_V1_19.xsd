@@ -463,6 +463,10 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="StaticVarCompensatorVariantAttributes">
+        <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+        <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="StaticVarCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
@@ -471,8 +475,7 @@
                 </xs:sequence>
                 <xs:attribute name="bMin" use="required" type="xs:double"/>
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
-                <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
-                <xs:attribute name="localTargetQ" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:StaticVarCompensatorVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
