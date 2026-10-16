@@ -852,14 +852,17 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="HvdcLineVariantAttributes">
+        <xs:attribute name="activePowerSetpoint" use="optional" type="xs:double"/>
+        <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
+    </xs:attributeGroup>
     <xs:complexType name="HvdcLine">
         <xs:complexContent>
             <xs:extension base="iidm:Connectable">
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
-                <xs:attribute name="activePowerSetpoint" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:HvdcLineVariantAttributes"/>
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
-                <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
                 <xs:attribute name="converterStation1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="converterStation2" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
