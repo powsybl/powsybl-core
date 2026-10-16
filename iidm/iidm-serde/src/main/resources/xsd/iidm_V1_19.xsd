@@ -320,6 +320,10 @@
             <xs:enumeration value="FICTITIOUS"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:attributeGroup name="LoadVariantAttributes">
+        <xs:attribute name="p0" use="required" type="xs:double"/>
+        <xs:attribute name="q0" use="required" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="Load">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
@@ -329,8 +333,7 @@
                         <xs:element name="exponentialModel" type="iidm:ExponentialLoadModel"/>
                     </xs:choice>
                 </xs:sequence>
-                <xs:attribute name="p0" use="required" type="xs:double"/>
-                <xs:attribute name="q0" use="required" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:LoadVariantAttributes"/>
                 <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
