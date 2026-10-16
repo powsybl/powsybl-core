@@ -16,7 +16,22 @@
             <xs:minLength value='1'/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:element name="network" type="iidm:Network"/>
+    <xs:element name="network" type="iidm:RootNetwork"/>
+    <xs:complexType name="RootNetwork">
+        <xs:complexContent>
+            <xs:extension base="iidm:Network">
+                <xs:sequence>
+                    <xs:element name="variants" type="iidm:NetworkVariants" minOccurs="0">
+                        <xs:unique name="uniqueVariantId">
+                            <xs:selector xpath="iidm:variant"/>
+                            <xs:field xpath="@id"/>
+                        </xs:unique>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute name="workingVariantId" use="optional" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="Network">
         <xs:sequence>
             <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
@@ -927,5 +942,15 @@
                 <xs:attribute name="r" use="required" type="xs:double" />
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="NetworkVariants">
+        <xs:sequence>
+            <xs:element name="variant" type="iidm:NetworkVariant" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="NetworkVariant">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+        </xs:choice>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
     </xs:complexType>
 </xs:schema>
