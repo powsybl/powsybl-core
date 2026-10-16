@@ -778,6 +778,8 @@
     <xs:attributeGroup name="PhaseTapChangerVariantAttributes">
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="solvedTapPosition" type="xs:int"/>
+        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+        <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
     </xs:attributeGroup>
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
@@ -786,11 +788,9 @@
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="optional" default="0" type="xs:int"/>
-        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attributeGroup ref="iidm:PhaseTapChangerVariantAttributes"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
-        <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="Line">
