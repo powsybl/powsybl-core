@@ -890,6 +890,9 @@
         <xs:attribute name="side" type="iidm:Side"/>
         <xs:attribute name="ac" use="required" type="xs:boolean"/>
     </xs:complexType>
+    <xs:attributeGroup name="AreaVariantAttributes">
+        <xs:attribute name="interchangeTarget" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="Area">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
@@ -900,7 +903,7 @@
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="interchangeTarget" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:AreaVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
