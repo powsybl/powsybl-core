@@ -356,6 +356,11 @@
         <xs:attribute name="np" use="required" type="xs:double"/>
         <xs:attribute name="nq" use="required" type="xs:double"/>
     </xs:complexType>
+    <xs:attributeGroup name="ShuntCompensatorVariantAttributes">
+        <xs:attribute name="sectionCount" use="required" type="xs:int"/>
+        <xs:attribute name="solvedSectionCount" type="xs:int"/>
+        <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="ShuntCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
@@ -366,9 +371,7 @@
                     </xs:choice>
                     <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
-                <xs:attribute name="sectionCount" use="required" type="xs:int"/>
-                <xs:attribute name="solvedSectionCount" type="xs:int"/>
-                <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:ShuntCompensatorVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
