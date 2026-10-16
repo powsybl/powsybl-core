@@ -749,6 +749,10 @@
         <xs:attribute name="g" use="optional" default="0" type="xs:double"/>
         <xs:attribute name="b" use="optional" default="0" type="xs:double"/>
     </xs:complexType>
+    <xs:attributeGroup name="RatioTapChangerVariantAttributes">
+        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
+        <xs:attribute name="solvedTapPosition" type="xs:int"/>
+    </xs:attributeGroup>
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
@@ -756,8 +760,7 @@
             <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="optional" default="0" type="xs:int"/>
-        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
-        <xs:attribute name="solvedTapPosition" type="xs:int"/>
+        <xs:attributeGroup ref="iidm:RatioTapChangerVariantAttributes"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
     </xs:complexType>
     <xs:simpleType name="PhaseRegulationMode">
@@ -766,6 +769,10 @@
             <xs:enumeration value="ACTIVE_POWER_CONTROL"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:attributeGroup name="PhaseTapChangerVariantAttributes">
+        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
+        <xs:attribute name="solvedTapPosition" type="xs:int"/>
+    </xs:attributeGroup>
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
@@ -773,9 +780,8 @@
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="optional" default="0" type="xs:int"/>
-        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
-        <xs:attribute name="solvedTapPosition" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+        <xs:attributeGroup ref="iidm:PhaseTapChangerVariantAttributes"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulationMode" use="optional" type="iidm:PhaseRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
