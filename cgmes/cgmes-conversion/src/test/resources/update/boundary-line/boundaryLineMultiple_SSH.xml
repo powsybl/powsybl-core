@@ -1,0 +1,38 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e82">
+        <md:Model.created>2024-06-28T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-06-28T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Connected and disconnected boundary line states</md:Model.description>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_ACLineSegment-T2">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ConnectedBoundaryLine1-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ConnectedBoundaryLine1-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ConnectedBoundaryLine2-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ConnectedBoundaryLine2-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_DisconnectedBoundaryLine-T1">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_DisconnectedBoundaryLine-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ConnectedBoundaryLine1-EquivalentInjection-T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:about="#_ConnectedBoundaryLine1-EquivalentInjection">
+        <cim:EquivalentInjection.p>-27.0286</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>120.7887</cim:EquivalentInjection.q>
+    </cim:EquivalentInjection>
+</rdf:RDF>

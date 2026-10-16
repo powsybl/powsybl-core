@@ -1,0 +1,23 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e83">
+        <md:Model.created>2024-06-28T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-06-28T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Boundary point for multiple boundary lines</md:Model.description>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/EquipmentBoundary-EU/3.0</md:Model.profile>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.DependentOn rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e81"/>
+    </md:FullModel>
+    <cim:Line rdf:ID="_MultipleBoundaryExternalLine">
+        <cim:IdentifiedObject.name>Multiple boundary external line</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_MultipleBoundaryRegion"/>
+    </cim:Line>
+    <cim:ConnectivityNode rdf:ID="_MultipleBoundaryNode">
+        <cim:IdentifiedObject.name>Multiple boundary node</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_MultipleBoundaryExternalLine"/>
+    </cim:ConnectivityNode>
+    <eu:BoundaryPoint rdf:ID="_MultipleBoundaryPoint">
+        <cim:IdentifiedObject.name>Multiple boundary point</cim:IdentifiedObject.name>
+        <eu:BoundaryPoint.ConnectivityNode rdf:resource="#_MultipleBoundaryNode"/>
+    </eu:BoundaryPoint>
+</rdf:RDF>
