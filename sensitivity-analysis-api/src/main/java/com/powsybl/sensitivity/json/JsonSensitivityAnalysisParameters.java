@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -26,8 +25,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,10 +37,9 @@ public final class JsonSensitivityAnalysisParameters {
 
     public static Map<String, ExtensionJsonSerializer> getExtensionSerializers() {
         List<SensitivityAnalysisProvider> providers = new ServiceLoaderCache<>(SensitivityAnalysisProvider.class).getServices();
-        // provider specific serializers take precedence: they may also be registered in the category
-        return Stream.concat(SUPPLIER.get().getProviders().stream(),
-                        providers.stream().flatMap(sensitivityAnalysisProvider -> sensitivityAnalysisProvider.getSpecificParametersSerializer().stream()))
-                .collect(Collectors.toMap(ExtensionProvider::getExtensionName, Function.identity(), (s1, s2) -> s2));
+        // a provider specific parameters serializer may also be registered in the category
+        return JsonUtil.getExtensionSerializersByName(Stream.concat(SUPPLIER.get().getProviders().stream(),
+                        providers.stream().flatMap(sensitivityAnalysisProvider -> sensitivityAnalysisProvider.getSpecificParametersSerializer().stream())));
     }
 
     private JsonSensitivityAnalysisParameters() {

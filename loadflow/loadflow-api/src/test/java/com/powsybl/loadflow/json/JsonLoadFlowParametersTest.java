@@ -37,7 +37,6 @@ import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
@@ -47,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-class JsonLoadFlowParametersTest extends AbstractSerDeTest {
+public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {
@@ -311,9 +310,8 @@ class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
     @Test
     void providerSerializerAlsoRegisteredInCategory() {
-        Map<String, ExtensionJsonSerializer> serializers = JsonLoadFlowParameters.getExtensionSerializers();
-        assertInstanceOf(DummySerializer.class, serializers.get("dummy-extension"));
-        assertInstanceOf(BusinessExtensionSerializer.class, serializers.get("business-extension"));
+        assertInstanceOf(DummySerializer.class, JsonLoadFlowParameters.getExtensionSerializers().get("dummy-extension"));
+        assertInstanceOf(BusinessExtensionSerializer.class, JsonLoadFlowParameters.getExtensionSerializers().get("business-extension"));
     }
 
     /**
