@@ -63,6 +63,18 @@ class TieLineTest {
         assertTrue(compare(getP(caseSv0.line2, TwoSides.ONE), tieLine.getBoundaryLine2().getBoundary().getP(), isvHalf2.getP()));
         assertTrue(compare(getQ(caseSv0.line2, TwoSides.ONE), tieLine.getBoundaryLine2().getBoundary().getQ(), isvHalf2.getQ()));
         assertTrue(compare(getI(caseSv0.line2, TwoSides.ONE), tieLine.getBoundaryLine2().getBoundary().getI(), isvHalf2.getI()));
+
+        double tolerance = 1.0e-4;
+
+        // Not possible to update the TieLine resistance and reactance
+        assertEquals(0.0569, tieLine.getR(), tolerance);
+        assertEquals(0.1769, tieLine.getX(), tolerance);
+        UnsupportedOperationException exceptionX = assertThrows(UnsupportedOperationException.class, () -> tieLine.setX(1.0));
+        assertEquals("Cannot update TieLine reactance: it is computed from its boundary lines.", exceptionX.getMessage());
+        UnsupportedOperationException exceptionR = assertThrows(UnsupportedOperationException.class, () -> tieLine.setR(1.0));
+        assertEquals("Cannot update TieLine resistance: it is computed from its boundary lines.", exceptionR.getMessage());
+        assertEquals(0.0569, tieLine.getR(), tolerance);
+        assertEquals(0.1769, tieLine.getX(), tolerance);
     }
 
     @Test

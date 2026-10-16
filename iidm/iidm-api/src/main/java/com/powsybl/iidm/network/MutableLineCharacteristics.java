@@ -8,19 +8,10 @@
 package com.powsybl.iidm.network;
 
 /**
+ * {@inheritDoc}
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface MutableLineCharacteristics<T> extends LineCharacteristics {
-
-    /**
-     * Set the series resistance in &#937;.
-     */
-    T setR(double r);
-
-    /**
-     * Set the series reactance in &#937;.
-     */
-    T setX(double x);
 
     /**
      * Set the first side shunt conductance in S.
