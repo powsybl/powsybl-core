@@ -9,7 +9,6 @@ package com.powsybl.shortcircuit;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
@@ -30,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;

@@ -8,7 +8,6 @@
 package com.powsybl.security.dynamic;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -22,6 +21,7 @@ import com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParameters;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Parameters for dynamic security analysis computation.

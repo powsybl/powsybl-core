@@ -7,7 +7,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -18,6 +17,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Parameters for sensitivity analysis.
