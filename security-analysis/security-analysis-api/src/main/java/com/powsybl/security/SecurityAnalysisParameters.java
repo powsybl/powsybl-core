@@ -8,9 +8,14 @@
 package com.powsybl.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
@@ -39,6 +44,16 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     static final boolean DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY = false;
     static final String DEFAULT_DEBUG_DIR = null;
+
+    /**
+     * Category of the {@link com.powsybl.commons.extensions.ExtensionJsonSerializer} and {@link ExtensionConfigLoader}
+     * of extensions which are not provider specific parameters.
+     * Unlike provider specific parameters, those extensions cannot be read from or written to a {@code Map<String, String>}.
+     */
+    public static final String EXTENSIONS_CATEGORY = "security-analysis-parameters";
+
+    private static final Supplier<ExtensionProviders<ExtensionConfigLoader>> CONFIG_LOADERS =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionConfigLoader.class, EXTENSIONS_CATEGORY));
 
     private boolean intermediateResultsInOperatorStrategy = DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY;
     private String debugDir = DEFAULT_DEBUG_DIR;
@@ -279,6 +294,16 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         for (SecurityAnalysisProvider provider : new ServiceLoaderCache<>(SecurityAnalysisProvider.class).getServices()) {
             provider.loadSpecificParameters(platformConfig).ifPresent(securityAnalysisParametersExtension ->
                     addExtension((Class) securityAnalysisParametersExtension.getClass(), securityAnalysisParametersExtension));
+        }
+        for (ExtensionConfigLoader loader : CONFIG_LOADERS.get().getProviders()) {
+            // ExtensionConfigLoader cannot update an extension: do not overwrite one set by a provider
+            if (getExtensionByName(loader.getExtensionName()) == null) {
+                Extension extension = loader.load(platformConfig);
+                // a null extension means it is not configured
+                if (extension != null) {
+                    addExtension(loader.getExtensionClass(), extension);
+                }
+            }
         }
     }
 

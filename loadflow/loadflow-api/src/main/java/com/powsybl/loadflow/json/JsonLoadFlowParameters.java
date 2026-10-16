@@ -13,8 +13,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProvider;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -29,7 +32,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides methods to read and write LoadFlowParameters from and to JSON.
@@ -38,14 +43,18 @@ import java.util.stream.Collectors;
  */
 public final class JsonLoadFlowParameters {
 
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, LoadFlowParameters.EXTENSIONS_CATEGORY));
+
     private JsonLoadFlowParameters() {
     }
 
     public static Map<String, ExtensionJsonSerializer> getExtensionSerializers() {
         List<LoadFlowProvider> providers = new ServiceLoaderCache<>(LoadFlowProvider.class).getServices();
-        return providers.stream()
-            .flatMap(loadFlowProvider -> loadFlowProvider.getSpecificParametersSerializer().stream())
-            .collect(Collectors.toMap(ExtensionProvider::getExtensionName, loadFlowProvider -> loadFlowProvider));
+        // provider specific serializers take precedence: they may also be registered in the category
+        return Stream.concat(SUPPLIER.get().getProviders().stream(),
+                        providers.stream().flatMap(loadFlowProvider -> loadFlowProvider.getSpecificParametersSerializer().stream()))
+            .collect(Collectors.toMap(ExtensionProvider::getExtensionName, Function.identity(), (s1, s2) -> s2));
     }
 
     /**
