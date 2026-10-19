@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createSvcVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -131,7 +131,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         if (voltageRegulationAttributes == null && regulating != null) {
             // If a static var compensator with old setters is added and voltageRegulation does not exist,
             // the new voltageRegulation will be created from the old attributes.
-            createVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
+            createSvcVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
         } else {
             // In the case of a static var compensator with old setters and newVoltageRegulation method used
             // the old local attributes will be set without overriding the local attributes if already set
