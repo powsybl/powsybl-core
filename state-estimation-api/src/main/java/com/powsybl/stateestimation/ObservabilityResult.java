@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public interface ObservabilityResult extends Extendable<ObservabilityResult> {
 
-    /** The quantities modelled by {@code InjectionObservability} and {@code BranchObservability}. */
+    /** The quantities modeled by {@code InjectionObservability} and {@code BranchObservability}. */
     enum Quantity {
         /** Active power, in MW. */
         ACTIVE_POWER,
@@ -36,18 +36,18 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
     }
 
     /** Mirrors {@code ObservabilityArea.ObservabilityStatus}. */
-    enum AreaStatus {
-        /** The measurements determine the state of every bus in the area. */
+    enum IslandStatus {
+        /** The measurements determine the state of every bus in the island. */
         OBSERVABLE,
-        /** The measurements leave the state of the area undetermined. */
+        /** The measurements leave the state of the island undetermined. */
         NON_OBSERVABLE,
-        /** Between an observable area and a non-observable one. */
+        /** Between an observable island and a non-observable one. */
         BORDER
     }
 
     /** Whether the analysis ran. */
     enum Status {
-        /** The analysis ran and the areas and element observabilities describe the network. */
+        /** The analysis ran and the islands and element observabilities describe the network. */
         COMPLETED,
         /** The analysis could not be carried out, so nothing below is meaningful. */
         FAILED
@@ -62,16 +62,16 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
      */
     String getStatusText();
 
-    /** The observable, non-observable and border areas, in no guaranteed order. */
-    List<Area> getAreas();
+    /** The observable, non-observable and border islands, in no guaranteed order. */
+    List<ObservableIsland> getObservableIslands();
 
     /**
-     * The area containing the given bus, or an empty {@code Optional} if there is none.
+     * The island containing the given bus, or an empty {@code Optional} if there is none.
      *
      * @param busId the identifier of the bus
-     * @return the area containing the given bus, or an empty {@code Optional} if there is none
+     * @return the island containing the given bus, or an empty {@code Optional} if there is none
      */
-    Optional<Area> getArea(String busId);
+    Optional<ObservableIsland> getIsland(String busId);
 
     /** Observability of every element the estimation reported on, in no guaranteed order. */
     List<ElementObservability> getElementObservabilities();
@@ -89,15 +89,15 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
      * which depend on where the measurements are rather than on connectivity, so one connected
      * component of the network can hold several of them.
      */
-    interface Area {
+    interface ObservableIsland {
 
-        /** The area number, as {@code ObservabilityArea.AreaCharacteristics} numbers it. */
-        int getAreaNumber();
+        /** The number this island carries in {@code ObservabilityArea}, so the two can be matched up. */
+        int getIslandNumber();
 
-        /** Whether the measurements determine the state of this area. */
-        AreaStatus getStatus();
+        /** Whether the measurements determine the state of this island. */
+        IslandStatus getStatus();
 
-        /** The buses that belong to this area. */
+        /** The buses that belong to this island. */
         Set<String> getBusIds();
     }
 

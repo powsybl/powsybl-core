@@ -51,7 +51,7 @@ public final class StateEstimation {
         }
 
         /**
-         * Which parts of the network the measurements of the given variant determine.
+         * Which parts of the network its measurements determine, for the topology of the given variant.
          *
          * @param network the network
          * @param workingVariantId the identifier of the network variant to run against
@@ -67,7 +67,7 @@ public final class StateEstimation {
         }
 
         /**
-         * Which parts of the network the measurements of the given variant determine.
+         * Which parts of the network its measurements determine, for the topology of the given variant.
          *
          * @param network the network
          * @param workingVariantId the identifier of the network variant to run against
@@ -80,8 +80,8 @@ public final class StateEstimation {
         }
 
         /**
-         * Which parts of the network the measurements of its working variant determine, with default
-         * run parameters.
+         * Which parts of the network its measurements determine, for the topology of the working
+         * variant, with default run parameters.
          *
          * @param network the network
          * @return which parts of the network its measurements determine

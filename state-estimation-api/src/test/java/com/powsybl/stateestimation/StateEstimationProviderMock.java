@@ -144,8 +144,8 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
 
     /** One observable area containing the one bus, whose active power is redundant. */
     private static ObservabilityResult observability() {
-        ObservabilityResult.Area area = new ObservabilityResultImpl.AreaImpl(
-                0, ObservabilityResult.AreaStatus.OBSERVABLE, Set.of(BUS_ID));
+        ObservabilityResult.ObservableIsland area = new ObservabilityResultImpl.ObservableIslandImpl(
+                0, ObservabilityResult.IslandStatus.OBSERVABLE, Set.of(BUS_ID));
 
         ObservabilityResult.Quality quality = new ObservabilityResultImpl.QualityImpl(
                 ObservabilityResult.Quantity.ACTIVE_POWER, null, 0.5, true);

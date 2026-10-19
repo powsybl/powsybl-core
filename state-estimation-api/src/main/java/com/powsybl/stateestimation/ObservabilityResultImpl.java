@@ -25,7 +25,7 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
 
     private final Status status;
     private final String statusText;
-    private final List<Area> areas;
+    private final List<ObservableIsland> islands;
     private final List<ElementObservability> elementObservabilities;
 
     /**
@@ -33,14 +33,14 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
      *
      * @param status whether the analysis ran
      * @param statusText text explaining the status, or null for none
-     * @param areas the observable, non-observable and border areas
+     * @param islands the observable, non-observable and border islands
      * @param elementObservabilities the observability of each element reported on
      */
-    public ObservabilityResultImpl(Status status, String statusText, List<Area> areas,
+    public ObservabilityResultImpl(Status status, String statusText, List<ObservableIsland> islands,
                                    List<ElementObservability> elementObservabilities) {
         this.status = Objects.requireNonNull(status);
         this.statusText = Objects.requireNonNullElse(statusText, "");
-        this.areas = List.copyOf(Objects.requireNonNull(areas));
+        this.islands = List.copyOf(Objects.requireNonNull(islands));
         this.elementObservabilities = List.copyOf(Objects.requireNonNull(elementObservabilities));
     }
 
@@ -55,14 +55,14 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
     }
 
     @Override
-    public List<Area> getAreas() {
-        return areas;
+    public List<ObservableIsland> getObservableIslands() {
+        return islands;
     }
 
     @Override
-    public Optional<Area> getArea(String busId) {
+    public Optional<ObservableIsland> getIsland(String busId) {
         Objects.requireNonNull(busId);
-        return areas.stream().filter(a -> a.getBusIds().contains(busId)).findFirst();
+        return islands.stream().filter(i -> i.getBusIds().contains(busId)).findFirst();
     }
 
     @Override
@@ -76,33 +76,33 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         return elementObservabilities.stream().filter(e -> e.getElementId().equals(elementId)).findFirst();
     }
 
-    /** Immutable {@link Area}. */
-    public static class AreaImpl implements Area {
+    /** Immutable {@link ObservableIsland}. */
+    public static class ObservableIslandImpl implements ObservableIsland {
 
-        private final int areaNumber;
-        private final AreaStatus status;
+        private final int islandNumber;
+        private final IslandStatus status;
         private final Set<String> busIds;
 
         /**
          * Neither {@code status} nor {@code busIds} may be null.
          *
-         * @param areaNumber the area number
+         * @param islandNumber the island number
          * @param status the outcome being recorded
-         * @param busIds the buses that belong to the area
+         * @param busIds the buses that belong to the island
          */
-        public AreaImpl(int areaNumber, AreaStatus status, Set<String> busIds) {
-            this.areaNumber = areaNumber;
+        public ObservableIslandImpl(int islandNumber, IslandStatus status, Set<String> busIds) {
+            this.islandNumber = islandNumber;
             this.status = Objects.requireNonNull(status);
             this.busIds = Set.copyOf(Objects.requireNonNull(busIds));
         }
 
         @Override
-        public int getAreaNumber() {
-            return areaNumber;
+        public int getIslandNumber() {
+            return islandNumber;
         }
 
         @Override
-        public AreaStatus getStatus() {
+        public IslandStatus getStatus() {
             return status;
         }
 

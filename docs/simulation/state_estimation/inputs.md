@@ -30,15 +30,20 @@ the only input the estimator has about how far a meter can be trusted, so a meas
 
 Two things follow from reading measurements off the network rather than passing them in.
 
-A measurement set is tied to the variant it sits in, so a second snapshot is a second variant.
-Every entry point names the variant it runs against:
+Every entry point names the variant it runs against, because the topology and the voltages an
+estimation works from are variant dependent:
 
 ```java
 network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "snapshot");
-// write the readings of that snapshot into the "snapshot" variant
+// open a breaker, or set a different starting voltage, in the "snapshot" variant
 StateEstimationResult result = StateEstimation.estimate(network, "snapshot",
         StateEstimationRunParameters.getDefault());
 ```
+
+The measurement extensions are not variant dependent. A `Measurement` holds one value, one
+standard deviation and one validity flag, shared by every variant, so writing a second set of
+readings replaces the first everywhere. Estimating two measurement snapshots side by side means
+two networks rather than two variants.
 
 Where the readings came from is outside this API. A SCADA export, a CGMES file and a message
 stream all end at the same place, which is a `Measurement` on a piece of equipment.

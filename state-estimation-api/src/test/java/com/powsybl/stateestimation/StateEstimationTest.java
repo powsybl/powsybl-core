@@ -67,7 +67,7 @@ class StateEstimationTest {
         BadDataResult badData = runner.detectBadData(network, estimate, observability);
 
         assertEquals(ObservabilityResult.Status.COMPLETED, observability.getStatus());
-        assertEquals(ObservabilityResult.AreaStatus.OBSERVABLE, observability.getAreas().get(0).getStatus());
+        assertEquals(ObservabilityResult.IslandStatus.OBSERVABLE, observability.getObservableIslands().get(0).getStatus());
         assertEquals(StateEstimationResult.Status.FULLY_ESTIMATED, estimate.getStatus());
         assertEquals(BadDataResult.Status.NO_BAD_DATA, badData.getStatus());
     }
@@ -162,11 +162,11 @@ class StateEstimationTest {
     void reportsObservabilityInTheVocabularyOfTheIidmExtensions() {
         ObservabilityResult observability = StateEstimation.analyseObservability(network);
 
-        assertEquals(1, observability.getAreas().size());
+        assertEquals(1, observability.getObservableIslands().size());
         assertEquals(ObservabilityResult.Status.COMPLETED, observability.getStatus());
-        assertEquals(ObservabilityResult.AreaStatus.OBSERVABLE, observability.getAreas().get(0).getStatus());
-        assertTrue(observability.getArea(StateEstimationProviderMock.BUS_ID).isPresent());
-        assertTrue(observability.getArea("NotEstimated").isEmpty());
+        assertEquals(ObservabilityResult.IslandStatus.OBSERVABLE, observability.getObservableIslands().get(0).getStatus());
+        assertTrue(observability.getIsland(StateEstimationProviderMock.BUS_ID).isPresent());
+        assertTrue(observability.getIsland("NotEstimated").isEmpty());
 
         ObservabilityResult.ElementObservability element =
                 observability.getElementObservability(StateEstimationProviderMock.BUS_ID).orElseThrow();

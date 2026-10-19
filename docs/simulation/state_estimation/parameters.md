@@ -132,8 +132,9 @@ must be positive.
 (param-se-write-results-to-network)=
 ### writeResultsToNetwork
 
-Whether the estimated state is written back into the network. The result carries it either way,
-so leaving this off keeps the measured snapshot and the estimate side by side, which is what
-comparing them needs.
+Whether the estimated state is written back into the network. The result carries it either way.
+Leaving this off also leaves the voltages already on the network untouched, which matters when
+only part of a component was estimated: the buses that were not keep whatever was there before,
+and only the result distinguishes them.
 
 The default value is `false`.

@@ -25,18 +25,18 @@ class ObservabilityResultImplTest {
 
     @Test
     void oneConnectedComponentCanHoldSeveralObservableIslands() {
-        ObservabilityResult.Area observable = new ObservabilityResultImpl.AreaImpl(
-                0, ObservabilityResult.AreaStatus.OBSERVABLE, Set.of("BUS1", "BUS2"));
-        ObservabilityResult.Area dark = new ObservabilityResultImpl.AreaImpl(
-                1, ObservabilityResult.AreaStatus.NON_OBSERVABLE, Set.of("BUS3"));
+        ObservabilityResult.ObservableIsland observable = new ObservabilityResultImpl.ObservableIslandImpl(
+                0, ObservabilityResult.IslandStatus.OBSERVABLE, Set.of("BUS1", "BUS2"));
+        ObservabilityResult.ObservableIsland dark = new ObservabilityResultImpl.ObservableIslandImpl(
+                1, ObservabilityResult.IslandStatus.NON_OBSERVABLE, Set.of("BUS3"));
 
         ObservabilityResultImpl result = new ObservabilityResultImpl(ObservabilityResult.Status.COMPLETED,
                 "two islands", List.of(observable, dark), List.of());
 
-        assertEquals(2, result.getAreas().size());
+        assertEquals(2, result.getObservableIslands().size());
         assertEquals("two islands", result.getStatusText());
-        assertEquals(ObservabilityResult.AreaStatus.OBSERVABLE, result.getArea("BUS1").orElseThrow().getStatus());
-        assertEquals(1, result.getArea("BUS3").orElseThrow().getAreaNumber());
+        assertEquals(ObservabilityResult.IslandStatus.OBSERVABLE, result.getIsland("BUS1").orElseThrow().getStatus());
+        assertEquals(1, result.getIsland("BUS3").orElseThrow().getIslandNumber());
     }
 
     @Test
@@ -72,7 +72,7 @@ class ObservabilityResultImplTest {
 
         assertEquals(ObservabilityResult.Status.FAILED, result.getStatus());
         assertEquals("", result.getStatusText());
-        assertTrue(result.getAreas().isEmpty());
+        assertTrue(result.getObservableIslands().isEmpty());
         assertTrue(result.getElementObservabilities().isEmpty());
     }
 
@@ -80,8 +80,8 @@ class ObservabilityResultImplTest {
     void doesNotFollowALaterChangeToTheSetItWasGiven() {
         Set<String> busIds = new HashSet<>(Set.of("BUS1"));
 
-        ObservabilityResult.Area area = new ObservabilityResultImpl.AreaImpl(
-                0, ObservabilityResult.AreaStatus.OBSERVABLE, busIds);
+        ObservabilityResult.ObservableIsland area = new ObservabilityResultImpl.ObservableIslandImpl(
+                0, ObservabilityResult.IslandStatus.OBSERVABLE, busIds);
         busIds.clear();
 
         assertEquals(Set.of("BUS1"), area.getBusIds());

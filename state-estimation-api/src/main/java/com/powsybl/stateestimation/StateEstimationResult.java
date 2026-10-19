@@ -15,8 +15,9 @@ import java.util.List;
  * The outcome of a state estimation.
  *
  * <p>Unlike a load flow, an estimation returns the state it computed instead of only writing it
- * into the network, because comparing an estimate against the measured snapshot requires both to
- * exist at the same time. Writing back is opt-in through
+ * into the network. With {@link StateEstimationParameters.UnobservablePolicy#ESTIMATE_OBSERVABLE_ISLANDS},
+ * one component can come back partly estimated, and which of its buses carry a value is exactly
+ * what the set of {@link BusResult} entries says. Writing back is opt-in through
  * {@link StateEstimationParameters#isWriteResultsToNetwork()}.</p>
  *
  * <p>Extendable, so that an implementation can attach results this interface does not model,

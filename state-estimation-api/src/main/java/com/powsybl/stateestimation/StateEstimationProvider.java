@@ -29,8 +29,9 @@ import java.util.concurrent.CompletableFuture;
  * What a state estimation implementation provides. Implementations are discovered with {@link ServiceLoader}.
  *
  * <p>Measurements are read from the network rather than passed in, through the IIDM measurement
- * extensions carried by its equipment. A second measurement snapshot is a second network variant,
- * which is why every entry point names the variant it runs against.</p>
+ * extensions carried by its equipment. Every entry point names the variant it runs against,
+ * because the topology and the voltages an estimation works from are variant dependent. The
+ * measurement extensions are not, so their values are shared by every variant.</p>
  *
  * @author Šime Pavlić {@literal <sime.pavlic at kickstage.com>}
  */

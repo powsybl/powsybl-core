@@ -5,10 +5,12 @@ implementation can attach what this API does not model without the API changing.
 
 ## StateEstimationResult
 
-A load flow writes its answer into the network and returns a status. An estimate has to stay
-comparable against the measurements it came from, so `StateEstimationResult` carries the state
-itself and writing back is opt-in through
-[writeResultsToNetwork](parameters.md#writeresultstonetwork).
+A load flow writes its answer into the network and returns a status. An estimation carries the
+state itself, because with
+[ESTIMATE_OBSERVABLE_ISLANDS](parameters.md#param-se-unobservable-policy) a single component can
+come back partly estimated, and which of its buses carry a value is exactly what the set of
+`BusResult` entries says. Writing back is opt-in through
+[writeResultsToNetwork](parameters.md#param-se-write-results-to-network).
 
 | Attribute          | Type                    | Unit | Required | Default value | Description                                                |
 |--------------------|-------------------------|------|----------|---------------|------------------------------------------------------------|
@@ -73,23 +75,26 @@ publish the same information onto the network without translating it first.
 |------------------------|----------------------------|------|----------|---------------|----------------------------------------------|
 | status                 | Status                     | -    | yes      | -             | `COMPLETED` or `FAILED`                      |
 | statusText             | String                     | -    | no       | Empty string  | The status in the implementation's own words |
-| areas                  | List<Area>                 | -    | no       | Empty list    | Connected sets of buses sharing one status   |
+| observableIslands      | List<ObservableIsland>     | -    | no       | Empty list    | Connected sets of buses sharing one status   |
 | elementObservabilities | List<ElementObservability> | -    | no       | Empty list    | Per-element observability                    |
 
-A `FAILED` analysis reports nothing meaningful in the other two.
+A `FAILED` analysis reports nothing meaningful in the other two. It means the analysis could
+not be carried out, which is different from a network the measurements leave undetermined: that
+is a `COMPLETED` analysis reporting `NON_OBSERVABLE` islands.
 
-`getArea(busId)` and `getElementObservability(elementId)` look either list up by identifier and
+`getIsland(busId)` and `getElementObservability(elementId)` look either list up by identifier and
 return an empty `Optional` when there is no entry.
 
-`Area` is an observable island. These depend on where the measurements are rather than on
-connectivity, so one connected component of the network can hold several of them. The structure
-mirrors `ObservabilityArea.AreaCharacteristics`:
+An `ObservableIsland` depends on where the measurements are rather than on connectivity, so one
+connected component of the network can hold several of them. It is named for what it is rather
+than after the extension, since IIDM already has an `Area` element and an `ObservabilityArea`
+extension. The structure still mirrors `ObservabilityArea.AreaCharacteristics`:
 
-| Attribute  | Type        | Unit | Required | Default value | Description                                    |
-|------------|-------------|------|----------|---------------|------------------------------------------------|
-| areaNumber | int         | -    | yes      | -             | The area, numbered as the extension numbers it |
-| status     | AreaStatus  | -    | yes      | -             | `OBSERVABLE`, `NON_OBSERVABLE` or `BORDER`     |
-| busIds     | Set<String> | -    | yes      | -             | The buses in the area                          |
+| Attribute    | Type         | Unit | Required | Default value | Description                                           |
+|--------------|--------------|------|----------|---------------|-------------------------------------------------------|
+| islandNumber | int          | -    | yes      | -             | The number this island carries in `ObservabilityArea` |
+| status       | IslandStatus | -    | yes      | -             | `OBSERVABLE`, `NON_OBSERVABLE` or `BORDER`            |
+| busIds       | Set<String>  | -    | yes      | -             | The buses in the island                               |
 
 `ElementObservability` matches `InjectionObservability` for an injection and `BranchObservability`
 for a branch:
