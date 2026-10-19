@@ -104,17 +104,11 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
-        NetworkImpl n = getNetwork();
-        int variantIndex = n.getVariantIndex();
-        double oldValueTargetV = getLocalTargetV();
         if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
             getVoltageRegulation().setTargetValue(voltageSetpoint);
         } else {
             setLocalTargetV(voltageSetpoint);
         }
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("voltageSetpoint", variantId, oldValueTargetV, voltageSetpoint);
-        n.invalidateValidationLevel();
         return this;
     }
 
@@ -161,17 +155,11 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        NetworkImpl n = getNetwork();
-        int variantIndex = n.getVariantIndex();
-        double oldValueTargetQ = getLocalTargetV();
         if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
             getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
         } else {
             setLocalTargetQ(reactivePowerSetpoint);
         }
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("reactivePowerSetpoint", variantId, oldValueTargetQ, reactivePowerSetpoint);
-        n.invalidateValidationLevel();
         return this;
     }
 
@@ -182,35 +170,22 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
-        RegulationMode oldValue = null;
         if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getMode();
             voltageRegulation.setMode(regulationMode);
         } else {
             newVoltageRegulation().withRegulating(false).withMode(regulationMode).build();
         }
-        NetworkImpl n = getNetwork();
-        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
-        notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
-        n.invalidateValidationLevel();
         return this;
     }
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        Terminal oldValue;
         double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
         if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getTerminal();
             voltageRegulation.setTerminal(regulatingTerminal, targetValue);
         } else {
-            oldValue = null;
             newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
         }
-        NetworkImpl n = getNetwork();
-        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
-        notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
-        n.invalidateValidationLevel();
         return this;
     }
 
@@ -266,17 +241,10 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensator setRegulating(boolean regulating) {
-        NetworkImpl n = getNetwork();
-        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
         if (voltageRegulation != null) {
-            boolean oldValue = voltageRegulation.isRegulating();
             voltageRegulation.setRegulating(regulating);
-            notifyUpdate("regulating", variantId, oldValue, regulating);
-            n.invalidateValidationLevel();
         } else if (regulating) {
             newVoltageRegulation().withRegulating(true).withMode(RegulationMode.REACTIVE_POWER).build();
-            notifyUpdate("regulating", variantId, false, true);
-            n.invalidateValidationLevel();
         }
         return this;
     }

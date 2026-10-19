@@ -20,10 +20,6 @@ import org.jspecify.annotations.NonNull;
  */
 public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSourceConverter> implements VoltageSourceConverter, ReactiveLimitsOwner {
 
-    public static final String VOLTAGE_REGULATOR_ON_ATTRIBUTE = "voltageRegulatorOn";
-    public static final String VOLTAGE_SETPOINT_ATTRIBUTE = "voltageSetpoint";
-    public static final String REACTIVE_POWER_SETPOINT_ATTRIBUTE = "reactivePowerSetpoint";
-
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private final TDoubleArrayList localTargetQ;
@@ -100,18 +96,12 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public VoltageSourceConverterImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        NetworkImpl n = getNetwork();
-        boolean oldValue = isRegulating();
         if (voltageRegulation != null) {
             voltageRegulation.setMode(RegulationMode.VOLTAGE);
             voltageRegulation.setRegulating(voltageRegulatorOn);
         } else {
             newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
         }
-        n.invalidateValidationLevel();
-        int variantIndex = n.getVariantIndex();
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate(VOLTAGE_REGULATOR_ON_ATTRIBUTE, variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -122,18 +112,11 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public VoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
-        NetworkImpl n = getNetwork();
-        double oldValue;
         if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
-            oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(voltageSetpoint);
         } else {
-            oldValue = getLocalTargetV();
             setLocalTargetV(voltageSetpoint);
         }
-        n.invalidateValidationLevel();
-        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
-        notifyUpdate(VOLTAGE_SETPOINT_ATTRIBUTE, variantId, oldValue, voltageSetpoint);
         return this;
     }
 
@@ -144,18 +127,11 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public VoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        double oldValue;
         if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
-            oldValue = voltageRegulation.getTargetValue();
             voltageRegulation.setTargetValue(reactivePowerSetpoint);
         } else {
-            oldValue = getLocalTargetQ();
             setLocalTargetQ(reactivePowerSetpoint);
         }
-        NetworkImpl n = getNetwork();
-        String variantId = n.getVariantManager().getVariantId(n.getVariantIndex());
-        notifyUpdate(REACTIVE_POWER_SETPOINT_ATTRIBUTE, variantId, oldValue, reactivePowerSetpoint);
-        n.invalidateValidationLevel();
         return this;
     }
 
