@@ -455,9 +455,10 @@ public final class EquipmentExport {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
                     String baseVoltageId = context.getBaseVoltageIdFromNominalV(generator.getTerminal().getVoltageLevel().getNominalV());
-                    boolean controlEnabled = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating();
+                    // Regulation capability is EQ data: it must not depend on the current regulating status
+                    boolean regulationCapability = generator.getVoltageRegulation() != null;
                     EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                        controlEnabled, generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
+                        regulationCapability, generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
                             reactiveCapabilityCurveId, baseVoltageId,
                             cimNamespace, writer, context);
                     break;

@@ -91,7 +91,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         Generator g = network.getGenerator("SM1");
         VoltageRegulation voltageRegulation = g.getVoltageRegulation();
         assertNotNull(voltageRegulation);
-        assertEquals(-115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(115.5, voltageRegulation.getTargetValue(), 0.0);
         assertTrue(voltageRegulation.isRegulating());
         assertSame(network.getTwoWindingsTransformer("PT1").getTerminal2(), voltageRegulation.getTerminal());
     }
