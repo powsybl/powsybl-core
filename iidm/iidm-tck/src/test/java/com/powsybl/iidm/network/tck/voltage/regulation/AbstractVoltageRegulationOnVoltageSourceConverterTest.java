@@ -27,13 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest extends AbstractVoltageRegulationCommon<VoltageSourceConverter> {
-    private Terminal lineTerminal;
-
     @Override
     @BeforeEach
     void initNetwork() {
         super.initNetwork();
-        lineTerminal = network.getLine("NHV1_NHV2_1").getTerminal1();
+        remoteTerminal = network.getLine("NHV1_NHV2_1").getTerminal1();
     }
 
     @Test
@@ -50,10 +48,10 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
             false);
         VoltageSourceConverter voltageSourceConverter = createVoltageSourceConverter(dataVoltageRegulationHolderCreator);
         // WHEN
-        voltageSourceConverter.setPccTerminal(lineTerminal);
+        voltageSourceConverter.setPccTerminal(remoteTerminal);
         // THEN
-        assertEquals(lineTerminal, voltageSourceConverter.getPccTerminal());
-        assertEquals(lineTerminal, voltageSourceConverter.getVoltageRegulation().getTerminal());
+        assertEquals(remoteTerminal, voltageSourceConverter.getPccTerminal());
+        assertEquals(remoteTerminal, voltageSourceConverter.getVoltageRegulation().getTerminal());
         assertFalse(voltageSourceConverter.getVoltageRegulation().isRegulating());
     }
 
@@ -100,7 +98,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         assertLocalPccTerminalAndVoltageRegulationTerminalNull(terminal1, voltageSourceConverter);
 
         // WHEN setting a remote terminal on the pccTerminal with missing targetValue
-        ValidationException validationException = assertThrows(ValidationException.class, () -> voltageSourceConverter.setPccTerminal(lineTerminal));
+        ValidationException validationException = assertThrows(ValidationException.class, () -> voltageSourceConverter.setPccTerminal(remoteTerminal));
         // THEN ValidationException is thrown
         assertEquals("AC/DC Voltage Source Converter 'vsc_setPccTerminal': Undefined value for voltageRegulation.targetValue," +
             " expected defined value when a terminal is set", validationException.getMessage());
@@ -108,10 +106,10 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
 
         // WHEN setting a remote terminal on the pccTerminal with a targetValue set
         voltageSourceConverter.getVoltageRegulation().setRegulating(false).setTargetValue(targetValue);
-        voltageSourceConverter.setPccTerminal(lineTerminal);
+        voltageSourceConverter.setPccTerminal(remoteTerminal);
         voltageSourceConverter.getVoltageRegulation().setRegulating(true);
         // THEN pccTerminal = remoteTerminal and voltageRegulation.terminal = remoteTerminal
-        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, targetValue, voltageSourceConverter);
+        assertPccTerminalAndVoltageRegulationTerminal(remoteTerminal, targetValue, voltageSourceConverter);
 
         // WHEN setting a new remote terminal on the pccTerminal
         Terminal newRemoteTerminal = voltageSourceConverter.getTerminal2().get();
@@ -130,9 +128,9 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         assertLocalPccTerminalAndVoltageRegulationTerminalNull(terminal1, voltageSourceConverter);
 
         // WHEN setting the remote terminal on the voltageRegulation terminal
-        voltageSourceConverter.getVoltageRegulation().setTerminal(lineTerminal, targetValue);
+        voltageSourceConverter.getVoltageRegulation().setTerminal(remoteTerminal, targetValue);
         // THEN pccTerminal = remoteTerminal and voltageRegulation.terminal = remoteTerminal
-        assertPccTerminalAndVoltageRegulationTerminal(lineTerminal, targetValue, voltageSourceConverter);
+        assertPccTerminalAndVoltageRegulationTerminal(remoteTerminal, targetValue, voltageSourceConverter);
 
         // WHEN setting the new remote terminal on the voltageRegulation terminal
         voltageSourceConverter.getVoltageRegulation().setTerminal(newRemoteTerminal, targetValue);
@@ -155,7 +153,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         // GIVEN
         Terminal line2Terminal = network.getLine("NHV1_NHV2_2").getTerminal1();
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
-        adder.setPccTerminal(lineTerminal);
+        adder.setPccTerminal(remoteTerminal);
         adder.newVoltageRegulation()
             .withRegulating(true)
             .withTerminal(line2Terminal)
@@ -173,18 +171,18 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     void shouldSetPccTerminalAndVoltageRegulationTerminalWhenUsingTheVoltageSourceConverterAdderWithSameTerminal() {
         // GIVEN
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
-        adder.setPccTerminal(lineTerminal);
+        adder.setPccTerminal(remoteTerminal);
         adder.newVoltageRegulation()
             .withRegulating(true)
-            .withTerminal(lineTerminal)
+            .withTerminal(remoteTerminal)
             .withTargetValue(120)
             .withMode(RegulationMode.VOLTAGE)
             .add();
         // WHEN
         VoltageSourceConverter voltageSourceConverter = adder.add();
         // THEN
-        assertEquals(lineTerminal, voltageSourceConverter.getPccTerminal());
-        assertEquals(lineTerminal, voltageSourceConverter.getVoltageRegulation().getTerminal());
+        assertEquals(remoteTerminal, voltageSourceConverter.getPccTerminal());
+        assertEquals(remoteTerminal, voltageSourceConverter.getVoltageRegulation().getTerminal());
     }
 
     @Test
@@ -210,7 +208,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         // GIVEN
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
         adder.setLocalTargetV(20);
-        adder.setPccTerminal(lineTerminal);
+        adder.setPccTerminal(remoteTerminal);
         adder.newVoltageRegulation()
             .withRegulating(true)
             .withMode(RegulationMode.VOLTAGE)
@@ -226,11 +224,11 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     void shouldSetPccTerminalAndVoltageRegulationTerminalWhenSettingPccTerminal() {
         // GIVEN
         VoltageSourceConverterAdder adder = newVoltageSourceConverterAdder("vsc_id");
-        adder.setPccTerminal(lineTerminal);
+        adder.setPccTerminal(remoteTerminal);
         VoltageSourceConverter voltageSourceConverter = adder.newVoltageRegulation()
                 .withRegulating(true)
                 .withMode(RegulationMode.REACTIVE_POWER)
-                .withTerminal(lineTerminal)
+                .withTerminal(remoteTerminal)
                 .withTargetValue(10)
                 .add()
             .add();
@@ -242,6 +240,20 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
         assertTrue(voltageSourceConverter.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
         assertEquals(localTerminal, voltageSourceConverter.getRegulatingTerminal());
         assertEquals(voltageSourceConverter.getPccTerminal(), voltageSourceConverter.getRegulatingTerminal());
+    }
+
+    @Test
+    void testNotifyUpdate() {
+        String vscId = "vsc_setPccTerminal";
+        DataVoltageRegulationHolderCreator dataVoltageRegulationHolderCreator = new DataVoltageRegulationHolderCreator(vscId,
+            RegulationMode.VOLTAGE,
+            true,
+            24,
+            Double.NaN,
+            10.0,
+            true);
+        VoltageSourceConverter voltageSourceConverter = createVoltageSourceConverter(dataVoltageRegulationHolderCreator);
+        this.testNotifyCommon(voltageSourceConverter, vscId);
     }
 
     private static void assertPccTerminalAndVoltageRegulationTerminal(Terminal expectedTerminal, int expectedTargetValue, VoltageSourceConverter voltageSourceConverter) {
@@ -284,6 +296,7 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
                 .withTerminal(dataVoltageRegulationHolderCreator.remoteTerminal() ? remoteTerminal : null)
                 .add();
         }
+        adder.setPccTerminal(dataVoltageRegulationHolderCreator.remoteTerminal() ? remoteTerminal : null);
         return adder.add();
     }
 }
