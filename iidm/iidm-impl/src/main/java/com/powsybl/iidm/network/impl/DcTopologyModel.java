@@ -85,7 +85,9 @@ class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void edgeAdded(int e, DcSwitchImpl obj) {
-                invalidateCache();
+                // unlike DcConnectables, a DcSwitch has no DcTerminal
+                // whose attach would invalidate all variants.
+                invalidateAllVariantsCache();
             }
 
             @Override
@@ -95,7 +97,9 @@ class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void edgeRemoved(int e, DcSwitchImpl obj) {
-                invalidateCache();
+                // unlike DcConnectables, a DcSwitch has no DcTerminal
+                // whose attach would invalidate all variants.
+                invalidateAllVariantsCache();
             }
 
             @Override
@@ -105,7 +109,8 @@ class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void allEdgesRemoved(Collection<DcSwitchImpl> obj) {
-                invalidateCache();
+                // Handle the DcSwitch case.
+                invalidateAllVariantsCache();
             }
         });
     }

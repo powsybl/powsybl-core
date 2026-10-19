@@ -113,6 +113,33 @@ public abstract class AbstractDcTopologyTest {
     }
 
     @Test
+    public void testDcSwitchRemovalAndAdditionInvalidateAllVariants() {
+        // dcNode1 -- [dcSwitch closed, R=0.125] -- dcNode2, no DcTerminal at all
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v1");
+        // compute the cache of the initial variant
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+
+        // removing the switch from v1 removes the buses in all variants
+        variantManager.setWorkingVariant("v1");
+        network.getDcSwitch("dcSwitch").remove();
+        assertDcBusesAre(network, List.of()); // also computes the cache of v1
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertDcBusesAre(network, List.of());
+
+        // adding a closed resistive switch from the initial variant creates the buses in all variants
+        network.newDcSwitch().setId("dcSwitch")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setOpen(false)
+                .setR(0.125)
+                .setDcNode1("dcNode1").setDcNode2("dcNode2")
+                .add();
+        variantManager.setWorkingVariant("v1");
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+    }
+
+    @Test
     public void testDcComponentsRespectSwitchOpenState() {
         Network network = DcDetailedNetworkFactory.createSimple4NodesDcLinesSwitchLine();
         // n1 -- dcLine1 -- n2 -- [dcSwitch closed, R=0.1] -- n3 -- dcLine2 -- n4
