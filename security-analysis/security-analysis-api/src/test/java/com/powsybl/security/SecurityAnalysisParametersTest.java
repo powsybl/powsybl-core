@@ -11,6 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.security.SecurityAnalysisParameters.ModifiedMonitoredElementsParameters;
 import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.DummyExtension;
 import org.junit.jupiter.api.Test;
@@ -148,5 +149,55 @@ class SecurityAnalysisParametersTest {
 
         monitored.setVoltageModificationAbsoluteThreshold(30.0);
         assertEquals(30.0, monitored.getVoltageModificationThreshold(400.0), EPS);
+    }
+
+    @Test
+    void testCopy() {
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters()
+                .setIntermediateResultsInOperatorStrategy(true)
+                .setDebugDir("/tmp/debugDir");
+        parameters.getLoadFlowParameters().setDc(true);
+        parameters.getIncreasedViolationsParameters()
+                .setFlowProportionalThreshold(0.01)
+                .setLowVoltageProportionalThreshold(0.1)
+                .setHighVoltageProportionalThreshold(0.2)
+                .setLowVoltageAbsoluteThreshold(4.0)
+                .setHighVoltageAbsoluteThreshold(5.0);
+        parameters.getModifiedMonitoredElementsParameters()
+                .setPowerModificationThreshold(0.3)
+                .setVoltageModificationProportionalThreshold(0.4)
+                .setVoltageModificationAbsoluteThreshold(6.0);
+
+        SecurityAnalysisParameters copy = parameters.copy();
+        assertNotSame(parameters, copy);
+        assertTrue(copy.getIntermediateResultsInOperatorStrategy());
+        assertEquals("/tmp/debugDir", copy.getDebugDir());
+        assertNotSame(parameters.getLoadFlowParameters(), copy.getLoadFlowParameters());
+        assertTrue(copy.getLoadFlowParameters().isDc());
+        assertNotSame(parameters.getIncreasedViolationsParameters(), copy.getIncreasedViolationsParameters());
+        assertEquals(0.01, copy.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.1, copy.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.2, copy.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(4.0, copy.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(5.0, copy.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+        assertNotSame(parameters.getModifiedMonitoredElementsParameters(), copy.getModifiedMonitoredElementsParameters());
+        assertEquals(0.3, copy.getModifiedMonitoredElementsParameters().getPowerModificationThreshold(), EPS);
+        assertEquals(0.4, copy.getModifiedMonitoredElementsParameters().getVoltageModificationProportionalThreshold(), EPS);
+        assertEquals(6.0, copy.getModifiedMonitoredElementsParameters().getVoltageModificationAbsoluteThreshold(), EPS);
+        assertTrue(copy.getExtensions().isEmpty());
+    }
+
+    @Test
+    void testCopyWithExtension() {
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        DummyExtension dummyExtension = new DummyExtension();
+        parameters.addExtension(DummyExtension.class, dummyExtension);
+
+        SecurityAnalysisParameters copy = parameters.copy();
+        assertEquals(1, copy.getExtensions().size());
+        Extension<SecurityAnalysisParameters> copiedExt = copy.getExtensionByName("dummy-extension");
+        assertNotSame(dummyExtension, copiedExt);
+        assertSame(parameters, dummyExtension.getExtendable());
+        assertSame(copy, copiedExt.getExtendable());
     }
 }
