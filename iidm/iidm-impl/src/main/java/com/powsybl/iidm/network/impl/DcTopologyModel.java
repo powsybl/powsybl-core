@@ -227,7 +227,7 @@ class DcTopologyModel implements MultiVariantObject {
     /**
      * DcBus topology calculated from DcNode-s and DcSwitch-es
      */
-    class CalculatedDcBusTopology {
+    private final class CalculatedDcBusTopology {
 
         private static boolean isDcBusValid(List<DcNodeImpl> dcNodes, Set<String> resistiveSwitchEndIds) {
             // DcBus is valid if at least one DcTerminal is connected, or if one of its DcNodes
@@ -263,6 +263,7 @@ class DcTopologyModel implements MultiVariantObject {
                 return variants.get().cache;
             }
 
+            // DcBus id -> DcBus
             Map<String, DcBusImpl> dcBuses = new LinkedHashMap<>();
 
             // mapping between DC nodes ID and DC buses
@@ -318,7 +319,7 @@ class DcTopologyModel implements MultiVariantObject {
 
     }
 
-    final CalculatedDcBusTopology calculatedDcBusTopology
+    private final CalculatedDcBusTopology calculatedDcBusTopology
             = new CalculatedDcBusTopology();
 
     private static final class VariantImpl implements Variant {
