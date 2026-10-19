@@ -537,6 +537,24 @@ public abstract class AbstractGeneratorTest {
         assertTrue(generator.isEquivalent());
     }
 
+    @Test
+    void testSignOnRemoteReactiveMode() {
+        Terminal remoteTerminal = network.getGenerator("CB").getTerminal();
+        double localTargetQ = 40.0;
+        double remoteTargetQGeneratorSignConvention = 10.0;
+        Generator generator = createGenerator("generator_remoteReactive", EnergySource.OTHER, 20.0, 10., 2.0,
+            15.0, localTargetQ, true, 2.0);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(-remoteTargetQGeneratorSignConvention)
+            .build();
+
+        assertEquals(localTargetQ, generator.getLocalTargetQ());
+        assertEquals(-remoteTargetQGeneratorSignConvention, generator.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQGeneratorSignConvention, generator.getRegulatingTargetQ());
+    }
+
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
                                       double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
         return createGeneratorAdder(id, source, maxP, minP, ratedS, activePowerSetpoint, reactivePowerSetpoint, regulatorOn, voltageSetpoint)

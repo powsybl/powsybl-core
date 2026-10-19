@@ -112,7 +112,7 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
                     if (regulationMode == RegulationMode.VOLTAGE) {
                         VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetV(), holder -> holder.setLocalTargetV(Double.NaN), context);
                     } else if (regulationMode == RegulationMode.REACTIVE_POWER) {
-                        VoltageRegulationSerDe.storeExtraProperties(vsc, vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
+                        VoltageRegulationSerDe.storeExtraProperties(vsc, -vsc.getLocalTargetQ(), holder -> holder.setLocalTargetQ(Double.NaN), context);
                     }
                 });
             }

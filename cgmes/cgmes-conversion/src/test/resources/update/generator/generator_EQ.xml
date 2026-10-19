@@ -109,4 +109,47 @@
         <cim:Terminal.ConductingEquipment rdf:resource="#_ExternalNetworkInjection" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
+
+    <cim:SynchronousMachine rdf:ID="_SynchronousMachineWithoutRegulatingControl">
+        <cim:IdentifiedObject.name>SynchronousMachineWithoutRegulatingControl</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+        <cim:SynchronousMachine.r0>0</cim:SynchronousMachine.r0>
+        <cim:SynchronousMachine.r2>0</cim:SynchronousMachine.r2>
+        <cim:SynchronousMachine.satDirectSubtransX>0</cim:SynchronousMachine.satDirectSubtransX>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator" />
+        <cim:SynchronousMachine.x0>0</cim:SynchronousMachine.x0>
+        <cim:SynchronousMachine.x2>0</cim:SynchronousMachine.x2>
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_SynchronousMachineWithoutRegulatingControl-GeneratingUnit" />
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:ID="_SynchronousMachineWithoutRegulatingControl_T">
+        <cim:IdentifiedObject.name>SynchronousMachineWithoutRegulatingControl_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SynchronousMachineWithoutRegulatingControl" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:ThermalGeneratingUnit rdf:ID="_SynchronousMachineWithoutRegulatingControl-GeneratingUnit">
+        <cim:IdentifiedObject.name>SynchronousMachineWithoutRegulatingControl-GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="##_VoltageLevel1" />
+        <cim:GeneratingUnit.genControlSource rdf:resource="http://iec.ch/TC57/CIM100#GeneratorControlSource.offAGC" />
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.nominalP>100</cim:GeneratingUnit.nominalP>
+    </cim:ThermalGeneratingUnit>
+
+    <cim:EquivalentInjection rdf:ID="_EquivalentInjectionWithRegulationCapability">
+        <cim:IdentifiedObject.name>EquivalentInjectionWithRegulationCapability</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>true</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_EquivalentInjectionWithRegulationCapability_T">
+        <cim:IdentifiedObject.name>EquivalentInjectionWithRegulationCapability_T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentInjectionWithRegulationCapability" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
 </rdf:RDF>
