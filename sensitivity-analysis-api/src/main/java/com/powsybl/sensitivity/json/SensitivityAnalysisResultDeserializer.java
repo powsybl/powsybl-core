@@ -34,7 +34,6 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
     private final transient JsonDeserializer<Object> factorsDeserializer;
     private final transient JsonDeserializer<Object> sensitivityValuesDeserializer;
     private final transient JsonDeserializer<Object> stateStatusDeserializer;
-    //TODO both are deserializer on strings, could we use the same ?
     private final transient JsonDeserializer<Object> contingencyIdsDeserializer;
     private final transient JsonDeserializer<Object> operatorStrategyIdsDeserializer;
 

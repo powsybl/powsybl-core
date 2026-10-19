@@ -91,8 +91,8 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "limitType":
-                    //TODO should we add a JsonUtil.readEnum to manage the case where the text value is null?
-                    limitType = LimitViolationType.valueOf(parser.nextTextValue());
+                    String limitTypeTextValue = parser.nextTextValue();
+                    limitType = limitTypeTextValue != null ? LimitViolationType.valueOf(limitTypeTextValue) : null;
                     break;
 
                 case "limitName":
