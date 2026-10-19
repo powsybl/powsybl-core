@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
@@ -153,7 +152,7 @@ public final class VoltageRegulationSerDe {
     /**
      * Store the given target value and runnable as extra properties for the holder
      * @param voltageRegulationHolder The voltage regulation holder (also an {@link Identifiable})
-     * @param targetValue the target value
+     * @param targetValue the target value. In the reactive power case, in load sign convention
      * @param actionOnHolder the action to run on the voltage regulation holder
      * @param context the deserialization context
      * @param <T> the class of the voltage regulation holder (at the same time a {@link VoltageRegulationHolder} and an {@link Identifiable})
@@ -181,42 +180,26 @@ public final class VoltageRegulationSerDe {
     private static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void actionToSetTerminal(NetworkDeserializerContext context, TerminalRefSerDe.TerminalData terminalData, T holder) {
         Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), holder.getNetwork());
         VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
-        if (voltageRegulation == null) {
-            if (holder instanceof Generator generator) {
-                // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
-                // without using an extension (RemoteReactivePowerControl)
-                // The VoltageRegulation object will be updated later if the extension is discovered.
-                buildRemoteVoltageRegulationOffForGenerator(context, generator, terminal);
-            } else {
-                holder.newVoltageRegulation()
-                    .withTargetValue(holder.getLocalTargetQ())
-                    .withTerminal(terminal)
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .build();
-                holder.setLocalTargetQ(Double.NaN);
-            }
-        } else {
-            Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
-            double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
-            voltageRegulation.setTerminal(terminal, targetValue);
-            extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(holder));
-            context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
-        }
-    }
-
-    private static void buildRemoteVoltageRegulationOffForGenerator(NetworkDeserializerContext context,
-                                                                    Generator generator,
-                                                                    Terminal terminal) {
-        Optional<ExtraProperties> extraProperties = context.getExtraProperties(generator, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
+        Optional<ExtraProperties> extraProperties = context.getExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY, ExtraProperties.class);
         double targetValue = extraProperties.map(ExtraProperties::targetValue).orElse(Double.NaN);
-        extraProperties.map(ExtraProperties::actionOnHolder).ifPresent(c -> c.accept(generator));
-        context.removeExtraProperties(generator, EXTRA_PROPERTIES_PROCESS_KEY);
-        generator.newVoltageRegulation()
-            .withTargetValue(targetValue)
-            .withTerminal(terminal)
-            .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(false)
-            .build();
+        Optional<Consumer> actionOnHolder = extraProperties.map(ExtraProperties::actionOnHolder);
+        context.removeExtraProperties(holder, EXTRA_PROPERTIES_PROCESS_KEY);
+
+        if (voltageRegulation == null) {
+            // In IIDM versions <= 1.17, it was not possible to set the generator in remote reactive power
+            // without using an extension (RemoteReactivePowerControl)
+            // The VoltageRegulation object will be updated later if the extension is discovered.
+            // For other equipment, the VoltageRegulation object is also created with the VOLTAGE mode and regulating set to false.
+            holder.newVoltageRegulation()
+                .withTargetValue(targetValue)
+                .withTerminal(terminal)
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        } else {
+            voltageRegulation.setTerminal(terminal, targetValue);
+        }
+        actionOnHolder.ifPresent(c -> c.accept(holder));
     }
 
     private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace) {

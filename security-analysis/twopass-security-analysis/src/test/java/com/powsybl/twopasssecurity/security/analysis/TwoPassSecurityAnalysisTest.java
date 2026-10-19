@@ -66,16 +66,12 @@ class TwoPassSecurityAnalysisTest {
         when(firstProvider.getName()).thenReturn("FirstProvider");
         secondProvider = mock(SecurityAnalysisProvider.class);
         when(secondProvider.getName()).thenReturn("SecondProvider");
-
-        TwoPassSecurityAnalysisParameters extension = new TwoPassSecurityAnalysisParameters()
-                .setFirstProviderName("FirstProvider")
-                .setSecondProviderName("SecondProvider");
         contingency1 = new Contingency("contingency-1");
         contingency2 = new Contingency("contingency-2");
 
         workingVariantId = network.getVariantManager().getWorkingVariantId();
         twoPassSecurityAnalysis = new TwoPassSecurityAnalysis(network, workingVariantId, contingenciesProvider,
-                runParameters, extension, firstProvider, secondProvider);
+                runParameters, firstProvider, secondProvider);
     }
 
     @Test
@@ -239,30 +235,43 @@ class TwoPassSecurityAnalysisTest {
 
     @Test
     void testConstructorWithServiceLoader() {
-        TwoPassSecurityAnalysisParameters extension = createExtension("NonExistentProvider1", "NonExistentProvider2");
+        TwoPassSecurityAnalysisParameters parameters = createParameters("NonExistentProvider1", "NonExistentProvider2");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 new TwoPassSecurityAnalysis(network, workingVariantId,
-                        contingenciesProvider, runParameters, extension));
+                        contingenciesProvider, runParameters, parameters));
 
         assertEquals("Security analysis provider 'NonExistentProvider1' not found by ServiceLoader.", exception.getMessage());
     }
 
     @Test
     void testConstructorRequiresProviders() {
-        TwoPassSecurityAnalysisParameters extension = createExtension("FirstProvider", "SecondProvider");
-
         NullPointerException firstProviderException = assertThrows(NullPointerException.class, () ->
                 new TwoPassSecurityAnalysis(network, workingVariantId,
-                        contingenciesProvider, runParameters, extension,
+                        contingenciesProvider, runParameters,
                         null, secondProvider));
         assertEquals("First provider is required", firstProviderException.getMessage());
 
         NullPointerException secondProviderException = assertThrows(NullPointerException.class, () ->
                 new TwoPassSecurityAnalysis(network, workingVariantId,
-                        contingenciesProvider, runParameters, extension,
+                        contingenciesProvider, runParameters,
                         firstProvider, null));
         assertEquals("Second provider is required", secondProviderException.getMessage());
+    }
+
+    @Test
+    void testTwoPassSecurityAnalysisProviderCannotBeUsedAsFirstOrSecondProvider() {
+        String expectedErrorMsg = "'TwoPassSecurityAnalysis' provider cannot be used as first or second provider for the 2-pass security analysis.";
+        TwoPassSecurityAnalysisProvider twoPassSaProvider = new TwoPassSecurityAnalysisProvider();
+        IllegalArgumentException firstProviderException = assertThrows(IllegalArgumentException.class, () ->
+                new TwoPassSecurityAnalysis(network, workingVariantId, contingenciesProvider, runParameters,
+                        twoPassSaProvider, secondProvider));
+        assertEquals(expectedErrorMsg, firstProviderException.getMessage());
+
+        IllegalArgumentException secondProviderException = assertThrows(IllegalArgumentException.class, () ->
+                new TwoPassSecurityAnalysis(network, workingVariantId, contingenciesProvider, runParameters,
+                        firstProvider, twoPassSaProvider));
+        assertEquals(expectedErrorMsg, secondProviderException.getMessage());
     }
 
     @Test
@@ -360,7 +369,7 @@ class TwoPassSecurityAnalysisTest {
         return createPostContingencyResult(contingency, status, violationCount);
     }
 
-    private static TwoPassSecurityAnalysisParameters createExtension(String firstProviderName, String secondProviderName) {
+    private static TwoPassSecurityAnalysisParameters createParameters(String firstProviderName, String secondProviderName) {
         return new TwoPassSecurityAnalysisParameters()
                 .setFirstProviderName(firstProviderName)
                 .setSecondProviderName(secondProviderName);
