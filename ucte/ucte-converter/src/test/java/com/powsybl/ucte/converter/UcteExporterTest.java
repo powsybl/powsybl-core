@@ -351,7 +351,7 @@ class UcteExporterTest extends AbstractSerDeTest {
      * {@link UcteExporterTestNetworks#createWithMultipleInjections()} for the cases.
      */
     @Test
-    void testExportMultipleInjectionsAggregation() throws IOException {
+    void testExportMultipleInjectionsAggregation() {
         Network network = UcteExporterTestNetworks.createWithMultipleInjections();
 
         assertTxtEquals("""
@@ -381,7 +381,7 @@ class UcteExporterTest extends AbstractSerDeTest {
      * the largest targetP is kept (smallest id on ties). See {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases.
      */
     @Test
-    void testExportMultipleGeneratorsVoltageReference() throws IOException {
+    void testExportMultipleGeneratorsVoltageReference() {
         Network network = UcteExporterTestNetworks.createWithMultipleVoltageTargets();
 
         assertTxtEquals("""
