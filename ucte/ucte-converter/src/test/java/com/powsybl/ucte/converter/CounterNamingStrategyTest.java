@@ -253,14 +253,9 @@ class CounterNamingStrategyTest {
     }
 
     @Test
-    void isolatedOrphanVoltageLevelIsExcluded() {
-        network.getSubstation("P2").setCountry(Country.BE);
-        VoltageLevel orphan = network.newVoltageLevel()
-                .setId("ORPHAN_VL")
-                .setNominalV(380)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        orphan.getBusBreakerView().newBus().setId("ORPHAN_BUS").add();
+    void orphanVoltageLevels() {
+        // Two countries: the isolated orphan can't be given the single country of the network
+        UcteExporterTestNetworks.addLinkedAndIsolatedOrphans(network);
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("testExportReportNode")
@@ -268,37 +263,15 @@ class CounterNamingStrategyTest {
 
         strategy.initializeNetwork(network, reportNode);
 
-        assertFalse(strategy.getExportedVoltageLevels().isExported(orphan));
-        assertTrue(strategy.getExportedVoltageLevels().isExported(network.getVoltageLevel("VLHV1")));
-        assertThrows(UcteException.class, () -> strategy.getUcteNodeCode("ORPHAN_BUS"));
-        assertEquals("Voltage level ORPHAN_VL is connected to no substation and holds no equipment: it is not exported",
-                reportNode.getChildren().get(0).getMessage());
-    }
-
-    @Test
-    void orphanVoltageLevelGetsNeighbourCountry() {
-        VoltageLevel orphan = network.newVoltageLevel()
-                .setId("ORPHAN_VL")
-                .setNominalV(380)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        orphan.getBusBreakerView().newBus().setId("ORPHAN_BUS").add();
-        network.newLine()
-                .setId("NHV1_ORPHAN")
-                .setVoltageLevel1("VLHV1")
-                .setBus1("NHV1")
-                .setConnectableBus1("NHV1")
-                .setVoltageLevel2("ORPHAN_VL")
-                .setBus2("ORPHAN_BUS")
-                .setConnectableBus2("ORPHAN_BUS")
-                .setR(1)
-                .setX(10)
-                .add();
-
-        strategy.initializeNetwork(network);
-
-        UcteNodeCode code = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("ORPHAN_BUS"));
+        // The orphan linked to NHV1 gets the country of VLHV1
+        UcteNodeCode code = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("BUS_LINKED_1"));
         assertEquals(UcteCountryCode.FR, code.getUcteCountryCode());
-        assertDoesNotThrow(() -> strategy.getUcteElementId("NHV1_ORPHAN"));
+        assertDoesNotThrow(() -> strategy.getUcteElementId("BR_NHV1_BUS_LINKED_1"));
+        // The isolated orphan without equipment is excluded
+        assertFalse(strategy.getExportedVoltageLevels().isExported(network.getVoltageLevel("VL_ISOLATED")));
+        assertTrue(strategy.getExportedVoltageLevels().isExported(network.getVoltageLevel("VLHV1")));
+        assertThrows(UcteException.class, () -> strategy.getUcteNodeCode("BUS_ISOLATED_1"));
+        assertEquals("Voltage level VL_ISOLATED is connected to no substation and holds no equipment: it is not exported",
+                reportNode.getChildren().get(0).getMessage());
     }
 }
