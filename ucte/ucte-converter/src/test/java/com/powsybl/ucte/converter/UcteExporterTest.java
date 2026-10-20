@@ -540,7 +540,7 @@ class UcteExporterTest extends AbstractSerDeTest {
      * {@link UcteExporterTestNetworks#createWithTapChangers()} for the cases.
      */
     @Test
-    void testExportTapChangers() throws IOException {
+    void testExportTapChangers() {
         Network network = UcteExporterTestNetworks.createWithTapChangers();
 
         assertTxtEquals("""
