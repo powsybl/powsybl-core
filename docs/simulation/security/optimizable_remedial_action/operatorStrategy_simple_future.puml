@@ -23,16 +23,6 @@ note right of ConditionalActions::applicationDelay
 end note
 
 interface Condition
-Condition <|-- AndCondition
-Condition <|-- OrCondition
-
-class AndCondition {
-  + Set<Condition> conditions
-}
-
-class OrCondition {
-  + Set<Condition> conditions
-}
 
 class ContingencyContext {
   - ContingencyContextType contextType
@@ -56,6 +46,16 @@ interface Action {
 'end namespace existingPowSyBlModel
 }
 
+class AndCondition {
+  + Set<Condition> conditions
+}
+
+class OrCondition {
+  + Set<Condition> conditions
+}
+
+Condition <|-- AndCondition
+Condition <|-- OrCondition
 Condition <|-- AnyViolationInCountryCondition
 
 
@@ -67,13 +67,9 @@ class AnyViolationInCountryCondition {
 
 interface OptimizableRemedialAction {
   - String id
-  - Condition condition
-  - ContingencyContext contingencyContext
-  - Optional<Integer> applicationDelay
+  - RemedialActionContext remedialActionContext
   - Optional<ExtraTemporalContraints> extraTemporalContraints
 }
-OptimizableRemedialAction --* "1" Condition
-OptimizableRemedialAction --* "1" ContingencyContext
 OptimizableRemedialAction <|-- BinaryRemedialAction
 
 class BinaryRemedialAction {
@@ -81,6 +77,11 @@ class BinaryRemedialAction {
   + Set<Action> toActions()
 }
 BinaryRemedialAction --* "*" Action
+
+enum OffsetType {
+    FROM_ZERO
+    FROM_INITIAL
+}
 
 namespace rangeRemedialAction {
 interface RangeRemedialAction {
@@ -133,10 +134,12 @@ LoadRangeAction -up-|> RangeAction
 }
 }
 class Step {
- - boolean isOffsetRelative
  - double value
  - double offset = 0
+ - OffsetType offsetType
 }
+Step --* "1" OffsetType
+
 RangeRemedialAction --* "1" Step
 note top of Step
  Links to optimisation
@@ -237,5 +240,14 @@ note right of VariableConstraints::canStartUpShutDownBalancing
   Example: start/end balancing on round hours
 end note
 }
+
+class RemedialActionContext {
+- ContingencyContext contingencyContext
+- Condition condition
+- Optional<Double> applicationDelay
+}
+OptimizableRemedialAction --* "1" RemedialActionContext
+RemedialActionContext --* "1" Condition
+RemedialActionContext --* "1" ContingencyContext
 
 @enduml
