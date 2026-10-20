@@ -153,7 +153,18 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     public void setParticipationFactor(double participationFactor) {
-        this.participationFactor.set(getVariantIndex(), participationFactor);
+        int variantIndex = getVariantIndex();
+        double oldParticipationFactor = this.participationFactor.get(variantIndex);
+        if (Double.compare(oldParticipationFactor, participationFactor) != 0) {
+            this.participationFactor.set(variantIndex, participationFactor);
+            notifyUpdate("participationFactor", oldParticipationFactor, participationFactor);
+        }
+    }
+
+    private void notifyUpdate(String attribute, double oldValue, double newValue) {
+        NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
+        String variantId = getVariantManagerHolder().getVariantManager().getWorkingVariantId();
+        network.getListeners().notifyExtensionUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -193,8 +204,13 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     @Override
     public void setMinTargetP(double minTargetP) {
-        checkLimitOrder(minTargetP, maxTargetP.get(getVariantIndex()));
-        this.minTargetP.set(getVariantIndex(), checkTargetPLimit(minTargetP, "minTargetP", getExtendable()));
+        int variantIndex = getVariantIndex();
+        checkLimitOrder(minTargetP, maxTargetP.get(variantIndex));
+        double oldMinTargetP = this.minTargetP.get(variantIndex);
+        this.minTargetP.set(variantIndex, checkTargetPLimit(minTargetP, "minTargetP", getExtendable()));
+        if (Double.compare(oldMinTargetP, minTargetP) != 0) {
+            notifyUpdate("minTargetP", oldMinTargetP, minTargetP);
+        }
     }
 
     @Override
@@ -205,7 +221,12 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     @Override
     public void setMaxTargetP(double maxTargetP) {
-        checkLimitOrder(minTargetP.get(getVariantIndex()), maxTargetP);
-        this.maxTargetP.set(getVariantIndex(), checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable()));
+        int variantIndex = getVariantIndex();
+        checkLimitOrder(minTargetP.get(variantIndex), maxTargetP);
+        double oldMaxTargetP = this.maxTargetP.get(variantIndex);
+        this.maxTargetP.set(variantIndex, checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable()));
+        if (Double.compare(oldMaxTargetP, maxTargetP) != 0) {
+            notifyUpdate("maxTargetP", oldMaxTargetP, maxTargetP);
+        }
     }
 }
