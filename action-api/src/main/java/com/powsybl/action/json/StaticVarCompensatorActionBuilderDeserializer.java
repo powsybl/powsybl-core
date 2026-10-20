@@ -10,7 +10,7 @@ package com.powsybl.action.json;
 import com.powsybl.action.StaticVarCompensatorAction;
 import com.powsybl.action.StaticVarCompensatorActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DatabindException;
@@ -47,7 +47,7 @@ public class StaticVarCompensatorActionBuilderDeserializer extends StdDeserializ
                 builder.withStaticVarCompensatorId(jsonParser.nextStringValue());
                 return true;
             case "regulationMode":
-                builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(jsonParser.nextStringValue()));
+                builder.withRegulationMode(RegulationMode.valueOf(jsonParser.nextStringValue()));
                 return true;
             case "voltageSetpoint":
                 jsonParser.nextToken();

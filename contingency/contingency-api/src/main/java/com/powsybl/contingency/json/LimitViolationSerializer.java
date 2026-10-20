@@ -42,7 +42,7 @@ public class LimitViolationSerializer extends StdSerializer<LimitViolation> {
         JsonUtil.writeOptionalStringProperty(jsonGenerator, "limitName", limitViolation.getLimitName());
         JsonUtil.writeOptionalIntegerProperty(jsonGenerator, "acceptableDuration", limitViolation.getAcceptableDuration());
         jsonGenerator.writeNumberProperty("limit", limitViolation.getLimit());
-        jsonGenerator.writeNumberProperty("limitReduction", limitViolation.getLimitReduction());
+        jsonGenerator.writeNumberProperty("limitScaling", limitViolation.getLimitScaling());
         jsonGenerator.writeNumberProperty("value", limitViolation.getValue());
         JsonUtil.writeOptionalEnumProperty(jsonGenerator, "side", limitViolation.getSide());
 

@@ -79,15 +79,15 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
             assertNotNull(line1BranchObservability2);
 
             assertEquals(line1BranchObservability.isObservable(), line1BranchObservability2.isObservable());
-            assertEquals(line1BranchObservability.getQualityP1().getStandardDeviation(), line1BranchObservability2.getQualityP1().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityP1().isRedundant(), line1BranchObservability2.getQualityP1().isRedundant());
-            assertEquals(line1BranchObservability.getQualityP2().getStandardDeviation(), line1BranchObservability2.getQualityP2().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityP2().isRedundant(), line1BranchObservability2.getQualityP2().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityP1().getStandardDeviation(), line1BranchObservability2.getNullableQualityP1().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityP1().isRedundant(), line1BranchObservability2.getNullableQualityP1().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityP2().getStandardDeviation(), line1BranchObservability2.getNullableQualityP2().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityP2().isRedundant(), line1BranchObservability2.getNullableQualityP2().isRedundant());
 
-            assertEquals(line1BranchObservability.getQualityQ1().getStandardDeviation(), line1BranchObservability2.getQualityQ1().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityQ1().isRedundant(), line1BranchObservability2.getQualityQ1().isRedundant());
-            assertEquals(line1BranchObservability.getQualityQ2().getStandardDeviation(), line1BranchObservability2.getQualityQ2().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityQ2().isRedundant(), line1BranchObservability2.getQualityQ2().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityQ1().getStandardDeviation(), line1BranchObservability2.getNullableQualityQ1().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityQ1().isRedundant(), line1BranchObservability2.getNullableQualityQ1().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityQ2().getStandardDeviation(), line1BranchObservability2.getNullableQualityQ2().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityQ2().isRedundant(), line1BranchObservability2.getNullableQualityQ2().isRedundant());
 
             assertEquals(line1BranchObservability.getName(), line1BranchObservability2.getName());
 
@@ -101,10 +101,10 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
                     .getExtension(BranchObservability.class);
             assertNotNull(transfoObs);
             assertTrue(transfoObs.isObservable());
-            assertNull(transfoObs.getQualityP1());
-            assertNull(transfoObs.getQualityP2());
-            assertNull(transfoObs.getQualityQ1());
-            assertNull(transfoObs.getQualityQ2());
+            assertNull(transfoObs.getNullableQualityP1());
+            assertNull(transfoObs.getNullableQualityP2());
+            assertNull(transfoObs.getNullableQualityQ1());
+            assertNull(transfoObs.getNullableQualityQ2());
         }
     }
 
