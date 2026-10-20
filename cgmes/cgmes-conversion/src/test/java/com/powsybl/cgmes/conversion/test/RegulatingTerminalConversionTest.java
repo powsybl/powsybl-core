@@ -121,6 +121,14 @@ class RegulatingTerminalConversionTest {
         assertSame(IdentifiableType.LOAD, generator.getRegulatingTerminal().getConnectable().getType());
     }
 
+    @Test
+    void busBranchRegulatingControlOnDisconnectedBusbarSectionTest() {
+        Network network = readCgmesResources("/", "regulating-terminal-on-bbs-busbreaker_EQ.xml", "regulating-terminal-on-bbs-busbreaker_TP.xml");
+        Generator generator = network.getGenerator("sm");
+        assertNotNull(generator);
+        assertNull(generator.getVoltageRegulation());
+    }
+
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
         config.setConvertSvInjections(true);
         return ConversionUtil.networkModel(testGridModel, config);

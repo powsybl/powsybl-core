@@ -314,7 +314,28 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
 
 <span style="color: red">TODO reactive limits</span>
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+In CGMES, a `SynchronousMachine` can be associated with a `RegulatingControl` via `RegulatingCondEq.RegulatingControl`. The regulation is mapped to a PowSyBl [`VoltageRegulation`](../../grid_model/network_subnetwork.md#voltage-regulation) on the generator:
+
+- **Voltage regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.voltage`):
+  - The regulation mode is set to `VOLTAGE`.
+  - The regulating terminal is mapped from `RegulatingControl.Terminal`:
+    - If mapped to the generator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
+    - If mapped to another terminal, it is configured as a remote regulating terminal.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch 
+    topology import if the regulating control is defined on a busbar section that is disconnected or not imported), no regulation object is created for the generator.
+  - In the SSH profile:
+    - The target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`.
+    - The target deadband is copied from `RegulatingControl.targetDeadband` if defined.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled`.
+
+- **Reactive power regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.reactivePower`):
+  - The regulation mode is set to `REACTIVE_POWER`.
+  - The regulating terminal is mapped for flow control. If the terminal is unmapped or mapped to a switch without a valid terminal, the regulating control is ignored.
+  - In the SSH profile:
+    - The target reactive power flow is set from `RegulatingControl.targetValue`.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled`.
 
 <span style="color: red">TODO normalPF</span>
 
