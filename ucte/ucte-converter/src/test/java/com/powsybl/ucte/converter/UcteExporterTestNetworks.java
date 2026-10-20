@@ -11,15 +11,18 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.SubstationAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.network.UcteCountryCode;
 
 import java.time.ZonedDateTime;
 
@@ -468,5 +471,371 @@ public final class UcteExporterTestNetworks {
             adder.beginStep().setAlpha(alphas[i]).setRho(rhos[i]).endStep();
         }
         adder.add();
+    }
+
+    /**
+     * Ids of the networks with voltage levels without substation ("orphans"), mimicking CGMES imports: valid UCTE
+     * codes (for the Default naming strategy) or free ids (Counter naming strategy).
+     * All their voltage levels are 380 kV. Substation "S_&lt;name&gt;" holds voltage level "VL_&lt;name&gt;"; orphan
+     * voltage levels are named "VL_&lt;name&gt;".
+     */
+    enum Ids {
+        UCTE,
+        FREE;
+
+        /**
+         * Build the id of a bus: {@code <country code><name>1<busbar>} for UCTE ids, {@code BUS_<name>_<busbar>} for
+         * free ids.
+         *
+         * @param country the country of the bus, only used for UCTE ids
+         * @param name the name of the bus, 5 characters
+         * @param busbar the busbar character, last character of UCTE ids
+         * @return the bus id
+         * @throws com.powsybl.ucte.network.UcteException if {@code country} has no UCTE country code, for UCTE ids
+         */
+        String bus(Country country, String name, char busbar) {
+            return this == UCTE
+                    ? UcteCountryCode.fromCountry(country).getUcteCode() + name + "1" + busbar
+                    : "BUS_" + name + "_" + busbar;
+        }
+
+        /**
+         * Build the id of a branch: {@code <bus1> <bus2> 1} for UCTE ids, {@code BR_<bus1>_<bus2>} for free ids.
+         *
+         * @param bus1 the id of the bus on side 1
+         * @param bus2 the id of the bus on side 2
+         * @return the branch id
+         */
+        String branch(String bus1, String bus2) {
+            return this == UCTE ? bus1 + " " + bus2 + " 1" : "BR_" + bus1 + "_" + bus2;
+        }
+    }
+
+    /**
+     * Create a network with voltage levels without substation, one per topology met in CGMES imports, around
+     * substations {@code AAAAA}, {@code BBBBB}, {@code CCCCC} (NL) and {@code DDDDD} (BE, unconnected):
+     * <ul>
+     *     <li>{@code TJUNC}: T-line junction, linked to {@code AAAAA}, {@code BBBBB} and {@code CCCCC};</li>
+     *     <li>{@code SEGMT}: chained line segments {@code AAAAA} - {@code SEGMT} bus 1 - {@code SEGMT} bus 2 -
+     *     {@code BBBBB}, both intermediate buses in one voltage level;</li>
+     *     <li>{@code SEGAA}, {@code SEGBB}: chained line segments {@code AAAAA} - {@code SEGAA} - {@code SEGBB} -
+     *     {@code BBBBB}, intermediate buses in two voltage levels;</li>
+     *     <li>{@code ORPHA}: linked to {@code AAAAA}, two buses joined by a closed switch, and load {@code LOAD_ORPHA}
+     *     (p0 = 42, q0 = 7) on bus 1;</li>
+     *     <li>{@code EMPTY}: isolated, one bus and no equipment.</li>
+     * </ul>
+     *
+     * @param ids the kind of ids to use for buses and branches
+     * @return the network
+     */
+    static Network createWithOrphanVoltageLevels(Ids ids) {
+        Network network = newNetwork();
+        String a = addSubstationBus(network, ids, Country.NL, "AAAAA");
+        String b = addSubstationBus(network, ids, Country.NL, "BBBBB");
+        String c = addSubstationBus(network, ids, Country.NL, "CCCCC");
+        addSubstationBus(network, ids, Country.BE, "DDDDD");
+
+        String junction = addBus(addOrphanVoltageLevel(network, "TJUNC"), ids, "TJUNC", '1');
+        addLine(network, ids, a, junction);
+        addLine(network, ids, b, junction);
+        addLine(network, ids, c, junction);
+
+        VoltageLevel segments = addOrphanVoltageLevel(network, "SEGMT");
+        String segment1 = addBus(segments, ids, "SEGMT", '1');
+        String segment2 = addBus(segments, ids, "SEGMT", '2');
+        addLine(network, ids, a, segment1);
+        addLine(network, ids, segment1, segment2);
+        addLine(network, ids, segment2, b);
+
+        String segmentA = addBus(addOrphanVoltageLevel(network, "SEGAA"), ids, "SEGAA", '1');
+        String segmentB = addBus(addOrphanVoltageLevel(network, "SEGBB"), ids, "SEGBB", '1');
+        addLine(network, ids, a, segmentA);
+        addLine(network, ids, segmentA, segmentB);
+        addLine(network, ids, segmentB, b);
+
+        VoltageLevel orphan = addOrphanVoltageLevel(network, "ORPHA");
+        String orphan1 = addBus(orphan, ids, "ORPHA", '1');
+        String orphan2 = addBus(orphan, ids, "ORPHA", '2');
+        orphan.getBusBreakerView().newSwitch()
+                .setId(ids.branch(orphan1, orphan2))
+                .setBus1(orphan1)
+                .setBus2(orphan2)
+                .setOpen(false)
+                .add();
+        addLoad(network, orphan1, "LOAD_ORPHA");
+        addLine(network, ids, a, orphan1);
+
+        addBus(addOrphanVoltageLevel(network, "EMPTY"), ids, "EMPTY", '1');
+        return network;
+    }
+
+    /**
+     * Create a T-line network: substations {@code AAAAA} (NL), {@code BBBBB} and {@code CCCCC} (NL), each linked to the
+     * orphan junction {@code TJUNC}.
+     *
+     * @param ids the kind of ids to use for buses and branches
+     * @param countryB the country of substation {@code BBBBB}, none if null
+     * @return the network
+     */
+    static Network createWithTLine(Ids ids, Country countryB) {
+        Network network = newNetwork();
+        String a = addSubstationBus(network, ids, Country.NL, "AAAAA");
+        String b = addSubstationBus(network, ids, countryB, "BBBBB");
+        String c = addSubstationBus(network, ids, Country.NL, "CCCCC");
+        String junction = addBus(addOrphanVoltageLevel(network, "TJUNC"), ids, "TJUNC", '1');
+        addLine(network, ids, a, junction);
+        addLine(network, ids, b, junction);
+        addLine(network, ids, c, junction);
+        return network;
+    }
+
+    /**
+     * Create a network with free ids, holding substation {@code AAAAA} (NL) and the unconnected orphan voltage level
+     * {@code ALONE}, with load {@code LOAD_ALONE} (p0 = 42, q0 = 7): the network has a single country.
+     *
+     * @return the network
+     */
+    static Network createWithSingleCountryAndUnconnectedOrphan() {
+        Network network = newNetwork();
+        addSubstationBus(network, Ids.FREE, Country.NL, "AAAAA");
+        String alone = addBus(addOrphanVoltageLevel(network, "ALONE"), Ids.FREE, "ALONE", '1');
+        addLoad(network, alone, "LOAD_ALONE");
+        return network;
+    }
+
+    /**
+     * Create a network with free ids, with two countries, and isolated orphan voltage levels holding equipment:
+     * <ul>
+     *     <li>{@code ISOL1} and {@code ISOL2}: linked to each other by a line, load {@code LOAD_ISOL1} on {@code ISOL1};</li>
+     *     <li>{@code XORPH}: boundary line {@code BL_X};</li>
+     *     <li>{@code XTIEL}: boundary line {@code BL_1}, paired with boundary line {@code BL_2} of {@code AAAAA} in tie line
+     *     {@code TL}.</li>
+     * </ul>
+     *
+     * @return the network
+     * @see #createWithTwoCountries()
+     */
+    static Network createWithIsolatedOrphansHoldingEquipment() {
+        Network network = createWithTwoCountries();
+        String i1 = addBus(addOrphanVoltageLevel(network, "ISOL1"), Ids.FREE, "ISOL1", '1');
+        String i2 = addBus(addOrphanVoltageLevel(network, "ISOL2"), Ids.FREE, "ISOL2", '1');
+        addLoad(network, i1, "LOAD_ISOL1");
+        addLine(network, Ids.FREE, i1, i2);
+        VoltageLevel withBoundaryLine = addOrphanVoltageLevel(network, "XORPH");
+        addBus(withBoundaryLine, Ids.FREE, "XORPH", '1');
+        addBoundaryLine(withBoundaryLine, "BL_X", null);
+        VoltageLevel withTieLine = addOrphanVoltageLevel(network, "XTIEL");
+        addBus(withTieLine, Ids.FREE, "XTIEL", '1');
+        addBoundaryLine(withTieLine, "BL_1", "XKEY");
+        addBoundaryLine(network.getVoltageLevel("VL_AAAAA"), "BL_2", "XKEY");
+        network.newTieLine().setId("TL").setBoundaryLine1("BL_1").setBoundaryLine2("BL_2").add();
+        return network;
+    }
+
+    /**
+     * Create a network with free ids, with two countries, and isolated orphan voltage levels without equipment:
+     * bus-breaker {@code VL_EMPTY} holding one bus, and node-breaker {@code VL_NBBBS} holding only busbar section
+     * {@code BBS}.
+     *
+     * @return the network
+     * @see #createWithTwoCountries()
+     */
+    static Network createWithIsolatedOrphansWithoutEquipment() {
+        Network network = createWithTwoCountries();
+        addBus(addOrphanVoltageLevel(network, "EMPTY"), Ids.FREE, "EMPTY", '1');
+        network.newVoltageLevel()
+                .setId("VL_NBBBS")
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add()
+                .getNodeBreakerView().newBusbarSection().setId("BBS").setNode(0).add();
+        return network;
+    }
+
+    /**
+     * Create a network with free ids, holding substations {@code AAAAA} (NL) and {@code BBBBB} (BE), linked by a line.
+     *
+     * @return the network
+     */
+    private static Network createWithTwoCountries() {
+        Network network = newNetwork();
+        String a = addSubstationBus(network, Ids.FREE, Country.NL, "AAAAA");
+        String b = addSubstationBus(network, Ids.FREE, Country.BE, "BBBBB");
+        addLine(network, Ids.FREE, a, b);
+        return network;
+    }
+
+    /**
+     * Add a node-breaker T-line, with free ids: orphan node-breaker voltage level {@code VL_NBJUN}, its nodes 1, 2 and 3
+     * linked to the buses of {@code VL_AAAAA}, {@code VL_BBBBB} and {@code VL_CCCCC}.
+     *
+     * @param network a network created by {@link #createWithOrphanVoltageLevels(Ids)} with free ids
+     */
+    static void addNodeBreakerTLine(Network network) {
+        VoltageLevel junction = network.newVoltageLevel()
+                .setId("VL_NBJUN")
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        int node = 1;
+        for (String name : new String[] {"AAAAA", "BBBBB", "CCCCC"}) {
+            String bus = Ids.FREE.bus(Country.NL, name, '1');
+            junction.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(node).add();
+            network.newLine()
+                    .setId("BR_NBJUN_" + name)
+                    .setVoltageLevel1("VL_" + name)
+                    .setBus1(bus)
+                    .setConnectableBus1(bus)
+                    .setVoltageLevel2("VL_NBJUN")
+                    .setNode2(node)
+                    .setR(1)
+                    .setX(10)
+                    .add();
+            node++;
+        }
+    }
+
+    /**
+     * Add orphan voltage level {@code VL_DISCO}, with free ids, linked to the bus of {@code VL_AAAAA} by a line
+     * disconnected on both sides.
+     *
+     * @param network a network created by {@link #createWithOrphanVoltageLevels(Ids)} with free ids
+     */
+    static void addOrphanWithDisconnectedLine(Network network) {
+        String disconnected = addBus(addOrphanVoltageLevel(network, "DISCO"), Ids.FREE, "DISCO", '1');
+        Line line = addLine(network, Ids.FREE, Ids.FREE.bus(Country.NL, "AAAAA", '1'), disconnected);
+        line.getTerminal1().disconnect();
+        line.getTerminal2().disconnect();
+    }
+
+    /**
+     * Add two orphan voltage levels to the network of {@code network.xiidm}, with free ids, and set the country of
+     * substation {@code P2} to BE, so that the network has two countries:
+     * <ul>
+     *     <li>{@code VL_LINKED}: linked to bus {@code NHV1} by line {@code BR_NHV1_BUS_LINKED_1};</li>
+     *     <li>{@code VL_ISOLATED}: isolated, one bus and no equipment.</li>
+     * </ul>
+     *
+     * @param network the network of {@code network.xiidm}
+     */
+    static void addLinkedAndIsolatedOrphans(Network network) {
+        network.getSubstation("P2").setCountry(Country.BE);
+        String linked = addBus(addOrphanVoltageLevel(network, "LINKED"), Ids.FREE, "LINKED", '1');
+        addLine(network, Ids.FREE, "NHV1", linked);
+        addBus(addOrphanVoltageLevel(network, "ISOLATED"), Ids.FREE, "ISOLATED", '1');
+    }
+
+    /**
+     * Create an empty network, with a fixed case date.
+     *
+     * @return the network
+     */
+    static Network newNetwork() {
+        Network network = Network.create("orphanVoltageLevels", "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+        return network;
+    }
+
+    /**
+     * Add substation {@code S_<name>} with bus-breaker voltage level {@code VL_<name>} holding one bus.
+     *
+     * @param network the network to add the substation to
+     * @param ids the kind of ids to use for the bus
+     * @param country the country of the substation, none if null (UCTE ids then use NL)
+     * @param name the name of the substation, 5 characters
+     * @return the id of the bus
+     * @throws com.powsybl.ucte.network.UcteException if the country has no UCTE country code, for UCTE ids
+     */
+    static String addSubstationBus(Network network, Ids ids, Country country, String name) {
+        SubstationAdder substationAdder = network.newSubstation().setId("S_" + name);
+        if (country != null) {
+            substationAdder.setCountry(country);
+        }
+        VoltageLevel voltageLevel = substationAdder.add().newVoltageLevel()
+                .setId("VL_" + name)
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        return addBus(voltageLevel, ids, name, '1');
+    }
+
+    /**
+     * Add bus-breaker voltage level {@code VL_<name>} without substation.
+     *
+     * @param network the network to add the voltage level to
+     * @param name the name of the voltage level
+     * @return the voltage level
+     */
+    static VoltageLevel addOrphanVoltageLevel(Network network, String name) {
+        return network.newVoltageLevel()
+                .setId("VL_" + name)
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+    }
+
+    /**
+     * Add a bus to a bus-breaker voltage level. UCTE ids use the country of the substation, NL for orphan voltage
+     * levels.
+     *
+     * @param voltageLevel the bus-breaker voltage level to add the bus to
+     * @param ids the kind of ids to use for the bus
+     * @param name the name of the bus, 5 characters
+     * @param busbar the busbar character, last character of UCTE ids
+     * @return the id of the bus
+     * @throws com.powsybl.ucte.network.UcteException if the country has no UCTE country code, for UCTE ids
+     */
+    static String addBus(VoltageLevel voltageLevel, Ids ids, String name, char busbar) {
+        Country country = voltageLevel.getSubstation().flatMap(Substation::getCountry).orElse(Country.NL);
+        String busId = ids.bus(country, name, busbar);
+        voltageLevel.getBusBreakerView().newBus().setId(busId).add();
+        return busId;
+    }
+
+    /**
+     * Add a line (r = 1, x = 10) between two buses.
+     *
+     * @param network the network to add the line to
+     * @param ids the kind of ids to use for the line
+     * @param bus1 the id of the bus on side 1
+     * @param bus2 the id of the bus on side 2
+     * @return the line
+     */
+    static Line addLine(Network network, Ids ids, String bus1, String bus2) {
+        return network.newLine()
+                .setId(ids.branch(bus1, bus2))
+                .setVoltageLevel1(network.getBusBreakerView().getBus(bus1).getVoltageLevel().getId())
+                .setBus1(bus1)
+                .setConnectableBus1(bus1)
+                .setVoltageLevel2(network.getBusBreakerView().getBus(bus2).getVoltageLevel().getId())
+                .setBus2(bus2)
+                .setConnectableBus2(bus2)
+                .setR(1)
+                .setX(10)
+                .add();
+    }
+
+    /**
+     * Add a load (p0 = 42, q0 = 7) on a bus.
+     *
+     * @param network the network holding the bus
+     * @param busId the id of the bus
+     * @param loadId the id of the load
+     */
+    static void addLoad(Network network, String busId, String loadId) {
+        addLoad(network.getBusBreakerView().getBus(busId).getVoltageLevel(), loadId, busId, 42, 7);
+    }
+
+    /**
+     * Add a boundary line (r = 1, x = 10) on the single bus of a bus-breaker voltage level.
+     *
+     * @param voltageLevel the bus-breaker voltage level holding one bus
+     * @param id the id of the boundary line
+     * @param pairingKey the pairing key of the boundary line, none if null
+     */
+    private static void addBoundaryLine(VoltageLevel voltageLevel, String id, String pairingKey) {
+        String bus = voltageLevel.getBusBreakerView().getBuses().iterator().next().getId();
+        voltageLevel.newBoundaryLine().setId(id).setBus(bus).setConnectableBus(bus)
+                .setR(1).setX(10).setG(0).setB(0).setP0(0).setQ0(0).setPairingKey(pairingKey).add();
     }
 }
