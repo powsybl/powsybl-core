@@ -314,7 +314,28 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
 
 <span style="color: red">TODO reactive limits</span>
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+In CGMES, a `SynchronousMachine` can be associated with a `RegulatingControl` via `RegulatingCondEq.RegulatingControl`. The regulation is mapped to a PowSyBl [`VoltageRegulation`](../../grid_model/network_subnetwork.md#voltage-regulation) on the generator:
+
+- **Voltage regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.voltage`):
+  - The regulation mode is set to `VOLTAGE`.
+  - The regulating terminal is mapped from `RegulatingControl.Terminal`:
+    - If mapped to the generator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
+    - If mapped to another terminal, it is configured as a remote regulating terminal.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch 
+    topology import if the regulating control is defined on a busbar section that is disconnected or not imported), no regulation object is created for the generator.
+  - In the SSH profile:
+    - The target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`.
+    - The target deadband is copied from `RegulatingControl.targetDeadband` if defined.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled`.
+
+- **Reactive power regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.reactivePower`):
+  - The regulation mode is set to `REACTIVE_POWER`.
+  - The regulating terminal is mapped for flow control. If the terminal is unmapped or mapped to a switch without a valid terminal, the regulating control is ignored.
+  - In the SSH profile:
+    - The target reactive power flow is set from `RegulatingControl.targetValue`.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled`.
 
 <span style="color: red">TODO normalPF</span>
 
@@ -356,7 +377,20 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 - `GPerSection` is copied from CGMES `gPerSection` if defined. Else, it is left undefined.
 - `MaximumSectionCount` is copied from CGMES `maximumSections`.
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+In CGMES, a `LinearShuntCompensator` can be associated with a `RegulatingControl` via `RegulatingCondEq.RegulatingControl`. The regulation is mapped to a PowSyBl [`VoltageRegulation`](../../grid_model/network_subnetwork.md#voltage-regulation) on the shunt compensator:
+
+- **Voltage regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.voltage`):
+  - The regulation mode is set to `VOLTAGE`.
+  - The regulating terminal is mapped from `RegulatingControl.Terminal`:
+    - If mapped to the shunt compensator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
+    - If mapped to another terminal, it is configured as a remote regulating terminal.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported), no regulation object is created for the shunt compensator.
+  - In the SSH profile:
+    - The target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`.
+    - The target deadband is copied from `RegulatingControl.targetDeadband` if defined.
+    - Whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled` and `ShuntCompensator.controlEnabled`.
 
 (cgmes-nonlinear-shunt-compensator-import)=
 ### NonlinearShuntCompensator
@@ -371,7 +405,9 @@ Sections are created from the lowest CGMES `sectionNumber` to the highest and ea
 - `B` is calculated as the sum of all CGMES `b` of `NonlinearShuntCompensatorPoints` with `sectionNumber` lower or equal to its `sectionNumber`
 - `G` is calculated as the sum of all CGMES `g` of `NonlinearShuntCompensatorPoints` with `sectionNumber` lower or equal to its `sectionNumber`
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+The regulation for a `NonlinearShuntCompensator` is mapped to a PowSyBl [`VoltageRegulation`](../../grid_model/network_subnetwork.md#voltage-regulation) following the same rules as for a [`LinearShuntCompensator`](#linearshuntcompensator).
 
 (cgmes-operational_limit-import)=
 ### OperationalLimits
@@ -467,7 +503,19 @@ A `StaticVarCompensator` is mapped to a PowSyBl [`StaticVarCompensator`](../../g
 
 A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#voltage-per-reactive-power-control) extension is also created from the CGMES `StaticVarCompensator` and linked to the PowSyBl `StaticVarCompensator` with its `slope` attribute copied from CGMES `slope` if the latter is `0` or positive.
 
-<span style="color: red">TODO regulation</span>
+#### Regulating control
+
+In CGMES, a `StaticVarCompensator` can be associated with a `RegulatingControl` via `RegulatingCondEq.RegulatingControl`. Voltage regulation is mandatory for static var compensators in IIDM:
+
+- **Voltage regulation** (`RegulatingControl.mode` is `RegulatingControlModeKind.voltage`):
+  - The regulation mode is set to `VOLTAGE`.
+  - The regulating terminal is mapped from `RegulatingControl.Terminal`:
+    - If mapped to the static var compensator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
+    - If mapped to another terminal, it is configured as a remote regulating terminal.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported), the regulating control is ignored and the static var compensator falls back to default local voltage regulation.
+  - In the SSH profile:
+    - If the regulating control was correctly mapped, the target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`, and whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled` and `StaticVarCompensator.controlEnabled`.
+- If no `RegulatingControl` is defined, the static var compensator is configured with a default local regulation using `StaticVarCompensator.voltageSetPoint` (if defined in EQ) and default mode `VOLTAGE`.
 
 (cgmes-switch-import)=
 ### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector, Jumper)
