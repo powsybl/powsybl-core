@@ -171,7 +171,7 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testExportOutOfBoundsPowerGenerationLimitsAreBlank() throws IOException {
+    void testExportOutOfBoundsPowerGenerationLimitsAreBlank() {
         Network network = UcteExporterTestNetworks.createWithHighLimits();
 
         assertTxtEquals("""
