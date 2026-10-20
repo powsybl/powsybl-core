@@ -360,5 +360,5 @@ following situations are reported with a `WARN` severity:
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
 - a two-winding transformer has no nominal power, and the default value `99999` is exported instead
   (see [Nominal power](#nominal-power)),
-- with the `Counter` naming strategy, a voltage level has no substation
+- with the `Counter` naming strategy, a voltage level has no substation and no equipment
   (see [Voltage levels without substation](#voltage-levels-without-substation)).
