@@ -69,7 +69,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
     private boolean parsePreContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
                                                ParsingContext parsingContext, String finalVersion,
                                                AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
-                                               String name) throws IOException {
+                                               String name) throws JacksonException {
         boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext,
                 finalVersion, CONTEXT_NAME);
         if (found) {
