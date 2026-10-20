@@ -443,5 +443,5 @@ following situations are reported:
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
 | The tap range of a tap changer is not symmetric around its neutral tap                                       | `WARN`   | [Tap numbering](#tap-numbering)                                                             |
 | The tap steps of a ratio or phase tap changer differ from the exported linear model                          | `WARN`   | [Deviation from the linear model](#deviation-from-the-linear-model)                         |
+| With the `Counter` naming strategy, a voltage level has no substation and no equipment                       | `WARN`   | [Voltage levels without substation](#voltage-levels-without-substation)                     |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
-| With the `Counter` naming strategy, a voltage level has no substation                                        | `WARN`   | [voltage levels without substation](#voltage-levels-without-substation))                    |
