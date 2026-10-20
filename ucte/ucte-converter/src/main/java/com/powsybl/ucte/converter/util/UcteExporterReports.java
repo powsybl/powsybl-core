@@ -17,6 +17,8 @@ import com.powsybl.commons.report.TypedValue;
  */
 public final class UcteExporterReports {
 
+    public static final String BUS_ID = "busId";
+
     private UcteExporterReports() {
     }
 
@@ -74,7 +76,7 @@ public final class UcteExporterReports {
     public static void aggregatedPowerLimitOutOfBounds(ReportNode reportNode, String busId, String limitName, double value) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.aggregatedPowerLimitOutOfBounds")
-                .withUntypedValue("busId", busId)
+                .withUntypedValue(BUS_ID, busId)
                 .withUntypedValue("limitName", limitName)
                 .withUntypedValue("value", value)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -84,7 +86,7 @@ public final class UcteExporterReports {
     public static void mixedPowerPlantTypes(ReportNode reportNode, String busId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.mixedPowerPlantTypes")
-                .withUntypedValue("busId", busId)
+                .withUntypedValue(BUS_ID, busId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -93,7 +95,7 @@ public final class UcteExporterReports {
                                                    double remoteTargetV, double localTargetV) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.remoteVoltageTargetRescaled")
-                .withUntypedValue("busId", busId)
+                .withUntypedValue(BUS_ID, busId)
                 .withUntypedValue("generatorId", generatorId)
                 .withUntypedValue("remoteBusId", remoteBusId)
                 .withUntypedValue("remoteTargetV", remoteTargetV)
@@ -105,7 +107,7 @@ public final class UcteExporterReports {
     public static void voltageTargetMissing(ReportNode reportNode, String busId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.voltageTargetMissing")
-                .withUntypedValue("busId", busId)
+                .withUntypedValue(BUS_ID, busId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -113,7 +115,7 @@ public final class UcteExporterReports {
     public static void voltageTargetConflict(ReportNode reportNode, String busId, String generatorId, double targetV) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.voltageTargetConflict")
-                .withUntypedValue("busId", busId)
+                .withUntypedValue(BUS_ID, busId)
                 .withUntypedValue("generatorId", generatorId)
                 .withUntypedValue("targetV", targetV)
                 .withSeverity(TypedValue.WARN_SEVERITY)
