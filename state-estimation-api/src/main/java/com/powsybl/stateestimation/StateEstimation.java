@@ -192,6 +192,35 @@ public final class StateEstimation {
         }
 
         /**
+         * Writes a result back into the network, under the variant it was computed against.
+         *
+         * <p>Separate from {@link StateEstimationParameters#isWriteResultsToNetwork()}, which asks
+         * the implementation to do this at the end of a run. Calling it directly lets a caller hold
+         * several results, compare them, and write the one it settles on.</p>
+         *
+         * @param network the network to write into
+         * @param workingVariantId the identifier of the variant the result was computed against
+         * @param result the result to write
+         */
+        public void writeResultsToNetwork(Network network, String workingVariantId, StateEstimationResult result) {
+            Objects.requireNonNull(network, "Network should not be null");
+            Objects.requireNonNull(workingVariantId, "WorkingVariantId should not be null");
+            Objects.requireNonNull(result, "StateEstimationResult should not be null");
+            provider.writeResultsToNetwork(network, workingVariantId, result);
+        }
+
+        /**
+         * Writes a result back into the network, under its working variant.
+         *
+         * @param network the network to write into
+         * @param result the result to write
+         */
+        public void writeResultsToNetwork(Network network, StateEstimationResult result) {
+            Objects.requireNonNull(network, "Network should not be null");
+            writeResultsToNetwork(network, network.getVariantManager().getWorkingVariantId(), result);
+        }
+
+        /**
          * Whether the implementation can honor the given parameters.
          *
          * @param runParameters the run parameters
@@ -328,6 +357,27 @@ public final class StateEstimation {
                                               ObservabilityResult observability,
                                               StateEstimationRunParameters runParameters) {
         return find().detectBadData(network, estimate, observability, runParameters);
+    }
+
+    /**
+     * Runs {@link Runner#writeResultsToNetwork(Network, StateEstimationResult)} on the default implementation.
+     *
+     * @param network the network to write into
+     * @param result the result to write
+     */
+    public static void writeResultsToNetwork(Network network, StateEstimationResult result) {
+        find().writeResultsToNetwork(network, result);
+    }
+
+    /**
+     * Runs {@link Runner#writeResultsToNetwork(Network, String, StateEstimationResult)} on the default implementation.
+     *
+     * @param network the network to write into
+     * @param workingVariantId the identifier of the variant the result was computed against
+     * @param result the result to write
+     */
+    public static void writeResultsToNetwork(Network network, String workingVariantId, StateEstimationResult result) {
+        find().writeResultsToNetwork(network, workingVariantId, result);
     }
 
     /**

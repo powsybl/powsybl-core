@@ -10,13 +10,25 @@ state itself, because with
 [ESTIMATE_OBSERVABLE_ISLANDS](parameters.md#param-se-unobservable-policy) a single component can
 come back partly estimated, and which of its buses carry a value is exactly what the set of
 `BusResult` entries says. Writing back is opt-in through
-[writeResultsToNetwork](parameters.md#param-se-write-results-to-network).
+[writeResultsToNetwork](parameters.md#param-se-write-results-to-network), and a caller holding a
+result can write it at any time:
+
+```java
+StateEstimationResult estimate = StateEstimation.estimate(network);
+// compare, test for bad data, estimate again, then settle on one
+StateEstimation.writeResultsToNetwork(network, estimate);
+```
+
+That writes the voltages onto the buses and the flows onto the branch terminals, so the network is
+left describing one state rather than a new estimate sitting next to stale flows. Buses and branches
+the result does not mention are left alone.
 
 | Attribute          | Type                    | Unit | Required | Default value | Description                                                |
 |--------------------|-------------------------|------|----------|---------------|------------------------------------------------------------|
 | status             | Status                  | -    | yes      | -             | `FULLY_ESTIMATED`, `PARTIALLY_ESTIMATED` or `FAILED`       |
 | componentResults   | List<ComponentResult>   | -    | yes      | -             | One entry per component the estimation covered             |
 | busResults         | List<BusResult>         | -    | no       | Empty list    | The estimated state, one entry per estimated bus           |
+| branchResults      | List<BranchResult>      | -    | no       | Empty list    | The flows the state implies, one entry per estimated branch |
 | measurementResults | List<MeasurementResult> | -    | no       | Empty list    | One entry per measurement consumed, in no guaranteed order |
 
 `ComponentResult`:
@@ -42,11 +54,33 @@ chi-square test is computed from. An estimator in another family does not produc
 
 `BusResult` is in the units IIDM uses for a bus:
 
-| Attribute | Type   | Unit    | Required | Default value | Description                 |
-|-----------|--------|---------|----------|---------------|-----------------------------|
-| busId     | String | -       | yes      | -             | The bus                     |
-| v         | double | kV      | yes      | -             | Estimated voltage magnitude |
-| angle     | double | degrees | yes      | -             | Estimated voltage angle     |
+| Attribute       | Type   | Unit    | Required | Default value | Description                            |
+|-----------------|--------|---------|----------|---------------|----------------------------------------|
+| busId           | String | -       | yes      | -             | The bus                                |
+| voltageLevelId  | String | -       | yes      | -             | The voltage level holding the bus      |
+| v               | double | kV      | yes      | -             | Estimated voltage magnitude            |
+| angle           | double | degrees | yes      | -             | Estimated voltage angle                |
+
+A bus identifier does not say which topology view it came from, so the voltage level is carried
+alongside it and both are needed to find the bus again. `ShortCircuitBusResults` and security
+analysis' `BusResult` pair them the same way.
+
+`BranchResult` is in the units IIDM uses for a terminal, each quantity positive when flowing from
+the bus into the branch at that side:
+
+| Attribute | Type   | Unit | Required | Default value | Description                           |
+|-----------|--------|------|----------|---------------|---------------------------------------|
+| branchId  | String | -    | yes      | -             | The branch                            |
+| p1        | double | MW   | yes      | -             | Active power at side 1                |
+| q1        | double | MVar | yes      | -             | Reactive power at side 1              |
+| i1        | double | A    | no       | `NaN`         | Current magnitude at side 1           |
+| p2        | double | MW   | yes      | -             | Active power at side 2                |
+| q2        | double | MVar | yes      | -             | Reactive power at side 2              |
+| i2        | double | A    | no       | `NaN`         | Current magnitude at side 2           |
+
+Flows are derived rather than estimated: they follow from the voltages at the two ends and the
+branch admittance. They are carried so that a caller holding a result can write it back, compare it
+or serialize it without rebuilding the network model.
 
 `MeasurementResult` is in the unit the measurement was given in:
 

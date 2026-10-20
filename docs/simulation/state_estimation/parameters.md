@@ -137,4 +137,8 @@ Leaving this off also leaves the voltages already on the network untouched, whic
 only part of a component was estimated: the buses that were not keep whatever was there before,
 and only the result distinguishes them.
 
+It is the same write the implementation performs for
+[StateEstimation.writeResultsToNetwork](outputs.md#stateestimationresult), done automatically at
+the end of the run instead of when the caller asks.
+
 The default value is `false`.

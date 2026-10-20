@@ -12,7 +12,9 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -100,6 +103,7 @@ class StateEstimationProviderTest {
         assertTrue(provider.loadSpecificParameters(platformConfig).isEmpty());
         assertTrue(provider.loadSpecificParameters(Map.of()).isEmpty());
         assertTrue(provider.getRawSpecificParameters().isEmpty());
+        assertTrue(provider.getSpecificParameters().isEmpty());
         assertTrue(provider.getSpecificParameters(platformConfig).isEmpty());
         assertTrue(provider.getModuleConfig(platformConfig).isEmpty());
         assertTrue(provider.createMapFromSpecificParameters(new MockSpecificParameters()).isEmpty());
@@ -135,4 +139,35 @@ class StateEstimationProviderTest {
         assertEquals(StateEstimationProvider.class.getSimpleName(), pluginInfo.getPluginName());
     }
 
+    @Test
+    void theWriterSkipsWhatTheNetworkNoLongerHas() {
+        Network network = EurostagTutorialExample1Factory.create();
+        StateEstimationResult stale = new StateEstimationResultImpl(
+                StateEstimationResult.Status.FULLY_ESTIMATED,
+                List.of(),
+                List.of(new StateEstimationResultImpl.BusResultImpl("GONE_0", "GONE", 400.0, 0.0),
+                        new StateEstimationResultImpl.BusResultImpl("ALSO_GONE", "VLHV1", 400.0, 0.0)),
+                List.of(new StateEstimationResultImpl.BranchResultImpl("GONE_LINE", 1.0, 2.0, 3.0, 4.0)),
+                List.of());
+
+        assertDoesNotThrow(() -> bareProvider().writeResultsToNetwork(
+                network, network.getVariantManager().getWorkingVariantId(), stale));
+    }
+
+    @Test
+    void theWriterFindsABusThroughEitherTopologyView() {
+        Network network = EurostagTutorialExample1Factory.create();
+        StateEstimationResult result = new StateEstimationResultImpl(
+                StateEstimationResult.Status.FULLY_ESTIMATED,
+                List.of(),
+                List.of(new StateEstimationResultImpl.BusResultImpl("NGEN", "VLGEN", 24.5, 1.5)),
+                List.of(), List.of());
+
+        bareProvider().writeResultsToNetwork(network,
+                network.getVariantManager().getWorkingVariantId(), result);
+
+        Bus bus = network.getVoltageLevel("VLGEN").getBusBreakerView().getBus("NGEN");
+        assertEquals(24.5, bus.getV(), 1e-12);
+        assertEquals(1.5, bus.getAngle(), 1e-12);
+    }
 }

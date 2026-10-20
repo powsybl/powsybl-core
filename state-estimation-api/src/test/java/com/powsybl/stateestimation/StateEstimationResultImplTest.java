@@ -34,6 +34,7 @@ class StateEstimationResultImplTest {
         assertEquals(StateEstimationResult.Status.FAILED, result.getStatus());
         assertTrue(result.getComponentResults().isEmpty());
         assertTrue(result.getBusResults().isEmpty());
+        assertTrue(result.getBranchResults().isEmpty());
         assertTrue(result.getMeasurementResults().isEmpty());
     }
 
@@ -42,7 +43,7 @@ class StateEstimationResultImplTest {
         List<StateEstimationResult.ComponentResult> components = new ArrayList<>(List.of(component()));
 
         StateEstimationResultImpl result = new StateEstimationResultImpl(
-                StateEstimationResult.Status.FULLY_ESTIMATED, components, List.of(), List.of());
+                StateEstimationResult.Status.FULLY_ESTIMATED, components, List.of(), List.of(), List.of());
         components.clear();
 
         assertEquals(1, result.getComponentResults().size());
@@ -67,11 +68,37 @@ class StateEstimationResultImplTest {
 
     @Test
     void aBusCarriesTheStateInTheUnitsIidmUses() {
-        StateEstimationResult.BusResult result = new StateEstimationResultImpl.BusResultImpl("BUS", 398.5, -2.75);
+        StateEstimationResult.BusResult result =
+                new StateEstimationResultImpl.BusResultImpl("BUS", "VL", 398.5, -2.75);
 
         assertEquals("BUS", result.getBusId());
+        assertEquals("VL", result.getVoltageLevelId());
         assertEquals(398.5, result.getV());
         assertEquals(-2.75, result.getAngle());
+    }
+
+    @Test
+    void aBranchCarriesTheFlowsAtBothEnds() {
+        StateEstimationResult.BranchResult result = new StateEstimationResultImpl.BranchResultImpl(
+                "LINE", 302.4, 98.7, 456.8, -300.4, -97.1, 455.1);
+
+        assertEquals("LINE", result.getBranchId());
+        assertEquals(302.4, result.getP1());
+        assertEquals(98.7, result.getQ1());
+        assertEquals(456.8, result.getI1());
+        assertEquals(-300.4, result.getP2());
+        assertEquals(-97.1, result.getQ2());
+        assertEquals(455.1, result.getI2());
+    }
+
+    @Test
+    void anEstimatorThatDoesNotProduceCurrentsLeavesThemNaN() {
+        StateEstimationResult.BranchResult result =
+                new StateEstimationResultImpl.BranchResultImpl("LINE", 302.4, 98.7, -300.4, -97.1);
+
+        assertEquals(302.4, result.getP1());
+        assertEquals(Double.NaN, result.getI1());
+        assertEquals(Double.NaN, result.getI2());
     }
 
     @Test

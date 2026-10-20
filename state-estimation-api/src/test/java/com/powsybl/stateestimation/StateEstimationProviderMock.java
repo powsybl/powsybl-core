@@ -31,11 +31,17 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
 
     public static final String NAME = "StateEstimationMock";
 
-    public static final String BUS_ID = "BUS";
+    public static final String BUS_ID = "VLHV1_0";
+    public static final String VOLTAGE_LEVEL_ID = "VLHV1";
+    public static final String BRANCH_ID = "NHV1_NHV2_1";
     public static final String MEASUREMENT_ID = "M1";
     public static final String CRITICAL_MEASUREMENT_ID = "M2";
     public static final double ESTIMATED_V = 398.5;
     public static final double ESTIMATED_ANGLE = -2.75;
+    public static final double ESTIMATED_P1 = 302.4;
+    public static final double ESTIMATED_Q1 = 98.7;
+    public static final double ESTIMATED_P2 = -300.4;
+    public static final double ESTIMATED_Q2 = -97.1;
     public static final double MEASURED_VALUE = 100.0;
     public static final double ESTIMATED_VALUE = 99.5;
     public static final double NORMALIZED_RESIDUAL = 2.5;
@@ -132,14 +138,17 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
         StateEstimationResult.ComponentResult component = new StateEstimationResultImpl.ComponentResultImpl(
                 StateEstimationResult.ComponentResult.Status.ESTIMATED, "estimated", 3, BUS_ID, 1.25);
 
-        StateEstimationResult.BusResult bus =
-                new StateEstimationResultImpl.BusResultImpl(BUS_ID, ESTIMATED_V, ESTIMATED_ANGLE);
+        StateEstimationResult.BusResult bus = new StateEstimationResultImpl.BusResultImpl(
+                BUS_ID, VOLTAGE_LEVEL_ID, ESTIMATED_V, ESTIMATED_ANGLE);
+
+        StateEstimationResult.BranchResult branch = new StateEstimationResultImpl.BranchResultImpl(
+                BRANCH_ID, ESTIMATED_P1, ESTIMATED_Q1, ESTIMATED_P2, ESTIMATED_Q2);
 
         StateEstimationResult.MeasurementResult measurement = new StateEstimationResultImpl.MeasurementResultImpl(
                 MEASUREMENT_ID, MEASURED_VALUE, ESTIMATED_VALUE, NORMALIZED_RESIDUAL, false);
 
         return new StateEstimationResultImpl(StateEstimationResult.Status.FULLY_ESTIMATED,
-                List.of(component), List.of(bus), List.of(measurement));
+                List.of(component), List.of(bus), List.of(branch), List.of(measurement));
     }
 
     /** One observable area containing the one bus, whose active power is redundant. */

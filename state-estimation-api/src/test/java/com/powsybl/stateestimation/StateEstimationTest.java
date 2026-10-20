@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
@@ -270,4 +272,67 @@ class StateEstimationTest {
         assertEquals(StateEstimationProviderMock.NORMALIZED_RESIDUAL, suspect.getNormalizedResidual());
     }
 
+    @Test
+    void writesTheEstimatedStateAndTheFlowsItImplies() {
+        StateEstimationResult estimate = StateEstimation.estimate(network);
+
+        StateEstimation.writeResultsToNetwork(network, estimate);
+
+        Bus bus = network.getVoltageLevel(StateEstimationProviderMock.VOLTAGE_LEVEL_ID)
+                .getBusView().getBus(StateEstimationProviderMock.BUS_ID);
+        assertEquals(StateEstimationProviderMock.ESTIMATED_V, bus.getV(), 1e-12);
+        assertEquals(StateEstimationProviderMock.ESTIMATED_ANGLE, bus.getAngle(), 1e-12);
+
+        Branch<?> branch = network.getBranch(StateEstimationProviderMock.BRANCH_ID);
+        assertEquals(StateEstimationProviderMock.ESTIMATED_P1, branch.getTerminal1().getP(), 1e-12);
+        assertEquals(StateEstimationProviderMock.ESTIMATED_Q1, branch.getTerminal1().getQ(), 1e-12);
+        assertEquals(StateEstimationProviderMock.ESTIMATED_P2, branch.getTerminal2().getP(), 1e-12,
+                "the flows have to go in too, or the network holds new voltages next to stale flows");
+        assertEquals(StateEstimationProviderMock.ESTIMATED_Q2, branch.getTerminal2().getQ(), 1e-12);
+    }
+
+    @Test
+    void leavesAloneWhateverTheResultDoesNotMention() {
+        Bus untouched = network.getVoltageLevel("VLLOAD").getBusView().getBus("VLLOAD_0");
+        untouched.setV(147.6).setAngle(-9.6);
+
+        StateEstimation.writeResultsToNetwork(network, StateEstimation.estimate(network));
+
+        assertEquals(147.6, untouched.getV(), 1e-12,
+                "a bus the estimation skipped keeps what was there, which is how partial results stay readable");
+        assertEquals(-9.6, untouched.getAngle(), 1e-12);
+    }
+
+    @Test
+    void writesIntoTheNamedVariantAndLeavesTheWorkingOneSelected() {
+        String initial = network.getVariantManager().getWorkingVariantId();
+        network.getVariantManager().cloneVariant(initial, "snapshot");
+
+        StateEstimationResult estimate = StateEstimation.estimate(network);
+        StateEstimation.writeResultsToNetwork(network, "snapshot", estimate);
+
+        assertEquals(initial, network.getVariantManager().getWorkingVariantId(),
+                "the writer restores the variant it found");
+
+        Bus bus = network.getVoltageLevel(StateEstimationProviderMock.VOLTAGE_LEVEL_ID)
+                .getBusView().getBus(StateEstimationProviderMock.BUS_ID);
+        assertTrue(Double.isNaN(bus.getV()), "the initial variant is untouched");
+        assertTrue(Double.isNaN(bus.getAngle()));
+
+        network.getVariantManager().setWorkingVariant("snapshot");
+        bus = network.getVoltageLevel(StateEstimationProviderMock.VOLTAGE_LEVEL_ID)
+                .getBusView().getBus(StateEstimationProviderMock.BUS_ID);
+        assertEquals(StateEstimationProviderMock.ESTIMATED_V, bus.getV(), 1e-12);
+        assertEquals(StateEstimationProviderMock.ESTIMATED_ANGLE, bus.getAngle(), 1e-12);
+    }
+
+    @Test
+    void refusesToWriteWithoutANetworkOrAResult() {
+        StateEstimation.Runner runner = StateEstimation.find();
+        StateEstimationResult estimate = StateEstimation.estimate(network);
+
+        assertThrows(NullPointerException.class, () -> runner.writeResultsToNetwork(null, estimate));
+        assertThrows(NullPointerException.class, () -> runner.writeResultsToNetwork(network, null));
+        assertThrows(NullPointerException.class, () -> runner.writeResultsToNetwork(network, null, estimate));
+    }
 }

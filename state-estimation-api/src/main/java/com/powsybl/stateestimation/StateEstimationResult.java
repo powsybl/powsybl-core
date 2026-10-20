@@ -47,6 +47,16 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
     List<BusResult> getBusResults();
 
     /**
+     * The flows that follow from the estimated state, one entry per branch both of whose ends were
+     * estimated. Empty when the estimation failed.
+     *
+     * <p>A flow is derived, not estimated: it follows from the voltages at the two ends and the
+     * branch admittance. It is carried here so that a caller holding a result can write it back or
+     * serialize it without building the network model a second time.</p>
+     */
+    List<BranchResult> getBranchResults();
+
+    /**
      * One entry per measurement the estimation consumed, in no guaranteed order. Empty when the
      * implementation does not report per-measurement diagnostics.
      */
@@ -102,11 +112,45 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
         /** The IIDM identifier of the bus. */
         String getBusId();
 
+        /**
+         * The IIDM identifier of the voltage level holding the bus. A bus identifier alone does not
+         * say which topology view it belongs to, so both are needed to find the bus again.
+         */
+        String getVoltageLevelId();
+
         /** The estimated voltage magnitude, in kV. */
         double getV();
 
         /** The estimated voltage angle, in degrees. */
         double getAngle();
+    }
+
+    /**
+     * The flows at the two ends of one branch, in the units IIDM uses for a terminal. Field order
+     * and naming follow {@code com.powsybl.security.results.BranchResult}.
+     */
+    interface BranchResult {
+
+        /** The IIDM identifier of the branch. */
+        String getBranchId();
+
+        /** Active power at side 1, in MW, positive when flowing from the bus into the branch. */
+        double getP1();
+
+        /** Reactive power at side 1, in MVar, positive when flowing from the bus into the branch. */
+        double getQ1();
+
+        /** Current magnitude at side 1, in A. {@code NaN} when the implementation does not produce it. */
+        double getI1();
+
+        /** Active power at side 2, in MW, positive when flowing from the bus into the branch. */
+        double getP2();
+
+        /** Reactive power at side 2, in MVar, positive when flowing from the bus into the branch. */
+        double getQ2();
+
+        /** Current magnitude at side 2, in A. {@code NaN} when the implementation does not produce it. */
+        double getI2();
     }
 
     /**

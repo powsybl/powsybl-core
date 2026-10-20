@@ -16,11 +16,16 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
@@ -190,6 +195,63 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
      */
     default Optional<ModuleConfig> getModuleConfig(PlatformConfig config) {
         return config.getOptionalModuleConfig(getName() + "-state-estimation-parameters");
+    }
+
+    /**
+     * Writes a result that this implementation produced back into the network, under the variant it
+     * was computed against.
+     *
+     * <p>The estimated voltages go onto the buses and the flows onto the branch terminals, so the
+     * network is left describing one state rather than a mixture of a new estimate and whatever was
+     * there before. Buses and branches the result does not mention are left alone, which is how a
+     * partly estimated network keeps saying which parts carry an estimate.</p>
+     *
+     * <p>This default writes what {@link StateEstimationResult} models. An implementation with more
+     * to publish, such as the IIDM observability extensions or solved tap positions, overrides it
+     * and calls this one first.</p>
+     *
+     * <p>The result is only meaningful against the topology it was computed on. Nothing here checks
+     * that the topology still matches, so a caller holding an older result is responsible for
+     * knowing whether it still applies.</p>
+     *
+     * @param network the network to write into
+     * @param workingVariantId the identifier of the variant the result was computed against
+     * @param result the result to write
+     */
+    default void writeResultsToNetwork(Network network, String workingVariantId, StateEstimationResult result) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(workingVariantId);
+        Objects.requireNonNull(result);
+
+        VariantManager variantManager = network.getVariantManager();
+        String previousVariantId = variantManager.getWorkingVariantId();
+        variantManager.setWorkingVariant(workingVariantId);
+        try {
+            for (StateEstimationResult.BusResult busResult : result.getBusResults()) {
+                findBus(network, busResult).ifPresent(bus -> bus.setV(busResult.getV())
+                        .setAngle(busResult.getAngle()));
+            }
+            for (StateEstimationResult.BranchResult branchResult : result.getBranchResults()) {
+                Branch<?> branch = network.getBranch(branchResult.getBranchId());
+                if (branch != null) {
+                    branch.getTerminal1().setP(branchResult.getP1()).setQ(branchResult.getQ1());
+                    branch.getTerminal2().setP(branchResult.getP2()).setQ(branchResult.getQ2());
+                }
+            }
+        } finally {
+            variantManager.setWorkingVariant(previousVariantId);
+        }
+    }
+
+    /** The bus a result refers to, looked up through either topology view of its voltage level. */
+    private static Optional<Bus> findBus(Network network, StateEstimationResult.BusResult busResult) {
+        VoltageLevel voltageLevel = network.getVoltageLevel(busResult.getVoltageLevelId());
+        if (voltageLevel == null) {
+            return Optional.empty();
+        }
+        Bus bus = voltageLevel.getBusView().getBus(busResult.getBusId());
+        return Optional.ofNullable(bus != null ? bus
+                : voltageLevel.getBusBreakerView().getBus(busResult.getBusId()));
     }
 
     /**
