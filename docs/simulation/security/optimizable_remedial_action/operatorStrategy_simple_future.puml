@@ -14,13 +14,10 @@ OperatorStrategy --* "*" ConditionalActions
 class ConditionalActions {
   - List<String> actionIds
   - Condition condition
-  - Optional<Integer> applicationDelay
+  - Optional<Integer> applicationDelay // new field
 }
 ConditionalActions ..* "*" Action
 ConditionalActions --* "1" Condition
-note right of ConditionalActions::applicationDelay
-  new field
-end note
 
 interface Condition
 
@@ -33,7 +30,7 @@ ContingencyContext --* "1" ContingencyContextType
 enum ContingencyContextType {
   ALL
   NONE
-  SPECIFIC
+  SPECIFIC // Besoin de supporter plusieurs contingences
   ONLY_CONTINGENCIES
 }
 
@@ -162,6 +159,7 @@ note right
   Méthodes niceToHave:
  + UnionRange toUnionOfAbsoluteContinuousRanges(double initialSetPoint)
  + isValidSetpoint(double setPoint, double initialSetPoint)
+ + List<Double> sample(Step step, double initialSetPoint)
 end note
 Range <|-- ContinuousRange
 Range <|-- IntersectionRange
@@ -249,5 +247,13 @@ class RemedialActionContext {
 OptimizableRemedialAction --* "1" RemedialActionContext
 RemedialActionContext --* "1" Condition
 RemedialActionContext --* "1" ContingencyContext
+
+class HybridRemedialAction {
+- BinaryRemedialAction binaryRemedialAction
+- RangeRemedialAction rangeRemedialAction
+}
+OptimizableRemedialAction <|-- HybridRemedialAction
+HybridRemedialAction --* "1" BinaryRemedialAction
+HybridRemedialAction --* "1" RangeRemedialAction
 
 @enduml
