@@ -87,20 +87,16 @@ class NamingStrategyTest {
     }
 
     @Test
-    void defaultMethodsKeepThirdPartyStrategiesWorking() {
+    void defaultMethodsExportEveryVoltageLevelWithItsSubstationCountry() {
         Network network = Network.read(new ResourceDataSource("network", new ResourceSet("/", "network.xiidm")));
         NamingStrategy strategy = new OtherNamingStrategy();
 
+        // Third-party strategies keep working without implementing the new methods
         assertDoesNotThrow(() -> strategy.initializeNetwork(network, ReportNode.NO_OP));
         assertSame(ExportedVoltageLevels.all(), strategy.getExportedVoltageLevels());
-    }
 
-    @Test
-    void allExportsEveryVoltageLevelWithItsSubstationCountry() {
-        Network network = Network.read(new ResourceDataSource("network", new ResourceSet("/", "network.xiidm")));
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
-
-        assertTrue(ExportedVoltageLevels.all().isExported(vl));
-        assertEquals(UcteCountryCode.FR, ExportedVoltageLevels.all().getCountry(vl));
+        assertTrue(strategy.getExportedVoltageLevels().isExported(vl));
+        assertEquals(UcteCountryCode.FR, strategy.getExportedVoltageLevels().getCountry(vl));
     }
 }
