@@ -65,7 +65,7 @@ public class SensitivityAnalysisResult {
     /**
      * @deprecated See {@link SensitivityStateStatus.ComponentStatus} instead.
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public enum Status {
         SUCCESS,
         FAILURE,
@@ -564,7 +564,7 @@ public class SensitivityAnalysisResult {
      * @return the associated status.
      * @deprecated Use {@link SensitivityAnalysisResult#getStateComponentStatuses(SensitivityState)} instead.
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public Status getStateStatus(SensitivityState state) {
         Objects.requireNonNull(state);
         return statusByState.get(state).getStatus();
