@@ -8,6 +8,14 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.dc.DCMapping;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -20,13 +28,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -229,8 +230,7 @@ public class Context {
     }
 
     /**
-     * The terminals read by {@link #buildUpdateCache()}, in query order, so that the update does not run the
-     * terminals query a second time.
+     * The terminals read by {@link #buildUpdateCache()}, in query order
      */
     public PropertyBags updateTerminals() {
         return updateTerminals;
