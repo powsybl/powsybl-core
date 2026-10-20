@@ -69,7 +69,7 @@ class UcteExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testExportBoundaryLineWithoutGeneration() throws IOException {
+    void testExportBoundaryLineWithoutGeneration() {
         Network network = UcteExporterTestNetworks.createWithBoundaryLineWithoutGeneration();
         assertNull(network.getBoundaryLine("FFFFFF11 XXXXXX11 1").getGeneration());
 
