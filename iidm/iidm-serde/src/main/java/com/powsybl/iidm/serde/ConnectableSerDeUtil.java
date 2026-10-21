@@ -275,16 +275,16 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
         String type, A adder, NetworkDeserializerContext context,
         TreeDataReader reader, ValidationLevel minimalValidationLevel) {
-        String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+        DetectionKind detectionKind = reader.readEnumAttribute(DETECTION_KIND, DetectionKind.class);
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
 
         DetectionKind[] kind = {DetectionKind.HIGH};
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            if (detectionKindString == null) {
+            if (detectionKind == null) {
                 throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
             }
-            kind[0] = DetectionKind.valueOf(detectionKindString);
+            kind[0] = detectionKind;
         });
         adder.setDetectionKind(kind[0]);
 
@@ -425,7 +425,7 @@ public final class ConnectableSerDeUtil {
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null && canWriteLimits(limits)) {
             FormattedLimits formattedLimits = new FormattedLimits(limits, version);
-            writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type);
+            writeLoadingLimitAttributes(index, limits, writer, nsUri, version, type);
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
 
@@ -453,13 +453,13 @@ public final class ConnectableSerDeUtil {
             || !limits.getTemporaryLimits().isEmpty();
     }
 
-    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
+    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version, String type) {
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () ->
-            writer.writeStringAttribute(DETECTION_KIND, kind.name())
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () ->
+            writer.writeEnumAttribute(DETECTION_KIND, kind)
         );
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
             () -> {
                 if (kind == DetectionKind.HIGH) {
                     writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
@@ -467,7 +467,7 @@ public final class ConnectableSerDeUtil {
                         LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
                 }
             });
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, version,
             () -> {
                 if (kind == DetectionKind.HIGH) {
                     writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
@@ -477,7 +477,7 @@ public final class ConnectableSerDeUtil {
                 }
             }
         );
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () -> {
             if (kind == DetectionKind.HIGH) {
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             }
