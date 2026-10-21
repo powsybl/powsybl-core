@@ -275,16 +275,16 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
         String type, A adder, NetworkDeserializerContext context,
         TreeDataReader reader, ValidationLevel minimalValidationLevel) {
-        DetectionKind detectionKindString = reader.readEnumAttribute(DETECTION_KIND, DetectionKind.class);
+        DetectionKind detectionKind = reader.readEnumAttribute(DETECTION_KIND, DetectionKind.class);
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
 
         DetectionKind[] kind = {DetectionKind.HIGH};
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
-            if (detectionKindString == null) {
+            if (detectionKind == null) {
                 throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
             }
-            kind[0] = detectionKindString;
+            kind[0] = detectionKind;
         });
         adder.setDetectionKind(kind[0]);
 
