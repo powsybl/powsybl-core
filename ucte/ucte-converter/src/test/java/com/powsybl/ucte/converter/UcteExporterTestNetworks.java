@@ -452,8 +452,7 @@ public final class UcteExporterTestNetworks {
         RatioTapChangerAdder adder = transformer.newRatioTapChanger()
                                                 .setLoadTapChangingCapabilities(false)
                                                 .setLowTapPosition(lowTapPosition)
-                                                .setTapPosition(tapPosition)
-                                                .setRegulating(false);
+                                                .setTapPosition(tapPosition);
         for (double rho : rhos) {
             adder.beginStep().setRho(rho).endStep();
         }
