@@ -29,6 +29,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         implements ActivePowerControl<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivePowerControlImpl.class);
+    private static final String MIN_TARGET_P = "minTargetP";
+    private static final String MAX_TARGET_P = "maxTargetP";
     private final TBooleanArrayList participate;
 
     private final TDoubleArrayList droop;
@@ -60,8 +62,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         this.minTargetP = new TDoubleArrayList(variantArraySize);
         this.maxTargetP = new TDoubleArrayList(variantArraySize);
         this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
-        double checkedMinTargetP = checkTargetPLimit(minTargetP, "minTargetP", component);
-        double checkedMaxTargetP = checkTargetPLimit(maxTargetP, "maxTargetP", component);
+        double checkedMinTargetP = checkTargetPLimit(minTargetP, MIN_TARGET_P, component);
+        double checkedMaxTargetP = checkTargetPLimit(maxTargetP, MAX_TARGET_P, component);
         for (int i = 0; i < variantArraySize; i++) {
             this.participate.add(participate);
             this.droop.add(droop);
@@ -207,9 +209,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         int variantIndex = getVariantIndex();
         checkLimitOrder(minTargetP, maxTargetP.get(variantIndex));
         double oldMinTargetP = this.minTargetP.get(variantIndex);
-        this.minTargetP.set(variantIndex, checkTargetPLimit(minTargetP, "minTargetP", getExtendable()));
+        this.minTargetP.set(variantIndex, checkTargetPLimit(minTargetP, MIN_TARGET_P, getExtendable()));
         if (Double.compare(oldMinTargetP, minTargetP) != 0) {
-            notifyUpdate("minTargetP", oldMinTargetP, minTargetP);
+            notifyUpdate(MIN_TARGET_P, oldMinTargetP, minTargetP);
         }
     }
 
@@ -224,9 +226,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         int variantIndex = getVariantIndex();
         checkLimitOrder(minTargetP.get(variantIndex), maxTargetP);
         double oldMaxTargetP = this.maxTargetP.get(variantIndex);
-        this.maxTargetP.set(variantIndex, checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable()));
+        this.maxTargetP.set(variantIndex, checkTargetPLimit(maxTargetP, MAX_TARGET_P, getExtendable()));
         if (Double.compare(oldMaxTargetP, maxTargetP) != 0) {
-            notifyUpdate("maxTargetP", oldMaxTargetP, maxTargetP);
+            notifyUpdate(MAX_TARGET_P, oldMaxTargetP, maxTargetP);
         }
     }
 }
