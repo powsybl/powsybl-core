@@ -457,7 +457,7 @@ public final class ConnectableSerDeUtil {
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () ->
-            writer.writeStringAttribute(DETECTION_KIND, kind.name())
+            writer.writeEnumAttribute(DETECTION_KIND, kind)
         );
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
             () -> {
