@@ -163,13 +163,16 @@
             <xs:element name="switch" minOccurs="0" maxOccurs="unbounded" type="iidm:SwitchBus"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:attributeGroup name="BusVariantAttributes">
+        <xs:attribute name="v" use="optional" type="xs:double"/>
+        <xs:attribute name="angle" use="optional" type="xs:double"/>
+        <xs:attribute name="fictitiousP0" use="optional" type="xs:double"/>
+        <xs:attribute name="fictitiousQ0" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="Bus">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
-                <xs:attribute name="v" use="optional" type="xs:double"/>
-                <xs:attribute name="angle" use="optional" type="xs:double"/>
-                <xs:attribute name="fictitiousP0" use="optional" type="xs:double"/>
-                <xs:attribute name="fictitiousQ0" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:BusVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
