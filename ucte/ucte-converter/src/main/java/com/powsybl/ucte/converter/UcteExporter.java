@@ -535,8 +535,8 @@ public class UcteExporter implements Exporter {
 
     private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key) {
         String value;
-        String value1 = identifiable1.getProperty(key, "");
-        String value2 = identifiable2.getProperty(key, "");
+        String value1 = Objects.requireNonNullElse(identifiable1.getProperty(key, ""), "");
+        String value2 = Objects.requireNonNullElse(identifiable2.getProperty(key, ""), "");
         if (value1.equals(value2)) {
             value = value1;
         } else if (value1.isEmpty()) {
