@@ -40,7 +40,7 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
     /** The outcome over every component in scope. */
     Status getStatus();
 
-    /** One entry per connected component the estimation covered. */
+    /** One entry per synchronous component the estimation covered. */
     List<ComponentResult> getComponentResults();
 
     /** The estimated state, one entry per bus that was estimated. Empty when the estimation failed. */
@@ -62,7 +62,7 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
      */
     List<MeasurementResult> getMeasurementResults();
 
-    /** The outcome on one connected component. Components are estimated independently of each other. */
+    /** The outcome on one synchronous component. Components are estimated independently of each other. */
     interface ComponentResult {
 
         /** Whether this component was estimated, and what stopped it when it was not. */

@@ -26,7 +26,7 @@ the result does not mention are left alone.
 | Attribute          | Type                    | Unit | Required | Default value | Description                                                |
 |--------------------|-------------------------|------|----------|---------------|------------------------------------------------------------|
 | status             | Status                  | -    | yes      | -             | `FULLY_ESTIMATED`, `PARTIALLY_ESTIMATED` or `FAILED`       |
-| componentResults   | List<ComponentResult>   | -    | yes      | -             | One entry per component the estimation covered             |
+| componentResults   | List<ComponentResult>   | -    | yes      | -             | One entry per synchronous component the estimation covered |
 | busResults         | List<BusResult>         | -    | no       | Empty list    | The estimated state, one entry per estimated bus           |
 | branchResults      | List<BranchResult>      | -    | no       | Empty list    | The flows the state implies, one entry per estimated branch |
 | measurementResults | List<MeasurementResult> | -    | no       | Empty list    | One entry per measurement consumed, in no guaranteed order |

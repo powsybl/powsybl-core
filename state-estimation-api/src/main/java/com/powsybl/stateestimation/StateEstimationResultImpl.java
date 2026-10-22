@@ -30,7 +30,7 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
      * Records the outcome of an estimation.
      *
      * @param status the outcome being recorded
-     * @param componentResults one entry per connected component
+     * @param componentResults one entry per synchronous component
      * @param busResults the estimated state, one entry per bus
      * @param branchResults the flows that follow from the estimated state, one entry per branch
      * @param measurementResults one entry per measurement the estimation consumed
