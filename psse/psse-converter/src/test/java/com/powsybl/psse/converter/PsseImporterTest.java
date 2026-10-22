@@ -387,6 +387,46 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void mergeTransformerConnectedSubstationsButKeepSourceVoltageLevelsSeparated() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("multipleNodeBreakerSubstations",
+                new ResourceSet("/", "multipleNodeBreakerSubstations.rawx"));
+
+        Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), new Properties());
+
+        VoltageLevel voltageLevel100 = network.getVoltageLevel("VL100");
+        VoltageLevel voltageLevel101 = network.getVoltageLevel("VL101");
+        VoltageLevel voltageLevel102 = network.getVoltageLevel("VL102");
+        assertNotNull(voltageLevel100);
+        assertNotNull(voltageLevel101);
+        assertNotNull(voltageLevel102);
+        assertNull(network.getVoltageLevel("VL101-102"));
+        assertEquals(TopologyKind.NODE_BREAKER, voltageLevel101.getTopologyKind());
+        assertEquals(TopologyKind.NODE_BREAKER, voltageLevel102.getTopologyKind());
+
+        Substation iidmSubstation = voltageLevel100.getSubstation().orElseThrow();
+        assertSame(iidmSubstation, voltageLevel101.getSubstation().orElseThrow());
+        assertSame(iidmSubstation, voltageLevel102.getSubstation().orElseThrow());
+
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("T-100-102-1");
+        assertNotNull(transformer);
+        assertSame(voltageLevel100, transformer.getTerminal1().getVoltageLevel());
+        assertSame(voltageLevel102, transformer.getTerminal2().getVoltageLevel());
+    }
+
+    @Test
+    void skipNodeVoltageUpdateForBusBreakerFallback() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("multipleNodeBreakerSubstations",
+                new ResourceSet("/", "multipleNodeBreakerSubstations.rawx"));
+        Properties properties = new Properties();
+        properties.setProperty("psse.import.ignore-node-breaker-topology", Boolean.TRUE.toString());
+
+        Network network = assertDoesNotThrow(() -> new PsseImporter().importData(dataSource,
+                new NetworkFactoryImpl(), properties));
+
+        assertEquals(TopologyKind.BUS_BREAKER, network.getVoltageLevel("VL101-102").getTopologyKind());
+    }
+
+    @Test
     void importTwoSubstationsRawxTest() throws IOException {
         importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
     }
