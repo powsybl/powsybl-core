@@ -994,11 +994,7 @@ public final class EquipmentExport {
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String mode = RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
                     String controlName = twtName + "_PTC_RC";
-                    Terminal regulationTerminal = ptc.getRegulationTerminal();
-                    if (regulationTerminal == null) {
-                        regulationTerminal = eq.getTerminals().get(endNumber - 1);
-                    }
-                    String terminalId = CgmesExportUtil.getTerminalId(regulationTerminal, context);
+                    String terminalId = getTapChangerRegulatingTerminalId(eq, ptc.getRegulationTerminal(), endNumber, context);
                     if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && !Double.isNaN(ptc.getRegulationValue())) {
                         // Log not supported regulation mode
                         CgmesReports.phaseTapChangerCurrentLimiterModeNotSupportedReport(context.getReportNode(), tapChangerId);
@@ -1036,6 +1032,14 @@ public final class EquipmentExport {
                     step.getKey(), cimNamespace, writer, context);
             }
         }
+    }
+
+    /**
+     * A tap changer regulation without a terminal is controlled at the end of the tap changer.
+     */
+    private static String getTapChangerRegulatingTerminalId(Connectable<?> eq, Terminal regulatingTerminal, int endNumber, CgmesExportContext context) {
+        Terminal terminal = regulatingTerminal != null ? regulatingTerminal : eq.getTerminals().get(endNumber - 1);
+        return CgmesExportUtil.getTerminalId(terminal, context);
     }
 
     private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber,
@@ -1078,7 +1082,7 @@ public final class EquipmentExport {
             String tapChangerControlId = null;
             if (rtc.getVoltageRegulation() != null) {
                 String controlName = twtName + "_RTC_RC";
-                String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulatingTerminal(), context);
+                String terminalId = getTapChangerRegulatingTerminalId(eq, rtc.getRegulatingTerminal(), endNumber, context);
                 tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String tccMode = getRegulatingControlMode(rtc.getVoltageRegulation());
