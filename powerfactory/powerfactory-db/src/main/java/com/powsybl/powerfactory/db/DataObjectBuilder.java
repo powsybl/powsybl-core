@@ -121,6 +121,7 @@ public class DataObjectBuilder {
 
     public void setDoubleMatrixAttributeValue(long objectId, String attributeName, int rowCount, int columnCount, List<Double> value) {
         DataObject object = getObjectById(objectId);
+        DataObject.checkValidRealMatrix(rowCount, columnCount, value.size());
         RealMatrix matrix = new BlockRealMatrix(rowCount, columnCount);
         for (int row = 0; row < rowCount; row++) {
             for (int col = 0; col < columnCount; col++) {

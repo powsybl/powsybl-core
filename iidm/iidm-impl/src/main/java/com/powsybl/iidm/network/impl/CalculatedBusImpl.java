@@ -379,4 +379,10 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         }
         return connectableTerminalsList;
     }
+
+    @Override
+    public CalculatedBus setId(String id) {
+        // Calculated bus id should not be updated
+        throw new PowsyblException("Updating the id of a calculated bus is not supported.");
+    }
 }
