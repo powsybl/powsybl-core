@@ -10,6 +10,7 @@ package com.powsybl.psse.converter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
@@ -805,11 +806,14 @@ class TransformerConverter extends AbstractConverter {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
         }
-        rtc.setTargetV(targetV)
-                .setTargetDeadband(targetDeadBand)
-                .setRegulationTerminal(regulatingTerminal)
-                .setLoadTapChangingCapabilities(regulating)
-                .setRegulating(regulating);
+        rtc.setLoadTapChangingCapabilities(regulating);
+        rtc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(regulating)
+            .withTargetValue(targetV)
+            .withTargetDeadband(targetDeadBand)
+            .withTerminal(regulatingTerminal)
+            .build();
 
         return regulating;
     }
@@ -1088,19 +1092,19 @@ class TransformerConverter extends AbstractConverter {
                     getRegulatingTerminalNode(ptc.getRegulationTerminal(), contextExport),
                     getMaxAngle(ptc), getMinAngle(ptc), getSteps(ptc));
         } else {
-            int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+            int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulatingTerminal(), contextExport);
             return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc) * getRatio(ptc), getAngle(ptc),
                     regulatingBusI,
-                    getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
+                    getRegulatingTerminalNode(rtc.getRegulatingTerminal(), contextExport),
                     getMaxRatio(rtc) * getRatio(ptc), getMinRatio(rtc) * getRatio(ptc), getSteps(rtc));
         }
     }
 
     private static RatioR findRatioDataRtc(RatioTapChanger rtc, double a0, ContextExport contextExport) {
-        int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulationTerminal(), contextExport);
+        int regulatingBusI = getRegulatingTerminalBusI(rtc.getRegulatingTerminal(), contextExport);
         return new RatioR(getSteps(rtc) > 1 && regulatingBusI != 0 ? 1 : 0, a0 * getRatio(rtc), 0.0,
                 regulatingBusI,
-                getRegulatingTerminalNode(rtc.getRegulationTerminal(), contextExport),
+                getRegulatingTerminalNode(rtc.getRegulatingTerminal(), contextExport),
                 getMaxRatio(rtc), getMinRatio(rtc), getSteps(rtc));
     }
 
@@ -1224,7 +1228,13 @@ class TransformerConverter extends AbstractConverter {
         } else {
             double baskv1 = t2w.getTerminal1().getVoltageLevel().getNominalV();
             double nomV1 = getNomV(psseTransformer.getWinding1(), t2w.getTerminal1().getVoltageLevel());
-            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
+
+            double baskv2 = t2w.getTerminal2().getVoltageLevel().getNominalV();
+            double nomV2 = getNomV(psseTransformer.getWinding2(), t2w.getTerminal2().getVoltageLevel());
+            double w2 = defineRatio(psseTransformer.getWinding2().getWindv(), baskv2, nomV2, psseTransformer.getCw());
+
+            double ratio = getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()) * w2;
+            psseTransformer.getWinding1().setWindv(defineWindV(ratio, baskv1, nomV1, psseTransformer.getCw()));
             psseTransformer.getWinding1().setAng(getAngle(t2w.getPhaseTapChanger()));
 
             psseTransformer.setStat(getUpdatedStatus(t2w.getTerminal1(), t2w.getTerminal2()));

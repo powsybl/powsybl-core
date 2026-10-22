@@ -22,11 +22,11 @@ public class LineCommutatedConverterImpl extends AbstractAcDcConverter<LineCommu
 
     private double powerFactor;
 
-    LineCommutatedConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+    LineCommutatedConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent,
                                 double minP, double maxP,
                                 double idleLoss, double switchingLoss, double resistiveLoss,
                                 TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc, ReactiveModel reactiveModel, double powerFactor) {
-        super(ref, id, name, fictitious, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
+        super(ref, id, name, fictitious, equivalent, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         this.reactiveModel = reactiveModel;
         this.powerFactor = powerFactor;

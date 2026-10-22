@@ -302,4 +302,38 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         Load load = network.getLoad("loadId");
         assertNotNull(load);
     }
+
+    @Test
+    void testForceDeleteVoltageLevel() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build();
+
+        modification.apply(network);
+        VoltageLevel vl = network.getVoltageLevel(VLTEST);
+
+        // add one element
+        vl.newLoad().setId("loadId").setP0(100).setQ0(50).setNode(10).add();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportNodeTestRevertCreateVoltageLevelOnLineDeletingTheVL")
+                .build();
+        modification = new RevertConnectVoltageLevelOnLineBuilder()
+                .withLine1Id("CJ_1")
+                .withLine2Id("CJ_2")
+                .withLineId("CJ_NEW")
+                .withForceRemoveIsolatedVoltageLevel(true)
+                .build();
+        modification.apply(network, true, reportNode);
+        // assert VL is deleted
+        vl = network.getVoltageLevel(VLTEST);
+        assertNull(vl);
+        // assert load is removed when the VL is deleted
+        Load load = network.getLoad("loadId");
+        assertNull(load);
+        testReportNode(reportNode, "/reportNode/revert-create-voltage-level-on-line-force-deleting-vl.txt");
+    }
 }

@@ -28,7 +28,7 @@ class GroundAdderImpl extends AbstractInjectionAdder<GroundAdderImpl> implements
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        GroundImpl ground = new GroundImpl(getNetworkRef(), id, getName());
+        GroundImpl ground = new GroundImpl(getNetworkRef(), id, getName(), isEquivalent());
         ground.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(ground);

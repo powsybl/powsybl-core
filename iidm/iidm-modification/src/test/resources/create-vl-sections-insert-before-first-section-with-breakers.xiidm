@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -49,14 +49,17 @@
                 <iidm:switch id="VL1_BREAKER_59_60" kind="BREAKER" retained="true" open="true" node1="59" node2="60"/>
                 <iidm:switch id="VL1_DISCONNECTOR_60_58" kind="DISCONNECTOR" open="true" node1="60" node2="58"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="31">
+            <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" targetP="100.0" localTargetV="400.0" node="31">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="GEN_2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="41">
+            <iidm:generator id="GEN_2" energySource="OTHER" minP="0.0" maxP="100.0" targetP="100.0" localTargetV="400.0" node="41">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="GEN_3" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="51">
+            <iidm:generator id="GEN_3" energySource="OTHER" minP="0.0" maxP="100.0" targetP="100.0" localTargetV="400.0" node="51">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

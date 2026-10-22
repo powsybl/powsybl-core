@@ -34,6 +34,7 @@ public enum UcteCountryCode {
     GR('G', "Greece"),
     HU('M', "Hungary"),
     HR('H', "Croatia"),
+    IE('4', "Ireland"),
     IT('I', "Italy"),
     LU('1', "Luxemburg"),
     LT('6', "Lithuania"),
@@ -45,7 +46,6 @@ public enum UcteCountryCode {
     PT('P', "Portugal"),
     PL('Z', "Poland"),
     RO('R', "Romania"),
-    RU('4', "Russia"),
     SE('8', "Sweden"),
     SK('Q', "Slovakia"),
     SI('L', "Slovenia"),
@@ -91,6 +91,7 @@ public enum UcteCountryCode {
             case 'G' -> GR;
             case 'M' -> HU;
             case 'H' -> HR;
+            case '4' -> IE;
             case 'I' -> IT;
             case '1' -> LU;
             case '6' -> LT;
@@ -102,7 +103,6 @@ public enum UcteCountryCode {
             case 'P' -> PT;
             case 'Z' -> PL;
             case 'R' -> RO;
-            case '4' -> RU;
             case '8' -> SE;
             case 'Q' -> SK;
             case 'L' -> SI;

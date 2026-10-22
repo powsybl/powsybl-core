@@ -16,7 +16,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.DoubleFunction;
 import java.util.function.Supplier;
+
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
 
 /**
  * Dense matrix implementation based on an array of {@code rowCount} * {@code columnCount} double values.
@@ -407,15 +410,12 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
-    public void print(PrintStream out) {
-        print(out, null, null);
-    }
-
-    @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
+        DoubleFunction<String> formattingFunction = getFormatter(config)
+                .map(decimalFormat -> (DoubleFunction<String>) (decimalFormat::format))
+                .orElse(Double::toString);
+        int[] width = getMaxWidthPerColumn(columnNames, formattingFunction);
         int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
-
-        int[] width = getMaxWidthForEachColumn(columnNames);
 
         if (columnNames != null) {
             if (rowNames != null) {
@@ -431,7 +431,7 @@ public class DenseMatrix extends AbstractMatrix {
                 out.print(Strings.padStart(rowNames.get(i), rowNamesWidth + 1, ' '));
             }
             for (int j = 0; j < getColumnCount(); j++) {
-                out.print(Strings.padStart(Double.toString(get(i, j)), width[j] + 1, ' '));
+                out.print(Strings.padStart(formattingFunction.apply(get(i, j)), width[j] + 1, ' '));
             }
             out.println();
         }
@@ -447,11 +447,11 @@ public class DenseMatrix extends AbstractMatrix {
         return rowNamesWidth;
     }
 
-    private int[] getMaxWidthForEachColumn(List<String> columnNames) {
+    private int[] getMaxWidthPerColumn(List<String> columnNames, DoubleFunction<String> formatter) {
         int[] width = new int[getColumnCount()];
         for (int i = 0; i < getRowCount(); i++) {
             for (int j = 0; j < getColumnCount(); j++) {
-                width[j] = Math.max(width[j], Double.toString(get(i, j)).length());
+                width[j] = Math.max(width[j], formatter.apply(get(i, j)).length());
                 if (columnNames != null) {
                     width[j] = Math.max(width[j], columnNames.get(j).length());
                 }
