@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -156,8 +157,8 @@ public abstract class AbstractBusTerminalTest {
                 .setMinP(0)
                 .setMaxP(100)
                 .setTargetP(50)
-                .setTargetV(400)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId("B1")
