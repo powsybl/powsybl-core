@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <md:FullModel rdf:about="urn:uuid:0ab8469f-4776-43fe-b1cb-2ceaf35c34f3">
+    <md:FullModel rdf:about="urn:uuid:switch_cim100_TP">
         <md:Model.created>2021-02-09T19:28:15Z</md:Model.created>
         <md:Model.scenarioTime>2021-02-09T19:30:00Z</md:Model.scenarioTime>
         <md:Model.description>Regulating terminals connected through switches</md:Model.description>
-        <md:Model.modelingAuthoritySet>http://tennet.nl/CGMES</md:Model.modelingAuthoritySet>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/Topology-EU/3.0</md:Model.profile>
         <md:Model.version>5</md:Model.version>
-        <md:Model.DependentOn rdf:resource="urn:uuid:3a2a0416-c6a8-49a9-9f23-b8ec7cb29bae"/>
-        <md:Model.DependentOn rdf:resource="urn:uuid:1e239780-b5f9-4ed1-ad73-041bc406bcfc"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:switch_cim100_EQ"/>
     </md:FullModel>
     <cim:TopologicalNode rdf:ID="_TN_BE_Busbar_6">
         <cim:IdentifiedObject.name>BE-Busbar_6</cim:IdentifiedObject.name>

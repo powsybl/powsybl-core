@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <md:FullModel rdf:about="urn:uuid:3a2a0416-c6a8-49a9-9f23-b8ec7cb29bae">
+    <md:FullModel rdf:about="urn:uuid:switch_cim100_SSH">
         <md:Model.created>2021-02-09T19:28:14Z</md:Model.created>
         <md:Model.scenarioTime>2021-02-09T19:30:00Z</md:Model.scenarioTime>
         <md:Model.description>Regulating terminals connected through switches</md:Model.description>
-        <md:Model.modelingAuthoritySet>http://elia.be/CGMES</md:Model.modelingAuthoritySet>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
         <md:Model.version>5</md:Model.version>
-        <md:Model.DependentOn rdf:resource="urn:uuid:9e7050a8-960b-4e1a-8e34-7f56bc2b2a7b"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:switch_cim100_EQ"/>
     </md:FullModel>
     <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>

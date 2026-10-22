@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <md:FullModel rdf:about="urn:uuid:9e7050a8-960b-4e1a-8e34-7f56bc2b2a7b">
+    <md:FullModel rdf:about="urn:uuid:switch_cim100_EQ">
         <md:Model.created>2021-02-09T19:28:14Z</md:Model.created>
         <md:Model.scenarioTime>2021-02-09T19:30:00Z</md:Model.scenarioTime>
         <md:Model.description>Regulating terminals connected through switches</md:Model.description>
-        <md:Model.modelingAuthoritySet>http://elia.be/CGMES</md:Model.modelingAuthoritySet>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/Operation-EU/3.0</md:Model.profile>
         <md:Model.version>5</md:Model.version>
-        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
         <md:Model.profile>http://iec.ch/TC57/ns/CIM/ShortCircuit-EU/3.0</md:Model.profile>
     </md:FullModel>
     <cim:GeographicalRegion rdf:ID="_GR_BE">

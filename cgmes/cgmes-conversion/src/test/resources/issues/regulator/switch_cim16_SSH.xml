@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <md:FullModel rdf:about="urn:uuid:52b712d1-f3b0-4a59-9191-79f2fb1e4c4e">
+    <md:FullModel rdf:about="urn:uuid:switch_cim16_SSH">
         <md:Model.created>2014-10-24T11:42:40</md:Model.created>
         <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
         <md:Model.version>2</md:Model.version>
-        <md:Model.DependentOn rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73"/>
         <md:Model.description>Regulating terminals connected through switches</md:Model.description>
-        <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
         <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.DependentOn rdf:resource="urn:uuid:switch_cim16_EQ"/>
     </md:FullModel>
     <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>

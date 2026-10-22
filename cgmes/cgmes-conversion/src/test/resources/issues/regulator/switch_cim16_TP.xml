@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <md:FullModel rdf:about="urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20">
+    <md:FullModel rdf:about="urn:uuid:switch_cim16_TP">
         <md:Model.created>2014-10-24T11:42:40</md:Model.created>
         <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
         <md:Model.version>2</md:Model.version>
-        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
-        <md:Model.DependentOn rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73"/>
-        <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"/>
         <md:Model.description>Regulating terminals connected through switches</md:Model.description>
-        <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
         <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+        <md:Model.DependentOn rdf:resource="urn:uuid:switch_cim16_EQ"/>
     </md:FullModel>
     <cim:Terminal rdf:about="#_T_BBS_BE_Busbar_6_1">
         <cim:Terminal.TopologicalNode rdf:resource="#_TN_BE_Busbar_6"/>
