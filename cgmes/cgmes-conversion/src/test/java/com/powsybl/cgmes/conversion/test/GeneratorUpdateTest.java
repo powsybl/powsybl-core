@@ -62,6 +62,14 @@ class GeneratorUpdateTest {
         assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "generator_SV.xml");
         assertFlowsAfterSv(network);
+
+        // Partial SSH: the synchronous machine has no referencePriority and no operatingMode, the external network
+        // injection has no controlEnabled and no referencePriority; the attributes that are present must still be applied
+        readCgmesResources(network, DIR, "generator_partial_SSH.xml");
+        assertEquals(170.0, network.getGenerator("SynchronousMachine").getTargetP(), 0.0);
+        assertEquals(-10.0, network.getGenerator("SynchronousMachine").getLocalTargetQ(), 0.0);
+        assertEquals(-20.0, network.getGenerator("ExternalNetworkInjection").getTargetP(), 0.0);
+        assertEquals(-10.0, network.getGenerator("ExternalNetworkInjection").getLocalTargetQ(), 0.0);
     }
 
     @Test
