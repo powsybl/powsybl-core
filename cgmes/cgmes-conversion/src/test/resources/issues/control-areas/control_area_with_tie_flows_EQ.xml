@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#"
+         xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:control-area-tie-flows-EQ">
+        <md:Model.scenarioTime>2026-09-30T10:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2026-09-30T10:00:00Z</md:Model.created>
+        <md:Model.description>Minimal Control Area and TieFlow equipment</md:Model.description>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_REGION">
+        <cim:IdentifiedObject.name>Region</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SUBREGION">
+        <cim:IdentifiedObject.name>Subregion</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_REGION"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_SUBSTATION">
+        <cim:IdentifiedObject.name>Substation</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SUBREGION"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BASE_VOLTAGE">
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VOLTAGE_LEVEL">
+        <cim:IdentifiedObject.name>400 kV</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BASE_VOLTAGE"/>
+        <cim:VoltageLevel.Substation rdf:resource="#_SUBSTATION"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_NODE">
+        <cim:IdentifiedObject.name>Node</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VOLTAGE_LEVEL"/>
+    </cim:ConnectivityNode>
+
+    <cim:BusbarSection rdf:ID="_BUSBAR">
+        <cim:IdentifiedObject.name>Busbar</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VOLTAGE_LEVEL"/>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="_T_BUSBAR">
+        <cim:IdentifiedObject.name>Busbar terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_BUSBAR"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_NODE"/>
+    </cim:Terminal>
+
+    <cim:EnergyConsumer rdf:ID="_LOAD1">
+        <cim:IdentifiedObject.name>Load 1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VOLTAGE_LEVEL"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_T_LOAD1">
+        <cim:IdentifiedObject.name>Load 1 terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LOAD1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_NODE"/>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_LOAD2">
+        <cim:IdentifiedObject.name>Load 2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VOLTAGE_LEVEL"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_T_LOAD2">
+        <cim:IdentifiedObject.name>Load 2 terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LOAD2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_NODE"/>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_LOAD3">
+        <cim:IdentifiedObject.name>Load 3</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VOLTAGE_LEVEL"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_T_LOAD3">
+        <cim:IdentifiedObject.name>Load 3 terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LOAD3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_NODE"/>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_LOAD4">
+        <cim:IdentifiedObject.name>Load 4</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VOLTAGE_LEVEL"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_T_LOAD4">
+        <cim:IdentifiedObject.name>Load 4 terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LOAD4"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_NODE"/>
+    </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_LOAD5">
+        <cim:IdentifiedObject.name>Load 5</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VOLTAGE_LEVEL"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_T_LOAD5">
+        <cim:IdentifiedObject.name>Load 5 terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LOAD5"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_NODE"/>
+    </cim:Terminal>
+
+    <cim:ControlArea rdf:ID="_CONTROL_AREA_BE">
+        <cim:IdentifiedObject.name>Belgium</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.energyIdentCodeEic>10BE------1</entsoe:IdentifiedObject.energyIdentCodeEic>
+        <cim:ControlArea.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#ControlAreaTypeKind.Interchange"/>
+    </cim:ControlArea>
+    <cim:TieFlow rdf:ID="_TIE_FLOW1">
+        <cim:TieFlow.Terminal rdf:resource="#_T_LOAD1"/>
+        <cim:TieFlow.ControlArea rdf:resource="#_CONTROL_AREA_BE"/>
+        <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+    </cim:TieFlow>
+    <cim:TieFlow rdf:ID="_TIE_FLOW2">
+        <cim:TieFlow.Terminal rdf:resource="#_T_LOAD2"/>
+        <cim:TieFlow.ControlArea rdf:resource="#_CONTROL_AREA_BE"/>
+        <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+    </cim:TieFlow>
+    <cim:TieFlow rdf:ID="_TIE_FLOW3">
+        <cim:TieFlow.Terminal rdf:resource="#_T_LOAD3"/>
+        <cim:TieFlow.ControlArea rdf:resource="#_CONTROL_AREA_BE"/>
+        <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+    </cim:TieFlow>
+    <cim:TieFlow rdf:ID="_TIE_FLOW4">
+        <cim:TieFlow.Terminal rdf:resource="#_T_LOAD4"/>
+        <cim:TieFlow.ControlArea rdf:resource="#_CONTROL_AREA_BE"/>
+        <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+    </cim:TieFlow>
+    <cim:TieFlow rdf:ID="_TIE_FLOW5">
+        <cim:TieFlow.Terminal rdf:resource="#_T_LOAD5"/>
+        <cim:TieFlow.ControlArea rdf:resource="#_CONTROL_AREA_BE"/>
+        <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+    </cim:TieFlow>
+</rdf:RDF>
