@@ -98,7 +98,7 @@ public class UcteExporter implements Exporter {
                 .map(ServiceLoader.Provider::get)
                 .toList();
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
-        namingStrategy.initializeNetwork(network);
+        namingStrategy.initializeNetwork(network, reportNode);
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
         ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
@@ -165,16 +165,18 @@ public class UcteExporter implements Exporter {
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
 
         UcteExporterContext busesAndSwitchesContext = context.withReportNode(UcteExporterReports.busesAndSwitches(reportNode));
-        network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
-            voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
-                if (isYNode(bus)) {
-                    LOGGER.warn("Ignoring YNode {}", bus.getId());
-                } else {
-                    convertBus(ucteNetwork, bus, busesAndSwitchesContext);
-                }
-            });
-            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
-        }));
+        network.getVoltageLevelStream()
+                .filter(namingStrategy.getExportedVoltageLevels()::isExported)
+                .forEach(voltageLevel -> {
+                    voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
+                        if (isYNode(bus)) {
+                            LOGGER.warn("Ignoring YNode {}", bus.getId());
+                        } else {
+                            convertBus(ucteNetwork, bus, busesAndSwitchesContext);
+                        }
+                    });
+                    voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
+                });
 
         UcteExporterContext boundaryLinesContext = context.withReportNode(UcteExporterReports.boundaryLines(reportNode));
         network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, boundaryLinesContext));
