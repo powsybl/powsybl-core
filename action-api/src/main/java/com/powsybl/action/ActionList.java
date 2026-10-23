@@ -7,11 +7,11 @@
  */
 package com.powsybl.action;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,11 +50,7 @@ public class ActionList {
 
     public static ActionList readJsonInputStream(InputStream is) {
         Objects.requireNonNull(is);
-        try {
-            return createObjectMapper().readValue(is, ActionList.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return createJsonMapper().readValue(is, ActionList.class);
     }
 
     /**
@@ -73,17 +69,14 @@ public class ActionList {
      * Writes action list as JSON to an output stream.
      */
     public void writeJsonOutputStream(OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, this);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, this);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new ActionJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new ActionJsonModule())
+            .build();
     }
 }

@@ -8,16 +8,15 @@
 package com.powsybl.commons.extensions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -26,14 +25,14 @@ import java.io.IOException;
 public class BarExtSerializer implements ExtensionJsonSerializer<Foo, BarExt> {
 
     @Override
-    public void serialize(BarExt extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(BarExt extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeBooleanField("value", extension.getValue());
+        jsonGenerator.writeBooleanProperty("value", extension.getValue());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public BarExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public BarExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         // does nothing
         return null;
     }
@@ -47,16 +46,17 @@ public class BarExtSerializer implements ExtensionJsonSerializer<Foo, BarExt> {
         Foo getExtendable();
     }
 
-    private static ObjectMapper createMapper() {
-        return JsonUtil.createObjectMapper()
-                .addMixIn(BarExt.class, SerializationSpec.class);
+    private static JsonMapper createMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addMixIn(BarExt.class, SerializationSpec.class)
+            .build();
     }
 
     @Override
-    public BarExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, BarExt parameters) throws IOException {
-        ObjectMapper objectMapper = createMapper();
-        ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-        BarExt updatedParameters = objectReader.readValue(jsonParser, BarExt.class);
+    public BarExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, BarExt parameters) throws JacksonException {
+        JsonMapper jsonMapper = createMapper();
+        ObjectReader objectReader = jsonMapper.readerForUpdating(parameters);
+        BarExt updatedParameters = objectReader.readValue(jsonParser);
         return updatedParameters;
     }
 

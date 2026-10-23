@@ -7,16 +7,16 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.list.AbstractEquipmentCriterionContingencyList;
 import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.PropertyCriterion;
 import com.powsybl.iidm.criteria.RegexCriterion;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,10 +38,10 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
     }
 
     protected boolean deserializeCommonAttributes(JsonParser parser, DeserializationContext ctx,
-                                                  ParsingContext parsingCtx, String name, String expectedType) throws IOException {
+                                                  ParsingContext parsingCtx, String name, String expectedType) throws JacksonException {
         switch (name) {
             case "name" -> {
-                parsingCtx.name = parser.nextTextValue();
+                parsingCtx.name = parser.nextStringValue();
                 return true;
             }
             case "countryCriterion" -> {
@@ -69,7 +69,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                 return true;
             }
             case "type" -> {
-                if (expectedType == null || !expectedType.equals(parser.nextTextValue())) {
+                if (expectedType == null || !expectedType.equals(parser.nextStringValue())) {
                     throw new IllegalStateException("type should be: " + expectedType);
                 }
                 return true;

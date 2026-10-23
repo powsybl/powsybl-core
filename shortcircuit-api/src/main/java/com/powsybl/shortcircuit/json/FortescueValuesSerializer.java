@@ -7,13 +7,12 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueValue;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -24,16 +23,16 @@ public class FortescueValuesSerializer extends StdSerializer<FortescueValue> {
     }
 
     @Override
-    public void serialize(FortescueValue value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(FortescueValue value, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
         // Fortescue components.
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directMagnitude", value.getPositiveMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "zeroMagnitude", value.getZeroMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseMagnitude", value.getNegativeMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directAngle", value.getPositiveAngle());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "zeroAngle", value.getZeroAngle());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseAngle", value.getNegativeAngle());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "directMagnitude", value.getPositiveMagnitude());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "zeroMagnitude", value.getZeroMagnitude());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "inverseMagnitude", value.getNegativeMagnitude());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "directAngle", value.getPositiveAngle());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "zeroAngle", value.getZeroAngle());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "inverseAngle", value.getNegativeAngle());
 
         jsonGenerator.writeEndObject();
     }

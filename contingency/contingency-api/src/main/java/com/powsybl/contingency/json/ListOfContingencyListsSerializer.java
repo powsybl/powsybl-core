@@ -7,12 +7,11 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.contingency.list.ListOfContingencyLists;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -24,12 +23,12 @@ public class ListOfContingencyListsSerializer extends StdSerializer<ListOfContin
     }
 
     @Override
-    public void serialize(ListOfContingencyLists listOfContingencyLists, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ListOfContingencyLists listOfContingencyLists, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", listOfContingencyLists.getType());
-        jsonGenerator.writeStringField("version", ListOfContingencyLists.getVersion());
-        jsonGenerator.writeStringField("name", listOfContingencyLists.getName());
-        serializerProvider.defaultSerializeField("contingencyLists",
+        jsonGenerator.writeStringProperty("type", listOfContingencyLists.getType());
+        jsonGenerator.writeStringProperty("version", ListOfContingencyLists.getVersion());
+        jsonGenerator.writeStringProperty("name", listOfContingencyLists.getName());
+        serializationContext.defaultSerializeProperty("contingencyLists",
                 listOfContingencyLists.getContingencyLists(),
                 jsonGenerator);
         jsonGenerator.writeEndObject();

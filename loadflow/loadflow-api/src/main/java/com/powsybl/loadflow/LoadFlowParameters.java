@@ -8,7 +8,6 @@
 package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -19,6 +18,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.util.ByteArrayBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

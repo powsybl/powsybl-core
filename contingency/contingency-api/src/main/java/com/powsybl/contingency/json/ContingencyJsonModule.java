@@ -7,7 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.list.*;
@@ -26,6 +25,7 @@ import com.powsybl.iidm.criteria.json.VoltageIntervalSerializer;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer;
 import com.powsybl.iidm.network.identifiers.json.IdentifierSerializer;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

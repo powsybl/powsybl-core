@@ -7,15 +7,13 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import org.jgrapht.alg.util.Triple;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -95,19 +93,15 @@ public class SensitivityAnalysisResult {
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state, Status status) {
-            try {
-                jsonGenerator.writeStartObject();
-                if (state.contingencyId() != null) {
-                    jsonGenerator.writeStringField("contingencyId", state.contingencyId());
-                }
-                if (state.operatorStrategyId() != null) {
-                    jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
-                }
-                jsonGenerator.writeStringField("status", status.name());
-                jsonGenerator.writeEndObject();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            jsonGenerator.writeStartObject();
+            if (state.contingencyId() != null) {
+                jsonGenerator.writeStringProperty("contingencyId", state.contingencyId());
             }
+            if (state.operatorStrategyId() != null) {
+                jsonGenerator.writeStringProperty("operatorStrategyId", state.operatorStrategyId());
+            }
+            jsonGenerator.writeStringProperty("status", status.name());
+            jsonGenerator.writeEndObject();
         }
 
         static final class ParsingContext {
@@ -120,23 +114,19 @@ public class SensitivityAnalysisResult {
             Objects.requireNonNull(parser);
 
             var context = new SensitivityStateStatus.ParsingContext();
-            try {
-                JsonToken token;
-                while ((token = parser.nextToken()) != null) {
-                    if (token == JsonToken.FIELD_NAME) {
-                        parseJson(parser, context, version == null ? VERSION : version);
-                    } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityStateStatus(new SensitivityState(context.contingencyId, context.operatorStrategyId),
-                                                          context.status);
-                    }
+            JsonToken token;
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.PROPERTY_NAME) {
+                    parseJson(parser, context, version == null ? VERSION : version);
+                } else if (token == JsonToken.END_OBJECT) {
+                    return new SensitivityStateStatus(new SensitivityState(context.contingencyId, context.operatorStrategyId),
+                                                      context.status);
                 }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
             }
             throw new PowsyblException("Parsing error");
         }
 
-        private static void parseJson(JsonParser parser, SensitivityStateStatus.ParsingContext context, String version) throws IOException {
+        private static void parseJson(JsonParser parser, SensitivityStateStatus.ParsingContext context, String version) {
             String fieldName = parser.currentName();
             switch (fieldName) {
                 case "contingencyId":
