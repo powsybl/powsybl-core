@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkEventRecorder;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -15,6 +16,7 @@ import com.powsybl.iidm.network.events.ExtensionRemovalNetworkEvent;
 import com.powsybl.iidm.network.events.ExtensionUpdateNetworkEvent;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +40,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
                     .newControlZone()
                         .withName("z1")
                         .newPilotPoint()
-                            .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+                            .withBusIds(List.of("NLOAD"))
                             .withTargetV(15d)
                         .add()
                         .newControlUnit()
@@ -59,7 +61,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
         ControlZone z1 = control.getControlZones().get(0);
         assertEquals("z1", z1.getName());
         assertNotNull(z1.getPilotPoint());
-        assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
+        assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusIds());
         assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
         assertEquals(2, z1.getControlUnits().size());
         assertEquals("GEN", z1.getControlUnits().get(0).getId());
@@ -109,7 +111,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
                 .newControlZone()
                     .withName("z2")
                     .newPilotPoint()
-                        .withBusbarSectionsOrBusesIds(List.of("NGEN"))
+                        .withBusIds(List.of("NGEN"))
                         .withTargetV(7d)
                     .add()
                     .newControlUnit()
@@ -194,13 +196,13 @@ public abstract class AbstractSecondaryVoltageControlTest {
         ControlZone z1 = control.getControlZones().get(0);
         assertEquals("z1", z1.getName());
         assertNotNull(z1.getPilotPoint());
-        assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
+        assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusIds());
         assertEquals("GEN", z1.getControlUnits().get(0).getId());
 
         network.getIdentifiable("NLOAD").setId("NLOAD_NEW_ID");
         network.getIdentifiable("GEN").setId("GEN_NEW_ID");
 
-        assertEquals(List.of("NLOAD_NEW_ID"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
+        assertEquals(List.of("NLOAD_NEW_ID"), z1.getPilotPoint().getBusIds());
         assertEquals("GEN_NEW_ID", z1.getControlUnits().get(0).getId());
         assertEquals(2, z1.getControlUnits().size());
 
@@ -208,5 +210,125 @@ public abstract class AbstractSecondaryVoltageControlTest {
 
         assertEquals("GEN2", z1.getControlUnits().get(0).getId());
         assertEquals(1, z1.getControlUnits().size());
+    }
+
+    @Test
+    public void secondaryVoltageControlBusbarSectionUpdateListenerTest() {
+        Network nodeBreakerNetwork = NetworkTest1Factory.create();
+        SecondaryVoltageControl nodeBreakerControl = nodeBreakerNetwork.newExtension(SecondaryVoltageControlAdder.class)
+                .newControlZone()
+                    .withName("z1")
+                    .newPilotPoint()
+                        .withBusbarSectionIds(List.of("voltageLevel1BusbarSection1", "voltageLevel1BusbarSection2"))
+                        .withTargetV(400d)
+                    .add()
+                    .newControlUnit()
+                        .withId("generator1")
+                        .withParticipate(false)
+                    .add()
+                .add()
+            .add();
+
+        PilotPoint pilotPoint = nodeBreakerControl.getControlZones().get(0).getPilotPoint();
+        assertEquals(List.of(), pilotPoint.getBusIds());
+        assertEquals(List.of("voltageLevel1BusbarSection1", "voltageLevel1BusbarSection2"), pilotPoint.getBusbarSectionIds());
+
+        // renaming a busbar section is propagated to the pilot point busbar section IDs
+        nodeBreakerNetwork.getIdentifiable("voltageLevel1BusbarSection1").setId("voltageLevel1BusbarSection1_NEW_ID");
+        assertEquals(List.of("voltageLevel1BusbarSection1_NEW_ID", "voltageLevel1BusbarSection2"), pilotPoint.getBusbarSectionIds());
+
+        // removing a busbar section removes it from the pilot point busbar section IDs
+        nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection2").remove();
+        assertEquals(List.of("voltageLevel1BusbarSection1_NEW_ID"), pilotPoint.getBusbarSectionIds());
+        assertEquals(List.of(), pilotPoint.getBusIds());
+    }
+
+    private static SecondaryVoltageControl createNodeBreakerControl(Network nodeBreakerNetwork, String activeBusOrBusbarSectionId) {
+        return nodeBreakerNetwork.newExtension(SecondaryVoltageControlAdder.class)
+                .newControlZone()
+                    .withName("z1")
+                    .newPilotPoint()
+                        .withBusbarSectionIds(List.of("voltageLevel1BusbarSection1", "voltageLevel1BusbarSection2"))
+                        .withActiveBusOrBusbarSectionId(activeBusOrBusbarSectionId)
+                        .withTargetV(400d)
+                    .add()
+                    .newControlUnit()
+                        .withId("generator1")
+                    .add()
+                .add()
+            .add();
+    }
+
+    @Test
+    public void activeBusOrBusbarSectionTest() {
+        // not defined by default
+        assertTrue(control.getControlZones().get(0).getPilotPoint().getActiveBusOrBusbarSectionId().isEmpty());
+
+        Network nodeBreakerNetwork = NetworkTest1Factory.create();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createNodeBreakerControl(nodeBreakerNetwork, "load1"));
+        assertEquals("Active bus or busbar section 'load1' is not one of the pilot point buses or busbar sections", e.getMessage());
+
+        PilotPoint pilotPoint = createNodeBreakerControl(nodeBreakerNetwork, "voltageLevel1BusbarSection1")
+                .getControlZones().get(0).getPilotPoint();
+        assertEquals("voltageLevel1BusbarSection1", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        nodeBreakerNetwork.addListener(eventRecorder);
+        pilotPoint.setActiveBusOrBusbarSectionId("voltageLevel1BusbarSection2");
+        assertEquals("voltageLevel1BusbarSection2", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("network", "secondaryVoltageControl", "pilotPointActiveBusOrBusbarSectionId", "InitialState",
+                        new PilotPoint.ActiveBusOrBusbarSectionEvent("z1", "voltageLevel1BusbarSection1"),
+                        new PilotPoint.ActiveBusOrBusbarSectionEvent("z1", "voltageLevel1BusbarSection2"))),
+                eventRecorder.getEvents());
+
+        // setting the same value does not notify
+        eventRecorder.reset();
+        pilotPoint.setActiveBusOrBusbarSectionId("voltageLevel1BusbarSection2");
+        assertTrue(eventRecorder.getEvents().isEmpty());
+
+        e = assertThrows(PowsyblException.class, () -> pilotPoint.setActiveBusOrBusbarSectionId("load1"));
+        assertEquals("Active bus or busbar section 'load1' is not one of the pilot point buses or busbar sections", e.getMessage());
+
+        // unset
+        pilotPoint.setActiveBusOrBusbarSectionId(null);
+        assertTrue(pilotPoint.getActiveBusOrBusbarSectionId().isEmpty());
+    }
+
+    @Test
+    public void activeBusOrBusbarSectionVariantTest() {
+        Network nodeBreakerNetwork = NetworkTest1Factory.create();
+        PilotPoint pilotPoint = createNodeBreakerControl(nodeBreakerNetwork, "voltageLevel1BusbarSection1")
+                .getControlZones().get(0).getPilotPoint();
+
+        nodeBreakerNetwork.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
+        nodeBreakerNetwork.getVariantManager().setWorkingVariant("v");
+        assertEquals("voltageLevel1BusbarSection1", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+        pilotPoint.setActiveBusOrBusbarSectionId("voltageLevel1BusbarSection2");
+        assertEquals("voltageLevel1BusbarSection2", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+
+        // check the initial variant is unchanged
+        nodeBreakerNetwork.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals("voltageLevel1BusbarSection1", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+
+        // check variant copy
+        nodeBreakerNetwork.getVariantManager().cloneVariant("v", "v2");
+        nodeBreakerNetwork.getVariantManager().setWorkingVariant("v2");
+        assertEquals("voltageLevel1BusbarSection2", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+
+        // remove variant 'v' and check 'v2' is unchanged
+        nodeBreakerNetwork.getVariantManager().removeVariant("v");
+        assertEquals("voltageLevel1BusbarSection2", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+
+        // renaming the active busbar section is propagated to all variants
+        nodeBreakerNetwork.getIdentifiable("voltageLevel1BusbarSection2").setId("voltageLevel1BusbarSection2_NEW_ID");
+        assertEquals("voltageLevel1BusbarSection2_NEW_ID", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+        nodeBreakerNetwork.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals("voltageLevel1BusbarSection1", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+
+        // removing the active busbar section unsets it only in the variants where it was active
+        nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection2_NEW_ID").remove();
+        assertEquals("voltageLevel1BusbarSection1", pilotPoint.getActiveBusOrBusbarSectionId().orElseThrow());
+        nodeBreakerNetwork.getVariantManager().setWorkingVariant("v2");
+        assertTrue(pilotPoint.getActiveBusOrBusbarSectionId().isEmpty());
     }
 }
