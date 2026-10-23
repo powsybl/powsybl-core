@@ -94,7 +94,7 @@ class ExtensionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testReadJsonWithReportNode() throws IOException {
+    void testReadJsonWithReportNode() {
         final ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root_message").build();
         Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/extensions.json"), reportNode);
         assertEquals(1, foo.getExtensions().size());
@@ -152,7 +152,7 @@ class ExtensionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testUpdateAndDeserializeWithReportNode() throws IOException {
+    void testUpdateAndDeserializeWithReportNode() {
         final ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root_message").build();
         Foo foo = new Foo();
         FooExt fooExt = new FooExt(false, "Hello");

@@ -19,7 +19,6 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
-import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -232,9 +231,6 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     @Test
     void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
         SensitivityAnalysisResult.SensitivityStateStatus value = new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("C1"), SensitivityAnalysisResult.Status.SUCCESS);
-        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
-            .addModule(new SensitivityJsonModule())
-            .build();
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, jsonMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, jsonMapper), "/stateStatusRef.json");
     }

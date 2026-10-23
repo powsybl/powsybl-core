@@ -105,23 +105,9 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
-        SecurityAnalysisResult result = null;
-        if (preContingencyResult == null) {
-            LoadFlowResult.ComponentResult.Status status = null;
-            if (limitViolationsResult != null && JsonUtil.compareVersions(version, "1.0") == 0) {
-                status = limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
-            } else {
-                status = LoadFlowResult.ComponentResult.Status.CONVERGED;
-            }
-            result = new SecurityAnalysisResult(limitViolationsResult, status, postContingencyResults, Collections.emptyList(),
-                    Collections.emptyList(), Collections.emptyList(), operatorStrategyResults);
-        } else {
-            result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults, operatorStrategyResults);
-        }
-        result.setNetworkMetadata(networkMetadata);
-        SUPPLIER.get().addExtensions(result, extensions);
 
-        return result;
+        return createSecurityAnalysisResult(preContingencyResult, limitViolationsResult, version, postContingencyResults,
+            operatorStrategyResults, networkMetadata, extensions);
     }
 
     public static SecurityAnalysisResult read(Path jsonFile) {
@@ -140,5 +126,28 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
             .addModule(new ActionJsonModule())
             .build();
         return jsonMapper.readValue(is, SecurityAnalysisResult.class);
+    }
+
+    private SecurityAnalysisResult createSecurityAnalysisResult(PreContingencyResult preContingencyResult, LimitViolationsResult limitViolationsResult,
+                                                                String version, List<PostContingencyResult> postContingencyResults,
+                                                                List<OperatorStrategyResult> operatorStrategyResults, NetworkMetadata networkMetadata,
+                                                                List<Extension<SecurityAnalysisResult>> extensions) {
+        SecurityAnalysisResult result;
+        if (preContingencyResult == null) {
+            LoadFlowResult.ComponentResult.Status status;
+            if (limitViolationsResult != null && JsonUtil.compareVersions(version, "1.0") == 0) {
+                status = limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
+            } else {
+                status = LoadFlowResult.ComponentResult.Status.CONVERGED;
+            }
+            result = new SecurityAnalysisResult(limitViolationsResult, status, postContingencyResults, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), operatorStrategyResults);
+        } else {
+            result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults, operatorStrategyResults);
+        }
+        result.setNetworkMetadata(networkMetadata);
+        SUPPLIER.get().addExtensions(result, extensions);
+
+        return result;
     }
 }
