@@ -11,91 +11,96 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util.Networks.IdentifierChangeSkipped;
+import com.powsybl.iidm.network.util.Networks.IdentifierChangeSkipped.IdentifierChangeSkippedReason;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class ReplaceIdsWithNamesTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReplaceIdsWithNamesTest.class);
+    @Test
+    void testSvedala() {
+        Network network = ConversionUtil.networkModel(Cgmes3Catalog.svedala(), new Conversion.Config());
 
-    private static final String ALIAS_TYPE_ORIGINAL_ID = "original-id";
+        List<IdentifierChangeSkipped> skipped = Networks.replaceIdsWithNames(network);
 
-    /**
-     * Replaces the id of every named identifiable by its name, keeping the original id
-     * reachable as an alias of type {@link #ALIAS_TYPE_ORIGINAL_ID}.
-     * <p>
-     * Notes on the implementation:
-     * <ul>
-     *   <li>The identifiables are collected into a list first: {@code setId} mutates the
-     *       network index, and {@code getIdentifiables()} is a live view of it.</li>
-     *   <li>{@code Network} instances (including subnetworks) are excluded: they are
-     *       registered in the index too, but renaming them is out of scope.</li>
-     *   <li>{@code setId} must be called before {@code addAlias}: if the object still has
-     *       the original id, {@code NetworkIndex.addAlias} would silently ignore the request.</li>
-     *   <li>Identifiables whose name already equals their id are skipped.</li>
-     * </ul>
-     */
-    static void replaceIdsWithNames(Network network) {
-        network.getIdentifiables().stream()
-                .filter(i -> !(i instanceof Network))
-                .toList()
-                .forEach(i -> i.getOptionalName()
-                        .filter(name -> !name.equals(i.getId()))
-                        .ifPresent(name -> {
-                            String originalId = i.getId();
-                            Identifiable<?> clash = network.getIdentifiable(name);
-                            i.setId(clash == null ? name : name + "_" + originalId);
-                            i.addAlias(originalId, ALIAS_TYPE_ORIGINAL_ID);
-                        }));
+        checkChangedIdentifiables(network);
+
+        // For Svedala test case skips are expected, in addition to the network id not being changed.
+        assertTrue(skipped.size() > 1);
+        // Fictitious switches for disconnected terminals take their name from their terminal identifier.
+        // And the terminal identifiers have been added as aliases of the related equipment.
+        // Check that all situations where we have not been able to change the id because name was already an id
+        // correspond to these elements.
+        assertTrue(skipped.stream()
+                        .filter(p -> p.reason() == IdentifierChangeSkippedReason.UNIQUE_NAME_WAS_ID)
+                        .allMatch(p -> p.id().equals(p.name() + "_SW_fict")),
+                "unexpected UNIQUE_NAME_WAS_ID skip, not a fictitious switch derived from a terminal: " + skipped);
+        long countChanged = network.getIdentifiables().size() - skipped.size();
+
+        // If we try again over the already changed identifiers,
+        // all identifiables must be skipped
+        // There should be skipped changes with reason ORIGINAL_ID_ALIAS_ALREADY_PRESENT
+        List<IdentifierChangeSkipped> skipped1 = Networks.replaceIdsWithNames(network);
+        assertEquals(network.getIdentifiables().size(), skipped1.size());
+        assertEquals(countChanged, skipped1.stream()
+                .filter(p -> p.reason() == IdentifierChangeSkippedReason.ORIGINAL_ID_ALIAS_ALREADY_PRESENT)
+                .count());
     }
 
     @Test
-    void replaceIdsWithNamesKeepsOriginalIdResolvable() {
-        Network network = ConversionUtil.networkModel(Cgmes3Catalog.microGrid(), new Conversion.Config());
+    void testRte() {
+        Path issueFolder = Path.of("/Volumes/luma25/work/rte/powsybl/issues/3899");
+        Path originalInputFile = issueFolder.resolve("CIM_Export-16092026-1538.xml");
+        Path inputFile = issueFolder.resolve("kk-minus-scada.xml");
+        Path outputFile = issueFolder.resolve("kk-ids-are-names.xml");
 
-        int countBefore = network.getIdentifiables().size();
+        System.out.printf("Original input file was too big : %s%n", originalInputFile);
+        System.out.printf("Reading network from input file : %s...%n", inputFile);
+        Network network = Network.read(inputFile);
 
-        replaceIdsWithNames(network);
+        System.out.printf("Replacing ids by names ...%n");
+        List<IdentifierChangeSkipped> skipped = Networks.replaceIdsWithNames(network);
 
-        // Nothing must be lost or duplicated by the renaming
-        assertEquals(countBefore, network.getIdentifiables().size());
+        System.out.printf("Dump skipped changes ...%n");
+        dump(skipped);
 
-        int clean = 0;
-        int suffixed = 0;
-        int untouched = 0;
+        System.out.printf("Writing modified network to file: %s ...%n", outputFile);
+        network.write("XIIDM", null, outputFile);
 
+        System.out.printf("Checking changed identifiables ...%n");
+        checkChangedIdentifiables(network);
+    }
+
+    private void checkChangedIdentifiables(Network network) {
         for (Identifiable<?> i : network.getIdentifiables()) {
-            String originalId = i.getAliasFromType(ALIAS_TYPE_ORIGINAL_ID).orElse(null);
-            if (originalId == null) {
-                untouched++;
+            // An identifiable has been changed if it has an alias for the original id
+            Optional<String> originalId = i.getAliasFromType(Networks.ALIAS_TYPE_ORIGINAL_ID);
+            if (originalId.isEmpty()) {
                 continue;
             }
 
             // The original id must still resolve to the same object, now through the alias
-            assertSame(i, network.getIdentifiable(originalId));
+            assertSame(i, network.getIdentifiable(originalId.get()));
 
-            // And the new id must be either the name, or the name disambiguated with the old id
-            String name = i.getNameOrId();
-            if (i.getId().equals(name)) {
-                clean++;
-            } else {
-                assertEquals(name + "_" + originalId, i.getId());
-                suffixed++;
-            }
+            // And this object must have a name, and it must be equal to its id
+            assertEquals(i.getOptionalName().orElseThrow(), i.getId());
         }
+    }
 
-        LOGGER.error("replaceIdsWithNames: clean={} suffixed={} untouched={} (total={})",
-                clean, suffixed, untouched, countBefore);
-
-        // Check that the mechanism actually has renamed something
-        assertTrue(clean + suffixed > 0, "no identifiable was renamed");
+    private static void dump(List<IdentifierChangeSkipped> skipped) {
+        System.out.printf("Id,Name,Reason%n");
+        for (IdentifierChangeSkipped s : skipped) {
+            System.out.printf("%s,%s,%s%n", s.id(), s.name(), s.reason());
+        }
     }
 }
