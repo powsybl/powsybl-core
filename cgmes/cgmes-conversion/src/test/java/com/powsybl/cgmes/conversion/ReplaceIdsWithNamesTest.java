@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.util.Networks.IdentifierChangeSkipped;
 import com.powsybl.iidm.network.util.Networks.IdentifierChangeSkipped.IdentifierChangeSkippedReason;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,30 +56,6 @@ class ReplaceIdsWithNamesTest {
                 .count());
     }
 
-    @Test
-    void testRte() {
-        Path issueFolder = Path.of("/Volumes/luma25/work/rte/powsybl/issues/3899");
-        Path originalInputFile = issueFolder.resolve("CIM_Export-16092026-1538.xml");
-        Path inputFile = issueFolder.resolve("kk-minus-scada.xml");
-        Path outputFile = issueFolder.resolve("kk-ids-are-names.xml");
-
-        System.out.printf("Original input file was too big : %s%n", originalInputFile);
-        System.out.printf("Reading network from input file : %s...%n", inputFile);
-        Network network = Network.read(inputFile);
-
-        System.out.printf("Replacing ids by names ...%n");
-        List<IdentifierChangeSkipped> skipped = Networks.replaceIdsWithNames(network);
-
-        System.out.printf("Dump skipped changes ...%n");
-        dump(skipped);
-
-        System.out.printf("Writing modified network to file: %s ...%n", outputFile);
-        network.write("XIIDM", null, outputFile);
-
-        System.out.printf("Checking changed identifiables ...%n");
-        checkChangedIdentifiables(network);
-    }
-
     private void checkChangedIdentifiables(Network network) {
         for (Identifiable<?> i : network.getIdentifiables()) {
             // An identifiable has been changed if it has an alias for the original id
@@ -94,13 +69,6 @@ class ReplaceIdsWithNamesTest {
 
             // And this object must have a name, and it must be equal to its id
             assertEquals(i.getOptionalName().orElseThrow(), i.getId());
-        }
-    }
-
-    private static void dump(List<IdentifierChangeSkipped> skipped) {
-        System.out.printf("Id,Name,Reason%n");
-        for (IdentifierChangeSkipped s : skipped) {
-            System.out.printf("%s,%s,%s%n", s.id(), s.name(), s.reason());
         }
     }
 }
