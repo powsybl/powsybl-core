@@ -9,16 +9,7 @@ package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.BoundaryLine;
-import com.powsybl.iidm.network.BoundaryLineFilter;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.converter.util.UcteExporterReports;
 import com.powsybl.ucte.network.UcteElement;
 import com.powsybl.ucte.network.UcteElementId;
@@ -53,8 +44,8 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
     @Override
     public void process(Network network, UcteNetwork ucteNetwork, UcteExporterContext context) {
         boolean hasLoadFlowResults = network.getBusView().getBusStream()
-                .filter(Bus::isInMainConnectedComponent)
-                .anyMatch(bus -> !Double.isNaN(bus.getV()));
+                                            .filter(Bus::isInMainConnectedComponent)
+                                            .anyMatch(bus -> !Double.isNaN(bus.getV()));
         if (!hasLoadFlowResults) {
             LOGGER.warn("No load flow results in the main connected component: no element exported out of operation");
             UcteExporterReports.noLoadFlowResults(context.getReportNode());
@@ -64,40 +55,81 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
         // Same order as the conversion of the exporter
         NamingStrategy namingStrategy = context.getNamingStrategy();
         Map<UcteElementId, IdentifiableType> deenergizedElements = new LinkedHashMap<>();
+
         network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel ->
                 voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> {
                     if (isDeenergized(voltageLevel, sw)) {
-                        setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(sw)), sw.getType(), deenergizedElements);
+                        setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(sw)),
+                                sw.getType(),
+                                deenergizedElements);
                     }
                 })));
-        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> {
-            if (isDeenergized(boundaryLine.getTerminal())) {
-                setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(boundaryLine)), boundaryLine.getType(), deenergizedElements);
-            }
-        });
-        network.getLines().forEach(line -> {
-            if (isDeenergized(line)) {
-                setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(line)), line.getType(), deenergizedElements);
-            }
-        });
-        network.getTieLines().forEach(tieLine -> {
-            for (BoundaryLine boundaryLine : new BoundaryLine[] {tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2()}) {
-                if (isDeenergized(boundaryLine.getTerminal())) {
-                    setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(boundaryLine.getId())), tieLine.getType(), deenergizedElements);
-                }
-            }
-        });
-        network.getTwoWindingsTransformers().forEach(transformer -> {
-            if (isDeenergized(transformer)) {
-                setOutOfOperation(ucteNetwork.getTransformer(namingStrategy.getUcteElementId(transformer)), transformer.getType(), deenergizedElements);
-            }
-        });
+
+        deenergizeBoundaryLines(network, ucteNetwork, namingStrategy, deenergizedElements);
+        deenergizeLines(network, ucteNetwork, namingStrategy, deenergizedElements);
+        deenergizeTieLines(network, ucteNetwork, namingStrategy, deenergizedElements);
+        deenergizeTransformers(network, ucteNetwork, namingStrategy, deenergizedElements);
 
         if (!deenergizedElements.isEmpty()) {
-            ReportNode reportNode = UcteExporterReports.deenergizedElements(context.getReportNode(), deenergizedElements.size());
+            ReportNode reportNode =
+                    UcteExporterReports.deenergizedElements(context.getReportNode(), deenergizedElements.size());
             deenergizedElements.forEach((ucteElementId, elementType) ->
                     UcteExporterReports.deenergizedElement(reportNode, elementType, ucteElementId.toString()));
         }
+    }
+
+    private static void deenergizeTransformers(Network network,
+                                               UcteNetwork ucteNetwork,
+                                               NamingStrategy namingStrategy,
+                                               Map<UcteElementId, IdentifiableType> deenergizedElements) {
+        network.getTwoWindingsTransformers().forEach(transformer -> {
+            if (isDeenergized(transformer)) {
+                setOutOfOperation(ucteNetwork.getTransformer(namingStrategy.getUcteElementId(transformer)),
+                        transformer.getType(),
+                        deenergizedElements);
+            }
+        });
+    }
+
+    private static void deenergizeTieLines(Network network,
+                                           UcteNetwork ucteNetwork,
+                                           NamingStrategy namingStrategy,
+                                           Map<UcteElementId, IdentifiableType> deenergizedElements) {
+        network.getTieLines().forEach(tieLine -> {
+            for (BoundaryLine boundaryLine : new BoundaryLine[]{tieLine.getBoundaryLine1(),
+                    tieLine.getBoundaryLine2()}) {
+                if (isDeenergized(boundaryLine.getTerminal())) {
+                    setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(boundaryLine.getId())),
+                            tieLine.getType(),
+                            deenergizedElements);
+                }
+            }
+        });
+    }
+
+    private static void deenergizeLines(Network network,
+                                        UcteNetwork ucteNetwork,
+                                        NamingStrategy namingStrategy,
+                                        Map<UcteElementId, IdentifiableType> deenergizedElements) {
+        network.getLines().forEach(line -> {
+            if (isDeenergized(line)) {
+                setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(line)), line.getType(),
+                        deenergizedElements);
+            }
+        });
+    }
+
+    private static void deenergizeBoundaryLines(Network network,
+                                                UcteNetwork ucteNetwork,
+                                                NamingStrategy namingStrategy,
+                                                Map<UcteElementId, IdentifiableType> deenergizedElements) {
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> {
+            if (isDeenergized(boundaryLine.getTerminal())) {
+                setOutOfOperation(ucteNetwork.getLine(namingStrategy.getUcteElementId(boundaryLine)),
+                        boundaryLine.getType(),
+                        deenergizedElements);
+            }
+        });
     }
 
     /**
@@ -127,7 +159,7 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
      * with a configured bus with a voltage is energized.
      *
      * @param voltageLevel the voltage level of the switch
-     * @param sw the switch to test
+     * @param sw           the switch to test
      * @return true if the switch is closed and has no voltage
      */
     private static boolean isDeenergized(VoltageLevel voltageLevel, Switch sw) {
@@ -139,8 +171,8 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
             return true;
         }
         return isDeenergized(voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER
-                ? voltageLevel.getBusView().getMergedBus(bus1.getId())
-                : bus1);
+                             ? voltageLevel.getBusView().getMergedBus(bus1.getId())
+                             : bus1);
     }
 
     /**
@@ -156,11 +188,13 @@ public class DeenergizedBranchesPostProcessor implements UcteExportPostProcessor
     /**
      * Set a UCTE element out of operation if it is in operation, and record it.
      *
-     * @param ucteElement the UCTE element, possibly null if the element is not exported
-     * @param elementType the type of the IIDM element
+     * @param ucteElement         the UCTE element, possibly null if the element is not exported
+     * @param elementType         the type of the IIDM element
      * @param deenergizedElements the types of the IIDM elements set out of operation, by UCTE element id
      */
-    private static void setOutOfOperation(UcteElement ucteElement, IdentifiableType elementType, Map<UcteElementId, IdentifiableType> deenergizedElements) {
+    private static void setOutOfOperation(UcteElement ucteElement,
+                                          IdentifiableType elementType,
+                                          Map<UcteElementId, IdentifiableType> deenergizedElements) {
         if (ucteElement == null) {
             return;
         }
