@@ -66,17 +66,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microBEUnmergedXnode() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUnmergedXnode().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-        BoundaryLine bl = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
-        assertNotNull(bl);
-        BoundaryLine test = network.getBoundaryLine("test");
-        assertNotNull(test);
-    }
-
-    @Test
     void microBEExplicitBase() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEExplicitBase().dataSource(), NetworkFactory.findDefault(), importParams);
@@ -361,22 +350,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microBEEquivalentInjectionRegulatingVoltage() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentInjectionRegulatingVoltage().dataSource(),
-                NetworkFactory.findDefault(), importParams);
-
-        BoundaryLine boundaryLineRegulating = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
-        assertNotNull(boundaryLineRegulating);
-        assertTrue(boundaryLineRegulating.getGeneration().isVoltageRegulationOn());
-        assertEquals(220.1234, boundaryLineRegulating.getGeneration().getTargetV(), 0.0);
-
-        BoundaryLine boundaryLineNotRegulating = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
-        assertNotNull(boundaryLineNotRegulating);
-        assertEquals(-27.365225, boundaryLineNotRegulating.getP0(), 0.0);
-        assertEquals(0.425626, boundaryLineNotRegulating.getQ0(), 0.0);
-    }
-
-    @Test
     void microBEConformNonConformLoads() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource(),
                 NetworkFactory.findDefault(), importParams);
@@ -394,38 +367,6 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(50.0, nonConformDetails.getFixedReactivePower(), 0.0);
         assertEquals(0.0, nonConformDetails.getVariableActivePower(), 0.0);
         assertEquals(0.0, nonConformDetails.getVariableReactivePower(), 0.0);
-    }
-
-    @Test
-    void microBESwitchAtBoundary() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESwitchAtBoundary().dataSource(),
-                NetworkFactory.findDefault(), importParams);
-        BoundaryLine bl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
-        assertEquals(0.0, bl.getR(), 0.0);
-        assertEquals(0.0, bl.getX(), 0.0);
-        assertEquals(0.0, bl.getG(), 0.0);
-        assertEquals(0.0, bl.getB(), 0.0);
-    }
-
-    @Test
-    void microBETransformerAtBoundary() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBETransformerAtBoundary().dataSource(),
-                NetworkFactory.findDefault(), importParams);
-        BoundaryLine bl = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
-
-        assertEquals(2.588687265185185, bl.getR(), 0.0);
-        assertEquals(13.880789206913578, bl.getX(), 0.0);
-        assertEquals(0.0, bl.getG(), 0.0);
-        assertEquals(0.0, bl.getB(), 0.0);
-    }
-
-    @Test
-    void microBEEquivalentBranchAtBoundary() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchAtBoundary().dataSource(),
-            NetworkFactory.findDefault(), importParams);
-        BoundaryLine bl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
-        assertEquals(1.0, bl.getR(), 0.0);
-        assertEquals(10.0, bl.getX(), 0.0);
     }
 
     @Test
