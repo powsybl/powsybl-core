@@ -4,6 +4,7 @@ target/
 # IntelliJ
 /.idea
 *.iml
+.sonar/
 
 # Compilation settings
 install.cfg
