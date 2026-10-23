@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:svc_invalid_cim16_EQ">
+        <md:Model.created>2014-10-24T16:53:10</md:Model.created>
+        <md:Model.scenarioTime>2014-03-28T10:13:02</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.description>Static var compensator with an invalid control mode</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentShortCircuit/3/1</md:Model.profile>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="_GR_BE">
+        <cim:IdentifiedObject.name>BE</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:RegulatingControl rdf:ID="_RC_SVC_1">
+        <cim:IdentifiedObject.name>SVC-1230797516</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.badMode"/>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T_SVC_1_1"/>
+    </cim:RegulatingControl>
+    <cim:StaticVarCompensator rdf:ID="_SVC_1">
+        <cim:IdentifiedObject.name>SVC-1230797516</cim:IdentifiedObject.name>
+        <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL_220_0"/>
+        <cim:StaticVarCompensator.capacitiveRating>5062.500000</cim:StaticVarCompensator.capacitiveRating>
+        <cim:StaticVarCompensator.inductiveRating>-5062.500000</cim:StaticVarCompensator.inductiveRating>
+        <cim:StaticVarCompensator.slope>0.102000</cim:StaticVarCompensator.slope>
+        <cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.voltage"/>
+        <cim:StaticVarCompensator.voltageSetPoint>229.500000</cim:StaticVarCompensator.voltageSetPoint>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_RC_SVC_1"/>
+    </cim:StaticVarCompensator>
+    <cim:SubGeographicalRegion rdf:ID="_SGR_ELIA_Anvers">
+        <cim:IdentifiedObject.name>ELIA-Anvers</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GR_BE"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_ST_Anvers">
+        <cim:IdentifiedObject.name>Anvers</cim:IdentifiedObject.name>
+        <entsoe:IdentifiedObject.shortName>Anvers</entsoe:IdentifiedObject.shortName>
+        <cim:Substation.Region rdf:resource="#_SGR_ELIA_Anvers"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BV_225_kV">
+        <cim:BaseVoltage.nominalVoltage>220</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:Terminal rdf:ID="_T_SVC_1_1">
+        <cim:IdentifiedObject.name>SVC-1230797516 - T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SVC_1"/>
+    </cim:Terminal>
+    <cim:VoltageLevel rdf:ID="_VL_220_0">
+        <cim:IdentifiedObject.name>220.0</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.lowVoltageLimit>202.500000</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.highVoltageLimit>247.500000</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_ST_Anvers"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_225_kV"/>
+    </cim:VoltageLevel>
+</rdf:RDF>
