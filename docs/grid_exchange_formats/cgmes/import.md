@@ -22,6 +22,7 @@ As a result, it is common to have a single EQ file and multiple SSH files, for e
 
 To handle these cases properly, the importer supports subsequent updates to the initially imported model. 
 You can use the `Network.read` method to perform the initial import, and then apply further updates with `network.update`, where network refers to the originally imported model.
+The update reads the CGMES identifiers as the import does, using the parameters `iidm.import.cgmes.source-for-iidm-id` and `iidm.import.cgmes.decode-escaped-identifiers`, and loads the files in the triplestore given by `iidm.import.cgmes.powsybl-triplestore`; these parameters must have the same values as for the import.
 Next, we present four use cases to illustrate how both methods can be applied:
 
 **Import the entire model in a single step** 
