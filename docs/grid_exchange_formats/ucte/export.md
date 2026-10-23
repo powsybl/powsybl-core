@@ -67,6 +67,11 @@ They are only used to compare nodes of the same country (the same `##Z` block), 
 given order, each one only breaking the ties of the previous ones.
 The default natural order is always used as a final tie-break.
 
+Built-in post-processors:
+
+- `deenergized-branches-out-of-operation`: exports out of operation the elements left without voltage in the load flow
+  results, see [Line status](#line-status).
+
 Its default value is an empty list.
 
 ## From IIDM to UCTE
@@ -166,6 +171,21 @@ It is derived as follows:
 - **Boundary line**: if its `isCoupler` property is `true`, it is exported as a busbar coupler, `2` if its terminal is
   connected, `7` otherwise; if not, it follows the same real/equivalent convention as a line, based on its
   fictitiousness and terminal connection state.
+
+When the `deenergized-branches-out-of-operation` [post-processor](#options) is enabled, the statuses derived above are
+corrected using the load flow results of the network, that is the voltages of its buses (bus view). The network may or
+may not contain such results.
+
+When the network has load flow results:
+- an element in operation is exported out of operation (`0` to `8`, `1` to `9`, `2` to `7`) if one of its connected
+  terminals is on a bus without voltage;
+- a closed switch is exported out of operation (`2` to `7`) if its buses have no voltage;
+- all the other elements keep the status derived above.
+
+The network is considered to have no load flow results if no bus of its main connected component has a voltage. In
+that case, no status is changed and a warning is reported. Only the main connected component is checked because it is
+the one a load flow always computes. As a consequence, islands left out of the load flow (for example when only the
+main connected component is computed) have no voltage, and their elements are exported out of operation.
 
 #### Current limit
 
@@ -308,3 +328,11 @@ following situations are reported with a `WARN` severity:
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
 - a two-winding transformer has no usable nominal power
   (see [two-winding transformer conversion](#two-winding-transformer-conversion)).
+
+**Post-processors**<br>
+One report node is also created per applied post-processor. The `deenergized-branches-out-of-operation` post-processor
+reports, under its node:
+
+- with a `WARN` severity, that the main connected component has no load flow results,
+- with an `INFO` severity, the number of de-energized elements exported out of operation, detailed per element (type
+  and UCTE id).
