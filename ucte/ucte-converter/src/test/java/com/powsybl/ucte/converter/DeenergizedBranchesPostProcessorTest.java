@@ -135,6 +135,35 @@ class DeenergizedBranchesPostProcessorTest {
     }
 
     /**
+     * With voltages only in the separate island ("NI" area), the main connected component has no voltage, so there are
+     * no usable load flow results: the export is the same as without the post-processor.
+     */
+    @Test
+    void testLoadFlowResultsOutsideMainComponentExport() throws IOException {
+        Network network = loadTestGrid();
+        setVoltages(network, bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getId().startsWith("NI"));
+
+        assertEquals(export(network, "", ReportNode.NO_OP),
+                export(network, DeenergizedBranchesPostProcessor.NAME, ReportNode.NO_OP));
+    }
+
+    /**
+     * With voltages only in the separate island ("NI" area), a warning is reported by the post-processor.
+     */
+    @Test
+    void testLoadFlowResultsOutsideMainComponentReport() throws IOException {
+        Network network = loadTestGrid();
+        setVoltages(network, bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getId().startsWith("NI"));
+
+        ReportNode reportNode = UcteExporterReportTest.newTestRootReportNode();
+        export(network, DeenergizedBranchesPostProcessor.NAME, reportNode);
+        assertTrue(UcteExporterReportTest.checkReportNode("""
+                + Post-processor deenergized-branches-out-of-operation
+                   No load flow results in the main connected component: no element exported out of operation
+                """, getPostProcessorReportNode(reportNode)));
+    }
+
+    /**
      * The elements in operation with a terminal on a bus without voltage are exported out of operation.
      * <p>
      * Only the buses of the main area ("NA" nodes) have a voltage, except the configured bus "NA____13", which is merged
