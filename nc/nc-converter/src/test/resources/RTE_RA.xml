@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" >
+  <md:FullModel rdf:about="urn:uuid:f7b94ef6-e043-4d2a-a359-2718e6e20507">
+    <dcat:version>1.0</dcat:version>
+    <dcat:keyword>RA</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.4</dcterms:Model.conformsTo>
+    <dcat:startDate>2023-01-01T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2100-01-01T00:00:00Z</dcat:endDate>
+    <prov:Model.generatedAtTime>2023-09-04T12:59:43Z</prov:Model.generatedAtTime>
+    <prov:Model.wasInfluencedBy>urn:uuid:816a7e4f-8e78-41e7-9f32-40214675b087</prov:Model.wasInfluencedBy>
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcterms:Model.creator>http://rte-france.fr/CGMES</dcterms:Model.creator>
+    <dcterms:Model.identifier>urn:uuid:f7b94ef6-e043-4d2a-a359-2718e6e20507</dcterms:Model.identifier>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+    <dcterms:Model.description>This is an example of remedial action profile</dcterms:Model.description>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <!-- Topo 1 -->
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_be1_be4_pra">
+    <cim:IdentifiedObject.mRID>open_be1_be4_pra</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_1_PRA</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_85aff0ad-67ac-454a-82b8-c54a5511b6e9">
+    <cim:IdentifiedObject.mRID>85aff0ad-67ac-454a-82b8-c54a5511b6e9</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_BBE1AA1++BBE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_253117cf-cd11-4a9c-971d-d9e61149b4f1">
+    <cim:IdentifiedObject.mRID>253117cf-cd11-4a9c-971d-d9e61149b4f1</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_85aff0ad-67ac-454a-82b8-c54a5511b6e9"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_be1_be4_cra">
+    <cim:IdentifiedObject.mRID>open_be1_be4_cra</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_1_CRA</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_e923a7f2-b757-4b5f-ab35-14048a46bc7a">
+    <cim:IdentifiedObject.mRID>e923a7f2-b757-4b5f-ab35-14048a46bc7a</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_cra"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_BBE1AA1++BBE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_edec6827-c4d7-4f5b-a0dc-563ec8014ea7">
+    <cim:IdentifiedObject.mRID>edec6827-c4d7-4f5b-a0dc-563ec8014ea7</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_e923a7f2-b757-4b5f-ab35-14048a46bc7a"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_be1_be4_cra_co1">
+    <cim:IdentifiedObject.mRID>open_be1_be4_cra_co1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_1_CRA_CO1</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_a8001dc1-0329-44bb-b0a5-be1145ee0399">
+    <cim:IdentifiedObject.mRID>a8001dc1-0329-44bb-b0a5-be1145ee0399</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_cra_co1"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_BBE1AA1++BBE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_3fbe49da-4351-4d4e-a583-96beab11478c">
+    <cim:IdentifiedObject.mRID>3fbe49da-4351-4d4e-a583-96beab11478c</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_a8001dc1-0329-44bb-b0a5-be1145ee0399"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:ContingencyWithRemedialAction rdf:ID="_eebec82c-05f5-4f37-807f-0de562e0cb1c">
+    <nc:ContingencyWithRemedialAction.mRID>eebec82c-05f5-4f37-807f-0de562e0cb1c</nc:ContingencyWithRemedialAction.mRID>
+    <nc:ContingencyWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:ContingencyWithRemedialAction.RemedialAction rdf:resource="#_open_be1_be4_cra_co1"/>
+    <nc:ContingencyWithRemedialAction.Contingency rdf:resource="#_co1_fr2_fr3_1"/>
+  </nc:ContingencyWithRemedialAction>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_be1_be4_cra_co2">
+    <cim:IdentifiedObject.mRID>open_be1_be4_cra_co2</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_1_CRA_CO2</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_0a6eb6f4-a0c3-4ae1-b5eb-2c138b5a464f">
+    <cim:IdentifiedObject.mRID>0a6eb6f4-a0c3-4ae1-b5eb-2c138b5a464f</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_cra_co2"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_BBE1AA1++BBE4AA1++1"/>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_83a2e951-564c-4bec-921e-794a07b3be78">
+    <cim:IdentifiedObject.mRID>83a2e951-564c-4bec-921e-794a07b3be78</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_0a6eb6f4-a0c3-4ae1-b5eb-2c138b5a464f"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:ContingencyWithRemedialAction rdf:ID="_fdfd1214-22c5-4384-b4a6-8f49f2b02107">
+    <nc:ContingencyWithRemedialAction.mRID>fdfd1214-22c5-4384-b4a6-8f49f2b02107</nc:ContingencyWithRemedialAction.mRID>
+    <nc:ContingencyWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:ContingencyWithRemedialAction.RemedialAction rdf:resource="#_open_be1_be4_cra_co2"/>
+    <nc:ContingencyWithRemedialAction.Contingency rdf:resource="#_co2_be1_be3_1"/>
+  </nc:ContingencyWithRemedialAction>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_be1_be4_cra_ae1">
+    <cim:IdentifiedObject.mRID>open_be1_be4_cra_ae1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_1_CRA_AE1</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_d717f853-c485-449f-bea8-72424fa29268">
+    <cim:IdentifiedObject.mRID>d717f853-c485-449f-bea8-72424fa29268</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_cra_ae1"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_BBE1AA1++BBE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_cf9edc56-869f-42c6-bd16-d05bef1bca89">
+    <cim:IdentifiedObject.mRID>cf9edc56-869f-42c6-bd16-d05bef1bca89</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_d717f853-c485-449f-bea8-72424fa29268"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_be1_be4_cra_ae2">
+    <cim:IdentifiedObject.mRID>open_be1_be4_cra_ae2</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_1_CRA_AE2</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_1fa0d4c5-d550-4e0c-9362-eb5d6bfdc3b4">
+    <cim:IdentifiedObject.mRID>1fa0d4c5-d550-4e0c-9362-eb5d6bfdc3b4</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_cra_ae2"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_BBE1AA1++BBE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_81bc2f59-c19a-41a3-b6f9-d34cee700173">
+    <cim:IdentifiedObject.mRID>81bc2f59-c19a-41a3-b6f9-d34cee700173</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_1fa0d4c5-d550-4e0c-9362-eb5d6bfdc3b4"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <!-- Topo 2 -->
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_de3_de4_pra">
+    <cim:IdentifiedObject.mRID>open_de3_de4_pra</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_2_PRA</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_b756799d-e7ef-42bc-bec8-5f12b280af22">
+    <cim:IdentifiedObject.mRID>b756799d-e7ef-42bc-bec8-5f12b280af22</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_de3_de4_pra"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_DDE3AA1++DDE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_9c6cd087-01ec-410b-99f7-2e30035575d1">
+    <cim:IdentifiedObject.mRID>9c6cd087-01ec-410b-99f7-2e30035575d1</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_b756799d-e7ef-42bc-bec8-5f12b280af22"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_de3_de4_cra">
+    <cim:IdentifiedObject.mRID>open_de3_de4_cra</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_2_CRA</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_8692ddcc-acf7-4947-836f-49b4efee9a06">
+    <cim:IdentifiedObject.mRID>8692ddcc-acf7-4947-836f-49b4efee9a06</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_de3_de4_cra"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_DDE3AA1++DDE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_514cd93e-6d0d-4f72-8ba0-32bb308cf0a3">
+    <cim:IdentifiedObject.mRID>514cd93e-6d0d-4f72-8ba0-32bb308cf0a3</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_8692ddcc-acf7-4947-836f-49b4efee9a06"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_de3_de4_cra_co1">
+    <cim:IdentifiedObject.mRID>open_de3_de4_cra_co1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_2_CRA_CO1</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_fdb5c1c1-8ba8-4d21-8a80-8a29fbca5664">
+    <cim:IdentifiedObject.mRID>fdb5c1c1-8ba8-4d21-8a80-8a29fbca5664</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_de3_de4_cra_co1"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_DDE3AA1++DDE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_dac42b6d-7567-401a-8f4d-0147b80a2d77">
+    <cim:IdentifiedObject.mRID>dac42b6d-7567-401a-8f4d-0147b80a2d77</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_fdb5c1c1-8ba8-4d21-8a80-8a29fbca5664"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <nc:ContingencyWithRemedialAction rdf:ID="_b10ad8f7-9f8b-4440-b8aa-322dac7db70f">
+    <nc:ContingencyWithRemedialAction.mRID>b10ad8f7-9f8b-4440-b8aa-322dac7db70f</nc:ContingencyWithRemedialAction.mRID>
+    <nc:ContingencyWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:ContingencyWithRemedialAction.RemedialAction rdf:resource="#_open_de3_de4_cra_co1"/>
+    <nc:ContingencyWithRemedialAction.Contingency rdf:resource="#_co1_fr2_fr3_1"/>
+  </nc:ContingencyWithRemedialAction>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_open_de3_de4_cra_ae1">
+    <cim:IdentifiedObject.mRID>open_de3_de4_cra_ae1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo_2_CRA_AE1</cim:IdentifiedObject.name>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00059P"/>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:TopologyAction rdf:ID="_5dcf9136-4630-4e83-a248-aa4c4bbc8e97">
+    <cim:IdentifiedObject.mRID>5dcf9136-4630-4e83-a248-aa4c4bbc8e97</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_de3_de4_cra_ae1"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+    <nc:TopologyAction.Switch rdf:resource="#_DDE3AA1++DDE4AA1++1"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+  </nc:TopologyAction>
+  <nc:StaticPropertyRange rdf:ID="_561a78c3-2dd3-4ee6-8789-3e64f1c1a9c5">
+    <cim:IdentifiedObject.mRID>561a78c3-2dd3-4ee6-8789-3e64f1c1a9c5</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_5dcf9136-4630-4e83-a248-aa4c4bbc8e97"/>
+    <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/Switch.open"/>
+  </nc:StaticPropertyRange>
+  <!-- Group 1 -->
+  <nc:RemedialActionGroup rdf:ID="_23ff9c5d-9501-4141-a4b3-f4468b2eb636">
+    <cim:IdentifiedObject.mRID>23ff9c5d-9501-4141-a4b3-f4468b2eb636</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 + Topo 2 - PRA</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_370fec1f-385f-f569-d531-1f776363f85d">
+    <nc:RemedialActionDependency.mRID>370fec1f-385f-f569-d531-1f776363f85d</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_23ff9c5d-9501-4141-a4b3-f4468b2eb636"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_53097f07-97bb-401c-8ff9-eb97c3a182ab">
+    <nc:RemedialActionDependency.mRID>53097f07-97bb-401c-8ff9-eb97c3a182ab</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_de3_de4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_23ff9c5d-9501-4141-a4b3-f4468b2eb636"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 2 -->
+  <nc:RemedialActionGroup rdf:ID="_5569e363-59ab-497a-99b0-c4ae239cbe73">
+    <cim:IdentifiedObject.mRID>5569e363-59ab-497a-99b0-c4ae239cbe73</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 + Topo 2 - CRA</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_9d909cb0-6955-4f9e-89c3-e879d4bf16f3">
+    <nc:RemedialActionDependency.mRID>9d909cb0-6955-4f9e-89c3-e879d4bf16f3</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.inclusive"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_5569e363-59ab-497a-99b0-c4ae239cbe73"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_c0c42400-f35d-4a4f-8f3f-af1a8ec887bb">
+    <nc:RemedialActionDependency.mRID>c0c42400-f35d-4a4f-8f3f-af1a8ec887bb</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.inclusive"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_de3_de4_cra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_5569e363-59ab-497a-99b0-c4ae239cbe73"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 3 -->
+  <nc:RemedialActionGroup rdf:ID="_f4e1e04c-0184-42ea-a3cb-75dfe70112f5">
+    <cim:IdentifiedObject.mRID>f4e1e04c-0184-42ea-a3cb-75dfe70112f5</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 + Topo 2 - CRA x CO1</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_d2ca9b6b-b472-4f39-ac5e-a9e4dfc45940">
+    <nc:RemedialActionDependency.mRID>d2ca9b6b-b472-4f39-ac5e-a9e4dfc45940</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_co1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_f4e1e04c-0184-42ea-a3cb-75dfe70112f5"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_6badc81c-c79e-47c3-8ac2-7cc29bfd2c42">
+    <nc:RemedialActionDependency.mRID>6badc81c-c79e-47c3-8ac2-7cc29bfd2c42</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_de3_de4_cra_co1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_f4e1e04c-0184-42ea-a3cb-75dfe70112f5"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 4 -->
+  <nc:RemedialActionGroup rdf:ID="_7d2833e4-c5a8-4d79-b936-c735a58f1774">
+    <cim:IdentifiedObject.mRID>7d2833e4-c5a8-4d79-b936-c735a58f1774</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 + Topo 2 - CRA x AE1</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_8785028f-f520-4f26-99e2-82df2e14434b">
+    <nc:RemedialActionDependency.mRID>8785028f-f520-4f26-99e2-82df2e14434b</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_ae1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_7d2833e4-c5a8-4d79-b936-c735a58f1774"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_b8a4777f-986a-42e6-a4b3-a1745daa32c6">
+    <nc:RemedialActionDependency.mRID>b8a4777f-986a-42e6-a4b3-a1745daa32c6</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_de3_de4_cra_ae1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_7d2833e4-c5a8-4d79-b936-c735a58f1774"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 5 -->
+  <nc:RemedialActionGroup rdf:ID="_66979f64-3c52-486c-84f7-b5439cd71765">
+    <cim:IdentifiedObject.mRID>66979f64-3c52-486c-84f7-b5439cd71765</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 - PRA</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_9c96bb3a-2845-4ff9-be1d-d649f420dc71">
+    <nc:RemedialActionDependency.mRID>9c96bb3a-2845-4ff9-be1d-d649f420dc71</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_66979f64-3c52-486c-84f7-b5439cd71765"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_a545f05b-2c04-4dfd-bb2c-bd2c6d814418">
+    <nc:RemedialActionDependency.mRID>a545f05b-2c04-4dfd-bb2c-bd2c6d814418</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>false</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_de3_de4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_66979f64-3c52-486c-84f7-b5439cd71765"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 6 -->
+  <nc:RemedialActionGroup rdf:ID="_92f45b99-44c2-499d-8c4e-723bd1829dbe">
+    <cim:IdentifiedObject.mRID>92f45b99-44c2-499d-8c4e-723bd1829dbe</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 PRA + CRA</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_741ea344-f7d8-4758-9e15-a98623731a8a">
+    <nc:RemedialActionDependency.mRID>741ea344-f7d8-4758-9e15-a98623731a8a</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_92f45b99-44c2-499d-8c4e-723bd1829dbe"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_5116758a-ec5c-4b1c-b6e9-897c30224a2b">
+    <nc:RemedialActionDependency.mRID>5116758a-ec5c-4b1c-b6e9-897c30224a2b</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_92f45b99-44c2-499d-8c4e-723bd1829dbe"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 7 -->
+  <nc:RemedialActionGroup rdf:ID="_79daa409-ade2-49da-9114-94f960d87ee3">
+    <cim:IdentifiedObject.mRID>79daa409-ade2-49da-9114-94f960d87ee3</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 - CRA x CO1 + CO2</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_29ee3cc5-c1b8-4f53-a4f5-98193e19b6ca">
+    <nc:RemedialActionDependency.mRID>29ee3cc5-c1b8-4f53-a4f5-98193e19b6ca</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_co1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_79daa409-ade2-49da-9114-94f960d87ee3"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_6bb6b83a-9918-41fe-9912-0bd79fe470ea">
+    <nc:RemedialActionDependency.mRID>6bb6b83a-9918-41fe-9912-0bd79fe470ea</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_co2"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_79daa409-ade2-49da-9114-94f960d87ee3"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 8 -->
+  <nc:RemedialActionGroup rdf:ID="_a8c92deb-6a3a-49a2-aecd-fb3bccbd005c">
+    <cim:IdentifiedObject.mRID>a8c92deb-6a3a-49a2-aecd-fb3bccbd005c</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 CRA + Topo 1 CRA x CO1</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_228c39ff-f159-48ec-93c5-51cb9ddb07e5">
+    <nc:RemedialActionDependency.mRID>228c39ff-f159-48ec-93c5-51cb9ddb07e5</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_a8c92deb-6a3a-49a2-aecd-fb3bccbd005c"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_ab51c402-b484-4873-aea7-0c72610f4337">
+    <nc:RemedialActionDependency.mRID>ab51c402-b484-4873-aea7-0c72610f4337</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_co1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_a8c92deb-6a3a-49a2-aecd-fb3bccbd005c"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 9 -->
+  <nc:RemedialActionGroup rdf:ID="_fc0403cc-c774-4966-b7cb-2fc75b7ebdbc">
+    <cim:IdentifiedObject.mRID>fc0403cc-c774-4966-b7cb-2fc75b7ebdbc</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 - CRA x AE1 + AE2</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_eb1f3978-c57c-414d-b592-a68ecd8ca64a">
+    <nc:RemedialActionDependency.mRID>eb1f3978-c57c-414d-b592-a68ecd8ca64a</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_ae1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_fc0403cc-c774-4966-b7cb-2fc75b7ebdbc"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_d3ff1fc3-0fe9-4cf1-841c-cee8e0a0d511">
+    <nc:RemedialActionDependency.mRID>d3ff1fc3-0fe9-4cf1-841c-cee8e0a0d511</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_ae2"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_fc0403cc-c774-4966-b7cb-2fc75b7ebdbc"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 10 -->
+  <nc:RemedialActionGroup rdf:ID="_95ba7539-6067-4f7e-a30b-e53eae7c042a">
+    <cim:IdentifiedObject.mRID>95ba7539-6067-4f7e-a30b-e53eae7c042a</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 CRA + Topo 1 CRA x AE1</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_0cc95d4e-c715-4bce-a502-db63d34f9a2c">
+    <nc:RemedialActionDependency.mRID>0cc95d4e-c715-4bce-a502-db63d34f9a2c</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_95ba7539-6067-4f7e-a30b-e53eae7c042a"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_bec86780-75d0-43ec-b45b-186df519e380">
+    <nc:RemedialActionDependency.mRID>bec86780-75d0-43ec-b45b-186df519e380</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_cra_ae1"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_95ba7539-6067-4f7e-a30b-e53eae7c042a"/>
+  </nc:RemedialActionDependency>
+  <!-- Group 11 -->
+  <nc:RemedialActionGroup rdf:ID="_b9dc54f8-6f8f-4878-8d7d-5d08751e5977">
+    <cim:IdentifiedObject.mRID>b9dc54f8-6f8f-4878-8d7d-5d08751e5977</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Topo 1 inclusive + Topo 2 none - PRA</cim:IdentifiedObject.name>
+  </nc:RemedialActionGroup>
+  <nc:RemedialActionDependency rdf:ID="_1b08ba1e-3ad0-4670-a15f-9dcb72b771c3">
+    <nc:RemedialActionDependency.mRID>1b08ba1e-3ad0-4670-a15f-9dcb72b771c3</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.inclusive"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_b9dc54f8-6f8f-4878-8d7d-5d08751e5977"/>
+  </nc:RemedialActionDependency>
+  <nc:RemedialActionDependency rdf:ID="_1bdfc408-5ff3-4968-a96f-75494908b7e7">
+    <nc:RemedialActionDependency.mRID>1bdfc408-5ff3-4968-a96f-75494908b7e7</nc:RemedialActionDependency.mRID>
+    <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+    <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+    <nc:RemedialActionDependency.RemedialAction rdf:resource="#_open_de3_de4_pra"/>
+    <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_b9dc54f8-6f8f-4878-8d7d-5d08751e5977"/>
+  </nc:RemedialActionDependency>
+  <nc:RotatingMachineAction rdf:ID="_integrated-rotating-machine-action">
+    <cim:IdentifiedObject.mRID>integrated-rotating-machine-action</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/RotatingMachine.p"/>
+    <nc:RotatingMachineAction.RotatingMachine rdf:resource="#_FFR1AA1+_generator"/>
+  </nc:RotatingMachineAction>
+  <nc:StaticPropertyRange rdf:ID="_integrated-rotating-machine-range">
+    <cim:IdentifiedObject.mRID>integrated-rotating-machine-range</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_integrated-rotating-machine-action"/>
+    <nc:RangeConstraint.normalValue>-650</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/RotatingMachine.p"/>
+  </nc:StaticPropertyRange>
+  <nc:ShuntCompensatorModification rdf:ID="_integrated-shunt-action">
+    <cim:IdentifiedObject.mRID>integrated-shunt-action</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/ShuntCompensator.sections"/>
+    <nc:ShuntCompensatorModification.ShuntCompensator rdf:resource="#_shunt-compensator"/>
+  </nc:ShuntCompensatorModification>
+  <nc:StaticPropertyRange rdf:ID="_integrated-shunt-range">
+    <cim:IdentifiedObject.mRID>integrated-shunt-range</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_integrated-shunt-action"/>
+    <nc:RangeConstraint.normalValue>3</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/ShuntCompensator.sections"/>
+  </nc:StaticPropertyRange>
+  <nc:TapPositionAction rdf:ID="_integrated-tap-position-action">
+    <cim:IdentifiedObject.mRID>integrated-tap-position-action</cim:IdentifiedObject.mRID>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_open_be1_be4_pra"/>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/TapChanger.step"/>
+    <nc:TapPositionAction.TapChanger rdf:resource="#_b09a6cdc-3737-4c63-9daa-f4970893b7a7"/>
+  </nc:TapPositionAction>
+  <nc:StaticPropertyRange rdf:ID="_integrated-tap-position-range">
+    <cim:IdentifiedObject.mRID>integrated-tap-position-range</cim:IdentifiedObject.mRID>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_integrated-tap-position-action"/>
+    <nc:RangeConstraint.normalValue>2</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/TapChanger.step"/>
+  </nc:StaticPropertyRange>
+</rdf:RDF>
