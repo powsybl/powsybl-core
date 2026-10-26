@@ -838,6 +838,13 @@ public final class TopologyModificationUtils {
      * fork node is encountered, for which special care is needed to clean the topology.
      */
     public static void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, String connectableId, ReportNode reportNode) {
+        // Another connectable is connected on that node: removing the switches beyond it would disconnect it
+        Optional<String> otherConnectableId = getOtherConnectableId(nbv, node, connectableId);
+        if (otherConnectableId.isPresent()) {
+            removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId.get());
+            LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId.get());
+            return;
+        }
         Set<Object> edges = graph.edgesOf(node);
         if (edges.size() == 1) {
             Object edge = edges.iterator().next();
@@ -847,6 +854,19 @@ public final class TopologyModificationUtils {
         } else if (edges.size() > 1) {
             cleanFork(nbv, graph, node, edges, connectableId, reportNode);
         }
+    }
+
+    /**
+     * Returns the id of the connectable connected on the given node, if there is one, if it is not the connectable
+     * being removed, and if it is not a busbar section. A busbar section is the normal end of a feeder bay and is
+     * handled by the caller, not reported as an obstacle.
+     */
+    private static Optional<String> getOtherConnectableId(VoltageLevel.NodeBreakerView nbv, int node, String connectableId) {
+        return nbv.getOptionalTerminal(node)
+                .map(Terminal::getConnectable)
+                .filter(c -> !(c instanceof BusbarSection))
+                .map(Connectable::getId)
+                .filter(id -> !id.equals(connectableId));
     }
 
     public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode) {
