@@ -174,17 +174,20 @@ public final class EquipmentExport {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
                 // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
                 // we only export as retained a switch if it will be exported with different TNs at both ends
+                // We keep exporting switches as ACLineSegment, EquivalentBranch, and SeriesCompensator to ensure
+                // that xiidm files generated with version V7.4.0, in which zero-impedance branches were imported as switches,
+                // continue to be exported to CGMES as before. This code can be removed in the future.
                 switch (switchType) {
-                    case "ACLineSegment" -> {
+                    case CgmesNames.AC_LINE_SEGMENT -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
                         AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0,
                                 0.0, 0.0, cimNamespace, writer, context);
                     }
-                    case "EquivalentBranch" -> {
+                    case CgmesNames.EQUIVALENT_BRANCH -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
                         EquivalentBranchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, cimNamespace, writer, context);
                     }
-                    case "SeriesCompensator" -> {
+                    case CgmesNames.SERIES_COMPENSATOR -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
                         SeriesCompensatorEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, false,
                                 0.0, 0.0, cimNamespace, writer, context);
@@ -757,8 +760,22 @@ public final class EquipmentExport {
         for (Line line : network.getLines()) {
             double baseVoltage = Math.max(line.getTerminal1().getVoltageLevel().getNominalV(), line.getTerminal2().getVoltageLevel().getNominalV());
             String baseVoltageId = context.getBaseVoltageIdFromNominalV(baseVoltage);
-            AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(),
-                line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer, context);
+
+            String originalClass = line.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
+            switch (originalClass) {
+                case CgmesNames.EQUIVALENT_BRANCH -> {
+                    EquivalentBranchEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(), cimNamespace, writer, context);
+                }
+                case CgmesNames.SERIES_COMPENSATOR -> {
+                    SeriesCompensatorEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(), false,
+                            0.0, 0.0, cimNamespace, writer, context);
+                }
+                case null, default -> {
+                    AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(),
+                            line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer, context);
+                }
+            }
+
             writeBranchLimits(line, getTerminalId(line.getTerminal1(), context), getTerminalId(line.getTerminal2(), context), cimNamespace,
                 euNamespace, exportedLimitTypes, writer, context);
         }

@@ -27,7 +27,7 @@ class LineUpdateTest {
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "line_EQ.xml");
-        assertEquals(3, network.getLineCount());
+        assertEquals(6, network.getLineCount());
 
         assertEq(network);
     }
@@ -35,7 +35,7 @@ class LineUpdateTest {
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml");
-        assertEquals(3, network.getLineCount());
+        assertEquals(6, network.getLineCount());
 
         assertFirstSsh(network);
     }
@@ -43,7 +43,7 @@ class LineUpdateTest {
     @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "line_EQ.xml");
-        assertEquals(3, network.getLineCount());
+        assertEquals(6, network.getLineCount());
 
         assertEq(network);
 
@@ -61,7 +61,7 @@ class LineUpdateTest {
     @Test
     void usePreviousValuesTest() {
         Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml", "line_SV.xml");
-        assertEquals(3, network.getLineCount());
+        assertEquals(6, network.getLineCount());
         assertFirstSsh(network);
         assertFlowsAfterSv(network);
 
@@ -104,6 +104,21 @@ class LineUpdateTest {
 
         assertEq(network.getLine("SeriesCompensator"));
         assertNotDefinedLimits(network.getLine("SeriesCompensator"));
+
+        assertEq(network.getLine("ACLineSegmentZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("ACLineSegmentZeroImpedance"),
+                new CurrentLimit(796.0, 900, 1990.0),
+                new CurrentLimit(796.0, 900, 1990.0));
+
+        assertEq(network.getLine("EquivalentBranchZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("EquivalentBranchZeroImpedance"),
+                new CurrentLimit(796.0, 900, 1990.0),
+                new CurrentLimit(796.0, 900, 1990.0));
+
+        assertEq(network.getLine("SeriesCompensatorZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("SeriesCompensatorZeroImpedance"),
+                new CurrentLimit(796.0, 900, 1990.0),
+                new CurrentLimit(796.0, 900, 1990.0));
     }
 
     private static void assertFirstSsh(Network network) {
@@ -117,6 +132,21 @@ class LineUpdateTest {
 
         assertSsh(network.getLine("SeriesCompensator"));
         assertNotDefinedLimits(network.getLine("SeriesCompensator"));
+
+        assertSsh(network.getLine("ACLineSegmentZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("ACLineSegmentZeroImpedance"),
+                new CurrentLimit(797.0, 900, 1991.0),
+                new CurrentLimit(795.0, 900, 1989.0));
+
+        assertSsh(network.getLine("EquivalentBranchZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("EquivalentBranchZeroImpedance"),
+                new CurrentLimit(797.0, 900, 1991.0),
+                new CurrentLimit(795.0, 900, 1989.0));
+
+        assertSsh(network.getLine("SeriesCompensatorZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("SeriesCompensatorZeroImpedance"),
+                new CurrentLimit(797.0, 900, 1991.0),
+                new CurrentLimit(795.0, 900, 1989.0));
     }
 
     private static void assertSecondSsh(Network network) {
@@ -130,6 +160,21 @@ class LineUpdateTest {
 
         assertSsh(network.getLine("SeriesCompensator"));
         assertNotDefinedLimits(network.getLine("SeriesCompensator"));
+
+        assertSsh(network.getLine("ACLineSegmentZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("ACLineSegmentZeroImpedance"),
+                new CurrentLimit(798.0, 900, 1992.0),
+                new CurrentLimit(794.0, 900, 1988.0));
+
+        assertSsh(network.getLine("EquivalentBranchZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("EquivalentBranchZeroImpedance"),
+                new CurrentLimit(798.0, 900, 1992.0),
+                new CurrentLimit(794.0, 900, 1988.0));
+
+        assertSsh(network.getLine("SeriesCompensatorZeroImpedance"));
+        assertDefinedCurrentLimits(network.getLine("SeriesCompensatorZeroImpedance"),
+                new CurrentLimit(798.0, 900, 1992.0),
+                new CurrentLimit(794.0, 900, 1988.0));
     }
 
     private static void assertUnassignedFlows(Network network) {
@@ -140,7 +185,6 @@ class LineUpdateTest {
         assertFlows(network, 275.0, 50.0, -275.1, -50.1,
                 175.0, 40.0, -175.1, -40.1,
                 75.0, 30.0, -75.1, -30.1);
-
     }
 
     private static void assertFlows(Network network, double aCLineSegmentP1, double aCLineSegmentQ1, double aCLineSegmentP2, double aCLineSegmentQ2,
@@ -152,6 +196,13 @@ class LineUpdateTest {
             network.getLine("EquivalentBranch").getTerminal2(), equivalentBranchP2, equivalentBranchQ2);
         assertFlows(network.getLine("SeriesCompensator").getTerminal1(), seriesCompensatorP1, seriesCompensatorQ1,
             network.getLine("SeriesCompensator").getTerminal2(), seriesCompensatorP2, seriesCompensatorQ2);
+
+        assertFlows(network.getLine("ACLineSegmentZeroImpedance").getTerminal1(), aCLineSegmentP1, aCLineSegmentQ1,
+                network.getLine("ACLineSegmentZeroImpedance").getTerminal2(), aCLineSegmentP2, aCLineSegmentQ2);
+        assertFlows(network.getLine("EquivalentBranchZeroImpedance").getTerminal1(), equivalentBranchP1, equivalentBranchQ1,
+                network.getLine("EquivalentBranchZeroImpedance").getTerminal2(), equivalentBranchP2, equivalentBranchQ2);
+        assertFlows(network.getLine("SeriesCompensatorZeroImpedance").getTerminal1(), seriesCompensatorP1, seriesCompensatorQ1,
+                network.getLine("SeriesCompensatorZeroImpedance").getTerminal2(), seriesCompensatorP2, seriesCompensatorQ2);
     }
 
     private static void assertEq(Line line) {

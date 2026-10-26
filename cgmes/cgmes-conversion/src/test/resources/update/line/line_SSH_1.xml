@@ -29,6 +29,27 @@
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
 
+    <cim:Terminal rdf:about="#_ACLineSegmentZeroImpedance-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ACLineSegmentZeroImpedance-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:Terminal rdf:about="#_EquivalentBranchZeroImpedance-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_EquivalentBranchZeroImpedance-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:Terminal rdf:about="#_SeriesCompensatorZeroImpedance-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_SeriesCompensatorZeroImpedance-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
     <cim:CurrentLimit rdf:about="#_ACLineSegment-T1-OperationalLimitSet-CurrentLimit1">
         <cim:CurrentLimit.value>798</cim:CurrentLimit.value>
     </cim:CurrentLimit>

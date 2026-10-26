@@ -127,6 +127,70 @@
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
     </cim:Terminal>
 
+    <cim:ACLineSegment rdf:ID="_ACLineSegmentZeroImpedance">
+        <cim:IdentifiedObject.name>ACLineSegmentZeroImpedance</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.bch>0.0</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>0.0</cim:ACLineSegment.r>
+        <cim:ACLineSegment.x>0.0</cim:ACLineSegment.x>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegmentZeroImpedance-T1">
+        <cim:IdentifiedObject.name>ACLineSegmentZeroImpedance-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegmentZeroImpedance"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegmentZeroImpedance-T2">
+        <cim:IdentifiedObject.name>ACLineSegmentZeroImpedance-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegmentZeroImpedance"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:EquivalentBranch rdf:ID="_EquivalentBranchZeroImpedance">
+        <cim:IdentifiedObject.name>EquivalentBranchZeroImpedance</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.r>0.0</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>0.0</cim:EquivalentBranch.x>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_EquivalentBranchZeroImpedance-T1">
+        <cim:IdentifiedObject.name>EquivalentBranchZeroImpedance-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentBranchZeroImpedance"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_EquivalentBranchZeroImpedance-T2">
+        <cim:IdentifiedObject.name>EquivalentBranchZeroImpedance-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EquivalentBranchZeroImpedance"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:SeriesCompensator rdf:ID="_SeriesCompensatorZeroImpedance">
+        <cim:IdentifiedObject.name>SeriesCompensatorZeroImpedance</cim:IdentifiedObject.name>
+        <cim:SeriesCompensator.r>0.0</cim:SeriesCompensator.r>
+        <cim:SeriesCompensator.r0>0.0</cim:SeriesCompensator.r0>
+        <cim:SeriesCompensator.varistorPresent>false</cim:SeriesCompensator.varistorPresent>
+        <cim:SeriesCompensator.varistorRatedCurrent>0</cim:SeriesCompensator.varistorRatedCurrent>
+        <cim:SeriesCompensator.varistorVoltageThreshold>0</cim:SeriesCompensator.varistorVoltageThreshold>
+        <cim:SeriesCompensator.x>0.0</cim:SeriesCompensator.x>
+        <cim:SeriesCompensator.x0>0.0</cim:SeriesCompensator.x0>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:SeriesCompensator>
+    <cim:Terminal rdf:ID="_SeriesCompensatorZeroImpedance-T1">
+        <cim:IdentifiedObject.name>_SeriesCompensatorZeroImpedance-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SeriesCompensatorZeroImpedance"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_SeriesCompensatorZeroImpedance-T2">
+        <cim:IdentifiedObject.name>_SeriesCompensator-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_SeriesCompensatorZeroImpedance"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
     <cim:OperationalLimitSet rdf:ID="_ACLineSegment-T1-OperationalLimitSet">
         <cim:IdentifiedObject.name>ACLineSegment-T1-OperationalLimitSet</cim:IdentifiedObject.name>
         <cim:OperationalLimitSet.Terminal rdf:resource="#_ACLineSegment-T1"/>
@@ -171,5 +235,33 @@
         <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_ACLineSegment-T2-OperationalLimitSet"/>
         <cim:OperationalLimit.OperationalLimitType rdf:resource="#_OperationalLimitSet-CurrentLimit2-Tatl"/>
     </cim:CurrentLimit>
+
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-T1-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-T1-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_ACLineSegmentZeroImpedance-T1"/>
+    </cim:OperationalLimitSet>
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-T2-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-T2-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_ACLineSegmentZeroImpedance-T2"/>
+    </cim:OperationalLimitSet>
+
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-T1-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-T1-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_EquivalentBranchZeroImpedance-T1"/>
+    </cim:OperationalLimitSet>
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-T2-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-T2-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_EquivalentBranchZeroImpedance-T2"/>
+    </cim:OperationalLimitSet>
+
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-T1-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-T1-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_SeriesCompensatorZeroImpedance-T1"/>
+    </cim:OperationalLimitSet>
+    <cim:OperationalLimitSet rdf:ID="_ACLineSegment-T2-OperationalLimitSet">
+        <cim:IdentifiedObject.name>ACLineSegment-T2-OperationalLimitSet</cim:IdentifiedObject.name>
+        <cim:OperationalLimitSet.Terminal rdf:resource="#_SeriesCompensatorZeroImpedance-T2"/>
+    </cim:OperationalLimitSet>
+
 
 </rdf:RDF>
