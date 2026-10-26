@@ -489,7 +489,7 @@ public final class Networks {
 
     public static final String ALIAS_TYPE_ORIGINAL_ID = "original-id";
 
-    public record IdentifierChangeSkipped(String id, String name, IdentifierChangeSkippedReason reason) {
+    public record IdentifierChangeSkipped(String id, String name, IdentifiableType type, IdentifierChangeSkippedReason reason) {
 
         public enum IdentifierChangeSkippedReason {
             NETWORK,
@@ -569,7 +569,7 @@ public final class Networks {
             IdentifierChangeSkipped.IdentifierChangeSkippedReason reason;
             reason = IdentifierChangeSkipped.reason(i, name, nameCount, network);
             if (reason != null) {
-                skipped.add(new IdentifierChangeSkipped(i.getId(), name, reason));
+                skipped.add(new IdentifierChangeSkipped(i.getId(), name, i.getType(), reason));
                 continue;
             }
             String originalId = i.getId();
