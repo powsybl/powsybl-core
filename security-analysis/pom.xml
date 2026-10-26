@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.5.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -25,6 +25,7 @@
 
     <modules>
         <module>security-analysis-api</module>
+        <module>twopass-security-analysis</module>
     </modules>
 
 </project>

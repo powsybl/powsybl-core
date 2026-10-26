@@ -38,6 +38,7 @@ class ParallelLoadFlowActionSimulatorTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     void test() {
         when(contingencies.size()).thenReturn(11);
 
@@ -51,6 +52,7 @@ class ParallelLoadFlowActionSimulatorTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     void testContingencySizeSmallerThanTasks() {
         when(contingencies.size()).thenReturn(3);
 

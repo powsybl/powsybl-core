@@ -97,7 +97,7 @@ class MemDataSourceTest {
             assertTrue(dataSource.exists(name));
             try (InputStream is = dataSource.newInputStream(name)) {
                 assertNotNull(is);
-            } catch (IOException x) {
+            } catch (IOException ignored) {
                 fail(name);
             }
         }

@@ -172,12 +172,12 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
         return operationalLimitsGroupById.entrySet()
                 .stream()
                 .filter(e -> selectedLimitsIds.contains(e.getKey()))
                 .map(Map.Entry::getValue)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -205,7 +205,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return new CurrentLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId(), identifiable.getNetwork());
+                identifiable, identifiable.getId(), DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID, identifiable.getNetwork());
     }
 
     /**
@@ -215,7 +215,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
         return new ActivePowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId(), identifiable.getNetwork());
+                identifiable, identifiable.getId(), DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID, identifiable.getNetwork());
     }
 
     /**
@@ -225,7 +225,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
         return new ApparentPowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId(), identifiable.getNetwork());
+                identifiable, identifiable.getId(), DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID, identifiable.getNetwork());
     }
 
     private void notifyUpdate(OperationalLimitsGroup oldValue, OperationalLimitsGroup newValue) {

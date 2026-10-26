@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.*;
 import org.junit.jupiter.api.Test;
 
@@ -43,8 +44,8 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
             .setBus("B")
             .setConnectableBus("B")
             .setTargetP(100)
-            .setTargetV(380)
-            .setVoltageRegulatorOn(true)
+            .setLocalTargetV(380)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setMaxP(100)
             .setMinP(0)
             .add();
@@ -53,8 +54,8 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
                 .setBus("B")
                 .setConnectableBus("B")
                 .setTargetP(100)
-                .setTargetV(380)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(380)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMaxP(100)
                 .setMinP(0)
                 .add();

@@ -21,6 +21,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -39,6 +40,8 @@ import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
 import java.util.Locale;
 import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -156,10 +159,9 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setId("GEN2")
                 .setBus("NGEN")
                 .setTargetP(10)
-                .setTargetQ(5)
                 .setMinP(0)
                 .setMaxP(1000)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(5)
                 .add();
         exportToMatAndCompareTo(network, "/sim1-with-non-regulating-gen.json");
     }
@@ -221,7 +223,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     @Test
     void testNanTargetQIssue() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
-        network.getGenerator("GEN").setTargetQ(Double.NaN);
+        network.getGenerator("GEN").setLocalTargetQ(Double.NaN);
         exportToMatAndCompareTo(network, "/sim1-with-nan-target-q.json");
     }
 
@@ -232,8 +234,8 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         vlgen.newVscConverterStation()
                 .setId("VSC")
                 .setConnectableBus("NGEN")
-                .setVoltageRegulatorOn(true)
-                .setVoltageSetpoint(100)
+                .setLocalTargetV(100)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setLossFactor(0)
                 .add();
         exportToMatAndCompareTo(network, "/vsc-npe-issue.json");
@@ -338,7 +340,9 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .newVoltageLevel().setId("VL32").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl32.getBusBreakerView().newBus().setId("BUS-32").add();
 
-        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setTargetQ(8.0).setTargetV(410.0).setMinP(0.0).setMaxP(15.0).setVoltageRegulatorOn(true).add();
+        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setLocalTargetQ(8.0).setLocalTargetV(410.0).setMinP(0.0).setMaxP(15.0)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+            .add();
         SlackTerminal.attach(network.getBusBreakerView().getBus("BUS-11"));
         vl22.newLoad().setId("LOAD-22").setBus("BUS-22").setP0(5.0).setQ0(4.0).add();
         vl32.newLoad().setId("LOAD-32").setBus("BUS-32").setP0(5.0).setQ0(4.0).add();
@@ -349,12 +353,111 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
         vl12.newLccConverterStation().setId("LCC-12").setBus("BUS-12").setPowerFactor(0.90f).setLossFactor(0.0f).add();
         vl21.newLccConverterStation().setId("LCC-21").setBus("BUS-21").setPowerFactor(0.90f).setLossFactor(0.0f).add();
-        network.newHvdcLine().setId("HVDCLINE-12-21").setConverterStationId1("LCC-12").setConverterStationId2("LCC-21").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+        network.newHvdcLine()
+            .setId("HVDCLINE-12-21")
+            .setConverterStationId1("LCC-12")
+            .setConverterStationId2("LCC-21")
+            .setNominalV(400.0)
+            .setActivePowerSetpoint(5.0)
+            .setMaxP(5.0)
+            .setR(0.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .add();
 
-        vl12.newVscConverterStation().setId("VSC-12").setBus("BUS-12").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageSetpoint(410.0).setVoltageRegulatorOn(true).add();
-        vl31.newVscConverterStation().setId("VSC-31").setBus("BUS-31").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageSetpoint(410.0).setVoltageRegulatorOn(true).add();
-        network.newHvdcLine().setId("HVDCLINE-12-31").setConverterStationId1("VSC-12").setConverterStationId2("VSC-31").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+        vl12.newVscConverterStation()
+            .setId("VSC-12")
+            .setBus("BUS-12")
+            .setLossFactor(0.0f)
+            .setLocalTargetQ(4.0)
+            .setLocalTargetV(410.0)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+            .add();
+        vl31.newVscConverterStation()
+            .setId("VSC-31")
+            .setBus("BUS-31")
+            .setLossFactor(0.0f)
+            .setLocalTargetQ(4.0)
+            .setLocalTargetV(410.0)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+            .add();
+        network.newHvdcLine()
+            .setId("HVDCLINE-12-31")
+            .setConverterStationId1("VSC-12")
+            .setConverterStationId2("VSC-31")
+            .setNominalV(400.0)
+            .setActivePowerSetpoint(5.0)
+            .setMaxP(5.0)
+            .setR(0.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .add();
 
         return network;
+    }
+
+    @Test
+    void testStatus() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // add new disconnected equipment
+        VoltageLevel vlGen = network.getVoltageLevel("VLGEN");
+        assertNotNull(vlGen);
+
+        vlGen.newGenerator()
+                .setId("DisconnectedGen1")
+                .setConnectableBus("NGEN")
+                .setMaxP(250.0)
+                .setMinP(0.0)
+                .setTargetP(20.0)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(vlGen.getNominalV())
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
+                .add();
+        vlGen.newGenerator()
+                .setId("DisconnectedGen2")
+                .setConnectableBus("NGEN")
+                .setMaxP(200.0)
+                .setMinP(0.0)
+                .setTargetP(30.0)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(vlGen.getNominalV())
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .add();
+
+        network.newLine().setId("DisconnectedLine").setR(0.0).setX(1.0).setConnectableBus1("NHV1").setBus2("NHV2").add();
+
+        VoltageLevel vlHv1 = network.getVoltageLevel("VLHV1");
+        assertNotNull(vlHv1);
+
+        vlHv1.getSubstation().orElseThrow().newTwoWindingsTransformer()
+                .setId("DisconnectedTwoWindingsTransformer")
+                .setR(0.0).setX(1.0)
+                .setRatedU1(vlHv1.getNominalV())
+                .setRatedU2(vlGen.getNominalV())
+                .setConnectableBus1("NHV1")
+                .setConnectableBus2("NGEN")
+                .add();
+        vlHv1.getSubstation().orElseThrow().newThreeWindingsTransformer()
+                .setId("DisconnectedThreeWindingsTransformer")
+                .setRatedU0(vlHv1.getNominalV())
+                .newLeg1()
+                .setR(0.0).setX(1.0)
+                .setRatedU(vlHv1.getNominalV())
+                .setBus("NHV1")
+                .add()
+                .newLeg2()
+                .setR(0.0).setX(2.0)
+                .setRatedU(vlGen.getNominalV())
+                .setConnectableBus("NGEN")
+                .add()
+                .newLeg3()
+                .setR(0.0).setX(2.0)
+                .setRatedU(vlGen.getNominalV())
+                .setConnectableBus("NGEN")
+                .add()
+                .add();
+
+        Properties parameters = new Properties();
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
+        exportToMatAndCompareTo(network, "/sim1-with-disconnected-equipment.json");
     }
 }

@@ -10,11 +10,17 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -43,7 +49,9 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         assertEquals(OptionalInt.empty(), factor.getVariableType().getSide());
         assertEquals("g", factor.getVariableId());
         assertFalse(factor.isVariableSet());
-        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', " +
+            "variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))",
+            factor.toString());
     }
 
     @Test
@@ -59,7 +67,9 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         assertEquals(1, factor1.getVariableType().getSide().orElse(0));
         assertEquals("ptc1", factor1.getVariableId());
         assertFalse(factor1.isVariableSet());
-        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=TRANSFORMER_PHASE_1, variableId='ptc1', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor1.toString());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=TRANSFORMER_PHASE_1, variableId='ptc1', " +
+            "variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))",
+            factor1.toString());
     }
 
     @Test
@@ -97,5 +107,47 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         parser.nextToken();
         Exception e = assertThrows(NullPointerException.class, () -> SensitivityFactor.parseJson(parser));
         assertEquals("Parameter variableSet is missing", e.getMessage());
+    }
+
+    @Test
+    void testResolveBusIdWithBusViewId() {
+        Network network = EurostagTutorialExample1Factory.create();
+        // NGEN is a bus-breaker bus id, the bus view id is different
+        String busViewId = network.getBusView().getBus("VLGEN_0").getId();
+        // Resolving with a bus view id should return it directly
+        String resolved = SensitivityFactor.resolveBusId(busViewId, SensitivityFunctionType.BUS_VOLTAGE, network);
+        assertEquals(busViewId, resolved);
+    }
+
+    @Test
+    void testResolveBusIdWithBusBreakerBusId() {
+        Network network = EurostagTutorialExample1Factory.create();
+        // NGEN is a bus-breaker id that should be resolved via IdBasedBusRef
+        String resolved = SensitivityFactor.resolveBusId("NGEN", SensitivityFunctionType.BUS_VOLTAGE, network);
+        assertEquals("VLGEN_0", resolved);
+    }
+
+    @Test
+    void testResolveBusIdWithBusBarSectionId() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        // S1VL1_BBS is a bus bar section id in a node/breaker network
+        String resolved = SensitivityFactor.resolveBusId("S1VL1_BBS", SensitivityFunctionType.BUS_VOLTAGE, network);
+        // Should resolve to the bus view bus containing that bus bar section
+        assertEquals("S1VL1_0", resolved);
+    }
+
+    @EnumSource
+    @ParameterizedTest
+    void testResolveBusIdWithUnresolvableId(SensitivityFunctionType functionType) {
+        Network network = EurostagTutorialExample1Factory.create();
+        if (functionType == SensitivityFunctionType.BUS_VOLTAGE) {
+            PowsyblException exception = assertThrows(PowsyblException.class,
+                    () -> SensitivityFactor.resolveBusId("unknownBus", functionType, network));
+            assertEquals("The bus ref for 'unknownBus' cannot be resolved.", exception.getMessage());
+        } else {
+            // For non-BUS_VOLTAGE types, the functionId should be returned as-is
+            String resolved = SensitivityFactor.resolveBusId("anyId", functionType, network);
+            assertEquals("anyId", resolved);
+        }
     }
 }

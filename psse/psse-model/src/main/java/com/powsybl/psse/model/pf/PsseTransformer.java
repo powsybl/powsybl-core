@@ -11,20 +11,157 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.powsybl.psse.model.pf.io.WindingHeaderTransformer;
-import com.powsybl.psse.model.pf.io.WindingRatesHeaderTransformer;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import com.powsybl.psse.model.pf.internal.TransformerImpedances;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.addPrefixToHeaders;
+import static com.powsybl.psse.model.io.Util.addSuffixToHeaders;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(value = { "impedances" })
 public class PsseTransformer extends PsseVersioned {
+
+    private static final Map<String, PsseFieldDefinition<PsseTransformer, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_32 = {STR_I, STR_J, STR_K, STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1,
+        STR_MAG2, STR_NMETR, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4};
+    private static final String[] FIELD_NAMES_33 = {STR_I, STR_J, STR_K, STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1,
+        STR_MAG2, STR_NMETR, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP};
+    private static final String[] FIELD_NAMES_35 = {STR_I, STR_J, STR_K, STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1,
+        STR_MAG2, STR_NMETR, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP,
+        STR_ZCOD};
+    private static final String[] FIELD_NAMES_35X_MAIN = {STR_IBUS, STR_JBUS, STR_KBUS, STR_CKT, STR_CW, STR_CZ, STR_CM,
+        STR_MAG1, STR_MAG2, STR_NMET, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4,
+        STR_VECGRP, STR_ZCOD};
+    private static final String[] FIELD_NAMES_35X = concatStringArrays(FIELD_NAMES_35X_MAIN,
+        TransformerImpedances.getFieldNamesX(),
+        computeWindingsAndRatesHeader("1"),
+        computeWindingsAndRatesHeader("2"),
+        computeWindingsAndRatesHeader("3"));
+
+    private int i;
+    private int j;
+    private int k = defaultIntegerFor(STR_K, FIELDS);
+    private String ckt;
+    private int cw = defaultIntegerFor(STR_CW, FIELDS);
+    private int cz = defaultIntegerFor(STR_CZ, FIELDS);
+    private int cm = defaultIntegerFor(STR_CM, FIELDS);
+    private double mag1 = defaultDoubleFor(STR_MAG1, FIELDS);
+    private double mag2 = defaultDoubleFor(STR_MAG2, FIELDS);
+    private int nmetr = defaultIntegerFor(STR_NMETR, FIELDS);
+    private String name;
+    private int stat = defaultIntegerFor(STR_STAT, FIELDS);
+    private PsseOwnership ownership;
+
+    @Revision(since = 33)
+    private String vecgrp = defaultStringFor(STR_VECGRP, FIELDS);
+
+    @Revision(since = 35)
+    private int zcod = defaultIntegerFor(STR_ZCOD, FIELDS);
+
+    private TransformerImpedances impedances = new TransformerImpedances();
+    private PsseTransformerWinding winding1 = new PsseTransformerWinding();
+    private PsseRates winding1Rates = new PsseRates();
+    private PsseTransformerWinding winding2 = new PsseTransformerWinding();
+    private PsseRates winding2Rates = new PsseRates();
+    private PsseTransformerWinding winding3 = new PsseTransformerWinding();
+    private PsseRates winding3Rates = new PsseRates();
+
+    public static String[] getFieldNames32() {
+        return FIELD_NAMES_32;
+    }
+
+    public static String[] getFieldNames33() {
+        return FIELD_NAMES_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseTransformer fromRecord(CsvRecord rec, String[] headers) {
+        PsseTransformer psseTransformer = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseTransformer::new);
+        psseTransformer.setOwnership(PsseOwnership.fromRecord(rec, headers));
+        psseTransformer.setImpedances(TransformerImpedances.fromRecord(rec, headers));
+        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, headers, "1"), PsseRates.fromRecord(rec, headers, "1"));
+        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, headers, "2"), PsseRates.fromRecord(rec, headers, "2"));
+        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, headers, "3"), PsseRates.fromRecord(rec, headers, "3"));
+        return psseTransformer;
+    }
+
+    public static String[] toRecord(PsseTransformer psseTransformer, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(psseTransformer, headers, FIELDS, unexpectedHeaders);
+        PsseOwnership.toRecord(psseTransformer.getOwnership(), headers, recordValues, unexpectedHeaders);
+        TransformerImpedances.toRecord(psseTransformer.getImpedances(), headers, recordValues, unexpectedHeaders);
+        PsseTransformerWinding.toRecord(psseTransformer.getWinding1(), headers, recordValues, unexpectedHeaders, "1");
+        PsseRates.toRecord(psseTransformer.getWinding1Rates(), headers, recordValues, unexpectedHeaders, "1");
+        PsseTransformerWinding.toRecord(psseTransformer.getWinding2(), headers, recordValues, unexpectedHeaders, "2");
+        PsseRates.toRecord(psseTransformer.getWinding2Rates(), headers, recordValues, unexpectedHeaders, "2");
+        PsseTransformerWinding.toRecord(psseTransformer.getWinding3(), headers, recordValues, unexpectedHeaders, "3");
+        PsseRates.toRecord(psseTransformer.getWinding3Rates(), headers, recordValues, unexpectedHeaders, "3");
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseTransformer, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseTransformer, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseTransformer::getI, PsseTransformer::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseTransformer::getI, PsseTransformer::setI));
+        addField(fields, createNewField(STR_J, Integer.class, PsseTransformer::getJ, PsseTransformer::setJ));
+        addField(fields, createNewField(STR_JBUS, Integer.class, PsseTransformer::getJ, PsseTransformer::setJ));
+        addField(fields, createNewField(STR_K, Integer.class, PsseTransformer::getK, PsseTransformer::setK, 0));
+        addField(fields, createNewField(STR_KBUS, Integer.class, PsseTransformer::getK, PsseTransformer::setK, 0));
+        addField(fields, createNewField(STR_CKT, String.class, PsseTransformer::getCkt, PsseTransformer::setCkt, "1"));
+        addField(fields, createNewField(STR_CW, Integer.class, PsseTransformer::getCw, PsseTransformer::setCw, 1));
+        addField(fields, createNewField(STR_CZ, Integer.class, PsseTransformer::getCz, PsseTransformer::setCz, 1));
+        addField(fields, createNewField(STR_CM, Integer.class, PsseTransformer::getCm, PsseTransformer::setCm, 1));
+        addField(fields, createNewField(STR_MAG1, Double.class, PsseTransformer::getMag1, PsseTransformer::setMag1, 0d));
+        addField(fields, createNewField(STR_MAG2, Double.class, PsseTransformer::getMag2, PsseTransformer::setMag2, 0d));
+        addField(fields, createNewField(STR_NMET, Integer.class, PsseTransformer::getNmetr, PsseTransformer::setNmetr, 2));
+        addField(fields, createNewField(STR_NMETR, Integer.class, PsseTransformer::getNmetr, PsseTransformer::setNmetr, 2));
+        addField(fields, createNewField(STR_NAME, String.class, PsseTransformer::getName, PsseTransformer::setName, STR_SPACES_12));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseTransformer::getStat, PsseTransformer::setStat, 1));
+        addField(fields, createNewField(STR_VECGRP, String.class, PsseTransformer::getVecgrp, PsseTransformer::setVecgrp, STR_SPACES_12));
+        addField(fields, createNewField(STR_ZCOD, Integer.class, PsseTransformer::getZcod, PsseTransformer::setZcod, 0));
+
+        return fields;
+    }
+
+    private static String[] computeWindingsAndRatesHeader(String identifier) {
+        return concatStringArrays(addSuffixToHeaders(PsseTransformerWinding.getFieldNamesPart1(), identifier),
+            addPrefixToHeaders(PsseRates.getFieldNames35(), STR_WDG + identifier),
+            addSuffixToHeaders(PsseTransformerWinding.getFieldNamesPart2(), identifier));
+    }
 
     @Override
     public void setModel(PssePowerFlowModel model) {
@@ -37,79 +174,6 @@ public class PsseTransformer extends PsseVersioned {
         winding2Rates.setModel(model);
         winding3Rates.setModel(model);
     }
-
-    @Parsed(field = {"i", "ibus"})
-    private int i;
-
-    @Parsed(field = {"j", "jbus"})
-    private int j;
-
-    @Parsed(field = {"k", "kbus"})
-    private int k = 0;
-
-    @Parsed(defaultNullRead = "1")
-    private String ckt;
-
-    @Parsed
-    private int cw = 1;
-
-    @Parsed
-    private int cz = 1;
-
-    @Parsed
-    private int cm = 1;
-
-    @Parsed
-    private double mag1 = 0;
-
-    @Parsed
-    private double mag2 = 0;
-
-    @Parsed(field = {"nmetr", "nmet"})
-    private int nmetr = 2;
-
-    @Parsed(defaultNullRead = "            ")
-    private String name;
-
-    @Parsed
-    private int stat = 1;
-
-    @Nested
-    private PsseOwnership ownership;
-
-    @Parsed(defaultNullRead = "            ")
-    // If the issue 432 in Univocity is fixed,
-    // the previous annotation will be correctly processed
-    // and there would be no need to initialize vecgrp with default value
-    // (https://github.com/uniVocity/univocity-parsers/issues/432)
-    @Revision(since = 33)
-    private String vecgrp = "            ";
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    @Revision(since = 35)
-    private int zcod = 0;
-
-    @Nested
-    TransformerImpedances impedances;
-
-    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "1")
-    private PsseTransformerWinding winding1;
-
-    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "1")
-    private PsseRates winding1Rates;
-
-    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "2")
-    private PsseTransformerWinding winding2;
-
-    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "2")
-    private PsseRates winding2Rates;
-
-    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "3")
-    private PsseTransformerWinding winding3;
-
-    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "3")
-    private PsseRates winding3Rates;
 
     public int getI() {
         return i;
@@ -208,17 +272,17 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public String getVecgrp() {
-        checkVersion("vecgrp");
+        checkVersion(STR_VECGRP);
         return vecgrp;
     }
 
     public void setVecgrp(String vecgrp) {
-        checkVersion("vecgrp");
+        checkVersion(STR_VECGRP);
         this.vecgrp = vecgrp;
     }
 
     public int getZcod() {
-        checkVersion("zcod");
+        checkVersion(STR_ZCOD);
         return zcod;
     }
 
@@ -227,91 +291,91 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public double getR12() {
-        return impedances.r12;
+        return impedances.getR12();
     }
 
     public void setR12(double r12) {
-        this.impedances.r12 = r12;
+        this.impedances.setR12(r12);
     }
 
     public double getX12() {
-        return impedances.x12;
+        return impedances.getX12();
     }
 
     public void setX12(double x12) {
-        this.impedances.x12 = x12;
+        this.impedances.setX12(x12);
     }
 
     public double getSbase12() {
-        return impedances.sbase12;
+        return impedances.getSbase12();
     }
 
     public void setSbase12(double sbase12) {
-        this.impedances.sbase12 = sbase12;
+        this.impedances.setSbase12(sbase12);
     }
 
     public double getR23() {
-        return impedances.r23;
+        return impedances.getR23();
     }
 
     public void setR23(double r23) {
-        this.impedances.r23 = r23;
+        this.impedances.setR23(r23);
     }
 
     public double getX23() {
-        return impedances.x23;
+        return impedances.getX23();
     }
 
     public void setX23(double x23) {
-        this.impedances.x23 = x23;
+        this.impedances.setX23(x23);
     }
 
     public double getSbase23() {
-        return impedances.sbase23;
+        return impedances.getSbase23();
     }
 
     public void setSbase23(double sbase23) {
-        this.impedances.sbase23 = sbase23;
+        this.impedances.setSbase23(sbase23);
     }
 
     public double getR31() {
-        return impedances.r31;
+        return impedances.getR31();
     }
 
     public void setR31(double r31) {
-        this.impedances.r31 = r31;
+        this.impedances.setR31(r31);
     }
 
     public double getX31() {
-        return impedances.x31;
+        return impedances.getX31();
     }
 
     public void setX31(double x31) {
-        this.impedances.x31 = x31;
+        this.impedances.setX31(x31);
     }
 
     public double getSbase31() {
-        return impedances.sbase31;
+        return impedances.getSbase31();
     }
 
     public void setSbase31(double sbase31) {
-        this.impedances.sbase31 = sbase31;
+        this.impedances.setSbase31(sbase31);
     }
 
     public double getVmstar() {
-        return impedances.vmstar;
+        return impedances.getVmstar();
     }
 
     public void setVmstar(double vmstar) {
-        this.impedances.vmstar = vmstar;
+        this.impedances.setVmstar(vmstar);
     }
 
     public double getAnstar() {
-        return impedances.anstar;
+        return impedances.getAnstar();
     }
 
     public void setAnstar(double anstar) {
-        this.impedances.anstar = anstar;
+        this.impedances.setAnstar(anstar);
     }
 
     public PsseTransformerWinding getWinding1() {
@@ -394,64 +458,5 @@ public class PsseTransformer extends PsseVersioned {
         copy.winding3 = this.winding3.copy();
         copy.winding3Rates = this.winding3Rates.copy();
         return copy;
-    }
-
-    public static class TransformerImpedances {
-        @Parsed(field = {"r12", "r1_2"})
-        private double r12 = 0;
-
-        @Parsed(field = {"x12", "x1_2"})
-        private double x12;
-
-        @Parsed(field = {"sbase12", "sbase1_2"})
-        private double sbase12 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"r23", "r2_3"})
-        private double r23 = 0;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"x23", "x2_3"})
-        private double x23 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"sbase23", "sbase2_3"})
-        private double sbase23 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"r31", "r3_1"})
-        private double r31 = 0;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"x31", "x3_1"})
-        private double x31 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"sbase31", "sbase3_1"})
-        private double sbase31 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed
-        private double vmstar = 1;
-
-        @NullString(nulls = {"null"})
-        @Parsed
-        private double anstar = 0;
-
-        public TransformerImpedances copy() {
-            TransformerImpedances copy = new TransformerImpedances();
-            copy.r12 = this.r12;
-            copy.x12 = this.x12;
-            copy.sbase12 = this.sbase12;
-            copy.r23 = this.r23;
-            copy.x23 = this.x23;
-            copy.sbase23 = this.sbase23;
-            copy.r31 = this.r31;
-            copy.x31 = this.x31;
-            copy.sbase31 = this.sbase31;
-            copy.vmstar = this.vmstar;
-            copy.anstar = this.anstar;
-            return copy;
-        }
     }
 }

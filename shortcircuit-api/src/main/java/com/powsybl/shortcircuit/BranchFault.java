@@ -16,20 +16,37 @@ public class BranchFault extends AbstractFault {
 
     private final double proportionalLocation;
 
+    /**
+     * Creates a branch fault by specifying the impedance, the fault type, and location.
+     */
     public BranchFault(String id, String elementId, double r, double x, ConnectionType connection, FaultType faultType, double proportionalLocation) {
         // Here the elementId is the id of a branch.
         super(id, elementId, r, x, connection, faultType);
         this.proportionalLocation = proportionalLocation;
     }
 
+    /**
+     * Creates a three-phase branch fault with a specified impedance (connected in series) and location.
+     */
     public BranchFault(String id, String elementId, double r, double x, double proportionalLocation) {
         // Here the elementId is the id of a branch.
         this(id, elementId, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE, proportionalLocation);
     }
 
+    /**
+     * Creates a branch fault with zero impedance and the specified fault type and location.
+     */
+    public BranchFault(String id, String elementId, FaultType faultType, double proportionalLocation) {
+        // Here the elementId is the id of a branch.
+        this(id, elementId, 0.0, 0.0, ConnectionType.SERIES, faultType, proportionalLocation);
+    }
+
+    /**
+     * Creates a three-phase branch fault with zero impedance.
+     */
     public BranchFault(String id, String elementId, double proportionalLocation) {
         // Here the elementId is the id of a branch.
-        this(id, elementId, 0.0, 0.0, ConnectionType.SERIES, FaultType.THREE_PHASE, proportionalLocation);
+        this(id, elementId, FaultType.THREE_PHASE, proportionalLocation);
     }
 
     @Override

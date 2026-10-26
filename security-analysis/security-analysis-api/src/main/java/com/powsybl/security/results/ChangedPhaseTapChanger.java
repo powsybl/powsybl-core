@@ -1,0 +1,34 @@
+/**
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.security.results;
+
+import com.powsybl.iidm.network.ThreeSides;
+
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * Represents the result of a phase tap changer's tap position change during security analysis.
+ *
+ * @param transformerId The ID of the phase shifter transformer
+ * @param side The side of the phase shifter on a three-winding transformer, or {@code null} for a two-winding transformer
+ * @param initialTap The tap position before optimization
+ * @param finalTap The tap position after optimization
+ *
+ * @author Riad BENRADI {@literal <riad.benradi_externe at rte-france.com>}
+ */
+public record ChangedPhaseTapChanger(String transformerId, ThreeSides side, int initialTap, int finalTap) {
+
+    public ChangedPhaseTapChanger {
+        Objects.requireNonNull(transformerId, "Transformer ID cannot be null");
+    }
+
+    public Optional<ThreeSides> getSide() {
+        return Optional.ofNullable(side);
+    }
+}

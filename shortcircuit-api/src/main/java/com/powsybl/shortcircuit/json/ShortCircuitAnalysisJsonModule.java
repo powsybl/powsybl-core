@@ -8,14 +8,13 @@
 package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.contingency.json.LimitViolationDeserializer;
 import com.powsybl.contingency.json.LimitViolationSerializer;
 import com.powsybl.contingency.json.ViolationLocationDeserializer;
 import com.powsybl.contingency.json.ViolationLocationSerializer;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.shortcircuit.*;
-import com.powsybl.shortcircuit.FaultParameters;
 
 /**
  * @author Boubakeur Brahimi

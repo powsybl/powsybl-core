@@ -7,9 +7,11 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.psse.model.pf.*;
-import com.powsybl.psse.model.pf.PsseSubstation.PsseSubstationNode;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import com.powsybl.psse.model.pf.PsseSubstation;
+import com.powsybl.psse.model.pf.PsseTransformer;
+import com.powsybl.psse.model.pf.internal.PsseSubstationNode;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.util.Pair;
@@ -212,6 +214,10 @@ final class NodeBreakerValidation {
 
     Optional<PsseSubstation> getTheOnlySubstation(int bus) {
         return getTheOnlySubstation(Set.of(bus));
+    }
+
+    int getSourceVoltageLevel(int bus) {
+        return getTheOnlySubstation(bus).map(PsseSubstation::getIs).orElse(0);
     }
 
     Optional<PsseSubstation> getTheOnlySubstation(Set<Integer> busesSet) {

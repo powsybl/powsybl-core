@@ -8,10 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +16,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
@@ -75,8 +71,8 @@ public abstract class AbstractNetworksTest {
         assertNotEquals(load.getTerminal().getP(), load.getP0());
         assertNotEquals(load.getTerminal().getQ(), load.getQ0());
         assertNotEquals(-generator.getTerminal().getP(), generator.getTargetP());
-        assertNotEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
-        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
+        assertNotEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
+        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
 
         Networks.applySolvedValues(network);
         assertEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
@@ -85,8 +81,8 @@ public abstract class AbstractNetworksTest {
         assertEquals(load.getTerminal().getP(), load.getP0());
         assertEquals(load.getTerminal().getQ(), load.getQ0());
         assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
-        assertEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
-        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
+        assertEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
+        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
     }
 
     @Test
@@ -94,11 +90,11 @@ public abstract class AbstractNetworksTest {
         Network network = BatteryNetworkFactory.create();
         Battery battery = network.getBattery("BAT");
         assertNotEquals(battery.getTerminal().getP(), battery.getTargetP());
-        assertNotEquals(battery.getTerminal().getQ(), battery.getTargetQ());
+        assertNotEquals(battery.getTerminal().getQ(), battery.getLocalTargetQ());
 
         Networks.applySolvedValues(network);
         assertEquals(-battery.getTerminal().getP(), battery.getTargetP());
-        assertEquals(-battery.getTerminal().getQ(), battery.getTargetQ());
+        assertEquals(-battery.getTerminal().getQ(), battery.getLocalTargetQ());
     }
 
     @Test
@@ -120,4 +116,44 @@ public abstract class AbstractNetworksTest {
         Networks.applySolvedValues(network);
         assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
     }
+
+    @Test
+    public void unsetSolvedValues() {
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
+        Networks.unsetSolvedValues(network);
+
+        Line line = network.getLine("NHV1_NHV2_1");
+        assertEquals(Double.NaN, line.getTerminal1().getP());
+        assertEquals(Double.NaN, line.getTerminal2().getP());
+        assertEquals(Double.NaN, line.getTerminal1().getQ());
+        assertEquals(Double.NaN, line.getTerminal2().getQ());
+
+        Bus bus = network.getBusView().getBus("VLHV1_0");
+        assertEquals(Double.NaN, bus.getV());
+        assertEquals(Double.NaN, bus.getAngle());
+
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
+        assertNull(twt.getRatioTapChanger().getSolvedTapPosition());
+    }
+
+    @Test
+    public void unsetDcSolvedValues() {
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+
+        DcLine line = network.getDcLine("dcLine1");
+        line.getDcTerminal1().setP(10);
+        line.getDcTerminal1().setI(20);
+        LineCommutatedConverter lcc = network.getLineCommutatedConverter("LccFr");
+        lcc.getDcTerminal1().setP(30);
+        lcc.getTerminal1().setP(40);
+        network.getDcBus("dcNodeFrPos_dcBus").setV(100);
+
+        Networks.unsetSolvedValues(network);
+        assertEquals(Double.NaN, line.getDcTerminal1().getP());
+        assertEquals(Double.NaN, line.getDcTerminal1().getI());
+        assertEquals(Double.NaN, lcc.getDcTerminal1().getP());
+        assertEquals(Double.NaN, lcc.getTerminal1().getP());
+        assertEquals(Double.NaN, network.getDcBus("dcNodeFrPos_dcBus").getV());
+    }
+
 }

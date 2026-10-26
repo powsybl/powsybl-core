@@ -29,12 +29,14 @@ public class LocalLoadFlowActionSimulator extends LoadFlowActionSimulator {
         this.partition = Objects.requireNonNull(partition);
     }
 
-    public LocalLoadFlowActionSimulator(Network network, Partition partition, LoadFlowActionSimulatorConfig config, boolean applyIfSolved, LoadFlowActionSimulatorObserver... observers) throws IOException {
+    public LocalLoadFlowActionSimulator(Network network, Partition partition, LoadFlowActionSimulatorConfig config,
+                                        boolean applyIfSolved, LoadFlowActionSimulatorObserver... observers) throws IOException {
         super(network, new LocalComputationManager(), config, applyIfSolved, observers);
         this.partition = Objects.requireNonNull(partition);
     }
 
-    public LocalLoadFlowActionSimulator(Network network, Partition partition, LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) throws IOException {
+    public LocalLoadFlowActionSimulator(Network network, Partition partition, LoadFlowActionSimulatorConfig config,
+                                        boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) throws IOException {
         super(network, new LocalComputationManager(), config, applyIfSolved, observers);
         this.partition = Objects.requireNonNull(partition);
     }

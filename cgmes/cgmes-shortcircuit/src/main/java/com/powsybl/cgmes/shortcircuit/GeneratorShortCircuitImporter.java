@@ -8,12 +8,12 @@
 
 package com.powsybl.cgmes.shortcircuit;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

@@ -7,7 +7,26 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_BL;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_GL;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IBUS;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ID;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_SHNTID;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_STAT;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_STATUS;
 
 /**
  *
@@ -15,20 +34,50 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseFixedShunt {
 
-    @Parsed(field = {"i", "ibus"})
+    private static final Map<String, PsseFieldDefinition<PsseFixedShunt, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_I, STR_ID, STR_STATUS, STR_GL, STR_BL};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_SHNTID, STR_STAT, STR_GL, STR_BL};
+
     private int i;
-
-    @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
     private String id;
+    private int status = defaultIntegerFor(STR_STATUS, FIELDS);
+    private double gl = defaultDoubleFor(STR_GL, FIELDS);
+    private double bl = defaultDoubleFor(STR_BL, FIELDS);
 
-    @Parsed(field = {"status", "stat"})
-    private int status = 1;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
 
-    @Parsed
-    private double gl = 0;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
 
-    @Parsed
-    private double bl = 0;
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseFixedShunt fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseFixedShunt::new);
+    }
+
+    public static String[] toRecord(PsseFixedShunt psseFixedShunt, String[] headers) {
+        return Util.toRecord(psseFixedShunt, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseFixedShunt, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseFixedShunt, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseFixedShunt::getI, PsseFixedShunt::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseFixedShunt::getI, PsseFixedShunt::setI));
+        addField(fields, createNewField(STR_ID, String.class, PsseFixedShunt::getId, PsseFixedShunt::setId, "1"));
+        addField(fields, createNewField(STR_SHNTID, String.class, PsseFixedShunt::getId, PsseFixedShunt::setId, "1"));
+        addField(fields, createNewField(STR_STATUS, Integer.class, PsseFixedShunt::getStatus, PsseFixedShunt::setStatus, 1));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseFixedShunt::getStatus, PsseFixedShunt::setStatus, 1));
+        addField(fields, createNewField(STR_GL, Double.class, PsseFixedShunt::getGl, PsseFixedShunt::setGl, 0d));
+        addField(fields, createNewField(STR_BL, Double.class, PsseFixedShunt::getBl, PsseFixedShunt::setBl, 0d));
+
+        return fields;
+    }
 
     public int getI() {
         return i;

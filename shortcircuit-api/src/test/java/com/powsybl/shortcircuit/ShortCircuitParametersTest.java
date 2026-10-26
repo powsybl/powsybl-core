@@ -53,11 +53,11 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         boolean parameterBoolean;
         String parameterString;
 
-        public DummyExtension() {
+        DummyExtension() {
             super();
         }
 
-        public DummyExtension(DummyExtension another) {
+        DummyExtension(DummyExtension another) {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;

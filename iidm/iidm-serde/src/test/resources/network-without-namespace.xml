@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm=" " id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+
+</iidm:network>

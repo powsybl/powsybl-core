@@ -96,7 +96,8 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         RegulatedTerminalControllers regulatedTerminalControllers = new RegulatedTerminalControllers(network);
-        network.getThreeWindingsTransformerStream().filter(t3w -> isGoingToBeReplaced(transformersToBeReplaced, t3w.getId())).toList() // toList is required to create a temporary list since the threeWindingsTransformer is removed during the replacement
+        // In the next line, toList is required to create a temporary list since the threeWindingsTransformer is removed during the replacement
+        network.getThreeWindingsTransformerStream().filter(t3w -> isGoingToBeReplaced(transformersToBeReplaced, t3w.getId())).toList()
                 .forEach(t3w -> replaceThreeWindingsTransformerBy3TwoWindingsTransformer(t3w, regulatedTerminalControllers, throwException, reportNode));
     }
 
@@ -104,7 +105,9 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return transformersToBeReplaced == null || transformersToBeReplaced.contains(t3wId);
     }
 
-    private void replaceThreeWindingsTransformerBy3TwoWindingsTransformer(ThreeWindingsTransformer t3w, RegulatedTerminalControllers regulatedTerminalControllers, boolean throwException, ReportNode reportNode) {
+    private void replaceThreeWindingsTransformerBy3TwoWindingsTransformer(ThreeWindingsTransformer t3w,
+                                                                          RegulatedTerminalControllers regulatedTerminalControllers,
+                                                                          boolean throwException, ReportNode reportNode) {
         VoltageLevel starVoltageLevel = createStarVoltageLevel(t3w, throwException);
         if (starVoltageLevel == null) {
             return;
@@ -264,7 +267,11 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     private static void replaceRegulatedTerminal(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w, ThreeT2wsR threeT2ws) {
-        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulationTerminal(), t3w, threeT2ws).ifPresent(rtc::setRegulationTerminal));
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> findNewRegulatedTerminal(rtc.getRegulatingTerminal(), t3w, threeT2ws).ifPresent(terminal -> {
+            if (rtc.getVoltageRegulation() != null) {
+                rtc.getVoltageRegulation().setTerminal(terminal, rtc.getVoltageRegulation().getTargetValue());
+            }
+        }));
         t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> findNewRegulatedTerminal(ptc.getRegulationTerminal(), t3w, threeT2ws).ifPresent(ptc::setRegulationTerminal));
     }
 
@@ -298,11 +305,14 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         } else if ("angle".equals(propertyName)) {
             starVoltageLevel.getBusView().getBuses().iterator().next().setAngle(Double.parseDouble(property));
         } else if (propertyName.startsWith(CGMES_OPERATIONAL_LIMIT_SET)) {
-            if (threeT2ws.t2wOne.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
+            if (threeT2ws.t2wOne.getOperationalLimitsGroups1().stream()
+                .anyMatch(operationalLimitsGroup -> (CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()).equals(propertyName))) {
                 threeT2ws.t2wOne.setProperty(propertyName, property);
-            } else if (threeT2ws.t2wTwo.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
+            } else if (threeT2ws.t2wTwo.getOperationalLimitsGroups1().stream()
+                .anyMatch(operationalLimitsGroup -> (CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()).equals(propertyName))) {
                 threeT2ws.t2wTwo.setProperty(propertyName, property);
-            } else if (threeT2ws.t2wThree.getOperationalLimitsGroups1().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
+            } else if (threeT2ws.t2wThree.getOperationalLimitsGroups1().stream()
+                .anyMatch(operationalLimitsGroup -> (CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()).equals(propertyName))) {
                 threeT2ws.t2wThree.setProperty(propertyName, property);
             } else {
                 copied = false;
@@ -319,7 +329,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     // TODO For now, only a few extensions are supported. But a wider mechanism should be developed to support custom extensions.
     private static List<String> copyExtensions(ThreeWindingsTransformer t3w, ThreeT2wsR threeT2w) {
         List<String> lostExtensions = new ArrayList<>();
-        t3w.getExtensions().stream().map(Extension::getName).forEach(extensionName -> {
+        t3w.getExtensionsStream().map(Extension::getName).forEach(extensionName -> {
             boolean copied = copyExtension(extensionName, t3w, threeT2w);
             if (!copied) {
                 lostExtensions.add(extensionName);
@@ -344,9 +354,12 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
             }
             case "threeWindingsTransformerToBeEstimated" -> {
                 ThreeWindingsTransformerToBeEstimated extension = t3w.getExtension(ThreeWindingsTransformerToBeEstimated.class);
-                copyAndAddToBeEstimated(threeT2ws.t2wOne.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger1(), extension.shouldEstimatePhaseTapChanger1());
-                copyAndAddToBeEstimated(threeT2ws.t2wTwo.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger2(), extension.shouldEstimatePhaseTapChanger2());
-                copyAndAddToBeEstimated(threeT2ws.t2wThree.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class), extension.shouldEstimateRatioTapChanger3(), extension.shouldEstimatePhaseTapChanger3());
+                copyAndAddToBeEstimated(threeT2ws.t2wOne.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class),
+                    extension.shouldEstimateRatioTapChanger1(), extension.shouldEstimatePhaseTapChanger1());
+                copyAndAddToBeEstimated(threeT2ws.t2wTwo.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class),
+                    extension.shouldEstimateRatioTapChanger2(), extension.shouldEstimatePhaseTapChanger2());
+                copyAndAddToBeEstimated(threeT2ws.t2wThree.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class),
+                    extension.shouldEstimateRatioTapChanger3(), extension.shouldEstimatePhaseTapChanger3());
             }
             default -> copied = false;
         }
@@ -376,13 +389,13 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
 
     private static boolean copyLegAlias(String alias, String aliasType, String legEnd, TwoWindingsTransformer t2wLeg) {
         boolean copied = true;
-        if (aliasType.equals("CGMES.TransformerEnd" + legEnd)) {
+        if (("CGMES.TransformerEnd" + legEnd).equals(aliasType)) {
             t2wLeg.addAlias(alias, "CGMES.TransformerEnd1", true);
-        } else if (aliasType.equals("CGMES.Terminal" + legEnd)) {
+        } else if (("CGMES.Terminal" + legEnd).equals(aliasType)) {
             t2wLeg.addAlias(alias, "CGMES.Terminal1", true);
-        } else if (aliasType.equals("CGMES.RatioTapChanger" + legEnd)) {
+        } else if (("CGMES.RatioTapChanger" + legEnd).equals(aliasType)) {
             t2wLeg.addAlias(alias, "CGMES.RatioTapChanger1", true);
-        } else if (aliasType.equals("CGMES.PhaseTapChanger" + legEnd)) {
+        } else if (("CGMES.PhaseTapChanger" + legEnd).equals(aliasType)) {
             t2wLeg.addAlias(alias, "CGMES.PhaseTapChanger1", true);
         } else {
             copied = false;

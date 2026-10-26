@@ -156,7 +156,8 @@ public class DynamicSimulationTool implements Tool {
         }
 
         ReportNode reportNode = DynamicSimulationReports.buildRootDynamicSimulationTool();
-        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, outputVariablesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
+        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, outputVariablesSupplier,
+            VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
         if (outputLogFile != null) {

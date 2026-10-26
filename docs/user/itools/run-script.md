@@ -102,7 +102,9 @@ The following example shows how to load a network from a file, run a [load flow]
 **Content of the loadflow.groovy file:**
 ```groovy
 import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode
+import com.powsybl.loadflow.LoadFlowParameters
 
+format = args[0]
 input_file = args[1]
 output_file = args[2]
 
@@ -115,12 +117,12 @@ parameters.voltageInitMode = VoltageInitMode.DC_VALUES
 loadflow(network, parameters)
 
 // Save the network to a file
-saveNetwork("XIIDM", network, output_file)
+saveNetwork(format, network, output_file)
 ```
 
 To run the previous script, pass the input and output file names:
-```
-$> itools run-script loadflow.groovy XIIDM /tmp/case.xiidm /tmp/case-lf.xiidm
+```shell
+itools run-script --file loadflow.groovy XIIDM /tmp/case.xiidm /tmp/case-lf.xiidm
 ```
 
 ## Going further

@@ -72,6 +72,7 @@ public abstract class AbstractTaskInterruptionTest {
         assertFalse(cancelled);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // We try to catch all exceptions here
     private CompletableFuture<Object> createTask(Supplier<?> methodCalledInTask) {
         return CompletableFutureTask.runAsync(() -> {
             LOGGER.info("createTask - START - {}", ZonedDateTime.now());

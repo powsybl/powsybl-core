@@ -7,16 +7,16 @@
  */
 package com.powsybl.security.comparator;
 
+import com.google.common.base.Equivalence;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.security.PostContingencyComputationStatus;
+import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.results.PostContingencyResult;
+
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.google.common.base.Equivalence;
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.security.PostContingencyComputationStatus;
-import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.SecurityAnalysisResult;
 
 /**
  *
@@ -98,7 +98,7 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
     }
 
     private boolean isSmallViolation(LimitViolation violation, boolean missingResult1) {
-        boolean smallViolation = Math.abs(violation.getValue() - (violation.getLimit() * violation.getLimitReduction())) <= threshold;
+        boolean smallViolation = Math.abs(violation.getValue() - (violation.getLimit() * violation.getLimitScaling())) <= threshold;
         comparisonWriter = missingResult1 ? comparisonWriter.write(null, violation, smallViolation) : comparisonWriter.write(violation, null, smallViolation);
         return smallViolation;
     }

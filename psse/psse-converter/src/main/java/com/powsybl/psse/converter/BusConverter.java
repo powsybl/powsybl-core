@@ -7,14 +7,14 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.*;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
+
+import java.util.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

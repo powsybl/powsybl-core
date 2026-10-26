@@ -47,17 +47,19 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
     private final String lineId;
     private final String lineName;
+    private final boolean forceRemoveIsolatedVoltageLevel;
 
     /**
      * Constructor.
      * <p>
      * NB: This constructor is package-private, Please use {@link RevertConnectVoltageLevelOnLineBuilder} instead.
      */
-    RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName) {
+    RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName, boolean forceRemoveIsolatedVoltageLevel) {
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line2Id = Objects.requireNonNull(line2Id);
         this.lineId = Objects.requireNonNull(lineId);
         this.lineName = lineName;
+        this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
     }
 
     @Override
@@ -115,27 +117,42 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         TwoSides line1Side2 = line1Side1 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
         TwoSides line2Side2 = line2VlId1.equals(commonVlId) ? TwoSides.TWO : TwoSides.ONE;
         TwoSides line2Side1 = line2Side2 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
+        Terminal terminalVlLine1 = line1.getTerminal(line1Side2);
+        Terminal terminalVlLine2 = line2.getTerminal(line2Side1);
 
         // Set parameters of the new line replacing the two existing lines
         LineAdder lineAdder = createLineAdder(lineId, lineName, line1Side1 == TwoSides.TWO ? line1VlId2 : line1VlId1,
                 line2Side2 == TwoSides.TWO ? line2VlId2 : line2VlId1, network, line1, line2);
 
-        attachLine(line1.getTerminal(line1Side1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(line2.getTerminal(line2Side2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        attachLine(line1.getTerminal(line1Side1), lineAdder,
+            (bus, adder) -> adder.setConnectableBus1(bus.getId()),
+            (bus, adder) -> adder.setBus1(bus.getId()),
+            (node, adder) -> adder.setNode1(node));
+        attachLine(line2.getTerminal(line2Side2), lineAdder,
+            (bus, adder) -> adder.setConnectableBus2(bus.getId()),
+            (bus, adder) -> adder.setBus2(bus.getId()),
+            (node, adder) -> adder.setNode2(node));
 
         // get line1 limits
-        LoadingLimitsBags limitsLine1Side1 = new LoadingLimitsBags(() -> line1.getActivePowerLimits(line1Side1), () -> line1.getApparentPowerLimits(line1Side1), () -> line1.getCurrentLimits(line1Side1));
-        LoadingLimitsBags limitsLine1Side2 = new LoadingLimitsBags(() -> line1.getActivePowerLimits(line1Side2), () -> line1.getApparentPowerLimits(line1Side2), () -> line1.getCurrentLimits(line1Side2));
+        LoadingLimitsBags limitsLine1Side1 = new LoadingLimitsBags(() -> line1.getActivePowerLimits(line1Side1),
+            () -> line1.getApparentPowerLimits(line1Side1), () -> line1.getCurrentLimits(line1Side1));
+        LoadingLimitsBags limitsLine1Side2 = new LoadingLimitsBags(() -> line1.getActivePowerLimits(line1Side2),
+            () -> line1.getApparentPowerLimits(line1Side2), () -> line1.getCurrentLimits(line1Side2));
 
         // get line2 limits
-        LoadingLimitsBags limitsLine2Side1 = new LoadingLimitsBags(() -> line2.getActivePowerLimits(line2Side1), () -> line2.getApparentPowerLimits(line2Side1), () -> line2.getCurrentLimits(line2Side1));
-        LoadingLimitsBags limitsLine2Side2 = new LoadingLimitsBags(() -> line2.getActivePowerLimits(line2Side2), () -> line2.getApparentPowerLimits(line2Side2), () -> line2.getCurrentLimits(line2Side2));
+        LoadingLimitsBags limitsLine2Side1 = new LoadingLimitsBags(() -> line2.getActivePowerLimits(line2Side1),
+            () -> line2.getApparentPowerLimits(line2Side1), () -> line2.getCurrentLimits(line2Side1));
+        LoadingLimitsBags limitsLine2Side2 = new LoadingLimitsBags(() -> line2.getActivePowerLimits(line2Side2),
+            () -> line2.getApparentPowerLimits(line2Side2), () -> line2.getCurrentLimits(line2Side2));
 
         // Remove the two existing lines
+        // need to clean the node breaker topology first, otherwise if the voltage level is not removed the switches are not removed
+        cleanNodeBreakerTopologyForTerminal(terminalVlLine1, line1Id, reportNode);
         line1.remove();
         removedLineReport(reportNode, line1Id);
         LOG.info("Line {} removed", line1Id);
 
+        cleanNodeBreakerTopologyForTerminal(terminalVlLine2, line2Id, reportNode);
         line2.remove();
         removedLineReport(reportNode, line2Id);
         LOG.info("Line {} removed", line2Id);
@@ -151,7 +168,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         LOG.info("New line {} created, replacing lines {} and {}", lineId, line1Id, line2Id);
 
         // remove voltage level and substation in common, if necessary
-        removeVoltageLevelAndSubstation(commonVl, reportNode);
+        removeVoltageLevelAndSubstation(commonVl, forceRemoveIsolatedVoltageLevel, reportNode);
     }
 
     @Override

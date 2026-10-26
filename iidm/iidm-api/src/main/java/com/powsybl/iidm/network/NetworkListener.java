@@ -14,31 +14,59 @@ import com.powsybl.commons.extensions.Extension;
  */
 public interface NetworkListener {
 
-    void onCreation(Identifiable<?> identifiable);
+    default void onCreation(Identifiable<?> identifiable) {
+        // empty default implementation
+    }
 
-    void beforeRemoval(Identifiable<?> identifiable);
+    default void beforeRemoval(Identifiable<?> identifiable) {
+        // empty default implementation
+    }
 
-    void afterRemoval(String id);
+    default void afterRemoval(String id) {
+        // empty default implementation
+    }
 
-    void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue);
+    default void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
 
-    void onExtensionCreation(Extension<?> extension);
+    default void onExtensionCreation(Extension<?> extension) {
+        // empty default implementation
+    }
 
-    void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName);
+    default void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
 
-    void onExtensionBeforeRemoval(Extension<?> extension);
+    default void onExtensionBeforeRemoval(Extension<?> extension) {
+        // empty default implementation
+    }
 
-    void onExtensionUpdate(Extension<?> extendable, String attribute, String variantId, Object oldValue, Object newValue);
+    default void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        // empty default implementation
+    }
 
-    void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue);
+    default void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
+        // empty default implementation
+    }
 
-    void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue);
+    default void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
 
-    void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue);
+    default void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
+        // empty default implementation
+    }
 
-    void onVariantCreated(String sourceVariantId, String targetVariantId);
+    default void onVariantCreated(String sourceVariantId, String targetVariantId) {
+        // empty default implementation
+    }
 
-    void onVariantOverwritten(String sourceVariantId, String targetVariantId);
+    default void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
+        // empty default implementation
+    }
 
-    void onVariantRemoved(String variantId);
+    default void onVariantRemoved(String variantId) {
+        // empty default implementation
+    }
 }

@@ -37,7 +37,7 @@ public final class LimitViolationDetection {
      *
      * @param network           The network on which physical values must be checked.
      * @param currentLimitTypes The current limit type to consider.
-     * @param limitsComputer    The computer of the limit reductions to apply.
+     * @param limitsComputer    The computer of the limit scalings to apply.
      * @param consumer          Will be fed with possibly created limit violations.
      */
     public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
@@ -59,7 +59,7 @@ public final class LimitViolationDetection {
      * @param network             The network on which physical values must be checked.
      * @param dcPowerFactor       The DC power factor used to convert the active power into current.
      * @param currentLimitTypes   The current limit type to consider.
-     * @param limitsComputer      The computer of the limit reductions to apply.
+     * @param limitsComputer      The computer of the limit scalings to apply.
      * @param consumer            Will be fed with possibly created limit violations.
      */
     public static void checkAllDc(Network network, double dcPowerFactor, Set<LoadingLimitType> currentLimitTypes,
@@ -128,13 +128,13 @@ public final class LimitViolationDetection {
                     overload -> {
                         consumer.accept(
                             new LimitViolation(branch.getId(),
-                                branch.getOptionalName().orElse("null"),
+                                branch.getOptionalName().orElse(null),
                                 overload.getOperationalLimitsGroupId(),
                                 toLimitViolationType(type),
                                 overload.getPreviousLimitName(),
                                 overload.getTemporaryLimit().getAcceptableDuration(),
                                 overload.getPreviousLimit(),
-                                overload.getLimitReductionCoefficient(),
+                                overload.getLimitScalingCoefficient(),
                                 value,
                                 side.toThreeSides(),
                                 null
@@ -148,17 +148,20 @@ public final class LimitViolationDetection {
         if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             //do the same on the permanent, only for the groups on which we don't have an overload on a temporary
             allLoadingLimits.stream()
-                    .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
+                    .filter(limits ->
+                        !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId())
+                            && limits.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH
+                    )
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
                     .forEach(permanentLimitCheckResult -> consumer.accept(new LimitViolation(branch.getId(),
                             branch.getOptionalName().orElse(null),
                             permanentLimitCheckResult.operationalLimitsGroupId(),
                             toLimitViolationType(type),
-                            LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                            permanentLimitCheckResult.permanentLimitName(),
                             Integer.MAX_VALUE,
                             permanentLimitCheckResult.permanentLimitValue(),
-                            permanentLimitCheckResult.limitReductionValue(),
+                            permanentLimitCheckResult.limitScalingValue(),
                             value,
                             side.toThreeSides(),
                             null
@@ -219,13 +222,13 @@ public final class LimitViolationDetection {
                 .forEach(overload -> {
                     consumer.accept(
                         new LimitViolation(transformer.getId(),
-                            transformer.getOptionalName().orElse("null"),
+                            transformer.getOptionalName().orElse(null),
                             overload.getOperationalLimitsGroupId(),
                             toLimitViolationType(type),
                             overload.getPreviousLimitName(),
                             overload.getTemporaryLimit().getAcceptableDuration(),
                             overload.getPreviousLimit(),
-                            overload.getLimitReductionCoefficient(),
+                            overload.getLimitScalingCoefficient(),
                             value,
                             side,
                             null
@@ -238,7 +241,10 @@ public final class LimitViolationDetection {
         if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             //do the same on the permanent, only for the groups on which we don't have an overload on a temporary
             allLoadingLimits.stream()
-                    .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
+                    .filter(limits ->
+                        !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId())
+                            && limits.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH
+                    )
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
                     .forEach(permanentLimitCheckResult ->
@@ -246,10 +252,10 @@ public final class LimitViolationDetection {
                                 transformer.getOptionalName().orElse(null),
                                 permanentLimitCheckResult.operationalLimitsGroupId(),
                                 toLimitViolationType(type),
-                                LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                                permanentLimitCheckResult.permanentLimitName(),
                                 Integer.MAX_VALUE,
                                 permanentLimitCheckResult.permanentLimitValue(),
-                                permanentLimitCheckResult.limitReductionValue(),
+                                permanentLimitCheckResult.limitScalingValue(),
                                 value,
                                 side,
                                 null

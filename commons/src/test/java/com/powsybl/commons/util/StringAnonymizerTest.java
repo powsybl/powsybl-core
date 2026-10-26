@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.util;
 
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -20,11 +21,8 @@ class StringAnonymizerTest {
 
     private static String toCsv(StringAnonymizer anonymizer) throws IOException {
         StringWriter stringWriter = new StringWriter();
-        BufferedWriter writer = new BufferedWriter(stringWriter);
-        try {
+        try (BufferedWriter writer = new BufferedWriter(stringWriter)) {
             anonymizer.writeCsv(writer);
-        } finally {
-            writer.close();
         }
         return stringWriter.toString();
     }
@@ -50,14 +48,11 @@ class StringAnonymizerTest {
         assertEquals("bar", anonymizer.deanonymize(anonymizedBar));
         assertNull(anonymizer.anonymize(null));
         assertNull(anonymizer.deanonymize(null));
-        try {
-            anonymizer.deanonymize("baz");
-            fail();
-        } catch (Exception ignored) {
-        }
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> anonymizer.deanonymize("baz"));
+        assertEquals("Mapping not found for anonymized string 'baz'", exception.getMessage());
         String csv = toCsv(anonymizer);
         assertEquals(String.join(System.lineSeparator(), "foo;A", "bar;B") + System.lineSeparator(),
-                     csv.toString());
+            csv);
         StringAnonymizer anonymizer2 = fromCsv(csv);
         assertEquals("foo", anonymizer2.deanonymize(anonymizedFoo));
         assertEquals("bar", anonymizer2.deanonymize(anonymizedBar));
@@ -73,7 +68,7 @@ class StringAnonymizerTest {
     }
 
     @Test
-    void invalidFileTest2() throws IOException {
+    void invalidFileTest2() {
         String csv = String.join(System.lineSeparator(),
                 "C");
         assertThrows(RuntimeException.class, () -> fromCsv(csv));

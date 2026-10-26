@@ -204,7 +204,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         }
         int index = offset;
         for (int step = 0; step < stepLengths.length; step++) {
-            if (index + stepLengths[step] > splitIndex) {
+            if (index + stepLengths[step] >= splitIndex) {
                 // first chunk
                 int[] stepLengths1 = new int[step + 1];
                 String[] stepValues1 = new String[stepLengths1.length];
@@ -214,11 +214,15 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
                 CompressedStringDataChunk chunk1 = new CompressedStringDataChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
 
                 // second chunk
-                int[] stepLengths2 = new int[stepLengths.length - step];
+                boolean splitOnBoundary = splitIndex == index + stepLengths[step];
+                int calculatedStep = splitOnBoundary ? step + 1 : step;
+                int[] stepLengths2 = new int[stepLengths.length - calculatedStep];
                 String[] stepValues2 = new String[stepLengths2.length];
-                System.arraycopy(stepLengths, step, stepLengths2, 0, stepLengths2.length);
-                System.arraycopy(stepValues, step, stepValues2, 0, stepValues2.length);
-                stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                System.arraycopy(stepLengths, calculatedStep, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, calculatedStep, stepValues2, 0, stepValues2.length);
+                if (!splitOnBoundary) {
+                    stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                }
                 CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
 
                 return new Split<>(chunk1, chunk2);

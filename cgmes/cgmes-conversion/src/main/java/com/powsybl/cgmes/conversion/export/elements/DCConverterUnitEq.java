@@ -23,7 +23,8 @@ public final class DCConverterUnitEq {
 
     private static final String OPERATING_MODE_KIND = "DCConverterOperatingModeKind.";
 
-    public static void write(String id, String dcConverterUnitName, String operationMode, String substationId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String id, String dcConverterUnitName, String operationMode, String substationId,
+                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, cimNamespace, writer, context);
         writer.writeEmptyElement(cimNamespace, "DCConverterUnit.operationMode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + OPERATING_MODE_KIND + operationMode);
