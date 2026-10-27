@@ -32,6 +32,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
@@ -1986,5 +1987,78 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network expected = readCgmesResources("/update/switch/", "switch_EQ.xml", "switch_SSH.xml");
         Network actual = exportImportNodeBreakerNoBoundaries(expected);
         assertTrue(compareNetworksEQdata(expected, actual));
+    }
+
+    @Test
+    void controlAreaGeneratingUnitExportTest() throws IOException {
+        Network network = Network.create("test_ca_gu", "test");
+        Substation s1 = network.newSubstation().setId("S1").setCountry(Country.FR).add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1.getBusBreakerView().newBus().setId("B1").add();
+
+        Substation s2 = network.newSubstation().setId("S2").setCountry(Country.FR).add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl2.getBusBreakerView().newBus().setId("B2").add();
+
+        // G1 has ActivePowerControl with participationFactor > 0
+        Generator g1 = vl1.newGenerator().setId("G1").setName("Gen 1").setBus("B1")
+                .setMinP(0).setMaxP(100).setTargetP(50).setLocalTargetQ(10.0).setEnergySource(EnergySource.HYDRO).add();
+        g1.newExtension(ActivePowerControlAdder.class).withParticipate(true).withParticipationFactor(0.5).add();
+
+        // G2 has normalPF property > 0
+        Generator g2 = vl1.newGenerator().setId("G2").setName("Gen 2").setBus("B1")
+                .setMinP(0).setMaxP(100).setTargetP(50).setLocalTargetQ(10.0).setEnergySource(EnergySource.THERMAL).add();
+        g2.setProperty(PROPERTY_NORMAL_PF, "1.2");
+
+        // G3 has ActivePowerControl with participationFactor = 0 (should not be exported)
+        Generator g3 = vl1.newGenerator().setId("G3").setName("Gen 3").setBus("B1")
+                .setMinP(0).setMaxP(100).setTargetP(50).setLocalTargetQ(10.0).setEnergySource(EnergySource.SOLAR).add();
+        g3.newExtension(ActivePowerControlAdder.class).withParticipate(true).withParticipationFactor(0.0).add();
+
+        // G4 has no participation factor (should not be exported)
+        Generator g4 = vl1.newGenerator().setId("G4").setName("Gen 4").setBus("B1")
+                .setMinP(0).setMaxP(100).setTargetP(50).setLocalTargetQ(10.0).setEnergySource(EnergySource.WIND).add();
+
+        // G5 is in VL2 which is not in the ControlArea (should not be exported)
+        Generator g5 = vl2.newGenerator().setId("G5").setName("Gen 5").setBus("B2")
+                .setMinP(0).setMaxP(100).setTargetP(50).setLocalTargetQ(10.0).setEnergySource(EnergySource.HYDRO).add();
+        g5.newExtension(ActivePowerControlAdder.class).withParticipate(true).withParticipationFactor(0.8).add();
+
+        // G6 is a condenser (should not be exported)
+        Generator g6 = vl1.newGenerator().setId("G6").setName("Gen 6").setBus("B1")
+                .setMinP(0).setMaxP(0).setTargetP(0).setLocalTargetQ(10.0).setEnergySource(EnergySource.HYDRO).setCondenser(true).add();
+        g6.newExtension(ActivePowerControlAdder.class).withParticipate(true).withParticipationFactor(0.5).add();
+
+        // ControlArea of type Interchange containing VL1
+        network.newArea()
+                .setId("CA1")
+                .setName("Control Area 1")
+                .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                .addVoltageLevel(vl1)
+                .add();
+
+        String eqXml = writeCgmesProfile(network, "EQ", tmpDir);
+
+        // Check ControlAreaGeneratingUnit for G1 and G2
+        assertTrue(eqXml.contains("<cim:ControlAreaGeneratingUnit rdf:ID=\"_G1_SM_CAGU\">"));
+        assertTrue(eqXml.contains("<cim:ControlAreaGeneratingUnit rdf:ID=\"_G2_SM_CAGU\">"));
+
+        String g1CAGU = getElement(eqXml, "ControlAreaGeneratingUnit", "G1_SM_CAGU");
+        assertNotNull(g1CAGU);
+        assertEquals("CA1", getResource(g1CAGU, "ControlAreaGeneratingUnit.ControlArea"));
+        assertEquals("G1_HGU", getResource(g1CAGU, "ControlAreaGeneratingUnit.GeneratingUnit"));
+        assertEquals("Gen 1", getAttribute(g1CAGU, "IdentifiedObject.name"));
+
+        String g2CAGU = getElement(eqXml, "ControlAreaGeneratingUnit", "G2_SM_CAGU");
+        assertNotNull(g2CAGU);
+        assertEquals("CA1", getResource(g2CAGU, "ControlAreaGeneratingUnit.ControlArea"));
+        assertEquals("G2_TGU", getResource(g2CAGU, "ControlAreaGeneratingUnit.GeneratingUnit"));
+        assertEquals("Gen 2", getAttribute(g2CAGU, "IdentifiedObject.name"));
+
+        // Ensure G3, G4, G5, G6 do NOT have ControlAreaGeneratingUnit
+        assertFalse(eqXml.contains("_G3_SM_CAGU"));
+        assertFalse(eqXml.contains("_G4_SM_CAGU"));
+        assertFalse(eqXml.contains("_G5_SM_CAGU"));
+        assertFalse(eqXml.contains("_G6_SM_CAGU"));
     }
 }

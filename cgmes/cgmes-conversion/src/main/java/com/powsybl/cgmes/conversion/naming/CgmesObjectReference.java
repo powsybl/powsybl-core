@@ -125,6 +125,7 @@ public interface CgmesObjectReference {
         BOUNDARY_TERMINAL("BT"),
         CONNECTIVITY_NODE("CN"),
         CONTROL_AREA("CA"),
+        CONTROL_AREA_GENERATING_UNIT("CAGU"),
         CONVERTER_STATION("CS"),
         DCNODE("DCNODE"),
         DC_CONVERTER_UNIT("DCCU"),
