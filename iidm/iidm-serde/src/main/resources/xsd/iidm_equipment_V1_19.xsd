@@ -194,10 +194,13 @@
         <xs:attribute name="nodes" use="required" type="xs:string"/>
         <xs:attributeGroup ref="iidm:CalculatedBusVariantAttributes"/>
     </xs:complexType>
-    <xs:complexType name="FictitiousInjection">
-        <xs:attribute name="node" use="required" type="xs:int"/>
+    <xs:attributeGroup name="FictitiousInjectionVariantAttributes">
         <xs:attribute name="fictitiousP0" use="optional" type="xs:double"/>
         <xs:attribute name="fictitiousQ0" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
+    <xs:complexType name="FictitiousInjection">
+        <xs:attribute name="node" use="required" type="xs:int"/>
+        <xs:attributeGroup ref="iidm:FictitiousInjectionVariantAttributes"/>
     </xs:complexType>
     <xs:simpleType name="SwitchKind">
         <xs:restriction base="xs:string">
