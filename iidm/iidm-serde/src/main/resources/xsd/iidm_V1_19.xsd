@@ -934,11 +934,14 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="DcNodeVariantAttributes">
+        <xs:attribute name="v" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="DcNode">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
-                <xs:attribute name="v" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:DcNodeVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
