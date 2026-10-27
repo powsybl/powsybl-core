@@ -607,6 +607,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testExportEquivalentInjectionRegulationCapability() throws IOException {
+        // Regulation of the equivalent injection with regulation capability is switched off by the second SSH
+        Network network = readCgmesResources("/update/generator/", "generator_EQ.xml");
+        readCgmesResources(network, "/update/generator/", "generator_SSH.xml");
+        readCgmesResources(network, "/update/generator/", "generator_SSH_1.xml");
+
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals("false", getRegulationCapability(eqFile, "EquivalentInjection"));
+        assertEquals("true", getRegulationCapability(eqFile, "EquivalentInjectionWithRegulationCapability"));
+    }
+
+    private static String getRegulationCapability(String eqFile, String equivalentInjectionId) {
+        return getAttribute(getElement(eqFile, CgmesNames.EQUIVALENT_INJECTION, equivalentInjectionId), "EquivalentInjection.regulationCapability");
+    }
+
+    @Test
     void testExportEquivalentInjectionBaseVoltage() throws IOException {
         // Ensure equivalent injections outside boundaries are exported with a reference to a base voltage
 
@@ -1080,6 +1096,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
+
+            // RTC with VOLTAGE regulation but no terminal (as created by the IEEE CDF importer): controlled at its own end
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().getVoltageRegulation().setTerminal(null, Double.NaN);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
 
             // RTC local with REACTIVE_POWER
             network = EurostagTutorialExample1Factory.createWithReactiveTcc();

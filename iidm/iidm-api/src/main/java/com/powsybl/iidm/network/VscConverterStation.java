@@ -134,4 +134,19 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
     default VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
         return this;
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    double getLocalTargetQ();
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    VscConverterStation setLocalTargetQ(double targetQ);
+
 }

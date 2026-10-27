@@ -359,4 +359,14 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
             this.setSectionCount(solvedSectionCount.getAsInt());
         }
     }
+
+    @Override
+    default double getLocalTargetQ() {
+        return Double.NaN;
+    }
+
+    @Override
+    default ShuntCompensator setLocalTargetQ(double localTargetQ) {
+        throw new UnsupportedOperationException();
+    }
 }
