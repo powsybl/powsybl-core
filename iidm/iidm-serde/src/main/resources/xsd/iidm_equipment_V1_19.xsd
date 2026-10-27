@@ -977,13 +977,16 @@
             <xs:enumeration value="DISCONNECTOR"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:attributeGroup name="DcSwitchVariantAttributes">
+        <xs:attribute name="open" use="required" type="xs:boolean"/>
+    </xs:attributeGroup>
     <xs:complexType name="DcSwitch">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="kind" use="required" type="iidm:DcSwitchKind"/>
-                <xs:attribute name="open" use="required" type="xs:boolean"/>
+                <xs:attributeGroup ref="iidm:DcSwitchVariantAttributes"/>
                 <xs:attribute name="r" use="required" type="xs:double" />
             </xs:extension>
         </xs:complexContent>
