@@ -945,29 +945,35 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="DcGroundVariantAttributes">
+        <xs:attribute name="connected" use="required" type="xs:boolean"/>
+        <xs:attribute name="dcP" use="optional" type="xs:double"/>
+        <xs:attribute name="dcI" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="DcGround">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="dcNode" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
-                <xs:attribute name="connected" use="required" type="xs:boolean"/>
-                <xs:attribute name="dcP" use="optional" type="xs:double"/>
-                <xs:attribute name="dcI" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:DcGroundVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="DcLineVariantAttributes">
+        <xs:attribute name="connected1" use="required" type="xs:boolean"/>
+        <xs:attribute name="connected2" use="required" type="xs:boolean"/>
+        <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+        <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+        <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+        <xs:attribute name="dcI2" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="DcLine">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
-                <xs:attribute name="connected1" use="required" type="xs:boolean"/>
-                <xs:attribute name="connected2" use="required" type="xs:boolean"/>
-                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
-                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
-                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
-                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:DcLineVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
