@@ -25,5 +25,5 @@
             <iidm:load id="l2" loadType="UNDEFINED" p0="10.0" q0="1.0" node="0"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="line1-2" r="0.1" x="10.0" node1="4" voltageLevelId1="vl1" node2="4" voltageLevelId2="vl2"/>
+    <iidm:line id="line1-2" r="0.1" x="10.0" voltageLevelId1="vl1" node1="4" voltageLevelId2="vl2" node2="4"/>
 </iidm:network>

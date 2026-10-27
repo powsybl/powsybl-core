@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -93,8 +94,11 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
 
         // Import then export with version v1_12
         ExportOptions exportOptions = new ExportOptions();
-        // exportOptions.addExtensionVersion(VoltageRegulation.NAME, "1.12"); //fixme samir
+        exportOptions.addExtensionVersion(VoltageRegulationExtension.NAME, "1.12");
         Network network3 = allFormatsRoundTripTxtTest(network, "voltageRegulationCompatibilityVersion.xml", IidmVersion.V_1_12, exportOptions);
         assertRemovedExtension(network3);
+
+        // backward compatibility checks from version v1_12 to current version
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("voltageRegulationRoundTripRef.xml", IidmVersion.V_1_12, CURRENT_IIDM_VERSION);
     }
 }

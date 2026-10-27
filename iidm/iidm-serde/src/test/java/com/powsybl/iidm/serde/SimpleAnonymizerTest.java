@@ -30,7 +30,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
     private void anonymisationTest(Network network) throws IOException {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
-        // export with anonymisation on
+        // export with anonymization on
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "true");
         MemDataSource dataSource = new MemDataSource();

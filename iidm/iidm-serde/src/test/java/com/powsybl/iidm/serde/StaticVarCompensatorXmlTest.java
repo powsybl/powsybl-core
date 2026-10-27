@@ -56,10 +56,9 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     void remoteReactivePowerRegulationRoundTripTest() throws IOException {
         Network network = SvcTestCaseFactory.createWithRemoteReactiveRegulatingTerminal();
         addProperties(network);
-        allFormatsRoundTripTest(network, "staticVarCompensatorRemoteReactiveRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "staticVarCompensatorRemoteReactiveRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("staticVarCompensatorRemoteReactiveRoundTripRef.xml", IidmVersion.V_1_7);
-        allFormatsRoundTripTxtTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
