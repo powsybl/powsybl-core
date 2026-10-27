@@ -581,6 +581,9 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="OverloadManagementSystemVariantAttributes">
+        <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
+    </xs:attributeGroup>
     <xs:complexType name="OverloadManagementSystem">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
@@ -589,7 +592,7 @@
                     <xs:element name="switchTripping" type="iidm:SwitchTripping"/>
                     <xs:element name="threeWindingsTransformerTripping" type="iidm:ThreeWindingsTransformerTripping"/>
                 </xs:choice>
-                <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
+                <xs:attributeGroup ref="iidm:OverloadManagementSystemVariantAttributes"/>
                 <xs:attribute name="monitoredElementId" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="side" use="optional" type="iidm:Side"/>
             </xs:extension>
