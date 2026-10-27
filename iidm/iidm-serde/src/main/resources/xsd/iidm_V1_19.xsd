@@ -734,15 +734,18 @@
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
         <xs:attribute name="number" use="optional" type="iidm:TerminalNumber"/>
     </xs:complexType>
-    <xs:complexType name="VoltageRegulation">
-        <xs:sequence>
-            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
-        </xs:sequence>
+    <xs:attributeGroup name="VoltageRegulationVariantAttributes">
         <xs:attribute name="targetValue" use="optional" type="xs:double"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="slope" use="optional" type="xs:double"/>
         <xs:attribute name="mode" use="required" type="iidm:RegulationMode"/>
         <xs:attribute name="regulating" use="required" type="xs:boolean"/>
+    </xs:attributeGroup>
+    <xs:complexType name="VoltageRegulation">
+        <xs:sequence>
+            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="iidm:VoltageRegulationVariantAttributes"/>
     </xs:complexType>
     <xs:simpleType name="RegulationMode">
         <xs:restriction base="xs:string">
