@@ -44,7 +44,7 @@ public class LocalComputationManager implements ComputationManager {
 
     private final LocalComputationResourcesStatus status;
 
-    private final Semaphore permits;
+    private final ExecutorService commandExecutor;
 
     private final Executor threadPool;
 
@@ -110,7 +110,11 @@ public class LocalComputationManager implements ComputationManager {
         this.localCommandExecutor = Objects.requireNonNull(localCommandExecutor);
         this.threadPool = Objects.requireNonNull(executor);
         status = new LocalComputationResourcesStatus(config.getAvailableCore());
-        permits = new Semaphore(config.getAvailableCore());
+        commandExecutor = Executors.newFixedThreadPool(config.getAvailableCore(), runnable -> {
+            Thread thread = new Thread(runnable, "local-computation-command");
+            thread.setDaemon(true);
+            return thread;
+        });
         //make sure the localdir exists
         Files.createDirectories(config.getLocalDir());
         commonDir = new WorkingDirectory(config.getLocalDir(), "itools_common_", false);
@@ -147,18 +151,22 @@ public class LocalComputationManager implements ComputationManager {
         // TODO concurrent
         List<ExecutionError> errors = new ArrayList<>();
 
-        try (AutoCloseableExecutorService executionSubmitter = new AutoCloseableExecutorService(Executors.newCachedThreadPool(), getTimeout())) {
+        List<Future<?>> futures = new ArrayList<>();
+        try {
             for (CommandExecution commandExecution : commandExecutionList) {
                 Command command = commandExecution.getCommand();
                 CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
                 ExecutionParameters executionParameters =
                     new ExecutionParameters(workingDir, dumpDir, commandExecution, variables, computationParameters,
-                        executionSubmitter.get(), command, latch, errors, monitor);
+                        command, latch, errors, monitor);
 
                 IntStream.range(0, commandExecution.getExecutionCount())
-                    .forEach(idx -> performSingleExecution(executionParameters, idx));
+                    .forEach(idx -> futures.add(commandExecutor.submit(() -> singleExecution(executionParameters, idx))));
                 latch.await();
             }
+        } catch (InterruptedException e) {
+            futures.forEach(f -> f.cancel(true));
+            throw e;
         }
 
         return new DefaultExecutionReport(workingDir, errors);
@@ -172,45 +180,16 @@ public class LocalComputationManager implements ComputationManager {
         return 20L;
     }
 
-    /**
-     * This class is used to properly close the ExecutorService in a try-with-resources block.
-     */
-    private record AutoCloseableExecutorService(ExecutorService delegate, long timeout) implements AutoCloseable {
-        ExecutorService get() {
-            return delegate;
-        }
-
-        @Override
-        public void close() {
-            try {
-                delegate.shutdown();
-                if (!delegate.awaitTermination(timeout, TimeUnit.SECONDS)) {
-                    delegate.shutdownNow();
-                    if (!delegate.awaitTermination(timeout, TimeUnit.SECONDS)) {
-                        LOGGER.error("Thread pool did not terminate");
-                    }
-                }
-            } catch (InterruptedException e) {
-                delegate.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
     private record ExecutionParameters(Path workingDir, Path dumpDir, CommandExecution commandExecution,
                                        Map<String, String> variables, ComputationParameters computationParameters,
-                                       ExecutorService executionSubmitter, Command command, CountDownLatch latch,
+                                       Command command, CountDownLatch latch,
                                        List<ExecutionError> errors, ExecutionMonitor monitor) {
-    }
-
-    private void performSingleExecution(ExecutionParameters executionParameters, int idx) {
-        executionParameters.executionSubmitter.execute(() -> singleExecution(executionParameters, idx));
     }
 
     @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     private void singleExecution(ExecutionParameters executionParameters, int idx) {
         try {
-            enter();
+            status.incrementNumberOfBusyCores();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Executing command {} in working directory {}",
                     executionParameters.command.toString(idx), executionParameters.workingDir);
@@ -247,7 +226,7 @@ public class LocalComputationManager implements ComputationManager {
                 }
             }
             executionParameters.latch.countDown();
-            exit();
+            status.decrementNumberOfBusyCores();
         }
     }
 
@@ -361,16 +340,6 @@ public class LocalComputationManager implements ComputationManager {
         return path;
     }
 
-    private void enter() throws InterruptedException {
-        permits.acquire();
-        status.incrementNumberOfBusyCores();
-    }
-
-    private void exit() {
-        status.decrementNumberOfBusyCores();
-        permits.release();
-    }
-
     @Override
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler) {
         return execute(environment, handler, ComputationParameters.empty());
@@ -424,10 +393,27 @@ public class LocalComputationManager implements ComputationManager {
 
     @Override
     public void close() {
+        shutdownCommandExecutor();
         try {
             commonDir.close();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private void shutdownCommandExecutor() {
+        long timeout = getTimeout();
+        try {
+            commandExecutor.shutdown();
+            if (!commandExecutor.awaitTermination(timeout, TimeUnit.SECONDS)) {
+                commandExecutor.shutdownNow();
+                if (!commandExecutor.awaitTermination(timeout, TimeUnit.SECONDS)) {
+                    LOGGER.error("Thread pool did not terminate");
+                }
+            }
+        } catch (InterruptedException e) {
+            commandExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 
