@@ -417,7 +417,6 @@
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
-                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                     <xs:element name="operationalLimitsGroup" type="iidm:OperationalLimitsGroup" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
                 <xs:attribute name="selectedOperationalLimitsGroupIds" use="optional" type="iidm:selectedOperationalLimitsGroupIds"/>
@@ -429,9 +428,10 @@
                 <xs:attribute name="b" use="optional" default="0" type="xs:double"/>
                 <xs:attribute name="generationMinP" use="optional" type="xs:double"/>
                 <xs:attribute name="generationMaxP" use="optional" type="xs:double"/>
+                <xs:attribute name="generationVoltageRegulationOn" use="optional" type="xs:boolean"/>
                 <xs:attribute name="generationTargetP" use="optional" type="xs:double"/>
-                <xs:attribute name="generationLocalTargetV" use="optional" type="xs:double"/>
-                <xs:attribute name="generationLocalTargetQ" use="optional" type="xs:double"/>
+                <xs:attribute name="generationTargetV" use="optional" type="xs:double"/>
+                <xs:attribute name="generationTargetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="pairingKey" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
