@@ -158,8 +158,8 @@ class LoadFlowResultsCompletionZ0FlowsTest {
     private static void assertLineHasZeroImpedanceAndNonZeroFlow(Line line) {
         assertEquals(0.0, line.getR(), 0.0);
         assertEquals(0.0, line.getX(), 0.0);
-        assertTrue(line.getTerminal1().getP() != 0.0);
-        assertTrue(line.getTerminal1().getQ() != 0.0);
+        assertNotEquals(0.0, line.getTerminal1().getP());
+        assertNotEquals(0.0, line.getTerminal1().getQ());
     }
 
     @BeforeEach

@@ -763,21 +763,16 @@ public final class EquipmentExport {
 
             String originalClass = line.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
             switch (originalClass) {
-                case CgmesNames.EQUIVALENT_BRANCH -> {
-                    EquivalentBranchEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(), cimNamespace, writer, context);
-                }
-                case CgmesNames.SERIES_COMPENSATOR -> {
-                    SeriesCompensatorEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(), false,
-                            0.0, 0.0, cimNamespace, writer, context);
-                }
-                case null, default -> {
-                    AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(),
-                            line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer, context);
-                }
+                case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(),
+                                line.getX(), cimNamespace, writer, context);
+                case CgmesNames.SERIES_COMPENSATOR -> SeriesCompensatorEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(),
+                                line.getX(), false, 0.0, 0.0, cimNamespace, writer, context);
+                case null, default -> AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(),
+                                line.getX(), line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer, context);
             }
 
             writeBranchLimits(line, getTerminalId(line.getTerminal1(), context), getTerminalId(line.getTerminal2(), context), cimNamespace,
-                euNamespace, exportedLimitTypes, writer, context);
+                    euNamespace, exportedLimitTypes, writer, context);
         }
     }
 
