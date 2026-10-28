@@ -272,14 +272,17 @@
             <xs:enumeration value="OTHER"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:attributeGroup name="InjectionVariantAttributes">
+        <xs:attribute name="p" use="optional" type="xs:double"/>
+        <xs:attribute name="q" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="Injection">
         <xs:complexContent>
             <xs:extension base="iidm:Connectable">
                 <xs:attribute name="node" use="optional" type="xs:int"/>
                 <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="p" use="optional" type="xs:double"/>
-                <xs:attribute name="q" use="optional" type="xs:double"/>
+                <xs:attributeGroup ref="iidm:InjectionVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
