@@ -34,11 +34,6 @@ public class Z0Edge extends DefaultWeightedEdge {
         return line;
     }
 
-    @Override
-    protected double getWeight() {
-        return getMinimumLineLoadingLimit(line);
-    }
-
     // No serialization
     private void writeObject(ObjectOutputStream out) throws IOException {
         throw new NotSerializableException();
@@ -48,11 +43,9 @@ public class Z0Edge extends DefaultWeightedEdge {
         throw new NotSerializableException();
     }
 
-    private static double getMinimumLineLoadingLimit(Line line) {
-        double limit = Math.min(
-                getLoadingLimitForLineSide(line, TwoSides.ONE),
+    double getMinimumLineLoadingLimit() {
+        return Math.min(getLoadingLimitForLineSide(line, TwoSides.ONE),
                 getLoadingLimitForLineSide(line, TwoSides.TWO));
-        return Double.isFinite(limit) ? limit : UNDEFINED_LIMIT;
     }
 
     private static double getLoadingLimitForLineSide(Line line, TwoSides side) {
