@@ -7,22 +7,27 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class SwitchUpdateTest {
+class SwitchUpdateTest extends AbstractSerDeTest {
 
     private static final String DIR = "/update/switch/";
 
@@ -80,6 +85,66 @@ class SwitchUpdateTest {
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "switch_EQ.xml", "switch_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    // Test to verify the compatibility of networks imported from XIIDM files generated with version V7.4.0,
+    // in which zero-impedance branches were imported as switches.
+    // This test can be removed in the future
+    @Test
+    void exportSwitchAsBranchTest() throws IOException {
+        Network network = createFictitiousSwitchNetwork();
+        Switch sw = network.getSwitch("fictitiousSwitch");
+        assertNotNull(sw);
+        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.AC_LINE_SEGMENT);
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("EQ", "SSH"));
+
+        String baseName = "fictitious-switch";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+        assertEqSsh(baseName, sw.getId(), CgmesNames.AC_LINE_SEGMENT);
+
+        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_BRANCH);
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+        assertEqSsh(baseName, sw.getId(), CgmesNames.EQUIVALENT_BRANCH);
+
+        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SERIES_COMPENSATOR);
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+        assertEqSsh(baseName, sw.getId(), CgmesNames.SERIES_COMPENSATOR);
+    }
+
+    void assertEqSsh(String baseName, String switchId, String cgmesClassName) throws IOException {
+        String eqXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_EQ.xml"));
+        String acLineSegment = getElement(eqXml, cgmesClassName, switchId);
+        assertEquals("0", getAttribute(acLineSegment, cgmesClassName + ".r"));
+        assertEquals("0", getAttribute(acLineSegment, cgmesClassName + ".x"));
+
+        String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+        String swTerminal1 = getElement(sshXml, "Terminal", switchId + "_SW_T_1");
+        assertEquals("true", getAttribute(swTerminal1, "ACDCTerminal.connected"));
+        String swTerminal2 = getElement(sshXml, "Terminal", switchId + "_SW_T_2");
+        assertEquals("true", getAttribute(swTerminal2, "ACDCTerminal.connected"));
+    }
+
+    private static Network createFictitiousSwitchNetwork() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(115.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newSwitch()
+                .setId("fictitiousSwitch")
+                .setNode1(1)
+                .setNode2(2)
+                .setKind(SwitchKind.BREAKER)
+                .setFictitious(true)
+                .add();
+        return network;
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
