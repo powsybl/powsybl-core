@@ -77,7 +77,7 @@ public final class VoltageRegulationSerDe {
      * Neither the terminal nor the target value is written: the local setpoints are stored in the holder itself.
      */
     public static void writeLocalVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () -> {
             if (voltageRegulation != null && voltageRegulation.getMode() != null) {
                 TreeDataWriter writer = context.getWriter();
                 writer.writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEMENT_NAME);
