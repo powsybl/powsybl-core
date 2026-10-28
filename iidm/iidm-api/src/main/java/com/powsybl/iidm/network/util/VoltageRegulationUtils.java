@@ -50,6 +50,7 @@ public final class VoltageRegulationUtils {
             case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
             case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == BoundaryLine.Generation.class -> Set.of(); // local only
             default -> throwError(voltageRegulationHolder);
         };
     }
@@ -63,6 +64,7 @@ public final class VoltageRegulationUtils {
             case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
             case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE);
             case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == BoundaryLine.Generation.class -> Set.of(VOLTAGE);
             default -> throwError(voltageRegulationHolder);
         };
     }

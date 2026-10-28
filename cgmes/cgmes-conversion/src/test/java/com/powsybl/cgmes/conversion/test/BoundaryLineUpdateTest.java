@@ -209,10 +209,10 @@ class BoundaryLineUpdateTest {
         assertTrue(Double.isNaN(boundaryLine.getP0()));
         assertTrue(Double.isNaN(boundaryLine.getQ0()));
         if (boundaryLine.getGeneration() != null) {
-            assertTrue(Double.isNaN(boundaryLine.getGeneration().getTargetV()));
+            assertTrue(Double.isNaN(boundaryLine.getGeneration().getLocalTargetV()));
             assertTrue(Double.isNaN(boundaryLine.getGeneration().getTargetP()));
-            assertTrue(Double.isNaN(boundaryLine.getGeneration().getTargetQ()));
-            assertFalse(boundaryLine.getGeneration().isVoltageRegulationOn());
+            assertTrue(Double.isNaN(boundaryLine.getGeneration().getLocalTargetQ()));
+            assertFalse(boundaryLine.getGeneration().isRegulating());
         }
         assertNotNull(boundaryLine.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
     }
@@ -225,9 +225,9 @@ class BoundaryLineUpdateTest {
         if (withGeneration) {
             assertNotNull(boundaryLine.getGeneration());
             assertEquals(targetP, boundaryLine.getGeneration().getTargetP(), tol);
-            assertEquals(targetQ, boundaryLine.getGeneration().getTargetQ(), tol);
-            assertEquals(targetV, boundaryLine.getGeneration().getTargetV(), tol);
-            assertEquals(isRegulatingOn, boundaryLine.getGeneration().isVoltageRegulationOn());
+            assertEquals(targetQ, boundaryLine.getGeneration().getLocalTargetQ(), tol);
+            assertEquals(targetV, boundaryLine.getGeneration().getLocalTargetV(), tol);
+            assertEquals(isRegulatingOn, boundaryLine.getGeneration().isRegulating());
         } else {
             assertNull(boundaryLine.getGeneration());
         }

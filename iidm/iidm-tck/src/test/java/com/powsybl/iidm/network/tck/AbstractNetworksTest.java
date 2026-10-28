@@ -104,17 +104,18 @@ public abstract class AbstractNetworksTest {
         dl.getTerminal().setP(441).setQ(30);
         dl.getTerminal().getBusView().getBus().setV(100);
         assertNotEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
-        assertNotEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+        assertNotEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getLocalTargetV());
 
         Networks.applySolvedValues(network);
         assertEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
-        assertEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+        assertEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getLocalTargetV());
 
-        dl.getGeneration().setVoltageRegulationOn(false).setTargetV(Double.NaN).setTargetQ(35);
-        assertNotEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+        dl.getGeneration().setLocalTargetQ(35);
+        dl.getGeneration().removeVoltageRegulation();
+        assertNotEquals(-dl.getTerminal().getQ(), dl.getGeneration().getLocalTargetQ());
 
         Networks.applySolvedValues(network);
-        assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+        assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getLocalTargetQ());
     }
 
     @Test

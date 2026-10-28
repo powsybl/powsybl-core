@@ -815,14 +815,14 @@ public class MatpowerExporter implements Exporter {
                     VoltageLevel vl = t.getVoltageLevel();
                     addMgen(context, busNumber, bl.getId(),
                             CONNECTED_STATUS, // always connected to the boundary bus of the danglingLine
-                            checkAndFixTargetVpu(g.getTargetV() / vl.getNominalV()),
+                            checkAndFixTargetVpu(g.getLocalTargetV() / vl.getNominalV()),
                             g.getTargetP(),
                             Math.max(g.getMinP(), -context.maxGeneratorActivePowerLimit),
                             Math.min(g.getMaxP(), context.maxGeneratorActivePowerLimit),
-                            g.getTargetQ(),
+                            g.getLocalTargetQ(),
                             Math.max(g.getReactiveLimits().getMinQ(g.getTargetP()), -context.maxGeneratorReactivePowerLimit),
                             Math.min(g.getReactiveLimits().getMaxQ(g.getTargetP()), context.maxGeneratorReactivePowerLimit),
-                            g.isVoltageRegulationOn(), false, Double.NaN);
+                            g.isRegulatingWithMode(RegulationMode.VOLTAGE), false, Double.NaN);
                 }
             }
         }
