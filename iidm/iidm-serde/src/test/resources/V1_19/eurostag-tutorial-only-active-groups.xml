@@ -38,7 +38,7 @@
                 <iidm:step rho="0.8505666905244191"/>
                 <iidm:step rho="1.0006666666666666"/>
                 <iidm:step rho="1.150766642808914"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="158.0" targetDeadband="0.0">
+                <iidm:voltageRegulation targetValue="158.0" targetDeadband="0.0" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>

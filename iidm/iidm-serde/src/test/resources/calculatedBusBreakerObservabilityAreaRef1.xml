@@ -62,7 +62,7 @@
             <iidm:load id="CH" loadType="UNDEFINED" p0="-5.102249" q0="4.9081216" bus="N_22" connectableBus="N_22" p="-5.102249" q="4.9081216"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="CI" r="2.0" x="14.745" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" voltageLevelId1="C" bus1="C_2" connectableBus1="C_2" voltageLevelId2="N" bus2="N_9" connectableBus2="N_9" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
-            <iidm:phaseTapChanger regulating="false" tapPosition="22" regulationMode="CURRENT_LIMITER" regulationValue="930.6667" loadTapChangingCapabilities="true">
+            <iidm:phaseTapChanger regulating="false" tapPosition="22" loadTapChangingCapabilities="true" regulationMode="CURRENT_LIMITER" regulationValue="930.6667">
                 <iidm:terminalRef id="CI" side="ONE"/>
                 <iidm:step r="39.78473" x="39.784725" rho="1.0" alpha="-42.8"/>
                 <iidm:step r="31.720245" x="31.720242" rho="1.0" alpha="-40.18"/>

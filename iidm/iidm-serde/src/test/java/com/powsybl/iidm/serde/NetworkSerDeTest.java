@@ -104,7 +104,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         twt.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
         n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
         //network with some inactive groups, export only active
-        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION,
+        Network networkRead = allFormatsRoundTripTxtTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION,
             new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
         assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO),
             networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
@@ -145,7 +145,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         twt.getLeg3().newOperationalLimitsGroup("not activated 3").newCurrentLimits().setPermanentLimit(500).add();
         twt.getLeg3().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
 
-        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-three-winding.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        allFormatsRoundTripTxtTest(n, "eurostag-tutorial-only-active-groups-three-winding.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
     }
 
     @Test
@@ -163,7 +163,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         bl2.newOperationalLimitsGroup("not activated 2");
         bl2.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO);
 
-        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-boundary-line.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        allFormatsRoundTripTxtTest(n, "eurostag-tutorial-only-active-groups-boundary-line.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
     }
 
     @Test

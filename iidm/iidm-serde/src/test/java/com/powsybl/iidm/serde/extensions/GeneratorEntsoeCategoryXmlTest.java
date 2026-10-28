@@ -77,7 +77,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
 
         // Check backward compatibility
         // Code equal to 0 are not supported in version 1.0 of the extension
-        Network network3 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", IidmVersion.V_1_15,
+        Network network3 = allFormatsRoundTripTxtTest(network, "/generatorEntsoeCategoryRef.xml", IidmVersion.V_1_15,
             new ExportOptions().addExtensionVersion(GeneratorEntsoeCategory.NAME, "1.0"));
         assertNull(network3.getGenerator("G0").getExtension(GeneratorEntsoeCategory.class));
         assertEqualsEntsoeCategory(network3.getGenerator("G4"), 4);

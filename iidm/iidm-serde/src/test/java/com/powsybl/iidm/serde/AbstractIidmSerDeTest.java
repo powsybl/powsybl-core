@@ -334,7 +334,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      *     <li>validate the resulting file</li>
      *     <li>compare the resulting file to reference file</li>
      *     <li>read the resulting file</li>
-     *     <li>write the resulting network to a XML file</li>
+     *     <li>write the resulting network to an XML file</li>
      *     <li>compare the resulting file to reference file</li>
      * </ul>
      * @param network the network to start with
@@ -386,6 +386,12 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     public void allFormatsRoundTripFromMinVersionTest(Network network, String filename, IidmVersion minVersionIncluded) throws IOException {
         for (IidmVersion version : allFollowingVersions(minVersionIncluded)) {
             allFormatsRoundTripTest(network, filename, version);
+        }
+    }
+
+    public void allFormatsRoundTripFromMinVersionTxtTest(Network network, String filename, IidmVersion minVersionIncluded) throws IOException {
+        for (IidmVersion version : allFollowingVersions(minVersionIncluded)) {
+            allFormatsRoundTripTxtTest(network, filename, version);
         }
     }
 

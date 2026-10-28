@@ -116,10 +116,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits, "");
         createLoadingLimits(operationalLimitsGroup1::newCurrentLimits, "hello");
         createLoadingLimits(operationalLimitsGroup2::newCurrentLimits, "perma");
-        allFormatsRoundTripTest(network, "eurostag-loading-limits_permanent_name.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "eurostag-loading-limits_permanent_name.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.17
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits_permanent_name.xml", IidmVersion.V_1_17);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("eurostag-loading-limits_permanent_name.xml", IidmVersion.V_1_17);
     }
 
     @Test
@@ -279,7 +279,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
             .setValue(400)
             .endTemporaryLimit()
             .add();
-        allFormatsRoundTripFromMinVersionTest(network, "eurostag-low-limits.xml", IidmVersion.V_1_18);
+        allFormatsRoundTripFromMinVersionTxtTest(network, "eurostag-low-limits.xml", IidmVersion.V_1_18);
     }
 
     @Test
@@ -363,7 +363,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         ExportOptions options = new ExportOptions().setSorted(true);
         testForAllVersionsBetween(IidmVersion.V_1_0, IidmVersion.V_1_17, version -> {
                 try {
-                    allFormatsRoundTripTest(network, "eurostag-tutorial-export_low_as_high_sorted.xml", version, options);
+                    allFormatsRoundTripTxtTest(network, "eurostag-tutorial-export_low_as_high_sorted.xml", version, options);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }

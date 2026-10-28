@@ -18,17 +18,17 @@ class VoltageRegulationTest extends AbstractIidmSerDeTest {
 
     @Test
     void remoteVoltageRegulationWithoutLocalTarget() throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest("remoteVoltageRegulationWithoutLocalTarget.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripFromVersionedTxtTest("remoteVoltageRegulationWithoutLocalTarget.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // Tests for backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("remoteVoltageRegulationWithoutLocalTarget.xml", IidmVersion.V_1_18);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("remoteVoltageRegulationWithoutLocalTarget.xml", IidmVersion.V_1_18);
     }
 
     @Test
     void remoteVoltageRegulationOff() throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest("remoteVoltageRegulationOff.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripFromVersionedTxtTest("remoteVoltageRegulationOff.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // Tests for backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("remoteVoltageRegulationOff.xml", IidmVersion.V_1_17);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("remoteVoltageRegulationOff.xml", IidmVersion.V_1_17);
     }
 }

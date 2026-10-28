@@ -44,9 +44,9 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
             .setMode(RegulationMode.REACTIVE_POWER)
             .setTerminal(network.getVscConverterStation("C1").getTerminal(), -12.0)
             .setRegulating(true);
-        allFormatsRoundTripTest(network, "VscReactivePowerMode.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "VscReactivePowerMode.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromMinVersionTest(network, "VscReactivePowerMode.xml", IidmVersion.V_1_17);
+        allFormatsRoundTripFromMinVersionTxtTest(network, "VscReactivePowerMode.xml", IidmVersion.V_1_17);
     }
 }

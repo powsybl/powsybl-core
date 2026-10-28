@@ -116,7 +116,7 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
             .withGroundingX2(0.95d)
             .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/fortescue/twoWindingsTransformerFortescueRef_V1_0.xml",
+        Network network2 = allFormatsRoundTripTxtTest(network, "/fortescue/twoWindingsTransformerFortescueRef_V1_0.xml",
             new ExportOptions()
                 .addExtensionVersion(TwoWindingsTransformerFortescue.NAME, "1.0")
                 .setVersion(IidmVersion.V_1_15.toString(".")));
