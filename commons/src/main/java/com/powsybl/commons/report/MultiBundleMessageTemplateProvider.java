@@ -34,7 +34,7 @@ public class MultiBundleMessageTemplateProvider extends AbstractMessageTemplateP
     @Override
     public String getTemplate(String key, Locale locale) {
         for (String bundleBaseName : bundleBaseNames) {
-            ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale, NO_FALLBACK_CONTROL);
+            ResourceBundle bundle = ReportBundles.getBundle(bundleBaseName, locale);
             if (bundle.containsKey(key)) {
                 return bundle.getString(key);
             }

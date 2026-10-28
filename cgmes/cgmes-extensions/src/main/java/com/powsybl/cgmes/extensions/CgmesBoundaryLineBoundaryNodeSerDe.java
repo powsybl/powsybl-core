@@ -25,9 +25,9 @@ import com.powsybl.iidm.serde.extensions.SerDeVersion;
 public class CgmesBoundaryLineBoundaryNodeSerDe extends AbstractVersionableNetworkExtensionSerDe<BoundaryLine, CgmesBoundaryLineBoundaryNode, CgmesBoundaryLineBoundaryNodeSerDe.Version> {
 
     public enum Version implements SerDeVersion<CgmesBoundaryLineBoundaryNodeSerDe.Version> {
-        V_1_0("/xsd/cgmesDanglingLineBoundaryNode.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0",
+        V_1_0("/com/powsybl/cgmes/extensions/cgmesDanglingLineBoundaryNode.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0",
                 "cdlbn", new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_16, "cgmesDanglingLineBoundaryNode"),
-        V_1_1("/xsd/cgmesBoundaryLineBoundaryNode.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_boundary_line_boundary_node/1_0",
+        V_1_1("/com/powsybl/cgmes/extensions/cgmesBoundaryLineBoundaryNode.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_boundary_line_boundary_node/1_0",
                 "cblbn", new VersionNumbers(1, 1), IidmVersion.V_1_16, null);
 
         private final VersionInfo versionInfo;

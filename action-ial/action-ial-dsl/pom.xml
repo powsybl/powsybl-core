@@ -25,17 +25,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.action.ial.dsl</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
             </plugin>
@@ -90,7 +79,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-scripting</artifactId>
         </dependency>
-
 
         <!-- Test dependencies -->
         <dependency>
