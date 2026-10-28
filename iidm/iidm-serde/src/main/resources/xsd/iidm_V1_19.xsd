@@ -209,12 +209,15 @@
             <xs:enumeration value="LOAD_BREAK_SWITCH"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:attributeGroup name="SwitchVariantAttributes">
+        <xs:attribute name="retained" use="optional" default="false" type="xs:boolean"/>
+        <xs:attribute name="open" use="required" type="xs:boolean"/>
+    </xs:attributeGroup>
     <xs:complexType name="Switch">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="kind" use="required" type="iidm:SwitchKind"/>
-                <xs:attribute name="retained" use="optional" default="false" type="xs:boolean"/>
-                <xs:attribute name="open" use="required" type="xs:boolean"/>
+                <xs:attributeGroup ref="iidm:SwitchVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
