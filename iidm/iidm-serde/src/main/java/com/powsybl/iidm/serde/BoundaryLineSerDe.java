@@ -76,19 +76,19 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g", bl.getG(), IidmVersion.V_1_17, context);
         IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b", bl.getB(), IidmVersion.V_1_17, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_18, context, () ->
                 context.getWriter().writeOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON,
                     getOptionalValue(generation, g -> g.isRegulatingWithMode(RegulationMode.VOLTAGE))));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, getOptionalValue(generation, Generation::getMinP));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_MAX_P, getOptionalValue(generation, Generation::getMaxP));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_P, getOptionalValue(generation, Generation::getTargetP));
-            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_18, context, () ->
                 context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_V, getOptionalValue(generation, Generation::getLocalTargetV)));
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
                 context.getWriter().writeOptionalDoubleAttribute(GENERATION_LOCAL_TARGET_V, getOptionalValue(generation, Generation::getLocalTargetV)));
-            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_18, context, () ->
                 context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_Q, getOptionalValue(generation, Generation::getLocalTargetQ)));
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
                 context.getWriter().writeOptionalDoubleAttribute(GENERATION_LOCAL_TARGET_Q, getOptionalValue(generation, Generation::getLocalTargetQ)));
         });
         Terminal t = terminalGetter.get();
@@ -178,7 +178,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         if (context.getVersion().compareTo(IidmVersion.V_1_3) < 0) {
             return bl -> { };
         }
-        boolean legacy = context.getVersion().compareTo(IidmVersion.V_1_18) < 0;
+        boolean legacy = context.getVersion().compareTo(IidmVersion.V_1_19) < 0;
         Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON);
         OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
         OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
@@ -241,7 +241,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
                 ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(bl.getGeneration(), context);
             }
             case VoltageRegulationSerDe.ELEMENT_NAME -> {
-                IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", VoltageRegulationSerDe.ELEMENT_NAME, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_18, context);
+                IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", VoltageRegulationSerDe.ELEMENT_NAME, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
                 if (bl.getGeneration() == null) {
                     throw new PowsyblException("Element '" + VoltageRegulationSerDe.ELEMENT_NAME + "' requires a generation on boundary line '" + bl.getId() + "'");
                 }
