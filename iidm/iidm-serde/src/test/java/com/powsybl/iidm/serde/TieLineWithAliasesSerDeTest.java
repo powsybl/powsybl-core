@@ -19,9 +19,9 @@ class TieLineWithAliasesSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        allFormatsRoundTripFromVersionedTxtTest("tielineWithAliases.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripFromVersionedXmlTest("tielineWithAliases.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // Tests for backward compatibility
-        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("tielineWithAliases.xml", IidmVersion.V_1_3);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("tielineWithAliases.xml", IidmVersion.V_1_3);
     }
 }

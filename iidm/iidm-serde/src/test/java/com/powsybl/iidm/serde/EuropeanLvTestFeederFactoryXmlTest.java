@@ -21,7 +21,7 @@ class EuropeanLvTestFeederFactoryXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        allFormatsRoundTripTxtTest(EuropeanLvTestFeederFactory.create(), "europeanLvTestFeederRef.xml", CURRENT_IIDM_VERSION,
+        allFormatsRoundTripTest(EuropeanLvTestFeederFactory.create(), "europeanLvTestFeederRef.xml", CURRENT_IIDM_VERSION,
                 new ExportOptions().setSorted(true));
     }
 }

@@ -29,7 +29,7 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        allFormatsRoundTripAllVersionedTxtTest("eurostag-tutorial-example1-properties.xml");
+        allFormatsRoundTripAllVersionedXmlTest("eurostag-tutorial-example1-properties.xml");
     }
 
     private TwoWindingsTransformer createTwoWindingsTransformer(Substation substation) {

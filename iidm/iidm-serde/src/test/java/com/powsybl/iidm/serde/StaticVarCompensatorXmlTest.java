@@ -27,38 +27,38 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedTxtTest("staticVarCompensatorRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
 
         Network network = SvcTestCaseFactory.create();
         addProperties(network);
-        allFormatsRoundTripTxtTest(network, "staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
     void noRegulationModeTest() throws IOException {
         // backward compatibility from 1.7 to 1.13 : regulation mode is exported as OFF if it was not set in input file
-        allFormatsRoundTripFromVersionedTxtFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml", "staticVarCompensatorRegulationModeOFF.xml", IidmVersion.V_1_7, IidmVersion.V_1_14);
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml", "staticVarCompensatorRegulationModeOFF.xml", IidmVersion.V_1_7, IidmVersion.V_1_14);
 
         // regulation mode is exported as VOLTAGE and regulating is set to false if regulation mode was not set in input file
-        allFormatsRoundTripFromVersionedTxtTest("staticVarCompensatorNoRegulationMode.xml", "notRegulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripFromVersionedXmlTest("staticVarCompensatorNoRegulationMode.xml", "notRegulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
     void remoteRegulationRoundTripTest() throws IOException {
         Network network = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         addProperties(network);
-        allFormatsRoundTripTxtTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
-        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("regulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_1);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("regulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_1);
     }
 
     @Test
     void remoteReactivePowerRegulationRoundTripTest() throws IOException {
         Network network = SvcTestCaseFactory.createWithRemoteReactiveRegulatingTerminal();
         addProperties(network);
-        allFormatsRoundTripTxtTest(network, "staticVarCompensatorRemoteReactiveRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "staticVarCompensatorRemoteReactiveRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
-        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("staticVarCompensatorRemoteReactiveRoundTripRef.xml", IidmVersion.V_1_7);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("staticVarCompensatorRemoteReactiveRoundTripRef.xml", IidmVersion.V_1_7);
     }
 
     @Test

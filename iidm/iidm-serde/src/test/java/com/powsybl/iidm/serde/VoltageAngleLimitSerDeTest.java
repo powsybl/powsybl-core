@@ -24,8 +24,8 @@ class VoltageAngleLimitSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("voltageAngleLimit.xiidm", IidmVersion.V_1_11);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("voltageAngleLimit.xiidm", IidmVersion.V_1_11);
 
-        allFormatsRoundTripTxtTest(EurostagTutorialExample1Factory.createWithVoltageAngleLimit(), "voltageAngleLimit.xiidm", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithVoltageAngleLimit(), "voltageAngleLimit.xiidm", CURRENT_IIDM_VERSION);
     }
 }

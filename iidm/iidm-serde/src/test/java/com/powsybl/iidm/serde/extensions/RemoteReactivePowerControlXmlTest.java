@@ -90,7 +90,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         assertEquals(line.getSide(voltageRegulation.getTerminal()), line2.getSide(voltageRegulation2.getTerminal()));
 
         // backward compatibility checks from version 1.5
-        allFormatsRoundTripFromVersionedTxtFromMinToMaxVersionTest("remoteReactivePowerControlRef.xml", IidmVersion.V_1_5, IidmVersion.V_1_15);
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("remoteReactivePowerControlRef.xml", IidmVersion.V_1_5, IidmVersion.V_1_15);
 
         // check it fails for all versions < 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {

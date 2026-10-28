@@ -22,7 +22,7 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        allFormatsRoundTripTxtTest(createTestNetwork(), "ratioTapChangerReactivePowerControlRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(createTestNetwork(), "ratioTapChangerReactivePowerControlRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
@@ -35,10 +35,10 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripWithSolvedTapPosition() throws IOException {
-        allFormatsRoundTripTxtTest(createTestNetwork(0), "ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(createTestNetwork(0), "ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", CURRENT_IIDM_VERSION);
 
         // Backward compatibility
-        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", IidmVersion.V_1_14);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", IidmVersion.V_1_14);
     }
 
     Network createTestNetwork() {

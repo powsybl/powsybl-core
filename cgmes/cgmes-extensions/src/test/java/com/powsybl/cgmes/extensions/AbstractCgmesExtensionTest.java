@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 public abstract class AbstractCgmesExtensionTest extends AbstractSerDeTest {
 
     protected void allFormatsRoundTripTest(Network network, String xmlRefFile) throws IOException {
-        roundTripXmlTest(network,
+        roundTripTest(network,
                 (n, p) -> binWriteAndRead(jsonWriteAndRead(n, p), p),
                 NetworkSerDe::write,
                 NetworkSerDe::validateAndRead,
@@ -37,7 +37,7 @@ public abstract class AbstractCgmesExtensionTest extends AbstractSerDeTest {
     }
 
     protected void allFormatsRoundTripTestVersioned(Network network, String xmlRefFile, IidmVersion version) throws IOException {
-        roundTripXmlTest(network,
+        roundTripTest(network,
                 (n, p) -> binWriteAndRead(jsonWriteAndRead(n, p), p),
                 (n, p) -> NetworkSerDe.write(n, new ExportOptions().setVersion(version.toString(".")), p),
                 NetworkSerDe::validateAndRead,

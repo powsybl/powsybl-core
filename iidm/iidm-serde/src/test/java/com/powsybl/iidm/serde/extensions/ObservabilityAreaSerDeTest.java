@@ -95,7 +95,7 @@ class ObservabilityAreaSerDeTest extends AbstractIidmSerDeTest {
         network.getVoltageLevel("VLGEN").newExtension(ObservabilityAreaAdder.class)
                 .withObservabilityAreaByBusViewBus("VLGEN_0", 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
                 .add();
-        allFormatsRoundTripTxtTest(network, "/calculatedBusBranchObservabilityAreaRef1.xml", new ExportOptions().setTopologyLevel(TopologyLevel.BUS_BRANCH));
+        allFormatsRoundTripTest(network, "/calculatedBusBranchObservabilityAreaRef1.xml", new ExportOptions().setTopologyLevel(TopologyLevel.BUS_BRANCH));
     }
 
     @Test
@@ -110,6 +110,6 @@ class ObservabilityAreaSerDeTest extends AbstractIidmSerDeTest {
                 .withObservabilityAreaByNodes(Set.of(1, 7, 8, 9, 10, 15, 16, 17, 18, 19, 20, 21, 22), 2, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
                 .add();
 
-        allFormatsRoundTripTxtTest(network, "/calculatedBusBreakerObservabilityAreaRef1.xml", new ExportOptions().setTopologyLevel(TopologyLevel.BUS_BREAKER));
+        allFormatsRoundTripTest(network, "/calculatedBusBreakerObservabilityAreaRef1.xml", new ExportOptions().setTopologyLevel(TopologyLevel.BUS_BREAKER));
     }
 }

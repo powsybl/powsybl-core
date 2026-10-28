@@ -54,10 +54,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        allFormatsRoundTripTxtTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedTxtTest("eurostag-tutorial-example1.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
     @Test
@@ -104,7 +104,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         twt.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
         n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
         //network with some inactive groups, export only active
-        Network networkRead = allFormatsRoundTripTxtTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION,
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION,
             new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
         assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO),
             networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
@@ -145,7 +145,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         twt.getLeg3().newOperationalLimitsGroup("not activated 3").newCurrentLimits().setPermanentLimit(500).add();
         twt.getLeg3().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
 
-        allFormatsRoundTripTxtTest(n, "eurostag-tutorial-only-active-groups-three-winding.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-three-winding.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
     }
 
     @Test
@@ -163,7 +163,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         bl2.newOperationalLimitsGroup("not activated 2");
         bl2.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO);
 
-        allFormatsRoundTripTxtTest(n, "eurostag-tutorial-only-active-groups-boundary-line.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-boundary-line.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
     }
 
     @Test
@@ -340,10 +340,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testScada() throws IOException {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
-        allFormatsRoundTripTxtTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
     }
 
     @Test
@@ -383,9 +383,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
         merged.addExtension(NetworkSourceExtension.class, source);
 
-        allFormatsRoundTripTxtTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
-        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
     }
 
     private Network createNetwork(int num) {

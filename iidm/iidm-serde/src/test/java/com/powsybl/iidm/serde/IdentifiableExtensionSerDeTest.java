@@ -69,10 +69,10 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testMultipleExtensions() throws IOException {
-        allFormatsRoundTripTxtTest(MultipleExtensionsTestNetworkFactory.create(), "multiple-extensions.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(MultipleExtensionsTestNetworkFactory.create(), "multiple-extensions.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedTxtTest("multiple-extensions.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
     }
 
     // Define a network extension without XML serializer
@@ -136,14 +136,14 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testTerminalExtension() throws IOException {
-        Network network2 = allFormatsRoundTripTxtTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(), "eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(), "eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_VERSION);
         Load loadXml = network2.getLoad("LOAD");
         TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExtXml);
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedTxtTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
     }
 
     @Test

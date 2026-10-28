@@ -23,18 +23,18 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripLccTest() throws IOException {
-        allFormatsRoundTripTxtTest(HvdcTestNetwork.createLcc(), "LccRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(HvdcTestNetwork.createLcc(), "LccRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedTxtTest("LccRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
     }
 
     @Test
     void roundTripVscTest() throws IOException {
-        allFormatsRoundTripTxtTest(HvdcTestNetwork.createVsc(), "VscRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(HvdcTestNetwork.createVsc(), "VscRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedTxtTest("VscRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
     }
 
     @Test
@@ -44,9 +44,9 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
             .setMode(RegulationMode.REACTIVE_POWER)
             .setTerminal(network.getVscConverterStation("C1").getTerminal(), -12.0)
             .setRegulating(true);
-        allFormatsRoundTripTxtTest(network, "VscReactivePowerMode.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "VscReactivePowerMode.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromMinVersionTxtTest(network, "VscReactivePowerMode.xml", IidmVersion.V_1_17);
+        allFormatsRoundTripFromMinVersionTest(network, "VscReactivePowerMode.xml", IidmVersion.V_1_17);
     }
 }

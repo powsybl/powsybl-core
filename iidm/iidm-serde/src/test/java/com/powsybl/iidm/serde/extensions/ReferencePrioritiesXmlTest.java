@@ -64,6 +64,6 @@ class ReferencePrioritiesXmlTest extends AbstractIidmSerDeTest {
         ReferencePriority.set(line, TwoSides.ONE, 2);
         ReferencePriority.set(line, TwoSides.TWO, 0);
 
-        allFormatsRoundTripTxtTest(network, "referencePrioritiesRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "referencePrioritiesRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 }
