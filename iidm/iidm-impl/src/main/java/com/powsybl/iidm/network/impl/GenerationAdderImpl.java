@@ -7,8 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -20,9 +24,9 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
     private double minP = Double.NaN;
     private double maxP = Double.NaN;
     private double targetP = Double.NaN;
-    private double targetQ = Double.NaN;
-    private boolean voltageRegulationOn = false;
-    private double targetV = Double.NaN;
+    private double localTargetV = Double.NaN;
+    private double localTargetQ = Double.NaN;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes;
 
     GenerationAdderImpl(BoundaryLineAdderImpl parent) {
         this.parent = parent;
@@ -48,20 +52,47 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
 
     @Override
     public GenerationAdderImpl setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
-        return this;
+        return setLocalTargetQ(targetQ);
     }
 
     @Override
     public GenerationAdderImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
-        this.voltageRegulationOn = voltageRegulationOn;
+        if (voltageRegulationAttributes == null && voltageRegulationOn) {
+            voltageRegulationAttributes = new VoltageRegulation.VoltageRegulationAttributes(
+                    Double.NaN, Double.NaN, Double.NaN, RegulationMode.VOLTAGE, true, null);
+        }
         return this;
     }
 
     @Override
     public GenerationAdderImpl setTargetV(double targetV) {
-        this.targetV = targetV;
+        return setLocalTargetV(targetV);
+    }
+
+    @Override
+    public GenerationAdderImpl setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
+    }
+
+    @Override
+    public GenerationAdderImpl setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return localTargetQ;
+    }
+
+    @Override
+    public VoltageRegulationAdder<BoundaryLineAdder.GenerationAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(BoundaryLine.Generation.class, parent, this, parent.getNetworkRef(), this::setVoltageRegulationAttributes);
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
     @Override
@@ -70,7 +101,8 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
         ValidationUtil.checkActivePowerLimits(parent, minP, maxP);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(parent, targetP, network.getMinValidationLevel(),
                 network.getReportNodeContext().getReportNode()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(parent, voltageRegulationOn, targetV, targetQ,
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(parent, BoundaryLine.Generation.class,
+                localTargetV, localTargetQ, voltageRegulationAttributes,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         parent.setGenerationAdder(this);
@@ -78,6 +110,7 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
     }
 
     BoundaryLineImpl.GenerationImpl build() {
-        return new BoundaryLineImpl.GenerationImpl(parent.getNetwork(), minP, maxP, targetP, targetQ, targetV, voltageRegulationOn);
+        return new BoundaryLineImpl.GenerationImpl(parent.getNetwork(), minP, maxP, targetP,
+            localTargetV, localTargetQ, voltageRegulationAttributes);
     }
 }

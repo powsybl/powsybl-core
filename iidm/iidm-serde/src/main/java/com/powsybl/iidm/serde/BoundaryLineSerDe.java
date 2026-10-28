@@ -7,12 +7,15 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.BoundaryLine.Generation;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -28,7 +31,10 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     private static final String GENERATION_MIN_P = "generationMinP";
     private static final String GENERATION_TARGET_P = "generationTargetP";
     private static final String GENERATION_TARGET_Q = "generationTargetQ";
+    private static final String GENERATION_LOCAL_TARGET_Q = "generationLocalTargetQ";
     private static final String GENERATION_TARGET_V = "generationTargetV";
+    private static final String GENERATION_LOCAL_TARGET_V = "generationLocalTargetV";
+    private static final String GENERATION_VOLTAGE_REGULATION_ON = "generationVoltageRegulationOn";
 
     static final BoundaryLineSerDe INSTANCE = new BoundaryLineSerDe();
 
@@ -58,8 +64,8 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
                 if (!Double.isNaN(generation.getTargetP())) {
                     p0[0] -= generation.getTargetP();
                 }
-                if (!Double.isNaN(generation.getTargetQ())) {
-                    q0[0] -= generation.getTargetQ();
+                if (!Double.isNaN(generation.getLocalTargetQ())) {
+                    q0[0] -= generation.getLocalTargetQ();
                 }
             });
         }
@@ -70,12 +76,20 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g", bl.getG(), IidmVersion.V_1_17, context);
         IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b", bl.getB(), IidmVersion.V_1_17, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            context.getWriter().writeOptionalBooleanAttribute("generationVoltageRegulationOn", getOptionalValue(generation, Generation::isVoltageRegulationOn));
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+                context.getWriter().writeOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON,
+                    getOptionalValue(generation, g -> g.isRegulatingWithMode(RegulationMode.VOLTAGE))));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, getOptionalValue(generation, Generation::getMinP));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_MAX_P, getOptionalValue(generation, Generation::getMaxP));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_P, getOptionalValue(generation, Generation::getTargetP));
-            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_V, getOptionalValue(generation, Generation::getTargetV));
-            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_Q, getOptionalValue(generation, Generation::getTargetQ));
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+                context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_V, getOptionalValue(generation, Generation::getLocalTargetV)));
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+                context.getWriter().writeOptionalDoubleAttribute(GENERATION_LOCAL_TARGET_V, getOptionalValue(generation, Generation::getLocalTargetV)));
+            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
+                context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_Q, getOptionalValue(generation, Generation::getLocalTargetQ)));
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+                context.getWriter().writeOptionalDoubleAttribute(GENERATION_LOCAL_TARGET_Q, getOptionalValue(generation, Generation::getLocalTargetQ)));
         });
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
@@ -105,6 +119,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     protected void writeSubElements(BoundaryLine dl, VoltageLevel vl, NetworkSerializerContext context) {
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
+            VoltageRegulationSerDe.writeLocalVoltageRegulation(dl.getGeneration().getVoltageRegulation(), context);
         }
         writeLimits(context, null, getRootElementName(), dl.getSelectedOperationalLimitsGroup().orElse(null),
             context.getOptions().isOnlySelectedOperationalLimitsGroups() ? dl.getAllSelectedOperationalLimitsGroups() : dl.getOperationalLimitsGroups());
@@ -114,7 +129,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         checkVersion(context);
         readEquivalent(adder, context);
-        readRootElementAttributesInternal(adder, voltageLevel, context);
+        Consumer<BoundaryLine> applyGenerationLocalValues = readRootElementAttributesInternal(adder, voltageLevel, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
             adder.setPairingKey(pairingKey);
@@ -124,6 +139,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
             adder.setPairingKey(pairingKey);
         });
         BoundaryLine bl = adder.add();
+        applyGenerationLocalValues.accept(bl);
         readPQ(null, bl.getTerminal(), context.getReader());
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () ->
             readSelectedGroupId(null, bl::setSelectedOperationalLimitsGroup, context));
@@ -136,31 +152,14 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         IidmSerDeUtil.assertMinimumVersion(getRootElementName(), IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_16, context);
     }
 
-    public static void readRootElementAttributesInternal(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+    public static Consumer<BoundaryLine> readRootElementAttributesInternal(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
         double g = IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute("g", IidmVersion.V_1_17, context);
         double b = IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute("b", IidmVersion.V_1_17, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute("generationVoltageRegulationOn");
-            OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
-            OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
-            OptionalDouble targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
-            OptionalDouble targetV = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_V);
-            OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_Q);
-            if (voltageRegulationOn.isPresent()) {
-                BoundaryLineAdder.GenerationAdder generationAdder = adder.newGeneration()
-                    .setVoltageRegulationOn(voltageRegulationOn.get());
-                minP.ifPresent(generationAdder::setMinP);
-                maxP.ifPresent(generationAdder::setMaxP);
-                targetP.ifPresent(generationAdder::setTargetP);
-                targetV.ifPresent(generationAdder::setTargetV);
-                targetQ.ifPresent(generationAdder::setTargetQ);
-                generationAdder.add();
-            }
-        });
+        Consumer<BoundaryLine> applyGenerationLocalValues = readGenerationAttributes(adder, context);
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setP0(p0)
             .setQ0(q0)
@@ -168,6 +167,48 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
             .setX(x)
             .setG(g)
             .setB(b);
+        return applyGenerationLocalValues;
+    }
+
+    /**
+     * Reads the generation attributes and creates the generation when needed. Local targets and the legacy
+     * voltage regulation are applied by the returned consumer, once the boundary line exists.
+     */
+    private static Consumer<BoundaryLine> readGenerationAttributes(BoundaryLineAdder adder, NetworkDeserializerContext context) {
+        if (context.getVersion().compareTo(IidmVersion.V_1_3) < 0) {
+            return bl -> { };
+        }
+        boolean legacy = context.getVersion().compareTo(IidmVersion.V_1_18) < 0;
+        Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON);
+        OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
+        OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
+        OptionalDouble targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
+        OptionalDouble targetV = context.getReader().readOptionalDoubleAttribute(legacy ? GENERATION_TARGET_V : GENERATION_LOCAL_TARGET_V);
+        OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(legacy ? GENERATION_TARGET_Q : GENERATION_LOCAL_TARGET_Q);
+        boolean hasGeneration = voltageRegulationOn.isPresent()
+            || !legacy && (minP.isPresent() || maxP.isPresent() || targetP.isPresent() || targetV.isPresent() || targetQ.isPresent());
+        if (!hasGeneration) {
+            return bl -> { };
+        }
+        BoundaryLineAdder.GenerationAdder generationAdder = adder.newGeneration();
+        minP.ifPresent(generationAdder::setMinP);
+        maxP.ifPresent(generationAdder::setMaxP);
+        targetP.ifPresent(generationAdder::setTargetP);
+        targetV.ifPresent(generationAdder::setLocalTargetV);
+        // Placeholder so that the holder can be validated at creation; NaN is restored once the regulation child is known
+        generationAdder.setLocalTargetQ(targetQ.orElse(0.0));
+        if (legacy && voltageRegulationOn.orElse(false)) {
+            generationAdder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add();
+        }
+        generationAdder.add();
+        return bl -> {
+            if (targetQ.isEmpty()) {
+                context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> bl.getGeneration().setLocalTargetQ(Double.NaN));
+            }
+        };
     }
 
     @Override
@@ -198,6 +239,13 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
             case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> {
                 IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                 ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(bl.getGeneration(), context);
+            }
+            case VoltageRegulationSerDe.ELEMENT_NAME -> {
+                IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", VoltageRegulationSerDe.ELEMENT_NAME, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_18, context);
+                if (bl.getGeneration() == null) {
+                    throw new PowsyblException("Element '" + VoltageRegulationSerDe.ELEMENT_NAME + "' requires a generation on boundary line '" + bl.getId() + "'");
+                }
+                VoltageRegulationSerDe.readLocalVoltageRegulation(bl.getGeneration(), context);
             }
             default -> readSubElement(elementName, bl, context);
         }

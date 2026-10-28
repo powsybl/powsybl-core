@@ -1114,9 +1114,8 @@ public final class ValidationUtil {
         if (generation != null) {
             validationLevel = ValidationLevel.min(validationLevel,
                 checkActivePowerSetpoint(validable, generation.getTargetP(), actionOnError, reportNode));
-            validationLevel = ValidationLevel.min(validationLevel,
-                checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(),
-                    actionOnError, reportNode));
+            validationLevel = checkVoltageRegulationHolder(validationLevel, validable, generation, boundaryLine.getNetwork(),
+                BoundaryLine.Generation.class, actionOnError, reportNode);
         }
         return validationLevel;
     }
@@ -1167,6 +1166,9 @@ public final class ValidationUtil {
         // Only validate when the regulation is true
         // This means that we can set all attributes when regulating is false and then validate them when we set regulating to true
         if (voltageRegulationAttributes != null) {
+            if (classHolder == BoundaryLine.Generation.class && voltageRegulationAttributes.terminal() != null) {
+                throw new ValidationException(owner, "voltageRegulation.terminal must be unset for a boundary line generation");
+            }
             boolean isWithTerminal = voltageRegulationAttributes.terminal() != null;
             boolean regulating = voltageRegulationAttributes.isRegulating();
 

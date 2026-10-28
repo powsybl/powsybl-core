@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +122,13 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
 
     Logger LOG = LoggerFactory.getLogger(BoundaryLine.class);
 
-    interface Generation extends ReactiveLimitsHolder {
+    /**
+     * <p>Generation of a boundary line.</p>
+     * <p>Its voltage regulation is local only: the {@link com.powsybl.iidm.network.regulation.VoltageRegulation}
+     * must have no regulating terminal and no target value, and its mode must be {@code VOLTAGE} or
+     * {@code REACTIVE_POWER}.</p>
+     */
+    interface Generation extends ReactiveLimitsHolder, VoltageRegulationHolder<Generation> {
         /**
          * <p>Get the generator active power target in MW.</p>
          * <p>The active power target follows a generator sign convention.</p>
@@ -163,7 +170,9 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
          * <p>The generator reactive power target follows a generator sign convention.</p>
          * <p>Depends on the working variant.</p>
          * @return the generator reactive power target
+         * @deprecated Use {@link #getLocalTargetQ()}.
          */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         double getTargetQ();
 
         /**
@@ -171,24 +180,32 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
          * <p>Depends on the working variant.</p>
          * @param targetQ the generator reactive power target
          * @return this to allow method chaining
+         * @deprecated Use {@link #setLocalTargetQ(double)}.
          */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         Generation setTargetQ(double targetQ);
 
         /**
          * Get the generator voltage regulation status.
+         * @deprecated Use {@code getVoltageRegulation().isRegulating()}.
          */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         boolean isVoltageRegulationOn();
 
         /**
          * Set the generator voltage regulation status.
+         * @deprecated Use the voltage regulation holder ({@code newVoltageRegulation()} / {@code getVoltageRegulation()}) instead.
          */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         Generation setVoltageRegulationOn(boolean voltageRegulationOn);
 
         /**
          * <p>Get the generator voltage target in Kv.</p>
          * <p>Depends on the working variant.</p>
          * @return the generator voltage target
+         * @deprecated Use {@link #getLocalTargetV()}.
          */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         double getTargetV();
 
         /**
@@ -196,7 +213,9 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
          * <p>Depends on the working variant.</p>
          * @param targetV the generator voltage target
          * @return this to allow method chaining
+         * @deprecated Use {@link #setLocalTargetV(double)}.
          */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         Generation setTargetV(double targetV);
     }
 
@@ -314,19 +333,13 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
 
     default void setGenerationTargetQToQ() {
         if (this.getGeneration() != null) {
-            double q = this.getTerminal().getQ();
-            if (!Double.isNaN(q)) {
-                this.getGeneration().setTargetQ(-q);
-            }
+            this.getGeneration().setTargetQToQ();
         }
     }
 
     default void setGenerationTargetVToV() {
         if (this.getGeneration() != null) {
-            Bus bus = this.getTerminal().getBusView().getBus();
-            if (bus != null && !Double.isNaN(bus.getV())) {
-                this.getGeneration().setTargetV(bus.getV());
-            }
+            this.getGeneration().setTargetVToV();
         }
     }
 }
