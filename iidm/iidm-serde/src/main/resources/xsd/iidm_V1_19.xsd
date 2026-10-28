@@ -273,6 +273,8 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:attributeGroup name="InjectionVariantAttributes">
+        <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
         <xs:attribute name="p" use="optional" type="xs:double"/>
         <xs:attribute name="q" use="optional" type="xs:double"/>
     </xs:attributeGroup>
@@ -280,8 +282,6 @@
         <xs:complexContent>
             <xs:extension base="iidm:Connectable">
                 <xs:attribute name="node" use="optional" type="xs:int"/>
-                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attributeGroup ref="iidm:InjectionVariantAttributes"/>
             </xs:extension>
         </xs:complexContent>
@@ -497,21 +497,24 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="BranchVariantAttributes">
+        <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="p1" use="optional" type="xs:double"/>
+        <xs:attribute name="q1" use="optional" type="xs:double"/>
+        <xs:attribute name="p2" use="optional" type="xs:double"/>
+        <xs:attribute name="q2" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="Branch">
         <xs:complexContent>
             <xs:extension base="iidm:Connectable">
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attributeGroup ref="iidm:BranchVariantAttributes"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="p1" use="optional" type="xs:double"/>
-                <xs:attribute name="q1" use="optional" type="xs:double"/>
-                <xs:attribute name="p2" use="optional" type="xs:double"/>
-                <xs:attribute name="q2" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -536,6 +539,20 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:attributeGroup name="ThreeWindingsTransformerVariantAttributes">
+        <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="p1" use="optional" type="xs:double"/>
+        <xs:attribute name="q1" use="optional" type="xs:double"/>
+        <xs:attribute name="p2" use="optional" type="xs:double"/>
+        <xs:attribute name="q2" use="optional" type="xs:double"/>
+        <xs:attribute name="p3" use="optional" type="xs:double"/>
+        <xs:attribute name="q3" use="optional" type="xs:double"/>
+    </xs:attributeGroup>
     <xs:complexType name="ThreeWindingsTransformer">
         <xs:complexContent>
             <xs:extension base="iidm:Connectable">
@@ -573,23 +590,12 @@
                 <xs:attribute name="b2" use="optional" default="0" type="xs:double"/>
                 <xs:attribute name="b3" use="optional" default="0" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attributeGroup ref="iidm:ThreeWindingsTransformerVariantAttributes"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node3" use="optional" type="xs:int"/>
-                <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId3" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="p1" use="optional" type="xs:double"/>
-                <xs:attribute name="q1" use="optional" type="xs:double"/>
-                <xs:attribute name="p2" use="optional" type="xs:double"/>
-                <xs:attribute name="q2" use="optional" type="xs:double"/>
-                <xs:attribute name="p3" use="optional" type="xs:double"/>
-                <xs:attribute name="q3" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -630,6 +636,14 @@
     <xs:attributeGroup name="AcDcConverterVariantAttributes">
         <xs:attribute name="targetP" use="optional" type="xs:double"/>
         <xs:attribute name="targetVdc" use="optional" type="xs:double"/>
+        <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+        <xs:attribute name="p1" use="optional" type="xs:double"/>
+        <xs:attribute name="q1" use="optional" type="xs:double"/>
+        <xs:attribute name="p2" use="optional" type="xs:double"/>
+        <xs:attribute name="q2" use="optional" type="xs:double"/>
     </xs:attributeGroup>
     <xs:complexType name="AcDcConverter">
         <xs:complexContent>
@@ -648,15 +662,7 @@
                 <xs:attribute name="resistiveLoss" use="required" type="xs:double"/>
                 <xs:attribute name="controlMode" use="required" type="iidm:AcDcConverterControlMode"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="p1" use="optional" type="xs:double"/>
-                <xs:attribute name="q1" use="optional" type="xs:double"/>
-                <xs:attribute name="p2" use="optional" type="xs:double"/>
-                <xs:attribute name="q2" use="optional" type="xs:double"/>
                 <xs:attribute name="dcP1" use="optional" type="xs:double"/>
                 <xs:attribute name="dcI1" use="optional" type="xs:double"/>
                 <xs:attribute name="dcP2" use="optional" type="xs:double"/>
