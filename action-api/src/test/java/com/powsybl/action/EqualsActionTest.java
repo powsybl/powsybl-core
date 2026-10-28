@@ -8,7 +8,7 @@
 
 package com.powsybl.action;
 
-import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.test.EqualsTester;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeSides;

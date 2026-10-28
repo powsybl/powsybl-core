@@ -7,7 +7,7 @@
  */
 package com.powsybl.timeseries;
 
-import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.test.EqualsTester;
 import com.powsybl.timeseries.ast.*;
 import org.junit.jupiter.api.Test;
 
