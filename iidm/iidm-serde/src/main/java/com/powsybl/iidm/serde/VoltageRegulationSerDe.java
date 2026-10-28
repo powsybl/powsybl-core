@@ -72,6 +72,43 @@ public final class VoltageRegulationSerDe {
             .build());
     }
 
+    /**
+     * Writes the voltage regulation of a local-only holder (boundary line generation).
+     * Neither the terminal nor the target value is written: the local setpoints are stored in the holder itself.
+     */
+    public static void writeLocalVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            if (voltageRegulation != null && voltageRegulation.getMode() != null) {
+                TreeDataWriter writer = context.getWriter();
+                writer.writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEMENT_NAME);
+                writer.writeDoubleAttribute(TARGET_DEADBAND, voltageRegulation.getTargetDeadband());
+                writer.writeDoubleAttribute(SLOPE, voltageRegulation.getSlope());
+                writer.writeEnumAttribute(MODE, voltageRegulation.getMode());
+                writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
+                writer.writeEndNode();
+            }
+        });
+    }
+
+    /**
+     * Reads the voltage regulation of a local-only holder (boundary line generation), written by {@link #writeLocalVoltageRegulation}.
+     */
+    public static void readLocalVoltageRegulation(VoltageRegulationHolder<?> holder, NetworkDeserializerContext context) {
+        double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
+        double slope = context.getReader().readDoubleAttribute(SLOPE);
+        RegulationMode mode = context.getReader().readEnumAttribute(MODE, RegulationMode.class);
+        boolean isRegulating = context.getReader().readBooleanAttribute(REGULATING);
+        context.getReader().readChildNodes(elementName -> {
+            throw new PowsyblException("Unknown sub element name '" + elementName + "' in 'voltageRegulation'");
+        });
+        holder.newVoltageRegulation()
+            .withTargetDeadband(targetDeadband)
+            .withSlope(slope)
+            .withMode(mode)
+            .withRegulating(isRegulating)
+            .build();
+    }
+
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
             List<Consumer<T>> toApply,
             VoltageRegulationHolderAdder<A> holderAdder,

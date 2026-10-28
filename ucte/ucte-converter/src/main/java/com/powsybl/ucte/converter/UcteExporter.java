@@ -331,11 +331,11 @@ public class UcteExporter implements Exporter {
         ucteNode.setReactiveLoad(boundaryLine.getQ0());
         double generatorTargetP = boundaryLine.getGeneration().getTargetP();
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = boundaryLine.getGeneration().getTargetQ();
+        double generatorTargetQ = boundaryLine.getGeneration().getLocalTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (boundaryLine.getGeneration().isVoltageRegulationOn()) {
+        if (boundaryLine.getGeneration().isRegulatingWithMode(RegulationMode.VOLTAGE)) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference(boundaryLine.getGeneration().getTargetV());
+            ucteNode.setVoltageReference(boundaryLine.getGeneration().getLocalTargetV());
             double minP = boundaryLine.getGeneration().getMinP();
             double maxP = boundaryLine.getGeneration().getMaxP();
             double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());

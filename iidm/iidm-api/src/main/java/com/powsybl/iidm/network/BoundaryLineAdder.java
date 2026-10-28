@@ -7,12 +7,14 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface BoundaryLineAdder extends InjectionAdder<BoundaryLine, BoundaryLineAdder> {
 
-    interface GenerationAdder {
+    interface GenerationAdder extends VoltageRegulationHolderAdder<GenerationAdder> {
 
         GenerationAdder setTargetP(double targetP);
 
@@ -20,10 +22,22 @@ public interface BoundaryLineAdder extends InjectionAdder<BoundaryLine, Boundary
 
         GenerationAdder setMinP(double minP);
 
+        /**
+         * @deprecated Use the voltage regulation holder adder (newVoltageRegulation) and its local target values instead.
+         */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         GenerationAdder setTargetQ(double targetQ);
 
+        /**
+         * @deprecated Use the voltage regulation holder adder (newVoltageRegulation) and its local target values instead.
+         */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn);
 
+        /**
+         * @deprecated Use the voltage regulation holder adder (newVoltageRegulation) and its local target values instead.
+         */
+        @Deprecated(since = "7.5.0", forRemoval = true)
         GenerationAdder setTargetV(double targetV);
 
         BoundaryLineAdder add();
