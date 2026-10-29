@@ -40,7 +40,7 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml", "staticVarCompensatorRegulationModeOFF.xml", IidmVersion.V_1_7, IidmVersion.V_1_14);
 
         // regulation mode is exported as VOLTAGE and regulating is set to false if regulation mode was not set in input file
-        allFormatsRoundTripFromVersionedXmlTest("staticVarCompensatorNoRegulationMode.xml", "notRegulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripFromVersionedTest("staticVarCompensatorNoRegulationMode.xml", "notRegulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

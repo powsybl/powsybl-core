@@ -74,7 +74,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * Execute an all-formats round trip test on the test resource IIDM-XML file with a given
      * file name comparing to the given reference file for the given IIDM versions.
      */
-    protected void allFormatsRoundTripFromVersionedXmlTest(String file, String reference, IidmVersion... versions) throws IOException {
+    protected void allFormatsRoundTripFromVersionedTest(String file, String reference, IidmVersion... versions) throws IOException {
         for (IidmVersion version : versions) {
             allFormatsRoundTripTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)), reference, version);
         }
@@ -118,7 +118,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * equals or more recent than a given minimum IIDM version <b>and</b> strictly older than the current IIDM version.
      */
     protected void allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest(String file, IidmVersion minVersion) throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+        allFormatsRoundTripFromVersionedTest(file, Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
     }
@@ -128,7 +128,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * a given minimum IIDM version <b>and</b> strictly older than a given maximum IIDM version.
      */
     protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+        allFormatsRoundTripFromVersionedTest(file, Stream.of(IidmVersion.values())
             .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
             .toArray(IidmVersion[]::new));
     }
@@ -139,7 +139,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * a given minimum IIDM version <b>and</b> strictly older than a given maximum IIDM version.
      */
     protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, String reference, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest(file, reference, Stream.of(IidmVersion.values())
+        allFormatsRoundTripFromVersionedTest(file, reference, Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
                 .toArray(IidmVersion[]::new));
     }
@@ -149,7 +149,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * equals or more recent than a given minimum IIDM version.
      */
     protected void allFormatsRoundTripFromVersionedXmlFromMinVersionTest(String file, IidmVersion minVersion) throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+        allFormatsRoundTripFromVersionedTest(file, Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(minVersion) >= 0)
                 .toArray(IidmVersion[]::new));
     }
@@ -177,8 +177,8 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     /**
      * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions.
      */
-    protected void allFormatsRoundTripAllVersionedXmlTest(String file) throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest(file, IidmVersion.values());
+    protected void allFormatsRoundTripAllVersionedTest(String file) throws IOException {
+        allFormatsRoundTripFromVersionedTest(file, IidmVersion.values());
     }
 
     /**

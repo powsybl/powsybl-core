@@ -27,7 +27,7 @@ class BoundaryLineXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        allFormatsRoundTripAllVersionedXmlTest("boundaryLine.xml");
+        allFormatsRoundTripAllVersionedTest("boundaryLine.xml");
     }
 
     @Test
