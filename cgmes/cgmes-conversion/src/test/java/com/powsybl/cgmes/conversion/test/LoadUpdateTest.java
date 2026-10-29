@@ -63,6 +63,15 @@ class LoadUpdateTest extends AbstractSerDeTest {
 
         readCgmesResources(network, DIR, "load_SV.xml");
         assertFlowsAfterSv(network);
+
+        // The updates read the identifiers with the same options as the import
+        Properties properties = new Properties();
+        properties.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_RDFID);
+        network = readCgmesResources(properties, DIR, "load_EQ.xml");
+        readCgmesResources(network, properties, DIR, "load_SSH.xml");
+        assertSsh(network.getLoad("_EnergyConsumer"), 10.0, 5.0);
+        readCgmesResources(network, properties, DIR, "load_SSH_1.xml");
+        assertSsh(network.getLoad("_EnergyConsumer"), 10.5, 5.5);
     }
 
     @Test

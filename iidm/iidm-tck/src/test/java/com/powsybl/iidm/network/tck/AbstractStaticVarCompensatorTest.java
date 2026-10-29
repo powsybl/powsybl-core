@@ -233,6 +233,25 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals("Variant index not set", exception.getMessage());
     }
 
+    /**
+     * Removing a variant shrinks the per-variant arrays of the VoltageRegulation too, so that a variant cloned later
+     * reads the values of its source and not those of the removed variant that occupied its slot.
+     */
+    @Test
+    public void voltageRegulationOfARemovedVariantDoesNotLeakIntoTheNextClone() {
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        VariantManager variantManager = network.getVariantManager();
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "a");
+        variantManager.setWorkingVariant("a");
+        svc.getVoltageRegulation().setRegulating(false);
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        variantManager.removeVariant("a");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "b");
+        variantManager.setWorkingVariant("b");
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+    }
+
     @Test
     public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
