@@ -1278,7 +1278,7 @@ public final class ValidationUtil {
     }
 
     private static ValidationLevel checkVoltageRegulationSlope(@NonNull Validable owner, RegulationMode mode, boolean regulating, double slope, ActionOnError actionOnError, ReportNode reportNode) {
-        Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+        Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
         if (mode != null && Double.isNaN(slope) && slopeMode.contains(mode) && regulating) {
             throwExceptionOrLogError(owner,
                 "Undefined value for voltageRegulation.slope. Must be not null for regulationMode VOLTAGE_PER_REACTIVE_POWER and REACTIVE_POWER_PER_ACTIVE_POWER",

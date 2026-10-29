@@ -117,6 +117,38 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
+    public void testGeneratorReactivePowerPerActivePowerOk() {
+        GeneratorAdder generatorAdder = newGeneratorAdder("ReactivePowerPerActivePower_ok");
+        generatorAdder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withSlope(0.3)
+            .add();
+        Generator generator = generatorAdder.add();
+        assertEquals(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER, generator.getVoltageRegulation().getMode());
+        assertEquals(0.3, generator.getVoltageRegulation().getSlope());
+        assertTrue(generator.isRegulating());
+    }
+
+    @Test
+    public void testGeneratorReactivePowerPerActivePowerErrorSlopeMissing() {
+        GeneratorAdder generatorAdder = newGeneratorAdder("ReactivePowerPerActivePower_slope_missing");
+        assertThrows(ValidationException.class, () -> generatorAdder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .add());
+    }
+
+    @Test
+    public void testGeneratorReactivePowerPerActivePowerErrorTerminalSet() {
+        GeneratorAdder generatorAdder = newGeneratorAdder("ReactivePowerPerActivePower_terminal_set");
+        assertThrows(ValidationException.class, () -> generatorAdder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(10)
+            .withSlope(0.3)
+            .add());
+    }
+
+    @Test
     public void testGeneratorErrorLocalTargetVMissing() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing");

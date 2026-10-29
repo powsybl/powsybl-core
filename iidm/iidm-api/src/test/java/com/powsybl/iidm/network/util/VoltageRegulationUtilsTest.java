@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER;
+import static com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER;
 import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE_PER_REACTIVE_POWER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,14 +49,14 @@ class VoltageRegulationUtilsTest {
     static Stream<Arguments> provideParametersForGetAllowedRegulationModes() {
         return Stream.of(
             Arguments.of(Battery.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(Battery.class, false, true, Set.of(VOLTAGE)),
-            Arguments.of(Battery.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(Battery.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(Battery.class, false, true, Set.of(VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER)),
+            Arguments.of(Battery.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER)),
+            Arguments.of(Battery.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER)),
 
             Arguments.of(Generator.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(Generator.class, false, true, Set.of(VOLTAGE)),
-            Arguments.of(Generator.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER)),
-            Arguments.of(Generator.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER)),
+            Arguments.of(Generator.class, false, true, Set.of(VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER)),
+            Arguments.of(Generator.class, true, false, Set.of(VOLTAGE, REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER)),
+            Arguments.of(Generator.class, false, false, Set.of(VOLTAGE, REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER)),
 
             Arguments.of(RatioTapChanger.class, true, true, Set.of(VOLTAGE, REACTIVE_POWER)),
             Arguments.of(RatioTapChanger.class, false, true, Set.of()),
