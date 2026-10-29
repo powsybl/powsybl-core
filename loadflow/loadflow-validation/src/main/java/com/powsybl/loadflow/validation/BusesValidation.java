@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import static com.powsybl.loadflow.validation.ValidationUtils.*;
+
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -62,24 +64,29 @@ public final class BusesValidation {
         return network.getBusView()
                       .getBusStream()
                       .sorted(Comparator.comparing(Bus::getId))
-                      .map(bus -> checkBuses(bus, config, busesWriter))
+                      .map(bus -> checkBus(bus, config, busesWriter))
                       .reduce(Boolean::logicalAnd)
                       .orElse(true);
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
+    public boolean checkBus(Bus bus, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter bussWriter = ValidationUtils.createValidationWriter(bus.getId(), config, writer, ValidationType.BUSES)) {
-            return checkBuses(bus, config, bussWriter);
+            return checkBus(bus, config, bussWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
+    /**
+     * Rule for valid results :<br/>
+     * |incomingP + loadP| <= threshold <br/>
+     * |incomingQ + loadQ| <= threshold
+     */
+    public boolean checkBus(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
@@ -105,7 +112,7 @@ public final class BusesValidation {
         double t3wtP = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double t3wtQ = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
         boolean mainComponent = bus.isInMainConnectedComponent();
-        return checkBuses(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        return checkBus(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                 lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, config, busesWriter);
     }
 
@@ -131,40 +138,36 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
-                                     double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ,
-                                     double lineP, double lineQ, double boundaryLineP, double boundaryLineQ,
-                                     double t2wtP, double t2wtQ, double t3wtP, double t3wtQ, boolean mainComponent, ValidationConfig config, Writer writer) {
+    public boolean checkBus(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
+                            double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ,
+                            double lineP, double lineQ, double boundaryLineP, double boundaryLineQ,
+                            double t2wtP, double t2wtQ, double t3wtP, double t3wtQ, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.BUSES)) {
-            return checkBuses(id, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
+            return checkBus(id, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
                               boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, config, busesWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
-                                     double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                                     double boundaryLineP, double boundaryLineQ, double t2wtP, double t2wtQ, double t3wtP, double t3wtQ,
-                                     boolean mainComponent, ValidationConfig config, ValidationWriter busesWriter) {
+    public boolean checkBus(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
+                            double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
+                            double boundaryLineP, double boundaryLineQ, double t2wtP, double t2wtQ, double t3wtP, double t3wtQ,
+                            boolean mainComponent, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(id);
         boolean validated = true;
 
         double incomingP = genP + batP + shuntP + svcP + vscCSP + lineP + boundaryLineP + t2wtP + t3wtP;
         double incomingQ = genQ + batQ + shuntQ + svcQ + vscCSQ + lineQ + boundaryLineQ + t2wtQ + t3wtQ;
-        if (ValidationUtils.isMainComponent(config, mainComponent)) {
-            if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
-                validated = false;
-            }
-            if (ValidationUtils.areNaN(config, incomingQ, loadQ) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
-                validated = false;
-            }
+        if (isMainComponent(config, mainComponent)) {
+            // |incomingP + loadP| <= threshold
+            validated &= validatePowerBalance(id, "P", incomingP, loadP, config);
+            // |incomingQ + loadQ| <= threshold
+            validated &= validatePowerBalance(id, "Q", incomingQ, loadQ, config);
         }
         try {
             busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
@@ -174,4 +177,17 @@ public final class BusesValidation {
         }
         return validated;
     }
+
+    private boolean validatePowerBalance(String id, String balanceType, double incomingPower, double loadPower, ValidationConfig config) {
+        if (!areNaN(config, incomingPower, loadPower) && !isBalanceInconsistent(incomingPower, loadPower, config.getThreshold())) {
+            return true;
+        }
+        LOGGER.warn("{} {}: {} {} {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, balanceType, incomingPower, loadPower);
+        return false;
+    }
+
+    private static boolean isBalanceInconsistent(double incomingP, double loadP, double threshold) {
+        return isOutsideTolerance(incomingP, -loadP, threshold);
+    }
+
 }

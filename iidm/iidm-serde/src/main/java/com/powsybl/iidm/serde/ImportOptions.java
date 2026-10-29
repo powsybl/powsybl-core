@@ -22,6 +22,7 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     private boolean throwExceptionIfExtensionNotFound = false;
     private boolean withAutomationSystems = true;
     private double missingPermanentLimitPercentage = 100.;
+    private boolean repairInvalidReactiveCurveLimits = false;
 
     private ValidationLevel minimalValidationLevel = null;
 
@@ -67,6 +68,15 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
      */
     public double getMissingPermanentLimitPercentage() {
         return missingPermanentLimitPercentage;
+    }
+
+    public boolean isRepairInvalidReactiveCurveLimits() {
+        return repairInvalidReactiveCurveLimits;
+    }
+
+    public ImportOptions setRepairInvalidReactiveCurveLimits(boolean repairInvalidReactiveCurveLimits) {
+        this.repairInvalidReactiveCurveLimits = repairInvalidReactiveCurveLimits;
+        return this;
     }
 
     public ImportOptions setMinimalValidationLevel(String minimalValidationLevel) {

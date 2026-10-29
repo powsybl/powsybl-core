@@ -1790,6 +1790,13 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Return a comparator to sort element in the creation order
+     */
+    default Optional<Comparator<Identifiable<?>>> getIdentifiableCreationOrderComparator() {
+        return Optional.empty();
+    }
+
+    /**
      *
      * @param identifiableType The type of the Identifiable you want the steam of inside the network.
      * @see com.powsybl.iidm.network.IdentifiableType

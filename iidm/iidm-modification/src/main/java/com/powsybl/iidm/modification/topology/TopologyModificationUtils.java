@@ -198,7 +198,7 @@ public final class TopologyModificationUtils {
         adder.add();
     }
 
-    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, ReportNode reportNode) {
+    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, boolean forceRemoveIsolatedVoltageLevel, ReportNode reportNode) {
         String vlId = voltageLevel.getId();
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
@@ -207,12 +207,19 @@ public final class TopologyModificationUtils {
                 default -> false;
             });
             if (noMoreBranch) {
-                voltageLevelNotRemovedWithNoBranch(reportNode, vlId);
+                if (forceRemoveIsolatedVoltageLevel) {
+                    voltageLevel.getConnectables().forEach(Connectable::remove);
+                    voltageLevelForceRemovedWithNoBranch(reportNode, vlId);
+                } else {
+                    voltageLevelNotRemovedWithNoBranch(reportNode, vlId);
+                    LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
+                    return;
+                }
             } else {
                 voltageLevelNotRemovedWithRemainingBranches(reportNode, vlId);
+                LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
+                return;
             }
-            LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
-            return;
         }
         // substation must be gotten before removing the voltageLevel
         Optional<Substation> substation = voltageLevel.getSubstation();
@@ -220,7 +227,7 @@ public final class TopologyModificationUtils {
         voltageLevelRemovedReport(reportNode, vlId);
         LOGGER.info("Voltage level {} removed", vlId);
         substation.ifPresent(s -> {
-            if (s.getVoltageLevelStream().count() == 0) {
+            if (s.getVoltageLevelStream().findAny().isEmpty()) {
                 String substationId = s.getId();
                 s.remove();
                 substationRemovedReport(reportNode, substationId);
