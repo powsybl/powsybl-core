@@ -7,13 +7,12 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -25,16 +24,16 @@ public class DynamicSimulationParametersSerializer extends StdSerializer<Dynamic
     }
 
     @Override
-    public void serialize(DynamicSimulationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(DynamicSimulationParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", DynamicSimulationParameters.VERSION);
-        jsonGenerator.writeNumberField("startTime", parameters.getStartTime());
-        jsonGenerator.writeNumberField("stopTime", parameters.getStopTime());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
+        jsonGenerator.writeStringProperty("version", DynamicSimulationParameters.VERSION);
+        jsonGenerator.writeNumberProperty("startTime", parameters.getStartTime());
+        jsonGenerator.writeNumberProperty("stopTime", parameters.getStopTime());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "debugDir", parameters.getDebugDir());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonDynamicSimulationParameters.getExtensionSerializers()::get);
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonDynamicSimulationParameters.getExtensionSerializers()::get);
 
         jsonGenerator.writeEndObject();
     }

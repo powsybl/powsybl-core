@@ -7,14 +7,14 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Importer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,11 +50,11 @@ public class JsonImporter extends AbstractTreeDataImporter {
         if (ext != null) {
             try (InputStream is = dataSource.newInputStream(null, ext)) {
                 // check the first element is START_OBJECT and second element 'version' key
-                try (JsonParser parser = JsonUtil.createJsonFactory().createParser(is)) {
+                try (JsonParser parser = JsonUtil.createJsonMapper().createParser(is)) {
                     if (parser.nextToken() != JsonToken.START_OBJECT) {
                         return false;
                     }
-                    return JsonReader.VERSION_NAME.equals(parser.nextFieldName());
+                    return JsonReader.VERSION_NAME.equals(parser.nextName());
                 }
             }
         }

@@ -7,13 +7,13 @@
  */
 package com.powsybl.iidm.network.identifiers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer;
 import com.powsybl.iidm.network.identifiers.json.IdentifierSerializer;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,9 +26,10 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class IdentifiersJsonTest extends AbstractSerDeTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new SimpleModule()
-            .addSerializer(NetworkElementIdentifier.class, new IdentifierSerializer())
-            .addDeserializer(NetworkElementIdentifier.class, new IdentifierDeserializer()));
+    private static final JsonMapper MAPPER = JsonMapper.builder().addModule(new SimpleModule()
+        .addSerializer(NetworkElementIdentifier.class, new IdentifierSerializer())
+        .addDeserializer(NetworkElementIdentifier.class, new IdentifierDeserializer()))
+        .build();
 
     @Test
     void roundTripIdBasedNetworkElementIdentifier() throws IOException {

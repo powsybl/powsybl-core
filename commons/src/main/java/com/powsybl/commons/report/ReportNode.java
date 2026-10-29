@@ -7,7 +7,8 @@
  */
 package com.powsybl.commons.report;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -155,7 +156,7 @@ public interface ReportNode {
      * Serialize the current report node
      * @param generator the jsonGenerator to use for serialization
      */
-    void writeJson(JsonGenerator generator) throws IOException;
+    void writeJson(JsonGenerator generator) throws JacksonException;
 
     /** Add one typed String value */
     ReportNode addTypedValue(String key, String value, String type);

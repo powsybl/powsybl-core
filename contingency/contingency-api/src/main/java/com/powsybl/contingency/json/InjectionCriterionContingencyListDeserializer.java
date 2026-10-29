@@ -7,14 +7,13 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.list.InjectionCriterionContingencyList;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -28,7 +27,7 @@ public class InjectionCriterionContingencyListDeserializer extends AbstractEquip
     String identifiableType;
 
     @Override
-    public InjectionCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public InjectionCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
         parser.nextToken();
         JsonUtil.parsePolymorphicObject(parser, name -> {
@@ -38,7 +37,7 @@ public class InjectionCriterionContingencyListDeserializer extends AbstractEquip
                 return true;
             }
             if (name.equals("identifiableType")) {
-                identifiableType = parser.nextTextValue();
+                identifiableType = parser.nextStringValue();
                 return true;
             }
             return false;

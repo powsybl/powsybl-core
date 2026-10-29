@@ -7,8 +7,8 @@
  */
 package com.powsybl.loadflow.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.loadflow.LoadFlowResult;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}

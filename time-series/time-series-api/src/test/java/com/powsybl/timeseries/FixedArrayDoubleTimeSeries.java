@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Range;
 import org.jspecify.annotations.NonNull;
+import tools.jackson.core.JsonGenerator;
 
 import java.nio.DoubleBuffer;
 import java.util.Iterator;
