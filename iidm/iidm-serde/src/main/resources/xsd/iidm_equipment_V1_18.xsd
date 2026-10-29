@@ -634,6 +634,8 @@
         <xs:attribute name="k" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:attributeGroup name="AcDcConverterVariantAttributes">
+        <xs:attribute name="dcConnected1" use="required" type="xs:boolean"/>
+        <xs:attribute name="dcConnected2" use="required" type="xs:boolean"/>
         <xs:attribute name="targetP" use="optional" type="xs:double"/>
         <xs:attribute name="targetVdc" use="optional" type="xs:double"/>
         <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
@@ -644,6 +646,10 @@
         <xs:attribute name="q1" use="optional" type="xs:double"/>
         <xs:attribute name="p2" use="optional" type="xs:double"/>
         <xs:attribute name="q2" use="optional" type="xs:double"/>
+        <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+        <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+        <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+        <xs:attribute name="dcI2" use="optional" type="xs:double"/>
     </xs:attributeGroup>
     <xs:complexType name="AcDcConverter">
         <xs:complexContent>
@@ -654,19 +660,13 @@
                 </xs:sequence>
                 <xs:attributeGroup ref="iidm:AcDcConverterVariantAttributes"/>
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="dcConnected1" use="required" type="xs:boolean"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="dcConnected2" use="required" type="xs:boolean"/>
                 <xs:attribute name="idleLoss" use="required" type="xs:double"/>
                 <xs:attribute name="switchingLoss" use="required" type="xs:double"/>
                 <xs:attribute name="resistiveLoss" use="required" type="xs:double"/>
                 <xs:attribute name="controlMode" use="required" type="iidm:AcDcConverterControlMode"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
-                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
-                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
-                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
