@@ -54,10 +54,9 @@ public class LocalComputationConfig {
                     }
                     List<Path> checkedPaths = paths.stream().filter(Files::exists).toList();
                     if (checkedPaths.isEmpty()) {
-                        String expectedTmpDirPaths = paths.toString();
-                        throw new ConfigurationException("None of the tmp dir path of the list exist: " + expectedTmpDirPaths);
+                        throw new ConfigurationException("None of the tmp dir path of the list exist: " + paths);
                     }
-                    return checkedPaths.get(0);
+                    return checkedPaths.getFirst();
                 });
     }
 
