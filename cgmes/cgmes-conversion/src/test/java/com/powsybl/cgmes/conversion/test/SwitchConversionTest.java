@@ -126,14 +126,15 @@ class SwitchConversionTest extends AbstractSerDeTest {
         // CGMES network:
         //   An ACLineSegment ACL with zero impedance between two nodes of the same voltage level.
         // IIDM network:
-        //   A branch with 0 impedance inside a VoltageLevel is converted to a Switch.
+        //   A branch with 0 impedance inside a VoltageLevel is converted to a line.
         Network network = readCgmesResources(DIR, "line_with_0_impedance.xml");
         assertNotNull(network);
 
-        // The line has been imported as a fictitious switch
-        assertNull(network.getLine("ACL"));
-        assertNotNull(network.getSwitch("ACL"));
-        assertTrue(network.getSwitch("ACL").isFictitious());
+        // The line has been imported as a zero-impedance line instead of a switch, unlike in the previous behavior
+        assertNull(network.getSwitch("ACL"));
+        assertNotNull(network.getLine("ACL"));
+        assertEquals(0.0, network.getLine("ACL").getR(), 0.0);
+        assertEquals(0.0, network.getLine("ACL").getX(), 0.0);
     }
 
     @Test

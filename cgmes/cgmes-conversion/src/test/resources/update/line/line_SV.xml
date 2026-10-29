@@ -41,4 +41,38 @@
         <cim:SvPowerFlow.q>-30.1</cim:SvPowerFlow.q>
         <cim:SvPowerFlow.Terminal rdf:resource="#_SeriesCompensator-T2" />
     </cim:SvPowerFlow>
+
+    <cim:SvPowerFlow rdf:ID="_ACLineSegmentZeroImpedance-T1-SvPowerFlow">
+        <cim:SvPowerFlow.p>275.0</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>50.0</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_ACLineSegmentZeroImpedance-T1" />
+    </cim:SvPowerFlow>
+    <cim:SvPowerFlow rdf:ID="_ACLineSegmentZeroImpedance-T2-SvPowerFlow">
+        <cim:SvPowerFlow.p>-275.1</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>-50.1</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_ACLineSegmentZeroImpedance-T2" />
+    </cim:SvPowerFlow>
+
+    <cim:SvPowerFlow rdf:ID="_EquivalentBranchZeroImpedance-T1-SvPowerFlow">
+        <cim:SvPowerFlow.p>175.0</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>40.0</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_EquivalentBranchZeroImpedance-T1" />
+    </cim:SvPowerFlow>
+    <cim:SvPowerFlow rdf:ID="_EquivalentBranchZeroImpedance-T2-SvPowerFlow">
+        <cim:SvPowerFlow.p>-175.1</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>-40.1</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_EquivalentBranchZeroImpedance-T2" />
+    </cim:SvPowerFlow>
+
+    <cim:SvPowerFlow rdf:ID="_SeriesCompensatorZeroImpedance-T1-SvPowerFlow">
+        <cim:SvPowerFlow.p>75.0</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>30.0</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_SeriesCompensatorZeroImpedance-T1" />
+    </cim:SvPowerFlow>
+    <cim:SvPowerFlow rdf:ID="_SeriesCompensatorZeroImpedance-T2-SvPowerFlow">
+        <cim:SvPowerFlow.p>-75.1</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>-30.1</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_SeriesCompensatorZeroImpedance-T2" />
+    </cim:SvPowerFlow>
+
 </rdf:RDF>
