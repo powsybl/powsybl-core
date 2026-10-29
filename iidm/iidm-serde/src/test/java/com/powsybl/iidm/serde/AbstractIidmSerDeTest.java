@@ -60,6 +60,12 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void allFormatsRoundTripFromVersionedXmlTest(String file, IidmVersion... versions) throws IOException {
         for (IidmVersion version : versions) {
+            allFormatsRoundTripXmlTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)), file, version);
+        }
+    }
+
+    protected void allFormatsRoundTripFromVersionedTest(String file, IidmVersion... versions) throws IOException {
+        for (IidmVersion version : versions) {
             allFormatsRoundTripTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)), file, version);
         }
     }
@@ -93,6 +99,10 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void allFormatsRoundTripAllPreviousVersionedXmlTest(String file) throws IOException {
         allFormatsRoundTripFromVersionedXmlTest(file, allPreviousVersions(CURRENT_IIDM_VERSION));
+    }
+
+    protected void allFormatsRoundTripAllPreviousVersionedTest(String file) throws IOException {
+        allFormatsRoundTripFromVersionedTest(file, allPreviousVersions(CURRENT_IIDM_VERSION));
     }
 
     /**
@@ -308,6 +318,10 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         return allFormatsRoundTripTest(network, filename, version, new ExportOptions());
     }
 
+    public Network allFormatsRoundTripXmlTest(Network network, String filename, IidmVersion version) throws IOException {
+        return allFormatsRoundTripXmlTest(network, filename, version, new ExportOptions());
+    }
+
     /**
      * Serialize and deserialize the given network in all serialized IIDM formats (see {@link #allFormatsRoundTripTest(Network, String)}, for all versions
      * that are more recent than the given <code>minVersionIncluded</code> (included)
@@ -359,6 +373,10 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         return allFormatsRoundTripTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")));
     }
 
+    public Network allFormatsRoundTripXmlTest(Network network, String filename, IidmVersion version, ExportOptions exportOptions) throws IOException {
+        return allFormatsRoundTripXmlTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")));
+    }
+
     /**
      * All-formats round trip from given network with reference xml file:
      * <ul>
@@ -378,6 +396,14 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     public Network allFormatsRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
         return roundTripTest(network,
+                (n, p) -> binWriteAndRead(jsonWriteAndRead(n, exportOptions, p), exportOptions, p),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                refXmlFile);
+    }
+
+    public Network allFormatsRoundTripXmlTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
+        return roundTripXmlTest(network,
                 (n, p) -> binWriteAndRead(jsonWriteAndRead(n, exportOptions, p), exportOptions, p),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,

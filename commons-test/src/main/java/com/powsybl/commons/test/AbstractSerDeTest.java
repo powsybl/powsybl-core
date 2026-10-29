@@ -60,6 +60,10 @@ public abstract class AbstractSerDeTest {
         return roundTripTest(data, transformer, write, read, ComparisonUtils::assertTxtEquals, ref);
     }
 
+    protected <T> T roundTripXmlTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
+        return roundTripTest(data, transformer, write, read, ComparisonUtils::assertXmlEquals, ref);
+    }
+
     /**
      * Roundtrip test on the given data. The following steps occur:
      * <ul>

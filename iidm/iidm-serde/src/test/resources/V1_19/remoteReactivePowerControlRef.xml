@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" xmlns:rrpc="http://www.powsybl.org/schema/iidm/ext/remote_reactive_power_control/1_0" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S" country="FR">
         <iidm:voltageLevel id="VL" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -14,5 +14,5 @@
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="L12" r="0.0" x="1.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL" bus2="B2" connectableBus2="B2" voltageLevelId2="VL"/>
+    <iidm:line id="L12" r="0.0" x="1.0" voltageLevelId1="VL" bus1="B1" connectableBus1="B1" voltageLevelId2="VL" bus2="B2" connectableBus2="B2"/>
 </iidm:network>

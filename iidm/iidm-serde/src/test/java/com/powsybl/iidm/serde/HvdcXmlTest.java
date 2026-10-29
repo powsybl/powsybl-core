@@ -26,7 +26,7 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(HvdcTestNetwork.createLcc(), "LccRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("LccRoundTripRef.xml");
     }
 
     @Test
@@ -34,7 +34,7 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(HvdcTestNetwork.createVsc(), "VscRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("VscRoundTripRef.xml");
     }
 
     @Test
