@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.LinkData;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
@@ -388,6 +389,62 @@ class TieLineTest {
 
         assertEquals(tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getV(), TieLineUtil.getBoundaryV(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2()), tol);
         assertEquals(tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getAngle(), TieLineUtil.getBoundaryAngle(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2()), tol);
+    }
+
+    @Test
+    void removeTieLineWithBoundaryLineVoltageRegulationTest() {
+        Network n = Network.create("TieLine-Regulation", "test");
+        Substation s1 = n.newSubstation().setId("S1").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("S1VL1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1.getBusBreakerView().newBus().setId("S1VL1-BUS").add();
+        Substation s2 = n.newSubstation().setId("S2").add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("S2VL1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl2.getBusBreakerView().newBus().setId("S2VL1-BUS").add();
+
+        vl1.newBoundaryLine()
+                .setId("ONE")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus("S1VL1-BUS")
+                .setPairingKey("key")
+                .newGeneration()
+                    .setTargetP(0.0)
+                    .setLocalTargetV(400.0)
+                    .newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withRegulating(true)
+                    .add()
+                .add()
+                .add();
+        vl2.newBoundaryLine()
+                .setId("TWO")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus("S2VL1-BUS")
+                .setPairingKey("key")
+                .add();
+        TieLine tieLine = n.newTieLine()
+                .setId("ONE_TWO")
+                .setBoundaryLine1("ONE")
+                .setBoundaryLine2("TWO")
+                .add();
+        BoundaryLine boundaryLine1 = tieLine.getBoundaryLine1();
+        assertTrue(boundaryLine1.getGeneration().isRegulating());
+
+        // Boundary P/Q are derived from bus voltage and terminal flow: set them so that the update path is exercised
+        vl1.getBusBreakerView().getBus("S1VL1-BUS").setV(400.0).setAngle(0.0);
+        boundaryLine1.getTerminal().setP(0.0).setQ(0.0);
+        assertDoesNotThrow(() -> tieLine.remove(true));
+
+        assertNull(n.getTieLine("ONE_TWO"));
+        assertFalse(boundaryLine1.getGeneration().isRegulating());
+        assertNull(boundaryLine1.getGeneration().getVoltageRegulation());
+        assertEquals(0.0, boundaryLine1.getGeneration().getLocalTargetQ(), 0.0);
+        assertTrue(Double.isNaN(boundaryLine1.getGeneration().getLocalTargetV()));
     }
 
     private static Network createNetworkWithTieLine(NetworkFactory networkFactory,
