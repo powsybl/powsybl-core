@@ -66,7 +66,7 @@ public interface VoltageRegulation {
      * Get the slope. It is relevant for:
      * <ul>
      * <li>{@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}: it corresponds to the lambda in <code>U0 = U + lambda*Q</code></li>
-     * <li>Not yet supported: RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER: it corresponds to the tan(phi) in <code>Q = tan(phi)*P</code></li>
+     * <li>{@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER}: it corresponds to the tan(phi) in <code>Q = tan(phi)*P</code></li>
      * </ul>
      * <p>This value is variant-dependent.</p>
      * @see VariantManager

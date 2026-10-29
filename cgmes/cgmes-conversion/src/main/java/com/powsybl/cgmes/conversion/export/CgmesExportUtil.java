@@ -527,7 +527,7 @@ public final class CgmesExportUtil {
         RegulationMode regulationMode = voltageRegulation.getMode();
         return switch (regulationMode) {
             case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-            case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            case REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
             case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
         };
     }
