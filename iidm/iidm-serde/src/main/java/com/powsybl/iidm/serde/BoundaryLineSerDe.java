@@ -171,22 +171,31 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     }
 
     /**
-     * Reads the generation attributes and creates the generation when needed. Local targets and the legacy
+     * Reads the generation attributes and creates the generation when needed. Local targets and the pre-1.19
      * voltage regulation are applied by the returned consumer, once the boundary line exists.
      */
     private static Consumer<BoundaryLine> readGenerationAttributes(BoundaryLineAdder adder, NetworkDeserializerContext context) {
         if (context.getVersion().compareTo(IidmVersion.V_1_3) < 0) {
             return bl -> { };
         }
-        boolean legacy = context.getVersion().compareTo(IidmVersion.V_1_19) < 0;
+        boolean beforeV119 = context.getVersion().compareTo(IidmVersion.V_1_19) < 0;
+        String targetVAttribute;
+        String targetQAttribute;
+        if (beforeV119) {
+            targetVAttribute = GENERATION_TARGET_V;
+            targetQAttribute = GENERATION_TARGET_Q;
+        } else {
+            targetVAttribute = GENERATION_LOCAL_TARGET_V;
+            targetQAttribute = GENERATION_LOCAL_TARGET_Q;
+        }
         Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON);
         OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
         OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
         OptionalDouble targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
-        OptionalDouble targetV = context.getReader().readOptionalDoubleAttribute(legacy ? GENERATION_TARGET_V : GENERATION_LOCAL_TARGET_V);
-        OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(legacy ? GENERATION_TARGET_Q : GENERATION_LOCAL_TARGET_Q);
+        OptionalDouble targetV = context.getReader().readOptionalDoubleAttribute(targetVAttribute);
+        OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(targetQAttribute);
         boolean hasGeneration = voltageRegulationOn.isPresent()
-            || !legacy && (minP.isPresent() || maxP.isPresent() || targetP.isPresent() || targetV.isPresent() || targetQ.isPresent());
+            || !beforeV119 && (minP.isPresent() || maxP.isPresent() || targetP.isPresent() || targetV.isPresent() || targetQ.isPresent());
         if (!hasGeneration) {
             return bl -> { };
         }
@@ -197,7 +206,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         targetV.ifPresent(generationAdder::setLocalTargetV);
         // Placeholder so that the holder can be validated at creation; NaN is restored once the regulation child is known
         generationAdder.setLocalTargetQ(targetQ.orElse(0.0));
-        if (legacy && voltageRegulationOn.orElse(false)) {
+        if (beforeV119 && voltageRegulationOn.orElse(false)) {
             generationAdder.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .withRegulating(true)
