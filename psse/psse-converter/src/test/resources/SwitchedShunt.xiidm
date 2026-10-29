@@ -14,7 +14,7 @@
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:shuntCompensator id="B2-SwSH1" sectionCount="3" bus="B2" localTargetV="17.91" connectableBus="B2">
+            <iidm:shuntCompensator id="B2-SwSH1" sectionCount="3" localTargetV="17.91" bus="B2" connectableBus="B2">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="-0.06172839506172839" g="0.0"/>
                     <iidm:section b="-0.046296296296296294" g="0.0"/>
@@ -74,7 +74,7 @@
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:shuntCompensator id="B3-SwSH1" sectionCount="3" bus="B3" localTargetV="17.91" connectableBus="B3">
+            <iidm:shuntCompensator id="B3-SwSH1" sectionCount="3" localTargetV="17.91" bus="B3" connectableBus="B3">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="-0.06172839506172839" g="0.0"/>
                     <iidm:section b="-0.030864197530864196" g="0.0"/>
@@ -117,7 +117,7 @@
                 <iidm:step g="8.259070294784587" b="8.259070294784587" rho="0.9610983981693363"/>
                 <iidm:step g="9.252267573696148" b="9.252267573696148" rho="0.9567198177676537"/>
                 <iidm:step g="10.250000000000004" b="10.250000000000004" rho="0.9523809523809523"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="18.45" targetDeadband="2.700000000000003">
+                <iidm:voltageRegulation targetValue="18.45" targetDeadband="2.700000000000003" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="B3-G1 "/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>

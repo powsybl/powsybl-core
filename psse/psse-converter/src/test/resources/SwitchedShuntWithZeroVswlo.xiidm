@@ -115,7 +115,7 @@
                 <iidm:step g="8.259070294784587" b="8.259070294784587" rho="0.9610983981693363"/>
                 <iidm:step g="9.252267573696148" b="9.252267573696148" rho="0.9567198177676537"/>
                 <iidm:step g="10.250000000000004" b="10.250000000000004" rho="0.9523809523809523"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="18.45" targetDeadband="2.700000000000003">
+                <iidm:voltageRegulation targetValue="18.45" targetDeadband="2.700000000000003" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="B3-G1 "/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>

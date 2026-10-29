@@ -20,7 +20,7 @@
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
-            <iidm:shuntCompensator id="B2-SwSH1" sectionCount="3" bus="B2" connectableBus="B2" localTargetV="137.31">
+            <iidm:shuntCompensator id="B2-SwSH1" sectionCount="3" localTargetV="137.31" bus="B2" connectableBus="B2">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="-0.0010501995379122034" g="0.0"/>
                     <iidm:section b="-7.876496534341525E-4" g="0.0"/>
@@ -64,7 +64,7 @@
             <iidm:shuntCompensator id="B9-SH 1" sectionCount="1" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
-            <iidm:staticVarCompensator id="FactsDevice-StaticVar" name="StaticVar" bMin="-0.3281873555975635" bMax="0.3281873555975635" localTargetV="140.76" localTargetQ="0.0" bus="B7" connectableBus="B7">
+            <iidm:staticVarCompensator id="FactsDevice-StaticVar" name="StaticVar" bMin="-0.3281873555975635" bMax="0.3281873555975635" localTargetQ="0.0" localTargetV="140.76" bus="B7" connectableBus="B7">
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:staticVarCompensator>
         </iidm:voltageLevel>
