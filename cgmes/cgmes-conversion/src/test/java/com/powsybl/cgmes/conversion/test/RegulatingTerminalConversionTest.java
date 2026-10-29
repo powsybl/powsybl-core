@@ -121,6 +121,30 @@ class RegulatingTerminalConversionTest {
         assertSame(IdentifiableType.LOAD, generator.getRegulatingTerminal().getConnectable().getType());
     }
 
+    @Test
+    void busBranchRegulatingControlOnDisconnectedBusbarSectionTest() {
+        Network network = readCgmesResources("/", "regulating-terminal-on-bbs-busbreaker_EQ.xml", "regulating-terminal-on-bbs-busbreaker_TP.xml");
+
+        // Generator with unmapped terminal on disconnected BBS: regulation is dropped
+        Generator generator = network.getGenerator("sm");
+        assertNotNull(generator);
+        assertNull(generator.getVoltageRegulation());
+        assertFalse(generator.hasRegulatingTerminal());
+
+        // Shunt with unmapped terminal on disconnected BBS: regulation is dropped
+        ShuntCompensator shunt = network.getShuntCompensator("shunt");
+        assertNotNull(shunt);
+        assertNull(shunt.getVoltageRegulation());
+
+        // SVC with unmapped terminal on disconnected BBS: default regulation fallback
+        StaticVarCompensator svc = network.getStaticVarCompensator("svc");
+        assertNotNull(svc);
+        assertNotNull(svc.getVoltageRegulation());
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertEquals(svc.getTerminal(), svc.getVoltageRegulation().getTerminal());
+        assertNull(svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
+    }
+
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
         config.setConvertSvInjections(true);
         return ConversionUtil.networkModel(testGridModel, config);

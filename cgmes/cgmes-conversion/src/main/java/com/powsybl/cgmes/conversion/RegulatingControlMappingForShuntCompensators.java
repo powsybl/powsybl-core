@@ -17,6 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -58,15 +59,18 @@ public class RegulatingControlMappingForShuntCompensators {
             return;
         }
         // Equipment participates in regulation and the regulating control information is present in the CGMES model
-        setRegulatingControl(shuntCompensator, regulatingControlId, rc);
-        rc.setCorrectlySet(true);
+        boolean okSet = setRegulatingControl(shuntCompensator, regulatingControlId, rc);
+        rc.setCorrectlySet(okSet);
     }
 
-    private void setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc) {
-        // Take default terminal if it has not been defined in CGMES files (it is never null)
-        Terminal regulatingTerminal = RegulatingTerminalMapper
-            .mapForVoltageControl(rc.cgmesTerminal, context)
-            .orElse(shuntCompensator.getTerminal());
+    private boolean setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc) {
+        Optional<Terminal> regulatingTerminalOpt = RegulatingTerminalMapper
+                .mapForVoltageControl(rc.cgmesTerminal, context);
+        if (regulatingTerminalOpt.isEmpty()) {
+            context.ignored(rcId, String.format("Regulation terminal %s is not mapped or mapped to a switch", rc.cgmesTerminal));
+            return false;
+        }
+        Terminal regulatingTerminal = regulatingTerminalOpt.get();
         if (regulatingTerminal.getConnectable().getId().equals(shuntCompensator.getId())) {
             regulatingTerminal = null;
         }
@@ -76,5 +80,6 @@ public class RegulatingControlMappingForShuntCompensators {
             .withTerminal(regulatingTerminal)
             .build();
         shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rcId);
+        return true;
     }
 }
