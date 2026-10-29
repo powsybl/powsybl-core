@@ -12,9 +12,9 @@ import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.Comparator.comparing;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -24,6 +24,7 @@ public class NodeMapping {
     private final Map<String, Integer> cgmes2iidm = HashMap.newHashMap(100);
     private final Map<VoltageLevel, Integer> voltageLevelNumNodes = HashMap.newHashMap(100);
     private final Context context;
+    private final Set<String> initializedCn = new HashSet<>();
 
     public NodeMapping(Context context) {
         this.context = context;
@@ -45,14 +46,18 @@ public class NodeMapping {
     }
 
     public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl) {
+        String cn = t.connectivityNode();
         if (isSwitchEnd) {
             // For switches the iidm node is the one from the connectivity node
-            return cgmes2iidm.get(t.connectivityNode());
-        } else if (context.config().createBusbarSectionForEveryConnectivityNode()) {
-            createInternalConnection(t, vl);
+            return cgmes2iidm.get(cn);
+        } else if (context.config().createBusbarSectionForEveryConnectivityNode() && initializedCn.add(cn)) {
+            // Create internal connections by connectivity node and terminal ordering
+            context.terminalMapping().getConnectivityNodeTerminals(cn).stream()
+                    .sorted(comparing(CgmesTerminal::id))
+                    .forEach(cgmesTerminal -> createInternalConnection(cgmesTerminal, vl));
         } else if (!cgmes2iidm.containsKey(t.id())) {
             // Create internal connections but only if too many terminals on connectivity node
-            createInternalConnectionsIfNeeded(t.connectivityNode(), vl);
+            createInternalConnectionsIfNeeded(cn, vl);
         }
 
         return cgmes2iidm.get(t.id());
