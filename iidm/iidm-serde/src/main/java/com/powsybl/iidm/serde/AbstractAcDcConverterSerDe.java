@@ -138,7 +138,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetVdc = context.getReader().readDoubleAttribute("targetVdc");
 
-        // unbounded active power as default value for IIDM version < 1.18 and for converters declaring no limit
+        // unbounded active power as default value for IIDM version < 1.19 and for converters declaring no limit
         double minP = -Double.MAX_VALUE;
         double maxP = Double.MAX_VALUE;
         if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {

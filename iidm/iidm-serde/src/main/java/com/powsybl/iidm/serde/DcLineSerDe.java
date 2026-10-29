@@ -51,8 +51,8 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         writePI(dcTerminal1, context.getWriter());
         writePI(dcTerminal2, context.getWriter());
         // this attribute only names groups, so it is empty whenever there are none to name; the error for
-        // writing limits to a file older than 1.18 is raised on the groups themselves, in writeSubElements
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+        // writing limits to a file older than 1.19 is raised on the groups themselves, in writeSubElements
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
                 writeAllSelectedGroupIds(null, dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered(), context.getWriter()));
     }
 
@@ -63,7 +63,7 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
                 : dcLine.getOperationalLimitsGroups();
         IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(!groupsToWrite.isEmpty(),
                 getRootElementName(), LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
-                IidmVersion.V_1_18, context,
+                IidmVersion.V_1_19, context,
                 () -> writeLimits(context, null, getRootElementName(),
                         dcLine.getSelectedOperationalLimitsGroup().orElse(null), groupsToWrite));
     }
@@ -89,7 +89,7 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
                 .add();
         readPI(dcLine.getDcTerminal1(), context.getReader());
         readPI(dcLine.getDcTerminal2(), context.getReader());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () ->
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
                 readAllSelectedGroupIds(dcLine, dcLine.getId(), context));
         return dcLine;
     }
@@ -103,7 +103,7 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
     protected void readSubElement(final String elementName, final DcLine dcLine, final NetworkDeserializerContext context) {
         if (LIMITS_GROUP.equals(elementName)) {
             IidmSerDeUtil.assertMinimumVersion(getRootElementName(), LIMITS_GROUP,
-                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_18, context);
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
             readLoadingLimitsGroups(dcLine, dcLine.getId(), ThreeSides.ONE, LIMITS_GROUP, context);
         } else {
             super.readSubElement(elementName, dcLine, context);

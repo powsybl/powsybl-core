@@ -32,9 +32,9 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
     protected void writeRootElementAttributes(final DcNode dcNode, final Network parent, final NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute(NOMINAL_V, dcNode.getNominalV());
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(getRootElementName(), LOW_VOLTAGE_LIMIT, dcNode.getLowVoltageLimit(),
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_18, context);
+                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(getRootElementName(), HIGH_VOLTAGE_LIMIT, dcNode.getHighVoltageLimit(),
-                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_18, context);
+                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context);
         context.getWriter().writeDoubleAttribute(V, dcNode.getV());
     }
 
@@ -46,10 +46,10 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
     @Override
     protected DcNode readRootElementAttributes(final DcNodeAdder adder, final Network parent, final NetworkDeserializerContext context) {
         double nominalV = context.getReader().readDoubleAttribute(NOMINAL_V);
-        // undefined voltage limits as default value for IIDM version < 1.18 and for DC nodes declaring no limit
+        // undefined voltage limits as default value for IIDM version < 1.19 and for DC nodes declaring no limit
         double[] lowVoltageLimit = {Double.NaN};
         double[] highVoltageLimit = {Double.NaN};
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () -> {
             lowVoltageLimit[0] = context.getReader().readDoubleAttribute(LOW_VOLTAGE_LIMIT);
             highVoltageLimit[0] = context.getReader().readDoubleAttribute(HIGH_VOLTAGE_LIMIT);
         });

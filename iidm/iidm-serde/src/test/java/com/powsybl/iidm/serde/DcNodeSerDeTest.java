@@ -55,9 +55,9 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
     void testVoltageLimitsNotSupported() {
         Network network = createBaseNetwork();
 
-        // versions 1.15 to 1.17 support the DC node but not its voltage limits, so exporting a DC node that
+        // versions 1.15 to 1.18 support the DC node but not its voltage limits, so exporting a DC node that
         // declares limits must fail rather than silently drop them
-        testForAllPreviousVersions(IidmVersion.V_1_18, version -> {
+        testForAllPreviousVersions(IidmVersion.V_1_19, version -> {
             if (version.compareTo(IidmVersion.V_1_15) < 0) {
                 return;
             }
@@ -65,14 +65,14 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
             Path path = tmpDir.resolve("fail");
             PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
             assertEquals("dcNode.lowVoltageLimit is not defined as default and not supported for IIDM version "
-                    + version.toString(".") + ". IIDM version should be >= 1.18", e.getMessage());
+                    + version.toString(".") + ". IIDM version should be >= 1.19", e.getMessage());
         });
 
         // a DC node declaring no limit is unaffected
         Network noLimits = Network.create("dcNodeTest", "code");
         noLimits.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
         noLimits.newDcNode().setId("dcNode").setNominalV(500.).add();
-        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_17.toString("."));
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_18.toString("."));
         assertDoesNotThrow(() -> NetworkSerDe.write(noLimits, options, tmpDir.resolve("noLimits.xml")));
     }
 

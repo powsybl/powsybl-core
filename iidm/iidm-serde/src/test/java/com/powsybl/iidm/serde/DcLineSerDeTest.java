@@ -58,8 +58,8 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
     void testExportOnlySelectedGroups() {
         Network network = createBaseNetwork();
 
-        // testing only the current version would stop covering 1.18 the day a 1.19 is added
-        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+        // testing only the current version would stop covering 1.19 the day a 1.20 is added
+        testForAllVersionsSince(IidmVersion.V_1_19, version -> {
             Network read = assertDoesNotThrow(() -> allFormatsRoundTripTest(network, "/dcLineOnlySelectedGroupsRef.xml", version,
                     new ExportOptions().setOnlySelectedOperationalLimitsGroups(true)));
 
@@ -75,7 +75,7 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         Network network = createBaseNetwork();
         network.getDcLine("dcLineWithSolvedV").addSelectedOperationalLimitsGroups("winter");
 
-        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+        testForAllVersionsSince(IidmVersion.V_1_19, version -> {
             Network read = assertDoesNotThrow(() -> allFormatsRoundTripTest(network, "/dcLineMultipleSelectedGroupsRef.xml", version));
 
             DcLine dcLine = read.getDcLine("dcLineWithSolvedV");
@@ -102,14 +102,14 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
     void testLimitsNotSupported() {
         Network network = createBaseNetwork();
 
-        // versions 1.15 to 1.17 support the DC line but not its operational limits, so exporting a DC line
+        // versions 1.15 to 1.18 support the DC line but not its operational limits, so exporting a DC line
         // that declares limits must fail rather than silently drop them
-        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_17, version -> {
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> {
             ExportOptions options = new ExportOptions().setVersion(version.toString("."));
             Path path = tmpDir.resolve("fail");
             PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
             assertEquals("dcLine.operationalLimitsGroup is not defined as default and not supported for IIDM version "
-                    + version.toString(".") + ". IIDM version should be >= 1.18", e.getMessage());
+                    + version.toString(".") + ". IIDM version should be >= 1.19", e.getMessage());
         });
     }
 
@@ -121,14 +121,14 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         noLimits.newDcNode().setId("dcNode1").setNominalV(500.).add();
         noLimits.newDcNode().setId("dcNode2").setNominalV(500.).add();
         noLimits.newDcLine().setId("dcLine").setDcNode1("dcNode1").setDcNode2("dcNode2").setR(1.0).add();
-        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_17.toString("."));
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_18.toString("."));
         assertDoesNotThrow(() -> NetworkSerDe.write(noLimits, options, tmpDir.resolve("noLimits.xml")));
 
         // same when exporting only the selected groups and none is selected
         Network network = createBaseNetwork();
         network.getDcLine("dcLineWithSolvedV").cancelSelectedOperationalLimitsGroup();
         ExportOptions selectedOnly = new ExportOptions()
-                .setVersion(IidmVersion.V_1_17.toString("."))
+                .setVersion(IidmVersion.V_1_18.toString("."))
                 .setOnlySelectedOperationalLimitsGroups(true);
         assertDoesNotThrow(() -> NetworkSerDe.write(network, selectedOnly, tmpDir.resolve("noSelected.xml")));
     }

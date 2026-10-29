@@ -1106,7 +1106,7 @@ same load sign convention as `TargetP`.
 
 `MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
 
-`MinP` and `MaxP` are serialized from IIDM version 1.18 onwards, and are omitted from the serialized file when left unset.
+`MinP` and `MaxP` are serialized from IIDM version 1.19 onwards, and are omitted from the serialized file when left unset.
 Exporting a converter with a non-default `MinP` or `MaxP` to an earlier IIDM version raises an error.
 
 **Available extensions**
