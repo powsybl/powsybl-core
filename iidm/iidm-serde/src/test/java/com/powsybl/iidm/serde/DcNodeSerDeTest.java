@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,20 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/dcNodeRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network readNetwork = allFormatsRoundTripTest(network, "/dcNodeRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // the round trip re-exports the original network, not the one read from XML,
+        // so the XML reader is only checked here
+        DcNode withoutLimits = readNetwork.getDcNode("dcNodeWithoutSolvedV");
+        assertTrue(Double.isNaN(withoutLimits.getLowVoltageLimit()));
+        assertTrue(Double.isNaN(withoutLimits.getHighVoltageLimit()));
+        DcNode withBothLimits = readNetwork.getDcNode("dcNodeWithSolvedV");
+        assertEquals(480., withBothLimits.getLowVoltageLimit());
+        assertEquals(520., withBothLimits.getHighVoltageLimit());
+        DcNode negativePole = readNetwork.getDcNode("dcNodeOnNegativePole");
+        assertEquals(-502., negativePole.getV());
+        assertTrue(Double.isNaN(negativePole.getLowVoltageLimit()));
+        assertEquals(520., negativePole.getHighVoltageLimit());
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcNodeRoundTripRef.xml", IidmVersion.V_1_15);
@@ -95,12 +109,12 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
                 .setHighVoltageLimit(520.)
                 .add()
                 .setV(498.);
+        // the limits bound the voltage magnitude, so they are positive on a negative pole too
         network.newDcNode()
-                .setId("dcNodeWithNegativeLimits")
-                .setName("A DC Node with negative voltage limits")
+                .setId("dcNodeOnNegativePole")
+                .setName("A DC Node on a negative pole")
                 .setNominalV(500.)
-                .setLowVoltageLimit(-520.)
-                .setHighVoltageLimit(-480.)
+                .setHighVoltageLimit(520.)
                 .add()
                 .setV(-502.);
         return network;

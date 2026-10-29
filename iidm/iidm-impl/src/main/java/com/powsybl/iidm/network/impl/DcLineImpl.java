@@ -104,6 +104,18 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
         return this;
     }
 
+    @Override
+    public double getPermanentCurrentLimit() {
+        // TODO not implemented yet
+        return Double.NaN;
+    }
+
+    @Override
+    public DcLine setPermanentCurrentLimit(double permanentCurrentLimit) {
+        // TODO not implemented yet
+        return this;
+    }
+
     // A removed DcLine's limits cannot be accessed, like r above and like DcNodeImpl does for its voltage limits.
     private void checkAccess() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, LIMITS_ATTRIBUTE);

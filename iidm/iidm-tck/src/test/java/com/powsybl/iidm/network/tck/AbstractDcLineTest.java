@@ -120,96 +120,80 @@ public abstract class AbstractDcLineTest {
     }
 
     @Test
-    public void testCurrentLimits() {
-        DcLine dcLine = createDcLine("dcLine");
+    public void testPermanentCurrentLimit() {
+        DcLine noLimit = createDcLine("noLimit");
+        assertTrue(Double.isNaN(noLimit.getPermanentCurrentLimit()));
 
-        assertTrue(dcLine.getOperationalLimitsGroups().isEmpty());
-        assertTrue(dcLine.getSelectedOperationalLimitsGroupId().isEmpty());
-        assertTrue(dcLine.getSelectedOperationalLimitsGroup().isEmpty());
-        assertTrue(dcLine.getCurrentLimits().isEmpty());
-        assertNull(dcLine.getNullableCurrentLimits());
-
-        OperationalLimitsGroup group = dcLine.newOperationalLimitsGroup("summer");
-        group.newCurrentLimits()
-                .setPermanentLimit(2106.0)
-                .beginTemporaryLimit()
-                .setName("20'")
-                .setAcceptableDuration(20 * 60)
-                .setValue(2350.0)
-                .endTemporaryLimit()
+        DcLine dcLine = network.newDcLine()
+                .setId("dcLine")
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setR(1.1)
+                .setPermanentCurrentLimit(2106.)
                 .add();
-        dcLine.setSelectedOperationalLimitsGroup("summer");
+        assertEquals(2106., dcLine.getPermanentCurrentLimit());
 
-        assertEquals(1, dcLine.getOperationalLimitsGroups().size());
-        assertEquals("summer", dcLine.getSelectedOperationalLimitsGroupId().orElseThrow());
-        assertSame(group, dcLine.getSelectedOperationalLimitsGroup().orElseThrow());
-        assertSame(group, dcLine.getOperationalLimitsGroup("summer").orElseThrow());
-        assertTrue(dcLine.getOperationalLimitsGroup("winter").isEmpty());
+        assertSame(dcLine, dcLine.setPermanentCurrentLimit(2400.));
+        assertEquals(2400., dcLine.getPermanentCurrentLimit());
 
-        CurrentLimits limits = dcLine.getCurrentLimits().orElseThrow();
-        assertEquals(2106.0, limits.getPermanentLimit());
-        assertEquals(2350.0, limits.getTemporaryLimitValue(20 * 60));
-        assertSame(limits, dcLine.getNullableCurrentLimits());
+        // zero is not negative
+        dcLine.setPermanentCurrentLimit(0.);
+        assertEquals(0., dcLine.getPermanentCurrentLimit());
 
-        assertTrue(dcLine.getActivePowerLimits().isEmpty());
-        assertTrue(dcLine.getApparentPowerLimits().isEmpty());
-
-        dcLine.cancelSelectedOperationalLimitsGroup();
-        assertTrue(dcLine.getSelectedOperationalLimitsGroup().isEmpty());
-        assertTrue(dcLine.getCurrentLimits().isEmpty());
-        assertEquals(1, dcLine.getOperationalLimitsGroups().size());
-
-        dcLine.removeOperationalLimitsGroup("summer");
-        assertTrue(dcLine.getOperationalLimitsGroups().isEmpty());
+        dcLine.setPermanentCurrentLimit(Double.NaN);
+        assertTrue(Double.isNaN(dcLine.getPermanentCurrentLimit()));
     }
 
     @Test
-    public void testOnlyCurrentLimitsAreAccepted() {
+    public void testPermanentCurrentLimitError() {
+        DcLineAdder adder = network.newDcLine()
+                .setId("negativeLimit")
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setR(1.1)
+                .setPermanentCurrentLimit(-1.);
+        ValidationException e1 = assertThrows(ValidationException.class, adder::add);
+        assertTrue(e1.getMessage().startsWith("DC Line 'negativeLimit': "), e1.getMessage());
+        assertNull(network.getDcLine("negativeLimit"));
+
         DcLine dcLine = createDcLine("dcLine");
-        OperationalLimitsGroup group = dcLine.newOperationalLimitsGroup("summer");
+        dcLine.setPermanentCurrentLimit(2106.);
+        ValidationException e2 = assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(-2106.));
+        assertTrue(e2.getMessage().startsWith("DC Line 'dcLine': "), e2.getMessage());
 
-        ValidationException e1 = assertThrows(ValidationException.class, group::newActivePowerLimits);
-        assertEquals("DC Line 'dcLine': active power limits are not supported: the two DC terminals carry different active power",
-                e1.getMessage());
-        ValidationException e2 = assertThrows(ValidationException.class, group::newApparentPowerLimits);
-        assertEquals("DC Line 'dcLine': apparent power limits are not supported: a DC line carries no reactive power",
-                e2.getMessage());
-
-        assertDoesNotThrow(() -> group.newCurrentLimits().setPermanentLimit(2106.0).add());
-        assertEquals(2106.0, group.getCurrentLimits().orElseThrow().getPermanentLimit());
-
-        // the deprecated adders refuse before creating the group they would have used
-        DcLine bare = createDcLine("bareDcLine");
-        assertThrows(ValidationException.class, bare::newActivePowerLimits);
-        assertThrows(ValidationException.class, bare::newApparentPowerLimits);
-        assertTrue(bare.getOperationalLimitsGroups().isEmpty());
+        // a rejected value leaves the DC line unchanged
+        assertEquals(2106., dcLine.getPermanentCurrentLimit());
     }
 
     @Test
-    public void testMultipleLimitsGroups() {
+    public void testCurrentOutsideLimitIsAccepted() {
         DcLine dcLine = createDcLine("dcLine");
+        dcLine.setPermanentCurrentLimit(2000.);
 
-        dcLine.newOperationalLimitsGroup("summer").newCurrentLimits().setPermanentLimit(2106.0).add();
-        dcLine.newOperationalLimitsGroup("winter").newCurrentLimits().setPermanentLimit(2400.0).add();
-        assertEquals(2, dcLine.getOperationalLimitsGroups().size());
+        // currents violating the limit in magnitude, on either side and with either sign: none is rejected
+        dcLine.getDcTerminal1().setI(2500.);
+        dcLine.getDcTerminal2().setI(-2500.);
+        assertEquals(2500., dcLine.getDcTerminal1().getI());
+        assertEquals(-2500., dcLine.getDcTerminal2().getI());
+        assertEquals(2000., dcLine.getPermanentCurrentLimit());
+    }
 
-        dcLine.addSelectedOperationalLimitsGroups("summer", "winter");
-        assertEquals(2, dcLine.getAllSelectedOperationalLimitsGroups().size());
-        assertEquals(2, dcLine.getAllSelectedOperationalLimitsGroupIds().size());
-        assertEquals(List.of("summer", "winter"), dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
-        assertEquals(2, dcLine.getAllSelectedCurrentLimits().size());
+    @Test
+    public void testPermanentCurrentLimitNotifyUpdate() {
+        DcLine dcLine = createDcLine("dcLine");
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
+        network.addListener(mockedListener);
 
-        dcLine.deselectOperationalLimitsGroups("winter");
-        assertEquals(List.of("summer"), dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
-        assertEquals(2106.0, dcLine.getCurrentLimits().orElseThrow().getPermanentLimit());
+        dcLine.setPermanentCurrentLimit(2106.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(dcLine, "permanentCurrentLimit", null, Double.NaN, 2106.);
+        dcLine.setPermanentCurrentLimit(2400.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(dcLine, "permanentCurrentLimit", null, 2106., 2400.);
 
-        // setSelected replaces the whole selection, addSelected extends it
-        dcLine.setSelectedOperationalLimitsGroup("winter");
-        assertEquals(List.of("winter"), dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
-        assertEquals(2400.0, dcLine.getCurrentLimits().orElseThrow().getPermanentLimit());
-
-        OperationalLimitsGroup created = dcLine.getOrCreateSelectedOperationalLimitsGroup();
-        assertSame(created, dcLine.getSelectedOperationalLimitsGroup().orElseThrow());
+        // a rejected value is not notified
+        assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(-1.));
+        Mockito.verifyNoMoreInteractions(mockedListener);
     }
 
     @Test
@@ -277,17 +261,11 @@ public abstract class AbstractDcLineTest {
         PowsyblException e6 = assertThrows(PowsyblException.class, () -> t2.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class)));
         assertEquals("Associated equipment dcLine1 is removed", e6.getMessage());
 
-        PowsyblException e7 = assertThrows(PowsyblException.class, dcLine1::getOperationalLimitsGroups);
-        assertEquals("Cannot access limits of removed equipment dcLine1", e7.getMessage());
+        PowsyblException e7 = assertThrows(PowsyblException.class, dcLine1::getPermanentCurrentLimit);
+        assertEquals("Cannot access permanentCurrentLimit of removed equipment dcLine1", e7.getMessage());
 
-        PowsyblException e8 = assertThrows(PowsyblException.class, dcLine1::getCurrentLimits);
-        assertEquals("Cannot access limits of removed equipment dcLine1", e8.getMessage());
-
-        PowsyblException e9 = assertThrows(PowsyblException.class, () -> dcLine1.newOperationalLimitsGroup("summer"));
-        assertEquals("Cannot modify limits of removed equipment dcLine1", e9.getMessage());
-
-        PowsyblException e10 = assertThrows(PowsyblException.class, () -> dcLine1.setSelectedOperationalLimitsGroup("summer"));
-        assertEquals("Cannot modify limits of removed equipment dcLine1", e10.getMessage());
+        PowsyblException e8 = assertThrows(PowsyblException.class, () -> dcLine1.setPermanentCurrentLimit(2106.));
+        assertEquals("Cannot modify permanentCurrentLimit of removed equipment dcLine1", e8.getMessage());
     }
 
     @Test

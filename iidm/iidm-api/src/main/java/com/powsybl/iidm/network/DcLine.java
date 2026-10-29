@@ -113,4 +113,19 @@ public interface DcLine extends DcConnectable<DcLine>, FlowsLimitsHolder {
      * @return self for method chaining
      */
     DcLine setR(double r);
+
+    /**
+     * Get the permanent current limit in A. The limit bounds the current magnitude at either DC Terminal.
+     *
+     * @return the permanent current limit or NaN if undefined
+     */
+    double getPermanentCurrentLimit();
+
+    /**
+     * Set the permanent current limit in A. The limit must be positive or NaN (undefined).
+     *
+     * @param permanentCurrentLimit new permanent current limit in A
+     * @return self for method chaining
+     */
+    DcLine setPermanentCurrentLimit(double permanentCurrentLimit);
 }

@@ -63,6 +63,12 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
     }
 
     @Override
+    public DcLineAdder setPermanentCurrentLimit(double permanentCurrentLimit) {
+        // TODO not implemented yet
+        return this;
+    }
+
+    @Override
     public DcLine add() {
         String id = checkAndGetUniqueId();
         DcNode dcNode1 = ValidationUtil.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1");
