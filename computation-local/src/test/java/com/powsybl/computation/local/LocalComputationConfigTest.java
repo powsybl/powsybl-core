@@ -114,7 +114,7 @@ class LocalComputationConfigTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringListProperty("tmp-dir", Arrays.asList("/first", "/second"));
         ConfigurationException e = assertThrows(ConfigurationException.class, () -> LocalComputationConfig.load(platformConfig, fileSystem));
-        assertEquals("None of the tmp dir path of the list exist: " + Arrays.asList(fileSystem.getPath("/first"), fileSystem.getPath("/second")), e.getMessage());
+        assertEquals("None of the tmp dir path of the list defined at the configuration property 'computation-local.tmp-dir' exists", e.getMessage());
     }
 
     @Test
