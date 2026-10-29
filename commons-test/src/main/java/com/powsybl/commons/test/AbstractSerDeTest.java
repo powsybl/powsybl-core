@@ -83,8 +83,8 @@ public abstract class AbstractSerDeTest {
      * Write the given data with given write function, and compare the resulting XML file to given reference.
      * @return the path of written file.
      */
-    protected <T> Path writeXmlTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
-        return writeTest(data, write, ComparisonUtils::assertXmlEquals, ref);
+    protected <T> Path writeTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
+        return writeTest(data, write, ComparisonUtils::assertTxtEquals, ref);
     }
 
     /**

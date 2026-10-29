@@ -60,7 +60,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/network-node-breaker-with-new-load-bbs4.xml");
+        writeTest(network, "/network-node-breaker-with-new-load-bbs4.xml");
 
     }
 
@@ -80,7 +80,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/eurostag-create-load-feeder-bay.xml");
+        writeTest(network, "/eurostag-create-load-feeder-bay.xml");
     }
 
     @Test
@@ -216,7 +216,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/network-node-breaker-with-new-generator-bbs1.xml");
+        writeTest(network, "/network-node-breaker-with-new-generator-bbs1.xml");
     }
 
     @Test
@@ -339,7 +339,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         addVscConverterStationModification.apply(network);
-        writeXmlTest(network, "/network-node-breaker-with-new-equipments-bbs1.xml");
+        writeTest(network, "/network-node-breaker-with-new-equipments-bbs1.xml");
     }
 
     @Test

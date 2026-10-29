@@ -225,7 +225,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     protected void testWriteVersionedXml(Network network, ExportOptions exportOptions, String filename,
                                                    IidmVersion... versions) throws IOException {
         for (IidmVersion version : versions) {
-            writeXmlTest(network,
+            writeTest(network,
                     (n, p) -> NetworkSerDe.write(n, exportOptions.setVersion(version.toString(".")), p),
                     getVersionedNetworkPath(filename, version));
         }

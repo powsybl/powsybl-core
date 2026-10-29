@@ -81,9 +81,7 @@
                     <iidm:point p="80.0" minQ="-53.514" maxQ="36.4"/>
                 </iidm:reactiveCapabilityCurve>
             </iidm:generator>
-            <iidm:generator id="CD" energySource="HYDRO" minP="0.0" maxP="35.0"
-                            targetP="21.789589" localTargetV="236.44736" localTargetQ="-20.701546" node="16" p="-21.789589"
-                            q="20.693394">
+            <iidm:generator id="CD" energySource="HYDRO" minP="0.0" maxP="35.0" targetP="21.789589" localTargetV="236.44736" localTargetQ="-20.701546" node="16" p="-21.789589" q="20.693394">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-20.6" maxQ="18.1"/>
                     <iidm:point p="35.0" minQ="-21.725" maxQ="6.3500004"/>

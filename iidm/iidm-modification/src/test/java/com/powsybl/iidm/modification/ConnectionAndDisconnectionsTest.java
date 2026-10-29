@@ -321,7 +321,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withIdentifiableId("L1")
             .build();
         modification.apply(network);
-        writeXmlTest(network, "/network-planned-disconnection.xiidm");
+        writeTest(network, "/network-planned-disconnection.xiidm");
     }
 
     @Test
@@ -339,7 +339,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network, reportNode);
-        writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
+        writeTest(network, "/network-disconnection-with-fictitious.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-disconnected-planned.txt");
     }
 
@@ -361,7 +361,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reportNode);
-        writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
+        writeTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
 
         // Network modification
         PlannedDisconnection modificationSide1 = new PlannedDisconnectionBuilder()
@@ -370,7 +370,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withSide(ThreeSides.ONE)
             .build();
         modificationSide1.apply(network, reportNode);
-        writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
+        writeTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-disconnected-planned.txt");
     }
 
@@ -389,7 +389,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network, reportNode);
-        writeXmlTest(network, "/network-disconnection-with-fictitious.xiidm");
+        writeTest(network, "/network-disconnection-with-fictitious.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-disconnected-unplanned.txt");
     }
 
@@ -408,7 +408,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reportNode);
-        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+        writeTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
 
         // Network modification
         UnplannedDisconnection modificationSide1 = new UnplannedDisconnectionBuilder()
@@ -417,7 +417,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withSide(ThreeSides.ONE)
             .build();
         modificationSide1.apply(network, reportNode);
-        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+        writeTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-disconnected-unplanned.txt");
     }
 
@@ -437,7 +437,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withOnlyBreakersOperable(false)
             .build();
         modification.apply(network, reportNode);
-        writeXmlTest(network, "/network-connectable-connection.xiidm");
+        writeTest(network, "/network-connectable-connection.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-connected.txt");
     }
 
@@ -457,7 +457,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withOnlyBreakersOperable(true)
             .build();
         modification.apply(network, reportNode);
-        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+        writeTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
 
         // Connection on one side
         ConnectableConnection modificationSide1 = new ConnectableConnectionBuilder()
@@ -467,7 +467,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withSide(ThreeSides.ONE)
             .build();
         modificationSide1.apply(network, reportNode);
-        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+        writeTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-connected.txt");
     }
 
