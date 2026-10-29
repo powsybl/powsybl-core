@@ -116,7 +116,7 @@
         <gdata.version>1.47.1_1</gdata.version>
         <!-- groovy can be updated to v5 -->
         <groovy.version>4.0.32</groovy.version>
-        <guava.version>33.7.1-jre</guava.version>
+        <guava.version>33.7.2-jre</guava.version>
         <!-- jackson-core can be updated to v3 -->
         <jackson.version>2.21.7</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
