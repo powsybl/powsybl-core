@@ -16,7 +16,6 @@ import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.*;
-import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -650,13 +649,11 @@ public class Conversion {
     }
 
     private void addCimCharacteristics(Network network) {
-        if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
-            boolean isNodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
-            network.newExtension(CimCharacteristicsAdder.class)
-                    .setTopologyKind(isNodeBreaker ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
-                    .setCimVersion(cgmesModelTripleStore.getCimVersion())
-                    .add();
-        }
+        boolean isNodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
+        network.newExtension(CimCharacteristicsAdder.class)
+                .setTopologyKind(isNodeBreaker ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                .setCimVersion(cgmes.getCimVersion())
+                .add();
     }
 
     private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
