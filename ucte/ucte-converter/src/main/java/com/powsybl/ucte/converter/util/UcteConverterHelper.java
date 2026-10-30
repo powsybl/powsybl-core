@@ -7,6 +7,7 @@
  */
 package com.powsybl.ucte.converter.util;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.network.UcteAngleRegulation;
@@ -142,6 +143,53 @@ public final class UcteConverterHelper {
     }
 
     /**
+     * Select the voltage reference of a node. A UCTE-DEF node has a single voltage reference, so when several
+     * generators are connected to the bus, the target voltage of one of them has to be selected.
+     * <p>
+     * Each generator provides at most one candidate target, in one of the following cases:
+     * <ul>
+     *     <li><i>local</i>: a voltage-regulating generator provides its local target voltage ({@code localTargetV}) if
+     *     defined; otherwise the target value of its voltage regulation, if its regulating terminal is on the exported
+     *     bus;</li>
+     *     <li><i>remote</i>: a voltage-regulating generator whose regulating terminal is on another bus provides the
+     *     target value of its voltage regulation, rescaled to the nominal voltage of the exported bus:
+     *     {@code targetValue * localNominalV / remoteNominalV};</li>
+     *     <li><i>non-regulating</i>: a generator that does not regulate voltage provides its local target voltage, if
+     *     defined. This keeps the voltage reference of a PQ node imported from a UCTE-DEF file.</li>
+     * </ul>
+     * <p>
+     * The candidates of the first non-empty case are considered, in this order: local, remote, non-regulating. Among
+     * them, the one of the generator with the largest target active power is kept, ties being broken by the smallest
+     * generator id.
+     *
+     * @param bus the bus to scan for the voltage reference
+     * @param reportNode report node where warning messages are issued in case of unexpected state in the network
+     *
+     * @return the voltage reference, or NaN if there is no candidate
+     */
+    public static double selectVoltageReference(Bus bus, ReportNode reportNode) {
+        List<VoltageCandidate> candidates = getVoltageCandidatesByRelevance(bus);
+        if (candidates.isEmpty()) {
+            if (bus.getGeneratorStream()
+                   .anyMatch(generator -> generator.isRegulatingWithMode(RegulationMode.VOLTAGE))) {
+                UcteExporterReports.voltageTargetMissing(reportNode, bus.getId());
+            }
+            return Double.NaN;
+        }
+        VoltageCandidate kept = candidates.getFirst();
+        if (candidates.stream().anyMatch(candidate -> Double.compare(candidate.value(), kept.value()) != 0)) {
+            UcteExporterReports.voltageTargetConflict(reportNode, bus.getId(), kept.generator().getId(), kept.value());
+        }
+        if (kept.remoteBus() != null &&
+                Double.compare(bus.getVoltageLevel().getNominalV(), kept.remoteBus().getVoltageLevel().getNominalV()) !=
+                        0) {
+            UcteExporterReports.remoteVoltageTargetRescaled(reportNode, bus.getId(), kept.generator().getId(),
+                    kept.remoteBus().getId(), kept.remoteTargetV(), kept.value());
+        }
+        return kept.value();
+    }
+
+    /**
      * Classify the generators connected to the provided {@code bus} into categories of {@link VoltageCandidate},
      * depending on the way they regulate voltage, and return the candidates of the highest priority category that is
      * not empty:
@@ -166,7 +214,7 @@ public final class UcteConverterHelper {
      * @param bus a Bus
      * @return the candidates of the highest priority non-empty category, or an empty {@code List} if there is none
      */
-    public static List<VoltageCandidate> getVoltageCandidatesByRelevance(Bus bus) {
+    static List<VoltageCandidate> getVoltageCandidatesByRelevance(Bus bus) {
         List<VoltageCandidate> local = new ArrayList<>();
         List<VoltageCandidate> remote = new ArrayList<>();
         List<VoltageCandidate> nonRegulating = new ArrayList<>();
