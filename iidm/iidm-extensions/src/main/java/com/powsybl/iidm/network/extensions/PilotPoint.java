@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.extensions;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -17,10 +18,30 @@ public interface PilotPoint {
     record TargetVoltageEvent(String controlZoneName, double value) {
     }
 
+    record ActiveBusOrBusbarSectionEvent(String controlZoneName, String id) {
+    }
+
     /**
-     * Get pilot point busbar section ID or bus ID of the bus/breaker view.
+     * Get pilot point bus IDs of the bus/breaker view.
      */
-    List<String> getBusbarSectionsOrBusesIds();
+    List<String> getBusIds();
+
+    /**
+     * Get pilot point busbar section IDs.
+     */
+    List<String> getBusbarSectionIds();
+
+    /**
+     * Get the ID of the bus or busbar section of the pilot point which is currently active, if defined.
+     * This value is variant dependent.
+     */
+    Optional<String> getActiveBusOrBusbarSectionId();
+
+    /**
+     * Set the ID of the bus or busbar section of the pilot point which is currently active. It has to be one of the
+     * pilot point bus IDs or busbar section IDs, or {@code null} to unset it. This value is variant dependent.
+     */
+    void setActiveBusOrBusbarSectionId(String activeBusOrBusbarSectionId);
 
     double getTargetV();
 

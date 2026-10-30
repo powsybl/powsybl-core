@@ -247,7 +247,7 @@ public abstract class AbstractMergeNetworkTest {
                 .newControlZone()
                     .withName("z1")
                     .newPilotPoint()
-                        .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+                        .withBusIds(List.of("NLOAD"))
                         .withTargetV(15d)
                     .add()
                     .newControlUnit()
