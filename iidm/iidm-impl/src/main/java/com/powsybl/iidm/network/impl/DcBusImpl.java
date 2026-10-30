@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
+ * Copyright (c) 2025-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -60,6 +60,17 @@ public class DcBusImpl extends AbstractDcTopologyVisitable<DcBus> implements DcB
         }
     }
 
+    int getQuickConnectedComponentNumber() {
+        checkValidity();
+        for (DcNodeImpl dcNode : dcNodes) {
+            int index = dcNode.getQuickConnectedComponentNumber();
+            if (index >= 0) {
+                return index;
+            }
+        }
+        throw new IllegalStateException("Should not happen");
+    }
+
     void setDcComponentNumber(int dcComponentNumber) {
         checkValidity();
         for (DcNodeImpl dcNode : dcNodes) {
@@ -67,34 +78,30 @@ public class DcBusImpl extends AbstractDcTopologyVisitable<DcBus> implements DcB
         }
     }
 
-    @Override
-    public Component getConnectedComponent() {
+    int getQuickDcConnectedComponentNumber() {
         checkValidity();
         for (DcNodeImpl dcNode : dcNodes) {
-            Component cc = dcNode.getConnectedComponent();
-            if (cc != null) {
-                return cc;
+            int index = dcNode.getQuickDcConnectedComponentNumber();
+            if (index >= 0) {
+                return index;
             }
         }
         throw new IllegalStateException("Should not happen");
+    }
+
+    @Override
+    public Component getConnectedComponent() {
+        return networkRef.get().getConnectedComponentsManager().getComponent(this);
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        var cc = getConnectedComponent();
-        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
+        return networkRef.get().getConnectedComponentsManager().isInMainComponent(this);
     }
 
     @Override
     public Component getDcComponent() {
-        checkValidity();
-        for (DcNodeImpl dcNode : dcNodes) {
-            Component dcc = dcNode.getDcComponent();
-            if (dcc != null) {
-                return dcc;
-            }
-        }
-        throw new IllegalStateException("Should not happen");
+        return networkRef.get().getDcComponentsManager().getComponent(this);
     }
 
     @Override

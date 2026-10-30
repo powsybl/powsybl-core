@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -39,14 +39,12 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     @Override
     public boolean isInMainConnectedComponent() {
-        Optional<ConfiguredBus> bus = buses.stream().findFirst();
-        return bus.isPresent() && bus.get().isInMainConnectedComponent();
+        return getNetwork().getConnectedComponentsManager().isInMainComponent(this);
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        Optional<ConfiguredBus> bus = buses.stream().findFirst();
-        return bus.isPresent() && bus.get().isInMainSynchronousComponent();
+        return getNetwork().getSynchronousComponentsManager().isInMainComponent(this);
     }
 
     @Override
@@ -184,15 +182,20 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Component getConnectedComponent() {
+    public int getQuickConnectedComponentNumber() {
         checkValidity();
-        for (Bus b : buses) {
-            Component cc = b.getConnectedComponent();
-            if (cc != null) {
-                return cc;
+        for (ConfiguredBus b : buses) {
+            int index = b.getQuickConnectedComponentNumber();
+            if (index >= 0) {
+                return index;
             }
         }
         throw new IllegalStateException("Should not happen");
+    }
+
+    @Override
+    public Component getConnectedComponent() {
+        return getNetwork().getConnectedComponentsManager().getComponent(this);
     }
 
     @Override
@@ -204,15 +207,20 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Component getSynchronousComponent() {
+    public int getQuickSynchronousComponentNumber() {
         checkValidity();
-        for (Bus b : buses) {
-            Component sc = b.getSynchronousComponent();
-            if (sc != null) {
-                return sc;
+        for (ConfiguredBus b : buses) {
+            int index = b.getQuickSynchronousComponentNumber();
+            if (index >= 0) {
+                return index;
             }
         }
         throw new IllegalStateException("Should not happen");
+    }
+
+    @Override
+    public Component getSynchronousComponent() {
+        return getNetwork().getSynchronousComponentsManager().getComponent(this);
     }
 
     @Override

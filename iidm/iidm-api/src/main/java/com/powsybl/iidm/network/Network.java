@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.math.graph.GraphConnectivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -542,6 +543,8 @@ public interface Network extends Container<Network> {
      * @see VariantManager
      */
     Collection<Component> getDcComponents();
+
+    void setGraphConnectivity(ComponentType componentType, GraphConnectivity<Identifiable<?>, Identifiable<?>> connectivity);
 
     /**
      * Create an empty network using default implementation.
