@@ -7,15 +7,21 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -27,7 +33,12 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/dcLineRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network readNetwork = allFormatsRoundTripTest(network, "/dcLineRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // the round trip re-exports the original network, not the one read from XML,
+        // so the XML reader is only checked here
+        assertTrue(Double.isNaN(readNetwork.getDcLine("dcLineWithoutSolvedV").getPermanentCurrentLimit()));
+        assertEquals(2106., readNetwork.getDcLine("dcLineWithSolvedV").getPermanentCurrentLimit());
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcLineRoundTripRef.xml", IidmVersion.V_1_15);
@@ -43,6 +54,24 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
         testWriteVersionedXml(network, options, "dcLineNotSupported.xml", IidmVersion.V_1_14);
+    }
+
+    @Test
+    void testPermanentCurrentLimitNotSupported() {
+        Network network = createBaseNetwork();
+
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
+            assertEquals("dcLine.permanentCurrentLimit is not defined as default and not supported for IIDM version "
+                    + version.toString(".") + ". IIDM version should be >= 1.19", e.getMessage());
+        });
+
+        // a DC line declaring no limit is unaffected
+        network.getDcLine("dcLineWithSolvedV").setPermanentCurrentLimit(Double.NaN);
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_18.toString("."));
+        assertDoesNotThrow(() -> NetworkSerDe.write(network, options, tmpDir.resolve("noLimit.xml")));
     }
 
     private static Network createBaseNetwork() {
@@ -76,6 +105,7 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
                 .setDcNode2(dcNode2.getId())
                 .setConnected2(true)
                 .setR(4.0)
+                .setPermanentCurrentLimit(2106.)
                 .add();
         dcLine2.getDcTerminal1().setP(100.).setI(200.);
         dcLine2.getDcTerminal2().setP(-98.).setI(-195.);

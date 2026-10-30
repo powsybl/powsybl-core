@@ -535,6 +535,25 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkDcVoltageLimits(Validable validable, double lowVoltageLimit, double highVoltageLimit) {
+        if (lowVoltageLimit < 0) {
+            throw new ValidationException(validable, "low voltage limit is < 0");
+        }
+        if (highVoltageLimit <= 0) {
+            throw new ValidationException(validable, "high voltage limit is <= 0");
+        }
+        if (lowVoltageLimit >= highVoltageLimit) {
+            throw new ValidationException(validable, "Inconsistent voltage limit range ["
+                    + lowVoltageLimit + ", " + highVoltageLimit + "]");
+        }
+    }
+
+    public static void checkPermanentCurrentLimit(Validable validable, double permanentCurrentLimit) {
+        if (permanentCurrentLimit <= 0) {
+            throw new ValidationException(validable, "permanent current limit is <= 0");
+        }
+    }
+
     public static void checkTopologyKind(Validable validable, TopologyKind topologyKind) {
         if (topologyKind == null) {
             throw new ValidationException(validable, "topology kind is invalid");

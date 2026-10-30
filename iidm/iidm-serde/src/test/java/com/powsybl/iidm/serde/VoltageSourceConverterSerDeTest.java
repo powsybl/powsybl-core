@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -26,31 +26,43 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testMaxPNotSupported() {
-        Network network = createNetworkWithNonDefaultMaxP();
-        Path filename = tmpDir.resolve("fail");
-        assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, filename));
-    }
-
-    @Test
-    void testMaxPWithForceExport() {
-        Network network = createNetworkWithNonDefaultMaxP();
-        Path filename = tmpDir.resolve("vsc-maxP-force-export");
-        assertDoesNotThrow(() -> NetworkSerDe.write(network, new ExportOptions().setForceExportNetworkWithBetaFeatures(true), filename));
-    }
-
-    @Test
     void testNetworkVoltageSourceConverter() throws IOException {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/voltageSourceConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network readNetwork = allFormatsRoundTripTest(network, "/voltageSourceConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // active power limits survive the round trip, and are left unbounded where they were not set
+        VoltageSourceConverter vscWithoutLimits = readNetwork.getVoltageSourceConverter("vscBb1ACWithoutSolvedV");
+        assertEquals(-Double.MAX_VALUE, vscWithoutLimits.getMinP());
+        assertEquals(Double.MAX_VALUE, vscWithoutLimits.getMaxP());
+        VoltageSourceConverter vscWithMaxPOnly = readNetwork.getVoltageSourceConverter("vscBb2ACWithSolvedV");
+        assertEquals(-Double.MAX_VALUE, vscWithMaxPOnly.getMinP());
+        assertEquals(400., vscWithMaxPOnly.getMaxP());
+        VoltageSourceConverter vscWithMinPOnly = readNetwork.getVoltageSourceConverter("vscNb2ACWithPartiallySolvedV");
+        assertEquals(-380., vscWithMinPOnly.getMinP());
+        assertEquals(Double.MAX_VALUE, vscWithMinPOnly.getMaxP());
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/voltageSourceConverterRoundTripRef.xml", IidmVersion.V_1_15);
 
         // Note: we do not test here failing for all versions < 1.15: VoltageSourceConverter cannot exist without DcNode,
         // hence the DcNode SerDe test is sufficient.
+    }
+
+    @Test
+    void testMaxPNotSupportedBeforeIidm119() {
+        Network network = createBaseNetwork(); // contains a VoltageSourceConverter with maxP = 400.
+
+        // minP and maxP are only supported from IIDM 1.19; versions 1.15 to 1.18 support VoltageSourceConverter
+        // but not its active power limits. An Exception should be thrown when they are set in this case.
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
+            assertEquals("voltageSourceConverter.maxP is not defined as default and not supported for IIDM version "
+                    + version.toString(".") + ". IIDM version should be >= 1.19", e.getMessage());
+        });
     }
 
     private static Network createBaseNetwork() {
@@ -158,6 +170,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                     .withTargetValue(387.)
                     .add()
                 .setLocalTargetQ(12.3)
+                .setMaxP(400.) // minP left unbounded
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-200.).setMaxQ(+210.).add();
         vsc2.getDcTerminal1().setP(-100.).setI(-200.);
@@ -192,6 +205,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                     .withTerminal(lineNb.getTerminal2())
                     .withTargetValue(397.)
                     .add()
+                .setMinP(-380.) // maxP left unbounded
                 .add();
         vsc3.newReactiveCapabilityCurve()
                 .beginPoint().setP(-200.).setMinQ(-190.).setMaxQ(192.).endPoint()

@@ -52,8 +52,31 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The nominal voltage, always positive</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">LowVoltageLimit</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The low voltage limit</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">HighVoltageLimit</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The high voltage limit</td>
+ *         </tr>
  *     </tbody>
  * </table>
+ *
+ * <p>
+ * The voltage limits bound the magnitude of the voltage returned by {@link #getV()}. The DC Node is within its
+ * limits when {@code LowVoltageLimit <= |V| <= HighVoltageLimit}, an undefined
+ * limit imposing no bound. The low limit must be positive or zero, the high limit strictly positive, and
+ * {@code LowVoltageLimit < HighVoltageLimit}.
+ * </p>
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -74,6 +97,40 @@ public interface DcNode extends Identifiable<DcNode>, DcTopologyVisitable {
      * @return self for method chaining
      */
     DcNode setNominalV(double nominalV);
+
+    /**
+     * Get the low voltage limit in kV. The limit bounds the magnitude of the voltage {@link #getV()}
+     * and is positive, zero or NaN (undefined).
+     *
+     * @return the low voltage limit or NaN if undefined
+     */
+    double getLowVoltageLimit();
+
+    /**
+     * Set the low voltage limit in kV. The limit bounds the magnitude of the voltage {@link #getV()}.
+     * It must be positive, zero or NaN (undefined), and strictly less than highVoltageLimit if they are both defined.
+     *
+     * @param lowVoltageLimit new low voltage limit in kV
+     * @return self for method chaining
+     */
+    DcNode setLowVoltageLimit(double lowVoltageLimit);
+
+    /**
+     * Get the high voltage limit in kV. The limit bounds the magnitude of the voltage {@link #getV()}
+     * and is strictly positive or NaN (undefined).
+     *
+     * @return the high voltage limit or NaN if undefined
+     */
+    double getHighVoltageLimit();
+
+    /**
+     * Set the high voltage limit in kV. The limit bounds the magnitude of the voltage {@link #getV()}.
+     * It must be strictly positive or NaN (undefined), and strictly greater than lowVoltageLimit if they are both defined.
+     *
+     * @param highVoltageLimit new high voltage limit in kV
+     * @return self for method chaining
+     */
+    DcNode setHighVoltageLimit(double highVoltageLimit);
 
     /**
      * Get the voltage of the DC node in kV.

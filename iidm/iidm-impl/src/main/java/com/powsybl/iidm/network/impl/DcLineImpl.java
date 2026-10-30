@@ -22,11 +22,17 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
 
     public static final String R_ATTRIBUTE = "r";
 
+    public static final String PERMANENT_CURRENT_LIMIT_ATTRIBUTE = "permanentCurrentLimit";
+
     private double r;
 
-    DcLineImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double r) {
+    private double permanentCurrentLimit;
+
+    DcLineImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double r,
+               double permanentCurrentLimit) {
         super(ref, subnetworkRef, id, name, fictitious);
         this.r = r;
+        this.permanentCurrentLimit = permanentCurrentLimit;
     }
 
     @Override
@@ -83,6 +89,22 @@ public class DcLineImpl extends AbstractDcConnectable<DcLine> implements DcLine 
         double oldValue = this.r;
         this.r = r;
         getNetwork().getListeners().notifyUpdate(this, R_ATTRIBUTE, oldValue, r);
+        return this;
+    }
+
+    @Override
+    public double getPermanentCurrentLimit() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, PERMANENT_CURRENT_LIMIT_ATTRIBUTE);
+        return this.permanentCurrentLimit;
+    }
+
+    @Override
+    public DcLine setPermanentCurrentLimit(double permanentCurrentLimit) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, PERMANENT_CURRENT_LIMIT_ATTRIBUTE);
+        ValidationUtil.checkPermanentCurrentLimit(this, permanentCurrentLimit);
+        double oldValue = this.permanentCurrentLimit;
+        this.permanentCurrentLimit = permanentCurrentLimit;
+        getNetwork().getListeners().notifyUpdate(this, PERMANENT_CURRENT_LIMIT_ATTRIBUTE, oldValue, permanentCurrentLimit);
         return this;
     }
 }

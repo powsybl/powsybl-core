@@ -934,12 +934,18 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 
 **Characteristics**
 
-| Attribute  | Unit | Description                          |
-|------------|------|--------------------------------------|
-| $NominalV$ | kV   | The nominal voltage, always positive |
+| Attribute          | Unit | Description                          |
+|--------------------|------|--------------------------------------|
+| $NominalV$         | kV   | The nominal voltage, always positive |
+| $LowVoltageLimit$  | kV   | The low voltage limit                |
+| $HighVoltageLimit$ | kV   | The high voltage limit               |
 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
+
+The optional voltage limits bound the magnitude of the voltage, whatever the polarity of the DC node: a DC node is within its
+limits when $LowVoltageLimit \le |V| \le HighVoltageLimit$, an undefined limit imposing no bound. $LowVoltageLimit$ must be positive or zero, $HighVoltageLimit$ must be strictly positive, and $LowVoltageLimit$ must be strictly less than
+$HighVoltageLimit$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -954,13 +960,16 @@ A DC Line has two DC Terminals.
 
 **Characteristics**
 
-| Attribute | Unit     | Description                            |
-|-----------|----------|----------------------------------------|
-| $R$       | $\Omega$ | The series resistance, always positive |
+| Attribute               | Unit     | Description                            |
+|-------------------------|----------|----------------------------------------|
+| $R$                     | $\Omega$ | The series resistance, always positive |
+| $PermanentCurrentLimit$ | A        | The permanent current limit            |
 
 **Specifications**
 
 The $R$ value can't be negative, because this is a detailed model, it is a direct physical representation, not an equivalent model.
+
+The optional $PermanentCurrentLimit$ value must be strictly positive. A DC Line is within its limit when $|I| \le PermanentCurrentLimit$.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -1092,7 +1101,8 @@ same load sign convention as `TargetP`.
 
 `MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
 
-`MinP` and `MaxP` are not serializable as of today. Trying to serialize AC-DC converters with non-default values of `MinP` or `MaxP` will raise an error.
+`MinP` and `MaxP` are serialized from IIDM version 1.19 onwards, and are omitted from the serialized file when left unset.
+Exporting a converter with a non-default `MinP` or `MaxP` to an earlier IIDM version raises an error.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)

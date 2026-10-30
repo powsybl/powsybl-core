@@ -52,8 +52,22 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black"> 0 </td>
  *             <td style="border: 1px solid black">DC Line series resistance</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">PermanentCurrentLimit</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">A</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The permanent current limit</td>
+ *         </tr>
  *     </tbody>
  * </table>
+ *
+ * <p>
+ * The permanent current limit bounds the magnitude of the current at either DC Terminal: the DC Line is within its
+ * limit when {@code |I| <= PermanentCurrentLimit}. A DC Line has no shunt admittance, so the current magnitude is the
+ * same at both DC Terminals and a single limit covers the whole line. A current outside the limit is not rejected.
+ * </p>
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -96,4 +110,19 @@ public interface DcLine extends DcConnectable<DcLine> {
      * @return self for method chaining
      */
     DcLine setR(double r);
+
+    /**
+     * Get the permanent current limit in A. The limit bounds the current magnitude at either DC Terminal.
+     *
+     * @return the permanent current limit or NaN if undefined
+     */
+    double getPermanentCurrentLimit();
+
+    /**
+     * Set the permanent current limit in A. The limit must be strictly positive or NaN (undefined).
+     *
+     * @param permanentCurrentLimit new permanent current limit in A
+     * @return self for method chaining
+     */
+    DcLine setPermanentCurrentLimit(double permanentCurrentLimit);
 }
