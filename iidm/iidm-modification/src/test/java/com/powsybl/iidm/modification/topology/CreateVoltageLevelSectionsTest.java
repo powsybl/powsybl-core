@@ -435,8 +435,9 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
         assertTrue(busbarSectionIds.containsAll(List.of("VL1_1_LOAD_BREAKER_2_BREAKER", "VL1_2_LOAD_BREAKER_2_BREAKER", "VL1_3_LOAD_BREAKER_2_BREAKER")));
     }
 
-    @Test
-    void testNamingStrategyWhenReplacingBreakerWithDisconnectors() {
+    @ParameterizedTest
+    @MethodSource("getReplacingBreakerWithDisconnectorsParameters")
+    void testNamingStrategyWhenReplacingBreakerWithDisconnectors(String referenceBusbarSectionId, boolean createAfter) {
         Network network = createNetwork();
         VoltageLevel vl2 = network.getSubstation("S1").newVoltageLevel()
                 .setId("VL2")
@@ -449,8 +450,8 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
         // add a new busbar between two created busbars. it will turn the existing breaker into a disconnector
         CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
-                .withReferenceBusbarSectionId("VL2_BBS11")
-                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+                .withReferenceBusbarSectionId(referenceBusbarSectionId)
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createAfter)
                 .withAllBusbars(true)
                 .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
                 .withLeftSwitchFictitious(false)
@@ -470,5 +471,50 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
         assertEquals(3, busbarSectionIds.size());
         // the Breaker was removed so new busbar is named with DISCONNECTOR and not with BREAKER
         assertTrue(busbarSectionIds.containsAll(List.of("VL2_BBS11", "VL2_BBS12", "VL2_1_DISCONNECTOR_2_DISCONNECTOR")));
+    }
+
+    private static Stream<Arguments> getReplacingBreakerWithDisconnectorsParameters() {
+        return Stream.of(
+                Arguments.of("VL2_BBS11", true),
+                Arguments.of("VL2_BBS12", false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getNamingStrategyAtExtremityParameters")
+    void testNamingStrategyIgnoresSwitchKindNotCreatedAtExtremity(boolean createAfter, String expectedBusbarSectionId) {
+        Network network = createNetwork();
+        VoltageLevel vl2 = network.getSubstation("S1").newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(100.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        createBusbarSection(vl2, "VL2_BBS12", 0, 1, 2);
+
+        // only the switch between the reference busbar section and the new one is created:
+        // the kind of the switch on the other side must not be taken into account in the naming
+        CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
+                .withReferenceBusbarSectionId("VL2_BBS12")
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createAfter)
+                .withAllBusbars(false)
+                .withLeftSwitchKind(createAfter ? SwitchKind.DISCONNECTOR : SwitchKind.BREAKER)
+                .withRightSwitchKind(createAfter ? SwitchKind.BREAKER : SwitchKind.DISCONNECTOR)
+                .withSwitchPrefixId("VL2")
+                .withBusbarSectionPrefixId("VL2")
+                .build();
+        modification.apply(network, new NamingStrategyTest());
+        List<String> busbarSectionIds = network.getVoltageLevel("VL2")
+                .getNodeBreakerView()
+                .getBusbarSectionStream()
+                .map(BusbarSection::getId)
+                .toList();
+        assertEquals(List.of("VL2_BBS12", expectedBusbarSectionId), busbarSectionIds);
+    }
+
+    private static Stream<Arguments> getNamingStrategyAtExtremityParameters() {
+        return Stream.of(
+                Arguments.of(true, "VL2_1_DISCONNECTOR_3"),
+                Arguments.of(false, "VL2_1_1_DISCONNECTOR")
+        );
     }
 }

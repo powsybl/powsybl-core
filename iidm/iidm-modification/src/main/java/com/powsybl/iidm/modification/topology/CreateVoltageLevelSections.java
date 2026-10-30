@@ -218,20 +218,28 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             logOrThrow(throwException, "No BusbarSectionPosition extension found on busbar section " + busbarSection.getId() + ", the busbar section has not been created");
             return;
         }
-        List<SwitchKind> leftSwitchesBetweenBusbar = new ArrayList<>();
-        List<SwitchKind> rightSwitchesBetweenBusbar = new ArrayList<>();
-        if (isCreatingSectionsAfterReferenceBusbar()) {
-            leftSwitchesBetweenBusbar.add(leftSwitchKind);
-        }
-        if (rightSwitchKind != null) {
-            rightSwitchesBetweenBusbar.add(rightSwitchKind);
-        }
+        boolean isInsertedBetweenSections = nextSectionIndex != -1;
+        boolean isAfter = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection();
+
+        // Switches created on each side of the new busbar section: when inserting before the first section or after the last,
+        // only the one towards the reference busbar section is created
+        SwitchKind createdLeftSwitchKind = isAfter || isInsertedBetweenSections ? leftSwitchKind : null;
+        SwitchKind createdRightSwitchKind = !isAfter || isInsertedBetweenSections ? rightSwitchKind : null;
+
         SwitchKindsBetweenBusbarSectionsTraverser switchKindsBetweenBusbarSectionsTraverser = new SwitchKindsBetweenBusbarSectionsTraverser(busbarSection);
         busbarSection.getTerminal().traverse(switchKindsBetweenBusbarSectionsTraverser);
-        leftSwitchesBetweenBusbar.addAll(switchKindsBetweenBusbarSectionsTraverser.getLeftSwitchesBetweenBusbar());
-        List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser = removeExistingConnectionSwitchKind(switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar());
-        rightSwitchesBetweenBusbar.addAll(rightSwitchesBetweenBusbarFromTraverser);
-        if (nextSectionIndex == -1) {
+        List<SwitchKind> existingLeftSwitchKinds = new ArrayList<>(switchKindsBetweenBusbarSectionsTraverser.getLeftSwitchesBetweenBusbar());
+        List<SwitchKind> existingRightSwitchKinds = new ArrayList<>(switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar());
+        // The first switch kind on the insertion side is the existing connection between the reference busbar section and its neighbour.
+        // This connection is removed when inserting the new busbar section, so it must not be passed to the naming strategy.
+        List<SwitchKind> removedConnectionSide = isAfter ? existingRightSwitchKinds : existingLeftSwitchKinds;
+        if (isInsertedBetweenSections && !removedConnectionSide.isEmpty()) {
+            removedConnectionSide.removeFirst();
+        }
+
+        List<SwitchKind> leftSwitchesBetweenBusbar = withCreatedSwitchKind(createdLeftSwitchKind, existingLeftSwitchKinds);
+        List<SwitchKind> rightSwitchesBetweenBusbar = withCreatedSwitchKind(createdRightSwitchKind, existingRightSwitchKinds);
+        if (!isInsertedBetweenSections) {
             // Insert the busbar section before the first section or after the last
 
             // Create a new busbar section
@@ -271,18 +279,13 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         }
     }
 
-    private List<SwitchKind> removeExistingConnectionSwitchKind(List<SwitchKind> rightSwitchesBetweenBusbarFromTraverser) {
-        List<SwitchKind> rightSwitchesBetweenBusbar = new ArrayList<>(rightSwitchesBetweenBusbarFromTraverser);
-        // The first switch kind is the existing connection to the neighboring busbar.
-        // This connection is removed when inserting the new busbar, so it must not be passed to the naming strategy.
-        if (!rightSwitchesBetweenBusbar.isEmpty() && isCreatingSectionsAfterReferenceBusbar()) {
-            rightSwitchesBetweenBusbar.removeFirst();
+    private static List<SwitchKind> withCreatedSwitchKind(SwitchKind createdSwitchKind, List<SwitchKind> existingSwitchKinds) {
+        List<SwitchKind> switchKinds = new ArrayList<>();
+        if (createdSwitchKind != null) {
+            switchKinds.add(createdSwitchKind);
         }
-        return rightSwitchesBetweenBusbar;
-    }
-
-    private boolean isCreatingSectionsAfterReferenceBusbar() {
-        return leftSwitchKind != null;
+        switchKinds.addAll(existingSwitchKinds);
+        return switchKinds;
     }
 
     private int findNextSectionIndex(VoltageLevel vl, BusbarSectionPosition referenceBusbarSectionPosition) {
