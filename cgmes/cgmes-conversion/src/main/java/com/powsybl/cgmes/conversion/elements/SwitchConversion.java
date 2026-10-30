@@ -114,6 +114,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     private SwitchKind kind() {
         String type = p.getLocal("type");
         return switch (type) {
+            case null -> throw new ConversionException("Switch type is null");
             case "Disconnector", "GroundDisconnector", "Jumper" -> SwitchKind.DISCONNECTOR;
             case "LoadBreakSwitch" -> SwitchKind.LOAD_BREAK_SWITCH;
             case "Breaker" -> SwitchKind.BREAKER;
