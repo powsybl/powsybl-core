@@ -9,11 +9,14 @@ package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
@@ -24,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Parameters for loadflow computation.
@@ -120,6 +124,16 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_HVDC_AC_EMULATION_ON = true;
     public static final double DEFAULT_DC_POWER_FACTOR = 1d;
     public static final String DEFAULT_DEBUG_DIR = null;
+
+    /**
+     * Category of the {@link com.powsybl.commons.extensions.ExtensionJsonSerializer} and {@link ExtensionConfigLoader}
+     * of extensions which are not provider specific parameters.
+     * Unlike provider specific parameters, those extensions cannot be read from or written to a {@code Map<String, String>}.
+     */
+    public static final String EXTENSIONS_CATEGORY = "loadflow-parameters";
+
+    private static final Supplier<ExtensionProviders<ExtensionConfigLoader>> CONFIG_LOADERS =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionConfigLoader.class, EXTENSIONS_CATEGORY));
 
     /**
      * Loads parameters from the default platform configuration.
@@ -514,6 +528,16 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                         () -> provider.loadSpecificParameters(platformConfig)
                                 .ifPresent(ext -> addExtension((Class) ext.getClass(), ext)));
             });
+        }
+        for (ExtensionConfigLoader loader : CONFIG_LOADERS.get().getProviders()) {
+            // ExtensionConfigLoader cannot update an extension: do not overwrite one set by a provider or a default parameters loader
+            if (getExtensionByName(loader.getExtensionName()) == null) {
+                Extension extension = loader.load(platformConfig);
+                // a null extension means it is not configured
+                if (extension != null) {
+                    addExtension(loader.getExtensionClass(), extension);
+                }
+            }
         }
     }
 }

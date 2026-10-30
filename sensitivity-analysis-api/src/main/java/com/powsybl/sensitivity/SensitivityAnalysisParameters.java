@@ -7,12 +7,17 @@
  */
 package com.powsybl.sensitivity;
 
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Parameters for sensitivity analysis.
@@ -34,6 +39,16 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     static final double ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final SensitivityOperatorStrategiesCalculationMode SENSITIVITY_OPERATOR_STRATEGY_CALCULATION_MODE_DEFAULT_VALUE = SensitivityOperatorStrategiesCalculationMode.NONE;
     static final String DEFAULT_DEBUG_DIR = null;
+
+    /**
+     * Category of the {@link com.powsybl.commons.extensions.ExtensionJsonSerializer} and {@link ExtensionConfigLoader}
+     * of extensions which are not provider specific parameters.
+     * Unlike provider specific parameters, those extensions cannot be read from or written to a {@code Map<String, String>}.
+     */
+    public static final String EXTENSIONS_CATEGORY = "sensitivity-parameters";
+
+    private static final Supplier<ExtensionProviders<ExtensionConfigLoader>> CONFIG_LOADERS =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionConfigLoader.class, EXTENSIONS_CATEGORY));
 
     private double flowFlowSensitivityValueThreshold = FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
     private double voltageVoltageSensitivityValueThreshold = VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
@@ -79,6 +94,16 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
         for (SensitivityAnalysisProvider provider : new ServiceLoaderCache<>(SensitivityAnalysisProvider.class).getServices()) {
             provider.loadSpecificParameters(platformConfig).ifPresent(sensitivityAnalysisParametersExtension ->
                     addExtension((Class) sensitivityAnalysisParametersExtension.getClass(), sensitivityAnalysisParametersExtension));
+        }
+        for (ExtensionConfigLoader loader : CONFIG_LOADERS.get().getProviders()) {
+            // ExtensionConfigLoader cannot update an extension: do not overwrite one set by a provider
+            if (getExtensionByName(loader.getExtensionName()) == null) {
+                Extension extension = loader.load(platformConfig);
+                // a null extension means it is not configured
+                if (extension != null) {
+                    addExtension(loader.getExtensionClass(), extension);
+                }
+            }
         }
     }
 

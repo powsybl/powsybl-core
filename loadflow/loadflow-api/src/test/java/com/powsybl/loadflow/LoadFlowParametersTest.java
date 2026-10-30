@@ -13,6 +13,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.BusinessExtension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -339,6 +340,17 @@ class LoadFlowParametersTest {
         assertEquals(1, parameters.getExtensions().size());
         assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummy-extension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
+        assertEquals(DummyExtension.PARAMETER_STRING_DEFAULT_VALUE, parameters.getExtension(DummyExtension.class).getParameterString());
+    }
+
+    @Test
+    void testNonProviderExtensionFromConfig() {
+        platformConfig.createModuleConfig("business-extension").setStringProperty("value", "foo");
+        LoadFlowParameters parameters = LoadFlowParameters.load(platformConfig);
+
+        assertEquals(2, parameters.getExtensions().size());
+        assertEquals("foo", parameters.getExtension(BusinessExtension.class).getValue());
+        assertEquals(DummyExtension.PARAMETER_STRING_DEFAULT_VALUE, parameters.getExtension(DummyExtension.class).getParameterString());
     }
 
     @Test
