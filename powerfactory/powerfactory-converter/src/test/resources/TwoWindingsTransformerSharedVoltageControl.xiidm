@@ -47,7 +47,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetDeadband="11.999988555908203" targetValue="400.0">
+                <iidm:voltageRegulation targetValue="400.0" targetDeadband="11.999988555908203" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="VL51_Bus 2"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -59,7 +59,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetDeadband="11.999988555908203" targetValue="400.0">
+                <iidm:voltageRegulation targetValue="400.0" targetDeadband="11.999988555908203" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="VL51_Bus 2"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>

@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -92,7 +92,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            assertXmlEquals(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

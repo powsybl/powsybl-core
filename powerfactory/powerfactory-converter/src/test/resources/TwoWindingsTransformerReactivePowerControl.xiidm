@@ -40,7 +40,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetDeadband="10.0" targetValue="50.0">
+                <iidm:voltageRegulation targetValue="50.0" targetDeadband="10.0" mode="REACTIVE_POWER" regulating="true">
                     <iidm:terminalRef id="T2w_2_2L_1" side="ONE"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -52,7 +52,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false" targetDeadband="10.0">
+                <iidm:voltageRegulation targetDeadband="10.0" mode="REACTIVE_POWER" regulating="false">
                     <iidm:terminalRef id="T2w_2_2L_2" side="ONE"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -83,7 +83,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetDeadband="10.0" targetValue="55.0">
+                <iidm:voltageRegulation targetValue="55.0" targetDeadband="10.0" mode="REACTIVE_POWER" regulating="true">
                     <iidm:terminalRef id="T2w_3_3L_1" side="TWO"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -95,7 +95,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetDeadband="0.0" targetValue="55.0">
+                <iidm:voltageRegulation targetValue="55.0" targetDeadband="0.0" mode="REACTIVE_POWER" regulating="true">
                     <iidm:terminalRef id="T2w_3_3L_2" side="TWO"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -135,7 +135,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetDeadband="10.0" targetValue="60.0">
+                <iidm:voltageRegulation targetValue="60.0" targetDeadband="10.0" mode="REACTIVE_POWER" regulating="true">
                     <iidm:terminalRef id="Line_1_4_1" side="ONE"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
