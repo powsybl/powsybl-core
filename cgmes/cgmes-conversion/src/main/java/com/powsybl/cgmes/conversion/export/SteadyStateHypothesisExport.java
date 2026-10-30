@@ -879,11 +879,7 @@ public final class SteadyStateHypothesisExport {
         if (!OPERATING_MODE_CONDENSER.equals(kind) && (i.getExtension(ActivePowerControl.class) != null || i.hasProperty(PROPERTY_NORMAL_PF))) {
             GeneratingUnit gu = new GeneratingUnit();
             gu.id = context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT);
-            if (i.getExtension(ActivePowerControl.class) != null) {
-                gu.participationFactor = i.getExtension(ActivePowerControl.class).getParticipationFactor();
-            } else {
-                gu.participationFactor = Double.parseDouble(i.getProperty(PROPERTY_NORMAL_PF));
-            }
+            gu.participationFactor = getParticipationFactor(i);
             gu.className = generatingUnitClassname(i);
             return gu;
         }
