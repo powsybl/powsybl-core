@@ -838,6 +838,12 @@ public final class TopologyModificationUtils {
      * fork node is encountered, for which special care is needed to clean the topology.
      */
     public static void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, String connectableId, ReportNode reportNode) {
+        // Check if a connectable is connected on that node: removing the switches beyond it would disconnect it
+        Optional<String> otherConnectableId = getOtherConnectableId(nbv, node, connectableId);
+        if (otherConnectableId.isPresent()) {
+            reportAndLogRemoveFeederBayAborted(reportNode, connectableId, node, otherConnectableId.get());
+            return;
+        }
         Set<Object> edges = graph.edgesOf(node);
         if (edges.size() == 1) {
             Object edge = edges.iterator().next();
@@ -847,6 +853,27 @@ public final class TopologyModificationUtils {
         } else if (edges.size() > 1) {
             cleanFork(nbv, graph, node, edges, connectableId, reportNode);
         }
+    }
+
+    /**
+     * Report and log that the feeder bay removal cannot go further than the given node.
+     */
+    private static void reportAndLogRemoveFeederBayAborted(ReportNode reportNode, String connectableId, int node, String otherConnectableId) {
+        removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
+        LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
+    }
+
+    /**
+     * Return the id of the connectable connected on the given node, if there is one, if it is not the connectable
+     * being removed, and if it is not a busbar section. A busbar section is the normal end of a feeder bay and is
+     * handled by the caller, not reported as an obstacle.
+     */
+    private static Optional<String> getOtherConnectableId(VoltageLevel.NodeBreakerView nbv, int node, String connectableId) {
+        return nbv.getOptionalTerminal(node)
+                .map(Terminal::getConnectable)
+                .filter(c -> !(c instanceof BusbarSection))
+                .map(Connectable::getId)
+                .filter(id -> !id.equals(connectableId));
     }
 
     public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode) {
@@ -905,8 +932,7 @@ public final class TopologyModificationUtils {
                 // the edge is only linked to other non-busbarSection connectables, no further cleaning can be done
                 // Note that connectables cannot be empty because of previous if
                 String otherConnectableId = connectables.stream().map(Connectable::getId).findFirst().orElse("none");
-                removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
-                LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
+                reportAndLogRemoveFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
                 return;
             } else {
                 // the edge is linked to busbarSections and non-busbarSection connectables, some further cleaning can be done if there's only one edge of that type
