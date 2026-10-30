@@ -1,7 +1,7 @@
 # Export
 
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
-into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF
+into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF 
 [format specification](format_specification.md).
 
 ## Limitations
@@ -15,9 +15,9 @@ import a UCTE-DEF file in PowSyBl, you can update some elements and then export 
 exporting to UCTE-DEF format a file imported from another format most often leads at best to incorrect file content, at
 worst to an exporter failure. Some examples are listed here after.
 
-**Transformers Tap Changers**: UCTE-DEF format assumes neutral tap position to be centered at position zero. If your
-IIDM model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will
-be incorrect without warning.
+**Transformers Tap Changers**: UCTE-DEF format assumes neutral tap position to be centered at position zero. If your IIDM
+model contains tap changers not fitting this requirement, the export will not fail but the resulting UCTE file will be
+incorrect without warning.
 
 ## Options
 
@@ -161,10 +161,7 @@ undefined; if the node is a PU node, a warning is reported.
 
 ### Line conversion
 
-Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) (as a busbar
-coupler), [line](../../grid_model/network_subnetwork.md#line),
-unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line),
-and [tie line](../../grid_model/network_subnetwork.md#tie-line)
+Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) (as a busbar coupler), [line](../../grid_model/network_subnetwork.md#line), unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line), and [tie line](../../grid_model/network_subnetwork.md#tie-line)
 of the network is converted into one or more UCTE lines, using the naming strategy to compute each line's node codes and
 order code. A boundary line or a tie line additionally creates an [X-node](#x-nodes).
 
@@ -184,8 +181,7 @@ IIDM source is left undefined in the exported line.
 #### Line status
 
 The status follows the
-[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)
-'s convention for element status:
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s convention for element status:
 
 - `0`: real element in operation
 - `8`: real element out of operation
@@ -219,8 +215,8 @@ An unpaired boundary line is converted into an X-node and a UCTE line connecting
 tie line is converted into an X-node and two UCTE lines, one for each side, using the same rules as for a standalone
 boundary line.
 
-The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following the
-same conventions as [node conversion](#node-conversion) above.
+The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following 
+the same conventions as [node conversion](#node-conversion) above.
 
 | UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                                                                    |
 |--------------------------------------------------------|---------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -250,9 +246,9 @@ If the original boundary line has no generation part, its X-node is exported as 
 
 #### Tie line properties
 
-A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by custom
-properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although we
-expect both sides of the line to carry the same value for the same property, there can be discrepancies.
+A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by 
+custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although 
+we expect both sides of the line to carry the same value for the same property, there can be discrepancies.
 
 - If both boundary lines have the same value, it is used in the exported tie line.
 - If one of the boundary lines has an empty value, the other boundary line's value is used.
@@ -353,7 +349,7 @@ points $\frac{1}{\rho} e^{-i\alpha}$ of the two extreme taps. If the [
 option is enabled and the transformer also has a ratio tap changer, the computed δu (%) is divided by the ρ of the ratio
 tap changer's current step.
 
-**Note:** the sign of α is inverted in both cas, because the phase tap changer is on side 2 in the
+**Note:** the sign of α is inverted in both cases, because the phase tap changer is on side 2 in the
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf),
 and on side 1 in IIDM.
 
