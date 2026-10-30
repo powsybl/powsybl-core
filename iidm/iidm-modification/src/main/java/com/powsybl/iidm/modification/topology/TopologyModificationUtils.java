@@ -211,13 +211,13 @@ public final class TopologyModificationUtils {
                     voltageLevel.getConnectables().forEach(Connectable::remove);
                     voltageLevelForceRemovedWithNoBranch(reportNode, vlId);
                 } else {
-                    voltageLevelNotRemovedWithNoBranch(reportNode, vlId);
-                    LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
+                    voltageLevelIsolatedWithEquipmentsLeftReport(reportNode, vlId);
+                    LOGGER.warn("Voltage level {} isolated from network but still contains equipment : it is not removed", vlId);
                     return;
                 }
             } else {
-                voltageLevelNotRemovedWithRemainingBranches(reportNode, vlId);
-                LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
+                voltageLevelStillConnectedReport(reportNode, vlId);
+                LOGGER.info("Voltage level {} is still connected to network : it is not removed", vlId);
                 return;
             }
         }
