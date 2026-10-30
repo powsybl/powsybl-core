@@ -15,15 +15,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -191,4 +191,57 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         assertTrue(datasourceOnRealPath.listNames(".*").contains("test_file.txt"));
         assertTrue(datasourceOnSymbolicPath.listNames(".*").contains("test_file.txt"));
     }
+
+    @Test
+    void testDirectoryDataSourcePathTraversal() throws IOException {
+        // Given : a working directory and a file outside the working directory
+        Path workingDirectory = testDir.resolve("path_traversal_test/directory");
+        Files.createDirectories(workingDirectory);
+        DirectoryDataSource directoryDataSource = new DirectoryDataSource(workingDirectory, "test_file");
+        String relativeFilename = "../secret.txt";
+        Files.createFile(workingDirectory.resolve(relativeFilename));
+        String absoluteFilename = workingDirectory.resolve("../secret.txt").toRealPath().toString();
+
+        // When calling methods "exists", "newInputStream" or "newOutputStream" on relative fileName outside of directory, an exception should be thrown
+        String expectedMessageRelative = "File name '../secret.txt' is not located inside the data source directory '/tmp/path_traversal_test/directory'";
+        IOException ioException1 = assertThrows(IOException.class, () -> directoryDataSource.exists(relativeFilename));
+        IOException ioException2 = assertThrows(IOException.class, () -> directoryDataSource.newInputStream(relativeFilename));
+        IOException ioException3 = assertThrows(IOException.class, () -> directoryDataSource.newOutputStream(relativeFilename, true));
+        assertEquals(expectedMessageRelative, ioException1.getMessage());
+        assertEquals(expectedMessageRelative, ioException2.getMessage());
+        assertEquals(expectedMessageRelative, ioException3.getMessage());
+
+        // When calling methods "exists", "newInputStream" or "newOutputStream" on absolute fileName outside of directory, an exception should be thrown
+        String expectedMessageAbsolute = "File name '/tmp/path_traversal_test/secret.txt' is not located inside the data source directory '/tmp/path_traversal_test/directory'";
+        IOException ioException4 = assertThrows(IOException.class, () -> directoryDataSource.exists(absoluteFilename));
+        IOException ioException5 = assertThrows(IOException.class, () -> directoryDataSource.newInputStream(absoluteFilename));
+        IOException ioException6 = assertThrows(IOException.class, () -> directoryDataSource.newOutputStream(absoluteFilename, true));
+        assertEquals(expectedMessageAbsolute, ioException4.getMessage());
+        assertEquals(expectedMessageAbsolute, ioException5.getMessage());
+        assertEquals(expectedMessageAbsolute, ioException6.getMessage());
+    }
+
+    @Test
+    void testSymbolicLinkOutsideOfDirectory() throws IOException {
+        // Given a working directory
+        Path workingDirectory = testDir.resolve("dir/workingDir");
+        Files.createDirectories(workingDirectory);
+        DirectoryDataSource directoryDataSource = new DirectoryDataSource(workingDirectory, "test_file");
+
+        // Given another directory outside working directory and a symlink pointing to that other directory
+        Path otherDirectory = testDir.resolve("dir/otherDir");
+        Files.createDirectories(otherDirectory);
+        Files.writeString(otherDirectory.resolve("test_file.txt"), "Hello World");
+        Files.createSymbolicLink(workingDirectory.resolve("link"), otherDirectory);
+
+        // Read the file in the symlink
+        String fileToRead = "link/test_file.txt";
+        assertTrue(directoryDataSource.exists(fileToRead));
+        byte[] fileContent;
+        try (InputStream inputStream = directoryDataSource.newInputStream(fileToRead)) {
+            fileContent = inputStream.readAllBytes();
+        }
+        assertEquals("Hello World", new String(fileContent, StandardCharsets.UTF_8));
+    }
+
 }
