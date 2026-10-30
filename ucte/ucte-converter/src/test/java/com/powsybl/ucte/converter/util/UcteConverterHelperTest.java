@@ -10,12 +10,17 @@ package com.powsybl.ucte.converter.util;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.ucte.converter.UcteExporterTestNetworks;
 import com.powsybl.ucte.converter.UcteImporter;
+import com.powsybl.ucte.converter.util.UcteConverterHelper.VoltageCandidate;
 import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,4 +95,38 @@ class UcteConverterHelperTest {
         assertEquals(90.00, Math.toDegrees(duRef6.getArgument()), 0.00001); // loss of one decimal with sign
     }
 
+    /**
+     * The voltage candidates of a bus: only the first non-empty category among local, remote and non-regulating is
+     * returned, sorted by decreasing targetP then by generator id. See
+     * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases.
+     */
+    @Test
+    void getVoltageCandidatesByRelevanceTest() {
+        Network network = UcteExporterTestNetworks.createWithMultipleVoltageTargets();
+        Bus remoteBus = network.getBusBreakerView().getBus("FREMOT11");
+        double rescaledRemoteTarget = 405.0 * 21 / 380;
+
+        assertCandidates(network, "FCASE171", List.of(local(network, "CASE1_GB", 23.0), local(network, "CASE1_GA", 22.0)));
+        assertCandidates(network, "FCASE271", List.of(local(network, "CASE2_GA", 22.0), local(network, "CASE2_GB", 23.0)));
+        assertCandidates(network, "FCASE371", List.of(local(network, "CASE3_GA", 22.5)));
+        assertCandidates(network, "FCASE471", List.of(new VoltageCandidate(network.getGenerator("CASE4_GA"), rescaledRemoteTarget, remoteBus, 405)));
+        assertCandidates(network, "FCASE571", List.of(local(network, "CASE5_GA", 22.0)));
+        assertCandidates(network, "FCASE671", List.of(local(network, "CASE6_GB", 23.0), local(network, "CASE6_GA", 22.0)));
+        assertCandidates(network, "FCASE771", List.of(local(network, "CASE7_GA", 22.0)));
+        assertCandidates(network, "FCASE871", List.of(new VoltageCandidate(network.getGenerator("CASE8_GA"), rescaledRemoteTarget, remoteBus, 405)));
+        assertCandidates(network, "FCASE971", List.of());
+        assertCandidates(network, "FCASEA71", List.of(new VoltageCandidate(network.getGenerator("CASEA_GA"), 22.5,
+                network.getBusBreakerView().getBus("FCASE371"), 22.5)));
+    }
+
+    /**
+     * @return a candidate without remote regulated bus, as provided by a local or non-regulating generator
+     */
+    private static VoltageCandidate local(Network network, String generatorId, double value) {
+        return new VoltageCandidate(network.getGenerator(generatorId), value, null, Double.NaN);
+    }
+
+    private static void assertCandidates(Network network, String busId, List<VoltageCandidate> expected) {
+        assertEquals(expected, getVoltageCandidatesByRelevance(network.getBusBreakerView().getBus(busId)), busId);
+    }
 }
