@@ -217,6 +217,8 @@ Because UCTE-DEF has the regulated winding on side 2, while IIDM has it on side 
 export: the UCTE transformer's rated voltage 1 (non-regulated winding) is the transformer's `ratedU2`, and its rated
 voltage 2 (regulated winding) is its `ratedU1`.
 
+If the transformer has a ratio and/or a phase tap changer, a regulation is exported.
+
 #### Nominal power
 
 The nominal power is the transformer's rated apparent power `ratedS`, used as-is.<br>

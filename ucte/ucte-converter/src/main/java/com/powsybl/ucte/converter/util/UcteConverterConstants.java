@@ -35,4 +35,5 @@ public final class UcteConverterConstants {
     public static final String POWER_PLANT_TYPE_PROPERTY_KEY = "powerPlantType";
     public static final int DEFAULT_POWER_LIMIT = 9999;
     public static final String NO_UCTE_CODE_ERROR = "No UCTE code found for id: ";
+    public static final int NOMINAL_POWER_NOVALUE = 99999;
 }

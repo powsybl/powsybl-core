@@ -57,8 +57,6 @@ public class UcteExporter implements Exporter {
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
 
-    public static final int NOMINAL_POWER_NOVALUE = 99999;
-
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public UcteExporter() {
@@ -695,7 +693,7 @@ public class UcteExporter implements Exporter {
     /**
      * Extract a nominal power value from the provided transformer. It should be present in the dedicated
      * {@link TwoWindingsTransformer} as the {@code ratedS} field. For retro-compatibility, if ratedS is {@code NaN},
-     * also look in the {@code nomimalPower}" property (now deprecated).
+     * also look in the {@code nomimalPower} property (now deprecated).
      * <br>
      * If both are absent, return default value {@code 99999} and log + report a warning
      * @param twoWindingsTransformer a transformer
