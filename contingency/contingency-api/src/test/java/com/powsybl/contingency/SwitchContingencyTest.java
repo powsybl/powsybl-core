@@ -7,7 +7,7 @@
  */
 package com.powsybl.contingency;
 
-import com.google.common.testing.EqualsTester;
+import com.powsybl.commons.test.EqualsTester;
 import com.powsybl.iidm.modification.tripping.SwitchTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
