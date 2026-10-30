@@ -27,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -60,9 +60,10 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
 
     private void testNetwork(Network network) throws IOException {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
+        System.out.println("network.getId() = " + network.getId());
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            assertXmlEquals(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 
