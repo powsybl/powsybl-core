@@ -26,6 +26,7 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
     private boolean connected1 = true;
     private String dcNode2Id;
     private boolean connected2 = true;
+    private double permanentCurrentLimit = Double.NaN;
 
     DcLineAdderImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef) {
         this.networkRef = ref;
@@ -64,7 +65,7 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
 
     @Override
     public DcLineAdder setPermanentCurrentLimit(double permanentCurrentLimit) {
-        // TODO not implemented yet
+        this.permanentCurrentLimit = permanentCurrentLimit;
         return this;
     }
 
@@ -75,7 +76,8 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
         DcNode dcNode2 = ValidationUtil.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2");
         ValidationUtil.checkSameParentNetwork(this.getParentNetwork(), this, dcNode1, dcNode2);
         ValidationUtil.checkDoubleParamPositive(this, this.r, DcLineImpl.R_ATTRIBUTE);
-        DcLineImpl dcLine = new DcLineImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), this.r);
+        ValidationUtil.checkPermanentCurrentLimit(this, this.permanentCurrentLimit);
+        DcLineImpl dcLine = new DcLineImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), this.r, this.permanentCurrentLimit);
         DcTerminalImpl dcTerminal1 = new DcTerminalImpl(networkRef, TwoSides.ONE, null, dcNode1, connected1);
         DcTerminalImpl dcTerminal2 = new DcTerminalImpl(networkRef, TwoSides.TWO, null, dcNode2, connected2);
         dcLine.addDcTerminal(dcTerminal1);

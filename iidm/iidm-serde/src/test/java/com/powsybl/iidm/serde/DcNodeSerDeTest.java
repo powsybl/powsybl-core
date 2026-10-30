@@ -71,10 +71,7 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
 
         // versions 1.15 to 1.18 support the DC node but not its voltage limits, so exporting a DC node that
         // declares limits must fail rather than silently drop them
-        testForAllPreviousVersions(IidmVersion.V_1_19, version -> {
-            if (version.compareTo(IidmVersion.V_1_15) < 0) {
-                return;
-            }
+        testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> {
             ExportOptions options = new ExportOptions().setVersion(version.toString("."));
             Path path = tmpDir.resolve("fail");
             PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));

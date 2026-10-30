@@ -15,12 +15,16 @@ public interface DcNodeAdder extends IdentifiableAdder<DcNode, DcNodeAdder> {
     DcNodeAdder setNominalV(double nominalV);
 
     /**
-     * @param lowVoltageLimit low voltage limit in kV, bounding the signed voltage, may be negative
+     * @param lowVoltageLimit low voltage limit in kV, bounding the voltage magnitude.
+     * It must be positive, zero or NaN (undefined) and strictly less than highVoltageLimit if they are both defined.
+     * @return this adder, for chaining
      */
     DcNodeAdder setLowVoltageLimit(double lowVoltageLimit);
 
     /**
-     * @param highVoltageLimit high voltage limit in kV, bounding the signed voltage, may be negative
+     * @param highVoltageLimit high voltage limit in kV, bounding the voltage magnitude.
+     * It must be strictly positive or NaN (undefined) and strictly greater than lowVoltageLimit if they are both defined.
+     * @return this adder, for chaining
      */
     DcNodeAdder setHighVoltageLimit(double highVoltageLimit);
 

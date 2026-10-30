@@ -128,7 +128,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () ->
             readSelectedGroupId(null, bl::setSelectedOperationalLimitsGroup, context));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
-            readAllSelectedGroupIds(bl, bl.getId(), context));
+            readAllSelectedGroupIds(bl, context));
         return bl;
     }
 

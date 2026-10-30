@@ -136,10 +136,6 @@ public abstract class AbstractDcLineTest {
         assertSame(dcLine, dcLine.setPermanentCurrentLimit(2400.));
         assertEquals(2400., dcLine.getPermanentCurrentLimit());
 
-        // zero is not negative
-        dcLine.setPermanentCurrentLimit(0.);
-        assertEquals(0., dcLine.getPermanentCurrentLimit());
-
         dcLine.setPermanentCurrentLimit(Double.NaN);
         assertTrue(Double.isNaN(dcLine.getPermanentCurrentLimit()));
     }
@@ -153,13 +149,25 @@ public abstract class AbstractDcLineTest {
                 .setR(1.1)
                 .setPermanentCurrentLimit(-1.);
         ValidationException e1 = assertThrows(ValidationException.class, adder::add);
-        assertTrue(e1.getMessage().startsWith("DC Line 'negativeLimit': "), e1.getMessage());
+        assertEquals("DC Line 'negativeLimit': permanent current limit is <= 0", e1.getMessage());
         assertNull(network.getDcLine("negativeLimit"));
+
+        DcLineAdder zeroAdder = network.newDcLine()
+                .setId("zeroLimit")
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setR(1.1)
+                .setPermanentCurrentLimit(0.);
+        ValidationException e2 = assertThrows(ValidationException.class, zeroAdder::add);
+        assertEquals("DC Line 'zeroLimit': permanent current limit is <= 0", e2.getMessage());
+        assertNull(network.getDcLine("zeroLimit"));
 
         DcLine dcLine = createDcLine("dcLine");
         dcLine.setPermanentCurrentLimit(2106.);
-        ValidationException e2 = assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(-2106.));
-        assertTrue(e2.getMessage().startsWith("DC Line 'dcLine': "), e2.getMessage());
+        ValidationException e3 = assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(-2106.));
+        assertEquals("DC Line 'dcLine': permanent current limit is <= 0", e3.getMessage());
+        ValidationException e4 = assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(0.));
+        assertEquals("DC Line 'dcLine': permanent current limit is <= 0", e4.getMessage());
 
         // a rejected value leaves the DC line unchanged
         assertEquals(2106., dcLine.getPermanentCurrentLimit());

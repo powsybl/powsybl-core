@@ -11,18 +11,9 @@ import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcLineAdder;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.Collection;
-
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.LIMITS_GROUP;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readAllSelectedGroupIds;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readLoadingLimitsGroups;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readPI;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeAllSelectedGroupIds;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeLimits;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writePI;
 
 /**
@@ -33,6 +24,7 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
     static final DcLineSerDe INSTANCE = new DcLineSerDe();
     static final String ROOT_ELEMENT_NAME = "dcLine";
     static final String ARRAY_ELEMENT_NAME = "dcLines";
+    private static final String PERMANENT_CURRENT_LIMIT = "permanentCurrentLimit";
 
     @Override
     protected String getRootElementName() {
@@ -46,26 +38,12 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         context.getWriter().writeStringAttribute("dcNode1", dcTerminal1.getDcNode().getId());
         context.getWriter().writeStringAttribute("dcNode2", dcTerminal2.getDcNode().getId());
         context.getWriter().writeDoubleAttribute("r", dcLine.getR());
+        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(getRootElementName(), PERMANENT_CURRENT_LIMIT, dcLine.getPermanentCurrentLimit(),
+                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context);
         context.getWriter().writeBooleanAttribute("connected1", dcTerminal1.isConnected());
         context.getWriter().writeBooleanAttribute("connected2", dcTerminal2.isConnected());
         writePI(dcTerminal1, context.getWriter());
         writePI(dcTerminal2, context.getWriter());
-        // this attribute only names groups, so it is empty whenever there are none to name; the error for
-        // writing limits to a file older than 1.19 is raised on the groups themselves, in writeSubElements
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
-                writeAllSelectedGroupIds(null, dcLine.getAllSelectedOperationalLimitsGroupIdsOrdered(), context.getWriter()));
-    }
-
-    @Override
-    protected void writeSubElements(final DcLine dcLine, final Network parent, final NetworkSerializerContext context) {
-        Collection<OperationalLimitsGroup> groupsToWrite = context.getOptions().isOnlySelectedOperationalLimitsGroups()
-                ? dcLine.getAllSelectedOperationalLimitsGroups()
-                : dcLine.getOperationalLimitsGroups();
-        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(!groupsToWrite.isEmpty(),
-                getRootElementName(), LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
-                IidmVersion.V_1_19, context,
-                () -> writeLimits(context, null, getRootElementName(),
-                        dcLine.getSelectedOperationalLimitsGroup().orElse(null), groupsToWrite));
     }
 
     @Override
@@ -78,6 +56,10 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         String dcNode1Id = context.getReader().readStringAttribute("dcNode1");
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");
         double r = context.getReader().readDoubleAttribute("r");
+        // undefined permanent current limit as default value for IIDM version < 1.19 and for DC lines declaring no limit
+        double[] permanentCurrentLimit = {Double.NaN};
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
+                permanentCurrentLimit[0] = context.getReader().readDoubleAttribute(PERMANENT_CURRENT_LIMIT));
         boolean connected1 = context.getReader().readBooleanAttribute("connected1");
         boolean connected2 = context.getReader().readBooleanAttribute("connected2");
         DcLine dcLine = adder
@@ -86,27 +68,15 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
                 .setDcNode2(dcNode2Id)
                 .setConnected2(connected2)
                 .setR(r)
+                .setPermanentCurrentLimit(permanentCurrentLimit[0])
                 .add();
         readPI(dcLine.getDcTerminal1(), context.getReader());
         readPI(dcLine.getDcTerminal2(), context.getReader());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
-                readAllSelectedGroupIds(dcLine, dcLine.getId(), context));
         return dcLine;
     }
 
     @Override
     protected void readSubElements(final DcLine dcLine, final NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> readSubElement(elementName, dcLine, context));
-    }
-
-    @Override
-    protected void readSubElement(final String elementName, final DcLine dcLine, final NetworkDeserializerContext context) {
-        if (LIMITS_GROUP.equals(elementName)) {
-            IidmSerDeUtil.assertMinimumVersion(getRootElementName(), LIMITS_GROUP,
-                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
-            readLoadingLimitsGroups(dcLine, dcLine.getId(), ThreeSides.ONE, LIMITS_GROUP, context);
-        } else {
-            super.readSubElement(elementName, dcLine, context);
-        }
     }
 }

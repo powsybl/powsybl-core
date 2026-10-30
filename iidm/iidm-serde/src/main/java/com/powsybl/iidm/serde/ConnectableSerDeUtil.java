@@ -425,7 +425,7 @@ public final class ConnectableSerDeUtil {
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null && canWriteLimits(limits)) {
             FormattedLimits formattedLimits = new FormattedLimits(limits, version);
-            writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type);
+            writeLoadingLimitAttributes(index, limits, writer, nsUri, version, type);
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
 
@@ -453,13 +453,13 @@ public final class ConnectableSerDeUtil {
             || !limits.getTemporaryLimits().isEmpty();
     }
 
-    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
+    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version, String type) {
         writer.writeStartNode(nsUri, type + indexToString(index));
         DetectionKind kind = limits.getDetectionKind();
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () ->
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () ->
             writer.writeStringAttribute(DETECTION_KIND, kind.name())
         );
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
             () -> {
                 if (kind == DetectionKind.HIGH) {
                     writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
@@ -467,7 +467,7 @@ public final class ConnectableSerDeUtil {
                         LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
                 }
             });
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, version,
             () -> {
                 if (kind == DetectionKind.HIGH) {
                     writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
@@ -477,7 +477,7 @@ public final class ConnectableSerDeUtil {
                 }
             }
         );
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () -> {
             if (kind == DetectionKind.HIGH) {
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             }
@@ -633,20 +633,18 @@ public final class ConnectableSerDeUtil {
     }
 
     /**
-     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on a holder carrying a single
-     * collection of groups, such as a {@link BoundaryLine} or a {@link DcLine}
-     * @param holder the {@link FlowsLimitsHolder} on which to add the selected groups
-     * @param identifiableId the id of the identifiable owning the <code>holder</code>
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the boundary line
+     * @param boundaryLine the {@link BoundaryLine} on which to add the selected groups
      * @param context to deserialize the data
      */
-    static void readAllSelectedGroupIds(FlowsLimitsHolder holder, String identifiableId, NetworkDeserializerContext context) {
+    static void readAllSelectedGroupIds(BoundaryLine boundaryLine, NetworkDeserializerContext context) {
         Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
             null,
-            c -> holder.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
+            c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
             context
         );
         context.addSelectedGroupIds(
-            identifiableId,
+            boundaryLine.getId(),
             ThreeSides.ONE,
             selectedIds
         );
