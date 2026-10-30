@@ -1028,7 +1028,258 @@
     </xs:complexType>
     <xs:complexType name="NetworkVariant">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="dcNode" type="iidm:DcNodeVariant"/>
+            <xs:element name="dcSwitch" type="iidm:DcSwitchVariant"/>
+            <xs:element name="dcGround" type="iidm:DcGroundVariant"/>
+            <xs:element name="dcLine" type="iidm:DcLineVariant"/>
+            <xs:element name="voltageLevel" type="iidm:VoltageLevelVariant"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformerVariant"/>
+                <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformerVariant"/>
+            </xs:choice>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="hvdcLine" type="iidm:HvdcLineVariant"/>
+                <xs:element name="line" type="iidm:BranchVariant"/>
+            </xs:choice>
+            <xs:element name="area" type="iidm:AreaVariant"/>
+            <xs:element name="bus" type="iidm:BusVariant"/>
+            <xs:element name="switch" type="iidm:SwitchVariant"/>
+            <xs:element name="generator" type="iidm:GeneratorVariant"/>
+            <xs:element name="battery" type="iidm:BatteryVariant"/>
+            <xs:element name="load" type="iidm:LoadVariant"/>
+            <xs:element name="shuntCompensator" type="iidm:ShuntCompensatorVariant"/>
+            <xs:element name="boundaryLine" type="iidm:BoundaryLineVariant"/>
+            <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensatorVariant"/>
+            <xs:element name="vscConverterStation" type="iidm:VscConverterStationVariant"/>
+            <xs:element name="injection" type="iidm:InjectionVariant"/>
+            <xs:element name="fictiousInjection" type="iidm:FictitiousInjectionVariant"/>
+            <xs:element name="voltageSourceConverter" type="iidm:VoltageSourceConverterVariant"/>
+            <xs:element name="acDcConverter" type="iidm:AcDcConverterVariant"/>
+            <xs:element name="overloadManagementSystem" type="iidm:OverloadManagementSystemVariant"/>
+            <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:any minOccurs="1" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="id" use="required" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
         </xs:choice>
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+    </xs:complexType>
+    <xs:complexType name="VariantElement">
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+    </xs:complexType>
+    <xs:complexType name="VoltageRegulationVariant">
+        <xs:attributeGroup ref="iidm:VoltageRegulationVariantAttributes"/>
+    </xs:complexType>
+    <xs:complexType name="CalculatedBusVariant">
+        <xs:attributeGroup ref="iidm:CalculatedBusVariantAttributes"/>
+    </xs:complexType>
+    <xs:complexType name="FictitiousInjectionVariant">
+        <xs:attribute name="node" use="required" type="xs:int"/>
+        <xs:attributeGroup ref="iidm:FictitiousInjectionVariantAttributes"/>
+    </xs:complexType>
+    <xs:complexType name="VoltageLevelVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:sequence>
+                    <xs:element name="bus" minOccurs="0" maxOccurs="unbounded" type="iidm:CalculatedBusVariant"/>
+                    <xs:element name="inj" minOccurs="0" maxOccurs="unbounded" type="iidm:FictitiousInjectionVariant"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BusVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:BusVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SwitchVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:SwitchVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="InjectionVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:InjectionVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="GeneratorVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:InjectionVariant">
+                <xs:sequence>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulationVariant"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="iidm:GeneratorVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BatteryVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:InjectionVariant">
+                <xs:sequence>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulationVariant"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="iidm:BatteryVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="LoadVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:InjectionVariant">
+                <xs:attributeGroup ref="iidm:LoadVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ShuntCompensatorVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:InjectionVariant">
+                <xs:sequence>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulationVariant"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="iidm:ShuntCompensatorVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BoundaryLineVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:InjectionVariant">
+                <xs:attributeGroup ref="iidm:BoundaryLineVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StaticVarCompensatorVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:InjectionVariant">
+                <xs:sequence>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulationVariant"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="iidm:StaticVarCompensatorVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VscConverterStationVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:InjectionVariant">
+                <xs:sequence>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulationVariant"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="iidm:VscConverterStationVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="AcDcConverterVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:AcDcConverterVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VoltageSourceConverterVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:AcDcConverterVariant">
+                <xs:sequence>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulationVariant"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="iidm:VoltageSourceConverterVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BranchVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:BranchVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="RatioTapChangerVariant">
+        <xs:sequence>
+            <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulationVariant"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="iidm:RatioTapChangerVariantAttributes"/>
+    </xs:complexType>
+    <xs:complexType name="PhaseTapChangerVariant">
+        <xs:attributeGroup ref="iidm:PhaseTapChangerVariantAttributes"/>
+    </xs:complexType>
+    <xs:complexType name="TwoWindingsTransformerVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:BranchVariant">
+                <xs:sequence>
+                    <xs:element name="ratioTapChanger" type="iidm:RatioTapChangerVariant" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger" type="iidm:PhaseTapChangerVariant" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ThreeWindingsTransformerVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:sequence>
+                    <xs:element name="ratioTapChanger1" type="iidm:RatioTapChangerVariant" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger1" type="iidm:PhaseTapChangerVariant" minOccurs="0"/>
+                    <xs:element name="ratioTapChanger2" type="iidm:RatioTapChangerVariant" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger2" type="iidm:PhaseTapChangerVariant" minOccurs="0"/>
+                    <xs:element name="ratioTapChanger3" type="iidm:RatioTapChangerVariant" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger3" type="iidm:PhaseTapChangerVariant" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="iidm:ThreeWindingsTransformerVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="HvdcLineVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:HvdcLineVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="OverloadManagementSystemVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:OverloadManagementSystemVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="AreaVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:AreaVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DcNodeVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:DcNodeVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DcSwitchVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:DcSwitchVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DcGroundVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:DcGroundVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DcLineVariant">
+        <xs:complexContent>
+            <xs:extension base="iidm:VariantElement">
+                <xs:attributeGroup ref="iidm:DcLineVariantAttributes"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 </xs:schema>
