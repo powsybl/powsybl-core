@@ -44,7 +44,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withSwitchPrefixId("sw")
                 .build();
         couplingDeviceModif.apply(network);
-        writeXmlTest(network, "/testNetworkNodeBreakerWithCouplingDeviceSameSectionIndex.xml");
+        writeTest(network, "/testNetworkNodeBreakerWithCouplingDeviceSameSectionIndex.xml");
     }
 
     @Test
@@ -55,7 +55,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
         couplingDeviceModif.apply(network);
-        writeXmlTest(network, "/testNetworkNodeBreakerWithCouplingDeviceDifferentSectionIndex.xml");
+        writeTest(network, "/testNetworkNodeBreakerWithCouplingDeviceDifferentSectionIndex.xml");
     }
 
     @Test
@@ -110,7 +110,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/testNetworkNodeBreakerWithCouplingDeviceWithoutExtensions.xml");
+        writeTest(network, "/testNetworkNodeBreakerWithCouplingDeviceWithoutExtensions.xml");
     }
 
     @Test
@@ -121,7 +121,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .withBusOrBusbarSectionId2("VLTEST23")
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/testNetwork3BusbarSectionsWithCouplingDevice.xiidm");
+        writeTest(network, "/testNetwork3BusbarSectionsWithCouplingDevice.xiidm");
     }
 
     @Test
@@ -133,7 +133,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .build();
         modification.apply(network);
 
-        writeXmlTest(network, "/network_test_bus_breaker_with_coupling_device.xiidm");
+        writeTest(network, "/network_test_bus_breaker_with_coupling_device.xiidm");
     }
 
     @Test

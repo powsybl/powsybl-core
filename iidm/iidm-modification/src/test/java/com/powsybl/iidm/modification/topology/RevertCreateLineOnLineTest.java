@@ -171,7 +171,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withMergedLineId("CJ_NEW")
                 .build();
         modification.apply(network, true, reportNode);
-        writeXmlTest(network, "/fictitious-revert-create-line-on-line-l.xml");
+        writeTest(network, "/fictitious-revert-create-line-on-line-l.xml");
         testReportNode(reportNode, "/reportNode/revert-create-line-on-line-nb-report.txt");
     }
 
@@ -194,7 +194,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withMergedLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reportNode);
-        writeXmlTest(network, "/eurostag-revert-create-line-on-line-nb-l.xml");
+        writeTest(network, "/eurostag-revert-create-line-on-line-nb-l.xml");
         testReportNode(reportNode, "/reportNode/revert-create-line-on-line-nb-bb-report.txt");
     }
 
@@ -217,7 +217,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withMergedLineId("NHV1_NHV2_1")
                 .build();
         modification.apply(network, true, reportNode);
-        writeXmlTest(network, "/eurostag-revert-create-line-on-line-bb-l.xml");
+        writeTest(network, "/eurostag-revert-create-line-on-line-bb-l.xml");
         testReportNode(reportNode, "/reportNode/revert-create-line-on-line-bb-report.txt");
     }
 

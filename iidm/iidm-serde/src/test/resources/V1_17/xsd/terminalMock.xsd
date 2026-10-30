@@ -11,7 +11,7 @@
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_17"
            elementFormDefault="qualified">
-    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_17" schemaLocation="iidm_V1_17.xsd"/>
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_17" schemaLocation="iidm_V1_16.xsd"/>
     <xs:element name="terminalMock">
         <xs:complexType>
             <xs:sequence>

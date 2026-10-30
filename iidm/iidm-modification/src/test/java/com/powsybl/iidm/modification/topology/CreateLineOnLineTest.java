@@ -82,7 +82,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        writeXmlTest(network, "/fictitious-line-split-l-with-limits.xml");
+        writeTest(network, "/fictitious-line-split-l-with-limits.xml");
     }
 
     @Test
@@ -92,7 +92,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        writeXmlTest(network, "/fictitious-line-split-l.xml");
+        writeTest(network, "/fictitious-line-split-l.xml");
     }
 
     @Test
@@ -102,7 +102,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        writeXmlTest(network, "/eurostag-line-split-nb-l.xml");
+        writeTest(network, "/eurostag-line-split-nb-l.xml");
     }
 
     @Test
@@ -112,7 +112,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        writeXmlTest(network, "/eurostag-line-split-bb-l.xml");
+        writeTest(network, "/eurostag-line-split-bb-l.xml");
     }
 
     @Test
@@ -169,7 +169,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLine2Name("FICT2LName")
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/fictitious-line-split-l-complete.xml");
+        writeTest(network, "/fictitious-line-split-l-complete.xml");
     }
 
     @Test
@@ -183,7 +183,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLineAdder(adder)
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/fictitious-line-split-l.xml");
+        writeTest(network, "/fictitious-line-split-l.xml");
 
     }
 

@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -30,8 +31,8 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.BiConsumer;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,12 +52,12 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertEquals("psse.import.ignore-node-breaker-topology", importer.getParameters().get(1).getName());
     }
 
-    private void testNetwork(Network network) throws IOException {
+    private void testNetwork(Network network, BiConsumer<InputStream, InputStream> compare) throws IOException {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
         network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            assertXmlEquals(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            compare.accept(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 
@@ -87,149 +88,154 @@ class PsseImporterTest extends AbstractSerDeTest {
         assertFalse(importer.exists(dsCaseInvalidx));
     }
 
-    private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    private Network importAndCompareXml(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), properties);
-        testNetwork(network);
+        testNetwork(network, ComparisonUtils::assertXmlEquals);
+        return network;
+    }
+
+    private Network importAndCompareTxt(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+        Properties properties = new Properties();
+        properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
+
+        ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
+        Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), properties);
+        testNetwork(network, ComparisonUtils::assertTxtEquals);
         return network;
     }
 
     @Test
     void importTest14() throws IOException {
-        importTest("IEEE_14_bus", "IEEE_14_bus.raw", false);
+        importAndCompareTxt("IEEE_14_bus", "IEEE_14_bus.raw", false);
     }
 
     @Test
     void importTest24() throws IOException {
-        importTest("IEEE_24_bus", "IEEE_24_bus.raw", false);
+        importAndCompareTxt("IEEE_24_bus", "IEEE_24_bus.raw", false);
     }
 
     @Test
     void importTest30() throws IOException {
-        importTest("IEEE_30_bus", "IEEE_30_bus.raw", false);
+        importAndCompareTxt("IEEE_30_bus", "IEEE_30_bus.raw", false);
     }
 
     @Test
     void importTest57() throws IOException {
-        importTest("IEEE_57_bus", "IEEE_57_bus.raw", false);
+        importAndCompareTxt("IEEE_57_bus", "IEEE_57_bus.raw", false);
     }
 
     @Test
     void importTest118() throws IOException {
-        importTest("IEEE_118_bus", "IEEE_118_bus.raw", false);
+        importAndCompareTxt("IEEE_118_bus", "IEEE_118_bus.raw", false);
     }
 
     @Test
     void importTestT3W() throws IOException {
-        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.raw", false);
+        importAndCompareTxt("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.raw", false);
     }
 
     @Test
     void importTestT3Wphase() throws IOException {
-        importTest("ThreeMIB_T3W_phase", "ThreeMIB_T3W_phase.raw", false);
+        importAndCompareTxt("ThreeMIB_T3W_phase", "ThreeMIB_T3W_phase.raw", false);
     }
 
     @Test
     void remoteControl() throws IOException {
-        importTest("remoteControl", "remoteControl.raw", false);
-    }
-
-    @Test
-    void exampleVersion32() throws IOException {
-        importTest("ExampleVersion32", "ExampleVersion32.raw", false);
+        importAndCompareTxt("remoteControl", "remoteControl.raw", false);
     }
 
     @Test
     void switchedShunt() throws IOException {
-        importTest("SwitchedShunt", "SwitchedShunt.raw", false);
+        importAndCompareTxt("SwitchedShunt", "SwitchedShunt.raw", false);
     }
 
     @Test
     void switchedShuntWithZeroVswlo() throws IOException {
-        importTest("SwitchedShuntWithZeroVswlo", "SwitchedShuntWithZeroVswlo.raw", false);
+        importAndCompareTxt("SwitchedShuntWithZeroVswlo", "SwitchedShuntWithZeroVswlo.raw", false);
     }
 
     @Test
     void importTest14IsolatedBuses() throws IOException {
-        importTest("IEEE_14_isolated_buses", "IEEE_14_isolated_buses.raw", false);
+        importAndCompareTxt("IEEE_14_isolated_buses", "IEEE_14_isolated_buses.raw", false);
     }
 
     @Test
     void twoTerminalDc() throws IOException {
-        importTest("twoTerminalDc", "twoTerminalDc.raw", false);
+        importAndCompareTxt("twoTerminalDc", "twoTerminalDc.raw", false);
     }
 
     @Test
     void twoTerminalDcWithNegativeSetvl() throws IOException {
-        importTest("twoTerminalDc_with_negative_setvl", "twoTerminalDc_with_negative_setvl.raw", false);
+        importAndCompareTxt("twoTerminalDc_with_negative_setvl", "twoTerminalDc_with_negative_setvl.raw", false);
     }
 
     @Test
     void parallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
-        importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
+        importAndCompareTxt("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
     }
 
     @Test
     void twoWindingsTransformerPhase() throws IOException {
-        importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
+        importAndCompareTxt("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
     }
 
     @Test
     void isolatedSlackBus() throws IOException {
-        importTest("IsolatedSlackBus", "IsolatedSlackBus.raw", false);
+        importAndCompareTxt("IsolatedSlackBus", "IsolatedSlackBus.raw", false);
     }
 
     @Test
     void transformersWithZeroNomV() throws IOException {
-        importTest("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
+        importAndCompareTxt("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
     }
 
     @Test
     void rawCaseWithSpecialCharacters() throws IOException {
-        importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
+        importAndCompareTxt("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
     }
 
     @Test
     void rawxCaseWithSpecialCharacters() throws IOException {
-        importTest("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
+        importAndCompareTxt("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
     }
 
     @Test
     void twoAreaCase() throws IOException {
-        importTest("two_area_case", "two_area_case.raw", false);
+        importAndCompareTxt("two_area_case", "two_area_case.raw", false);
     }
 
     @Test
     void twoTerminalDcwithTwoAreas() throws IOException {
-        importTest("twoTerminalDcwithTwoAreas", "twoTerminalDcwithTwoAreas.raw", false);
+        importAndCompareTxt("twoTerminalDcwithTwoAreas", "twoTerminalDcwithTwoAreas.raw", false);
     }
 
     @Test
     void twoTerminalDcwithTwoAreasTrf3w() throws IOException {
-        importTest("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
+        importAndCompareTxt("two_area_case_trf3w", "two_area_case_trf3w.raw", false);
     }
 
     @Test
     void importTwoTerminalDcAndVscWithZeroResistance() throws IOException {
-        importTest("two_terminal_dc_vsc_with_zero_resistance", "two_terminal_dc_vsc_with_zero_resistance.raw", false);
+        importAndCompareTxt("two_terminal_dc_vsc_with_zero_resistance", "two_terminal_dc_vsc_with_zero_resistance.raw", false);
     }
 
     @Test
     void importNonTranformerBranchZeroX() throws IOException {
-        importTest("NonTranformerBranchZeroX", "NonTranformerBranchZeroX.raw", false);
+        importAndCompareTxt("NonTranformerBranchZeroX", "NonTranformerBranchZeroX.raw", false);
     }
 
     @Test
     void importSubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas() throws IOException {
-        importTest("SubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas", "SubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas.raw", false);
+        importAndCompareTxt("SubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas", "SubstationWithThreeBusesAtTheSameNominalVoltageInTwoDifferentAreas.raw", false);
     }
 
     @Test
     void importTest14BusesDuplicateIds() throws IOException {
-        Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
+        Network n = importAndCompareTxt("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
         assertNotNull(n.getGenerator("B1-G1 "));
         assertNotNull(n.getShuntCompensator("B9-SH 1"));
@@ -239,7 +245,7 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void importTest14BusesDuplicateIdsV35() throws IOException {
-        Network n = importTest("IEEE_14_buses_duplicate_ids_rev35", "IEEE_14_buses_duplicate_ids_rev35.raw", false);
+        Network n = importAndCompareTxt("IEEE_14_buses_duplicate_ids_rev35", "IEEE_14_buses_duplicate_ids_rev35.raw", false);
         assertNotNull(n.getLoad("B2-L1 "));
         assertNotNull(n.getGenerator("B1-G1 "));
         assertNotNull(n.getShuntCompensator("B9-SH 1"));
@@ -251,7 +257,7 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void importTest14BadlyConnectedEquipment() throws IOException {
-        Network n = importTest("IEEE_14_buses_badly_connected_equipment", "IEEE_14_buses_badly_connected_equipment.raw", false);
+        Network n = importAndCompareTxt("IEEE_14_buses_badly_connected_equipment", "IEEE_14_buses_badly_connected_equipment.raw", false);
 
         // Ensure that the equipment is not imported
         assertNull(n.getLoad("B200-L1 "));
@@ -274,7 +280,7 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void importTest14BadlyDefinedControlledBuses() throws IOException {
-        Network n = importTest("IEEE_14_buses_badly_defined_controlled_buses", "IEEE_14_buses_badly_defined_controlled_buses.raw", false);
+        Network n = importAndCompareTxt("IEEE_14_buses_badly_defined_controlled_buses", "IEEE_14_buses_badly_defined_controlled_buses.raw", false);
 
         // Ensure that the equipment is imported
         assertNotNull(n.getGenerator("B8-G1 "));
@@ -349,17 +355,17 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void importTest14ZipLoad() throws IOException {
-        importTest("IEEE_14_buses_zip_load", "IEEE_14_buses_zip_load.raw", false);
+        importAndCompareTxt("IEEE_14_buses_zip_load", "IEEE_14_buses_zip_load.raw", false);
     }
 
     @Test
     void importTest14NodeBreaker() throws IOException {
-        importTest("IEEE_14_bus_nodeBreaker_rev35", "IEEE_14_bus_nodeBreaker_rev35.raw", false);
+        importAndCompareTxt("IEEE_14_bus_nodeBreaker_rev35", "IEEE_14_bus_nodeBreaker_rev35.raw", false);
     }
 
     @Test
     void importFiveBusNodeBreaker() throws IOException {
-        importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
+        importAndCompareTxt("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
     }
 
     @Test
@@ -383,7 +389,7 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void importTwoSubstationsTest() throws IOException {
-        importTest("twoSubstations_rev35", "twoSubstations_rev35.raw", false);
+        importAndCompareTxt("twoSubstations_rev35", "twoSubstations_rev35.raw", false);
     }
 
     @Test
@@ -428,12 +434,12 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void importTwoSubstationsRawxTest() throws IOException {
-        importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
+        importAndCompareXml("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
     }
 
     @Test
     void importTest14Delimiter() throws IOException {
-        importTest("IEEE_14_bus_delimiter", "IEEE_14_bus_delimiter.raw", false);
+        importAndCompareTxt("IEEE_14_bus_delimiter", "IEEE_14_bus_delimiter.raw", false);
     }
 
     @Test

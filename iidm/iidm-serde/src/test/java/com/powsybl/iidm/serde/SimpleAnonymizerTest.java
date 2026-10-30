@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
@@ -31,7 +30,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
     private void anonymisationTest(Network network) throws IOException {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
-        // export with anonymisation on
+        // export with anonymization on
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "true");
         MemDataSource dataSource = new MemDataSource();
@@ -39,7 +38,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            assertXmlEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_VERSION), is);
+            assertTxtEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_VERSION), is);
         }
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("_mapping", "csv"))) {
             assertTxtEquals(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);

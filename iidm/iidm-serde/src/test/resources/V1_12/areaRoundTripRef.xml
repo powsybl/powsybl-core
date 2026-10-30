@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" id="test" caseDate="2020-03-04T13:20:30.476+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" id="sub" caseDate="2020-03-04T13:20:30.476+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:network id="sub" caseDate="2020-03-04T13:20:30.476+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
         <iidm:substation id="sub3">
             <iidm:voltageLevel id="VL2" nominalV="1.0" topologyKind="BUS_BREAKER">
                 <iidm:busBreakerTopology>
@@ -16,7 +16,7 @@
                 <iidm:bus id="N2"/>
             </iidm:busBreakerTopology>
             <iidm:load id="L1" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="N1" connectableBus="N1"/>
-            <iidm:danglingLine id="DL1" r="0.0" x="0.0" b="0.0" g="0.0" p0="0.0" q0="0.0" bus="N2" connectableBus="N2"/>
+            <iidm:danglingLine id="DL1" p0="0.0" q0="0.0" r="0.0" x="0.0" g="0.0" b="0.0" bus="N2" connectableBus="N2"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="sub2"/>

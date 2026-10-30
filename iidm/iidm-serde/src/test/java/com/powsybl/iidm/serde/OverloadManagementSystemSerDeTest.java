@@ -40,7 +40,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("overloadManagementSystemRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("overloadManagementSystemRoundTripRef.xml");
         allFormatsRoundTripTest(network, "overloadManagementSystemRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 

@@ -55,7 +55,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/create-vl-topo-test.xiidm");
+        writeTest(network, "/create-vl-topo-test.xiidm");
     }
 
     @Test
@@ -70,7 +70,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/create-vl-topo-test-complete.xiidm");
+        writeTest(network, "/create-vl-topo-test-complete.xiidm");
     }
 
     @Test
@@ -225,7 +225,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withSectionCount(4)
                 .build();
         modification.apply(network);
-        writeXmlTest(network, "/eurostag-new-voltage-level.xml");
+        writeTest(network, "/eurostag-new-voltage-level.xml");
     }
 
     @Test
@@ -481,7 +481,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withLowBusOrBusbarIndex(3)
                 .withConnectExistingConnectables(true)
                 .build().apply(network);
-        writeXmlTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
+        writeTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
 
         // Check that calling again ConnectFeedersToBusbarSections does nothing
         new ConnectFeedersToBusbarSectionsBuilder()
@@ -489,7 +489,7 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .withBusbarSectionsToConnect(network.getBusbarSectionStream().filter(b -> b.getId().contains("vl1")).toList())
                 .withConnectCouplingDevices(true)
                 .build().apply(network);
-        writeXmlTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
+        writeTest(network, "/testNetworkNodeBreakerWithNewBusbarSectionsConnectedConnectables.xiidm");
     }
 
 }

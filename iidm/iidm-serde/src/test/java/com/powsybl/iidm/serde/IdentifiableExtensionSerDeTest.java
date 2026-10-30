@@ -27,7 +27,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -72,7 +72,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(MultipleExtensionsTestNetworkFactory.create(), "multiple-extensions.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("multiple-extensions.xml");
     }
 
     // Define a network extension without XML serializer
@@ -143,7 +143,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
     }
 
     @Test
@@ -164,7 +164,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             assertNotNull(is);
             // check that loadMock has been serialized in v1.1
-            assertXmlEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_1.xml", IidmVersion.V_1_1),
+            assertTxtEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_1.xml", IidmVersion.V_1_1),
                     is);
         }
     }

@@ -51,7 +51,7 @@ class EntsoeAreaSerDeTest extends AbstractSerDeTest {
         s.newExtension(EntsoeAreaAdder.class).withCode(EntsoeGeographicalCode.BE).add();
         EntsoeArea country = s.getExtension(EntsoeArea.class);
 
-        Network network2 = roundTripXmlTest(network,
+        Network network2 = roundTripTest(network,
                 (n, p) -> binWriteAndRead(jsonWriteAndRead(n, p), p),
                 NetworkSerDe::write,
                 NetworkSerDe::validateAndRead,
