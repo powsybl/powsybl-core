@@ -81,10 +81,15 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         return os;
     }
 
-    private Path getPath(String fileName) {
+    private Path getPath(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         FileInformation fileInformation = new FileInformation(fileName, false);
-        return directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName);
+        Path normalizedPath = directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName)
+                .normalize();
+        if (!normalizedPath.startsWith(directory)) { // directory is already normalized
+            throw new IOException("File name '" + fileName + "' is not located inside the data source directory '" + directory + "'");
+        }
+        return normalizedPath;
     }
 
     @Override
