@@ -536,7 +536,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 lineparser.accept(rec);
             }
         } catch (CsvParseException e) {
-            if (WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN.matcher(e.getCause().getMessage()).find()) {
+            if (WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN.matcher(e.getMessage()).find()) {
                 throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header", e);
             }
             throw e;

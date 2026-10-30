@@ -102,53 +102,55 @@
         <autoservice.version>1.1.1</autoservice.version>
         <awaitility.version>4.3.0</awaitility.version>
         <commonscli.version>1.11.0</commonscli.version>
-        <commonscodec.version>1.20.0</commonscodec.version>
+        <commonscodec.version>1.23.0</commonscodec.version>
         <commonscompress.version>1.28.0</commonscompress.version>
         <commons-configuration2.version>2.15.1</commons-configuration2.version>
         <commons-csv.version>1.14.1</commons-csv.version>
         <commonsio.version>2.22.0</commonsio.version>
-        <commonslang3.version>3.20.0</commonslang3.version>
+        <commonslang3.version>3.21.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <commonstext.version>1.15.0</commonstext.version>
-        <ejml.version>0.45.1</ejml.version>
-        <fastcsv.version>4.3.0</fastcsv.version>
+        <ejml.version>0.46.1</ejml.version>
+        <fastcsv.version>4.4.0</fastcsv.version>
         <!-- gdata seems abandoned - to be replaced? -->
         <gdata.version>1.47.1_1</gdata.version>
-        <!-- groovy can be updated to v5 -->
-        <groovy.version>4.0.32</groovy.version>
+        <!-- groovy can be updated to v6 -->
+        <groovy.version>4.0.33</groovy.version>
         <guava.version>33.6.0-jre</guava.version>
         <!-- jackson-core can be updated to v3 -->
         <jackson.version>2.21.7</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.3</jgrapht.version>
-        <jimfs.version>1.3.1</jimfs.version>
+        <jimfs.version>1.3.2</jimfs.version>
         <!-- junit can be updated to v6 -->
         <junit-jupiter.version>5.14.4</junit-jupiter.version>
-        <logback.version>1.5.35</logback.version>
+        <logback.version>1.6.6</logback.version>
         <maven.compat>3.9.9</maven.compat>
         <maven.core.version>3.9.3</maven.core.version>
         <maven.plugin.annotations.version>3.15.2</maven.plugin.annotations.version>
         <maven.plugin.testing.harness.version>3.5.1</maven.plugin.testing.harness.version>
         <mfl.version>0.5.15</mfl.version>
-        <mockito.version>5.23.0</mockito.version>
+        <mockito.version>5.24.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
-        <poi.version>5.5.1</poi.version>
-        <rdf4j.version>5.3.1</rdf4j.version>
+        <poi.version>6.0.0</poi.version>
+        <!-- rdf4j can be updated to v6 once powsybl uses Java 25 -->
+        <rdf4j.version>5.3.2</rdf4j.version>
         <re2j.version>1.8</re2j.version>
+        <!-- is sirocco really that useful or could we manage without it? -->
         <sirocco.version>1.0</sirocco.version>
-        <slf4j.version>2.0.18</slf4j.version>
-        <snakeyaml.version>2.6</snakeyaml.version>
+        <slf4j.version>2.0.20</slf4j.version>
+        <snakeyaml.version>2.7</snakeyaml.version>
+        <!-- is staxutils really that useful or could we manage without it? -->
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
-        <!-- testcontainers can be updated to v2 -->
-        <testcontainers.version>1.21.4</testcontainers.version>
-        <threeten.version>1.8.0</threeten.version>
+        <testcontainers.version>2.0.5</testcontainers.version>
+        <threeten.version>1.11.0</threeten.version>
         <!-- trove4j seems abandoned - to be replaced ? -->
         <trove4j.version>3.0.3</trove4j.version>
-        <xmlunit.version>2.11.0</xmlunit.version>
+        <xmlunit.version>2.14.0</xmlunit.version>
         <xz.version>1.12</xz.version>
-        <zstdjni.version>1.5.7-10</zstdjni.version>
+        <zstdjni.version>1.5.7-25</zstdjni.version>
 
         <powsyblmathnative.version>1.5.0</powsyblmathnative.version>
 
