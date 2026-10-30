@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
+import java.util.Optional;
+
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
@@ -45,13 +47,13 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
         writeOptionalQuality(QUALITY_V, injectionObservability.getQualityV(), context.getWriter());
     }
 
-    private void writeOptionalQuality(String elementName, ObservabilityQuality<T> quality, TreeDataWriter writer) {
-        if (quality != null) {
+    private void writeOptionalQuality(String elementName, Optional<ObservabilityQuality<T>> quality, TreeDataWriter writer) {
+        quality.ifPresent(q -> {
             writer.writeStartNode(getNamespaceUri(), elementName);
-            writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            writer.writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant().orElse(null));
+            writer.writeDoubleAttribute(STANDARD_DEVIATION, q.getStandardDeviation());
+            writer.writeOptionalBooleanAttribute(REDUNDANT, q.isRedundant().orElse(null));
             writer.writeEndNode();
-        }
+        });
     }
 
     @Override

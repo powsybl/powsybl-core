@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="phaseShifterTestCase" caseDate="2016-10-18T10:06:00.000+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" id="phaseShifterTestCase" caseDate="2016-10-18T10:06:00.000+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" v="400.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="G1" energySource="OTHER" minP="50.0" maxP="150.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" bus="B1" connectableBus="B1" p="-100.16797" q="-58.402832">
+            <iidm:generator id="G1" energySource="OTHER" minP="50.0" maxP="150.0" targetP="100.0" localTargetV="400.0" bus="B1" connectableBus="B1" p="-100.16797" q="-58.402832">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL3" nominalV="380.0" topologyKind="BUS_BREAKER">

@@ -67,6 +67,9 @@ public interface Terminal {
          * If the given bus' voltage level topology is not BUS-BREAKER, a runtime exception is thrown.
          */
         void moveConnectable(String busId, boolean connected);
+
+        default void updateConnectableBus(String busId) {
+        }
     }
 
     /**
@@ -284,6 +287,20 @@ public interface Terminal {
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
+    }
+
+    static Terminal getTerminal(Network network, String id, ThreeSides side, TerminalNumber number) {
+        Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
+        }
+        if (side != null && number != null) {
+            throw new PowsyblException("Terminal reference specifies both terminal side and terminal number: '" + id + "'");
+        }
+        if (number != null) {
+            return getTerminal(identifiable, number);
+        }
+        return getTerminal(identifiable, side != null ? side : ThreeSides.ONE);
     }
 
     ThreeSides getSide();

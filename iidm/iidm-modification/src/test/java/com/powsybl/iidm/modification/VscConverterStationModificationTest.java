@@ -28,7 +28,7 @@ class VscConverterStationModificationTest {
     private VscConverterStation vsc;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = FourSubstationsNodeBreakerFactory.create();
         assertTrue(network.getVscConverterStationCount() > 0);
         vsc = network.getVscConverterStations().iterator().next();
@@ -60,8 +60,8 @@ class VscConverterStationModificationTest {
         VscConverterStationModification modif2 = new VscConverterStationModification(vsc.getId(), 1.,
             2.);
         modif2.apply(network, true, ReportNode.NO_OP);
-        assertEquals(1, vsc.getVoltageSetpoint(), "Failed to modify network during apply.");
-        assertEquals(2, vsc.getReactivePowerSetpoint(), "Failed to modify network during apply.");
+        assertEquals(1, vsc.getRegulatingTargetV(), "Failed to modify network during apply.");
+        assertEquals(2, vsc.getRegulatingTargetQ(), "Failed to modify network during apply.");
     }
 
     @Test

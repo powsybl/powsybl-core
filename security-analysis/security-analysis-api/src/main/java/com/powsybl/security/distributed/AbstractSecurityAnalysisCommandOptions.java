@@ -40,7 +40,7 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
     private Path parametersFile;
     private Path actionsFile;
     private Path strategiesFile;
-    private Path limitReductionsFile;
+    private Path limitScalingsFile;
     private Integer taskCount;
     private IntFunction<Path> outputFile;
     private IntFunction<Path> logFile;
@@ -98,8 +98,8 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
         return self();
     }
 
-    public T limitReductionsFile(Path limitReductionsFile) {
-        this.limitReductionsFile = limitReductionsFile;
+    public T limitScalingsFile(Path limitScalingsFile) {
+        this.limitScalingsFile = limitScalingsFile;
         return self();
     }
 
@@ -190,7 +190,7 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
         setOptionIfPresent(commandBuilder, ACTIONS_FILE, actionsFile, this::pathToString);
         setOptionIfPresent(commandBuilder, STRATEGIES_FILE, strategiesFile, this::pathToString);
         setOptionIfPresent(commandBuilder, CONTINGENCIES_FILE_OPTION, contingenciesFile, this::pathToString);
-        setOptionIfPresent(commandBuilder, LIMIT_REDUCTIONS_FILE, limitReductionsFile, this::pathToString);
+        setOptionIfPresent(commandBuilder, LIMIT_SCALINGS_FILE, limitScalingsFile, this::pathToString);
         setOptionIfPresent(commandBuilder, OUTPUT_FILE_OPTION, outputFile, this::pathToString);
         setOptionIfPresent(commandBuilder, OUTPUT_FORMAT_OPTION, outputFileFormat);
         setOptionIfPresent(commandBuilder, OUTPUT_LOG_OPTION, logFile, this::pathToString);
