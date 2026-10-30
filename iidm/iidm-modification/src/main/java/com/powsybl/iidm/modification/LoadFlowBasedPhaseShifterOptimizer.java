@@ -47,7 +47,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             String loadFlowName = config.getLoadFlowName().orElse(null);
             LoadFlowResult result = LoadFlow.find(loadFlowName)
                                             .run(network, workingStateId, computationManager, LoadFlowParameters.load());
-            if (!result.isOk()) {
+            if (result.isFailed()) {
                 throw new PowsyblException("Load flow diverged during phase shifter optimization");
             }
         } catch (Exception e) {
