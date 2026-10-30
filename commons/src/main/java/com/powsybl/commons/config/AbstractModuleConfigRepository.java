@@ -10,6 +10,7 @@ package com.powsybl.commons.config;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -21,5 +22,10 @@ abstract class AbstractModuleConfigRepository implements ModuleConfigRepository 
 
     public Optional<ModuleConfig> getModuleConfig(String name) {
         return Optional.ofNullable(configs.get(name));
+    }
+
+    @Override
+    public Set<String> getModuleNames() {
+        return Set.copyOf(configs.keySet());
     }
 }

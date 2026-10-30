@@ -6,12 +6,24 @@ maxdepth: 1
 hidden: true
 ---
 modules.md
+runtime-config.md
 ```
 
 The configuration mechanism supports YAML and XML file formats. The framework looks inside all the folders specified to the [powsybl_config_dirs](../itools/index.md#configuration) property in the [itools.conf](../itools/index.md#configuration) file for configuration files. The framework uses the [powsybl_config_name](../itools/index.md#configuration) property as the basename of the configuration files. It looks for a YAML file first, then for an XML file. The XML file will be used only if the YAML configuration file has not been found.
 
 The configuration can also be configured using the system's environment variables. These variables should respect the
 following format: `MODULE_NAME__PROPERTY_NAME`. Note that these variables will overload the XML/YAML configuration files.
+
+An application may also ship its own default values in a jar, which apply to the properties the user
+has not defined. See [runtime configuration](runtime-config.md). The complete order of precedence is:
+
+| Rank | Source |
+|------|--------|
+| 1 | the options given on the command line, for `itools` commands |
+| 2 | the environment variables `MODULE_NAME__PROPERTY_NAME` |
+| 3 | the configuration files of `powsybl_config_dirs` |
+| 4 | the [runtime configuration](runtime-config.md) |
+| 5 | the default values written in the Java code |
 
 The default configuration folder and the configuration file name can be configured in the `POWSYBL_HOME/etc/itools.conf`.
 
