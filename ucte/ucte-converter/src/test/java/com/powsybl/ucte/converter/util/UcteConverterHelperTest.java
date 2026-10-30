@@ -115,6 +115,8 @@ class UcteConverterHelperTest {
         assertCandidates(network, "FCASE771", List.of(local(network, "CASE7_GA", 22.0)));
         assertCandidates(network, "FCASE871", List.of(new VoltageCandidate(network.getGenerator("CASE8_GA"), rescaledRemoteTarget, remoteBus, 405)));
         assertCandidates(network, "FCASE971", List.of());
+        assertCandidates(network, "FCASEA71", List.of(new VoltageCandidate(network.getGenerator("CASEA_GA"), 22.5,
+                network.getBusBreakerView().getBus("FCASE371"), 22.5)));
     }
 
     /**

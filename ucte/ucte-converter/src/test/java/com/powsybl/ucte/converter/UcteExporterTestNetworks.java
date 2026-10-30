@@ -230,7 +230,9 @@ public final class UcteExporterTestNetworks {
      *     (P = 500, 23 kV);</li>
      *     <li>{@code CASE8}: generator {@code GA} (P = 10) regulating {@code FREMOT11} at 405 kV and non-regulating
      *     generator {@code GB} (P = 500, 23 kV);</li>
-     *     <li>{@code CASE9}: non-regulating generator {@code GA} (P = 10) without voltage target.</li>
+     *     <li>{@code CASE9}: non-regulating generator {@code GA} (P = 10) without voltage target;</li>
+     *     <li>{@code CASEA}: generator {@code GA} (P = 100) regulating {@code CASE3_L}'s terminal at 22.5 kV, on another
+     *     bus with the same nominal voltage, without local target.</li>
      * </ul>
      */
     public static Network createWithMultipleVoltageTargets() {
@@ -271,6 +273,9 @@ public final class UcteExporterTestNetworks {
 
         bus = addBus(vl21, "CASE9");
         addGenerator(vl21, "CASE9_GA", bus, 10, 0, 100);
+
+        bus = addBus(vl21, "CASEA");
+        addRemoteRegulatingGenerator(vl21, "CASEA_GA", bus, 100, network.getLoad("CASE3_L").getTerminal(), 22.5);
         return network;
     }
 
