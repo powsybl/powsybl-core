@@ -52,9 +52,18 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
 
     @Override
     public Network setCaseDate(ZonedDateTime caseDate) {
+        ZonedDateTime oldCaseDate = this.caseDate;
+        initCaseDate(caseDate);
+        getNetwork().getListeners().notifyUpdate(this, "caseDate", oldCaseDate, caseDate);
+        return this;
+    }
+
+    /**
+     * Set the case date without notifying the listeners, for use while the network is being built.
+     */
+    protected final void initCaseDate(ZonedDateTime caseDate) {
         ValidationUtil.checkCaseDate(this, caseDate);
         this.caseDate = caseDate;
-        return this;
     }
 
     @Override
@@ -65,7 +74,9 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     @Override
     public Network setForecastDistance(int forecastDistance) {
         ValidationUtil.checkForecastDistance(this, forecastDistance);
+        int oldForecastDistance = this.forecastDistance;
         this.forecastDistance = forecastDistance;
+        getNetwork().getListeners().notifyUpdate(this, "forecastDistance", oldForecastDistance, forecastDistance);
         return this;
     }
 
