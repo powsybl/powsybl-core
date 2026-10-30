@@ -9,7 +9,11 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
@@ -25,13 +29,31 @@ import static com.powsybl.security.json.JsonSecurityAnalysisParameters.getExtens
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
+public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> implements ContextualDeserializer {
 
     private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
     private static final String TAG = "Tag: ";
 
+    private final transient JsonDeserializer<Object> increasedViolationsParametersDeserializer;
+    private final transient JsonDeserializer<Object> modifiedElementsParametersDeserializer;
+
     SecurityAnalysisParametersDeserializer() {
+        this(null, null);
+    }
+
+    SecurityAnalysisParametersDeserializer(JsonDeserializer<Object> increasedViolationsParametersDeserializer,
+                                           JsonDeserializer<Object> modifiedElementsParametersDeserializer) {
         super(SecurityAnalysisParameters.class);
+        this.increasedViolationsParametersDeserializer = increasedViolationsParametersDeserializer;
+        this.modifiedElementsParametersDeserializer = modifiedElementsParametersDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new SecurityAnalysisParametersDeserializer(
+            JsonUtil.buildValueDeserializer(ctxt, property, SecurityAnalysisParameters.IncreasedViolationsParameters.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class)
+        );
     }
 
     @Override
@@ -52,14 +74,18 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                 case "increased-violations-parameters":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
                     parser.nextToken();
-                    parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
+                    parameters.setIncreasedViolationsParameters(JsonUtil.readValue(
+                            increasedViolationsParametersDeserializer,
+                            deserializationContext,
                             parser,
                             SecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
                 case "monitored-element-modification-threshold":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: monitoredElementModificationThreshold", version, "1.3");
                     parser.nextToken();
-                    parameters.setModifiedMonitoredElementsParameters(JsonUtil.readValue(deserializationContext,
+                    parameters.setModifiedMonitoredElementsParameters(JsonUtil.readValue(
+                            modifiedElementsParametersDeserializer,
+                            deserializationContext,
                             parser,
                             SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class));
                     break;
