@@ -15,12 +15,12 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -187,27 +187,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             case TWO -> line.getOperationalLimitsGroups2().size();
         };
         assertEquals(0, allGroupsSize - line.getAllSelectedOperationalLimitsGroups(side).size());
-    }
-
-    @Test
-    void checkNoExportOfLowLimits() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
-        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
-            .newOperationalLimitsGroup1("low limits")
-            .newApparentPowerLimits()
-            .setDetectionKind(DetectionKind.LOW)
-            .beginTemporaryLimit()
-            .setValue(1000)
-            .setAcceptableDuration(60)
-            .setName("1'")
-            .endTemporaryLimit()
-            .add();
-        String referenceFilename = getVersionedNetworkPath("eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17);
-        assertThrows(NotImplementedException.class, () -> writeXmlTest(network,
-            (n, p) -> NetworkSerDe.write(n, new ExportOptions().setVersion(IidmVersion.V_1_17.toString(".")), p),
-            referenceFilename
-            ));
-        allFormatsRoundTripTest(network, "eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17, new ExportOptions().setForceExportNetworkWithBetaFeatures(true));
     }
 
     @ParameterizedTest
@@ -452,10 +431,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                     .setConnectableBus(busId)
                     .setMinP(-9999.99)
                     .setMaxP(9999.99)
-                    .setVoltageRegulatorOn(true)
-                    .setTargetV(24.5)
+                    .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                    .setLocalTargetV(24.5)
                     .setTargetP(607.0)
-                    .setTargetQ(301.0)
+                    .setLocalTargetQ(301.0)
                     .add();
             generator.newMinMaxReactiveLimits()
                     .setMinQ(-9999.99)

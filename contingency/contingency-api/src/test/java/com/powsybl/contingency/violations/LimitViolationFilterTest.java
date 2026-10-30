@@ -124,7 +124,7 @@ class LimitViolationFilterTest {
             .type(LimitViolationType.APPARENT_POWER)
             .limitName("")
             .limit(200.0)
-            .reduction(1)
+            .scaling(1)
             .value(250.0)
             .side(TwoSides.TWO)
             .build();

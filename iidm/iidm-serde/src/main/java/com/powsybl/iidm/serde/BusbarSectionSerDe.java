@@ -13,6 +13,9 @@ import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readEquivalent;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeEquivalent;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -31,6 +34,7 @@ class BusbarSectionSerDe extends AbstractSimpleIdentifiableSerDe<BusbarSection, 
 
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(bs, context);
         context.getWriter().writeIntAttribute("node", bs.getTerminal().getNodeBreakerView().getNode());
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_0, context, () -> {
             context.getWriter().writeDoubleAttribute("v", bs.getV());
@@ -45,6 +49,7 @@ class BusbarSectionSerDe extends AbstractSimpleIdentifiableSerDe<BusbarSection, 
 
     @Override
     protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         int node = context.getReader().readIntAttribute("node");
         BusbarSection bbs = adder.setNode(node)
                 .add();

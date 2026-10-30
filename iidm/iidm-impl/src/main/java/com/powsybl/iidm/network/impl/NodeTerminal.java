@@ -88,7 +88,6 @@ class NodeTerminal extends AbstractTerminal {
             }
             getConnectable().move(NodeTerminal.this, busId, connected);
         }
-
     };
 
     @Override

@@ -29,7 +29,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -38,7 +38,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -49,7 +49,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.09)
             .side(TwoSides.ONE)
             .build();
@@ -59,7 +59,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1101)
             .side(TwoSides.ONE)
             .build();
@@ -69,7 +69,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.TWO)
             .build();
@@ -79,7 +79,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -89,7 +89,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -99,7 +99,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.ACTIVE_POWER)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -109,7 +109,7 @@ class LimitViolationEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.APPARENT_POWER)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.TWO)
             .build();
@@ -120,7 +120,7 @@ class LimitViolationEquivalenceTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId("group_1")
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -130,7 +130,7 @@ class LimitViolationEquivalenceTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId("group_1")
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -141,7 +141,7 @@ class LimitViolationEquivalenceTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId("group_1")
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.09)
             .side(TwoSides.ONE)
             .build();
@@ -152,7 +152,7 @@ class LimitViolationEquivalenceTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId("group_2")
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -163,7 +163,7 @@ class LimitViolationEquivalenceTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId(null)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.09)
             .side(TwoSides.ONE)
             .build();
@@ -173,7 +173,7 @@ class LimitViolationEquivalenceTest {
             .type(LimitViolationType.CURRENT)
             .operationalLimitsGroupId("group_1")
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.09)
             .side(TwoSides.ONE)
             .build();

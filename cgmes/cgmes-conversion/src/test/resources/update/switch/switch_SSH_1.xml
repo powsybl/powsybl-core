@@ -30,6 +30,20 @@
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
 
+    <cim:Terminal rdf:about="#_EquivalentBranch-T1">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_EquivalentBranch-T2">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:Terminal rdf:about="#_ACLineSegment-T1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_ACLineSegment-T2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
     <cim:Terminal rdf:about="#_EnergyConsumer-T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
