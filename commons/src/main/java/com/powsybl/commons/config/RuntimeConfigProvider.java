@@ -19,7 +19,7 @@ import java.util.Optional;
  *
  * <p>Use this to ship the defaults of an application in a jar, rather than forcing a
  * configuration file onto every user. Implement it directly when the values have to be
- * computed at runtime; to serve static values, package a {@code META-INF/powsybl/config.yml}
+ * computed at runtime; to serve static values, package a {@code com/powsybl/config/config.yml}
  * resource instead and let {@link ClasspathRuntimeConfigProvider} pick it up.
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}

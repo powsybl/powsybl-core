@@ -142,7 +142,7 @@ class RuntimeConfigRepositoriesTest {
     @Test
     void publicLoadContributesNothingOnThisModuleOwnClassPath() {
         // Guards the load-bearing guarantee of the whole feature: no module of powsybl-core
-        // ships a META-INF/powsybl/config.yml resource nor a RuntimeConfigProvider that
+        // ships a com/powsybl/config/config.yml resource nor a RuntimeConfigProvider that
         // contributes anything, so the real ServiceLoader path (as opposed to the package-private
         // load(List) seam every other test in this class uses) must resolve to nothing on the
         // commons module's own classpath. If someone later added such a resource here, this is

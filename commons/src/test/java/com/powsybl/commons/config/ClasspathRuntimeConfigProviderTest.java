@@ -30,7 +30,7 @@ class ClasspathRuntimeConfigProviderTest {
     Path tempDir;
 
     /**
-     * Creates a directory holding a META-INF/powsybl/config.yml resource and returns its URL,
+     * Creates a directory holding a com/powsybl/config/config.yml resource and returns its URL,
      * so it can be used as a class path entry.
      */
     private URL classPathEntry(String directoryName, String... yamlLines) throws IOException {

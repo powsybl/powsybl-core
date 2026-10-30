@@ -18,7 +18,7 @@ user's value wins wherever both define the same one.
 
 ## Shipping default values in a jar
 
-Add a `META-INF/powsybl/config.yml` resource to your jar. It uses the same syntax as a user
+Add a `com/powsybl/config/config.yml` resource to your jar. It uses the same syntax as a user
 configuration file:
 
 ```yaml
@@ -44,7 +44,7 @@ powsybl-runtime-config:
 
 The default priority is 0 and the higher priority wins. Files of equal priority are ordered by the
 URL of their resource, so the resulting configuration never depends on the order of the class path.
-The `powsybl-runtime-config` module name is reserved in `META-INF/powsybl/config.yml` files: it is
+The `powsybl-runtime-config` module name is reserved in `com/powsybl/config/config.yml` files: it is
 removed from the configuration and cannot be read back as an ordinary module there. A Java
 `RuntimeConfigProvider` exposing a module of that name is not filtered and is not affected by this
 reservation.
@@ -84,7 +84,7 @@ public class MyRuntimeConfigProvider implements RuntimeConfigProvider {
 Returning `Optional.empty()` contributes nothing. Providers are ordered by `getPriority()`, higher
 first, and those of equal priority are ordered by name.
 
-The priority declared inside a `META-INF/powsybl/config.yml` file ranks these files against each
+The priority declared inside a `com/powsybl/config/config.yml` file ranks these files against each
 other only. The provider that reads them takes part in the ordering of the providers with the
 default priority of 0, so a Java provider that must sit above or below every file declares a
 positive or a negative `getPriority()`.
@@ -99,7 +99,7 @@ The providers that contributed are logged at `INFO` level, in decreasing order o
 the configuration is first read.
 
 When the same property is defined by more than one provider, or by more than one
-`META-INF/powsybl/config.yml` resource (two jars shipping `load-flow-default-parameters.dc` for
+`com/powsybl/config/config.yml` resource (two jars shipping `load-flow-default-parameters.dc` for
 instance), a `WARN` line names the property, the two sources and the one that takes precedence.
 Look for it first when a value is not the one you expected.
 
@@ -128,3 +128,10 @@ Four load flow properties still accept a deprecated alias: `useReactiveLimits` (
 Aliases are resolved after the layers are flattened, so a bundled value under the *new* name wins
 over a user configuration that still uses the *old* name, whatever the precedence of the layers.
 Integrators should ship the new names, and users should migrate their own files to them.
+
+## Known limitation: Java modules
+
+The resource path maps to the package `com.powsybl.config`. In a named Java module, a resource whose
+path maps to a package is encapsulated and is not visible from outside the module, so a jar built as
+a named module has to open that package for its configuration to be read. powsybl-core declares no
+`module-info`, so this only concerns jars which are modularized.

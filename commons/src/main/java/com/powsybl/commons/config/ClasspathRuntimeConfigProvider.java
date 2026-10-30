@@ -49,7 +49,7 @@ import java.util.Set;
 @AutoService(RuntimeConfigProvider.class)
 public class ClasspathRuntimeConfigProvider implements RuntimeConfigProvider {
 
-    public static final String RESOURCE_PATH = "META-INF/powsybl/config.yml";
+    public static final String RESOURCE_PATH = "com/powsybl/config/config.yml";
 
     /**
      * Name of the module that a {@value #RESOURCE_PATH} resource may use to declare its own
