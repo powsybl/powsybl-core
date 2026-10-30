@@ -153,58 +153,53 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     }
 
     /**
-     * Checks the entries reported when several generators or loads are aggregated on a bus.
-     * <p>
-     * Network layout (21 kV buses in {@code VL21}, 400 kV bus in {@code VL400}):
-     * <pre>
-     *   FFFFFF71 --- two loads, generators GA1 (HYDRO) and GA2 (THERMAL)                -&gt; mixed power plant types
-     *   FFFFFF72 --- regulating generators GB1 (P=100, 22 kV) and GB2 (P=200, 23 kV)    -&gt; conflicting voltage targets
-     *   FFFFFF73 --- generator GC regulating FFFFFF11 at 420 kV                         -&gt; rescaled remote target
-     *   FFFFFF74 --- generators GD1 and GD2, both with maxP = 6000                      -&gt; aggregated maxP out of bounds
-     *   FFFFFF75 --- generator GE regulating FFFFFF71 (same nominal voltage) at 22 kV  -&gt; no rescaling, not reported
-     *   FFFFFF76 --- generator GF regulating voltage, without any voltage target        -&gt; missing voltage target
-     *   FFFFFF11 --- load L400 (regulating terminal of GC)
-     * </pre>
-     * A generator without voltage target such as GF is only accepted at the {@link ValidationLevel#EQUIPMENT}
-     * validation level.
+     * Checks the entries reported when several generators or loads are aggregated on a bus. See
+     * {@link UcteExporterTestNetworks#createWithMultipleInjections()} for the cases: only the out of bounds aggregated
+     * maxP ({@code CASE6}) and the mixed power plant types ({@code CASE7}) are reported.
      */
     @Test
-    void testAggregationReports() {
-        Network network = NetworkFactory.findDefault().createNetwork("aggregation-test", "test");
+    void testMultipleInjectionsReports() {
+        Network network = UcteExporterTestNetworks.createWithMultipleInjections();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Buses and Switches
+                         Bus FCASE671: aggregated maxP (12000.0) reaches or exceeds 9999 in absolute value ("no limit" value) and is left undefined
+                         Bus FCASE771: generators have different power plant types, type F (further) is used
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks the entries reported when selecting the voltage reference of a bus. See
+     * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases: conflicting targets
+     * ({@code CASE1}, {@code CASE2}, {@code CASE6}) and rescaled remote targets ({@code CASE4}, {@code CASE8}) are
+     * reported, a remote target on a bus with the same nominal voltage ({@code CASEA}) is not.
+     * <p>
+     * A regulating generator without any voltage target, only accepted at the {@link ValidationLevel#EQUIPMENT}
+     * validation level, is added to {@code CASE9}: the missing voltage target is reported.
+     */
+    @Test
+    void testVoltageTargetReports() {
+        Network network = UcteExporterTestNetworks.createWithMultipleVoltageTargets();
+        // EQUIPMENT to have FCASE971 pass validation (regulating node without generator carrying a voltage target)
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        Substation substation = network.newSubstation().setId("S").setCountry(Country.FR).add();
-        VoltageLevel vl400 = substation.newVoltageLevel().setId("VL400").setNominalV(400)
-                .setTopologyKind(TopologyKind.BUS_BREAKER).add();
-        vl400.getBusBreakerView().newBus().setId("FFFFFF11").add();
-        vl400.newLoad().setId("L400").setBus("FFFFFF11").setConnectableBus("FFFFFF11").setP0(1).setQ0(1).add();
-        VoltageLevel vl21 = substation.newVoltageLevel().setId("VL21").setNominalV(21)
-                .setTopologyKind(TopologyKind.BUS_BREAKER).add();
-        for (String busId : new String[] {"FFFFFF71", "FFFFFF72", "FFFFFF73", "FFFFFF74", "FFFFFF75", "FFFFFF76"}) {
-            vl21.getBusBreakerView().newBus().setId(busId).add();
-        }
-
-        vl21.newLoad().setId("LA1").setBus("FFFFFF71").setConnectableBus("FFFFFF71").setP0(1).setQ0(1).add();
-        vl21.newLoad().setId("LA2").setBus("FFFFFF71").setConnectableBus("FFFFFF71").setP0(1).setQ0(1).add();
-        addGenerator(vl21, "GA1", "FFFFFF71", 10, 100, EnergySource.HYDRO).add();
-        addGenerator(vl21, "GA2", "FFFFFF71", 10, 100, EnergySource.THERMAL).add();
-
-        addRegulatingGenerator(vl21, "GB1", "FFFFFF72", 100, 22.0);
-        addRegulatingGenerator(vl21, "GB2", "FFFFFF72", 200, 23.0);
-
-        GeneratorAdder remoteAdder = addGenerator(vl21, "GC", "FFFFFF73", 100, 1000, EnergySource.OTHER);
-        remoteAdder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true)
-                .withTerminal(network.getLoad("L400").getTerminal()).withTargetValue(420).add();
-        remoteAdder.add();
-
-        addGenerator(vl21, "GD1", "FFFFFF74", 10, 6000, EnergySource.OTHER).add();
-        addGenerator(vl21, "GD2", "FFFFFF74", 10, 6000, EnergySource.OTHER).add();
-
-        GeneratorAdder sameNominalVAdder = addGenerator(vl21, "GE", "FFFFFF75", 100, 1000, EnergySource.OTHER);
-        sameNominalVAdder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true)
-                .withTerminal(network.getLoad("LA1").getTerminal()).withTargetValue(22).add();
-        sameNominalVAdder.add();
-
-        GeneratorAdder missingTargetAdder = addGenerator(vl21, "GF", "FFFFFF76", 100, 1000, EnergySource.OTHER);
+        GeneratorAdder missingTargetAdder = network.getVoltageLevel("VL21").newGenerator()
+                .setId("CASE9_GB")
+                .setBus("FCASE971")
+                .setConnectableBus("FCASE971")
+                .setTargetP(10)
+                .setMinP(0)
+                .setMaxP(100)
+                .setLocalTargetQ(0);
         missingTargetAdder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
         missingTargetAdder.add();
 
@@ -215,35 +210,17 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                 + Test exporting UCTE network
                    + Creating UCTE Network
                       + Buses and Switches
-                         Bus FFFFFF71: generators have different power plant types, type F (further) is used
-                         Bus FFFFFF72: generators have different voltage targets, 23.0 kV from generator GB2 is used
-                         Bus FFFFFF73: generator GC, connected to this bus, regulates the voltage of remote bus FFFFFF11; its target 420.0 kV is rescaled to 22.05 kV
-                         Bus FFFFFF74: aggregated maxP (12000.0) reaches or exceeds 9999 in absolute value ("no limit" value) and is left undefined
-                         Bus FFFFFF76: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
+                         Bus FCASE171: generators have different voltage targets, 23.0 kV from generator CASE1_GB is used
+                         Bus FCASE271: generators have different voltage targets, 22.0 kV from generator CASE2_GA is used
+                         Bus FCASE471: generator CASE4_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
+                         Bus FCASE671: generators have different voltage targets, 23.0 kV from generator CASE6_GB is used
+                         Bus FCASE871: generator CASE8_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
+                         Bus FCASE971: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
                       Boundary Lines
                       Lines
                       Tie-Lines
                       Transformers
                    Network exported to file .uct
                 """, rootReportNode));
-    }
-
-    private static GeneratorAdder addGenerator(VoltageLevel voltageLevel, String id, String busId, double targetP,
-                                               double maxP, EnergySource energySource) {
-        return voltageLevel.newGenerator()
-                .setId(id)
-                .setBus(busId)
-                .setConnectableBus(busId)
-                .setEnergySource(energySource)
-                .setTargetP(targetP)
-                .setMinP(0)
-                .setMaxP(maxP)
-                .setLocalTargetQ(0);
-    }
-
-    private static void addRegulatingGenerator(VoltageLevel voltageLevel, String id, String busId, double targetP, double targetV) {
-        GeneratorAdder adder = addGenerator(voltageLevel, id, busId, targetP, 1000, EnergySource.OTHER).setLocalTargetV(targetV);
-        adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
-        adder.add();
     }
 }
