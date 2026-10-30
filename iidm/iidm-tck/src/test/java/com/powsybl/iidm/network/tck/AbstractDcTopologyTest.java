@@ -21,6 +21,7 @@ import java.util.stream.StreamSupport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,6 +39,104 @@ public abstract class AbstractDcTopologyTest {
         network.getDcSwitch("dcSwitch").remove();
         // disconnected nodes do not form buses
         assertEquals(0, network.getDcBusCount());
+    }
+
+    @Test
+    public void testResistiveSwitchEndsFormDcBuses() {
+        // dcNode1 -- [dcSwitch closed, R=0.125] -- dcNode2, no DcTerminal at all
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        DcSwitch dcSwitch = network.getDcSwitch("dcSwitch");
+        DcNode dcNode1 = network.getDcNode("dcNode1");
+        DcNode dcNode2 = network.getDcNode("dcNode2");
+
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+        DcBus dcBus1 = dcNode1.getDcBus();
+        DcBus dcBus2 = dcNode2.getDcBus();
+        assertSame(network.getDcBus("dcNode1_dcBus"), dcBus1);
+        assertSame(network.getDcBus("dcNode2_dcBus"), dcBus2);
+        assertDcBusContainsDcNodes(dcBus1, List.of(dcNode1));
+        assertDcBusContainsDcNodes(dcBus2, List.of(dcNode2));
+        // a bus may have no connected terminal and still be fully usable
+        assertEquals(0, dcBus1.getConnectedDcTerminalCount());
+        dcBus1.setV(500.);
+        assertEquals(500., dcBus1.getV(), V_EPSILON);
+        assertEquals(500., dcNode1.getV(), V_EPSILON);
+        // both ends are in the same DC component and connected component
+        assertEquals(1, network.getDcComponents().size());
+        assertSame(dcBus1.getDcComponent(), dcBus2.getDcComponent());
+        assertSame(dcBus1.getConnectedComponent(), dcBus2.getConnectedComponent());
+
+        // opening the switch removes the buses and invalidates previously returned ones
+        dcSwitch.setOpen(true);
+        assertBusInvalidated(dcBus1, DcBus::getDcNodes);
+        assertDcBusesAre(network, List.of());
+        assertNull(dcNode1.getDcBus());
+
+        dcSwitch.setOpen(false);
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+
+        // R = 0: nodes merge in one terminal-less group, which is not a bus
+        dcSwitch.setR(0.0);
+        assertDcBusesAre(network, List.of());
+        dcSwitch.setR(0.125);
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+
+        dcSwitch.remove();
+        assertDcBusesAre(network, List.of());
+    }
+
+    @Test
+    public void testResistiveSwitchEndWithDisconnectedTerminal() {
+        // dcNode1 -- [dcSwitch closed, R=0.125] -- dcNode2(ground, disconnected)
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        DcNode dcNode2 = network.getDcNode("dcNode2");
+        DcGround dcGround2 = network.newDcGround().setId("dcGround2").setDcNode(dcNode2.getId()).add();
+
+        dcGround2.getDcTerminal().disconnect();
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+        assertNotNull(dcNode2.getDcBus());
+        assertNull(dcGround2.getDcTerminal().getDcBus());
+    }
+
+    @Test
+    public void testResistiveSwitchEndsFormDcBusesMultiVariant() {
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        var variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v1");
+
+        variantManager.setWorkingVariant("v1");
+        network.getDcSwitch("dcSwitch").setOpen(true);
+        assertDcBusesAre(network, List.of());
+
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+    }
+
+    @Test
+    public void testDcSwitchRemovalAndAdditionInvalidateAllVariants() {
+        // dcNode1 -- [dcSwitch closed, R=0.125] -- dcNode2, no DcTerminal at all
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v1");
+        // compute the cache of the initial variant
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
+
+        // removing the switch from v1 removes the buses in all variants
+        variantManager.setWorkingVariant("v1");
+        network.getDcSwitch("dcSwitch").remove();
+        assertDcBusesAre(network, List.of()); // also computes the cache of v1
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertDcBusesAre(network, List.of());
+
+        // adding a closed resistive switch from the initial variant creates the buses in all variants
+        network.newDcSwitch().setId("dcSwitch")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setOpen(false)
+                .setR(0.125)
+                .setDcNode1("dcNode1").setDcNode2("dcNode2")
+                .add();
+        variantManager.setWorkingVariant("v1");
+        assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
     }
 
     @Test
@@ -348,6 +447,32 @@ public abstract class AbstractDcTopologyTest {
         assertEquals(0, network.getSubnetworks().size());
         assertEquals(3, network.getDcBusCount());
         assertDcBusesAre(network, List.of("n11_dcBus", "n21_dcBus", "n22_dcBus"));
+    }
+
+    @Test
+    public void testResistanceChangeInSubnetworkUpdatesDcBuses() {
+        Network network = Network.create("network", "test");
+        Network net1 = network.createSubnetwork("n1", "n1", "test");
+        DcNode n11 = net1.newDcNode().setId("n11").setNominalV(500.).add();
+        net1.newDcGround().setId("n11g").setDcNode(n11.getId()).add();
+        DcNode n12 = net1.newDcNode().setId("n12").setNominalV(500.).add();
+        net1.newDcGround().setId("n12g").setDcNode(n12.getId()).add();
+        DcSwitch s1112 = net1.newDcSwitch().setId("s11-12")
+                .setKind(DcSwitchKind.BREAKER)
+                .setOpen(false)
+                .setDcNode1(n11.getId()).setDcNode2(n12.getId())
+                .add();
+        // closed, R = 0: a single bus (cache computed here)
+        assertDcBusesAre(net1, List.of("n11_dcBus"));
+
+        s1112.setR(0.1);
+        // closed, R > 0: two buses, seen from the subnetwork and from the root network
+        assertDcBusesAre(net1, List.of("n11_dcBus", "n12_dcBus"));
+        assertDcBusesAre(network, List.of("n11_dcBus", "n12_dcBus"));
+
+        s1112.setR(0.0);
+        assertDcBusesAre(net1, List.of("n11_dcBus"));
+        assertDcBusesAre(network, List.of("n11_dcBus"));
     }
 
     @Test

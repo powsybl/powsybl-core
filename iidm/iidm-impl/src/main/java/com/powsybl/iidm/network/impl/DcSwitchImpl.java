@@ -172,7 +172,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         if ((r == 0.0) != (oldValue == 0.0)) {
             // if we change the value of r from 0 to non-zero
             // or vice versa, topology must be recomputed.
-            getNetwork().dcTopologyModel.invalidateAllVariantsCache();
+            ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().invalidateAllVariantsCache();
         }
         getNetwork().getListeners().notifyUpdate(this, R_ATTRIBUTE, oldValue, r);
 
