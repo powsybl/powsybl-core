@@ -306,7 +306,7 @@ public class UcteExporter implements Exporter {
 
     /**
      * If provided generator power limits are permissible, set the ucteNode corresponding active and reactive power
-     * generation limits. Max limit is valid if it is lower than {@code 9999} and min limit is valid of it is greater
+     * generation limits. Max limit is valid if it is lower than {@code 9999} and min limit is valid if it is greater
      * than {@code -9999}. See {@link UcteConverterConstants#DEFAULT_POWER_LIMIT} that defines the special "no value" in
      * UCTE import. Invalid values are simply not exported (cell left empty in the export file)
      *
@@ -371,7 +371,7 @@ public class UcteExporter implements Exporter {
      * blank.
      *
      * @param value a generator min power limit
-     * @return whether this max power limit should be exported
+     * @return whether this min power limit should be exported
      */
     private static boolean isMinLimitInbounds(double value) {
         return value > -DEFAULT_POWER_LIMIT;
