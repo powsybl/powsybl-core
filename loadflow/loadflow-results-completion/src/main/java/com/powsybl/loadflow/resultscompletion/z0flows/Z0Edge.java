@@ -52,13 +52,13 @@ public class Z0Edge extends DefaultWeightedEdge {
 
         double loadingLimit = line.getApparentPowerLimits(side)
                 .map(LoadingLimits::getPermanentLimit)
-                .filter(Double::isFinite)
+                .filter(apparentPower -> Double.isFinite(apparentPower) && apparentPower > 0.0)
                 .orElse(UNDEFINED_LIMIT);
 
         Optional<CurrentLimits> currentLimits = line.getCurrentLimits(side);
         if (currentLimits.isPresent()) {
             double current = currentLimits.get().getPermanentLimit();
-            if (Double.isFinite(current)) {
+            if (Double.isFinite(current) && current > 0.0) {
                 double nominalV = line.getTerminal(side).getVoltageLevel().getNominalV();
                 loadingLimit = Math.min(loadingLimit, SQRT_3 * nominalV * current / 1000.0);
             }
@@ -67,7 +67,7 @@ public class Z0Edge extends DefaultWeightedEdge {
         Optional<ActivePowerLimits> activePowerLimits = line.getActivePowerLimits(side);
         if (activePowerLimits.isPresent()) {
             double activePower = activePowerLimits.get().getPermanentLimit();
-            if (Double.isFinite(activePower)) {
+            if (Double.isFinite(activePower) && activePower > 0.0) {
                 loadingLimit = Math.min(loadingLimit, activePower / ASSUMED_POWER_FACTOR);
             }
         }
