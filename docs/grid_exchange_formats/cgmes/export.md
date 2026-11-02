@@ -220,6 +220,9 @@ The following sections describe in detail how each supported PowSyBl network mod
 
 PowSyBl [`Battery`](../../grid_model/network_subnetwork.md#battery) is exported as `SynchronousMachine` with `HydroGeneratingUnit`.
 
+As a `Battery` has no rated apparent power in IIDM, the `RotatingMachine.ratedS` is always computed from its active and reactive power limits,
+as explained in the generator section. See [rated apparent power](#rated-apparent-power-eq).
+
 <span style="color: red">TODO details</span>
 
 (cgmes-busbar-section-export)=
@@ -294,6 +297,18 @@ Specific `Voltage Source Converter` attributes:
 ### Generator
 
 PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
+
+#### Rated apparent power (EQ)
+
+The `RotatingMachine.ratedS` is exported in the EQ profile from the IIDM `RatedS` of the generator.
+As this field is mandatory and must be greater than zero, if the generator does not have a `RatedS` (as well as for batteries, which never have one),
+a default value is computed from its active power limits and its [reactive limits](../../grid_model/additional.md#reactive-limits).
+This default value is the maximum of the following values:
+- the absolute values of the minimum and the maximum active power limits, $|minP|$ and $|maxP|$,
+- if the reactive limits are of kind `MIN_MAX`, the absolute values of the minimum and the maximum reactive power limits, $|minQ|$ and $|maxQ|$,
+- if the reactive limits are a reactive capability curve, for each point $(P, minQ, maxQ)$ of the curve:
+  - the absolute values $|P|$, $|minQ|$ and $|maxQ|$,
+  - the apparent powers $\sqrt{P^2 + minQ^2}$ and $\sqrt{P^2 + maxQ^2}$.
 
 #### Regulating control
 
