@@ -221,8 +221,8 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         boolean isInsertedBetweenSections = nextSectionIndex != -1;
         boolean isAfter = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection();
 
-        // Switches created on each side of the new busbar section: when inserting before the first section or after the last,
-        // only the one towards the reference busbar section is created
+        // Switches created on each side of the new busbar section: both when inserting between two sections,
+        // only the one towards the reference busbar section when inserting before the first section or after the last
         SwitchKind createdLeftSwitchKind = isAfter || isInsertedBetweenSections ? leftSwitchKind : null;
         SwitchKind createdRightSwitchKind = !isAfter || isInsertedBetweenSections ? rightSwitchKind : null;
 
