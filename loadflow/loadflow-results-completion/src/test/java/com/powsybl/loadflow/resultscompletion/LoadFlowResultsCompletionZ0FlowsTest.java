@@ -69,83 +69,70 @@ class LoadFlowResultsCompletionZ0FlowsTest {
     @Test
     void z0FlowsCompletionUsingLoadingLimits() {
         Network network = createNetwork();
+        // simplify the zero impedance network
+        network.getLine("L3.2-3.4").getTerminal1().disconnect();
+        network.getLine("L3.2-3.5").getTerminal1().disconnect();
         completeResults(network);
 
-        Line lineZero = network.getLine("L3.4-3.5");
-        assertNotNull(lineZero);
-        assertLineHasZeroImpedanceAndZeroFlow(lineZero);
+        Line line31To32 = network.getLine("L3.1-3.2");
+        assertNotNull(line31To32);
+        Line line31To33 = network.getLine("L3.1-3.3");
+        assertNotNull(line31To33);
+        Line line32To33 = network.getLine("L3.2-3.3");
+        assertNotNull(line32To33);
 
-        double defaultLimit = 1000.0;
-        network.getLines().forEach(line -> {
-            if (line.getR() == 0.0 && line.getX() == 0.0) {
-                setDefaultLoadingLimits(line, defaultLimit);
-            }
-        });
-
-        completeResults(network);
-        assertLineHasZeroImpedanceAndZeroFlow(lineZero);
-
-        lineZero.getApparentPowerLimits1().ifPresent(apparentPowerLimits -> apparentPowerLimits.setPermanentLimit(100.0));
-        completeResults(network);
-        assertLineHasZeroImpedanceAndNonZeroFlow(lineZero);
-
-        // Verify that setDefaultLoadingLimits works correctly on side 1
-        setDefaultLoadingLimits(lineZero, defaultLimit);
-        completeResults(network);
-        assertLineHasZeroImpedanceAndZeroFlow(lineZero);
-
-        setDefaultLoadingLimits(lineZero, defaultLimit);
-        lineZero.getApparentPowerLimits2().ifPresent(apparentPowerLimits -> apparentPowerLimits.setPermanentLimit(100.0));
-        completeResults(network);
-        assertLineHasZeroImpedanceAndNonZeroFlow(lineZero);
-
-        // Verify that setDefaultLoadingLimits works correctly on side 2
-        setDefaultLoadingLimits(lineZero, defaultLimit);
-        completeResults(network);
-        assertLineHasZeroImpedanceAndZeroFlow(lineZero);
-
-        setDefaultLoadingLimits(lineZero, defaultLimit);
-        lineZero.getActivePowerLimits1().ifPresent(activePowerLimits -> activePowerLimits.setPermanentLimit(100.0));
-        completeResults(network);
-        assertLineHasZeroImpedanceAndNonZeroFlow(lineZero);
-
-        setDefaultLoadingLimits(lineZero, defaultLimit);
-        lineZero.getActivePowerLimits2().ifPresent(activePowerLimits -> activePowerLimits.setPermanentLimit(100.0));
-        completeResults(network);
-        assertLineHasZeroImpedanceAndNonZeroFlow(lineZero);
-
-        setDefaultLoadingLimits(lineZero, defaultLimit);
-        lineZero.getCurrentLimits1().ifPresent(currentLimits -> currentLimits.setPermanentLimit(100.0));
-        completeResults(network);
-        assertLineHasZeroImpedanceAndNonZeroFlow(lineZero);
-
-        setDefaultLoadingLimits(lineZero, defaultLimit);
-        lineZero.getCurrentLimits2().ifPresent(currentLimits -> currentLimits.setPermanentLimit(100.0));
-        completeResults(network);
-        assertLineHasZeroImpedanceAndNonZeroFlow(lineZero);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+        assertZeroImpedanceLoop(network, line31To32, line31To33, line32To33, LimitType.APPARENT_POWER, 2000.0);
+        assertZeroImpedanceLoop(network, line31To32, line31To33, line32To33, LimitType.ACTIVE_POWER, 1000.0);
+        assertZeroImpedanceLoop(network, line31To32, line31To33, line32To33, LimitType.CURRENT, 500.0);
     }
 
-    private static void setDefaultLoadingLimits(Line line, double defaultLimit) {
-        setDefaultLoadingLimitsOnSide(line, TwoSides.ONE, defaultLimit);
-        setDefaultLoadingLimitsOnSide(line, TwoSides.TWO, defaultLimit);
+    private void assertZeroImpedanceLoop(Network network, Line line31To32, Line line31To33, Line line32To33, LimitType limitType, double value) {
+        setDefaultLoadingLimit(line32To33, TwoSides.ONE, limitType, value);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To33);
+
+        setDefaultLoadingLimit(line31To33, TwoSides.ONE, limitType, value * 0.99);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To32);
+
+        setDefaultLoadingLimit(line31To32, TwoSides.ONE, limitType, value * 0.98);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+
+        setDefaultLoadingLimit(line32To33, TwoSides.TWO, limitType, value * 0.97);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To33);
+
+        setDefaultLoadingLimit(line31To33, TwoSides.TWO, limitType, value * 0.96);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To32);
+
+        setDefaultLoadingLimit(line31To32, TwoSides.TWO, limitType, value * 0.95);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
     }
 
-    private static void setDefaultLoadingLimitsOnSide(Line line, TwoSides side, double value) {
+    private static void setDefaultLoadingLimit(Line line, TwoSides side, LimitType type, double value) {
         OperationalLimitsGroup group = (side == TwoSides.ONE)
                 ? line.getOrCreateSelectedOperationalLimitsGroup1()
                 : line.getOrCreateSelectedOperationalLimitsGroup2();
+        setOrCreatePermanentLimit(group, type, value);
+    }
 
-        line.getApparentPowerLimits(side).ifPresentOrElse(
-                limits -> limits.setPermanentLimit(value),
-                () -> group.newApparentPowerLimits().setPermanentLimit(value).add());
-
-        line.getActivePowerLimits(side).ifPresentOrElse(
-                limits -> limits.setPermanentLimit(value),
-                () -> group.newActivePowerLimits().setPermanentLimit(value).add());
-
-        line.getCurrentLimits(side).ifPresentOrElse(
-                limits -> limits.setPermanentLimit(value),
-                () -> group.newCurrentLimits().setPermanentLimit(value).add());
+    private static void setOrCreatePermanentLimit(OperationalLimitsGroup group, LimitType type, double value) {
+        switch (type) {
+            case APPARENT_POWER -> group.getApparentPowerLimits().ifPresentOrElse(
+                    limits -> limits.setPermanentLimit(value),
+                    () -> group.newApparentPowerLimits().setPermanentLimit(value).add());
+            case ACTIVE_POWER -> group.getActivePowerLimits().ifPresentOrElse(
+                    limits -> limits.setPermanentLimit(value),
+                    () -> group.newActivePowerLimits().setPermanentLimit(value).add());
+            case CURRENT -> group.getCurrentLimits().ifPresentOrElse(
+                    limits -> limits.setPermanentLimit(value),
+                    () -> group.newCurrentLimits().setPermanentLimit(value).add());
+            default -> throw new IllegalArgumentException("Unexpected LimitType: " + type);
+        }
     }
 
     private static void assertLineHasZeroImpedanceAndZeroFlow(Line line) {
@@ -153,13 +140,6 @@ class LoadFlowResultsCompletionZ0FlowsTest {
         assertEquals(0.0, line.getX(), 0.0);
         assertEquals(0.0, line.getTerminal1().getP());
         assertEquals(0.0, line.getTerminal1().getQ());
-    }
-
-    private static void assertLineHasZeroImpedanceAndNonZeroFlow(Line line) {
-        assertEquals(0.0, line.getR(), 0.0);
-        assertEquals(0.0, line.getX(), 0.0);
-        assertNotEquals(0.0, line.getTerminal1().getP());
-        assertNotEquals(0.0, line.getTerminal1().getQ());
     }
 
     @BeforeEach
