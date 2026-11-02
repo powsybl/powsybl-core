@@ -215,7 +215,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         localTargetQ.remove(localTargetQ.size() - number, number);
         localTargetV.remove(localTargetV.size() - number, number);
         if (voltageRegulation != null) {
-            voltageRegulation.deleteVariantArrayElement(number);
+            voltageRegulation.reduceVariantArraySize(number);
         }
     }
 
