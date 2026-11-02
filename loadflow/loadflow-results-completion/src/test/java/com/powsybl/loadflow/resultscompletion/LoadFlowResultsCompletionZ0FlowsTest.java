@@ -87,6 +87,24 @@ class LoadFlowResultsCompletionZ0FlowsTest {
         assertZeroImpedanceLoop(network, line31To32, line31To33, line32To33, LimitType.CURRENT, 500.0);
     }
 
+    @Test
+    void z0FlowsCompletionWithLoadingLimitsCornerCase() {
+        Network network = createNetwork();
+        // simplify the zero impedance network
+        network.getLine("L3.2-3.4").getTerminal1().disconnect();
+        network.getLine("L3.2-3.5").getTerminal1().disconnect();
+        completeResults(network);
+
+        Line line32To33 = network.getLine("L3.2-3.3");
+        assertNotNull(line32To33);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+
+        // Only loadingLimits < 0.0 are considered
+        setDefaultLoadingLimit(line32To33, TwoSides.ONE, LimitType.APPARENT_POWER, 0.0);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+    }
+
     private void assertZeroImpedanceLoop(Network network, Line line31To32, Line line31To33, Line line32To33, LimitType limitType, double value) {
         setDefaultLoadingLimit(line32To33, TwoSides.ONE, limitType, value);
         completeResults(network);
