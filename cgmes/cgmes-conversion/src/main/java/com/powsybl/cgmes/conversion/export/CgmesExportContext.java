@@ -90,7 +90,6 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
-    private final Network network; // Used for naming strategy of OperationalLimitType and LoadGroups
     private String cgmExportWithTp;
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
@@ -111,7 +110,6 @@ public class CgmesExportContext {
     @Deprecated(since = "7.4.0", forRemoval = true)
     public CgmesExportContext() {
         referenceDataProvider = null;
-        network = null;
     }
 
     public CgmesExportContext(Network network) {
@@ -140,7 +138,6 @@ public class CgmesExportContext {
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         scenarioTime = network.getCaseDate();
-        this.network = network;
         addParameters(exportParameters);
         computeCimVersion(exportParameters, network);
         computeTopologyKind(exportParameters, network);
@@ -635,10 +632,6 @@ public class CgmesExportContext {
 
     public boolean updateDependencies() {
         return updateDependencies;
-    }
-
-    public Network getNetwork() {
-        return network;
     }
 
     /**
