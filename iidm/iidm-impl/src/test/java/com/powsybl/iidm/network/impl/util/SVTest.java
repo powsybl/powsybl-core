@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl.util;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
 import org.junit.jupiter.api.Test;
@@ -212,10 +213,10 @@ class SVTest {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(-500.0)
             .setMaxP(500.0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setTargetP(p)
-            .setTargetV(targetV)
-            .setTargetQ(q)
+            .setLocalTargetV(targetV)
+            .setLocalTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

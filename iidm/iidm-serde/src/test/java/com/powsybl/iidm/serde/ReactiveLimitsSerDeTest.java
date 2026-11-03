@@ -7,12 +7,17 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -25,5 +30,36 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripAllPreviousVersionedXmlTest("reactiveLimitsRoundTripRef.xml");
 
         allFormatsRoundTripTest(ReactiveLimitsTestNetworkFactory.create(), "reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
+    @Test
+    void importShouldSucceedWhenInvertedMinQMaxQ() {
+        ImportOptions options = new ImportOptions()
+                .setRepairInvalidReactiveCurveLimits(true);
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream is = getVersionedNetworkAsStream("reactive-limit-inverted-minq-maxq.xiidm", version);
+            Network network = NetworkSerDe.read(is, options, null);
+
+            ReactiveCapabilityCurve curve = network.getGenerator("G1")
+                    .getReactiveLimits(ReactiveCapabilityCurve.class);
+
+            assertEquals(2.0, curve.getMinQ(100.0));
+            assertEquals(10.0, curve.getMaxQ(100.0));
+        });
+    }
+
+    @Test
+    void importShouldThrowExceptionWhenNotInvertedMinQMaxQ() {
+        ImportOptions options = new ImportOptions()
+                .setRepairInvalidReactiveCurveLimits(false);
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream is = getVersionedNetworkAsStream("reactive-limit-inverted-minq-maxq.xiidm", version);
+            ValidationException e = assertThrows(
+                ValidationException.class,
+                () -> NetworkSerDe.read(is, options, null));
+
+            assertTrue(e.getMessage().contains(
+                "Generator 'G1': maximum reactive power is expected to be greater than or equal to minimum reactive power"));
+        });
     }
 }

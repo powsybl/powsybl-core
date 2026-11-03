@@ -182,6 +182,25 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
+    public void testExtensionCreatedAfterVariants() {
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, Arrays.asList("variant1", "variant2"));
+
+        // lineS3S4 has no extension yet: it is created while three variants exist
+        variantManager.setWorkingVariant("variant1");
+        ReferencePriority.set(lineS3S4, TwoSides.ONE, 7);
+        assertEquals(7, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+
+        // the other variants must not see the priority set in variant1
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(0, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+        variantManager.setWorkingVariant("variant2");
+        assertEquals(0, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+        ReferencePriority.set(lineS3S4, TwoSides.ONE, 4);
+        variantManager.setWorkingVariant("variant1");
+        assertEquals(7, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+    }
+
+    @Test
     public void testNoTerminalProvided() {
         lineS3S4.newExtension(ReferencePrioritiesAdder.class).add();
         Throwable thrown = assertThrows(NullPointerException.class, () -> lineS3S4.getExtension(ReferencePriorities.class)

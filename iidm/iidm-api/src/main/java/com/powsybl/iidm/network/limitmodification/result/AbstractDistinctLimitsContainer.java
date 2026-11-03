@@ -41,9 +41,9 @@ public abstract class AbstractDistinctLimitsContainer<H extends L, L> implements
         return true;
     }
 
-    public abstract double getPermanentLimitReduction();
+    public abstract double getPermanentLimitScaling();
 
-    public abstract Double getTemporaryLimitReduction(int acceptableDuration);
+    public abstract Double getTemporaryLimitScaling(int acceptableDuration);
 
     public abstract double getOriginalPermanentLimit();
 

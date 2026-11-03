@@ -42,7 +42,7 @@ import java.util.Objects;
  *
  * <p>The acceptIterate and acceptHandle methods are used by {@link NodeCalcVisitors}
  * during the iterative traversal of the tree. The
- * acceptIterate method push children nodes the be traversed in the
+ * acceptIterate method push children nodes to be traversed in the
  * stack.  The acceptHandle method extract the already calculated
  * children results from the stack and use them to compute and return
  * the result for this node.

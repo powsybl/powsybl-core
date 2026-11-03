@@ -79,7 +79,7 @@ class SecurityAnalysisExecutionImplTest {
             assertTrue(runParameters.getInterceptors().isEmpty());
             assertTrue(runParameters.getOperatorStrategies().isEmpty());
             assertTrue(runParameters.getActions().isEmpty());
-            assertTrue(runParameters.getLimitReductions().isEmpty());
+            assertTrue(runParameters.getLimitScalings().isEmpty());
             throw new PowsyblException("run");
         }
 

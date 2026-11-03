@@ -45,7 +45,7 @@ class SecurityAnalysisResultMergerTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000f)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100)
             .side(TwoSides.ONE)
             .build();
@@ -58,19 +58,19 @@ class SecurityAnalysisResultMergerTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(900f)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(950)
             .side(TwoSides.ONE)
             .build();
         postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED,
             new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
-            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyList());
 
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency2");
         postContingencyResult2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED,
             new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action3")),
-            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyList());
 
         result1 = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
         result2 = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult2));

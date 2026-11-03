@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.contingency.json.LimitViolationDeserializer.LIMIT_REDUCTION_BACKWARD_COMPAT;
 import static com.powsybl.contingency.json.LimitViolationDeserializer.VIOLATION_LOCATION_SUPPORT;
 
 /**
@@ -57,6 +58,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     parser.nextToken();
                     version = parser.readValueAs(String.class);
                     ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, version.compareTo("1.3") >= 0);
+                    ctx.setAttribute(LIMIT_REDUCTION_BACKWARD_COMPAT, version.compareTo("1.5") <= 0);
                 }
                 case "faultResults" -> faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
                 case "extensions" -> {
