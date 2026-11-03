@@ -518,7 +518,7 @@ public class CgmesExport implements Exporter {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
             switch (subset) {
                 case EQUIPMENT:
-                    new EquipmentExport(writer, context).write(model);
+                    new EquipmentExport(network, writer, context).write(model);
                     break;
                 case TOPOLOGY:
                     TopologyExport.write(network, writer, context, model);

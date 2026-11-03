@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,20 +27,20 @@ class LoadGroups {
         return uniqueGroupByClass.values();
     }
 
-    String groupFor(String loadClassName, CgmesExportContext context) {
+    String groupFor(String loadClassName, CgmesExportContext context, Network network) {
         if (loadClassName.equals(CgmesNames.ENERGY_CONSUMER)
                 || loadClassName.equals(CgmesNames.STATION_SUPPLY)) {
             return null;
         }
         LoadGroup loadGroup = uniqueGroupByClass.get(loadClassName);
         if (loadGroup == null) {
-            loadGroup = createGroupFor(loadClassName, context);
+            loadGroup = createGroupFor(loadClassName, context, network);
         }
         return loadGroup.id;
     }
 
-    LoadGroup createGroupFor(String loadClassName, CgmesExportContext context) {
-        String id = context.getNamingStrategy().getCgmesId(ref(loadClassName), LOAD_GROUP, ref(context.getNetwork()));
+    LoadGroup createGroupFor(String loadClassName, CgmesExportContext context, Network network) {
+        String id = context.getNamingStrategy().getCgmesId(ref(loadClassName), LOAD_GROUP, ref(network));
         String className = GROUP_CLASS_NAMES.get(loadClassName);
         String groupName = GROUP_NAMES.get(loadClassName);
         LoadGroup loadGroup = new LoadGroup(className, id, groupName);

@@ -67,10 +67,10 @@ public final class EquipmentExport {
     private final Map<AcDcConverter<?>, DCConverterUnit> dcConvertersToUnit;
     private final Map<DcNode, DCConverterUnit> dcNodesToUnit;
 
-    public EquipmentExport(XMLStreamWriter writer, CgmesExportContext context) {
+    public EquipmentExport(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         this.writer = writer;
         this.context = context;
-        network = context.getNetwork();
+        this.network = network;
         cimNamespace = context.getCim().getNamespace();
         euNamespace = context.getCim().getEuNamespace();
         mapNodeKey2NodeId = new HashMap<>();
@@ -340,7 +340,7 @@ public final class EquipmentExport {
         if (p <= 0) {
             writeEnergySource(loadId, loadName, equipmentContainerId);
         } else {
-            String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context);
+            String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context, network);
             EnergyConsumerEq.write(NONCONFORM_LOAD, loadId, loadName, loadGroup, equipmentContainerId, null, cimNamespace, writer, context);
         }
 
@@ -358,7 +358,7 @@ public final class EquipmentExport {
                     case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(),
                         context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()));
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
-                        String loadGroup = loadGroups.groupFor(className, context);
+                        String loadGroup = loadGroups.groupFor(className, context, network);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load);
                         EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup,
                             context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, cimNamespace, writer, context);
@@ -958,7 +958,7 @@ public final class EquipmentExport {
 
                         String className = "CurrentLimit";
                         String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), PATL, OPERATIONAL_LIMIT_VALUE);
-                        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(context.getNetwork()));
+                        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(network));
                         LoadingLimitEq.write(operationalLimitId, className, "PATL", ptc.getRegulationValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
 
                         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
@@ -1334,7 +1334,7 @@ public final class EquipmentExport {
         }
 
         // Write the permanent limit type (if not already written)
-        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(context.getNetwork()));
+        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(network));
         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, writer, context);
             exportedLimitTypes.add(operationalLimitTypeId);
@@ -1351,7 +1351,7 @@ public final class EquipmentExport {
                 int acceptableDuration = temporaryLimit.getAcceptableDuration();
 
                 // Write the temporary limit type (if not already written)
-                operationalLimitTypeId = context.getNamingStrategy().getCgmesId(TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_TYPE, ref(context.getNetwork()));
+                operationalLimitTypeId = context.getNamingStrategy().getCgmesId(TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_TYPE, ref(network));
                 if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
                     OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, writer, context);
                     exportedLimitTypes.add(operationalLimitTypeId);
