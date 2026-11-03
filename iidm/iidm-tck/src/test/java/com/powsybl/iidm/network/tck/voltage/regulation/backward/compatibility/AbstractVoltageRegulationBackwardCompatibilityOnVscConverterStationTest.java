@@ -118,4 +118,61 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnVscConvert
         assertTrue(vscConverterStation.isRegulating());
     }
 
+    @Test
+    void testSetReactivePowerSetpoint() {
+        int expectedTargetQ = 10;
+        VscConverterStation vscConverterStationWithRemoteReactiveRegulationOn = voltageLevel.newVscConverterStation()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOn")
+            .setConnectableBus(LOCAL_BUS)
+            .setLossFactor(0.9f)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(remoteTerminal)
+                .withRegulating(true)
+                .withTargetValue(-20)
+                .add()
+            .add();
+        vscConverterStationWithRemoteReactiveRegulationOn.setReactivePowerSetpoint(expectedTargetQ);
+        assertEquals(-expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOn.getVoltageRegulation().getTargetValue());
+        assertEquals(expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOn.getRegulatingTargetQ());
+    }
+
+    @Test
+    void testSetRegulatingTerminal() {
+        // GIVEN
+        int expectedTargetQ = 10;
+        VscConverterStation vscConverterStationWithRemoteReactiveRegulationOff = voltageLevel.newVscConverterStation()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOff")
+            .setConnectableBus(LOCAL_BUS)
+            .setLossFactor(0.9f)
+            .setLocalTargetQ(expectedTargetQ)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(false)
+                .add()
+            .add();
+        VscConverterStation vscConverterStationWithRemoteReactiveRegulationOn = voltageLevel.newVscConverterStation()
+            .setId("generator_backwardCompatibility_remoteReactiveRegulationOn")
+            .setConnectableBus(LOCAL_BUS)
+            .setLossFactor(0.9f)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(remoteTerminal)
+                .withRegulating(true)
+                .withTargetValue(-expectedTargetQ)
+                .add()
+            .add();
+        // WHEN
+        vscConverterStationWithRemoteReactiveRegulationOff.setRegulatingTerminal(remoteTerminal);
+        vscConverterStationWithRemoteReactiveRegulationOn.setRegulatingTerminal(remoteTerminal);
+        // THEN
+        assertEquals(-expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOff.getVoltageRegulation().getTargetValue());
+        assertEquals(expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOff.getLocalTargetQ());
+        assertEquals(expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOff.getRegulatingTargetQ());
+
+        assertEquals(-expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOn.getVoltageRegulation().getTargetValue());
+        assertTrue(Double.isNaN(vscConverterStationWithRemoteReactiveRegulationOn.getLocalTargetQ()));
+        assertEquals(expectedTargetQ, vscConverterStationWithRemoteReactiveRegulationOn.getRegulatingTargetQ());
+    }
+
 }

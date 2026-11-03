@@ -116,11 +116,11 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
         VoltageRegulation voltageRegulation = g.newVoltageRegulation()
-            .withTargetValue(200.0)
+            .withTargetValue(-200.0)
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
-        assertEquals(200.0, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(-200.0, voltageRegulation.getTargetValue(), 0.0);
         assertEquals(l.getTerminal(TwoSides.ONE), voltageRegulation.getTerminal());
         assertTrue(voltageRegulation.isRegulating());
     }
@@ -131,7 +131,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
         VoltageRegulation voltageRegulation = g.newVoltageRegulation()
-            .withTargetValue(200.0)
+            .withTargetValue(-200.0)
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
@@ -145,7 +145,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
         variantManager.cloneVariant(variant1, variant2);
         variantManager.setWorkingVariant(variant1);
-        assertEquals(200.0, voltageRegulation.getTargetValue(), 0);
+        assertEquals(-200.0, voltageRegulation.getTargetValue(), 0);
         assertTrue(voltageRegulation.isRegulating());
 
         // Testing setting different values in the cloned variant and going back to the initial one
@@ -153,12 +153,12 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         voltageRegulation.setRegulating(false);
         assertFalse(voltageRegulation.isRegulating());
         assertFalse(g.isRegulating());
-        assertEquals(200.0, g.getVoltageRegulation().getTargetValue(), 0f);
+        assertEquals(-200.0, g.getVoltageRegulation().getTargetValue(), 0f);
         assertEquals(200.0, g.getRegulatingTargetQ(), 0f);
         assertEquals(210.0, g.getLocalTargetQ(), 0f);
 
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
-        assertEquals(200.0f, voltageRegulation.getTargetValue(), 0f);
+        assertEquals(-200.0f, voltageRegulation.getTargetValue(), 0f);
         assertTrue(voltageRegulation.isRegulating());
 
         // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
@@ -166,10 +166,10 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         List<String> targetVariantIds = Arrays.asList(variant1, variant3);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
         variantManager.setWorkingVariant(variant1);
-        assertEquals(200.0f, voltageRegulation.getTargetValue(), 0f);
+        assertEquals(-200.0f, voltageRegulation.getTargetValue(), 0f);
         assertTrue(voltageRegulation.isRegulating());
         variantManager.setWorkingVariant(variant3);
-        assertEquals(200.0f, voltageRegulation.getTargetValue(), 0f);
+        assertEquals(-200.0f, voltageRegulation.getTargetValue(), 0f);
         assertTrue(voltageRegulation.isRegulating());
 
         // Test removing current variant
@@ -210,7 +210,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
         g.newVoltageRegulation()
-            .withTargetValue(200.0)
+            .withTargetValue(-200.0)
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .build();
@@ -227,12 +227,12 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Line l = network.getLine("l34");
         Line l2 = network.getLine("l12");
         VoltageRegulation voltageRegulation = g.newVoltageRegulation()
-            .withTargetValue(200.0)
+            .withTargetValue(-200.0)
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
         assertNotNull(g.getVoltageRegulation());
-        voltageRegulation.setTerminal(l2.getTerminal(TwoSides.ONE), 200);
+        voltageRegulation.setTerminal(l2.getTerminal(TwoSides.ONE), -200);
         l.remove();
         // voltageRegulation should not be removed
         assertNotNull(g.getVoltageRegulation());
@@ -250,7 +250,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Line l = network.getLine("l34");
         Terminal lTerminal = l.getTerminal(TwoSides.ONE);
         VoltageRegulation voltageRegulation = g.newVoltageRegulation()
-            .withTargetValue(200.0)
+            .withTargetValue(-200.0)
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(lTerminal)
             .build();
