@@ -91,7 +91,8 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
     void testImportDataWhenValidVersion() throws IOException {
         writeNetwork("/test1.json", "1.15");
         ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test1");
-        assertThatCode(() -> importer.importData(dataSource, NetworkFactory.findDefault(), null))
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        assertThatCode(() -> importer.importData(dataSource, networkFactory, null))
                 .doesNotThrowAnyException();
     }
 
@@ -101,7 +102,8 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
         ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test1");
         String expectedError = String.format("IIDM Version %s is not supported. Max supported version: %s",
                 unsupportedIidmVersion(), CURRENT_IIDM_VERSION.toString("."));
-        assertThatCode(() -> importer.importData(dataSource, NetworkFactory.findDefault(), null))
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        assertThatCode(() -> importer.importData(dataSource, networkFactory, null))
                 .isInstanceOf(PowsyblException.class)
                 .hasMessage(expectedError);
     }
