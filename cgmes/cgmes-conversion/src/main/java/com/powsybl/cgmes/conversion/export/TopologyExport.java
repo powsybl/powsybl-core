@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getDcConverterUnitId;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -450,11 +451,12 @@ public final class TopologyExport {
         if (!written.contains(b.getId())) {
             String id = context.getNamingStrategy().getCgmesId(refTyped(b), DC_TOPOLOGICAL_NODE);
             String name = line.getNameOrId() + side;
-            writeDCTopologicalNode(id, name, null, cimNamespace, writer, context);
+            String dcConverterUnit = getDcConverterUnitId(line, side, context);
+            writeDCTopologicalNode(id, name, dcConverterUnit, cimNamespace, writer, context);
 
             id = context.getNamingStrategy().getCgmesId(refTyped(b), DC_TOPOLOGICAL_NODE, ref(side + "G"));
             name = line.getNameOrId() + side + "G";
-            writeDCTopologicalNode(id, name, null, cimNamespace, writer, context);
+            writeDCTopologicalNode(id, name, dcConverterUnit, cimNamespace, writer, context);
 
             written.add(b.getId());
         }

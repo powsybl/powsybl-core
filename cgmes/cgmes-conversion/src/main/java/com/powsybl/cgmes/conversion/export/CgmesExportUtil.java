@@ -546,6 +546,18 @@ public final class CgmesExportUtil {
 
     }
 
+    /**
+     * Get the id of the DCConverterUnit at a given side of an HVDC line.
+     *
+     * @param line    An IIDM HVDC line (reduced DC model)
+     * @param side    The side of the HVDC line which DCConverterUnit must be retrieved
+     * @param context CGMES export context
+     * @return The id of the DCConverterUnit at the selected side of the HVDC line
+     */
+    static String getDcConverterUnitId(HvdcLine line, int side, CgmesExportContext context) {
+        return context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(side));
+    }
+
     // DC detailed model
     public record DCConverterUnit(String id, String name, String substation) {
     }

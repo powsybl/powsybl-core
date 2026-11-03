@@ -632,7 +632,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0, getElementCount(eqFile, "DCNode"));
         assertFalse(eqFile.contains("DCBaseTerminal.DCNode"));
 
-        // However, the TP profile must include the DCEquipmentContainer field in the DCTopologicalNode
+        // The TP profile must include the DCTopologicalNode and their DCEquipmentContainer
         String tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
         assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
         String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
@@ -643,7 +643,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
         assertEquals(6, getElementCount(eqFile, "DCNode"));
 
-        // DCEquipmentContainer is also be exported in the TP profile
+        // DCTopologicalNode are also exported in the TP profile with their DCEquipmentContainer
         tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
         assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
         dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
