@@ -8,6 +8,8 @@
 package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Joiner;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
@@ -122,6 +124,9 @@ public class XMLImporter extends AbstractTreeDataImporter {
 
     private String readNamespaceURI(ReadOnlyDataSource dataSource) throws IOException {
         String ext = findExtension(dataSource);
+        if (ext == null) {
+            throw new PowsyblException("File " + dataSource.getBaseName() + "." + Joiner.on("|").join(getExtensions()) + " not found");
+        }
         try (InputStream is = dataSource.newInputStream(null, ext)) {
             XmlReader reader = new XmlReader(is, namespaceVersionMap(), List.of());
             return reader.getNamespaceURI();

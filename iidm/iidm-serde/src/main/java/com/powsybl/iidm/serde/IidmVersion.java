@@ -96,18 +96,4 @@ public enum IidmVersion {
                         + CURRENT_IIDM_VERSION.toString(SEPARATOR)));
     }
 
-    public static IidmVersion fromNamespaceURI(String namespaceURI) {
-        String version = namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
-        IidmVersion v = of(version);
-        String namespaceUriV = v.getNamespaceURI();
-        if (!namespaceURI.equals(namespaceUriV)) {
-            if (v.compareTo(V_1_7) >= 0 && namespaceURI.equals(v.getNamespaceURI(false))) {
-                return v;
-            }
-            throw new PowsyblException("Namespace " + namespaceURI + " is not supported. " +
-                    "The namespace for IIDM XML version " + v.toString(".") + " is: " + namespaceUriV + ".");
-        }
-        return v;
-    }
-
 }

@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -229,7 +230,9 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
         // should fail because file that does not exist
         DirectoryDataSource dataSource4 = new DirectoryDataSource(fileSystem.getPath("/"), "test4");
-        assertThrows(PowsyblException.class, () -> importer.importData(dataSource4, networkFactory, null));
+        assertThatCode(() -> importer.importData(dataSource4, networkFactory, null))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage("File test4.xiidm|iidm|xml not found");
 
         // extension plugin will be not found but default option just warn
         assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), networkFactory, null));
@@ -239,13 +242,17 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         DirectoryDataSource dataSource5 = new DirectoryDataSource(fileSystem.getPath("/"), "test5");
-        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params));
+        assertThatCode(() -> importer.importData(dataSource5, networkFactory, params))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage("Extensions [foo] not found!");
 
         // extension plugin will be not found but option is set to throw an exception
         // (parameter name following same naming convention of XmlExporter)
         Properties params2 = new Properties();
         params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
-        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params2));
+        assertThatCode(() -> importer.importData(dataSource5, networkFactory, params2))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage("Extensions [foo] not found!");
 
         // read file with id mapping
         Network network = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), networkFactory, params);
