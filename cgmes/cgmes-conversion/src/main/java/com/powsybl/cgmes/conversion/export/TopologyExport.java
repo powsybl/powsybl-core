@@ -430,14 +430,9 @@ public final class TopologyExport {
             writeDCTopologicalNode(line, 2, line.getConverterStation2(), written, cimNamespace, writer, context);
         }
 
-        Map<DcBus, DCConverterUnit> dcBusesConverterUnit;
-        if (context.isCim16BusBranchExport()) {
-            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
-            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
-            dcBusesConverterUnit = CgmesExportUtil.getDcBusesConverterUnit(network, dcNodesConverterUnit);
-        } else {
-            dcBusesConverterUnit = Map.of();
-        }
+        Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = CgmesExportUtil.getAcDcConvertersUnit(network, context);
+        Map<DcNode, DCConverterUnit> dcNodesConverterUnit = CgmesExportUtil.getAllDcNodesConvertersUnit(network, acDcConvertersUnit);
+        Map<DcBus, DCConverterUnit> dcBusesConverterUnit = CgmesExportUtil.getDcBusesConverterUnit(network, dcNodesConverterUnit);
         for (DcBus dcBus : network.getDcBuses()) {
             String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
             DCConverterUnit unit = dcBusesConverterUnit.get(dcBus);

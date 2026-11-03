@@ -629,12 +629,10 @@ public final class CgmesExportUtil {
         Map<String, String> dcNodesConverter = new HashMap<>();
         Queue<String> queue = new LinkedList<>();
         converters.forEach(converter -> {
-            if (!dcNodesConverter.containsKey(converter.node1())) {
-                dcNodesConverter.put(converter.node1(), converter.id());
+            if (dcNodesConverter.putIfAbsent(converter.node1(), converter.id()) == null) {
                 queue.add(converter.node1());
             }
-            if (!dcNodesConverter.containsKey(converter.node2())) {
-                dcNodesConverter.put(converter.node2(), converter.id());
+            if (dcNodesConverter.putIfAbsent(converter.node2(), converter.id()) == null) {
                 queue.add(converter.node2());
             }
         });
@@ -643,8 +641,7 @@ public final class CgmesExportUtil {
             String converter = dcNodesConverter.get(node);
             List<String> adjacentNodes = getAdjacentNodes(dcEquipmentForTraversal, node);
             for (String adjacentNode : adjacentNodes) {
-                if (!dcNodesConverter.containsKey(adjacentNode)) {
-                    dcNodesConverter.put(adjacentNode, converter);
+                if (dcNodesConverter.putIfAbsent(adjacentNode, converter) == null) {
                     queue.add(adjacentNode);
                 }
             }

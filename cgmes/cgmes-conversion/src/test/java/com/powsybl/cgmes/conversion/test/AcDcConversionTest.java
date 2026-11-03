@@ -546,7 +546,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // DCTopologicalNode
         String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
         assertEquals("DC node 1 1P", getAttribute(dcTopologicalNode, "IdentifiedObject.name"));
-        assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer")); // Not included in Node-breaker
+        assertEquals("DCCU_1_1", getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
     }
 
     @Test
@@ -643,11 +643,11 @@ class AcDcConversionTest extends AbstractSerDeTest {
         eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
         assertEquals(6, getElementCount(eqFile, "DCNode"));
 
-        // Therefore, DCEquipmentContainer shall not be exported in the TP profile
+        // DCEquipmentContainer is also be exported in the TP profile
         tpFile = writeCgmesProfile(network, "TP", tmpDir, exportParams);
         assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
         dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
-        assertNull(getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
+        assertEquals("DCCU_1_1", getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
     }
 
     /**
