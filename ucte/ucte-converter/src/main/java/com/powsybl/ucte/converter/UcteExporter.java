@@ -670,8 +670,7 @@ public class UcteExporter implements Exporter {
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
 
-        double nominalPower;
-        nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer, context);
+        double nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer, context);
 
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
