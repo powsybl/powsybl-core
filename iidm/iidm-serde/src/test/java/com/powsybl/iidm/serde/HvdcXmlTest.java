@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.Test;
 
@@ -33,5 +35,18 @@ class HvdcXmlTest extends AbstractIidmSerDeTest {
 
         // backward compatibility
         allFormatsRoundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
+    }
+
+    @Test
+    void reactiveRegulationModeVscTest() throws IOException {
+        Network network = HvdcTestNetwork.createVsc();
+        network.getVscConverterStation("C2").getVoltageRegulation()
+            .setMode(RegulationMode.REACTIVE_POWER)
+            .setTerminal(network.getVscConverterStation("C1").getTerminal(), -12.0)
+            .setRegulating(true);
+        allFormatsRoundTripTest(network, "VscReactivePowerMode.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility
+        allFormatsRoundTripFromMinVersionTest(network, "VscReactivePowerMode.xml", IidmVersion.V_1_17);
     }
 }

@@ -42,7 +42,12 @@ public class VoltagePerReactivePowerControlSerDe extends AbstractExtensionSerDe<
     public VoltagePerReactivePowerControl read(StaticVarCompensator svc, DeserializerContext context) {
         double slope = context.getReader().readDoubleAttribute("slope");
         context.getReader().readEndNode();
-        if (!Double.isNaN(slope)) {
+        if (!Double.isNaN(slope) && slope != 0) { // When the slope is equal to zero, ignore the extension: q cannot be computed (division by 0)
+            // Fill in the slope before changing the mode to pass the validation
+            //
+            // Note that the voltage regulation object is always present here:
+            // This method is only used when deserializing an IIDM 1.17 (or previous) file and in that case,
+            // the voltage regulation object is always created.
             svc.getVoltageRegulation().setSlope(slope);
             svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
         }
