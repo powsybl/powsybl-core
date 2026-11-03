@@ -27,6 +27,18 @@ public abstract class AbstractNetworkExtensionsTest {
     public void testNetworkFourSubstationsExtensions() {
         Network network = FourSubstationsNodeBreakerWithExtensionsFactory.create();
 
+        assertOnBusbarSection(network);
+        assertOnLoads(network);
+        assertOnGenerators(network);
+        assertOnShunts(network);
+        assertOnSvc(network);
+        assertOnVsc(network);
+        assertOnLcc(network);
+        assertOnTwt(network);
+        assertOnLines(network);
+    }
+
+    private static void assertOnBusbarSection(Network network) {
         //Busbar sections
         BusbarSection bbsS1Vl1 = network.getBusbarSection("S1VL1_BBS");
         assertNotNull(bbsS1Vl1);
@@ -69,7 +81,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertNotNull(bbsS4Vl1Position);
         assertEquals(1, bbsS4Vl1Position.getBusbarIndex());
         assertEquals(1, bbsS4Vl1Position.getSectionIndex());
+    }
 
+    private static void assertOnLoads(Network network) {
         //Loads
         Load load1 = network.getLoad("LD1");
         assertNotNull(load1);
@@ -124,7 +138,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals("LD6", load6Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, load6Position.getFeeder().getDirection());
         assertEquals(Optional.of(10), load6Position.getFeeder().getOrder());
+    }
 
+    private static void assertOnGenerators(Network network) {
         //Generators
         Generator generatorH1 = network.getGenerator("GH1");
         assertNotNull(generatorH1);
@@ -170,7 +186,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals("GTH2", generatorTH2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, generatorTH2Position.getFeeder().getDirection());
         assertEquals(Optional.of(30), generatorTH2Position.getFeeder().getOrder());
+    }
 
+    private static void assertOnShunts(Network network) {
         //Shunt
         ShuntCompensator shunt = network.getShuntCompensator("SHUNT");
         assertNotNull(shunt);
@@ -180,7 +198,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals("SHUNT", shuntPosition.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, shuntPosition.getFeeder().getDirection());
         assertEquals(Optional.of(90), shuntPosition.getFeeder().getOrder());
+    }
 
+    private static void assertOnSvc(Network network) {
         //SVC
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
         assertNotNull(svc);
@@ -190,7 +210,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals("SVC", svcPosition.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, svcPosition.getFeeder().getDirection());
         assertEquals(Optional.of(20), svcPosition.getFeeder().getOrder());
+    }
 
+    private static void assertOnVsc(Network network) {
         //VSCs
         VscConverterStation vsc1 = network.getVscConverterStation("VSC1");
         assertNotNull(vsc1);
@@ -209,7 +231,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals("VSC2", vsc2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, vsc2Position.getFeeder().getDirection());
         assertEquals(Optional.of(20), vsc2Position.getFeeder().getOrder());
+    }
 
+    private static void assertOnLcc(Network network) {
         //LCCs
         LccConverterStation lcc1 = network.getLccConverterStation("LCC1");
         assertNotNull(lcc1);
@@ -228,7 +252,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals("LCC2", lcc2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, lcc2Position.getFeeder().getDirection());
         assertEquals(Optional.of(50), lcc2Position.getFeeder().getOrder());
+    }
 
+    private static void assertOnTwt(Network network) {
         //TWO-WINDINGS TRANSFORMER
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
         assertNotNull(twt);
@@ -244,7 +270,9 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals(ConnectablePosition.Direction.TOP, feederTwt2.getDirection());
         assertEquals(Optional.of(10), feederTwt2.getOrder());
         assertEquals("TWT", feederTwt2.getName().orElse(""));
+    }
 
+    private static void assertOnLines(Network network) {
         //LINES
         Line line1 = network.getLine("LINE_S2S3");
         assertNotNull(line1);
@@ -275,6 +303,7 @@ public abstract class AbstractNetworkExtensionsTest {
         assertEquals(ConnectablePosition.Direction.TOP, feederLine22.getDirection());
         assertEquals(Optional.of(30), feederLine22.getOrder());
         assertEquals("LINE_S3S4", feederLine22.getName().orElse(""));
+
     }
 
 }

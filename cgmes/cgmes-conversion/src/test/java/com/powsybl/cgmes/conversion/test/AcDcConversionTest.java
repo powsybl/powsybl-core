@@ -10,11 +10,10 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,10 +33,6 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
     private static final String DIR = "/issues/hvdc/";
     private static final Properties IMPORT_PARAMS = new Properties();
-    private static final String ALIAS_TERMINAL1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
-    private static final String ALIAS_TERMINAL2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2;
-    private static final String ALIAS_DC_TERMINAL1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1;
-    private static final String ALIAS_DC_TERMINAL2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2;
 
     @BeforeAll
     static void setUpProperties() {
@@ -146,9 +142,9 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0.0, vsc.getTargetP());
         assertEquals(Double.NaN, vsc.getTargetVdc());
         assertEquals("PT_1_2", vsc.getPccTerminal().getConnectable().getId());
-        assertFalse(vsc.isVoltageRegulatorOn());
-        assertEquals(0.0, vsc.getReactivePowerSetpoint());
-        assertEquals(Double.NaN, vsc.getVoltageSetpoint());
+        assertNull(vsc.getVoltageRegulation());
+        assertEquals(Double.NaN, vsc.getLocalTargetQ());
+        assertEquals(Double.NaN, vsc.getLocalTargetV());
         assertEquals("DCN_1_2P", vsc.getDcTerminal1().getDcNode().getId());
         assertEquals("DCN_1_2N", vsc.getDcTerminal2().getDcNode().getId());
         assertEquals("T_VSC_1_2_1", vsc.getAliasFromType(ALIAS_TERMINAL1).orElseThrow());
@@ -216,17 +212,17 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
         assertEquals(500.0, vsc.getTargetP());
         assertEquals(Double.NaN, vsc.getTargetVdc());
-        assertFalse(vsc.isVoltageRegulatorOn());
-        assertEquals(1.0, vsc.getReactivePowerSetpoint());
-        assertEquals(Double.NaN, vsc.getVoltageSetpoint());
+        assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertEquals(1.0, vsc.getRegulatingTargetQ());
+        assertEquals(Double.NaN, vsc.getRegulatingTargetV());
 
         VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("VSC_2_2");
         assertEquals(AcDcConverter.ControlMode.V_DC, vsc2.getControlMode());
         assertEquals(Double.NaN, vsc2.getTargetP());
         assertEquals(497.0, vsc2.getTargetVdc());
-        assertTrue(vsc2.isVoltageRegulatorOn());
-        assertEquals(Double.NaN, vsc2.getReactivePowerSetpoint());
-        assertEquals(400.0, vsc2.getVoltageSetpoint());
+        assertTrue(vsc2.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(0.0, vsc2.getRegulatingTargetQ());
+        assertEquals(400.0, vsc2.getRegulatingTargetV());
     }
 
     @Test

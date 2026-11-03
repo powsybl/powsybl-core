@@ -7,13 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

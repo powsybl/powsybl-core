@@ -11,7 +11,7 @@ import com.powsybl.action.ial.dsl.Rule;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.security.Security;
 
 import java.io.*;

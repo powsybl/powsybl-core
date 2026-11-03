@@ -158,6 +158,7 @@ public class ConversionTester {
         CgmesImport i = new CgmesImport();
         ReadOnlyDataSource ds = gm.dataSource();
         LOG.info("Importer.exists() == {}", i.exists(ds));
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network n = i.importData(ds, new NetworkFactoryImpl(), importParams);
         CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         new Conversion(m).report(reportConsumer);
@@ -240,6 +241,7 @@ public class ConversionTester {
         return config;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     public static void computeMissingFlows(Network network, LoadFlowParameters lfparams, boolean useSv) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,

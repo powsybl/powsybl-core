@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,8 +50,8 @@ public abstract class AbstractTopologyTraverserTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         vl1.getNodeBreakerView().newInternalConnection()
                 .setNode1(1)
@@ -250,6 +251,29 @@ public abstract class AbstractTopologyTraverserTest {
                         Pair.of("NHV1_NHV2_1", 0), Pair.of("NHV1_NHV2_2", 0), Pair.of("duplicate", 1), Pair.of("NHV1_NHV2_1", 1),
                         Pair.of("NHV1_NHV2_2", 1), Pair.of("NHV2_NLOAD", 0), Pair.of("NHV2_NLOAD", 1), Pair.of("LOAD", 0)),
                 visited);
+    }
+
+    @Test
+    public void testTerminateTraverser() {
+        Network network = createMixedNodeBreakerBusBreakerNetwork();
+        Terminal startGNbv = network.getGenerator("G").getTerminal();
+        List<Pair<String, Integer>> visited1 = getVisitedList(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited1);
+
+        List<Pair<String, Integer>> visited2 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of(Pair.of("G", 0)), visited2);
+
+        List<Pair<String, Integer>> visited3 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE,
+                t -> t.getConnectable() instanceof BusbarSection ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited3);
+
+        Terminal startLBbv = network.getLoad("LD2").getTerminal();
+        List<Pair<String, Integer>> visited4 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of(Pair.of("LD2", 0)), visited4);
+
+        List<Pair<String, Integer>> visited5 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE,
+                t -> t.getConnectable().getId().equals("L2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("LD2", 0), Pair.of("L2", 1)), visited5);
     }
 
     protected List<Pair<String, Integer>> getVisitedList(Terminal start, Function<Switch, TraverseResult> switchTest) {

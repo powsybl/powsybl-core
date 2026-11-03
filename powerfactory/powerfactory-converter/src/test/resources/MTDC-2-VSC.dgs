@@ -1,0 +1,25 @@
+* 2 VSCs directly connected by their DC. No DC line or AC network.
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+1;Version;5.0
+
+$$ElmVsc;ID(a:40);loc_name(a:40);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r);i_acdc(i);usetpdc(r);Unomdc(r)
+6;HVDC Converter 1;9;300;1.0;600;0;10000;900;4;;320
+7;HVDC Converter 2;9;300;;0;100;10000;900;3;1.01;320
+
+$$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
+9;1 aux_1;;;60;
+
+$$ElmTerm;ID(a:40);loc_name(a:40);fold_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i)
+12;2 Bus 2;9;0;0;165;95.26279;0
+13;3 Bus 2-Load;9;0;0;165;95.26279;0
+14;4 HVDC Link_T_DC_pos1;9;1;0;320;320.0;0
+16;6 HVDC Link_T_DC_neg1;9;1;0;320;320.0;1
+
+$$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);obj_bus(i);obj_id(p);it2p1(i);it2p2(i);it2p3(i)
+22;HVDC Converter 1 AC Node;12;0;6;0;1;2
+25;HVDC Converter 2 AC Node;13;0;7;0;1;2
+26;HVDC Converter 1 DC Node-1;14;1;6;0;1;2
+27;HVDC Converter 1 DC Node-2;16;2;6;0;1;2
+28;HVDC Converter 2 DC Node-1;14;1;7;0;1;2
+29;HVDC Converter 2 DC Node-2;16;2;7;0;1;2
+

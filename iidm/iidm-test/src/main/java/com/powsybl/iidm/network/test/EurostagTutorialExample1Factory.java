@@ -8,7 +8,9 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+
 import java.time.ZonedDateTime;
 
 /**
@@ -21,10 +23,10 @@ public final class EurostagTutorialExample1Factory {
     public static final String VLGEN = "VLGEN";
     public static final String VLLOAD = "VLLOAD";
     public static final String CASE_DATE = "2018-01-01T11:00:00+01:00";
-    public static final String DANGLING_LINE_XNODE1_1 = "NHV1_XNODE1";
-    public static final String DANGLING_LINE_XNODE1_2 = "XNODE1_NHV2";
-    public static final String DANGLING_LINE_XNODE2_1 = "NHV1_XNODE2";
-    public static final String DANGLING_LINE_XNODE2_2 = "XNODE2_NHV2";
+    public static final String BOUNDARY_LINE_XNODE1_1 = "NHV1_XNODE1";
+    public static final String BOUNDARY_LINE_XNODE1_2 = "XNODE1_NHV2";
+    public static final String BOUNDARY_LINE_XNODE2_1 = "NHV1_XNODE2";
+    public static final String BOUNDARY_LINE_XNODE2_2 = "XNODE2_NHV2";
     public static final String VLHV1 = "VLHV1";
     public static final String VLHV2 = "VLHV2";
     public static final String NHV1_NHV2_1 = "NHV1_NHV2_1";
@@ -36,6 +38,12 @@ public final class EurostagTutorialExample1Factory {
     public static final String NGEN = "NGEN";
     public static final String NHV1 = "NHV1";
     public static final String NHV2 = "NHV2";
+
+    public static final double GENERATOR_LOCAL_TARGET_V = 24.5;
+    public static final double GENERATOR_LOCAL_TARGET_Q = 200d;
+    public static final double GENERATOR_REMOTE_TARGET_VALUE_V = 399d;
+    public static final double GENERATOR_REMOTE_TARGET_VALUE_Q = -10d;
+    public static final String GENERATOR_ID = "GEN";
 
     private EurostagTutorialExample1Factory() {
     }
@@ -177,11 +185,12 @@ public final class EurostagTutorialExample1Factory {
                 .endStep()
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(158.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(nhv2Nload.getTerminal2())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(158.0)
+                    .withTerminal(nhv2Nload.getTerminal2())
+                    .withTargetDeadband(0)
+                    .add()
             .add();
         vlload.newLoad()
                 .setId("LOAD")
@@ -191,15 +200,15 @@ public final class EurostagTutorialExample1Factory {
                 .setQ0(200.0)
             .add();
         Generator generator = vlgen.newGenerator()
-                .setId("GEN")
+                .setId(GENERATOR_ID)
                 .setBus(ngen.getId())
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(24.5)
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
             .add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-9999.99)
@@ -217,8 +226,8 @@ public final class EurostagTutorialExample1Factory {
         network.getLine(NHV1_NHV2_1).remove();
         network.getLine(NHV1_NHV2_2).remove();
 
-        DanglingLine nhv1xnode1 = network.getVoltageLevel(VLHV1).newDanglingLine()
-                .setId(DANGLING_LINE_XNODE1_1)
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel(VLHV1).newBoundaryLine()
+                .setId(BOUNDARY_LINE_XNODE1_1)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.5)
@@ -228,8 +237,8 @@ public final class EurostagTutorialExample1Factory {
                 .setPairingKey(XNODE_1)
                 .setBus(NHV1)
                 .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
-                .setId(DANGLING_LINE_XNODE1_2)
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel(VLHV2).newBoundaryLine()
+                .setId(BOUNDARY_LINE_XNODE1_2)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.5)
@@ -241,11 +250,11 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newTieLine()
                 .setId(NHV1_NHV2_1)
-                .setDanglingLine1(nhv1xnode1.getId())
-                .setDanglingLine2(xnode1nhv2.getId())
+                .setBoundaryLine1(nhv1xnode1.getId())
+                .setBoundaryLine2(xnode1nhv2.getId())
                 .add();
-        DanglingLine nhv1xnode2 = network.getVoltageLevel(VLHV1).newDanglingLine()
-                .setId(DANGLING_LINE_XNODE2_1)
+        BoundaryLine nhv1xnode2 = network.getVoltageLevel(VLHV1).newBoundaryLine()
+                .setId(BOUNDARY_LINE_XNODE2_1)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.5)
@@ -255,8 +264,8 @@ public final class EurostagTutorialExample1Factory {
                 .setBus(NHV1)
                 .setPairingKey("XNODE2")
                 .add();
-        DanglingLine xnode2nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
-                .setId(DANGLING_LINE_XNODE2_2)
+        BoundaryLine xnode2nhv2 = network.getVoltageLevel(VLHV2).newBoundaryLine()
+                .setId(BOUNDARY_LINE_XNODE2_2)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.5)
@@ -268,19 +277,19 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newTieLine()
                 .setId(NHV1_NHV2_2)
-                .setDanglingLine1(nhv1xnode2.getId())
-                .setDanglingLine2(xnode2nhv2.getId())
+                .setBoundaryLine1(nhv1xnode2.getId())
+                .setBoundaryLine2(xnode2nhv2.getId())
                 .add();
-        network.getTieLine(NHV1_NHV2_1).getDanglingLine1().getTerminal()
+        network.getTieLine(NHV1_NHV2_1).getBoundaryLine1().getTerminal()
                 .setP(302.4440612792969)
                 .setQ(98.74027252197266);
-        network.getTieLine(NHV1_NHV2_1).getDanglingLine2().getTerminal()
+        network.getTieLine(NHV1_NHV2_1).getBoundaryLine2().getTerminal()
                 .setP(-300.43389892578125)
                 .setQ(-137.18849182128906);
-        network.getTieLine(NHV1_NHV2_2).getDanglingLine1().getTerminal()
+        network.getTieLine(NHV1_NHV2_2).getBoundaryLine1().getTerminal()
                 .setP(302.4440612792969)
                 .setQ(98.74027252197266);
-        network.getTieLine(NHV1_NHV2_2).getDanglingLine2().getTerminal()
+        network.getTieLine(NHV1_NHV2_2).getBoundaryLine2().getTerminal()
                 .setP(-300.43389892578125)
                 .setQ(-137.188491821289060);
 
@@ -308,7 +317,7 @@ public final class EurostagTutorialExample1Factory {
                 .setV(147.57861328125)
                 .setAngle(-9.614486694335938);
 
-        network.getGenerator("GEN").getTerminal()
+        network.getGenerator(GENERATOR_ID).getTerminal()
                 .setP(-605.558349609375)
                 .setQ(-225.2825164794922);
         network.getTwoWindingsTransformer(NGEN_NHV1).getTerminal1()
@@ -358,10 +367,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
         generator2.newReactiveCapabilityCurve()
                 .beginPoint()
@@ -401,10 +410,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(NGEN)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -454,6 +463,354 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static final String ACTIVATED_ONE_ONE = "activated_1_1";
+    public static final String ACTIVATED_ONE_TWO = "activated_1_2";
+    public static final String ACTIVATED_TWO_ONE = "activated_2_1";
+    public static final String ACTIVATED_TWO_TWO = "activated_2_2";
+    public static final String ACTIVATED_THREE_ONE = "activated_3_1";
+    public static final String NOT_ACTIVATED = "not_activated";
+
+    /**
+     * Selected limits:
+     * On {@link #NHV1_NHV2_1}, side 1 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *      Default      activated_1_1       activated_1_2
+     *      |                                ---- IT0.5 1600 (30s)
+     *      |            ---- IT1 1500 (60s)
+     *      |            ---- IT10 1200 (600s)
+     *      |            ---- ITP 1100
+     *      |                                ---- IT40 700 (2400s)
+     *      | ---- ITP 500
+     *      |                                ---- ITP 300
+     * </pre>
+     * Side 2
+     * <pre>
+     *      Default             activated_2_1
+     *      |                   ---- IT10 1000 (600s)
+     *      | ---- ITP 600      ---- ITP 600
+     * </pre>
+     *
+     * On {@link #NHV1_NHV2_2}, side 1
+     * <pre>
+     *      Default
+     *      | ---- IT20 1200 (1200s)
+     *      | ---- ITP 1100
+     * </pre>
+     * Side 2 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *     Default              activated_2_1       activated_2_2
+     *     |                    ---- IT20 600 (1200s)
+     *     | ---- ITP 500
+     *     |                                        ---- ITP 300
+     *     |                    ---- ITP 200
+     * </pre>
+     */
+    public static Network createWithMultipleSelectedFixedCurrentLimits() {
+        return createWithMultipleSelectedFixedCurrentLimits(NetworkFactory.findDefault());
+    }
+
+    /**
+     * Selected limits:
+     * On {@link #NHV1_NHV2_1} a line, side 1 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *      Default      activated_1_1       activated_1_2
+     *      |                                ---- IT0.5 1600 (30s)
+     *      |            ---- IT1 1500 (60s)
+     *      |            ---- IT10 1200 (600s)
+     *      |            ---- ITP 1100
+     *      |                                ---- IT40 700 (2400s)
+     *      | ---- ITP 500
+     *      |                                ---- ITP 300
+     * </pre>
+     * Side 2
+     * <pre>
+     *      Default             activated_2_1
+     *      |                   ---- IT10 1000 (600s)
+     *      | ---- ITP 600      ---- ITP 600
+     * </pre>
+     *
+     * On {@link #NHV1_NHV2_2}, a line, side 1
+     * <pre>
+     *      Default
+     *      | ---- IT20 1200 (1200s)
+     *      | ---- ITP 1100
+     * </pre>
+     * Side 2 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *     Default              activated_2_1       activated_2_2
+     *     |                    ---- IT20 600 (1200s)
+     *     | ---- ITP 500
+     *     |                                        ---- ITP 300
+     *     |                    ---- ITP 200
+     * </pre>
+     */
+    public static Network createWithMultipleSelectedFixedCurrentLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        Line line = network.getLine(NHV1_NHV2_1);
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
+        line.newOperationalLimitsGroup1(ACTIVATED_ONE_ONE).newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1500)
+                .endTemporaryLimit()
+                .add();
+
+        line.newOperationalLimitsGroup1(ACTIVATED_ONE_TWO).newCurrentLimits()
+                .setPermanentLimit(300)
+                .beginTemporaryLimit()
+                .setName("40'")
+                .setAcceptableDuration(40 * 60)
+                .setValue(700)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("0.5'")
+                .setAcceptableDuration(30)
+                .setValue(1600)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, ACTIVATED_ONE_ONE, ACTIVATED_ONE_TWO);
+
+        line.newOperationalLimitsGroup1(NOT_ACTIVATED).newCurrentLimits()
+            .setPermanentLimit(400)
+            .beginTemporaryLimit()
+            .setValue(600)
+            .setName("30'")
+            .setAcceptableDuration(30 * 60)
+            .endTemporaryLimit()
+            .add();
+
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(600);
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
+                .setPermanentLimit(600)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(60 * 10)
+                .setValue(1000)
+                .endTemporaryLimit()
+                .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE);
+
+        line = network.getLine(NHV1_NHV2_2);
+        line.getTerminal1().setP(560.0).setQ(550.0);
+        line.getTerminal2().setP(-560.0).setQ(-550.0);
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(60)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(500).add();
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
+                .setPermanentLimit(200)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(600)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO).newCurrentLimits()
+                .setPermanentLimit(300)
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        line.newOperationalLimitsGroup2(NOT_ACTIVATED).newCurrentLimits()
+                .setPermanentLimit(400)
+                .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
+
+        return network;
+    }
+
+    /**
+     * On {@link #NHV1_NHV2_1} a line, side 2
+     * <pre>
+     *      activated_2_1 (HIGH)    activated_2_2 (LOW)
+     *      |                       ---- IT5 1200 (300s)
+     *      | ---- IT10 1000 (600s)
+     *      |                       ---- IT10 900 (600s)
+     *      | ---- ITP 600
+     *      |                       ---- IT40 500 (2400s)
+     * </pre>
+     */
+    public static Network createWithHighAndLowCurrentLimits() {
+        Network network = create();
+        Line line = network.getLine(NHV1_NHV2_1);
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
+            .setPermanentLimit(600)
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(1000)
+            .endTemporaryLimit()
+            .add();
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO).newCurrentLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(60 * 40)
+            .setValue(500)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("10'")
+            .setAcceptableDuration(60 * 10)
+            .setValue(900)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("5'")
+            .setAcceptableDuration(60 * 5)
+            .setValue(1200)
+            .endTemporaryLimit()
+            .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
+
+        return network;
+    }
+
+    /**
+     * Selected limits:
+     * On {@link #NGEN_V2_NHV1}, a three-winding transformer, side 3 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *      Default      activated_3_1
+     *      |            ---- IT45 400 (2700s)
+     *      |            ---- ITP 350
+     *      | ---- ITP 250
+     * </pre>
+     */
+    public static Network createWithMultipleSelectedFixedActivePowerLimits() {
+        Network network = createWith3wTransformer();
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(NGEN_V2_NHV1);
+
+        ThreeWindingsTransformer.Leg legThree = threeWindingsTransformer.getLeg(ThreeSides.THREE);
+
+        legThree.getOrCreateSelectedOperationalLimitsGroup()
+                .newActivePowerLimits()
+                .setPermanentLimit(250)
+                .add();
+
+        legThree.newOperationalLimitsGroup(ACTIVATED_THREE_ONE)
+                .newActivePowerLimits()
+                .setPermanentLimit(350)
+                .beginTemporaryLimit()
+                .setValue(400)
+                .setName("45'")
+                .setAcceptableDuration(45 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        legThree.addSelectedOperationalLimitsGroups(ACTIVATED_THREE_ONE);
+
+        legThree.newOperationalLimitsGroup(NOT_ACTIVATED)
+            .newActivePowerLimits()
+            .setPermanentLimit(300)
+            .beginTemporaryLimit()
+            .setName("25'")
+            .setValue(550)
+            .setAcceptableDuration(25 * 60)
+            .endTemporaryLimit()
+            .add();
+
+        return network;
+    }
+
+    /**
+     * Selected limits:
+     * On {@link #NGEN_NHV1}, a two-winding transformer, side 2
+     * <pre>
+     *      activated_2_1             activated_2_2
+     *                                ---- IT20 250 (1200s)
+     *      ---- IT10 240 (600s)      ---- ITP 240
+     *      ---- ITP 230
+     * </pre>
+     */
+    public static Network createWithMultipleSelectedFixedApparentPowerLimits() {
+        return createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory.findDefault());
+    }
+
+    /**
+     * Selected limits:
+     * On {@link #NGEN_NHV1}, a two-winding transformer, side 2
+     * <pre>
+     *      activated_2_1             activated_2_2
+     *                                ---- IT20 250 (1200s)
+     *      ---- IT10 240 (600s)      ---- ITP 240
+     *      ---- ITP 230
+     * </pre>
+     */
+    public static Network createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(NGEN_NHV1);
+
+        twoWindingsTransformer.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE)
+                .newApparentPowerLimits()
+                .setPermanentLimit(230)
+                .beginTemporaryLimit()
+                .setValue(240)
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        twoWindingsTransformer.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO)
+                .newApparentPowerLimits()
+                .setPermanentLimit(240)
+                .beginTemporaryLimit()
+                .setValue(250)
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        twoWindingsTransformer.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
+
+        return network;
+    }
+
     public static Network createWithFixedLimits() {
         return createWithFixedLimits(NetworkFactory.findDefault());
     }
@@ -471,10 +828,10 @@ public final class EurostagTutorialExample1Factory {
                .setConnectableBus(NGEN)
                .setMinP(-9999.99)
                .setMaxP(9999.99)
-               .setVoltageRegulatorOn(true)
-               .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                .setTargetP(607.0)
-               .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+               .setLocalTargetQ(301.0)
                .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -559,11 +916,11 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
-    public static Network createWithFixedCurrentLimitsOnDanglingLines() {
-        return createWithFixedCurrentLimitsOnDanglingLines(NetworkFactory.findDefault());
+    public static Network createWithFixedCurrentLimitsOnBoundaryLines() {
+        return createWithFixedCurrentLimitsOnBoundaryLines(NetworkFactory.findDefault());
     }
 
-    public static Network createWithFixedCurrentLimitsOnDanglingLines(NetworkFactory networkFactory) {
+    public static Network createWithFixedCurrentLimitsOnBoundaryLines(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
 
         network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
@@ -576,21 +933,21 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(NGEN)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(24.5)
+                .setLocalTargetV(301.0)
                 .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
         ((Bus) network.getIdentifiable(NHV2)).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
 
-        DanglingLine danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE1_1);
-        DanglingLine danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        BoundaryLine boundaryLine1 = network.getBoundaryLine(BOUNDARY_LINE_XNODE1_1);
+        BoundaryLine boundaryLine2 = network.getBoundaryLine(BOUNDARY_LINE_XNODE1_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(-560.0).setQ(-550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -609,11 +966,11 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE2_1);
-        danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        boundaryLine1 = network.getBoundaryLine(BOUNDARY_LINE_XNODE2_1);
+        boundaryLine2 = network.getBoundaryLine(BOUNDARY_LINE_XNODE2_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(-560.0).setQ(-550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -626,16 +983,16 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
 
         return network;
     }
 
-    public static Network createWithFixedLimitsOnDanglingLines() {
-        return createWithFixedLimitsOnDanglingLines(NetworkFactory.findDefault());
+    public static Network createWithFixedLimitsOnBoundaryLines() {
+        return createWithFixedLimitsOnBoundaryLines(NetworkFactory.findDefault());
     }
 
-    public static Network createWithFixedLimitsOnDanglingLines(NetworkFactory networkFactory) {
+    public static Network createWithFixedLimitsOnBoundaryLines(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
 
         network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
@@ -648,21 +1005,21 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(NGEN)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
+                .setLocalTargetV(24.5)
                 .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
         ((Bus) network.getIdentifiable(NHV2)).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
 
-        DanglingLine danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE1_1);
-        DanglingLine danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
+        BoundaryLine boundaryLine1 = network.getBoundaryLine(BOUNDARY_LINE_XNODE1_1);
+        BoundaryLine boundaryLine2 = network.getBoundaryLine(BOUNDARY_LINE_XNODE1_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -681,8 +1038,8 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -701,11 +1058,11 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE2_1);
-        danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
+        boundaryLine1 = network.getBoundaryLine(BOUNDARY_LINE_XNODE2_1);
+        boundaryLine2 = network.getBoundaryLine(BOUNDARY_LINE_XNODE2_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -718,9 +1075,9 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
 
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -733,7 +1090,7 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
 
         return network;
     }
@@ -777,19 +1134,19 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(nconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
         vlhv3.newGenerator().setId("GEN3")
                 .setConnectableBus(ndisconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetV(24.5)
+                .setLocalTargetQ(301.0)
                 .add();
 
         vlhv3.newShuntCompensator()
@@ -821,7 +1178,7 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithVoltageAngleLimit() {
-        Network network = create(NetworkFactory.findDefault());
+        Network network = create();
         network.setCaseDate(ZonedDateTime.parse("2023-06-28T23:11:51.614+02:00"));
 
         network.newVoltageAngleLimit()
@@ -840,7 +1197,7 @@ public final class EurostagTutorialExample1Factory {
 
         network.newVoltageAngleLimit()
             .setId("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
-            .from(network.getGenerator("GEN").getTerminal())
+            .from(network.getGenerator(GENERATOR_ID).getTerminal())
             .to(network.getTwoWindingsTransformer(NGEN_NHV1).getTerminal2())
             .setLowLimit(-0.20)
             .setHighLimit(0.35)
@@ -856,11 +1213,11 @@ public final class EurostagTutorialExample1Factory {
     public static Network createWithTieLinesAndAreas(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
 
-        // createWithTieLines sets non-zero G for dangling lines, while the load flow solution included is for zero G.
-        // Here we set all DanglingLine's G to zero. Doing this the DanglingLine's P and Q at boundary side (calculated by iIDM)
-        // are consistent with included load flow results. In particular, flows of the 2 DanglingLines of a tie-line are consistent
+        // createWithTieLines sets non-zero G for boundary lines, while the load flow solution included is for zero G.
+        // Here we set all BoundaryLine's G to zero. Doing this the BoundaryLine's P and Q at boundary side (calculated by iIDM)
+        // are consistent with included load flow results. In particular, flows of the 2 BoundaryLines of a tie-line are consistent
         // (verifying dl1.getBoundary().getP() ~= -1.0 * dl2.getBoundary().getP())
-        network.getDanglingLineStream().forEach(dl -> dl.setG(0.0));
+        network.getBoundaryLineStream().forEach(dl -> dl.setG(0.0));
 
         network.newArea()
                 .setId("ControlArea_A")
@@ -869,8 +1226,8 @@ public final class EurostagTutorialExample1Factory {
                 .setInterchangeTarget(-602.6)
                 .addVoltageLevel(network.getVoltageLevel(VLGEN))
                 .addVoltageLevel(network.getVoltageLevel(VLHV1))
-                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE1_1).getBoundary(), true)
-                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE2_1).getBoundary(), true)
+                .addAreaBoundary(network.getBoundaryLine(BOUNDARY_LINE_XNODE1_1).getBoundary(), true)
+                .addAreaBoundary(network.getBoundaryLine(BOUNDARY_LINE_XNODE2_1).getBoundary(), true)
                 .add();
         network.newArea()
                 .setId("ControlArea_B")
@@ -879,8 +1236,8 @@ public final class EurostagTutorialExample1Factory {
                 .setInterchangeTarget(+602.6)
                 .addVoltageLevel(network.getVoltageLevel(VLHV2))
                 .addVoltageLevel(network.getVoltageLevel(VLLOAD))
-                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE1_2).getBoundary(), true)
-                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE2_2).getBoundary(), true)
+                .addAreaBoundary(network.getBoundaryLine(BOUNDARY_LINE_XNODE1_2).getBoundary(), true)
+                .addAreaBoundary(network.getBoundaryLine(BOUNDARY_LINE_XNODE2_2).getBoundary(), true)
                 .add();
         network.newArea()
                 .setId("Region_AB")
@@ -896,10 +1253,13 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithReactiveTcc() {
         Network network = create();
-        network.getTwoWindingsTransformer(NHV2_NLOAD)
-                .getRatioTapChanger()
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(NHV2_NLOAD).getRatioTapChanger();
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(100)
+            .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .withTargetDeadband(10.)
+            .build();
         return network;
     }
 
@@ -912,9 +1272,10 @@ public final class EurostagTutorialExample1Factory {
     }
 
     private static Network createRemoteTcc(Network network) {
-        network.getTwoWindingsTransformer(NHV2_NLOAD)
-                .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
+        VoltageRegulation voltageRegulation = network.getTwoWindingsTransformer(NHV2_NLOAD)
+            .getRatioTapChanger()
+            .getVoltageRegulation();
+        voltageRegulation.setTerminal(network.getGenerator(GENERATOR_ID).getTerminal(), voltageRegulation.getTargetValue());
 
         return network;
     }
@@ -1032,11 +1393,12 @@ public final class EurostagTutorialExample1Factory {
                 .endStep()
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(158.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getTerminal())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(158.0)
+                    .withTerminal(network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getTerminal())
+                    .withTargetDeadband(0.0)
+                    .add()
             .add();
     }
 
@@ -1070,17 +1432,21 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network create3wWithReactiveTcc() {
         Network network = createWith3wWithVoltageControl();
-        network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
-                .getRatioTapChanger()
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        RatioTapChanger ratioTapChanger = network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getRatioTapChanger();
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(100)
+            .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .withTargetDeadband(10.)
+            .build();
         return network;
     }
 
     private static Network create3wRemoteTcc(Network network) {
-        network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
+        VoltageRegulation voltageRegulation = network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
                 .getRatioTapChanger()
-                .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
+                .getVoltageRegulation();
+        voltageRegulation.setTerminal(network.getGenerator(GENERATOR_ID).getTerminal(), voltageRegulation.getTargetValue());
         return network;
     }
 
@@ -1093,23 +1459,66 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithRemoteVoltageGenerator() {
-        return addRemoteVoltageGenerator(create());
+        return createWithRemoteVoltageGenerator(create());
+    }
+
+    public static Network createWithRemoteVoltageGenerator(Network network) {
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(GENERATOR_LOCAL_TARGET_V);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE_V)
+            .withRegulating(true)
+            .build();
+        return network;
     }
 
     public static Network createWithRemoteReactiveGenerator() {
-        return removeVoltageControlForGenerator(addRemoteReactiveGenerator(create()));
+        Network network = create();
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(GENERATOR_REMOTE_TARGET_VALUE_Q)
+            .withRegulating(true)
+            .build();
+        generator.setLocalTargetV(Double.NaN);
+        return network;
     }
 
     public static Network createWithLocalReactiveGenerator() {
-        return removeVoltageControlForGenerator(addLocalReactiveGenerator(create()));
+        Network network = create();
+        Generator gen = network.getGenerator(GENERATOR_ID);
+        gen.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        gen.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(gen.getTerminal())
+            .withTargetValue(-GENERATOR_LOCAL_TARGET_Q)
+            .withRegulating(true)
+            .build();
+        gen.setLocalTargetV(Double.NaN);
+        return network;
     }
 
+    /**
+     *
+     * @deprecated the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     public static Network createWithRemoteReactiveAndVoltageGenerators() {
-        return addRemoteVoltageGenerator(addRemoteReactiveGenerator(create()));
+        throw new UnsupportedOperationException("UnsupportedOperationException the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed");
     }
 
+    /**
+     *
+     * @deprecated the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     public static Network createWithLocalReactiveAndVoltageGenerator() {
-        return addLocalReactiveGenerator(create());
+        throw new UnsupportedOperationException("UnsupportedOperationException the new voltage regulation object can't define a Reactive and Voltage regulation, only one allowed");
     }
 
     public static Network createWithoutControl() {
@@ -1120,33 +1529,28 @@ public final class EurostagTutorialExample1Factory {
         return removeVoltageControlForGenerator(createWithRemoteVoltageGenerator());
     }
 
-    private static Network addLocalReactiveGenerator(Network network) {
-        return addReactiveGenerator(network, network.getGenerator("GEN").getRegulatingTerminal());
-    }
-
-    private static Network addRemoteReactiveGenerator(Network network) {
-        return addReactiveGenerator(network, network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
-    }
-
-    private static Network addReactiveGenerator(Network network, Terminal terminal) {
-        network.getGenerator("GEN").newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(terminal)
-                .withTargetQ(200)
-                .withEnabled(true).add();
-        return network;
-    }
-
-    private static Network addRemoteVoltageGenerator(Network network) {
-        network.getGenerator("GEN")
-                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
-                .setTargetV(399);
-        return network;
-    }
-
     private static Network removeVoltageControlForGenerator(Network network) {
-        Generator gen = network.getGenerator("GEN");
-        gen.setVoltageRegulatorOn(false);
-        gen.setTargetV(Double.NaN);
+        Generator gen = network.getGenerator(GENERATOR_ID);
+        gen.removeVoltageRegulation();
         return network;
+    }
+
+    public static Network createWithLocalVoltageGenerator() {
+        return createWithLocalVoltageGenerator(create());
+    }
+
+    public static Network createWithLocalVoltageGenerator(Network network) {
+        Generator generator = network.getGenerator(GENERATOR_ID);
+        generator.setLocalTargetV(GENERATOR_LOCAL_TARGET_V);
+        generator.setLocalTargetQ(GENERATOR_LOCAL_TARGET_Q);
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .build();
+        return network;
+    }
+
+    private static Terminal getRemoteTerminal(Network network) {
+        return network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1();
     }
 }

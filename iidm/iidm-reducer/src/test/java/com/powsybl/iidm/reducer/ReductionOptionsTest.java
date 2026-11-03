@@ -20,9 +20,9 @@ class ReductionOptionsTest {
     @Test
     void test() {
         ReductionOptions options = new ReductionOptions();
-        assertFalse(options.isWithDanglingLines());
+        assertFalse(options.isWithBoundaryLines());
 
-        options.withDanglingLlines(true);
-        assertTrue(options.isWithDanglingLines());
+        options.withBoundaryLines(true);
+        assertTrue(options.isWithBoundaryLines());
     }
 }

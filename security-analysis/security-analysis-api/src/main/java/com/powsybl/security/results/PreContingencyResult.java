@@ -10,7 +10,9 @@ package com.powsybl.security.results;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -20,17 +22,23 @@ public class PreContingencyResult extends AbstractContingencyResult {
     private final LoadFlowResult.ComponentResult.Status status;
 
     public PreContingencyResult() {
-        this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, NetworkResult.empty(), Double.NaN,
+                Collections.emptyList());
     }
 
-    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, Collection<BranchResult> branchResults,
-                                Collection<BusResult> busResults,
-                                Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this(status, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
+    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status,
+                                LimitViolationsResult limitViolationsResult,
+                                NetworkResult networkResult,
+                                double distributedActivePower) {
+        this(status, limitViolationsResult, networkResult, distributedActivePower, Collections.emptyList());
     }
 
-    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
-        super(limitViolationsResult, networkResult);
+    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status,
+                                LimitViolationsResult limitViolationsResult,
+                                NetworkResult networkResult,
+                                double distributedActivePower,
+                                List<ChangedPhaseTapChanger> changedPhaseTapChangers) {
+        super(limitViolationsResult, networkResult, distributedActivePower, changedPhaseTapChangers);
         this.status = Objects.requireNonNull(status);
     }
 

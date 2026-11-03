@@ -8,7 +8,11 @@
 package com.powsybl.iidm.network;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
@@ -46,54 +50,6 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoad
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">Human-readable name of the branch</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">R</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">&Omega;</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The series resistance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">X</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">&Omega;</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The series reactance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">G1</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The first side shunt conductance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">B1</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The first side shunt susceptance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">G2</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The second side shunt conductance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">B2</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The second side shunt susceptance</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -142,6 +98,66 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1();
 
     /**
+     * Get all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
+     * @param side the side to get the group limits on
+     * @return all the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
+     */
+    List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
+
+    /**
+     * Get the ids of all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
+     * @param side the side to get the id of each of the group limits on
+     * @return all the ids of the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
+     */
+    Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side);
+
+    /**
+     * Get the IDs of all the selected {@link OperationalLimitsGroup}, on the given <code>side</code>, in the order in which they were selected.<br>
+     * If an element that was previously selected is selected again, it will be considered as if it was just selected with the last selection.
+     * Meaning if two groups A and B are selected as such: select A, select B, select A, the order will be B, A.
+     *
+     * @param side the side to get the id of each of the group limits on
+     * @return an ordered collection of the IDs of all the selected {@link OperationalLimitsGroup} on the <code>side</code>,
+     * the ordering relation being the order of the selection, from
+     * the oldest selected group to the most recently selected group.
+     */
+    List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side);
+
+    /**
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected on the given <code>side</code>.
+     * If other groups were also selected, they are still selected</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if any ID doesn't correspond to an existing group.</p>
+     * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
+     * <p>Note that in the case of an error, this function will not stop at the first error but try on all groups</p>
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(TwoSides, String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup1()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup1(String)}
+     * @param side the side on which to add selected groups
+     * @param ids the IDs of one or more {@link OperationalLimitsGroup}
+     */
+    void addSelectedOperationalLimitsGroups(TwoSides side, String... ids);
+
+    /**
+     * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected.</p>
+     * @param side the side on which to select the groups based on the predicate
+     * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.<br>
+     *                                          All groups whose ID would return true given the predicate will be activated.<br>
+     *                                          All groups whose ID would return false will stay in the same state as before.
+     */
+    void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate);
+
+    /**
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code> on the given <code>side</code>.</p>
+     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing.</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if any ID doesn't correspond to an existing group.</p>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup1()}.
+     * @param side the side on which to deselect some selected groups
+     * @param ids the ID of the groups to remove from the selected
+     */
+    void deselectOperationalLimitsGroups(TwoSides side, String... ids);
+
+    /**
      * <p>Create a new {@link OperationalLimitsGroup} on side 1 with the given ID.</p>
      * <p>If a group of the given ID already exists, it is replaced silently.</p>
      * @return the newly created group {@link OperationalLimitsGroup}.
@@ -149,7 +165,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     OperationalLimitsGroup newOperationalLimitsGroup1(String id);
 
     /**
-     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as as the selected one on side 1.</p>
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as the only selected group on side 1.</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
      * To reset the selected group, use {@link #cancelSelectedOperationalLimitsGroup1}.</p>
@@ -171,51 +187,65 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     void cancelSelectedOperationalLimitsGroup1();
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default Optional<CurrentLimits> getCurrentLimits1() {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default CurrentLimits getNullableCurrentLimits1() {
         return getCurrentLimits1().orElse(null);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ActivePowerLimits> getActivePowerLimits1() {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default ActivePowerLimits getNullableActivePowerLimits1() {
         return getActivePowerLimits1().orElse(null);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ApparentPowerLimits> getApparentPowerLimits1() {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default ApparentPowerLimits getNullableApparentPowerLimits1() {
         return getApparentPowerLimits1().orElse(null);
+    }
+
+    /**
+     * Helper function to return all the limits of this branch's <code>side</code>, of a given type using the provided function to get it from each {@link OperationalLimitsGroup}
+     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link OperationalLimitsGroup}
+     * @return a collection of loadingLimits, all the same type
+     * @param <T> the type of loadingLimit
+     */
+    private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction, TwoSides side) {
+        return getAllSelectedOperationalLimitsGroups(side)
+                .stream()
+                .map(operationalLimitToLoadingLimitFunction)
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     /**
@@ -388,48 +418,48 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     void cancelSelectedOperationalLimitsGroup2();
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default Optional<CurrentLimits> getCurrentLimits2() {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default CurrentLimits getNullableCurrentLimits2() {
         return getCurrentLimits2().orElse(null);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ActivePowerLimits> getActivePowerLimits2() {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default ActivePowerLimits getNullableActivePowerLimits2() {
         return getActivePowerLimits2().orElse(null);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ApparentPowerLimits> getApparentPowerLimits2() {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default ApparentPowerLimits getNullableApparentPowerLimits2() {
         return getApparentPowerLimits2().orElse(null);
@@ -521,11 +551,33 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of type {@link LimitType#CURRENT} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the current limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
+    default Collection<CurrentLimits> getAllSelectedCurrentLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits, side);
+    }
+
     default Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
         return switch (side) {
             case ONE -> getActivePowerLimits1();
             case TWO -> getActivePowerLimits2();
         };
+    }
+
+    /**
+     * Get all the limits of type {@link LimitType#ACTIVE_POWER} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the active power limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
+    default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits, side);
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
@@ -535,6 +587,17 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of type {@link LimitType#APPARENT_POWER} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the apparent power limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
+    default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getApparentPowerLimits, side);
+    }
+
     default Optional<? extends LoadingLimits> getLimits(LimitType type, TwoSides side) {
         return switch (type) {
             case CURRENT -> getCurrentLimits(side);
@@ -542,6 +605,24 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
             case APPARENT_POWER -> getApparentPowerLimits(side);
             default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        };
+    }
+
+    /**
+     * Get all the limits of the given <code>type</code>, on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param type the type of the limit, refer to {@link LimitType}
+     * @param side the side on which to get the limits
+     * @return a collection of all the <code>type</code> limits of this branch on the <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected.
+     */
+    default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type, TwoSides side) {
+        return switch (type) {
+            case CURRENT -> getAllSelectedCurrentLimits(side);
+            case ACTIVE_POWER -> getAllSelectedActivePowerLimits(side);
+            case APPARENT_POWER -> getAllSelectedApparentPowerLimits(side);
+            default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         };
     }
 
@@ -584,31 +665,102 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * Only checks overloading for LimitType.Current and permanent limits
      */
-    boolean isOverloaded(double limitReductionValue);
+    boolean isOverloaded(double limitScalingValue);
 
-    int getOverloadDuration();
+    default int getOverloadDuration() {
+        return Stream.concat(
+                checkAllTemporaryLimits(TwoSides.ONE, LimitType.CURRENT).stream(),
+                checkAllTemporaryLimits(TwoSides.TWO, LimitType.CURRENT).stream()
+            ).map(o -> o != null ? o.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE)
+            .min(Integer::compareTo)
+            .orElse(Integer.MAX_VALUE);
+    }
 
-    boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit(TwoSides side, double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit(TwoSides side, LimitType type);
 
-    boolean checkPermanentLimit1(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit1(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit1(LimitType type);
 
-    boolean checkPermanentLimit2(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit2(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit2(LimitType type);
 
-    Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type);
+    /**
+     * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
+     * @param side the side of the branch to look at
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
+     * @param type the type of the limit
+     * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
+     */
+    Overload checkTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type);
 
+    /**
+     * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>. This does not reduce the limits.
+     * @param side the side of the branch to look at
+     * @param type the type of the limit
+     * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
+     */
     Overload checkTemporaryLimits(TwoSides side, LimitType type);
 
-    Overload checkTemporaryLimits1(double limitReductionValue, LimitType type);
+    /**
+     * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
+     * return an overload for the side 1 of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
+     * @param type the type of the limit
+     * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
+     */
+    Overload checkTemporaryLimits1(double limitScalingValue, LimitType type);
 
+    /**
+     * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
+     * return an overload for the side 1 of the branch, of the <code>type</code>. This does not reduce the limits.
+     * @param type the type of the limit
+     * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
+     */
     Overload checkTemporaryLimits1(LimitType type);
 
-    Overload checkTemporaryLimits2(double limitReductionValue, LimitType type);
+    /**
+     * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
+     * return an overload for the side 2 of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
+     * @param type the type of the limit
+     * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
+     */
+    Overload checkTemporaryLimits2(double limitScalingValue, LimitType type);
 
+    /**
+     * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
+     * return an overload for the side 2 of the branch, of the <code>type</code>. This does not reduce the limits.
+     * @param type the type of the limit
+     * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
+     */
     Overload checkTemporaryLimits2(LimitType type);
+
+    /**
+     * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
+     * @param side the side of the branch to look at
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
+     * @param type the type of the limit
+     */
+    Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type);
+
+    /**
+     * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>. This does not reduce the limits.
+     * @param side the side of the branch to look at
+     * @param type the type of the limit
+     */
+    default Collection<Overload> checkAllTemporaryLimits(TwoSides side, LimitType type) {
+        return checkAllTemporaryLimits(side, 1, type);
+    }
 }

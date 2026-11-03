@@ -84,7 +84,7 @@ public class CimAnonymizer {
         private boolean identifiedObjectName = false;
         private boolean identifiedObjectDescription = false;
 
-        public XmlAnonymizer(XMLEventWriter out, XmlStaxContext xmlStaxContext, StringAnonymizer dictionary, Set<String> rdfIdValues, Set<String> skipped) {
+        XmlAnonymizer(XMLEventWriter out, XmlStaxContext xmlStaxContext, StringAnonymizer dictionary, Set<String> rdfIdValues, Set<String> skipped) {
             super(out);
             this.xmlStaxContext = Objects.requireNonNull(xmlStaxContext);
             this.dictionary = Objects.requireNonNull(dictionary);

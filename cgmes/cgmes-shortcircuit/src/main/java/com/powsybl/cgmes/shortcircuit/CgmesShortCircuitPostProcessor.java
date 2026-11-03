@@ -9,8 +9,8 @@ package com.powsybl.cgmes.shortcircuit;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.TripleStore;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -24,7 +24,7 @@ public class CgmesShortCircuitPostProcessor implements CgmesImportPostProcessor 
     }
 
     @Override
-    public void process(Network network, TripleStore tripleStore) {
-        new CgmesShortCircuitImporter(new CgmesShortCircuitModel(tripleStore), network).importShortcircuitData();
+    public void process(Network network, CgmesModel cgmesModel) {
+        new CgmesShortCircuitImporter(new CgmesShortCircuitModel(cgmesModel.tripleStore()), network).importShortcircuitData();
     }
 }

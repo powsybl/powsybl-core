@@ -9,7 +9,6 @@ package com.powsybl.iidm.criteria.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
@@ -28,10 +27,8 @@ public class TwoWindingsTransformerCriterionDeserializer extends AbstractNetwork
 
     @Override
     public TwoWindingsTransformerCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                TwoWindingsTransformerCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE));
-
+        AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = fillParsingContext(parser, deserializationContext,
+                TwoWindingsTransformerCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE);
         return new TwoWindingsTransformerCriterion(parsingContext.name,
                 (SingleCountryCriterion) parsingContext.countryCriterion,
                 (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);

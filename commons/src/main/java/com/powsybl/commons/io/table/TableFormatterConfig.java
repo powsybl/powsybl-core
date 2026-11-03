@@ -7,12 +7,10 @@
  */
 package com.powsybl.commons.io.table;
 
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author c.biasuzzi@techrain.it
@@ -38,13 +36,11 @@ public class TableFormatterConfig {
     }
 
     public static TableFormatterConfig load(PlatformConfig platformConfig) {
-        Optional<ModuleConfig> config = platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME);
-        String language = config.flatMap(c -> c.getOptionalStringProperty("language")).orElse(DEFAULT_LANGUAGE);
-        String separator = config.flatMap(c -> c.getOptionalStringProperty("separator")).orElse(Character.toString(DEFAULT_CSV_SEPARATOR));
-        String invalidString = config.flatMap(c -> c.getOptionalStringProperty("invalid-string")).orElse(DEFAULT_INVALID_STRING);
-        boolean printHeader = config.flatMap(c -> c.getOptionalBooleanProperty("print-header")).orElse(DEFAULT_PRINT_HEADER);
-        boolean printTitle = config.flatMap(c -> c.getOptionalBooleanProperty("print-title")).orElse(DEFAULT_PRINT_TITLE);
-
+        String language = platformConfig.getStringProperty(CONFIG_MODULE_NAME, "language", DEFAULT_LANGUAGE);
+        String separator = platformConfig.getStringProperty(CONFIG_MODULE_NAME, "separator", Character.toString(DEFAULT_CSV_SEPARATOR));
+        String invalidString = platformConfig.getStringProperty(CONFIG_MODULE_NAME, "invalid-string", DEFAULT_INVALID_STRING);
+        boolean printHeader = platformConfig.getBooleanProperty(CONFIG_MODULE_NAME, "print-header", DEFAULT_PRINT_HEADER);
+        boolean printTitle = platformConfig.getBooleanProperty(CONFIG_MODULE_NAME, "print-title", DEFAULT_PRINT_TITLE);
         Locale locale = Locale.forLanguageTag(language);
         return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
     }

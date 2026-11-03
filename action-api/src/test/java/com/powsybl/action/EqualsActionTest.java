@@ -11,8 +11,8 @@ package com.powsybl.action;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -102,27 +102,27 @@ class EqualsActionTest {
 
     @Test
     void dangingLineAction() {
-        DanglingLineAction action1 = new DanglingLineActionBuilder().withId("id")
+        BoundaryLineAction action1 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();
-        DanglingLineAction action2 = new DanglingLineActionBuilder().withId("id")
-                .withDanglingLineId("neId")
+        BoundaryLineAction action2 = new BoundaryLineActionBuilder().withId("id")
+                .withBoundaryLineId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();
-        DanglingLineAction action3 = new DanglingLineActionBuilder().withId("id2")
+        BoundaryLineAction action3 = new BoundaryLineActionBuilder().withId("id2")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();
-        DanglingLineAction action4 = new DanglingLineActionBuilder().withId("id")
+        BoundaryLineAction action4 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(true)
                 .build();
-        DanglingLineAction action5 = new DanglingLineActionBuilder().withId("id")
+        BoundaryLineAction action5 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withReactivePowerValue(100)
                 .withRelativeValue(false)
@@ -152,7 +152,7 @@ class EqualsActionTest {
                 .withActivePowerValue(101)
                 .withRelativeValue(false)
                 .build();
-        Action action4 = new DanglingLineActionBuilder().withId("id")
+        Action action4 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
@@ -221,18 +221,18 @@ class EqualsActionTest {
                 .withNetworkElementId("neId")
                 .withReactivePowerSetpoint(10.)
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         StaticVarCompensatorAction action2 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withStaticVarCompensatorId("neId")
                 .withReactivePowerSetpoint(10.)
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         Action action3 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withReactivePowerSetpoint(10.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         Action action4 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withNetworkElementId("neId")
@@ -242,13 +242,13 @@ class EqualsActionTest {
         StaticVarCompensatorAction action5 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         StaticVarCompensatorAction action6 = new StaticVarCompensatorActionBuilder().withId("id")
                 .withStaticVarCompensatorId("neId2")
                 .withReactivePowerSetpoint(10.)
                 .withVoltageSetpoint(5.)
-                .withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withRegulationMode(RegulationMode.VOLTAGE)
                 .build();
         new EqualsTester()
                 .addEqualityGroup(action1, action2)

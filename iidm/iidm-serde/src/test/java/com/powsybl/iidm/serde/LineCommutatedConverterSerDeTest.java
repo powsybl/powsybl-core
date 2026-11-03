@@ -8,17 +8,35 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
+
+    @Test
+    void testMinPNotSupported() {
+        Network network = createNetworkWithNonDefaultMinP();
+        Path filename = tmpDir.resolve("fail");
+        assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, filename));
+    }
+
+    @Test
+    void testMinPWithForceExport() {
+        Network network = createNetworkWithNonDefaultMinP();
+        Path filename = tmpDir.resolve("lcc-minP-force-export");
+        assertDoesNotThrow(() -> NetworkSerDe.write(network, new ExportOptions().setForceExportNetworkWithBetaFeatures(true), filename));
+    }
 
     @Test
     void testNetworkLineCommutatedConverter() throws IOException {
@@ -29,18 +47,9 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
-    }
-
-    @Test
-    void testNotSupported() throws IOException {
-        Network network = createBaseNetwork();
 
         // Note: we do not test here failing for all versions < 1.15: LineCommutatedConverter cannot exist without DcNode,
         // hence the DcNode SerDe test is sufficient.
-
-        // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
-        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteVersionedXml(network, options, "lineCommutatedConverterNotSupported.xml", IidmVersion.V_1_14);
     }
 
     private static Network createBaseNetwork() {
@@ -138,7 +147,7 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setBus2(bus2.getId())
                 .setReactiveModel(LineCommutatedConverter.ReactiveModel.CALCULATED_POWER_FACTOR)
                 .setPowerFactor(0.92)
-                .setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP)
+                .setControlMode(AcDcConverter.ControlMode.DC_DROOP)
                 .setTargetVdc(502.)
                 .setTargetP(301.)
                 .setPccTerminal(lineBb.getTerminal1())
@@ -183,6 +192,28 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
         lcc3.getTerminal1().setP(-105.); // no Q
         lcc3.getTerminal2().orElseThrow().setQ(-200.8); // no P
 
+        return network;
+    }
+
+    private static Network createNetworkWithNonDefaultMinP() {
+        Network network = Network.create("lineCommutatedConverterTest", "code");
+        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
+        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
+        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel().setId("vl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
+        vl.getBusBreakerView().newBus().setId("bus").add();
+        vl.newLineCommutatedConverter()
+                .setId("lcc")
+                .setDcNode1(dcNode1.getId()).setDcConnected1(false)
+                .setDcNode2(dcNode2.getId()).setDcConnected2(false)
+                .setConnectableBus1("bus")
+                .setReactiveModel(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR)
+                .setPowerFactor(0.92)
+                .setControlMode(AcDcConverter.ControlMode.V_DC)
+                .setTargetVdc(500.)
+                .setMinP(-100.)
+                .add();
         return network;
     }
 

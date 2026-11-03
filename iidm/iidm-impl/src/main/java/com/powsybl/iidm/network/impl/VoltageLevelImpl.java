@@ -385,23 +385,23 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     }
 
     @Override
-    public DanglingLineAdder newDanglingLine() {
-        return new DanglingLineAdderImpl(this);
+    public BoundaryLineAdder newBoundaryLine() {
+        return new BoundaryLineAdderImpl(this);
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return getConnectableCount(DanglingLine.class);
+    public int getBoundaryLineCount() {
+        return getConnectableCount(BoundaryLine.class);
     }
 
     @Override
@@ -666,6 +666,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
         // terminal from old mode to new one, it will modify the old topology model
         record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
         }
+
         List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
         for (Terminal oldTerminal : topologyModel.getTerminals()) {
             if (oldTerminal.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
@@ -705,7 +706,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
             AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
 
             // create the new terminal with new type
-            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide(), oldTerminalExt.getTerminalNumber())
+            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, TopologyKind.BUS_BREAKER, this, oldTerminalExt.getSide(), oldTerminalExt.getTerminalNumber())
                     .setBus(infos.connected ? infos.connectableBusId() : null)
                     .setConnectableBus(infos.connectableBusId())
                     .build();

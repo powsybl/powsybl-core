@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -36,10 +37,10 @@ public abstract class AbstractMultiVariantNetworkTest {
         manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, SECOND_VARIANT);
         manager.setWorkingVariant(SECOND_VARIANT);
         final Generator generator = network.getGenerator("GEN");
-        generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn());
+        generator.getVoltageRegulation().setRegulating(false);
+        assertFalse(generator.getVoltageRegulation().isRegulating());
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.getVoltageRegulation().isRegulating());
     }
 
     @Test
@@ -53,10 +54,10 @@ public abstract class AbstractMultiVariantNetworkTest {
         final Generator generator = network.getGenerator("GEN");
 
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        generator.setVoltageRegulatorOn(true);
+        generator.getVoltageRegulation().setRegulating(true);
 
         manager.setWorkingVariant(SECOND_VARIANT);
-        generator.setVoltageRegulatorOn(false);
+        generator.getVoltageRegulation().setRegulating(false);
 
         final boolean[] voltageRegulatorOnInitialVariant = new boolean[1];
         final boolean[] voltageRegulatorOnSecondVariant = new boolean[1];
@@ -67,14 +68,14 @@ public abstract class AbstractMultiVariantNetworkTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnInitialVariant[0] = generator.getVoltageRegulation().isRegulating();
                 return null;
             },
             () -> {
                 manager.setWorkingVariant(SECOND_VARIANT);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnSecondVariant[0] = generator.getVoltageRegulation().isRegulating();
                 return null;
             })
         );
@@ -119,12 +120,8 @@ public abstract class AbstractMultiVariantNetworkTest {
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
-            try {
-                network.getGenerator("GEN").getTargetP();
-                fail();
-            } catch (Exception ignored) {
-                // ignore
-            }
+            Generator generator = network.getGenerator("GEN");
+            assertThrows(PowsyblException.class, generator::getTargetP);
         });
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
@@ -138,12 +135,9 @@ public abstract class AbstractMultiVariantNetworkTest {
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
-            try {
-                manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-                network.getGenerator("GEN").getTargetP();
-            } catch (Exception e) {
-                fail();
-            }
+            manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+            Generator generator = network.getGenerator("GEN");
+            assertThrows(PowsyblException.class, generator::getTargetP);
         });
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);

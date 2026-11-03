@@ -115,7 +115,7 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
         assertEquals("JIIDM", importer.getFormat());
         assertEquals("IIDM JSON v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
         assertEquals(List.of("jiidm", "json"), importer.getSupportedExtensions());
-        assertEquals(6, importer.getParameters().size());
+        assertEquals(8, importer.getParameters().size());
     }
 
     private void writeNetwork(String fileName, String version) throws IOException {

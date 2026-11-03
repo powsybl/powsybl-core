@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 
@@ -26,7 +27,7 @@ final class TopologyTestUtils {
 
     static Network createNbNetworkWithBusbarSection() {
         VoltageLevel vl = createNbNetwork().getVoltageLevel(VLTEST);
-        vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        vl.getNodeBreakerView().newBusbarSection().setId(BBS).setNode(0).add();
         return vl.getNetwork();
     }
 
@@ -40,7 +41,7 @@ final class TopologyTestUtils {
     static Network createNbBbNetwork() {
         Network network = createNetwork();
         VoltageLevel vl = network.newVoltageLevel().setId("NHV1_NHV2_1_VL#0").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        vl.getNodeBreakerView().newBusbarSection().setId(BBS).setNode(0).add();
         return network;
     }
 
@@ -89,8 +90,8 @@ final class TopologyTestUtils {
                 .setId("G")
                 .setNode(2)
                 .setTargetP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(400)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(400)
                 .setMinP(0)
                 .setMaxP(10)
                 .add();

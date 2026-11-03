@@ -14,6 +14,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -110,10 +111,14 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(runParameters, "Sensitivity analysis run parameters should not be null");
 
             SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
-            SensitivityResultModelWriter resultWriter = new SensitivityResultModelWriter(runParameters.getContingencies());
+            SensitivityResultModelWriter resultWriter = new SensitivityResultModelWriter(runParameters.getContingencies(), runParameters.getOperatorStrategies());
 
             return provider.run(network, workingVariantId, factorReader, resultWriter, runParameters)
-                .thenApply(unused -> new SensitivityAnalysisResult(factors, resultWriter.getContingencyStatuses(), resultWriter.getValues()));
+                .thenApply(unused -> new SensitivityAnalysisResult(factors,
+                        resultWriter.getStateStatuses(),
+                        runParameters.getContingencies().stream().map(Contingency::getId).toList(),
+                        runParameters.getOperatorStrategies().stream().map(OperatorStrategy::getId).toList(),
+                        resultWriter.getValues()));
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,

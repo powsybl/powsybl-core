@@ -18,8 +18,10 @@ import java.util.Objects;
  */
 public final class NetworkReports {
 
-    private static final String DANGLING_LINE_ID_1 = "danglingLineId1";
-    private static final String DANGLING_LINE_ID_2 = "danglingLineId2";
+    private static final String BOUNDARY_LINE_ID_1 = "boundaryLineId1";
+    private static final String BOUNDARY_LINE_ID_2 = "boundaryLineId2";
+    private static final String LOCAL_TARGET_Q = "localTargetQ";
+    private static final String IDENTIFIABLE = "identifiable";
 
     private NetworkReports() {
     }
@@ -27,7 +29,7 @@ public final class NetworkReports {
     public static void alreadyConnectedIdentifiableTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.alreadyConnectedTerminal")
-                .withUntypedValue("identifiable", identifiableId)
+                .withUntypedValue(IDENTIFIABLE, identifiableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -35,9 +37,25 @@ public final class NetworkReports {
     public static void alreadyDisconnectedIdentifiableTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.alreadyDisconnectedTerminal")
-                .withUntypedValue("identifiable", identifiableId)
+                .withUntypedValue(IDENTIFIABLE, identifiableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
+    }
+
+    public static void alreadyConnectedIdentifiableDcTerminal(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.alreadyConnectedDcTerminal")
+            .withUntypedValue(IDENTIFIABLE, identifiableId)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+    }
+
+    public static void alreadyDisconnectedIdentifiableDcTerminal(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.alreadyDisconnectedDcTerminal")
+            .withUntypedValue(IDENTIFIABLE, identifiableId)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
     }
 
     public static void transformerHasBothRatioAndPhaseTapChanger(ReportNode reportNode, String id) {
@@ -65,60 +83,60 @@ public final class NetworkReports {
     }
 
     // DEBUG
-    public static void inconsistentPropertyValues(ReportNode reportNode, String propertyName, String propertyValue1, String propertyValue2, String danglingLineId1, String danglingLineId2) {
+    public static void inconsistentPropertyValues(ReportNode reportNode, String propertyName, String propertyValue1, String propertyValue2, String boundaryLineId1, String boundaryLineId2) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.InconsistentPropertyValues")
                 .withUntypedValue("propertyName", propertyName)
-                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
                 .withUntypedValue("propertyValue1", propertyValue1)
-                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("propertyValue2", propertyValue2)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
     }
 
-    public static void moveCommonAliases(ReportNode reportNode, String alias, String danglingLineId1, String danglingLineId2) {
+    public static void moveCommonAliases(ReportNode reportNode, String alias, String boundaryLineId1, String boundaryLineId2) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.MoveCommonAlias")
                 .withUntypedValue("alias", alias)
-                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
     }
 
-    public static void propertyOnlyOnOneSide(ReportNode reportNode, String propertyName, String propertyValue, int emptySide, String danglingLineId1, String danglingLineId2) {
+    public static void propertyOnlyOnOneSide(ReportNode reportNode, String propertyName, String propertyValue, int emptySide, String boundaryLineId1, String boundaryLineId2) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.PropertyOnlyOnOneSide")
                 .withUntypedValue("propertyName", propertyName)
                 .withUntypedValue("side", emptySide)
-                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("propertyValue", propertyValue)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
     }
 
     // WARN
-    public static void inconsistentAliasTypes(ReportNode reportNode, String alias, String type1, String type2, String danglingLineId1, String danglingLineId2) {
+    public static void inconsistentAliasTypes(ReportNode reportNode, String alias, String type1, String type2, String boundaryLineId1, String boundaryLineId2) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.InconsistentAliasTypes")
                 .withUntypedValue("alias", alias)
-                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
                 .withUntypedValue("type1", type1)
-                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("type2", type2)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 
-    public static void inconsistentAliasValues(ReportNode reportNode, String alias1, String alias2, String type, String danglingLineId1, String danglingLineId2) {
+    public static void inconsistentAliasValues(ReportNode reportNode, String alias1, String alias2, String type, String boundaryLineId1, String boundaryLineId2) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.InconsistentAliasValues")
                 .withUntypedValue("alias1", alias1)
                 .withUntypedValue("alias2", alias2)
-                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("type", type)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -149,6 +167,48 @@ public final class NetworkReports {
                 .withTypedValue("id", id, TypedValue.ID)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
+    }
+
+    public static void invalidVoltageRegulationTargetValueUndefined(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValueUndefined")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationTargetValueInvalid(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValueInvalid")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationSlope(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationSlope")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationMode(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationMode")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationModeAllowed(ReportNode reportNode, String id, String currentMode, String allowedModes) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationModeAllowed")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withUntypedValue("currentMode", currentMode)
+            .withUntypedValue("allowedModes", allowedModes)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void invalidP0(ReportNode reportNode, String id) {
@@ -250,13 +310,40 @@ public final class NetworkReports {
                 .add();
     }
 
-    public static void reactivePowerSetpointInvalidVoltageRegulatorOff(ReportNode reportNode, String id, double reactivePowerSetpoint) {
+    public static void invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(ReportNode reportNode, String id, double localTargetV) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.network.reactivePowerSetpointInvalidVoltageRegulatorOff")
-                .withTypedValue("id", id, TypedValue.ID)
-                .withTypedValue("reactivePowerSetpoint", reactivePowerSetpoint, TypedValue.REACTIVE_POWER)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("localTargetV", localTargetV, TypedValue.VOLTAGE)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQVoltageRegulationUnset(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQVoltageRegulationUnset")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQRegulatingOff(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQRegulatingOff")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void rtcRegulationCannotBeEnabledWithoutLoadTapChanging(ReportNode reportNode, String id) {

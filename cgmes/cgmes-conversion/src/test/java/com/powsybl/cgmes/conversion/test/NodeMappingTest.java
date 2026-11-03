@@ -8,13 +8,13 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -97,7 +97,7 @@ class NodeMappingTest extends AbstractSerDeTest {
                 .setRetained(false)
                 .setFictitious(true)
                 .add()
-                .setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
+                .setProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
         voltageLevel.newLoad()
                 .setId("LD2")
                 .setNode(2)
@@ -123,10 +123,9 @@ class NodeMappingTest extends AbstractSerDeTest {
                 .setId("GEN")
                 .setNode(4)
                 .setTargetP(3.0)
-                .setTargetQ(0.0)
                 .setMinP(0.0)
                 .setMaxP(3.0)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(0.0)
                 .add();
 
         return network;

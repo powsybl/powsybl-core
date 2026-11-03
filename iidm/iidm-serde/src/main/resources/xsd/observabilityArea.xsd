@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:oa="http://www.powsybl.org/schema/iidm/ext/observability_area/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/observability_area/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Bus">
+        <xs:attribute name="nodes" use="optional" type="oa:nonEmptyString"/>
+        <xs:attribute name="ids" use="optional" type="oa:nonEmptyString"/>
+        <xs:attribute name="id" use="optional" type="oa:nonEmptyString"/>
+        <xs:attribute name="areaNumber" use="required" type="xs:int"/>
+        <xs:attribute name="status" use="optional" type="oa:nonEmptyString"/>
+    </xs:complexType>
+    <xs:element name="observabilityArea">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="bus" type="oa:Bus" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="consistentWithTopology" use="required" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

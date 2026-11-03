@@ -9,12 +9,13 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -72,8 +73,8 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
                 sw = adder.add();
             }
             addAliasesAndProperties(sw);
-            sw.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
-            sw.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
+            sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
+            sw.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         } else {
             final LineAdder adder = context.network().newLine()
                     .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
@@ -88,7 +89,7 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
             final Line l = adder.add();
             addAliasesAndProperties(l);
             convertedTerminalsWithOnlyEq(l.getTerminal1(), l.getTerminal2());
-            l.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
+            l.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
         }
     }
 

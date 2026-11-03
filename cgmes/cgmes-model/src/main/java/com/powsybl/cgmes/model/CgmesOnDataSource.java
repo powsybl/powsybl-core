@@ -85,8 +85,8 @@ public class CgmesOnDataSource {
             Set<String> allNames = dataSource.listNames(REGEX_VALID_NAME);
             allNames.removeIf(n -> !existsInDatasource(n) || !containsValidNamespace(n));
             return allNames;
-        } catch (IOException x) {
-            throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), x);
+        } catch (IOException e) {
+            throw new CgmesModelException(String.format(LISTING_CGMES_NAMES_IN_DATA_SOURCE, dataSource), e);
         }
     }
 

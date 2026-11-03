@@ -13,8 +13,12 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,7 +45,8 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
 
     @Override
     public void write(BaseVoltageMapping extension, SerializerContext context) {
-        TreeDataWriter writer = context.getWriter();
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
+        TreeDataWriter writer = networkContext.getWriter();
         Map<Double, BaseVoltageMapping.BaseVoltageSource> sortedBaseVoltages = extension.getBaseVoltages().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
@@ -50,7 +55,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             writer.writeStartNode(getNamespaceUri(), BASE_VOLTAGE_ROOT_ELEMENT);
             writer.writeDoubleAttribute("nominalVoltage", nominalV);
             writer.writeEnumAttribute("source", baseVoltageSource.getSource());
-            writer.writeStringAttribute("id", baseVoltageSource.getId());
+            writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(baseVoltageSource.getId(), IidmVersion.V_1_16));
             writer.writeEndNode();
         });
         writer.writeEndNodes();
@@ -58,15 +63,17 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
 
     @Override
     public BaseVoltageMapping read(Network extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
+        TreeDataReader reader = networkContext.getReader();
         BaseVoltageMappingAdder mappingAdder = extendable.newExtension(BaseVoltageMappingAdder.class);
         mappingAdder.add();
         BaseVoltageMapping mapping = extendable.getExtension(BaseVoltageMapping.class);
-        context.getReader().readChildNodes(elementName -> {
+        reader.readChildNodes(elementName -> {
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
-                double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
-                Source sourceBV = context.getReader().readEnumAttribute("source", Source.class);
-                String baseVoltageId = context.getReader().readStringAttribute("id");
-                context.getReader().readEndNode();
+                double nominalV = reader.readDoubleAttribute("nominalVoltage");
+                Source sourceBV = reader.readEnumAttribute("source", Source.class);
+                String baseVoltageId = networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16);
+                reader.readEndNode();
                 mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'baseVoltageMapping'");

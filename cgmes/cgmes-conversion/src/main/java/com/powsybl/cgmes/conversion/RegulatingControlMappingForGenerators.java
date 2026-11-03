@@ -10,19 +10,21 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
 
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -37,10 +39,6 @@ public class RegulatingControlMappingForGenerators {
         this.parent = parent;
         this.context = context;
         mapping = new HashMap<>();
-    }
-
-    public static void initialize(GeneratorAdder adder) {
-        adder.setVoltageRegulatorOn(false);
     }
 
     public void add(String generatorId, PropertyBag sm) {
@@ -97,7 +95,14 @@ public class RegulatingControlMappingForGenerators {
                 .mapForVoltageControl(control.cgmesTerminal, context)
                 .orElse(gen.getTerminal());
 
-        gen.setRegulatingTerminal(regulatingTerminal);
+        if (regulatingTerminal.getConnectable().getId().equals(gen.getId())) {
+            regulatingTerminal = null;
+        }
+        gen.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(regulatingTerminal)
+            .withRegulating(false)
+            .build();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -106,7 +111,7 @@ public class RegulatingControlMappingForGenerators {
                     .add();
         }
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE, control.mode);
+        gen.setProperty(PROPERTY_MODE, control.mode);
 
         return true;
     }
@@ -122,10 +127,12 @@ public class RegulatingControlMappingForGenerators {
             return false;
         }
 
-        gen.newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
-                .withEnabled(false)
-                .add();
+        VoltageRegulationBuilder voltageRegulationBuilder = gen.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(false)
+            // always set the terminal in case of reactive power regulation
+            .withTerminal(mappedRegulatingTerminal.getTerminal());
+        voltageRegulationBuilder.build();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -135,8 +142,8 @@ public class RegulatingControlMappingForGenerators {
         }
 
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE, control.mode);
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
+        gen.setProperty(PROPERTY_MODE, control.mode);
+        gen.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
 
         return true;
     }

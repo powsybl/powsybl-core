@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -78,7 +79,7 @@ class SecurityAnalysisExecutionImplTest {
             assertTrue(runParameters.getInterceptors().isEmpty());
             assertTrue(runParameters.getOperatorStrategies().isEmpty());
             assertTrue(runParameters.getActions().isEmpty());
-            assertTrue(runParameters.getLimitReductions().isEmpty());
+            assertTrue(runParameters.getLimitScalings().isEmpty());
             throw new PowsyblException("run");
         }
 

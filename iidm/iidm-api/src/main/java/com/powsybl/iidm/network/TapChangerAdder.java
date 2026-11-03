@@ -24,7 +24,7 @@ public interface TapChangerAdder<
     A extends TapChangerStepAdder<A, S>,
     B extends TapChangerStepAdder<B, R>,
     R extends TapChangerStepsReplacer<R, B>,
-    C extends TapChanger<C, D, R, B>> {
+    C extends TapChanger<C, D, R, B>> extends BasePropertiesHolder {
 
     S setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
@@ -33,14 +33,6 @@ public interface TapChangerAdder<
     S setTapPosition(int tapPosition);
 
     S setSolvedTapPosition(Integer solvedTapPosition);
-
-    S setRegulating(boolean regulating);
-
-    S setRegulationTerminal(Terminal regulationTerminal);
-
-    default S setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException();
-    }
 
     A beginStep();
 

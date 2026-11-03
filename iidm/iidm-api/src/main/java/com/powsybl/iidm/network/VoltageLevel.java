@@ -401,8 +401,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     interface NodeBreakerView {
 
         /**
-         * Returns the fictitious active power injection to the node if set, or 0. The value is in MW and uses the load sign convention (a positive value has the same effect as a load connected to the node)
-         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * Returns the fictitious active power injection to the node if set, or 0. The value is in MW and uses the load
+         * sign convention (a positive value has the same effect as a load connected to the node).
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used
+         * to represent the remainder of a state estimator.
          * @param node the node to which the fictitious load is connected.
          */
         default double getFictitiousP0(int node) {
@@ -410,8 +412,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
-         * If supported by the implementation, adds a fictitious active power injection to the node using the load sign convention (a positive value has the same effect as a load connected to the node)
-         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * If supported by the implementation, adds a fictitious active power injection to the node using the load
+         * sign convention (a positive value has the same effect as a load connected to the node).
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used
+         * to represent the remainder of a state estimator.
          * The method has no effect if the NodeBreakerView implementation does not support fictitious injections.
          * @param node the node to which the fictitious load is connected.
          * @param p0 fictitious load in MW, using the load sign convention.
@@ -422,8 +426,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
-         * Returns the fictitious reactive power injection to the node if set, or 0. The value is in MVar and uses the load sign convention (a positive value has the same effect as a load connected to the node)
-         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * Returns the fictitious reactive power injection to the node if set, or 0. The value is in MVar and uses the
+         * load sign convention (a positive value has the same effect as a load connected to the node).
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used
+         * to represent the remainder of a state estimator.
          * @param node the node to which the fictitious load is connected.
          */
         default double getFictitiousQ0(int node) {
@@ -431,8 +437,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
-         * If supported by the implementation, adds a fictitious reactive power injection to the node using the load sign convention (a positive value has the same effect as a load connected to the node)
-         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * If supported by the implementation, adds a fictitious reactive power injection to the node using the load sign
+         * convention (a positive value has the same effect as a load connected to the node).
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used
+         * to represent the remainder of a state estimator.
          * The method has no effect if the NodeBreakerView implementation does not support fictitious injections.
          * @param node the node to which the fictitious load is connected.
          * @param q0 fictitious load in MVar, using the load sign convention.
@@ -1145,38 +1153,38 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getShuntCompensatorCount();
 
     /**
-     * Get a builder to create a new dangling line.
+     * Get a builder to create a new boundary line.
      */
-    DanglingLineAdder newDanglingLine();
+    BoundaryLineAdder newBoundaryLine();
 
     /**
-     * Get the dangling lines in this voltage level which correspond to given filter.
+     * Get the boundary lines in this voltage level which correspond to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all dangling lines in this voltage level.
+     * Get all boundary lines in this voltage level.
      */
-    default Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLines(DanglingLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling lines in this voltage level which correspond to given filter.
+     * Get the boundary lines in this voltage level which correspond to given filter.
      */
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
-   /**
-     * Get all dangling lines in this voltage level.
+    /**
+     * Get all boundary lines in this voltage level.
      */
-    default Stream<DanglingLine> getDanglingLineStream() {
-        return getDanglingLineStream(DanglingLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get dangling line count.
+     * Get boundary line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
      * Get a builder to create a new static var compensator.

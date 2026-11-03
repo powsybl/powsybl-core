@@ -12,7 +12,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface ReactiveLimits {
+public interface ReactiveLimits extends PropertiesHolder {
 
     ReactiveLimitsKind getKind();
 
@@ -29,5 +29,4 @@ public interface ReactiveLimits {
      * @param p the active power
      */
     double getMaxQ(double p);
-
 }

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * A provider that can be loaded by by Java's ServiceLoader based on its name
+ * A provider that can be loaded by Java's ServiceLoader based on its name
  * present in an entry in the PlatformConfig.
  *
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}

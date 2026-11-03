@@ -152,33 +152,33 @@ public interface Scalable {
     }
 
     /**
-     * create DanglingLineScalable with id.
+     * create BoundaryLineScalable with id.
      * The generator scaling convention is used by default.
      */
-    static DanglingLineScalable onDanglingLine(String id) {
-        return new DanglingLineScalable(id);
+    static BoundaryLineScalable onBoundaryLine(String id) {
+        return new BoundaryLineScalable(id);
     }
 
     /**
-     * create DanglingLineScalable with id and the scaling convention that will be used.
+     * create BoundaryLineScalable with id and the scaling convention that will be used.
      */
-    static DanglingLineScalable onDanglingLine(String id, ScalingConvention scalingConvention) {
-        return new DanglingLineScalable(id, scalingConvention);
+    static BoundaryLineScalable onBoundaryLine(String id, ScalingConvention scalingConvention) {
+        return new BoundaryLineScalable(id, scalingConvention);
     }
 
     /**
-     * create DanglingLineScalable with id, min and max power values for scaling.
+     * create BoundaryLineScalable with id, min and max power values for scaling.
      * The generator scaling convention is used by default.
      */
-    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue) {
-        return new DanglingLineScalable(id, minValue, maxValue);
+    static BoundaryLineScalable onBoundaryLine(String id, double minValue, double maxValue) {
+        return new BoundaryLineScalable(id, minValue, maxValue);
     }
 
     /**
-     * create DanglingLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
+     * create BoundaryLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
      */
-    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
-        return new DanglingLineScalable(id, minValue, maxValue, scalingConvention);
+    static BoundaryLineScalable onBoundaryLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
+        return new BoundaryLineScalable(id, minValue, maxValue, scalingConvention);
     }
 
     static Scalable scalable(String id) {
@@ -213,22 +213,32 @@ public interface Scalable {
         return new ProportionalScalable(Collections.singletonList(percentage), Collections.singletonList(scalable));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2),
                                         Arrays.asList(scalable1, scalable2));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2,
+                                             double percentage3, Scalable scalable3) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3),
                                         Arrays.asList(scalable1, scalable2, scalable3));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2,
+                                             double percentage3, Scalable scalable3,
+                                             double percentage4, Scalable scalable4) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4, double percentage5, Scalable scalable5) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2,
+                                             double percentage3, Scalable scalable3,
+                                             double percentage4, Scalable scalable4,
+                                             double percentage5, Scalable scalable5) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4, percentage5),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4, scalable5));
     }

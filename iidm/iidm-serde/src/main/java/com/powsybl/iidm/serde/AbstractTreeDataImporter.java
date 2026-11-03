@@ -58,6 +58,10 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String MINIMAL_VALIDATION_LEVEL = "iidm.import.minimal-validation-level";
 
+    public static final String ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS = "iidm.import.only-selected-operational-limits-groups";
+
+    public static final String REPAIR_INVALID_REACTIVE_CURVE_LIMITS = "iidm.import.repair-invalid-reactive-curve-limits";
+
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
             .addAdditionalNames("throwExceptionIfExtensionNotFound");
@@ -77,9 +81,17 @@ public abstract class AbstractTreeDataImporter implements Importer {
             ParameterType.DOUBLE, "Percentage applied to lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only)",
             100.);
 
+    public static final Parameter REPAIR_INVALID_REACTIVE_CURVE_LIMITS_PARAMETER = new Parameter(REPAIR_INVALID_REACTIVE_CURVE_LIMITS,
+            ParameterType.BOOLEAN, "Check and reorder inverted minQ/maxQ values (minQ > maxQ) in reactive capability curves",
+            false);
+
     public static final Parameter MINIMAL_VALIDATION_LEVEL_PARAMETER = new Parameter(MINIMAL_VALIDATION_LEVEL,
             ParameterType.STRING, "Minimal validation level accepted",
             null);
+
+    public static final Parameter ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER = new Parameter(ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS,
+        ParameterType.BOOLEAN, "For each equipment, import only the selected operational limits groups if this is true",
+        false);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -98,7 +110,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
         List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER,
                 EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER,
                 WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
-                MINIMAL_VALIDATION_LEVEL_PARAMETER);
+                REPAIR_INVALID_REACTIVE_CURVE_LIMITS_PARAMETER, MINIMAL_VALIDATION_LEVEL_PARAMETER,
+                ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER);
         return ConfiguredParameter.load(parameters, getFormat(), defaultValueConfig);
     }
 
@@ -182,11 +195,15 @@ public abstract class AbstractTreeDataImporter implements Importer {
     protected ImportOptions createImportOptions(Properties parameters) {
         ImportOptions importOptions = new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setIncludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
-                .setExcludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setIncludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig) != null ?
+                    new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setExcludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig) != null ?
+                    new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
                 .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig))
-                .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig));
+                .setRepairInvalidReactiveCurveLimits(Parameter.readBoolean(getFormat(), parameters, REPAIR_INVALID_REACTIVE_CURVE_LIMITS_PARAMETER, defaultValueConfig))
+                .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig))
+                .setOnlySelectedOperationalLimitsGroups(Parameter.readBoolean(getFormat(), parameters, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, defaultValueConfig));
         getAndCheckExtensionsToInclude(parameters, importOptions, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, false);
         return importOptions;
     }

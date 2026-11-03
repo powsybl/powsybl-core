@@ -12,22 +12,23 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
+import com.powsybl.iidm.network.dot.IidmDOTUtils;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.*;
-import gnu.trove.TCollections;
-import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
-import org.anarres.graphviz.builder.*;
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.AsSubgraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTSubgraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +44,12 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -259,46 +263,17 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return CALCULATED_BUS_CHECKER;
         }
 
-        private void traverse(int n, boolean[] encountered, Predicate<SwitchImpl> terminate, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus) {
-            if (!encountered[n]) {
-                final TIntArrayList nodes = new TIntArrayList(1);
-                nodes.add(n);
-                Traverser traverser = (n1, e, n2) -> {
-                    SwitchImpl aSwitch = graph.getEdgeObject(e);
-                    if (aSwitch != null && terminate.test(aSwitch)) {
-                        return TraverseResult.TERMINATE_PATH;
-                    }
-
-                    if (!encountered[n2]) {
-                        // We need to check this as the traverser might be called twice with the same n2 but with different edges.
-                        // Note that the "encountered" array is used and maintained inside graph::traverse method, hence we should not update it.
-                        nodes.add(n2);
-                    }
-                    return TraverseResult.CONTINUE;
-                };
-                graph.traverse(n, TraversalType.DEPTH_FIRST, traverser, encountered);
-
-                // check that the component is a bus
-                String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(voltageLevel, nodes), getNetwork().getIndex()::contains);
-                CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
-                for (int i = 0; i < nodes.size(); i++) {
-                    int n2 = nodes.getQuick(i);
-                    NodeTerminal terminal2 = graph.getVertexObject(n2);
-                    if (terminal2 != null) {
-                        terminals.add(terminal2);
-                    }
-                }
-                if (getBusChecker().isValid(graph, nodes, terminals)) {
-                    addBus(nodes, id2bus, node2bus, busId, terminals);
+        private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
+                            String busId) {
+            String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
+            CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
+            for (int i = 0; i < nodes.size(); i++) {
+                NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
+                if (terminal != null) {
+                    terminals.add(terminal);
                 }
             }
-        }
-
-        private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
-                            String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
-            String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
-            Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
-            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal);
+            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
                 node2bus[nodes.getQuick(i)] = bus;
@@ -312,10 +287,25 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             LOGGER.trace("Update bus topology of voltage level {}", voltageLevel.getId());
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            for (int v : graph.getVertices()) {
-                traverse(v, encountered, terminate, id2bus, node2bus);
+
+            List<TIntArrayList> components = graph.computeTraversalPartitions((v1, e, v2) -> {
+                SwitchImpl sw = graph.getEdgeObject(e);
+                if (sw != null && terminate.test(sw)) {
+                    return TraverseResult.TERMINATE_PATH;
+                }
+                return TraverseResult.CONTINUE;
+            });
+
+            for (TIntArrayList nodes : components) {
+                if (getBusChecker().isValid(graph, nodes)) {
+                    String busId = Identifiables.getUniqueId(
+                        NAMING_STRATEGY.getId(voltageLevel, nodes),
+                        getNetwork().getIndex()::contains
+                    );
+                    addBus(nodes, id2bus, node2bus, busId);
+                }
             }
+
             busCache = new BusCache(node2bus, id2bus);
             LOGGER.trace("Found buses {}", id2bus.values());
         }
@@ -457,13 +447,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private interface BusChecker {
 
-        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
+        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes);
     }
 
     private static final class CalculatedBusChecker implements BusChecker {
 
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes) {
             int feederCount = 0;
             int branchCount = 0;
             int busbarSectionCount = 0;
@@ -473,7 +463,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
-                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, DANGLING_LINE -> {
+                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, BOUNDARY_LINE -> {
                             branchCount++;
                             feederCount++;
                         }
@@ -494,7 +484,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private static final class CalculatedBusBreakerChecker implements BusChecker {
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes) {
             return !nodes.isEmpty();
         }
     }
@@ -642,16 +632,68 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
 
-        private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
-        private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
+        private final ArrayList<TIntDoubleMap> fictitiousP0ByNodeAndVariant = initiateFictitiousValueByNodes();
+        private final ArrayList<TIntDoubleMap> fictitiousQ0ByNodeAndVariant = initiateFictitiousValueByNodes();
+
+        private static void allocateVariantArrayElementForFictitiousValues(ArrayList<TIntDoubleMap> fictitiousValueByNodes,
+                                                                           int[] indexes, int sourceIndex) {
+            Supplier<TIntDoubleMap> supplier = fictitiousValueByNodes.get(sourceIndex) == null ?
+                () -> null :
+                () -> new TIntDoubleHashMap(fictitiousValueByNodes.get(sourceIndex));
+            for (int index : indexes) {
+                fictitiousValueByNodes.set(index, supplier.get());
+            }
+        }
+
+        private static void extendVariantArraySizeForFictitiousValues(ArrayList<TIntDoubleMap> fictitiousValueByNodes,
+                                                                      int number, int sourceIndex) {
+            fictitiousValueByNodes.ensureCapacity(fictitiousValueByNodes.size() + number);
+            Supplier<TIntDoubleMap> supplier = fictitiousValueByNodes.get(sourceIndex) == null ?
+                () -> null :
+                () -> new TIntDoubleHashMap(fictitiousValueByNodes.get(sourceIndex));
+            for (int i = 0; i < number; i++) {
+                fictitiousValueByNodes.add(supplier.get());
+            }
+        }
+
+        private static void reduceVariantArraySizeForFictitiousValues(ArrayList<TIntDoubleMap> fictitiousValueByNodes,
+                                                                      int number) {
+            fictitiousValueByNodes.subList(fictitiousValueByNodes.size() - number, fictitiousValueByNodes.size()).clear();
+        }
+
+        @Override
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+            extendVariantArraySizeForFictitiousValues(fictitiousP0ByNodeAndVariant, number, sourceIndex);
+            extendVariantArraySizeForFictitiousValues(fictitiousQ0ByNodeAndVariant, number, sourceIndex);
+        }
+
+        @Override
+        public void reduceVariantArraySize(int number) {
+            reduceVariantArraySizeForFictitiousValues(fictitiousP0ByNodeAndVariant, number);
+            reduceVariantArraySizeForFictitiousValues(fictitiousQ0ByNodeAndVariant, number);
+        }
+
+        @Override
+        public void deleteVariantArrayElement(int index) {
+            // Nothing to do
+            fictitiousP0ByNodeAndVariant.set(index, null);
+            fictitiousQ0ByNodeAndVariant.set(index, null);
+        }
+
+        @Override
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+            allocateVariantArrayElementForFictitiousValues(fictitiousP0ByNodeAndVariant, indexes, sourceIndex);
+            allocateVariantArrayElementForFictitiousValues(fictitiousQ0ByNodeAndVariant, indexes, sourceIndex);
+        }
+
+        @Override
+        public boolean hasFictitiousP0() {
+            return hasFictitiousInjection(fictitiousP0ByNodeAndVariant);
+        }
 
         @Override
         public double getFictitiousP0(int node) {
-            TDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
-            if (fictP0 != null) {
-                return fictP0.get(getNetwork().getVariantIndex());
-            }
-            return 0.0;
+            return getFictitiousInjection(fictitiousP0ByNodeAndVariant, node);
         }
 
         @Override
@@ -659,38 +701,18 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(p0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious p0");
             }
-            TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
-            if (p0ByVariant == null) {
-                int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                p0ByVariant = new TDoubleArrayList(variantArraySize);
-                for (int i = 0; i < variantArraySize; i++) {
-                    p0ByVariant.add(0.0);
-                }
-                synchronized (fictitiousP0ByNode) {
-                    fictitiousP0ByNode.put(node, p0ByVariant);
-                }
-            }
-            int variantIndex = getNetwork().getVariantIndex();
-            double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
-            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousP0", variantId, oldValue, p0);
-            TIntSet toRemove = clearFictitiousInjections(fictitiousP0ByNode);
-            synchronized (fictitiousP0ByNode) {
-                toRemove.forEach(n -> {
-                    fictitiousP0ByNode.remove(n);
-                    return true;
-                });
-            }
+            setFictitiousInjection(fictitiousP0ByNodeAndVariant, node, p0, "fictitiousP0");
             return this;
         }
 
         @Override
+        public boolean hasFictitiousQ0() {
+            return hasFictitiousInjection(fictitiousQ0ByNodeAndVariant);
+        }
+
+        @Override
         public double getFictitiousQ0(int node) {
-            TDoubleArrayList fictQ0 = fictitiousQ0ByNode.get(node);
-            if (fictQ0 != null) {
-                return fictQ0.get(getNetwork().getVariantIndex());
-            }
-            return 0.0;
+            return getFictitiousInjection(fictitiousQ0ByNodeAndVariant, node);
         }
 
         @Override
@@ -698,28 +720,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(q0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious q0");
             }
-            TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(node);
-            if (q0ByVariant == null) {
-                int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                q0ByVariant = new TDoubleArrayList(variantArraySize);
-                for (int i = 0; i < variantArraySize; i++) {
-                    q0ByVariant.add(0.0);
-                }
-                synchronized (fictitiousQ0ByNode) {
-                    fictitiousQ0ByNode.put(node, q0ByVariant);
-                }
-            }
-            int variantIndex = getNetwork().getVariantIndex();
-            double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
-            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousQ0", variantId, oldValue, q0);
-            TIntSet toRemove = clearFictitiousInjections(fictitiousQ0ByNode);
-            synchronized (fictitiousQ0ByNode) {
-                toRemove.forEach(n -> {
-                    fictitiousQ0ByNode.remove(n);
-                    return true;
-                });
-            }
+            setFictitiousInjection(fictitiousQ0ByNodeAndVariant, node, q0, "fictitiousQ0");
             return this;
         }
 
@@ -932,21 +933,48 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         public void traverse(int[] nodes, TopologyTraverser t) {
             graph.traverse(nodes, TraversalType.DEPTH_FIRST, adapt(t));
         }
-    };
 
-    private static TIntSet clearFictitiousInjections(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
-        TIntSet toRemove = new TIntHashSet(fictitiousInjectionsByNode.keySet());
-        fictitiousInjectionsByNode.forEachEntry((node, value) -> {
-            value.forEach(inj -> {
-                if (inj != 0.0) {
-                    toRemove.remove(node);
-                }
-                return true;
-            });
-            return true;
-        });
-        return toRemove;
-    }
+        private ArrayList<TIntDoubleMap> initiateFictitiousValueByNodes() {
+            ArrayList<TIntDoubleMap> fictitiousValueByNodes = new ArrayList<>(getNetwork().getVariantManager().getVariantArraySize());
+            for (int i = 0; i < getNetwork().getVariantManager().getVariantArraySize(); i++) {
+                fictitiousValueByNodes.add(null);
+            }
+            return fictitiousValueByNodes;
+        }
+
+        private boolean hasFictitiousInjection(ArrayList<TIntDoubleMap> fictitiousValueByNodes) {
+            return fictitiousValueByNodes.get(getNetwork().getVariantIndex()) != null
+                && !fictitiousValueByNodes.get(getNetwork().getVariantIndex()).isEmpty();
+        }
+
+        private double getFictitiousInjection(ArrayList<TIntDoubleMap> fictitiousValueByNodes, int node) {
+            TIntDoubleMap fictitiousValueVariant = fictitiousValueByNodes.get(getNetwork().getVariantIndex());
+            if (fictitiousValueVariant == null || fictitiousValueVariant.isEmpty()) {
+                return 0.0;
+            }
+            // Return the value corresponding to the node, or 0.0 if the node is not in the keyset (default in TIntDoubleHashMap)
+            return fictitiousValueVariant.get(node);
+        }
+
+        private void setFictitiousInjection(ArrayList<TIntDoubleMap> fictitiousValueByNodes, int node, double value,
+                                            String modifiedVariable) {
+            int variantIndex = getNetwork().getVariantIndex();
+
+            // Get the map corresponding to the current variant from the array
+            TIntDoubleMap fictitiousValueVariant = fictitiousValueByNodes.get(variantIndex);
+
+            // If it does not exist yet, create a new one
+            if (fictitiousValueVariant == null) {
+                fictitiousValueVariant = new TIntDoubleHashMap();
+                fictitiousValueByNodes.set(variantIndex, fictitiousValueVariant);
+            }
+
+            // Save the value in the map or remove if the value is 0.0
+            double oldValue = value == 0.0 ? fictitiousValueVariant.remove(node) : fictitiousValueVariant.put(node, value);
+            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+            getNetwork().getListeners().notifyUpdate(voltageLevel, modifiedVariable, variantId, oldValue, value);
+        }
+    };
 
     @Override
     public VoltageLevelExt.NodeBreakerViewExt getNodeBreakerView() {
@@ -1128,6 +1156,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
+    public void attachInCurrentVariant(TerminalExt terminal, boolean test) {
+        throw NodeBreakerTopologyModel.createNotSupportedNodeBreakerTopologyException();
+    }
+
+    @Override
     public void attach(TerminalExt terminal, boolean test) {
         checkTerminal(terminal);
         if (test) {
@@ -1142,6 +1175,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         graph.setVertexObject(node, (NodeTerminal) terminal);
 
         getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
+    }
+
+    @Override
+    public void detachInCurrentVariant(TerminalExt terminal) {
+        throw NodeBreakerTopologyModel.createNotSupportedNodeBreakerTopologyException();
     }
 
     @Override
@@ -1253,7 +1291,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     boolean disconnect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
-        return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER);
+        return disconnect(terminal, SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
     @Override
@@ -1391,21 +1429,25 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         variants.push(number, VariantImpl::new);
+        nodeBreakerView.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         variants.pop(number);
+        nodeBreakerView.reduceVariantArraySize(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         variants.delete(index);
+        nodeBreakerView.deleteVariantArrayElement(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, VariantImpl::new);
+        nodeBreakerView.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
     @Override
@@ -1444,76 +1486,86 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public void exportTopology(Writer writer, Random random) {
-        Objects.requireNonNull(writer);
-        Objects.requireNonNull(random);
-
-        GraphVizScope scope = new GraphVizScope.Impl();
-        GraphVizGraph gvGraph = new GraphVizGraph();
-
-        exportNodes(random, gvGraph, scope);
-        exportEdges(gvGraph, scope);
-
-        try {
-            gvGraph.writeTo(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void exportNodes(Random random, GraphVizGraph gvGraph, GraphVizScope scope) {
+    protected void exportVertices(Map<String, Map<String, Attribute>> vertexAttributes,
+                                  Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                                  Random random,
+                                  Graph<String, DefaultEdge> jGraph,
+                                  Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs) {
         // create bus color scale
-        Map<String, String> busColor = new HashMap<>();
-        List<CalculatedBus> buses = new ArrayList<>(getCalculatedBusBreakerTopology().getBuses());
-        String[] colors = Colors.generateColorScale(buses.size(), random);
-        for (int i = 0; i < buses.size(); i++) {
-            CalculatedBus bus = buses.get(i);
-            busColor.put(bus.getId(), colors[i]);
-        }
+        Map<String, String> busColor = createBusColorScale(random,
+            getCalculatedBusBreakerTopology().getBuses().stream().map(BusExt::getId).toList());
 
-        for (int n = 0; n < graph.getVertexCapacity(); n++) {
-            if (!graph.vertexExists(n)) {
-                continue;
-            }
+        for (int n : graph.getVertices()) {
             Bus bus = getCalculatedBusBreakerTopology().getBus(n);
             String label = "" + n;
             TerminalExt terminal = graph.getVertexObject(n);
             if (terminal != null) {
-                AbstractConnectable connectable = terminal.getConnectable();
-                label += System.lineSeparator() + connectable.getType().toString()
-                        + System.lineSeparator() + connectable.getId()
-                        + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
+                AbstractConnectable<?> connectable = terminal.getConnectable();
+                label += LINE_SEPARATOR + connectable.getType().toString()
+                    + LINE_SEPARATOR + connectable.getId()
+                    + connectable.getOptionalName().map(name -> LINE_SEPARATOR + name).orElse("");
             }
-            GraphVizNode gvNode = gvGraph.node(scope, n)
-                    .label(label)
-                    .shape("ellipse");
+
+            String vertexId = String.valueOf(n);
+            jGraph.addVertex(vertexId);
+
+            Map<String, Attribute> va = new LinkedHashMap<>();
+            va.put(LABEL, DefaultAttribute.createAttribute(label));
+            va.put(SHAPE, DefaultAttribute.createAttribute("ellipse"));
             if (bus != null) {
-                gvNode.style("filled")
-                        .attr(GraphVizAttribute.fillcolor, busColor.get(bus.getId()));
-                gvGraph.cluster(scope, bus).add(gvNode)
-                        .attr(GraphVizAttribute.pencolor, "transparent");
+                va.put(STYLE, DefaultAttribute.createAttribute("filled"));
+                va.put(FILL_COLOR, DefaultAttribute.createAttribute(busColor.get(bus.getId())));
+                if (!subgraphs.containsKey(bus.getId())) {
+                    subgraphs.put(bus.getId(), new DOTSubgraph<>(new AsSubgraph<>(jGraph, Set.of(), Set.of()),
+                        IidmDOTUtils.getDefaultSubgraphAttributes(), IidmDOTUtils.getDefaultClusterAttributes(),
+                        true, false));
+                }
+                subgraphs.get(bus.getId()).getSubgraph().addVertex(vertexId);
             }
+            vertexAttributes.put(vertexId, va);
         }
     }
 
-    private void exportEdges(GraphVizGraph gvGraph, GraphVizScope scope) {
-        // Iterate over non-removed edges
+    @Override
+    protected void exportEdges(Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                               Graph<String, DefaultEdge> jGraph) {
         for (int e : graph.getEdges()) {
-            GraphVizEdge edge = gvGraph.edge(scope, graph.getEdgeVertex1(e), graph.getEdgeVertex2(e));
+            int v1 = graph.getEdgeVertex1(e);
+            int v2 = graph.getEdgeVertex2(e);
+
+            String s1 = String.valueOf(v1);
+            String s2 = String.valueOf(v2);
+
+            // Ajouter arête
+            DefaultEdge edge = jGraph.addEdge(s1, s2);
+
+            Map<String, Attribute> ea = new LinkedHashMap<>();
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
                 if (DRAW_SWITCH_ID) {
-                    edge.label(aSwitch.getKind().toString()
-                            + System.lineSeparator() + aSwitch.getId()
-                            + aSwitch.getOptionalName().map(n -> System.lineSeparator() + n).orElse(""))
-                            .attr(GraphVizAttribute.fontsize, "10");
+                    String label = aSwitch.getKind().toString()
+                        + LINE_SEPARATOR + aSwitch.getId()
+                        + aSwitch.getOptionalName().map(n -> LINE_SEPARATOR + n).orElse("");
+                    ea.put(LABEL, DefaultAttribute.createAttribute(label));
+                    ea.put("fontsize", DefaultAttribute.createAttribute("10"));
                 }
-                edge.style(aSwitch.isOpen() ? "dotted" : "solid");
+                ea.put(STYLE, DefaultAttribute.createAttribute(aSwitch.isOpen() ? "dotted" : "solid"));
             }
+            edgeAttributes.put(edge, ea);
         }
     }
 
     private static String getExceptionMessageElementNotFound(String element, String id) {
         return element + " " + id + " not found";
+    }
+
+    @Override
+    public void updateSwitchId(String id, String newId) {
+        if (switches.containsKey(id)) {
+            Integer edge = switches.remove(id);
+            switches.put(newId, edge);
+        } else {
+            throw new PowsyblException("Switch with id " + id + " does not exist");
+        }
     }
 }

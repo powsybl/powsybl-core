@@ -8,16 +8,16 @@
 
 package com.powsybl.iidm.network.extensions;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.ThreeSides;
+import org.junit.jupiter.api.Test;
+
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ThreeSides;
 
 /**
  * @author Laurent Garnier {@literal <laurent.garnier_externe at rte-france.com>}

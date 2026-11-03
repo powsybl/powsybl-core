@@ -10,10 +10,10 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.PhaseTapChangerRegulationAction;
 import com.powsybl.action.PhaseTapChangerRegulationActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.action.PhaseTapChangerRegulationAction;
 
 import java.io.IOException;
 
@@ -30,29 +30,31 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
     @Override
     public PhaseTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         PhaseTapChangerRegulationActionBuilder builder = new PhaseTapChangerRegulationActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, builder, name);
-            if (found) {
-                return true;
-            }
-            switch (name) {
-                case "type":
-                    String type = jsonParser.nextTextValue();
-                    if (!PhaseTapChangerRegulationAction.NAME.equals(type)) {
-                        throw JsonMappingException.from(jsonParser, "Expected type :" + PhaseTapChangerRegulationAction.NAME + " got : " + type);
-                    }
-                    return true;
-                case "regulationMode":
-                    builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextTextValue()));
-                    return true;
-                case "regulationValue":
-                    jsonParser.nextToken();
-                    builder.withRegulationValue(jsonParser.getValueAsDouble());
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> parsePhaseTapChangerRegulationAction(jsonParser, builder, name));
         return builder;
+    }
+
+    private boolean parsePhaseTapChangerRegulationAction(JsonParser jsonParser, PhaseTapChangerRegulationActionBuilder builder, String name) throws IOException {
+        boolean found = deserializeCommonAttributes(jsonParser, builder, name);
+        if (found) {
+            return true;
+        }
+        switch (name) {
+            case "type":
+                String type = jsonParser.nextTextValue();
+                if (!PhaseTapChangerRegulationAction.NAME.equals(type)) {
+                    throw JsonMappingException.from(jsonParser, "Expected type :" + PhaseTapChangerRegulationAction.NAME + " got : " + type);
+                }
+                return true;
+            case "regulationMode":
+                builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextTextValue()));
+                return true;
+            case "regulationValue":
+                jsonParser.nextToken();
+                builder.withRegulationValue(jsonParser.getValueAsDouble());
+                return true;
+            default:
+                return false;
+        }
     }
 }

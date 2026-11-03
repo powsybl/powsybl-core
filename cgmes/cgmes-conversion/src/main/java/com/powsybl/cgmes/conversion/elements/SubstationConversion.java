@@ -9,13 +9,14 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.SubstationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -67,8 +68,8 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
             index++;
             s.addAlias(mergedSub, "MergedSubstation" + index, context.config().isEnsureIdAliasUnicity());
         }
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName", regionName);
+        s.setProperty(PROPERTY_SUB_REGION_ID, subRegionId);
+        s.setProperty(PROPERTY_REGION_ID, regionId);
+        s.setProperty(PROPERTY_REGION_NAME, regionName);
     }
 }

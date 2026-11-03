@@ -1,0 +1,9 @@
+{
+  "version" : "1.2",
+  "actions" : [ {
+    "type" : "SWITCH",
+    "id" : "id1",
+    "switchId" : "switchId1",
+    "open" : true
+  }]
+}

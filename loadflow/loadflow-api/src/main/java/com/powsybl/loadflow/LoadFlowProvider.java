@@ -58,8 +58,8 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param computationManager a computation manager to external program execution
      * @param workingVariantId   variant id of the network
      * @param parameters         load flow execution parameters
-     * @param reportNode           the reportNode used for functional logs
-     * @return a {@link CompletableFuture} on {@link LoadFlowResult]
+     * @param reportNode         the reportNode used for functional logs
+     * @return a {@link CompletableFuture} on {@link LoadFlowResult}
      */
     @Deprecated(since = "7.0.0", forRemoval = true)
     default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
@@ -79,7 +79,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param network            the network
      * @param workingVariantId   variant id of the network
      * @param runParameters         load flow run parameters
-     * @return a {@link CompletableFuture} on {@link LoadFlowResult]
+     * @return a {@link CompletableFuture} on {@link LoadFlowResult}
      */
     CompletableFuture<LoadFlowResult> run(Network network, String workingVariantId, LoadFlowRunParameters runParameters);
 
@@ -176,5 +176,15 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      */
     default Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * Verifies if the LoadFlowParameters' values are supported by the provider.<br>
+     * Reports the unsupported parameters with the run parameters' report node.
+     * @param runParameters runner parameters
+     * @return <code>true</code> if the parameters are supported, <code>false</code> otherwise
+     */
+    default boolean checkParameters(LoadFlowRunParameters runParameters) {
+        return true;
     }
 }

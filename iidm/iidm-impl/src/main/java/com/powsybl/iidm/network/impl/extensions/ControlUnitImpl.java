@@ -19,13 +19,13 @@ import java.util.Objects;
  */
 class ControlUnitImpl implements ControlUnit {
 
-    private final String id;
+    private String id;
 
     private final TBooleanArrayList participate;
 
     private ControlZoneImpl controlZone;
 
-    public ControlUnitImpl(String id, boolean participate, VariantManagerHolder variantManagerHolder) {
+    ControlUnitImpl(String id, boolean participate, VariantManagerHolder variantManagerHolder) {
         this.id = Objects.requireNonNull(id);
         int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
         this.participate = new TBooleanArrayList(variantArraySize);
@@ -40,6 +40,10 @@ class ControlUnitImpl implements ControlUnit {
 
     protected int getVariantIndex() {
         return controlZone.getSecondaryVoltageControl().getVariantManagerHolder().getVariantIndex();
+    }
+
+    protected void setId(String newId) {
+        id = Objects.requireNonNull(newId);
     }
 
     @Override

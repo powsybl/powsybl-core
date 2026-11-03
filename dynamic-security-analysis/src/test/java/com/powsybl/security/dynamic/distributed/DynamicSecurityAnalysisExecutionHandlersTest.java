@@ -15,18 +15,21 @@ import com.powsybl.action.SwitchAction;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.condition.TrueCondition;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecutionInput;
-import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.strategy.OperatorStrategy;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -124,7 +127,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
     void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
         OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
-        LimitReduction limitReduction = new LimitReduction(LimitType.CURRENT, 0.9);
+        LimitScaling limitScaling = new LimitScaling(LimitType.CURRENT, 0.9);
 
         DynamicSecurityAnalysisExecutionInput input = new DynamicSecurityAnalysisExecutionInput()
                 .setParameters(new DynamicSecurityAnalysisParameters())
@@ -136,7 +139,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 .addViolationTypes(List.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
                 .setOperatorStrategies(List.of(strategy))
-                .setLimitReductions(List.of(limitReduction));
+                .setLimitScalings(List.of(limitScaling));
         ExecutionHandler<SecurityAnalysisReport> handler = DynamicSecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);
@@ -152,7 +155,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                         "--contingencies-file=/work/contingencies.groovy",
                         "--actions-file=/work/actions.json",
                         "--strategies-file=/work/strategies.json",
-                        "--limit-reductions-file=/work/limit-reductions.json",
+                        "--limit-scalings-file=/work/limit-scalings.json",
                         "--with-extensions=ext1,ext2",
                         "--limit-types=CURRENT",
                         "--task-count=12");
@@ -164,7 +167,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
         assertThat(workingDir.resolve("contingencies.groovy")).exists();
         assertThat(workingDir.resolve("strategies.json")).exists();
         assertThat(workingDir.resolve("actions.json")).exists();
-        assertThat(workingDir.resolve("limit-reductions.json")).exists();
+        assertThat(workingDir.resolve("limit-scalings.json")).exists();
     }
 
     @Test
@@ -262,9 +265,15 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
     }
 
     private static SecurityAnalysisResult resultForContingency(String id) {
-        return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(new PostContingencyResult(new Contingency(id), PostContingencyComputationStatus.CONVERGED,
-                        LimitViolationsResult.empty())));
+        return new SecurityAnalysisResult(
+                LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
+                Collections.singletonList(
+                        new PostContingencyResult(
+                                new Contingency(id), PostContingencyComputationStatus.CONVERGED,
+                                LimitViolationsResult.empty(), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN,
+                                Collections.emptyList())
+                )
+        );
     }
 
     @Test
@@ -332,11 +341,11 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
         try {
             handler2.after(workingDir, executionReport);
             fail();
-        } catch (ComputationException ce) {
-            assertEquals("logs", ce.getErrLogs().get("dynamic-security-analysis-task_0.err"));
-            assertEquals("logs", ce.getErrLogs().get("dynamic-security-analysis-task_1.err"));
-            assertEquals("logs", ce.getOutLogs().get("dynamic-security-analysis-task_0.out"));
-            assertEquals("logs", ce.getOutLogs().get("dynamic-security-analysis-task_1.out"));
+        } catch (ComputationException computationException) {
+            assertEquals("logs", computationException.getErrLogs().get("dynamic-security-analysis-task_0.err"));
+            assertEquals("logs", computationException.getErrLogs().get("dynamic-security-analysis-task_1.err"));
+            assertEquals("logs", computationException.getOutLogs().get("dynamic-security-analysis-task_0.out"));
+            assertEquals("logs", computationException.getOutLogs().get("dynamic-security-analysis-task_1.out"));
         }
 
         ExecutionReport executionReport2 = new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(Mockito.mock(Command.class), 0, 42)));

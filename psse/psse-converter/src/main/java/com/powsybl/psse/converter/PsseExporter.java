@@ -10,11 +10,10 @@ package com.powsybl.psse.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.ConfiguredParameter;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.psse.converter.extensions.PsseConversionContextExtension;
 import com.powsybl.psse.converter.extensions.PsseModelExtension;
 import com.powsybl.psse.model.PsseException;
@@ -193,7 +192,7 @@ public class PsseExporter implements Exporter {
 
         BatteryConverter.create(network, psseModel, contextExport);
         TieLineConverter.create(network, psseModel, contextExport, perUnitContext);
-        DanglingLineConverter.create(network, psseModel, contextExport, perUnitContext);
+        BoundaryLineConverter.create(network, psseModel, contextExport, perUnitContext);
         return psseModel;
     }
 

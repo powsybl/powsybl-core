@@ -35,7 +35,6 @@ class NamingStrategiesServiceLoaderTest {
         assertFalse(providers.isEmpty());
         assertTrue(providers.stream().anyMatch(p -> NamingStrategyFactory.IDENTITY.equals(p.getName())));
         assertTrue(providers.stream().anyMatch(p -> NamingStrategyFactory.CGMES.equals(p.getName())));
-        assertTrue(providers.stream().anyMatch(p -> NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS.equals(p.getName())));
     }
 
     @Test
@@ -49,9 +48,6 @@ class NamingStrategiesServiceLoaderTest {
 
         NamingStrategy s2 = NamingStrategyFactory.create(NamingStrategyFactory.CGMES, DEFAULT_UUID_NAMESPACE);
         assertEquals(NamingStrategyFactory.CGMES, s2.getName());
-
-        NamingStrategy s3 = NamingStrategyFactory.create(NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS, DEFAULT_UUID_NAMESPACE);
-        assertEquals(NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS, s3.getName());
 
         assertFalse(loader.findProviderByName("NotFound").isPresent());
         assertFalse(loader.findProviderByName(null).isPresent());

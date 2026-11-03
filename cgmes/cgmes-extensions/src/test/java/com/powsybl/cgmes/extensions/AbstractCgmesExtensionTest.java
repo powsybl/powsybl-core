@@ -11,6 +11,7 @@ import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.ImportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 
@@ -19,6 +20,8 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -31,6 +34,33 @@ public abstract class AbstractCgmesExtensionTest extends AbstractSerDeTest {
                 NetworkSerDe::write,
                 NetworkSerDe::validateAndRead,
                 xmlRefFile);
+    }
+
+    protected void allFormatsRoundTripTestVersioned(Network network, String xmlRefFile, IidmVersion version) throws IOException {
+        roundTripXmlTest(network,
+                (n, p) -> binWriteAndRead(jsonWriteAndRead(n, p), p),
+                (n, p) -> NetworkSerDe.write(n, new ExportOptions().setVersion(version.toString(".")), p),
+                NetworkSerDe::validateAndRead,
+                xmlRefFile);
+    }
+
+    protected void testForAllPreviousVersions(IidmVersion maxVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(maxVersion) < 0)
+                .forEach(test);
+    }
+
+    protected void testForAllVersionsBetween(IidmVersion minVersion, IidmVersion maxVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0
+                        && v.compareTo(maxVersion) <= 0)
+                .forEach(test);
+    }
+
+    protected void testForAllVersionsSince(IidmVersion minVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0)
+                .forEach(test);
     }
 
     private static Network binWriteAndRead(Network network, Path path) {

@@ -8,17 +8,14 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.getDefaultIsOpen;
 
 /**
@@ -33,57 +30,55 @@ public final class TerminalConversion {
     public static void create(Network network, PropertyBag cgmesTerminal, Context context) {
         String cgmesTerminalId = cgmesTerminal.getId(CgmesNames.TERMINAL);
         boolean connected = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
-        if (createFictitiousSwitch(network, cgmesTerminalId, connected)) {
+        if (createFictitiousSwitch(network, cgmesTerminalId, connected, context)) {
             create(network, cgmesTerminalId, context);
         }
     }
 
-    private static boolean createFictitiousSwitch(Network network, String cgmesTerminalId, boolean connected) {
-        if (cgmesTerminalId == null || connected) {
+    private static boolean createFictitiousSwitch(Network network, String cgmesTerminalId, boolean connected, Context context) {
+        // Terminal id shouldn't be null
+        Objects.requireNonNull(cgmesTerminalId);
+
+        // Only create if it's a disconnected terminal of a connectable that's not a busbar section.
+        Identifiable<?> identifiable = network.getIdentifiable(cgmesTerminalId);
+        if (connected || identifiable == null || identifiable.getType() == IdentifiableType.BUSBAR_SECTION) {
             return false;
         }
-        // Do not create a switch if the terminal is associated with a busbar section
-        Identifiable<?> identifiable = network.getIdentifiable(cgmesTerminalId);
-        return identifiable == null || identifiable.getType() != IdentifiableType.BUSBAR_SECTION;
+
+        // Check if a fictitious switch has already been created (from a previous update).
+        if (network.getSwitchStream()
+            .anyMatch(s -> "true".equals(s.getProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
+                && cgmesTerminalId.equals(s.getProperty(PROPERTY_TERMINAL)))) {
+            return false;
+        }
+
+        // Check if configuration allows fictitious switch creation.
+        return switch (context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode()) {
+            case NEVER -> false;
+            case ALWAYS -> true;
+            case ALWAYS_EXCEPT_SWITCHES -> identifiable.getType() != IdentifiableType.SWITCH;
+        };
     }
 
     private static void create(Network network, String cgmesTerminalId, Context context) {
         Identifiable<?> identifiable = network.getIdentifiable(cgmesTerminalId);
-        if (createFictitiousSwitch(identifiable, context)) {
-            if (identifiable instanceof Switch sw) {
-                if (createFictitiousSwitch(sw)) {
-                    createSwitchForSwitch(sw, getNode(sw, cgmesTerminalId), cgmesTerminalId, context);
-                }
-            } else if (identifiable instanceof Connectable<?> connectable) {
-                Terminal terminal = getTerminal(connectable, cgmesTerminalId);
-                if (createFictitiousSwitch(terminal)) {
-                    createSwitchForTerminal(terminal, cgmesTerminalId, context);
-                }
+        if (identifiable instanceof Switch sw) {
+            if (sw.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                createSwitchForSwitch(sw, getNode(sw, cgmesTerminalId), cgmesTerminalId, context);
+            }
+        } else if (identifiable instanceof Connectable<?> connectable) {
+            Terminal terminal = getTerminal(connectable, cgmesTerminalId);
+            if (terminal != null && terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                createSwitchForTerminal(terminal, cgmesTerminalId, context);
             }
         }
     }
 
-    private static boolean createFictitiousSwitch(Identifiable<?> identifiable, Context context) {
-        return switch (context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode()) {
-            case NEVER -> false;
-            case ALWAYS -> identifiable != null;
-            case ALWAYS_EXCEPT_SWITCHES -> identifiable != null && identifiable.getType() != IdentifiableType.SWITCH;
-        };
-    }
-
-    private static boolean createFictitiousSwitch(Switch sw) {
-        return sw.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER;
-    }
-
-    private static boolean createFictitiousSwitch(Terminal terminal) {
-        return terminal != null && terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER;
-    }
-
     private static int getNode(Switch sw, String terminalId) {
         String aliasType = sw.getAliasType(terminalId).orElse("");
-        if (aliasType.equals(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)) {
+        if (ALIAS_TERMINAL1.equals(aliasType)) {
             return sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId());
-        } else if (aliasType.equals(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2)) {
+        } else if (ALIAS_TERMINAL2.equals(aliasType)) {
             return sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId());
         } else {
             throw new PowsyblException("Unexpected terminal " + terminalId + " in the switch " + sw.getId());
@@ -149,28 +144,32 @@ public final class TerminalConversion {
     // In some cases, it may have already been recorded as an alias associated with other equipment
     private static void createSwitch(VoltageLevel voltageLevel, String cgmesTerminalId, int node1, int node2, Context context) {
         String switchId = cgmesTerminalId + "_SW_fict";
+        // The switch is closed for all variants but the current one.
+        // 2 calls to setOpen() are needed.
         Switch sw = voltageLevel.getNodeBreakerView().newSwitch()
                 .setFictitious(true)
                 .setId(switchId)
                 .setName(cgmesTerminalId)
                 .setNode1(node1)
                 .setNode2(node2)
-                .setOpen(true)
+                // This makes it closed for all variants.
+                .setOpen(false)
                 .setKind(SwitchKind.BREAKER)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
-        sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
-        sw.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, cgmesTerminalId);
+        // This makes it open for the current variant.
+        sw.setOpen(true);
+        sw.setProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
+        sw.setProperty(PROPERTY_TERMINAL, cgmesTerminalId);
     }
 
     static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
         String aliasType = connectable.getAliasType(terminalId).orElse("");
         return switch (aliasType) {
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL,
-                 Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1 -> connectable.getTerminals().get(0);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2 -> connectable.getTerminals().get(1);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 3 -> connectable.getTerminals().get(2);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY -> null;
+            case ALIAS_TERMINAL, ALIAS_TERMINAL1 -> connectable.getTerminals().get(0);
+            case ALIAS_TERMINAL2 -> connectable.getTerminals().get(1);
+            case ALIAS_TERMINAL3 -> connectable.getTerminals().get(2);
+            case ALIAS_TERMINAL_BOUNDARY -> null;
             default -> throw new PowsyblException("Unexpected terminal " + terminalId + " in the connectable " + connectable.getId());
         };
     }
@@ -185,7 +184,7 @@ public final class TerminalConversion {
     }
 
     private static Optional<Boolean> getIsTerminalConnected(Switch sw, Context context) {
-        String cgmesTerminalId = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL);
+        String cgmesTerminalId = sw.getProperty(PROPERTY_TERMINAL);
         return cgmesTerminalId != null
                 ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)).flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED))
                 : Optional.empty();

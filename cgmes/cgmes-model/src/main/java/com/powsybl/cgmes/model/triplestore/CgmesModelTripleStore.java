@@ -55,6 +55,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public void close() {
+        this.tripleStore.close();
+    }
+
+    @Override
     public void setQueryCatalog(String queryCatalogName) {
         this.invalidateCaches();
         this.queryCatalog = queryCatalogFor(this.cimVersion, queryCatalogName);
@@ -81,8 +86,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public void write(DataSource ds) {
         try {
             tripleStore.write(ds);
-        } catch (TripleStoreException x) {
-            throw new CgmesModelException(String.format("Writing. Triple store problem %s", ds), x);
+        } catch (TripleStoreException e) {
+            throw new CgmesModelException(String.format("Writing. Triple store problem %s", ds), e);
         }
     }
 
@@ -721,9 +726,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String contextName = contextNameFor(subset);
         try {
             tripleStore.add(contextName, cimNamespace, type, objects);
-        } catch (TripleStoreException x) {
+        } catch (TripleStoreException e) {
             String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
-            throw new CgmesModelException(msg, x);
+            throw new CgmesModelException(msg, e);
         }
     }
 
@@ -738,9 +743,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             } else {
                 tripleStore.add(contextName, cimNamespace, type, objects);
             }
-        } catch (TripleStoreException x) {
+        } catch (TripleStoreException e) {
             String msg = String.format("Adding objects of type %s to context %s", type, context);
-            throw new CgmesModelException(msg, x);
+            throw new CgmesModelException(msg, e);
         }
     }
 

@@ -78,8 +78,10 @@ $$TypTr2;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);nt2ph(i);strn(r);frno
 $$ElmSubstat;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sShort(a:6);sType(a:80);GPSlat(r);GPSlon(r)
   31;VoltageLevel1-400;;34;;;49,95646302;11,45051847
   32;VoltageLevel2-400;;35;;;49,95646302;11,45051847
-  33;VoltageLevel2-20;;35;;;49,95646302;11,45051847
-  
+
+$$ElmTrfstat;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p)
+  33;VoltageLevel2-20;;35
+
 $$ElmSite;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sType(a:80);GPSlat(r);GPSlon(r)
   34;Substation1;;8;;49,95646302;11,45051847
   35;Substation2;;8;;50,89789337;11,01545826

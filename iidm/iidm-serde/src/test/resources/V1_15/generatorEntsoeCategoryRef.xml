@@ -5,12 +5,15 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="G" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="380.0" bus="B" connectableBus="B">
+            <iidm:generator id="G0" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="380.0" bus="B" connectableBus="B">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:generator id="G4" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="380.0" bus="B" connectableBus="B">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:extension id="G">
+    <iidm:extension id="G4">
         <gec:entsoeCategory>4</gec:entsoeCategory>
     </iidm:extension>
 </iidm:network>

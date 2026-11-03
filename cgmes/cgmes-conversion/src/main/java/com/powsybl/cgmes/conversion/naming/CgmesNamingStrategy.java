@@ -1,0 +1,112 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.cgmes.conversion.naming;
+
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.NameBasedGenerator;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.iidm.network.Identifiable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+
+/**
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ */
+public class CgmesNamingStrategy implements NamingStrategy {
+
+    protected final BiMap<String, String> idByUuid = HashBiMap.create();
+    protected final Map<String, String> uuidSeed = new HashMap<>();
+    protected final NameBasedGenerator nameBasedGenerator;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesNamingStrategy.class);
+
+    public CgmesNamingStrategy(UUID uuidNamespace) {
+        // The namespace for generating stable name-based UUIDs is also a UUID
+        this.nameBasedGenerator = uuidNamespace == null ? Generators.nameBasedGenerator() : Generators.nameBasedGenerator(uuidNamespace);
+    }
+
+    @Override
+    public String getName() {
+        return NamingStrategyFactory.CGMES;
+    }
+
+    @Override
+    public String getIidmId(String type, String id) {
+        return idByUuid.getOrDefault(id, id);
+    }
+
+    @Override
+    public String getIidmName(String type, String name) {
+        return name;
+    }
+
+    @Override
+    public String getCgmesId(Identifiable<?> identifiable) {
+        String identifier = identifiable.getId();
+        if (idByUuid.containsValue(identifier)) {
+            return idByUuid.inverse().get(identifier);
+        } else if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
+            return identifier;
+        } else {
+            String uuid = getCgmesId(refTyped(identifiable));
+            idByUuid.put(uuid, identifier);
+            return uuid;
+        }
+    }
+
+    @Override
+    public String getCgmesId(CgmesObjectReference... refs) {
+        String seed = "_" + combine(refs);
+        String uuid = nameBasedGenerator.generate(seed).toString();
+        if (uuidSeed.containsKey(uuid)) {
+            LOG.debug("Unique ID for seed {} called multiple times ", seed);
+        }
+        uuidSeed.put(uuid, seed);
+        return uuid;
+    }
+
+    @Override
+    public String getCgmesId(String identifier) {
+        if (idByUuid.containsValue(identifier)) {
+            return idByUuid.inverse().get(identifier);
+        }
+        String uuid;
+        if (CgmesExportUtil.isValidCimMasterRID(identifier)) {
+            uuid = identifier;
+        } else {
+            uuid = getCgmesId(ref(identifier));
+            // Only store the IDs that have been created during the export
+            idByUuid.put(uuid, identifier);
+        }
+        return uuid;
+    }
+
+    @Override
+    public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
+        if (identifiable.getAliasFromType(aliasType).isPresent()) {
+            return getCgmesId(identifiable.getAliasFromType(aliasType).orElseThrow());
+        }
+        return getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
+    }
+
+    @Override
+    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
+        if (identifiable.hasProperty(propertyName)) {
+            return getCgmesId(identifiable.getProperty(propertyName));
+        }
+        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
+    }
+}

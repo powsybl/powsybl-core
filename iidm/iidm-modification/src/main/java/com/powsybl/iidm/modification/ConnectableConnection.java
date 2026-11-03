@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.connectable
  * <ul>
  *     <li>Connectables by connecting their terminals</li>
  *     <li>HVDC lines by connecting the terminals of their converter stations</li>
- *     <li>Tie lines by connecting the terminals of their underlying dangling lines</li>
+ *     <li>Tie lines by connecting the terminals of their underlying boundary lines</li>
  * </ul>
  * <p>The user can specify a side of the element to connect. If no side is specified, the network modification will
  * try to connect every side.</p>
@@ -85,7 +85,7 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
             if (identifiable instanceof Connectable<?> connectable) {
                 hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
             } else if (identifiable instanceof TieLine tieLine) {
-                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = tieLine.connectBoundaryLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else {

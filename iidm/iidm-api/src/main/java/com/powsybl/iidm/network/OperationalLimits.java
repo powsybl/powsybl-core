@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  * @author Thibaut Vermeulen {@literal <thibaut.vermeulen at rte-france.com>}
  */
-public interface OperationalLimits {
+public interface OperationalLimits extends PropertiesHolder {
 
     /**
      * Get the operational limits' type (can be APPARENT_POWER, CURRENT or VOLTAGE)

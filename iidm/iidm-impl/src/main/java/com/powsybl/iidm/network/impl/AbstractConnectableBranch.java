@@ -7,12 +7,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -23,8 +25,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     private final FlowsLimitsHolder operationalLimitsHolder2;
 
-    AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
-        super(network, id, name, fictitious);
+    AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent) {
+        super(network, id, name, fictitious, equivalent);
         operationalLimitsHolder1 = new OperationalLimitsGroupsImpl(this, "limits1");
         operationalLimitsHolder2 = new OperationalLimitsGroupsImpl(this, "limits2");
     }
@@ -53,6 +55,14 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
+    private FlowsLimitsHolder getOperationalLimitsHolder(TwoSides side) {
+        if (side == TwoSides.ONE) {
+            return operationalLimitsHolder1;
+        } else {
+            return operationalLimitsHolder2;
+        }
+    }
+
     private FlowsLimitsHolder getOperationalLimitsHolder1() {
         return operationalLimitsHolder1;
     }
@@ -75,6 +85,36 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
         return getOperationalLimitsHolder1().getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroups();
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side) {
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroupIdsOrdered();
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
+        getOperationalLimitsHolder(side).addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
+        getOperationalLimitsHolder(side).addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
+        getOperationalLimitsHolder(side).deselectOperationalLimitsGroups(ids);
     }
 
     @Override
@@ -226,20 +266,15 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean isOverloaded(double limitReductionValue) {
-        return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT) || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT);
+    public boolean isOverloaded(double limitScalingValue) {
+        return checkPermanentLimit1(limitScalingValue, LimitType.CURRENT) || checkPermanentLimit2(limitScalingValue, LimitType.CURRENT);
     }
 
     @Override
-    public int getOverloadDuration() {
-        return BranchUtil.getOverloadDuration(checkTemporaryLimits1(LimitType.CURRENT), checkTemporaryLimits2(LimitType.CURRENT));
-    }
-
-    @Override
-    public boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, double limitScalingValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkPermanentLimit1(limitReductionValue, type),
-            () -> checkPermanentLimit2(limitReductionValue, type));
+            () -> checkPermanentLimit1(limitScalingValue, type),
+            () -> checkPermanentLimit2(limitScalingValue, type));
     }
 
     @Override
@@ -248,8 +283,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit1(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
+    public boolean checkPermanentLimit1(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitScalingValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -258,8 +293,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit2(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
+    public boolean checkPermanentLimit2(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitScalingValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -268,10 +303,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkTemporaryLimits1(limitReductionValue, type),
-            () -> checkTemporaryLimits2(limitReductionValue, type));
+            () -> checkTemporaryLimits1(limitScalingValue, type),
+            () -> checkTemporaryLimits2(limitScalingValue, type));
     }
 
     @Override
@@ -280,8 +315,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits1(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
+    public Overload checkTemporaryLimits1(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitScalingValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -290,8 +325,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits2(double limitReductionValue, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
+    public Overload checkTemporaryLimits2(double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitScalingValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -301,5 +336,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitScalingValue, getValueForLimit(getTerminal(side), type), type);
     }
 }

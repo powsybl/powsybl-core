@@ -152,7 +152,7 @@ class TimeSeriesTest {
 
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv);
 
-        // Since the name if the first timeseries is missing, only the second is saved
+        // Since the name of the first timeseries is missing, only the second is saved
         assertEquals(2, timeSeriesPerVersion.size());
         assertEquals(1, timeSeriesPerVersion.get(1).size());
         assertEquals(1, timeSeriesPerVersion.get(2).size());

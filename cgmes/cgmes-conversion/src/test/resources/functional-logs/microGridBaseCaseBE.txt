@@ -39,9 +39,9 @@
       Converting RegulatingControl.
       Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
-      Converting during update Terminal.
       Converting during update TIE_LINE.
       Converting during update SvInjection.
+      Converting during update Terminal.
       Updating SWITCH.
       Updating LOAD.
       Updating GENERATOR.
@@ -53,8 +53,8 @@
       Updating STATIC_VAR_COMPENSATOR.
       Updating SHUNT_COMPENSATOR.
       Updating HVDC_LINE.
-      Updating DANGLING_LINE.
-      Fixing issues with dangling lines.
+      Updating BOUNDARY_LINE.
+      Fixing issues with boundary lines.
       Updating VOLTAGE_LEVEL.
       Updating GROUND.
       Updating AREA.

@@ -15,6 +15,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.SensitivityOperatorStrategiesCalculationMode;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -81,6 +82,19 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
 
                     parser.nextToken();
                     parameters.setAngleFlowSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    break;
+
+                case "operator-strategies-calculation-mode":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
+
+                    parser.nextToken();
+                    parameters.setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.valueOf(parser.getValueAsString()));
+                    break;
+
+                case "debug-dir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
                     break;
 
                 case "extensions":

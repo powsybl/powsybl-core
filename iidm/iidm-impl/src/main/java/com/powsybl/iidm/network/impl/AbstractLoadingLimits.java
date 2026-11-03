@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -18,17 +20,19 @@ import java.util.*;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> implements LoadingLimits {
+abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractPropertiesHolder implements LoadingLimits {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
     protected final OperationalLimitsGroupImpl group;
+    private final DetectionKind detectionKind;
     private double permanentLimit;
+    private String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
     // Epsilon to filter small temporary limit changes (in A, MW and MVA)
     private static final double TEMPORARY_LIMIT_EPSILON = 1e-6;
 
-    static class TemporaryLimitImpl implements TemporaryLimit {
+    static class TemporaryLimitImpl extends AbstractPropertiesHolder implements TemporaryLimit {
 
         private final String name;
 
@@ -64,29 +68,76 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         public boolean isFictitious() {
             return fictitious;
         }
+
     }
 
+    /**
+     * Build a loading limit with {@link DetectionKind#HIGH}, permanent limit is mandatory.
+     * @param owner which group is this limit part of
+     * @param permanentLimit the permanent limit of this loading limit
+     * @param temporaryLimits the temporary limits
+     */
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this(owner, permanentLimit, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, temporaryLimits);
+    }
+
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this(owner, DetectionKind.HIGH, permanentLimit, permanentLimitName, temporaryLimits);
+    }
+
+    /**
+     * Build a loading limit with {@link DetectionKind#LOW}, there is no permanent limit.
+     * @param owner which group is this limit part of
+     * @param temporaryLimits the temporary limits
+     */
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this(owner, DetectionKind.LOW, Double.NaN, "", temporaryLimits);
+    }
+
+    private AbstractLoadingLimits(OperationalLimitsGroupImpl owner, DetectionKind detectionKind, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
+        this.detectionKind = Objects.requireNonNull(detectionKind);
         this.permanentLimit = permanentLimit;
+        this.permanentLimitName = Objects.requireNonNull(permanentLimitName);
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
     }
 
     @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
+    }
+
+    @Override
     public double getPermanentLimit() {
-        return permanentLimit;
+        return switch (getDetectionKind()) {
+            case HIGH -> permanentLimit;
+            case LOW -> throw new PowsyblException("There is no permanent limit for a detection kind LOW");
+        };
     }
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
         NetworkImpl network = group.getNetwork();
-        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits(),
+        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, detectionKind, getTemporaryLimits(),
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
         network.invalidateValidationLevel();
-        group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
+        group.notifyPermanentLimitUpdate(getLimitType(), this.permanentLimitName, this.permanentLimitName, oldValue, this.permanentLimit);
+        return (L) this;
+    }
+
+    @Override
+    public String getPermanentLimitName() {
+        return permanentLimitName;
+    }
+
+    @Override
+    public L setPermanentLimitName(String name) {
+        String oldName = this.permanentLimitName;
+        this.permanentLimitName = Objects.requireNonNull(name);
+        group.notifyPermanentLimitUpdate(getLimitType(), oldName, this.permanentLimitName, this.permanentLimit, this.permanentLimit);
         return (L) this;
     }
 

@@ -1,5 +1,5 @@
 {
-  "version" : "1.8",
+  "version" : "1.10",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -11,9 +11,10 @@
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
+        "operationalLimitsGroupId" : "activated_1_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
-        "limitReduction" : 0.949999988079071,
+        "limitScaling" : 0.949999988079071,
         "value" : 110.0,
         "side" : "ONE",
         "extensions" : {
@@ -61,7 +62,14 @@
         "q3" : 2.2,
         "i3" : 3.2
       } ]
-    }
+    },
+    "distributedActivePower" : 1.23,
+    "changedPhaseTapChangers" : [ {
+      "transformerId" : "T1",
+      "side" : "ONE",
+      "initialTap" : 2,
+      "finalTap" : 4
+    } ]
   },
   "postContingencyResults" : [ {
     "contingency" : {
@@ -85,11 +93,12 @@
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",
+        "operationalLimitsGroupId" : "activated_2_1",
         "limitType" : "CURRENT",
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO",
         "extensions" : {
@@ -109,7 +118,7 @@
         },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.8999999761581421,
+        "limitScaling" : 0.8999999761581421,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
@@ -120,7 +129,7 @@
         },
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.699999988079071,
+        "limitScaling" : 0.699999988079071,
         "value" : 115.0,
         "extensions" : {
           "Voltage" : {
@@ -133,7 +142,7 @@
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "ONE"
       }, {
@@ -142,7 +151,7 @@
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO"
       } ],
@@ -159,7 +168,8 @@
       "disconnectedLoadActivePower" : 0.0,
       "disconnectedGenerationActivePower" : 0.0,
       "disconnectedElements" : [ ]
-    }
+    },
+    "distributedActivePower" : 2.34
   } ],
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {
@@ -186,7 +196,8 @@
         "branchResults" : [ ],
         "busResults" : [ ],
         "threeWindingsTransformerResults" : [ ]
-      }
+      },
+      "distributedActivePower" : 3.45
     } ]
   }, {
     "operatorStrategy" : {

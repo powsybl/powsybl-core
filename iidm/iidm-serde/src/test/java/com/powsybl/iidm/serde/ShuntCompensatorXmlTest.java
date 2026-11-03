@@ -84,7 +84,10 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         ShuntCompensator sc = n.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
 
-        network.getShuntCompensator("SHUNT").setVoltageRegulatorOn(false).setTargetV(Double.NaN).setTargetDeadband(Double.NaN).setRegulatingTerminal(null);
+        ShuntCompensator scFromNetwork = network.getShuntCompensator("SHUNT");
+        scFromNetwork.removeVoltageRegulation();
+        scFromNetwork.setLocalTargetV(Double.NaN);
+
         NetworkSerDe.write(network, new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")), path);
         Network n2 = NetworkSerDe.read(path);
         ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
@@ -113,14 +116,14 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
             ImportOptions options = new ImportOptions().setFormat(treeDataFormat);
             PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(inputStream, options, null));
             //Then
-            assertThat(e.getMessage()).isEqualTo("shunt is not supported for IIDM version 1.16. IIDM version should be <= 1.15");
+            assertThat(e.getMessage()).isEqualTo("shunt is not supported for IIDM version " + version.toString(".") + ". IIDM version should be <= 1.15");
         });
     }
 
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("shuntCompensator.jiidm", IidmVersion.V_1_16);
+        roundTripVersionedJsonFromMinVersionTest("shuntCompensator.jiidm", IidmVersion.V_1_16);
     }
 
     private void write(Network network, String version) {

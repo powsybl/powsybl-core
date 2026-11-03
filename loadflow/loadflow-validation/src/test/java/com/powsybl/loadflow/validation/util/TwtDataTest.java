@@ -7,8 +7,8 @@
  */
 package com.powsybl.loadflow.validation.util;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.util.TwtData;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

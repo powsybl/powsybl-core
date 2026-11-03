@@ -7,12 +7,12 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.*;
-
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseLoad;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
+
+import java.util.*;
 
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_LOAD;
 

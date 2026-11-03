@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
  */
 public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<RatioTapChangerStepsReplacerImpl, RatioTapChangerStepImpl> implements RatioTapChangerStepsReplacer {
 
-    class StepAdderImpl implements RatioTapChangerStepsReplacer.StepAdder {
+    class StepAdderImpl extends AbstractPropertiesHolder implements RatioTapChangerStepsReplacer.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -60,6 +60,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         @Override
         public RatioTapChangerStepsReplacer endStep() {
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
+            this.copyPropertiesTo(step);
             steps.add(step);
             return RatioTapChangerStepsReplacerImpl.this;
         }

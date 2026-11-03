@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -25,10 +24,11 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -36,6 +36,7 @@ import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TOPOLOGICAL_NODE_BOUNDARY;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -74,7 +75,7 @@ class CgmesConformity1ConversionTest {
         t.setReportConsumer(line -> {
             String[] cols = line.split("\\t");
             String rowType = cols[0];
-            if (rowType.equals("TapChanger")) {
+            if ("TapChanger".equals(rowType)) {
                 String tx = cols[3];
                 TxData d = new TxData(cols[5], cols[23], cols[24], cols[25], cols[26]);
                 actual.put(tx, d);
@@ -110,7 +111,7 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microGridBaseCaseBERoundtrip() throws IOException {
-        // TODO When we convert boundaries values for P0, Q0 at dangling lines
+        // TODO When we convert boundaries values for P0, Q0 at boundary lines
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
@@ -175,7 +176,8 @@ class CgmesConformity1ConversionTest {
         // But the SSH data says the synchronous machine has control disabled
         // So the generator is not participating in the voltage regulation
         // Voltage regulating must be off
-        assertFalse(tester.lastConvertedNetwork().getGenerator("2970a2b7-b840-4e9c-b405-0cb854cd2318").isVoltageRegulatorOn());
+        assertFalse(tester.lastConvertedNetwork().getGenerator("2970a2b7-b840-4e9c-b405-0cb854cd2318").getVoltageRegulation().isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, tester.lastConvertedNetwork().getGenerator("2970a2b7-b840-4e9c-b405-0cb854cd2318").getVoltageRegulation().getMode());
     }
 
     @Test
@@ -220,7 +222,7 @@ class CgmesConformity1ConversionTest {
 
         List<String> cgmesTNIds = expected.topologicalNodes().pluckIdentifiers(CgmesNames.TOPOLOGICAL_NODE).stream().sorted().toList();
         // Boundary nodes of CGMES model are not mapped to buses in IIDM
-        List<String> cgmesBoundaryTNIds = network.getDanglingLineStream().map(dl -> dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)).toList();
+        List<String> cgmesBoundaryTNIds = network.getBoundaryLineStream().map(bl -> bl.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)).toList();
 
         List<String> expectedBusIds = new ArrayList<>(cgmesTNIds);
         expectedBusIds.removeAll(cgmesBoundaryTNIds);

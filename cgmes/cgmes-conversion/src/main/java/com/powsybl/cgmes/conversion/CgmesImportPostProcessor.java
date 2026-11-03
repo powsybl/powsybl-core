@@ -7,8 +7,8 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.TripleStore;
 
 /**
  * <p>
@@ -26,7 +26,7 @@ import com.powsybl.triplestore.api.TripleStore;
  *        }
  *
  *       {@literal @}Override
- *        public void process(Network network, TripleStore tripleStore) {
+ *        public void process(Network network, CgmesModel cgmesModel) {
  *            ...
  *        }
  *    }
@@ -47,10 +47,11 @@ public interface CgmesImportPostProcessor {
 
     /**
      * Method called after all base data have been processed. It is called one time per CGMES conversion.
-     * It is expected in this method to query triple store for additional data and to attach IIDM extensions to network.
+     * It is expected in this method to either use the CGMES model and/or query its triple store for additional
+     * data and to attach IIDM extensions to network.
      *
      * @param network the IIDM network model
-     * @param tripleStore the triple store
+     * @param cgmesModel the CGMES model
      */
-    void process(Network network, TripleStore tripleStore);
+    void process(Network network, CgmesModel cgmesModel);
 }

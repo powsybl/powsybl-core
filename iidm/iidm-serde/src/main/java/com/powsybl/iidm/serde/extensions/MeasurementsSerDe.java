@@ -11,12 +11,19 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.MeasurementAdder;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Map;
 
@@ -46,10 +53,11 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
     @Override
     public void write(Measurements<C> extension, SerializerContext context) {
         TreeDataWriter writer = context.getWriter();
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         writer.writeStartNodes();
         for (Measurement measurement : extension.getMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), MEASUREMENT_ROOT_ELEMENT);
-            writer.writeStringAttribute("id", measurement.getId());
+            writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(measurement.getId(), IidmVersion.V_1_16));
             writer.writeEnumAttribute("type", measurement.getType());
             writer.writeEnumAttribute("side", measurement.getSide());
             writer.writeDoubleAttribute(VALUE, measurement.getValue());
@@ -74,32 +82,11 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
 
     @Override
     public Measurements<C> read(C extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         MeasurementsAdder<C> measurementsAdder = extendable.newExtension(MeasurementsAdder.class);
         Measurements<C> measurements = measurementsAdder.add();
         var reader = context.getReader();
-        reader.readChildNodes(elementName -> {
-            MeasurementAdder adder = measurements.newMeasurement()
-                    .setId(reader.readStringAttribute("id"))
-                    .setType(reader.readEnumAttribute("type", Measurement.Type.class))
-                    .setSide(reader.readEnumAttribute("side", ThreeSides.class))
-                    .setValue(reader.readDoubleAttribute(VALUE))
-                    .setStandardDeviation(reader.readDoubleAttribute("standardDeviation"))
-                    .setValid(reader.readBooleanAttribute("valid", true));
-            if (elementName.equals(MEASUREMENT_ROOT_ELEMENT)) {
-                reader.readChildNodes(subElementName -> {
-                    if (subElementName.equals(PROPERTY_ROOT_ELEMENT)) {
-                        adder.putProperty(reader.readStringAttribute("name"),
-                                reader.readStringAttribute(VALUE));
-                        reader.readEndNode();
-                    } else {
-                        throw new PowsyblException("Unexpected element: " + subElementName);
-                    }
-                });
-                adder.add();
-            } else {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'measurements'");
-            }
-        });
+        reader.readChildNodes(elementName -> readChildNode(reader, measurements, elementName, networkContext));
         return measurements;
     }
 
@@ -107,4 +94,29 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
     public boolean isSerializable(Measurements<C> extension) {
         return !extension.getMeasurements().isEmpty();
     }
+
+    private void readChildNode(TreeDataReader reader, Measurements<C> measurements, String elementName, NetworkDeserializerContext networkContext) {
+        MeasurementAdder adder = measurements.newMeasurement()
+            .setId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16))
+            .setType(reader.readEnumAttribute("type", Measurement.Type.class))
+            .setSide(reader.readEnumAttribute("side", ThreeSides.class))
+            .setValue(reader.readDoubleAttribute(VALUE))
+            .setStandardDeviation(reader.readDoubleAttribute("standardDeviation"))
+            .setValid(reader.readBooleanAttribute("valid", true));
+        if (elementName.equals(MEASUREMENT_ROOT_ELEMENT)) {
+            reader.readChildNodes(subElementName -> {
+                if (subElementName.equals(PROPERTY_ROOT_ELEMENT)) {
+                    adder.putProperty(reader.readStringAttribute("name"),
+                        reader.readStringAttribute(VALUE));
+                    reader.readEndNode();
+                } else {
+                    throw new PowsyblException("Unexpected element: " + subElementName);
+                }
+            });
+            adder.add();
+        } else {
+            throw new PowsyblException("Unknown element name '" + elementName + "' in 'measurements'");
+        }
+    }
+
 }

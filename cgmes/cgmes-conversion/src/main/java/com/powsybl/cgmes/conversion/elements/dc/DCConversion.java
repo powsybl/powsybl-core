@@ -151,75 +151,77 @@ public class DCConversion {
     private void computeDcPoles() {
         dcIslands.stream()
                 .filter(dcIsland -> dcIsland.valid(context))
-                .forEach(dcIsland -> {
-                    // Sort island ends.
-                    // The first island end is the one that has the more dc line segments node 1.
-                    // In case of equality, it is the one with the lowest converter id.
-                    List<DCIslandEnd> islandEnds = dcIsland.dcIslandEnds().stream()
-                            .sorted(Comparator.<DCIslandEnd>comparingLong(e -> e.getDcLineSegments().stream()
-                                            .filter(l -> e.dcEquipments().stream()
-                                                    .anyMatch(eq -> !eq.equals(l) && eq.isConnectedTo(l.node1())))
-                                            .count())
-                                    .reversed()
-                                    .thenComparing(e -> e.getAcDcConverters().stream()
-                                            .map(DCEquipment::id)
-                                            .min(Comparator.naturalOrder())
-                                            .orElseThrow()))
-                            .toList();
+                .forEach(this::computeIslandDcPoles);
+    }
 
-                    // Retrieve ACDCConverter and DCLineSegment.
-                    List<DCEquipment> converters1 = islandEnds.get(0).getAcDcConverters();
-                    List<DCEquipment> dcLineSegments = islandEnds.get(0).getDcLineSegments();
-                    boolean isBipole = converters1.size() > 1 && dcLineSegments.size() > 1;
+    private void computeIslandDcPoles(DCIsland dcIsland) {
+        // Sort island ends.
+        // The first island end is the one that has the more dc line segments node 1.
+        // In case of equality, it is the one with the lowest converter id.
+        List<DCIslandEnd> islandEnds = dcIsland.dcIslandEnds().stream()
+            .sorted(Comparator.<DCIslandEnd>comparingLong(e -> e.getDcLineSegments().stream()
+                    .filter(l -> e.dcEquipments().stream()
+                        .anyMatch(eq -> !eq.equals(l) && eq.isConnectedTo(l.node1())))
+                    .count())
+                .reversed()
+                .thenComparing(e -> e.getAcDcConverters().stream()
+                    .map(DCEquipment::id)
+                    .min(Comparator.naturalOrder())
+                    .orElseThrow()))
+            .toList();
 
-                    // Get energized lines and DMR line (if any).
-                    DCEquipment dMRLine = null;
-                    List<DCEquipment> energizedLines = new ArrayList<>(dcLineSegments);
-                    if (hasDMRLine(converters1.size(), dcLineSegments.size())) {
-                        dMRLine = getDMRLine(dcIsland, dcLineSegments);
-                        energizedLines.remove(dMRLine);
-                    }
+        // Retrieve ACDCConverter and DCLineSegment.
+        List<DCEquipment> converters1 = islandEnds.get(0).getAcDcConverters();
+        List<DCEquipment> dcLineSegments = islandEnds.get(0).getDcLineSegments();
+        boolean isBipole = converters1.size() > 1 && dcLineSegments.size() > 1;
 
-                    // For each energized line, find the nearest converter on each side.
-                    List<DCPole> dcIslandPoles = new ArrayList<>();
-                    Set<DCEquipment> usedConverters1 = new HashSet<>();
-                    Set<DCEquipment> usedConverters2 = new HashSet<>();
-                    for (DCEquipment dcLineSegment : energizedLines) {
-                        Predicate<DCEquipment> eligibleConverter1 = e -> e.isConverter() && !usedConverters1.contains(e);
-                        DCEquipment converter1 = islandEnds.get(0).getNearestConverter(dcLineSegment, eligibleConverter1);
-                        usedConverters1.add(converter1);
+        // Get energized lines and DMR line (if any).
+        DCEquipment dMRLine = null;
+        List<DCEquipment> energizedLines = new ArrayList<>(dcLineSegments);
+        if (hasDMRLine(converters1.size(), dcLineSegments.size())) {
+            dMRLine = getDMRLine(dcIsland, dcLineSegments);
+            energizedLines.remove(dMRLine);
+        }
 
-                        Predicate<DCEquipment> eligibleConverter2 = e -> e.type().equals(converter1.type()) && !usedConverters2.contains(e);
-                        DCEquipment converter2 = islandEnds.get(1).getNearestConverter(dcLineSegment, eligibleConverter2);
-                        usedConverters2.add(converter2);
+        // For each energized line, find the nearest converter on each side.
+        List<DCPole> dcIslandPoles = new ArrayList<>();
+        Set<DCEquipment> usedConverters1 = new HashSet<>();
+        Set<DCEquipment> usedConverters2 = new HashSet<>();
+        for (DCEquipment dcLineSegment : energizedLines) {
+            Predicate<DCEquipment> eligibleConverter1 = e -> e.isConverter() && !usedConverters1.contains(e);
+            DCEquipment converter1 = islandEnds.get(0).getNearestConverter(dcLineSegment, eligibleConverter1);
+            usedConverters1.add(converter1);
 
-                        dcIslandPoles.add(new DCPole(converter1, converter2, dcLineSegment, isBipole));
-                    }
+            Predicate<DCEquipment> eligibleConverter2 = e -> e.type().equals(converter1.type()) && !usedConverters2.contains(e);
+            DCEquipment converter2 = islandEnds.get(1).getNearestConverter(dcLineSegment, eligibleConverter2);
+            usedConverters2.add(converter2);
 
-                    // In case of multiple converters (bridges) per pole, add the second converter pair to an existing pole.
-                    Set<DCEquipment> unmappedConverters1 = new HashSet<>(converters1);
-                    Set<DCEquipment> eligibleConverters1A = new HashSet<>(usedConverters1);
-                    unmappedConverters1.removeAll(usedConverters1);
-                    for (DCEquipment converter1B : unmappedConverters1) {
-                        Predicate<DCEquipment> eligibleConverter1A = e -> e.type().equals(converter1B.type()) && eligibleConverters1A.contains(e);
-                        DCEquipment converter1A = islandEnds.get(0).getNearestConverter(converter1B, eligibleConverter1A);
-                        eligibleConverters1A.remove(converter1A);
+            dcIslandPoles.add(new DCPole(converter1, converter2, dcLineSegment, isBipole));
+        }
 
-                        DCPole dcPole = dcIslandPoles.stream().filter(p -> p.getConverter1A().equals(converter1A)).findFirst().orElseThrow();
-                        DCEquipment converter2A = dcPole.getConverter2A();
+        // In case of multiple converters (bridges) per pole, add the second converter pair to an existing pole.
+        Set<DCEquipment> unmappedConverters1 = new HashSet<>(converters1);
+        Set<DCEquipment> eligibleConverters1A = new HashSet<>(usedConverters1);
+        unmappedConverters1.removeAll(usedConverters1);
+        for (DCEquipment converter1B : unmappedConverters1) {
+            Predicate<DCEquipment> eligibleConverter1A = e -> e.type().equals(converter1B.type()) && eligibleConverters1A.contains(e);
+            DCEquipment converter1A = islandEnds.get(0).getNearestConverter(converter1B, eligibleConverter1A);
+            eligibleConverters1A.remove(converter1A);
 
-                        Predicate<DCEquipment> eligibleConverter2B = e -> e.type().equals(converter1B.type()) && !usedConverters2.contains(e);
-                        DCEquipment converter2B = islandEnds.get(1).getNearestConverter(converter2A, eligibleConverter2B);
-                        usedConverters2.add(converter2B);
+            DCPole dcPole = dcIslandPoles.stream().filter(p -> p.getConverter1A().equals(converter1A)).findFirst().orElseThrow();
+            DCEquipment converter2A = dcPole.getConverter2A();
 
-                        dcPole.addSecondBridge(converter1B, converter2B);
-                    }
+            Predicate<DCEquipment> eligibleConverter2B = e -> e.type().equals(converter1B.type()) && !usedConverters2.contains(e);
+            DCEquipment converter2B = islandEnds.get(1).getNearestConverter(converter2A, eligibleConverter2B);
+            usedConverters2.add(converter2B);
 
-                    // Add DMR line to the first pole.
-                    dcIslandPoles.get(0).addMetallicReturnLine(dMRLine);
+            dcPole.addSecondBridge(converter1B, converter2B);
+        }
 
-                    dcPoles.addAll(dcIslandPoles);
-                });
+        // Add DMR line to the first pole.
+        dcIslandPoles.get(0).addMetallicReturnLine(dMRLine);
+
+        dcPoles.addAll(dcIslandPoles);
     }
 
     private boolean hasDMRLine(int numberOfConverters, int numberOfLines) {

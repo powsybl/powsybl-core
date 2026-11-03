@@ -37,7 +37,7 @@ public class UcteRegulation implements UcteRecord {
         this.angleRegulation = angleRegulation;
     }
 
-     /**
+    /**
      * Gets transformer id.
      * <p>Node 1 is non-regulated winding.
      * <p>Node 2 is regulated winding.

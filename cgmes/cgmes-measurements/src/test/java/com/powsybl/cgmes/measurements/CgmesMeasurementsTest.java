@@ -222,6 +222,7 @@ class CgmesMeasurementsTest {
     @Test
     void testDeprecated() {
         Properties properties = new Properties();
+        properties.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
                 NetworkFactory.findDefault(), properties);
         assertNotNull(network);

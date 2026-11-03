@@ -69,7 +69,9 @@ public class AmplExportConfig {
         this(exportScope, exportXNodes, actionType, exportRatioTapChangerVoltageTarget, twtSplitShuntAdmittance, version, false);
     }
 
-    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance, AmplExportVersion version, boolean exportSorted) {
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,
+                            boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance,
+                            AmplExportVersion version, boolean exportSorted) {
         this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
         this.actionType = Objects.requireNonNull(actionType);

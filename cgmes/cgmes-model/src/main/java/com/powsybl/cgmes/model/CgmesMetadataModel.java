@@ -71,7 +71,8 @@ public interface CgmesMetadataModel {
      * Each profile defines semantics data that may appear inside the model.
      * A model may contain data from multiple profiles.</p>
      * <p>As an example, "http://iec.ch/TC57/61970-456/SteadyStateHypothesis/2/0" refers to power flow inputs in CGMES 3.</p>
-     * <p>In CGMES 2.4, the model for the EQ subset may contain two profiles: "http://iec.ch/TC57/2013/61970-452/EquipmentCore/4" to describe the equipment core and "http://iec.ch/TC57/2013/61970-452/EquipmentOperation/4" if the model is defined at node/braker level.</p>
+     * <p>In CGMES 2.4, the model for the EQ subset may contain two profiles: "http://iec.ch/TC57/2013/61970-452/EquipmentCore/4"
+     * to describe the equipment core and "http://iec.ch/TC57/2013/61970-452/EquipmentOperation/4" if the model is defined at node/braker level.</p>
      *
      * @return the URN/URIs of profiles describing the data in the model
      */

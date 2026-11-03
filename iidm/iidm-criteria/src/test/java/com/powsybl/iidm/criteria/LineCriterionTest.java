@@ -111,5 +111,3 @@ public class LineCriterionTest {
         return new DefaultNetworkElementAdapter(l);
     }
 }
-
-

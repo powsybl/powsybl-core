@@ -9,7 +9,7 @@ package com.powsybl.loadflow.validation.io;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.util.TwtTestData;
 import org.junit.jupiter.api.Test;
@@ -71,7 +71,8 @@ abstract class AbstractValidationFormatterWriterTest {
     protected final double targetQ = -3.72344;
     protected final double targetV = 380;
     protected final boolean connected = true;
-    protected final boolean voltageRegulatorOn = true;
+    protected final String generatorRegulationMode = RegulationMode.VOLTAGE.name();
+    protected final boolean generatorRegulating = true;
     protected final double minP = 25;
     protected final double maxP = 45;
     protected final double minQ = -10;
@@ -95,8 +96,8 @@ abstract class AbstractValidationFormatterWriterTest {
     protected final double vscCSQ = 0;
     protected final double lineP = 1982.7713;
     protected final double lineQ = -441.7662;
-    protected final double danglingLineP = 0;
-    protected final double danglingLineQ = 0;
+    protected final double boundaryLineP = 0;
+    protected final double boundaryLineQ = 0;
     protected final double twtP = 0;
     protected final double twtQ = 0;
     protected final double tltP = 0;
@@ -247,10 +248,42 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(generatorId1,
+                p,
+                q,
+                v,
+                targetP,
+                targetQ,
+                targetV,
+                expectedP,
+                connected,
+                generatorRegulationMode,
+                generatorRegulating,
+                minP,
+                maxP,
+                minQ,
+                maxQ,
+                mainComponent,
+                validated);
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+                generatorsWriter.write(generatorId2,
+                    p,
+                    q,
+                    v,
+                    targetP,
+                    targetQ,
+                    targetV,
+                    expectedP,
+                    connected,
+                    generatorRegulationMode,
+                    generatorRegulating,
+                    minP,
+                    maxP,
+                    minQ,
+                    maxQ,
+                    mainComponent,
+                    validated);
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());
@@ -306,11 +339,11 @@ abstract class AbstractValidationFormatterWriterTest {
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
             busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+                              lineP, lineQ, boundaryLineP, boundaryLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
             busesWriter.setValidationCompleted();
             if (compareResults) {
                 busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                  lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+                                  lineP, lineQ, boundaryLineP, boundaryLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
                 busesWriter.setValidationCompleted();
             }
             assertEquals(busesContent, writer.toString().trim());

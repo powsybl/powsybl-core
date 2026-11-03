@@ -7,6 +7,12 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -16,13 +22,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.PowsyblException;
 
 /**
  * A utility class to help finding providers using ServiceLoader.

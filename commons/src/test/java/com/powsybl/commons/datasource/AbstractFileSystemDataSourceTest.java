@@ -108,12 +108,12 @@ abstract class AbstractFileSystemDataSourceTest extends AbstractReadOnlyDataSour
         try (InputStream is = dataSource.newInputStream(suffix, ext)) {
             assertEquals("line1" + (appendTest() ? System.lineSeparator() + "line2" : ""),
                 new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
-        } catch (IOException x) {
+        } catch (IOException ignored) {
             fail();
         }
         try (InputStream is = dataSource.newInputStream("dummy.txt")) {
             assertEquals("otherline1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
-        } catch (IOException x) {
+        } catch (IOException ignored) {
             fail();
         }
     }

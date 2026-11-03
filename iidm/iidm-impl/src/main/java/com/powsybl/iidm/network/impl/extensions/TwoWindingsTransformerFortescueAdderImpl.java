@@ -9,9 +9,9 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 
 import java.util.Objects;
 
@@ -26,6 +26,7 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
     private double rz = Double.NaN;
     private double xz = Double.NaN;
     private boolean freeFluxes = DEFAULT_FREE_FLUXES;
+    private double xm = Double.NaN;
     private WindingConnectionType connectionType1 = DEFAULT_LEG1_CONNECTION_TYPE;
     private WindingConnectionType connectionType2 = DEFAULT_LEG2_CONNECTION_TYPE;
     private double groundingR1 = DEFAULT_GROUNDING_R;
@@ -44,7 +45,7 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
 
     @Override
     protected TwoWindingsTransformerFortescueImpl createExtension(TwoWindingsTransformer twt) {
-        return new TwoWindingsTransformerFortescueImpl(twt, rz, xz, freeFluxes, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
+        return new TwoWindingsTransformerFortescueImpl(twt, rz, xz, freeFluxes, xm, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
     }
 
     @Override
@@ -62,6 +63,12 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
     @Override
     public TwoWindingsTransformerFortescueAdderImpl withFreeFluxes(boolean freeFluxes) {
         this.freeFluxes = freeFluxes;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerFortescueAdderImpl withXm(double xm) {
+        this.xm = xm;
         return this;
     }
 

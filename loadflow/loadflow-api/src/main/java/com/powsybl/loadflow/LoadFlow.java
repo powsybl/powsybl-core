@@ -152,6 +152,14 @@ public final class LoadFlow {
             return run(network, LoadFlowRunParameters.getDefault());
         }
 
+        public boolean checkParameters(LoadFlowRunParameters runParameters) {
+            return provider.checkParameters(runParameters);
+        }
+
+        public boolean checkDefaultParameters(ReportNode reportNode) {
+            return checkParameters(LoadFlowRunParameters.getDefault().setReportNode(reportNode));
+        }
+
         @Override
         public String getName() {
             return provider.getName();
@@ -228,7 +236,6 @@ public final class LoadFlow {
         return find().runAsync(network);
     }
 
-
     /**
      * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      */
@@ -237,7 +244,6 @@ public final class LoadFlow {
         return find().run(network, workingStateId, computationManager, parameters, reportNode);
     }
 
-
     /**
      * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      */
@@ -245,7 +251,6 @@ public final class LoadFlow {
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().run(network, workingStateId, computationManager, parameters);
     }
-
 
     /**
      * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead
@@ -271,5 +276,13 @@ public final class LoadFlow {
 
     public static LoadFlowResult run(Network network) {
         return find().run(network);
+    }
+
+    public static boolean checkParameters(LoadFlowRunParameters runParameters) {
+        return find().checkParameters(runParameters);
+    }
+
+    public static boolean checkDefaultParameters(ReportNode reportNode) {
+        return find().checkDefaultParameters(reportNode);
     }
 }

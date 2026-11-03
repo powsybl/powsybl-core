@@ -28,7 +28,9 @@ public class CreateBranchFeederBaysBuilder {
     private boolean logOrThrowIfIncorrectPositionOrder2 = false;
 
     public CreateBranchFeederBays build() {
-        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2, logOrThrowIfIncorrectPositionOrder1, logOrThrowIfIncorrectPositionOrder2);
+        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2,
+            feederName1, feederName2, direction1, direction2,
+            logOrThrowIfIncorrectPositionOrder1, logOrThrowIfIncorrectPositionOrder2);
     }
 
     public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?, ?> branchAdder) {

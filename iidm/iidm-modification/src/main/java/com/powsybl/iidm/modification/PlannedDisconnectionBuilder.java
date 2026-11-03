@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.ThreeSides;
  * <ul>
  *     <li>Connectables</li>
  *     <li>HVDC lines by disconnecting their converter stations</li>
- *     <li>Tie lines by disconnecting their underlying dangling lines</li>
+ *     <li>Tie lines by disconnecting their underlying boundary lines</li>
  * </ul>
  * <p>The user can specify a side of the element to disconnect. If no side is specified, the network modification will
  * try to disconnect every side.</p>

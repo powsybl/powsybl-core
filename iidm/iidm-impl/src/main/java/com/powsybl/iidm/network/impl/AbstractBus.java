@@ -77,7 +77,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER,
-                     THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, GROUND -> {
+                     THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE, GROUND -> {
                     // skip
                 }
                 case GENERATOR, BATTERY, LOAD, HVDC_CONVERTER_STATION -> {
@@ -100,7 +100,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         for (TerminalExt terminal : getConnectedTerminals()) {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, GROUND -> {
+                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE, GROUND -> {
                     // skip
                 }
                 case GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, HVDC_CONVERTER_STATION -> {
@@ -205,13 +205,13 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
@@ -290,7 +290,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     visitor.visitThreeWindingsTransformer(thwt, side);
                 }
                 case LOAD -> visitor.visitLoad((LoadImpl) connectable);
-                case DANGLING_LINE -> visitor.visitDanglingLine((DanglingLineImpl) connectable);
+                case BOUNDARY_LINE -> visitor.visitBoundaryLine((BoundaryLineImpl) connectable);
                 case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
                 case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                 case GROUND -> visitor.visitGround((GroundImpl) connectable);

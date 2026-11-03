@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,7 +31,7 @@ public abstract class AbstractSubnetworksExplorationTest {
 
     public static final String ID_1 = "1";
     public static final String ID_2 = "2";
-    public static final String SHARED_TIE_LINE = TieLineUtil.buildMergedId(id("danglingLine3", ID_1), id("danglingLine3", ID_2));
+    public static final String SHARED_TIE_LINE = TieLineUtil.buildMergedId(id("boundaryLine3", ID_1), id("boundaryLine3", ID_2));
     private static Network merged;
     private static Network subnetwork1;
     private static Network subnetwork2;
@@ -64,7 +65,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setMaxP(20.0)
                 .setMinP(10.0)
                 .setTargetP(15.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setNode(4)
                 .add();
         voltageLevel1.newShuntCompensator()
@@ -81,9 +82,10 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode(12)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulating(true)
-                .setVoltageSetpoint(400)
+                .setLocalTargetV(400)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         voltageLevel1.newLccConverterStation()
                 .setId(id("lcc1", networkId))
@@ -95,8 +97,10 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc1", networkId))
                 .setNode(10)
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(405.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
 
         Substation substation2 = n.newSubstation()
@@ -120,8 +124,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc2", networkId))
                 .setNode(11)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(123)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(123)
                 .add();
 
         n.newHvdcLine()
@@ -207,23 +210,23 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode2(14)
                 .setR(1).setX(1).setG1(0).setG2(0).setB1(0).setB2(0)
                 .add();
-        voltageLevel1.newDanglingLine()
-                .setId(id("danglingLine1", networkId))
+        voltageLevel1.newBoundaryLine()
+                .setId(id("boundaryLine1", networkId))
                 .setNode(15)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
-        voltageLevel2.newDanglingLine()
-                .setId(id("danglingLine2", networkId))
+        voltageLevel2.newBoundaryLine()
+                .setId(id("boundaryLine2", networkId))
                 .setNode(16)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
         n.newTieLine()
                 .setId(id("tieLine1", networkId))
-                .setDanglingLine1(id("danglingLine1", networkId))
-                .setDanglingLine2(id("danglingLine2", networkId))
+                .setBoundaryLine1(id("boundaryLine1", networkId))
+                .setBoundaryLine2(id("boundaryLine2", networkId))
                 .add();
-        voltageLevel3.newDanglingLine()
-                .setId(id("danglingLine3", networkId))
+        voltageLevel3.newBoundaryLine()
+                .setId(id("boundaryLine3", networkId))
                 .setNode(17)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .setPairingKey("mergingKey") // when merging both networks, this key will be used to create a tie line
@@ -242,54 +245,57 @@ public abstract class AbstractSubnetworksExplorationTest {
                     .add()
                 .add();
 
-        DcNode dcNode1 = n.newDcNode()
-                .setId(id("dcNode1", networkId))
-                .setNominalV(500.)
-                .add();
-        DcNode dcNode2 = n.newDcNode()
-                .setId(id("dcNode2", networkId))
-                .setNominalV(500.)
-                .add();
-        n.newDcSwitch()
-                .setId(id("dcSwitch1", networkId))
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setOpen(false)
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .add();
-        n.newDcGround()
-                .setId(id("dcGround1", networkId))
-                .setDcNode(dcNode1.getId())
-                .setR(0.01)
-                .add();
-        n.newDcLine()
-                .setId(id("dcLine1", networkId))
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .setR(1.0)
-                .add();
-        voltageLevel1.newLineCommutatedConverter()
-                .setId(id("lccDetailed1", networkId))
-                .setControlMode(AcDcConverter.ControlMode.V_DC)
-                .setNode1(16)
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .setTargetP(0.)
-                .setTargetVdc(500.)
-                .add();
-        voltageLevel1.newVoltageSourceConverter()
-                .setId(id("vscDetailed1", networkId))
-                .setControlMode(AcDcConverter.ControlMode.V_DC)
-                .setNode1(17)
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .setTargetP(0.)
-                .setTargetVdc(500.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.)
-                .add();
+        createDcParts(n, networkId, voltageLevel1);
 
         return n;
+    }
+
+    private static void createDcParts(Network n, String networkId, VoltageLevel voltageLevel1) {
+        DcNode dcNode1 = n.newDcNode()
+            .setId(id("dcNode1", networkId))
+            .setNominalV(500.)
+            .add();
+        DcNode dcNode2 = n.newDcNode()
+            .setId(id("dcNode2", networkId))
+            .setNominalV(500.)
+            .add();
+        n.newDcSwitch()
+            .setId(id("dcSwitch1", networkId))
+            .setKind(DcSwitchKind.DISCONNECTOR)
+            .setOpen(false)
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .add();
+        n.newDcGround()
+            .setId(id("dcGround1", networkId))
+            .setDcNode(dcNode1.getId())
+            .setR(0.01)
+            .add();
+        n.newDcLine()
+            .setId(id("dcLine1", networkId))
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .setR(1.0)
+            .add();
+        voltageLevel1.newLineCommutatedConverter()
+            .setId(id("lccDetailed1", networkId))
+            .setControlMode(AcDcConverter.ControlMode.V_DC)
+            .setNode1(16)
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .setTargetP(0.)
+            .setTargetVdc(500.)
+            .add();
+        voltageLevel1.newVoltageSourceConverter()
+            .setId(id("vscDetailed1", networkId))
+            .setControlMode(AcDcConverter.ControlMode.V_DC)
+            .setNode1(17)
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .setTargetP(0.)
+            .setTargetVdc(500.)
+            .setLocalTargetQ(0.0)
+            .add();
     }
 
     private static Set<String> getIdentifiables(Network n1) {
@@ -374,11 +380,11 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertIds(List.of(n1Substation1, n2Substation1), merged.getSubstations(Country.FR, null));
         assertIds(List.of(n1Substation1), subnetwork1.getSubstations(Country.FR, null));
         assertIds(List.of(n2Substation1), subnetwork2.getSubstations(Country.FR, null));
-        var countryName = Country.ES.getName();
+        var countryName = Country.ES.getFullName();
         assertIds(List.of(n1Substation2), merged.getSubstations(countryName, null));
         assertIds(List.of(n1Substation2), subnetwork1.getSubstations(countryName, null));
         assertFalse(subnetwork2.getSubstations(countryName, null).iterator().hasNext());
-        countryName = Country.BE.getName();
+        countryName = Country.BE.getFullName();
         assertIds(List.of(n2Substation2), merged.getSubstations(countryName, null));
         assertFalse(subnetwork1.getSubstations(countryName, null).iterator().hasNext());
         assertIds(List.of(n2Substation2), subnetwork2.getSubstations(countryName, null));
@@ -597,19 +603,19 @@ public abstract class AbstractSubnetworksExplorationTest {
     }
 
     @Test
-    public void testExploreDanglingLines() {
-        var expectedIdsForSubnetwork1 = List.of(id("danglingLine1", ID_1),
-                id("danglingLine2", ID_1),
-                id("danglingLine3", ID_1));
-        var expectedIdsForSubnetwork2 = List.of(id("danglingLine1", ID_2),
-                id("danglingLine2", ID_2),
-                id("danglingLine3", ID_2));
+    public void testExploreBoundaryLines() {
+        var expectedIdsForSubnetwork1 = List.of(id("boundaryLine1", ID_1),
+                id("boundaryLine2", ID_1),
+                id("boundaryLine3", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("boundaryLine1", ID_2),
+                id("boundaryLine2", ID_2),
+                id("boundaryLine3", ID_2));
 
         testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
-                Network::getDanglingLines,
-                Network::getDanglingLineStream,
-                Network::getDanglingLineCount,
-                Network::getDanglingLine);
+                Network::getBoundaryLines,
+                Network::getBoundaryLineStream,
+                Network::getBoundaryLineCount,
+                Network::getBoundaryLine);
     }
 
     @Test
@@ -667,7 +673,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("vsc1", ID_1), id("vsc2", ID_1),
                 id("threeWindingsTransformer1", ID_1),
                 id("twoWindingsTransformer1", ID_1),
-                id("danglingLine1", ID_1), id("danglingLine2", ID_1), id("danglingLine3", ID_1),
+                id("boundaryLine1", ID_1), id("boundaryLine2", ID_1), id("boundaryLine3", ID_1),
                 id("lccDetailed1", ID_1),
                 id("vscDetailed1", ID_1));
 
@@ -682,7 +688,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("vsc1", ID_2), id("vsc2", ID_2),
                 id("threeWindingsTransformer1", ID_2),
                 id("twoWindingsTransformer1", ID_2),
-                id("danglingLine1", ID_2), id("danglingLine2", ID_2), id("danglingLine3", ID_2),
+                id("boundaryLine1", ID_2), id("boundaryLine2", ID_2), id("boundaryLine3", ID_2),
                 id("lccDetailed1", ID_2),
                 id("vscDetailed1", ID_2));
 
