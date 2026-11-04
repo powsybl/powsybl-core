@@ -26,23 +26,23 @@ public final class OperationalLimitTypeEq {
     private static final String PATL = "patl";
     private static final String TATL = "tatl";
 
-    public static void writePatl(String id, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writePatl(String id, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", writer, context);
         writeDirection(cimNamespace, writer);
-        writeKind(PATL, euNamespace, writer, context);
+        writeKind(PATL, writer, context);
         if (context.getCimVersion() == 100) {
             writeInfiniteDuration(true, cimNamespace, writer);
         }
         writer.writeEndElement();
     }
 
-    public static void writeTatl(String id, int acceptableDuration, String euNamespace,
+    public static void writeTatl(String id, int acceptableDuration,
                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "TATL " + acceptableDuration, writer, context);
         writeDirection(cimNamespace, writer);
-        writeKind(TATL, euNamespace, writer, context);
+        writeKind(TATL, writer, context);
         if (context.getCimVersion() == 100) {
             writeInfiniteDuration(false, cimNamespace, writer);
         }
@@ -57,7 +57,8 @@ public final class OperationalLimitTypeEq {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + ABSOLUTEVALUE_LIMITDIRECTION);
     }
 
-    private static void writeKind(String kind, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeKind(String kind, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String euNamespace = context.getCim().getEuNamespace();
         writer.writeEmptyElement(euNamespace, getLimitTypeAttributeName(context));
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, getLimitKindClassName(context), kind));
     }
