@@ -87,7 +87,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         Path normalizedPath = directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName)
                 .normalize();
         if (!normalizedPath.startsWith(directory)) { // directory is already normalized
-            throw new IOException("File name '" + fileName + "' is not located inside the data source directory '" + directory + "'");
+            throw new IOException("File name '" + fileName + "' is not located inside the data source directory '" + directory.getFileName() + "'");
         }
         return normalizedPath;
     }

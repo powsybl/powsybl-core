@@ -195,7 +195,7 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     @Test
     void testDirectoryDataSourcePathTraversal() throws IOException {
         // Given : a working directory and a file outside the working directory
-        Path workingDirectory = testDir.resolve("path_traversal_test/directory");
+        Path workingDirectory = testDir.resolve("path_traversal_test/working_dir");
         Files.createDirectories(workingDirectory);
         DirectoryDataSource directoryDataSource = new DirectoryDataSource(workingDirectory, "test_file");
         String relativeFilename = "../secret.txt";
@@ -203,7 +203,7 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         String absoluteFilename = workingDirectory.resolve("../secret.txt").toRealPath().toString();
 
         // When calling methods "exists", "newInputStream" or "newOutputStream" on relative fileName outside of directory, an exception should be thrown
-        String expectedMessageRelative = "File name '../secret.txt' is not located inside the data source directory '/tmp/path_traversal_test/directory'";
+        String expectedMessageRelative = "File name '../secret.txt' is not located inside the data source directory 'working_dir'";
         IOException ioException1 = assertThrows(IOException.class, () -> directoryDataSource.exists(relativeFilename));
         IOException ioException2 = assertThrows(IOException.class, () -> directoryDataSource.newInputStream(relativeFilename));
         IOException ioException3 = assertThrows(IOException.class, () -> directoryDataSource.newOutputStream(relativeFilename, true));
@@ -212,7 +212,7 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         assertEquals(expectedMessageRelative, ioException3.getMessage());
 
         // When calling methods "exists", "newInputStream" or "newOutputStream" on absolute fileName outside of directory, an exception should be thrown
-        String expectedMessageAbsolute = "File name '/tmp/path_traversal_test/secret.txt' is not located inside the data source directory '/tmp/path_traversal_test/directory'";
+        String expectedMessageAbsolute = "File name '/tmp/path_traversal_test/secret.txt' is not located inside the data source directory 'working_dir'";
         IOException ioException4 = assertThrows(IOException.class, () -> directoryDataSource.exists(absoluteFilename));
         IOException ioException5 = assertThrows(IOException.class, () -> directoryDataSource.newInputStream(absoluteFilename));
         IOException ioException6 = assertThrows(IOException.class, () -> directoryDataSource.newOutputStream(absoluteFilename, true));
@@ -224,7 +224,7 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     @Test
     void testSymbolicLinkOutsideOfDirectory() throws IOException {
         // Given a working directory
-        Path workingDirectory = testDir.resolve("dir/workingDir");
+        Path workingDirectory = testDir.resolve("dir/working_dir");
         Files.createDirectories(workingDirectory);
         DirectoryDataSource directoryDataSource = new DirectoryDataSource(workingDirectory, "test_file");
 
