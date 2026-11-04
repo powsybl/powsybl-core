@@ -85,11 +85,11 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     double getLocalTargetQ();
 
     /**
-     * Checks if the object is associated with the specified regulation mode.
+     * Checks if the object is regulating with the specified mode.
      * In the case of the REACTIVE_POWER mode, we return true if the VoltageRegulation is missing.
      *
      * @param mode the regulation mode to check
-     * @return true if associated with the specified mode, false otherwise
+     * @return true if regulating with the specified mode, false otherwise
      */
     default boolean isRegulatingWithMode(RegulationMode mode) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
@@ -109,11 +109,11 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     }
 
     /**
-     * Checks if the object is regulating with the specified mode.
+     * Checks if the object is associated with the specified regulation mode.
      * In the case of the REACTIVE_POWER mode, we return true if the VoltageRegulation is missing.
      *
      * @param mode the regulation mode to check
-     * @return true if regulating with the specified mode, false otherwise
+     * @return true if associated with the specified mode, false otherwise
      */
     default boolean isWithMode(RegulationMode mode) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
