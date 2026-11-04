@@ -232,6 +232,10 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(resourceValue, context));
     }
 
+    public static void writeEnd(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEndElement();
+    }
+
     public static String loadClassName(Load load) {
         String originalClassName = load.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "undefined");
         double p0 = load.getP0();
