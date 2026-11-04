@@ -52,10 +52,12 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
      */
     private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         if (!terminals.isEmpty()) {
-            return terminals.stream()
-                    .filter(CalculatedBusImpl::hasDefinedVoltageOrAngle)
-                    .findFirst()
-                    .orElse(terminals.getFirst());
+            for (NodeTerminal terminal : terminals) {
+                if (hasDefinedVoltageOrAngle(terminal)) {
+                    return terminal;
+                }
+            }
+            return terminals.getFirst();
         }
         return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
     }
