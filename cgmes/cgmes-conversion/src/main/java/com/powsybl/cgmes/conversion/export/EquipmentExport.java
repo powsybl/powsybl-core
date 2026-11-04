@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -136,9 +137,9 @@ public final class EquipmentExport {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 String cgmesVlId = context.getNamingStrategy().getCgmesId(vl);
                 if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
-                    writeNodes(vl, cgmesVlId, getVoltageLevelAdjacencies(vl.getNodeBreakerView()));
+                    writeConnectivityNodesFromNodes(vl, cgmesVlId);
                 } else {
-                    writeBuses(vl, cgmesVlId);
+                    writeConnectivityNodesFromBuses(vl, cgmesVlId);
                 }
             }
         }
@@ -152,21 +153,28 @@ public final class EquipmentExport {
         return bus.getId();
     }
 
-    private void writeNodes(VoltageLevel vl, String cgmesVlId, List<List<Integer>> vlAdjacencies) throws XMLStreamException {
-        for (List<Integer> nodes : vlAdjacencies) {
-            String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.getFirst()), CONNECTIVITY_NODE);
-            ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.getFirst()), cgmesVlId, writer, context);
+    private void writeConnectivityNodesFromNodes(VoltageLevel vl, String cgmesVlId) throws XMLStreamException {
+        // Write IIDM node to CGMES ConnectivityNode.
+        // Note that multiple adjacent IIDM nodes are exported to the same CGMES ConnectivityNode.
+        for (List<Integer> nodes : getVoltageLevelAdjacencies(vl.getNodeBreakerView())) {
+            String nodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.getFirst()), CONNECTIVITY_NODE);
+            String nodeName = CgmesExportUtil.format(nodes.getFirst());
+            ConnectivityNodeEq node = new ConnectivityNodeEq(nodeId, nodeName, cgmesVlId);
+            CgmesConnectivityNode.writeEq(node, writer, context);
             for (Integer nodeNumber : nodes) {
-                mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), cgmesNodeId);
+                mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), nodeId);
             }
         }
     }
 
-    private void writeBuses(VoltageLevel vl, String cgmesVlId) throws XMLStreamException {
+    private void writeConnectivityNodesFromBuses(VoltageLevel vl, String cgmesVlId) throws XMLStreamException {
+        // Write IIDM bus to CGMES ConnectivityNode.
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
-            String cgmesNodeId = context.getNamingStrategy().getCgmesId(refTyped(bus), Part.CONNECTIVITY_NODE);
-            ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), cgmesVlId, writer, context);
-            mapNodeKey2NodeId.put(buildNodeKey(bus), cgmesNodeId);
+            String nodeId = context.getNamingStrategy().getCgmesId(refTyped(bus), Part.CONNECTIVITY_NODE);
+            String nodeName = bus.getNameOrId();
+            ConnectivityNodeEq node = new ConnectivityNodeEq(nodeId, nodeName, cgmesVlId);
+            CgmesConnectivityNode.writeEq(node, writer, context);
+            mapNodeKey2NodeId.put(buildNodeKey(bus), nodeId);
         }
     }
 
@@ -1186,7 +1194,9 @@ public final class EquipmentExport {
         String connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(boundaryLine), CONNECTIVITY_NODE);
 
         String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId);
-        ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, writer, context);
+
+        ConnectivityNodeEq nodeEq = new ConnectivityNodeEq(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId);
+        CgmesConnectivityNode.writeEq(nodeEq, writer, context);
 
         return connectivityNodeId;
     }
