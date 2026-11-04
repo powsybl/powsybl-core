@@ -23,11 +23,11 @@ public final class ControlAreaEq {
     private static final String CONTROL_AREA_TYPE = CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE;
 
     public static void write(String id, String controlAreaName, String energyIdentCodeEIC, String energyAreaId,
-                             String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, writer, context);
         if (energyIdentCodeEIC != null) {
-            writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
+            writer.writeStartElement(context.getCim().getEuNamespace(), "IdentifiedObject.energyIdentCodeEic");
             writer.writeCharacters(energyIdentCodeEIC);
             writer.writeEndElement();
         }

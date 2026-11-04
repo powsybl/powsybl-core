@@ -58,7 +58,6 @@ public final class EquipmentExport {
     private final XMLStreamWriter writer;
     private final CgmesExportContext context;
     private final Network network;
-    private final String euNamespace;
     private final Map<String, String> mapNodeKey2NodeId;
     private final Set<String> regulatingControlsWritten;
     private final Set<String> exportedLimitTypes;
@@ -70,7 +69,6 @@ public final class EquipmentExport {
         this.writer = writer;
         this.context = context;
         this.network = network;
-        euNamespace = context.getCim().getEuNamespace();
         mapNodeKey2NodeId = new HashMap<>();
         regulatingControlsWritten = new HashSet<>();
         exportedLimitTypes = new HashSet<>();
@@ -961,7 +959,7 @@ public final class EquipmentExport {
                         LoadingLimitEq.write(operationalLimitId, className, "PATL", ptc.getRegulationValue(), operationalLimitTypeId, operationalLimitSetId, writer, context);
 
                         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
-                            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, euNamespace, writer, context);
+                            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, writer, context);
                             exportedLimitTypes.add(operationalLimitTypeId);
                         }
                     }
@@ -1335,7 +1333,7 @@ public final class EquipmentExport {
         // Write the permanent limit type (if not already written)
         String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(network));
         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
-            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, euNamespace, writer, context);
+            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, writer, context);
             exportedLimitTypes.add(operationalLimitTypeId);
         }
 
@@ -1352,7 +1350,7 @@ public final class EquipmentExport {
                 // Write the temporary limit type (if not already written)
                 operationalLimitTypeId = context.getNamingStrategy().getCgmesId(TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_TYPE, ref(network));
                 if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
-                    OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getAcceptableDuration(), euNamespace, writer, context);
+                    OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getAcceptableDuration(), writer, context);
                     exportedLimitTypes.add(operationalLimitTypeId);
                 }
 
@@ -1654,7 +1652,7 @@ public final class EquipmentExport {
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
         String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse(null);
-        ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId, euNamespace, writer, context);
+        ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId, writer, context);
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
             Optional<TieFlow> tieFlow = TieFlow.from(areaBoundary, context);
             if (tieFlow.isPresent()) {
