@@ -40,7 +40,7 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
         PermanentDurationCriterion criterion = new PermanentDurationCriterion();
 
         List<LimitDurationCriterion> criteria = List.of(criterion);
-        roundTripTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
                 LimitDurationCriterionModuleTest::readPermanentDurationCriterion,
                 "/criterion/duration/permanent-duration-criteria.json");
     }
@@ -50,7 +50,7 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
         AllTemporaryDurationCriterion criterion = new AllTemporaryDurationCriterion();
 
         List<LimitDurationCriterion> criteria = List.of(criterion);
-        roundTripTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
                 LimitDurationCriterionModuleTest::readAllTemporaryDurationCriterion,
                 "/criterion/duration/all-temporary-duration-criteria.json");
     }
@@ -60,7 +60,7 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
         EqualityTemporaryDurationCriterion criterion = new EqualityTemporaryDurationCriterion(20 * 60);
 
         List<LimitDurationCriterion> criteria = List.of(criterion);
-        roundTripTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
                 LimitDurationCriterionModuleTest::readEqualityTemporaryDurationCriterion,
                 "/criterion/duration/equality-temporary-duration-criteria.json");
     }
@@ -91,7 +91,7 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
                 .setHighBound(20 * 60, false)
                 .build();
         List<LimitDurationCriterion> criteria = List.of(criterion1, criterion2, criterion3);
-        roundTripTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, LimitDurationCriterionModuleTest::writeCriteria,
                 LimitDurationCriterionModuleTest::readIntervalTemporaryDurationCriterion,
                 "/criterion/duration/interval-temporary-duration-criteria.json");
     }

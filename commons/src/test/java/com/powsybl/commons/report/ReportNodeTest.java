@@ -72,7 +72,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals("Child message with parent value filename and own severity 'Very important custom severity'", child.getMessage());
         assertEquals(1, root.getChildren().size());
 
-        roundTripTest(root, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testValuesReportNode.json");
+        roundTripTxtTest(root, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testValuesReportNode.json");
     }
 
     @Test
@@ -160,7 +160,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(root.getTreeContext(), ((ReportNodeImpl) yetAnotherRoot).getTreeContextRef().get());
         assertEquals(root.getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
-        roundTripTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
+        roundTripTxtTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
     }
 
     @Test

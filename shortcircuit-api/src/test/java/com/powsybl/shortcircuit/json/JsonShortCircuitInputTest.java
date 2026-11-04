@@ -34,7 +34,7 @@ class JsonShortCircuitInputTest extends AbstractSerDeTest {
         faults.add(new BusFault("F2", "busId", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE));
         faults.add(new BusFault("F3", "busId2", Fault.FaultType.LINE_TO_LINE));
         faults.add(new BranchFault("F4", "branchId2", Fault.FaultType.LINE_TO_LINE_WITH_EARTH_CONNECTION, 50));
-        roundTripTest(faults, Fault::write, Fault::read,
+        roundTripTxtTest(faults, Fault::write, Fault::read,
                 "/FaultsFile.json");
     }
 

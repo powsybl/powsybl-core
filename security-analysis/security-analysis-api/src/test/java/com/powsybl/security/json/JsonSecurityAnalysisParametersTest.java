@@ -34,7 +34,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
         parameters.getModifiedMonitoredElementsParameters().setPowerModificationThreshold(1.0);
         parameters.setIntermediateResultsInOperatorStrategy(true);
         parameters.setDebugDir("/tmp/debugDir");
-        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.3.json");
+        roundTripTxtTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.3.json");
     }
 
     @Test

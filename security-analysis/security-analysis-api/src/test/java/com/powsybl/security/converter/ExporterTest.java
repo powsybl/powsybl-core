@@ -246,10 +246,10 @@ class ExporterTest extends AbstractSerDeTest {
     void roundTripJson() throws IOException {
         SecurityAnalysisResult result = create();
 
-        roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+        roundTripTxtTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, path, "JSON");
-        roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+        roundTripTxtTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
         Path path = Paths.get("");
@@ -263,10 +263,10 @@ class ExporterTest extends AbstractSerDeTest {
     void roundTripJsonWithProperties() throws IOException {
         SecurityAnalysisResult result = create();
 
-        roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+        roundTripTxtTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, null, path, "JSON");
-        roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+        roundTripTxtTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
         Path emptyPath = Paths.get("");

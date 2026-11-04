@@ -89,7 +89,7 @@ public class JsonActionTest extends AbstractSerDeTest {
         actions.add(new AreaInterchangeTargetAction("id99", "AreaA", 101.0));
         actions.add(new AreaInterchangeTargetAction("idDisabledTarget", "AreaA", Double.NaN));
         ActionList actionList = new ActionList(actions);
-        roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
+        roundTripTxtTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
 
     @ParameterizedTest
@@ -131,6 +131,6 @@ public class JsonActionTest extends AbstractSerDeTest {
         elementIdentifierMap.put(new SwitchActionBuilder().withId("switchActionId").withOpen(true),
             new IdBasedNetworkElementIdentifier("switch 1 id"));
         IdentifierActionList identifierActionList = new IdentifierActionList(Collections.emptyList(), elementIdentifierMap);
-        roundTripTest(identifierActionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/IdentifierActionListTest.json");
+        roundTripTxtTest(identifierActionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/IdentifierActionListTest.json");
     }
 }

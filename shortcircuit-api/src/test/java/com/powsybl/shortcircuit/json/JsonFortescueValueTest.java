@@ -54,7 +54,7 @@ class JsonFortescueValueTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         List<FortescueValue> values = new ArrayList<>();
         values.add(new FortescueValue(1.2, 2.2, 3.2, 1.3, 2.3, 3.3));
-        roundTripTest(values, JsonFortescueValueTest::write, JsonFortescueValueTest::read, "/FortescueValue.json");
+        roundTripTxtTest(values, JsonFortescueValueTest::write, JsonFortescueValueTest::read, "/FortescueValue.json");
     }
 
     @Test

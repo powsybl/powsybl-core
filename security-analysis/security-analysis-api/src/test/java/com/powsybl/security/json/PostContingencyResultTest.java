@@ -100,7 +100,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
                 new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()),
                 1.23,
                 Collections.emptyList());
-        roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
+        roundTripTxtTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 
     void write(PostContingencyResult postContingencyResult, Path jsonFile) {

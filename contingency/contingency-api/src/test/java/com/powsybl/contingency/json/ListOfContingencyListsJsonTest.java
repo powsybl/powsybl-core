@@ -88,7 +88,7 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripTest(create(), ListOfContingencyListsJsonTest::write, ListOfContingencyListsJsonTest::readContingencyList,
+        roundTripTxtTest(create(), ListOfContingencyListsJsonTest::write, ListOfContingencyListsJsonTest::readContingencyList,
                 "/contingencyListsList.json");
     }
 

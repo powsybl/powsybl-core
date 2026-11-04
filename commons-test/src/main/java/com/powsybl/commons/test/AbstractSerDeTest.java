@@ -43,13 +43,17 @@ public abstract class AbstractSerDeTest {
         fileSystem.close();
     }
 
+    protected ComparisonType getDefaultComparisonType() {
+        return ComparisonType.getDefault();
+    }
+
     /**
      * XML roundtrip test on the given data. The following steps occur:
      * <ul>
      *     <li>Transform the given data with the transformer function provided. This might be used to add a roundtrip on
      *     other formats prior to the XML roundtrip.</li>
      *     <li>Write the transformed data to a temporary XML file thanks to the given write function.</li>
-     *     <li>Compare the obtained XML file with the given reference file thanks to {@link ComparisonUtils#assertTxtEquals}.</li>
+     *     <li>Compare the obtained XML file with the given reference file thanks to {@link ComparisonType#getComparator()}.</li>
      *     <li>Read the same XML file with the given read function.</li>
      *     <li>Write the data read in the previous step to a new temporary XML file.</li>
      *     <li>Compare the new obtained XML file with the first obtained XML file byte by byte using {@link Files#mismatch}.</li>
@@ -57,7 +61,11 @@ public abstract class AbstractSerDeTest {
      * </ul>
      */
     protected <T> T roundTripTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
-        return roundTripTest(data, transformer, write, read, ComparisonUtils::assertTxtEquals, ref);
+        return roundTripTest(data, transformer, write, read, getDefaultComparisonType(), ref);
+    }
+
+    protected <T> T roundTripTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, ComparisonType comparisonType, String ref) throws IOException {
+        return roundTripTest(data, transformer, write, read, comparisonType.getComparator(), ref);
     }
 
     protected <T> T roundTripXmlTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
@@ -68,7 +76,7 @@ public abstract class AbstractSerDeTest {
      * Roundtrip test on the given data. The following steps occur:
      * <ul>
      *     <li>Write the given data to a temporary file thanks to the given write function.</li>
-     *     <li>Compare the obtained file with the given reference file thanks to {@link ComparisonUtils#assertTxtEquals}.</li>
+     *     <li>Compare the obtained file with the given reference file thanks to {@link ComparisonType#getComparator()}.</li>
      *     <li>Read the same file with the given read function.</li>
      *     <li>Write the data read in the previous step to a new temporary file.</li>
      *     <li>Compare the new obtained file with the first obtained file byte by byte using {@link Files#mismatch}.</li>
@@ -76,6 +84,14 @@ public abstract class AbstractSerDeTest {
      * </ul>
      */
     protected <T> T roundTripTest(T data, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
+        return roundTripTest(data, write, read, getDefaultComparisonType(), ref);
+    }
+
+    protected <T> T roundTripTest(T data, BiConsumer<T, Path> write, Function<Path, T> read, ComparisonType comparisonType, String ref) throws IOException {
+        return roundTripTest(data, (t, p) -> t, write, read, comparisonType.getComparator(), ref);
+    }
+
+    protected <T> T roundTripTxtTest(T data, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
         return roundTripTest(data, write, read, ComparisonUtils::assertTxtEquals, ref);
     }
 
@@ -84,7 +100,11 @@ public abstract class AbstractSerDeTest {
      * @return the path of written file.
      */
     protected <T> Path writeTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
-        return writeTest(data, write, ComparisonUtils::assertTxtEquals, ref);
+        return writeTest(data, write, getDefaultComparisonType(), ref);
+    }
+
+    protected <T> Path writeTest(T data, BiConsumer<T, Path> write, ComparisonType comparisonType, String ref) throws IOException {
+        return writeTest(data, write, comparisonType.getComparator(), ref);
     }
 
     /**

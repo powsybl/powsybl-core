@@ -86,7 +86,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     protected void roundTripVersionedJsonTest(String file, IidmVersion... versions) throws IOException {
         for (IidmVersion version : versions) {
             ImportOptions options = new ImportOptions().setFormat(TreeDataFormat.JSON);
-            roundTripTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version), options, null),
+            roundTripTxtTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version), options, null),
                     (n, xmlFile) -> NetworkSerDe.write(n, new ExportOptions().setVersion(version.toString(".")).setFormat(TreeDataFormat.JSON), xmlFile),
                     xmlFile -> NetworkSerDe.read(xmlFile, options),
                     getVersionedNetworkPath(file, version));

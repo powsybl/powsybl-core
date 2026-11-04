@@ -51,7 +51,7 @@ class UcteFileReadWriteTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripTest(create(), UcteFileReadWriteTest::write, UcteFileReadWriteTest::read, REFERENCE);
+        roundTripTxtTest(create(), UcteFileReadWriteTest::write, UcteFileReadWriteTest::read, REFERENCE);
     }
 
 }

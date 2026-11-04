@@ -48,7 +48,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
                 .setVoltageInitMode(PREVIOUS_VALUES)
                 .setUseReactiveLimits(false)
                 .setTransformerVoltageControlOn(true);
-        roundTripTest(parameters, JsonLoadFlowParameters::write, JsonLoadFlowParameters::read, "/LoadFlowParameters.json");
+        roundTripTxtTest(parameters, JsonLoadFlowParameters::write, JsonLoadFlowParameters::read, "/LoadFlowParameters.json");
     }
 
     @Test

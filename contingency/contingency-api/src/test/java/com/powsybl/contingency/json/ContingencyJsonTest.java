@@ -120,7 +120,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripTest(create(), ContingencyJsonTest::write, ContingencyJsonTest::readContingency, "/contingency.json");
+        roundTripTxtTest(create(), ContingencyJsonTest::write, ContingencyJsonTest::readContingency, "/contingency.json");
     }
 
     @Test
@@ -137,7 +137,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals("contingency2", contingencies.get(1).getId());
         assertEquals(1, contingencies.get(1).getElements().size());
 
-        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingencies.json");
+        roundTripTxtTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingencies.json");
     }
 
     @Test
@@ -158,7 +158,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals("contingency4", contingencies.get(3).getId());
         assertEquals(1, contingencies.get(3).getElements().size());
 
-        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesBatteries.json");
+        roundTripTxtTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesBatteries.json");
     }
 
     @Test
@@ -189,7 +189,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals(1, contingencies.get(5).getElements().size());
         assertEquals(SWITCH, contingencies.get(5).getElements().get(0).getType());
 
-        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithSeveralElements.json");
+        roundTripTxtTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithSeveralElements.json");
     }
 
     @Test
@@ -203,7 +203,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals("contingency", contingencies.get(0).getId());
         assertEquals(1, contingencies.get(0).getElements().size());
         assertEquals(THREE_WINDINGS_TRANSFORMER, contingencies.get(0).getElements().get(0).getType());
-        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWith3wt.json");
+        roundTripTxtTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWith3wt.json");
     }
 
     @Test
@@ -220,7 +220,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals("contingency2", contingencies.get(1).getId());
         assertEquals(1, contingencies.get(1).getElements().size());
         assertEquals(TIE_LINE, contingencies.get(1).getElements().get(0).getType());
-        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithDlAndTl.json");
+        roundTripTxtTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithDlAndTl.json");
     }
 
     @Test
@@ -260,7 +260,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals("contingency2", contingencies.get(1).getId());
         assertEquals(1, contingencies.get(1).getElements().size());
 
-        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithOptionalName.json");
+        roundTripTxtTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithOptionalName.json");
     }
 
     static class DummyContingencyExtension extends AbstractExtension<Contingency> {

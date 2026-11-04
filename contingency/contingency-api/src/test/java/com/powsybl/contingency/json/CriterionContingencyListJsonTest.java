@@ -124,61 +124,61 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
 
     @Test
     void lineCriterionContingencyListRoundTripTest() throws IOException {
-        roundTripTest(createLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readLineCriterionContingencyList, "/lineCriterionContingencyList.json");
     }
 
     @Test
     void tieLineCriterionContingencyListRoundTripTest() throws IOException {
-        roundTripTest(createTieLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createTieLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readTieLineCriterionContingencyList, "/tieLineCriterionContingencyList.json");
     }
 
     @Test
     void injectionCriterionContingencyListRoundTripTest() throws IOException {
-        roundTripTest(createInjectionCriterionContingencyList(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createInjectionCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
                 "/injectionCriterionContingencyList.json");
     }
 
     @Test
     void createInjectionCriterionContingencyListNoCountryTest() throws IOException {
-        roundTripTest(createInjectionCriterionContingencyListNoCountryCriterion(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createInjectionCriterionContingencyListNoCountryCriterion(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
                 "/injectionCriterionContingencyListNoCountryCriterion.json");
     }
 
     @Test
     void createInjectionCriterionContingencyListNoCountryMatchTest() throws IOException {
-        roundTripTest(createInjectionCriterionContingencyListNoCountryMatch(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createInjectionCriterionContingencyListNoCountryMatch(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
                 "/injectionCriterionContingencyListNoCountryMatch.json");
     }
 
     @Test
     void createInjectionCriterionContingencyListEmptyCountryListTest() throws IOException {
-        roundTripTest(createInjectionCriterionContingencyListEmptyCountryList(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createInjectionCriterionContingencyListEmptyCountryList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
                 "/injectionCriterionContingencyListEmptyCountryList.json");
     }
 
     @Test
     void hvdcLineCriterionContingencyListRoundTripTest() throws IOException {
-        roundTripTest(createHvdcLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createHvdcLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readHvdcLineCriterionContingencyList,
                 "/hvdclineCriterionContingencyList.json");
     }
 
     @Test
     void twoWindingsTransformerCriterionContingencyListRoundTripTest() throws IOException {
-        roundTripTest(createTwoWindingsTransformerCriterionContingencyList(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createTwoWindingsTransformerCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readTwoWindingsTransformerCriterionContingencyList,
                 "/twoWindingsTransformerCriterionContingencyList.json");
     }
 
     @Test
     void threeWindingsTransformerCriterionContingencyListRoundTripTest() throws IOException {
-        roundTripTest(createThreeWindingsTransformerCriterionContingencyList(), CriterionContingencyListJsonTest::write,
+        roundTripTxtTest(createThreeWindingsTransformerCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readThreeWindingsTransformerCriterionContingencyList,
                 "/threeWindingsTransformerCriterionContingencyList.json");
     }

@@ -64,7 +64,7 @@ class SensitivityVariableSetTest extends AbstractSerDeTest {
         SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("v1", 3.4),
                                                                                       new WeightedSensitivityVariable("v2", 2.1)));
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
-        roundTripTest(variableSet, (variableSet2, jsonFile) -> JsonUtil.writeJson(jsonFile, variableSet, objectMapper),
+        roundTripTxtTest(variableSet, (variableSet2, jsonFile) -> JsonUtil.writeJson(jsonFile, variableSet, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityVariableSet.class, objectMapper), "/variableSetRef.json");
 
         String jsonRef = String.join(System.lineSeparator(),

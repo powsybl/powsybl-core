@@ -24,7 +24,7 @@ class FictitiousSwitchJsonTest extends AbstractIidmSerDeTest {
     void roundTripTest() throws IOException {
         ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
-        roundTripTest(FictitiousSwitchFactory.create(),
+        roundTripTxtTest(FictitiousSwitchFactory.create(),
                 (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
                 jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
                 getVersionedNetworkPath("fictitiousSwitchRef.jiidm", CURRENT_IIDM_VERSION));

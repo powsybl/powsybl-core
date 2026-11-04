@@ -27,6 +27,6 @@ class JsonMonitorTest extends AbstractSerDeTest {
         List<StateMonitor> monitors = new ArrayList<>();
         monitors.add(new StateMonitor(new ContingencyContext("contingency1", ContingencyContextType.SPECIFIC),
             Collections.singleton("Branch1"), Collections.singleton("Bus1"), Collections.singleton("ThreeWindingsTransformer1")));
-        roundTripTest(monitors, StateMonitor::write, StateMonitor::read, "/MonitoringFileTest.json");
+        roundTripTxtTest(monitors, StateMonitor::write, StateMonitor::read, "/MonitoringFileTest.json");
     }
 }

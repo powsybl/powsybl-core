@@ -107,12 +107,12 @@ class DynamicSimulationResultJsonTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripTest(create(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationResult.json");
+        roundTripTxtTest(create(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationResult.json");
     }
 
     @Test
     void roundTripFailedSimulationTest() throws IOException {
-        roundTripTest(createFailedDynamicSimulation(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationFailedResult.json");
+        roundTripTxtTest(createFailedDynamicSimulation(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationFailedResult.json");
     }
 
     @Test
