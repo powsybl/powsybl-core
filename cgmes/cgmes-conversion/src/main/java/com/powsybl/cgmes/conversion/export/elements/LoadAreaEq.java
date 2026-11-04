@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -22,12 +23,14 @@ public final class LoadAreaEq {
     }
 
     public static void write(String id, String baseName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("LoadArea", id, baseName + " Load Area", writer, context);
+        CgmesExportUtil.writeStartId("LoadArea", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(baseName + " Load Area"), writer, context);
         writer.writeEndElement();
     }
 
     public static void writeSubArea(String id, String loadAreaId, String baseName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("SubLoadArea", id, baseName + " SubLoad Area", writer, context);
+        CgmesExportUtil.writeStartId("SubLoadArea", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(baseName + " SubLoad Area"), writer, context);
         CgmesExportUtil.writeResource("SubLoadArea.LoadArea", loadAreaId, writer, context);
         writer.writeEndElement();
     }

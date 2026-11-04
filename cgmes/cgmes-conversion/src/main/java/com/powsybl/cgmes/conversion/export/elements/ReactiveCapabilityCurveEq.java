@@ -30,7 +30,8 @@ public final class ReactiveCapabilityCurveEq {
     public static void write(String id, String reactiveCapabilityCurveName, ReactiveLimitsHolder holder,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(holderClassName(holder), id, reactiveCapabilityCurveName, writer, context);
+        CgmesExportUtil.writeStartId(holderClassName(holder), id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(reactiveCapabilityCurveName), writer, context);
         writer.writeEmptyElement(cimNamespace, "Curve.curveStyle");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CURVE_STYLE_STRAIGHTLINEYVALUES);
         writer.writeEmptyElement(cimNamespace, "Curve.xUnit");

@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -22,7 +23,8 @@ public final class DCTerminalEq {
                              int sequenceNumber, XMLStreamWriter writer,
                              CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(element, id, name, writer, context);
+        CgmesExportUtil.writeStartId(element, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
         CgmesExportUtil.writeResource(element + ".DCConductingEquipment", dcConductingEquipmentId, writer, context);
         if (dcNodeId != null) {
             CgmesExportUtil.writeResource("DCBaseTerminal.DCNode", dcNodeId, writer, context);

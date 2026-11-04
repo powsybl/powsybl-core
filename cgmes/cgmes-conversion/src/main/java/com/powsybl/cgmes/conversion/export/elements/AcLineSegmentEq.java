@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -26,7 +27,8 @@ public final class AcLineSegmentEq {
     public static void write(String id, String lineSegmentName, String baseVoltage, double r, double x, double gch,
                              double bch, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("ACLineSegment", id, lineSegmentName, writer, context);
+        CgmesExportUtil.writeStartId("ACLineSegment", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(lineSegmentName), writer, context);
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_R);
         writer.writeCharacters(CgmesExportUtil.format(r));
         writer.writeEndElement();

@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -20,7 +21,8 @@ public final class DCGroundEq {
 
     public static void write(String dcGroundId, String dcGroundName, double resistance, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("DCGround", dcGroundId, dcGroundName, writer, context);
+        CgmesExportUtil.writeStartId("DCGround", dcGroundId, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcGroundName), writer, context);
         writer.writeStartElement(cimNamespace, "DCGround.r");
         writer.writeCharacters(CgmesExportUtil.format(resistance));
         writer.writeEndElement();

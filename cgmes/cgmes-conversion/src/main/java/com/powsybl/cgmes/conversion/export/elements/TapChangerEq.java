@@ -51,7 +51,8 @@ public final class TapChangerEq {
                                   double neutralU, boolean ltcFlag, String phaseTapChangerTableId, String cgmesRegulatingControlId, XMLStreamWriter writer,
                                   CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(type, id, tapChangerName, writer, context);
+        CgmesExportUtil.writeStartId(type, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(tapChangerName), writer, context);
         CgmesExportUtil.writeResource(EQ_PHASETAPCHANGER_TRANSFORMEREND, transformerEndId, writer, context);
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
         CgmesExportUtil.writeResource(EQ_PHASETAPCHANGERTABULAR_PHASETAPCHANGERTABLE, phaseTapChangerTableId, writer, context);
@@ -62,7 +63,8 @@ public final class TapChangerEq {
     }
 
     public static void writePhaseTable(String id, String phaseTapChangerTableName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("PhaseTapChangerTable", id, phaseTapChangerTableName, writer, context);
+        CgmesExportUtil.writeStartId("PhaseTapChangerTable", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(phaseTapChangerTableName), writer, context);
         writer.writeEndElement();
     }
 
@@ -82,7 +84,8 @@ public final class TapChangerEq {
                                   double neutralU, boolean ltcFlag, double stepVoltageIncrement, String ratioTapChangerTableId, String cgmesRegulatingControlId,
                                   String controlMode, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("RatioTapChanger", id, tapChangerName, writer, context);
+        CgmesExportUtil.writeStartId("RatioTapChanger", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(tapChangerName), writer, context);
         CgmesExportUtil.writeResource(EQ_RATIOTAPCHANGER_TRANSFORMEREND, transformerEndId, writer, context);
         writer.writeStartElement(cimNamespace, EQ_RATIOTAPCHANGER_SVI);
         writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
@@ -101,7 +104,8 @@ public final class TapChangerEq {
 
     public static void writeControl(String id, String name, String mode, String terminalId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("TapChangerControl", id, name, writer, context);
+        CgmesExportUtil.writeStartId("TapChangerControl", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, mode));
         CgmesExportUtil.writeResource("RegulatingControl.Terminal", terminalId, writer, context);
@@ -131,7 +135,8 @@ public final class TapChangerEq {
     }
 
     public static void writeRatioTable(String id, String ratioTapChangerTableName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("RatioTapChangerTable", id, ratioTapChangerTableName, writer, context);
+        CgmesExportUtil.writeStartId("RatioTapChangerTable", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(ratioTapChangerTableName), writer, context);
         writer.writeEndElement();
     }
 

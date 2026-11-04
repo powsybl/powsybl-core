@@ -28,7 +28,8 @@ public final class OperationalLimitTypeEq {
 
     public static void writePatl(String id, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", writer, context);
+        CgmesExportUtil.writeStartId("OperationalLimitType", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName("PATL"), writer, context);
         writeDirection(cimNamespace, writer);
         writeKind(PATL, writer, context);
         if (context.getCimVersion() == 100) {
@@ -40,7 +41,8 @@ public final class OperationalLimitTypeEq {
     public static void writeTatl(String id, int acceptableDuration,
                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "TATL " + acceptableDuration, writer, context);
+        CgmesExportUtil.writeStartId("OperationalLimitType", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName("TATL " + acceptableDuration), writer, context);
         writeDirection(cimNamespace, writer);
         writeKind(TATL, writer, context);
         if (context.getCimVersion() == 100) {

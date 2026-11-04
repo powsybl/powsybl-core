@@ -197,17 +197,22 @@ public final class CgmesExportUtil {
         return context.encode(id.startsWith("_") ? id.substring(1) : id);
     }
 
+    public static String getValidName(String name) {
+        // In CGMES, name shouldn't be longer than 32 characters.
+        if (name.length() > 32) {
+            return name.substring(0, 32);
+        }
+        return name;
+    }
+
     public static void writeStartId(String className, String id, boolean writeMasterResourceId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
-        writer.writeStartElement(cimNamespace, className);
+        writer.writeStartElement(context.getCim().getNamespace(), className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
         // points of tables and curve data objects do not have mRID, although they have an RDF:ID
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id, context));
         if (writeMasterResourceId && context.getCim().getVersion() >= 100) {
-            writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
-            writer.writeCharacters(toMasterResourceId(id, context));
-            writer.writeEndElement();
+            writeAttribute(CgmesNames.MRID, toMasterResourceId(id, context), writer, context);
         }
     }
 
@@ -216,11 +221,9 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
     }
 
-    public static void writeStartIdName(String className, String id, String name, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
-        writeStartId(className, id, true, writer, context);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name.length() > 32 ? name.substring(0, 32) : name); // name should not be longer than 32 characters
+    public static void writeAttribute(String attributeName, String attributeValue, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        writer.writeStartElement(context.getCim().getNamespace(), attributeName);
+        writer.writeCharacters(attributeValue);
         writer.writeEndElement();
     }
 

@@ -25,7 +25,8 @@ public final class SynchronousMachineEq {
                              Double minQ, Double maxQ, double ratedS, double defaultRatedS, String kind,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, writer, context);
+        CgmesExportUtil.writeStartId("SynchronousMachine", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(generatorName), writer, context);
         CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (generatingUnit != null) {
             // Some synchronous machines are not associated to a generating unit (condensers)

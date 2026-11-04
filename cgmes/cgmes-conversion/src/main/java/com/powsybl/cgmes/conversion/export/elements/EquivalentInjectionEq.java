@@ -30,7 +30,8 @@ public final class EquivalentInjectionEq {
                              String reactiveCapabilityCurveId, String baseVoltageId, XMLStreamWriter writer,
                              CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(CgmesNames.EQUIVALENT_INJECTION, id, name, writer, context);
+        CgmesExportUtil.writeStartId(CgmesNames.EQUIVALENT_INJECTION, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY);
         writer.writeCharacters(CgmesExportUtil.format(regulationCapability));
         writer.writeEndElement();

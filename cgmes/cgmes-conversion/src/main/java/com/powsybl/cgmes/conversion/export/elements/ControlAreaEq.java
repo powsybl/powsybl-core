@@ -25,7 +25,8 @@ public final class ControlAreaEq {
     public static void write(String id, String controlAreaName, String energyIdentCodeEIC, String energyAreaId,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, writer, context);
+        CgmesExportUtil.writeStartId("ControlArea", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(controlAreaName), writer, context);
         if (energyIdentCodeEIC != null) {
             writer.writeStartElement(context.getCim().getEuNamespace(), "IdentifiedObject.energyIdentCodeEic");
             writer.writeCharacters(energyIdentCodeEIC);

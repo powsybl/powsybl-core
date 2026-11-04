@@ -30,7 +30,8 @@ public final class RegulatingControlEq {
                                                 String mode, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         String regulatingControlName = "RC_" + c.getNameOrId();
-        CgmesExportUtil.writeStartIdName("RegulatingControl", regulatingControlId, regulatingControlName, writer, context);
+        CgmesExportUtil.writeStartId("RegulatingControl", regulatingControlId, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(regulatingControlName), writer, context);
         CgmesExportUtil.writeResource("RegulatingControl.Terminal", terminalId, writer, context);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + mode);

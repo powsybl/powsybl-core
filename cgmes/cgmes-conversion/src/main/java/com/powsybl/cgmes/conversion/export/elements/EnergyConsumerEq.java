@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -20,7 +21,8 @@ public final class EnergyConsumerEq {
 
     public static void write(String className, String id, String loadName, String loadGroup, String equipmentContainer,
                              String loadResponseCharacteristicId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(className, id, loadName, writer, context);
+        CgmesExportUtil.writeStartId(className, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadName), writer, context);
         CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (loadGroup != null) {
             CgmesExportUtil.writeResource(className + ".LoadGroup", loadGroup, writer, context);

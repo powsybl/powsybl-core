@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -19,7 +20,8 @@ import javax.xml.stream.XMLStreamWriter;
 public final class GeographicalRegionEq {
 
     public static void write(String id, String regionName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("GeographicalRegion", id, regionName, writer, context);
+        CgmesExportUtil.writeStartId("GeographicalRegion", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(regionName), writer, context);
         writer.writeEndElement();
     }
 

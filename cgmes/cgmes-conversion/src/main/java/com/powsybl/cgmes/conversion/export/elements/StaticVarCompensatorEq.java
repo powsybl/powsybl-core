@@ -34,7 +34,8 @@ public final class StaticVarCompensatorEq {
                              RegulationMode svcControlMode, double voltageSetPoint,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("StaticVarCompensator", id, svcName, writer, context);
+        CgmesExportUtil.writeStartId("StaticVarCompensator", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(svcName), writer, context);
         CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (regulatingControlId != null) {
             CgmesExportUtil.writeResource("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
