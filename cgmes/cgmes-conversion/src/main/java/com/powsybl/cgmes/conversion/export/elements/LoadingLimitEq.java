@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ActivePowerLimits;
 import com.powsybl.iidm.network.ApparentPowerLimits;
@@ -26,7 +27,8 @@ public final class LoadingLimitEq {
     public static void write(String id, String className, String name, double value,
                              String operationalLimitTypeId, String operationalLimitSetId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(className, id, name, writer, context);
+        CgmesExportUtil.writeStartId(className, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
         writer.writeStartElement(cimNamespace, className + "." + getLimitValueAttributeName(context));
         writer.writeCharacters(CgmesExportUtil.format(value));
         writer.writeEndElement();

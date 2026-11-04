@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -20,7 +21,8 @@ public final class DCLineSegmentEq {
 
     public static void write(String id, String lineSegmentName, double resistance, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("DCLineSegment", id, lineSegmentName, writer, context);
+        CgmesExportUtil.writeStartId("DCLineSegment", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(lineSegmentName), writer, context);
         writer.writeStartElement(cimNamespace, "DCLineSegment.resistance");
         writer.writeCharacters(CgmesExportUtil.format(resistance));
         writer.writeEndElement();

@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -22,7 +23,8 @@ public final class AcDcConverterEq {
                              double idleLoss, double switchingLoss, double resistiveLoss, String dcEquipmentContainerId, String pccTerminal,
                              String capabilityCurveId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(className, id, converterName, writer, context);
+        CgmesExportUtil.writeStartId(className, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(converterName), writer, context);
         writer.writeStartElement(cimNamespace, "ACDCConverter.ratedUdc");
         writer.writeCharacters(CgmesExportUtil.format(ratedUdc));
         writer.writeEndElement();

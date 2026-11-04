@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.SwitchKind;
 
 import javax.xml.stream.XMLStreamException;
@@ -23,7 +24,8 @@ public final class SwitchEq {
                              boolean open, boolean retained, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(switchKind);
-        CgmesExportUtil.writeStartIdName(className, id, switchName, writer, context);
+        CgmesExportUtil.writeStartId(className, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(switchName), writer, context);
         CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeStartElement(cimNamespace, "Switch.normalOpen");
         writer.writeCharacters(CgmesExportUtil.format(open));

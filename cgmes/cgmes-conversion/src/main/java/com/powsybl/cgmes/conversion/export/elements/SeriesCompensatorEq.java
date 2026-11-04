@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -28,7 +29,8 @@ public final class SeriesCompensatorEq {
     public static void write(String id, String seriesCompensatorName, String baseVoltage, double r, double x, boolean varistorPresent,
                              double varistorRatedCurrent, double varistorVoltageThreshold, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("SeriesCompensator", id, seriesCompensatorName, writer, context);
+        CgmesExportUtil.writeStartId("SeriesCompensator", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(seriesCompensatorName), writer, context);
         writer.writeStartElement(cimNamespace, EQ_SERIES_COMPENSATOR_R);
         writer.writeCharacters(CgmesExportUtil.format(r));
         writer.writeEndElement();

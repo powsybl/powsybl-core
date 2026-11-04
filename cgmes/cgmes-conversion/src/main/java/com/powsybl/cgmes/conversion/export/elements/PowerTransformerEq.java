@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -33,7 +34,8 @@ public final class PowerTransformerEq {
     private static final double EQ_POWERTRANSFORMEREND_RATEDS_DEFAULT_VALUE = 100.0;
 
     public static void write(String id, String transformerName, String equipmentContainer, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, writer, context);
+        CgmesExportUtil.writeStartId("PowerTransformer", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(transformerName), writer, context);
         if (equipmentContainer != null) {
             CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         }
@@ -44,7 +46,8 @@ public final class PowerTransformerEq {
                                 double ratedS, double ratedU, String terminalId, String baseVoltageId, XMLStreamWriter writer,
                                 CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, writer, context);
+        CgmesExportUtil.writeStartId("PowerTransformerEnd", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(transformerEndName), writer, context);
         writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_ENDNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(endNumber));
         writer.writeEndElement();

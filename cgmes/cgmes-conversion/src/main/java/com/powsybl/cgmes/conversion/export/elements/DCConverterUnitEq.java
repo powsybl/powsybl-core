@@ -26,7 +26,8 @@ public final class DCConverterUnitEq {
     public static void write(String id, String dcConverterUnitName, String operationMode, String substationId,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, writer, context);
+        CgmesExportUtil.writeStartId("DCConverterUnit", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcConverterUnitName), writer, context);
         writer.writeEmptyElement(cimNamespace, "DCConverterUnit.operationMode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + OPERATING_MODE_KIND + operationMode);
         CgmesExportUtil.writeResource("DCConverterUnit.Substation", substationId, writer, context);

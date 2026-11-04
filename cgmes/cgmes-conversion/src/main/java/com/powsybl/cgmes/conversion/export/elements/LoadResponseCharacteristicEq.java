@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -25,7 +26,8 @@ public final class LoadResponseCharacteristicEq {
                              double qConstantCurrent, double pConstantImpedance, double qConstantImpedance,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("LoadResponseCharacteristic", id, name, writer, context);
+        CgmesExportUtil.writeStartId("LoadResponseCharacteristic", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
 
         writer.writeStartElement(cimNamespace, "LoadResponseCharacteristic.exponentModel");
         writer.writeCharacters(CgmesExportUtil.format(exponentModel));

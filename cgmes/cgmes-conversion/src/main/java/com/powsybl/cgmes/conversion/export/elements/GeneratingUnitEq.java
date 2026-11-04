@@ -29,7 +29,8 @@ public final class GeneratingUnitEq {
     public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP,
                              String equipmentContainer, String hydroPowerPlantId, String windGenUnitType, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, writer, context);
+        CgmesExportUtil.writeStartId(generatingUnitClassName(energySource), id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(generatingUnitName), writer, context);
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MINP);
         writer.writeCharacters(CgmesExportUtil.format(minP));
         writer.writeEndElement();

@@ -22,7 +22,8 @@ public final class TerminalEq {
     public static void write(String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(CgmesNames.TERMINAL, id, conductingEquipmentId, writer, context);
+        CgmesExportUtil.writeStartId(CgmesNames.TERMINAL, id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(conductingEquipmentId), writer, context);
         CgmesExportUtil.writeResource("Terminal.ConductingEquipment", conductingEquipmentId, writer, context);
         if (connectivityNodeId != null) {
             CgmesExportUtil.writeResource("Terminal.ConnectivityNode", connectivityNodeId, writer, context);

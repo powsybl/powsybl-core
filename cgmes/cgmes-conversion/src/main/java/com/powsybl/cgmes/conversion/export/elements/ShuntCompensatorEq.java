@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 
 import javax.xml.stream.XMLStreamException;
@@ -36,7 +37,8 @@ public final class ShuntCompensatorEq {
                              double bPerSection, double gPerSection, String regulatingControlId, String equipmentContainer, XMLStreamWriter writer,
                              CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName(shuntCompensatorModelClassName(modelType), id, shuntCompensatorName, writer, context);
+        CgmesExportUtil.writeStartId(shuntCompensatorModelClassName(modelType), id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(shuntCompensatorName), writer, context);
         writer.writeStartElement(cimNamespace, EQ_SHUNTCOMPENSATOR_NORMALSECTIONS);
         writer.writeCharacters(CgmesExportUtil.format(normalSections));
         writer.writeEndElement();

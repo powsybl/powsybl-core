@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -25,7 +26,8 @@ public final class EquivalentBranchEq {
     public static void write(String id, String equivalentBranchName, String baseVoltage, double r, double x,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("EquivalentBranch", id, equivalentBranchName, writer, context);
+        CgmesExportUtil.writeStartId("EquivalentBranch", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(equivalentBranchName), writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENT_BRANCH_R);
         writer.writeCharacters(CgmesExportUtil.format(r));
         writer.writeEndElement();

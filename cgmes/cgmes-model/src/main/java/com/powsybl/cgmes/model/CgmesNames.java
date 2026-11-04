@@ -20,7 +20,8 @@ public final class CgmesNames {
     public static final String ID = "ID";
     public static final String RESOURCE = "resource";
 
-    public static final String NAME = "IdentifiedObject.name";
+    public static final String IDENTIFIED_OBJECT_NAME = "IdentifiedObject.name";
+    public static final String MRID = "IdentifiedObject.mRID";
     public static final String GRAPH = "graph";
 
     public static final String FULL_MODEL = "FullModel";

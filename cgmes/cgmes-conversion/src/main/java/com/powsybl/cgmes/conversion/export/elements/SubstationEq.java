@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -19,7 +20,8 @@ import javax.xml.stream.XMLStreamWriter;
 public final class SubstationEq {
 
     public static void write(String id, String substationName, String subGeographicalRegionId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("Substation", id, substationName, writer, context);
+        CgmesExportUtil.writeStartId("Substation", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(substationName), writer, context);
         CgmesExportUtil.writeResource("Substation.Region", subGeographicalRegionId, writer, context);
         writer.writeEndElement();
     }

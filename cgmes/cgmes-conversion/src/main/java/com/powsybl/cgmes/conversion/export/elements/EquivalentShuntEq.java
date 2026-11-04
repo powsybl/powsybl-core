@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -24,7 +25,8 @@ public final class EquivalentShuntEq {
     public static void write(String id, String name, double g, double b, String equipmentContainer,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartIdName("EquivalentShunt", id, name, writer, context);
+        CgmesExportUtil.writeStartId("EquivalentShunt", id, true, writer, context);
+        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTSHUNT_B);
         writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
