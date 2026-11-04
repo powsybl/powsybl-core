@@ -22,15 +22,16 @@ public final class EquivalentShuntEq {
     private static final String EQ_EQUIVALENTSHUNT_G = "EquivalentShunt.g";
 
     public static void write(String id, String name, double g, double b, String equipmentContainer,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("EquivalentShunt", id, name, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("EquivalentShunt", id, name, writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTSHUNT_B);
         writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTSHUNT_G);
         writer.writeCharacters(CgmesExportUtil.format(g));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeEndElement();
     }
 

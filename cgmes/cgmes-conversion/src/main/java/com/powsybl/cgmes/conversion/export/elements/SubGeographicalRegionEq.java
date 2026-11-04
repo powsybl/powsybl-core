@@ -18,9 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class SubGeographicalRegionEq {
 
-    public static void write(String id, String subRegionName, String geographicalRegionId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("SubGeographicalRegion", id, subRegionName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("SubGeographicalRegion.Region", geographicalRegionId, cimNamespace, writer, context);
+    public static void write(String id, String subRegionName, String geographicalRegionId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("SubGeographicalRegion", id, subRegionName, writer, context);
+        CgmesExportUtil.writeReference("SubGeographicalRegion.Region", geographicalRegionId, writer, context);
         writer.writeEndElement();
     }
 

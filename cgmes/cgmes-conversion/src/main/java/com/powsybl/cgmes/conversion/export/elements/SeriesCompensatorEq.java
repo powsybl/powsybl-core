@@ -26,8 +26,9 @@ public final class SeriesCompensatorEq {
     private static final String EQ_SERIES_COMPENSATOR_VARISTOR_VOLTAGE_THRESHOLD = "SeriesCompensator.varistorVoltageThreshold";
 
     public static void write(String id, String seriesCompensatorName, String baseVoltage, double r, double x, boolean varistorPresent,
-                             double varistorRatedCurrent, double varistorVoltageThreshold, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("SeriesCompensator", id, seriesCompensatorName, cimNamespace, writer, context);
+                             double varistorRatedCurrent, double varistorVoltageThreshold, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("SeriesCompensator", id, seriesCompensatorName, writer, context);
         writer.writeStartElement(cimNamespace, EQ_SERIES_COMPENSATOR_R);
         writer.writeCharacters(CgmesExportUtil.format(r));
         writer.writeEndElement();
@@ -44,7 +45,7 @@ public final class SeriesCompensatorEq {
         writer.writeCharacters(CgmesExportUtil.format(varistorVoltageThreshold));
         writer.writeEndElement();
         if (baseVoltage != null) {
-            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
         }
         writer.writeEndElement();
     }

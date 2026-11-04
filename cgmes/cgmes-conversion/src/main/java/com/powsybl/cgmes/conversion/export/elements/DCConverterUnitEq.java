@@ -24,11 +24,12 @@ public final class DCConverterUnitEq {
     private static final String OPERATING_MODE_KIND = "DCConverterOperatingModeKind.";
 
     public static void write(String id, String dcConverterUnitName, String operationMode, String substationId,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, writer, context);
         writer.writeEmptyElement(cimNamespace, "DCConverterUnit.operationMode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + OPERATING_MODE_KIND + operationMode);
-        CgmesExportUtil.writeReference("DCConverterUnit.Substation", substationId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("DCConverterUnit.Substation", substationId, writer, context);
         writer.writeEndElement();
     }
 

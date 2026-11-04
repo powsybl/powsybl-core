@@ -108,15 +108,15 @@ public final class CgmesExportUtil {
         return UUID.randomUUID().toString();
     }
 
-    public static void writeRdfRoot(String cimNamespace, String euPrefix, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.setPrefix(euPrefix, euNamespace);
+    public static void writeRdfRoot(CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
+        writer.setPrefix(context.getCim().getEuPrefix(), context.getCim().getEuNamespace());
         writer.setPrefix("rdf", RDF_NAMESPACE);
-        writer.setPrefix("cim", cimNamespace);
+        writer.setPrefix("cim", context.getCim().getNamespace());
         writer.setPrefix("md", MD_NAMESPACE);
         writer.writeStartElement(RDF_NAMESPACE, "RDF");
-        writer.writeNamespace(euPrefix, euNamespace);
+        writer.writeNamespace(context.getCim().getEuPrefix(), context.getCim().getEuNamespace());
         writer.writeNamespace("rdf", RDF_NAMESPACE);
-        writer.writeNamespace("cim", cimNamespace);
+        writer.writeNamespace("cim", context.getCim().getNamespace());
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
@@ -197,7 +197,8 @@ public final class CgmesExportUtil {
         return context.encode(id.startsWith("_") ? id.substring(1) : id);
     }
 
-    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
         writer.writeStartElement(cimNamespace, className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
@@ -210,21 +211,23 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writeStartId(className, id, true, cimNamespace, writer, context);
+    public static void writeStartAbout(String className, String id, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        writer.writeStartElement(context.getCim().getNamespace(), className);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
+    }
+
+    public static void writeStartIdName(String className, String id, String name, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        writeStartId(className, id, true, writer, context);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(name.length() > 32 ? name.substring(0, 32) : name); // name should not be longer than 32 characters
         writer.writeEndElement();
     }
 
-    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writeReference(String refName, String referredId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
         writer.writeEmptyElement(cimNamespace, refName);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId, context));
-    }
-
-    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, className);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
     }
 
     public static String loadClassName(Load load) {

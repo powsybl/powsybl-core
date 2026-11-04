@@ -19,14 +19,14 @@ import javax.xml.stream.XMLStreamWriter;
 public final class EnergyConsumerEq {
 
     public static void write(String className, String id, String loadName, String loadGroup, String equipmentContainer,
-                             String loadResponseCharacteristicId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(className, id, loadName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+                             String loadResponseCharacteristicId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(className, id, loadName, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (loadGroup != null) {
-            CgmesExportUtil.writeReference(className + ".LoadGroup", loadGroup, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference(className + ".LoadGroup", loadGroup, writer, context);
         }
         if (loadResponseCharacteristicId != null) {
-            CgmesExportUtil.writeReference("EnergyConsumer.LoadResponse", loadResponseCharacteristicId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("EnergyConsumer.LoadResponse", loadResponseCharacteristicId, writer, context);
         }
         writer.writeEndElement();
     }

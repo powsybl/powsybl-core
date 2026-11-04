@@ -18,9 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class OperationalLimitSetEq {
 
-    public static void write(String id, String name, String terminalId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("OperationalLimitSet", id, name, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("OperationalLimitSet.Terminal", terminalId, cimNamespace, writer, context);
+    public static void write(String id, String name, String terminalId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("OperationalLimitSet", id, name, writer, context);
+        CgmesExportUtil.writeReference("OperationalLimitSet.Terminal", terminalId, writer, context);
         writer.writeEndElement();
     }
 

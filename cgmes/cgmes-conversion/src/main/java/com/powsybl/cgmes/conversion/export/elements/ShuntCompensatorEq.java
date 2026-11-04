@@ -33,9 +33,10 @@ public final class ShuntCompensatorEq {
     private static final String EQ_NONLINEARSHUNTCOMPENSATOR_G = "NonlinearShuntCompensatorPoint.g";
 
     public static void write(String id, String shuntCompensatorName, int normalSections, int maximumSections, double nomU, ShuntCompensatorModelType modelType,
-                             double bPerSection, double gPerSection, String regulatingControlId, String equipmentContainer, String cimNamespace, XMLStreamWriter writer,
+                             double bPerSection, double gPerSection, String regulatingControlId, String equipmentContainer, XMLStreamWriter writer,
                              CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(shuntCompensatorModelClassName(modelType), id, shuntCompensatorName, cimNamespace, writer, context);
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName(shuntCompensatorModelClassName(modelType), id, shuntCompensatorName, writer, context);
         writer.writeStartElement(cimNamespace, EQ_SHUNTCOMPENSATOR_NORMALSECTIONS);
         writer.writeCharacters(CgmesExportUtil.format(normalSections));
         writer.writeEndElement();
@@ -62,15 +63,16 @@ public final class ShuntCompensatorEq {
             writer.writeEndElement();
         }
         if (regulatingControlId != null) {
-            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
         }
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeEndElement();
     }
 
-    public static void writePoint(String id, String shuntId, int sectionNumber, double b, double g, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartId("NonlinearShuntCompensatorPoint", id, false, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("NonlinearShuntCompensatorPoint.NonlinearShuntCompensator", shuntId, cimNamespace, writer, context);
+    public static void writePoint(String id, String shuntId, int sectionNumber, double b, double g, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId("NonlinearShuntCompensatorPoint", id, false, writer, context);
+        CgmesExportUtil.writeReference("NonlinearShuntCompensatorPoint.NonlinearShuntCompensator", shuntId, writer, context);
         writer.writeStartElement(cimNamespace, EQ_NONLINEARSHUNTCOMPENSATOR_SECTIONNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(sectionNumber));
         writer.writeEndElement();

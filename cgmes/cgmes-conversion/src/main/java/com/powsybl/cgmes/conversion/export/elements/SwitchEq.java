@@ -20,10 +20,11 @@ import javax.xml.stream.XMLStreamWriter;
 public final class SwitchEq {
 
     public static void write(String id, String switchName, String switchType, SwitchKind switchKind, String equipmentContainer,
-                             boolean open, boolean retained, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                             boolean open, boolean retained, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
         String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(switchKind);
-        CgmesExportUtil.writeStartIdName(className, id, switchName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName(className, id, switchName, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeStartElement(cimNamespace, "Switch.normalOpen");
         writer.writeCharacters(CgmesExportUtil.format(open));
         writer.writeEndElement();

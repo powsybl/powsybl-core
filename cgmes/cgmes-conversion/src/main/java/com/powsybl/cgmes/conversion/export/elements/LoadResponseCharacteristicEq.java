@@ -23,8 +23,9 @@ public final class LoadResponseCharacteristicEq {
                              boolean exponentModel, double pVoltageExponent, double qVoltageExponent,
                              double pConstantPower, double qConstantPower, double pConstantCurrent,
                              double qConstantCurrent, double pConstantImpedance, double qConstantImpedance,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("LoadResponseCharacteristic", id, name, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("LoadResponseCharacteristic", id, name, writer, context);
 
         writer.writeStartElement(cimNamespace, "LoadResponseCharacteristic.exponentModel");
         writer.writeCharacters(CgmesExportUtil.format(exponentModel));

@@ -51,7 +51,7 @@ public final class TopologyExport {
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         try {
             String cimNamespace = context.getCim().getNamespace();
-            CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
+            CgmesExportUtil.writeRdfRoot(context, writer);
 
             if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(network, CgmesSubset.TOPOLOGY, writer, model, context);
@@ -301,15 +301,15 @@ public final class TopologyExport {
     }
 
     private static void writeDCNode(String dcNode, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("DCNode", dcNode, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("DCNode.DCTopologicalNode", dcTopologicalNode, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout("DCNode", dcNode, writer, context);
+        CgmesExportUtil.writeReference("DCNode.DCTopologicalNode", dcTopologicalNode, writer, context);
         writer.writeEndElement();
     }
 
     private static void writeDCBaseTerminal(String className, String dcBaseTerminalId, String dcTopologicalNodeId,
                                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout(className, dcBaseTerminalId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNodeId, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(className, dcBaseTerminalId, writer, context);
+        CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNodeId, writer, context);
         writer.writeEndElement();
     }
 
@@ -332,8 +332,8 @@ public final class TopologyExport {
     }
 
     private static void writeTerminal(String terminalId, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("Terminal", terminalId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Terminal.TopologicalNode", topologicalNode, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout("Terminal", terminalId, writer, context);
+        CgmesExportUtil.writeReference("Terminal.TopologicalNode", topologicalNode, writer, context);
         writer.writeEndElement();
     }
 
@@ -453,15 +453,15 @@ public final class TopologyExport {
     }
 
     private static void writeDCTopologicalNode(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCTopologicalNode", id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName("DCTopologicalNode", id, name, writer, context);
         writer.writeEndElement();
     }
 
     private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId,
                                              String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("TopologicalNode", topologicalNode, topologicalNodeName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName("TopologicalNode", topologicalNode, topologicalNodeName, writer, context);
+        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, writer, context);
+        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, writer, context);
         writer.writeEndElement();
     }
 

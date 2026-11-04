@@ -18,9 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class SubstationEq {
 
-    public static void write(String id, String substationName, String subGeographicalRegionId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("Substation", id, substationName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Substation.Region", subGeographicalRegionId, cimNamespace, writer, context);
+    public static void write(String id, String substationName, String subGeographicalRegionId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("Substation", id, substationName, writer, context);
+        CgmesExportUtil.writeReference("Substation.Region", subGeographicalRegionId, writer, context);
         writer.writeEndElement();
     }
 

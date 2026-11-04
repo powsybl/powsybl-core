@@ -21,10 +21,11 @@ public final class ExternalNetworkInjectionEq {
 
     public static void write(String id, String name, String equipmentContainer, double governorScd,
                              double maxP, double maxQ, double minP, double minQ,
-                             String regulatingControlId, String cimNamespace, XMLStreamWriter writer,
+                             String regulatingControlId, XMLStreamWriter writer,
                              CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("ExternalNetworkInjection", id, name, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("ExternalNetworkInjection", id, name, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.governorSCD");
         writer.writeCharacters(CgmesExportUtil.format(governorScd));
         writer.writeEndElement();
@@ -41,7 +42,7 @@ public final class ExternalNetworkInjectionEq {
         writer.writeCharacters(CgmesExportUtil.format(minQ));
         writer.writeEndElement();
         if (regulatingControlId != null) {
-            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
         }
         writer.writeEndElement();
     }

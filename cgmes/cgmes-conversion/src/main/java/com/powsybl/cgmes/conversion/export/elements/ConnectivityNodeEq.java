@@ -18,9 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class ConnectivityNodeEq {
 
-    public static void write(String id, String nodeName, String connectivityNodeContainerId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("ConnectivityNode", id, nodeName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("ConnectivityNode.ConnectivityNodeContainer", connectivityNodeContainerId, cimNamespace, writer, context);
+    public static void write(String id, String nodeName, String connectivityNodeContainerId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("ConnectivityNode", id, nodeName, writer, context);
+        CgmesExportUtil.writeReference("ConnectivityNode.ConnectivityNodeContainer", connectivityNodeContainerId, writer, context);
         writer.writeEndElement();
     }
 

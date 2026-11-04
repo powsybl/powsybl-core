@@ -32,11 +32,12 @@ public final class StaticVarCompensatorEq {
     public static void write(String id, String svcName, String equipmentContainer, String regulatingControlId,
                              double inductiveRating, double capacitiveRating, double slope,
                              RegulationMode svcControlMode, double voltageSetPoint,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("StaticVarCompensator", id, svcName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("StaticVarCompensator", id, svcName, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (regulatingControlId != null) {
-            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
         }
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_INDUCTIVERATING);
         writer.writeCharacters(CgmesExportUtil.format(inductiveRating));
