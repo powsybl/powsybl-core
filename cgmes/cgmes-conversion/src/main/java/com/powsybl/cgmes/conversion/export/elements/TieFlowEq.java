@@ -18,10 +18,11 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class TieFlowEq {
 
-    public static void write(String id, String controlAreaId, String terminalId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartId("TieFlow", id, false, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("TieFlow.ControlArea", controlAreaId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("TieFlow.Terminal", terminalId, cimNamespace, writer, context);
+    public static void write(String id, String controlAreaId, String terminalId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId("TieFlow", id, false, writer, context);
+        CgmesExportUtil.writeReference("TieFlow.ControlArea", controlAreaId, writer, context);
+        CgmesExportUtil.writeReference("TieFlow.Terminal", terminalId, writer, context);
         writer.writeStartElement(cimNamespace, "TieFlow.positiveFlowIn");
         writer.writeCharacters("true"); // always true
         writer.writeEndElement();

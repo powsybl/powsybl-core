@@ -19,8 +19,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class DCSwitchEq {
 
-    public static void write(String className, String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(className, id, name, cimNamespace, writer, context);
+    public static void write(String className, String id, String name, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(className, id, name, writer, context);
         writer.writeEndElement();
     }
 

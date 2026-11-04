@@ -18,8 +18,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class GeographicalRegionEq {
 
-    public static void write(String id, String regionName, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("GeographicalRegion", id, regionName, cimNamespace, writer, context);
+    public static void write(String id, String regionName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("GeographicalRegion", id, regionName, writer, context);
         writer.writeEndElement();
     }
 

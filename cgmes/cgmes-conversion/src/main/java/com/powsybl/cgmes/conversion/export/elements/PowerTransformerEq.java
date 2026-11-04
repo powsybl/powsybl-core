@@ -32,18 +32,19 @@ public final class PowerTransformerEq {
 
     private static final double EQ_POWERTRANSFORMEREND_RATEDS_DEFAULT_VALUE = 100.0;
 
-    public static void write(String id, String transformerName, String equipmentContainer, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, cimNamespace, writer, context);
+    public static void write(String id, String transformerName, String equipmentContainer, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, writer, context);
         if (equipmentContainer != null) {
-            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         }
         writer.writeEndElement();
     }
 
     public static void writeEnd(String id, String transformerEndName, String transformerId, int endNumber, double r, double x, double g, double b,
-                                double ratedS, double ratedU, String terminalId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
+                                double ratedS, double ratedU, String terminalId, String baseVoltageId, XMLStreamWriter writer,
                                 CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, cimNamespace, writer, context);
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, writer, context);
         writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_ENDNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(endNumber));
         writer.writeEndElement();
@@ -65,9 +66,9 @@ public final class PowerTransformerEq {
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
         writer.writeCharacters(CgmesExportUtil.format(ratedU));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference(EQ_POWERTRANSFORMEREND_POWERTRANSFORMER, transformerId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_TERMINAL, terminalId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_BASEVOLTAGE, baseVoltageId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference(EQ_POWERTRANSFORMEREND_POWERTRANSFORMER, transformerId, writer, context);
+        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_TERMINAL, terminalId, writer, context);
+        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_BASEVOLTAGE, baseVoltageId, writer, context);
         writer.writeEndElement();
     }
 

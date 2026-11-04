@@ -22,19 +22,20 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class SynchronousMachineEq {
 
     public static void write(String id, String generatorName, String equipmentContainer, String generatingUnit, String regulatingControlId, String reactiveCapabilityCurveId,
-                             Double minQ, Double maxQ, double ratedS, double defaultRatedS, String kind, String cimNamespace,
+                             Double minQ, Double maxQ, double ratedS, double defaultRatedS, String kind,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (generatingUnit != null) {
             // Some synchronous machines are not associated to a generating unit (condensers)
-            CgmesExportUtil.writeReference("RotatingMachine.GeneratingUnit", generatingUnit, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("RotatingMachine.GeneratingUnit", generatingUnit, writer, context);
         }
         if (regulatingControlId != null) {
-            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
         }
         if (reactiveCapabilityCurveId != null) {
-            CgmesExportUtil.writeReference("SynchronousMachine.InitialReactiveCapabilityCurve", reactiveCapabilityCurveId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("SynchronousMachine.InitialReactiveCapabilityCurve", reactiveCapabilityCurveId, writer, context);
         }
         if (minQ != null) {
             writer.writeStartElement(cimNamespace, "SynchronousMachine.minQ");

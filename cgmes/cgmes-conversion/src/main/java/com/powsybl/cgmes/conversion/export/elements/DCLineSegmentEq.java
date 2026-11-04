@@ -18,8 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class DCLineSegmentEq {
 
-    public static void write(String id, String lineSegmentName, double resistance, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCLineSegment", id, lineSegmentName, cimNamespace, writer, context);
+    public static void write(String id, String lineSegmentName, double resistance, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("DCLineSegment", id, lineSegmentName, writer, context);
         writer.writeStartElement(cimNamespace, "DCLineSegment.resistance");
         writer.writeCharacters(CgmesExportUtil.format(resistance));
         writer.writeEndElement();

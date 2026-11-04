@@ -26,9 +26,10 @@ public final class GeneratingUnitEq {
     private static final String EQ_GENERATINGUNIT_MAXP = "GeneratingUnit.maxOperatingP";
     private static final String EQ_GENERATINGUNIT_INITIALP = "GeneratingUnit.initialP";
 
-    public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP, String cimNamespace,
+    public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP,
                              String equipmentContainer, String hydroPowerPlantId, String windGenUnitType, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, cimNamespace, writer, context);
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, writer, context);
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MINP);
         writer.writeCharacters(CgmesExportUtil.format(minP));
         writer.writeEndElement();
@@ -41,14 +42,14 @@ public final class GeneratingUnitEq {
             writer.writeEndElement();
         }
         if (equipmentContainer != null) {
-            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         }
         if (energySource == EnergySource.WIND) {
             writer.writeEmptyElement(cimNamespace, "WindGeneratingUnit.windGenUnitType");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s%s", cimNamespace, "WindGenUnitKind.", windGenUnitType));
         }
         if (hydroPowerPlantId != null) {
-            CgmesExportUtil.writeReference("HydroGeneratingUnit.HydroPowerPlant", hydroPowerPlantId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("HydroGeneratingUnit.HydroPowerPlant", hydroPowerPlantId, writer, context);
         }
         writer.writeEndElement();
     }

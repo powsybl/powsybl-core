@@ -28,8 +28,9 @@ public final class ReactiveCapabilityCurveEq {
     public static final String UNITSYMBOL_VAR = "UnitSymbol.VAr";
 
     public static void write(String id, String reactiveCapabilityCurveName, ReactiveLimitsHolder holder,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(holderClassName(holder), id, reactiveCapabilityCurveName, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName(holderClassName(holder), id, reactiveCapabilityCurveName, writer, context);
         writer.writeEmptyElement(cimNamespace, "Curve.curveStyle");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CURVE_STYLE_STRAIGHTLINEYVALUES);
         writer.writeEmptyElement(cimNamespace, "Curve.xUnit");

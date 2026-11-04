@@ -18,10 +18,10 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class DCNodeEq {
 
-    public static void write(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCNode", id, dcNodeName, cimNamespace, writer, context);
+    public static void write(String id, String dcNodeName, String dcEquipmentContainerId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("DCNode", id, dcNodeName, writer, context);
         if (dcEquipmentContainerId != null) {
-            CgmesExportUtil.writeReference("DCNode.DCEquipmentContainer", dcEquipmentContainerId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("DCNode.DCEquipmentContainer", dcEquipmentContainerId, writer, context);
         }
         writer.writeEndElement();
     }

@@ -24,13 +24,14 @@ import javax.xml.stream.XMLStreamWriter;
 public final class LoadingLimitEq {
 
     public static void write(String id, String className, String name, double value,
-                             String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(className, id, name, cimNamespace, writer, context);
+                             String operationalLimitTypeId, String operationalLimitSetId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName(className, id, name, writer, context);
         writer.writeStartElement(cimNamespace, className + "." + getLimitValueAttributeName(context));
         writer.writeCharacters(CgmesExportUtil.format(value));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitSet", operationalLimitSetId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitType", operationalLimitTypeId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitSet", operationalLimitSetId, writer, context);
+        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitType", operationalLimitTypeId, writer, context);
         writer.writeEndElement();
     }
 

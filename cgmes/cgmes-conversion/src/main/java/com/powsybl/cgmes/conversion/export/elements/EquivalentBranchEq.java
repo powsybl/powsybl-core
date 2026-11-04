@@ -23,8 +23,9 @@ public final class EquivalentBranchEq {
     private static final String EQ_EQUIVALENT_BRANCH_X = "EquivalentBranch.x";
 
     public static void write(String id, String equivalentBranchName, String baseVoltage, double r, double x,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("EquivalentBranch", id, equivalentBranchName, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("EquivalentBranch", id, equivalentBranchName, writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENT_BRANCH_R);
         writer.writeCharacters(CgmesExportUtil.format(r));
         writer.writeEndElement();
@@ -32,7 +33,7 @@ public final class EquivalentBranchEq {
         writer.writeCharacters(CgmesExportUtil.format(x));
         writer.writeEndElement();
         if (baseVoltage != null) {
-            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
         }
         writer.writeEndElement();
     }

@@ -23,8 +23,9 @@ public final class ControlAreaEq {
     private static final String CONTROL_AREA_TYPE = CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE;
 
     public static void write(String id, String controlAreaName, String energyIdentCodeEIC, String energyAreaId,
-                             String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, cimNamespace, writer, context);
+                             String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, writer, context);
         if (energyIdentCodeEIC != null) {
             writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
             writer.writeCharacters(energyIdentCodeEIC);
@@ -33,7 +34,7 @@ public final class ControlAreaEq {
         writer.writeEmptyElement(cimNamespace, "ControlArea.type");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CONTROL_AREA_TYPE);
         if (!context.isCim16BusBranchExport()) {
-            CgmesExportUtil.writeReference("ControlArea.EnergyArea", energyAreaId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("ControlArea.EnergyArea", energyAreaId, writer, context);
         }
         writer.writeEndElement();
     }

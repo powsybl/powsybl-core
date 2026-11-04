@@ -27,10 +27,11 @@ public final class RegulatingControlEq {
     public static final String REGULATING_CONTROL_ACTIVE_POWER = "RegulatingControlModeKind.activePower";
 
     public static void writeRegulatingControlEq(Connectable<?> c, String terminalId, String regulatingControlId,
-                                                String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                                String mode, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
         String regulatingControlName = "RC_" + c.getNameOrId();
-        CgmesExportUtil.writeStartIdName("RegulatingControl", regulatingControlId, regulatingControlName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartIdName("RegulatingControl", regulatingControlId, regulatingControlName, writer, context);
+        CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, writer, context);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + mode);
         writer.writeEndElement();

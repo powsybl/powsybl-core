@@ -19,10 +19,10 @@ import javax.xml.stream.XMLStreamWriter;
 public final class BusbarSectionEq {
 
     public static void write(String id, String busName, String voltageLevelId, String baseVoltageId,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("BusbarSection", id, busName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", voltageLevelId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("BusbarSection", id, busName, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", voltageLevelId, writer, context);
+        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, writer, context);
         writer.writeEndElement();
     }
 

@@ -19,8 +19,9 @@ import javax.xml.stream.XMLStreamWriter;
 public final class CurveDataEq {
 
     public static void write(String id, double p, double minQ, double maxQ, String reactiveLimitsId,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartId("CurveData", id, false, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId("CurveData", id, false, writer, context);
         writer.writeStartElement(cimNamespace, "CurveData.xvalue");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -30,7 +31,7 @@ public final class CurveDataEq {
         writer.writeStartElement(cimNamespace, "CurveData.y2value");
         writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("CurveData.Curve", reactiveLimitsId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("CurveData.Curve", reactiveLimitsId, writer, context);
         writer.writeEndElement();
     }
 

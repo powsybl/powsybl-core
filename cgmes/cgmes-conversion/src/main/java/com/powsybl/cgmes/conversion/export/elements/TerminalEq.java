@@ -20,11 +20,12 @@ import javax.xml.stream.XMLStreamWriter;
 public final class TerminalEq {
 
     public static void write(String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber,
-                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(CgmesNames.TERMINAL, id, conductingEquipmentId, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("Terminal.ConductingEquipment", conductingEquipmentId, cimNamespace, writer, context);
+                             XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName(CgmesNames.TERMINAL, id, conductingEquipmentId, writer, context);
+        CgmesExportUtil.writeReference("Terminal.ConductingEquipment", conductingEquipmentId, writer, context);
         if (connectivityNodeId != null) {
-            CgmesExportUtil.writeReference("Terminal.ConnectivityNode", connectivityNodeId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("Terminal.ConnectivityNode", connectivityNodeId, writer, context);
         }
         writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));

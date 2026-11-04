@@ -20,8 +20,9 @@ public final class AcDcConverterEq {
 
     public static void write(String id, String converterName, String className, double ratedUdc,
                              double idleLoss, double switchingLoss, double resistiveLoss, String dcEquipmentContainerId, String pccTerminal,
-                             String capabilityCurveId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(className, id, converterName, cimNamespace, writer, context);
+                             String capabilityCurveId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartIdName(className, id, converterName, writer, context);
         writer.writeStartElement(cimNamespace, "ACDCConverter.ratedUdc");
         writer.writeCharacters(CgmesExportUtil.format(ratedUdc));
         writer.writeEndElement();
@@ -34,12 +35,12 @@ public final class AcDcConverterEq {
         writer.writeStartElement(cimNamespace, "ACDCConverter.resistiveLoss");
         writer.writeCharacters(CgmesExportUtil.format(resistiveLoss));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", dcEquipmentContainerId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", dcEquipmentContainerId, writer, context);
         if (pccTerminal != null) {
-            CgmesExportUtil.writeReference("ACDCConverter.PccTerminal", pccTerminal, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("ACDCConverter.PccTerminal", pccTerminal, writer, context);
         }
         if (capabilityCurveId != null) {
-            CgmesExportUtil.writeReference("VsConverter.CapabilityCurve", capabilityCurveId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("VsConverter.CapabilityCurve", capabilityCurveId, writer, context);
         }
         writer.writeEndElement();
     }
