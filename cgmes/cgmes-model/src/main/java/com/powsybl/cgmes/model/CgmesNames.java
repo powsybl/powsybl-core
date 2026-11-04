@@ -40,6 +40,7 @@ public final class CgmesNames {
     public static final String CONNECTIVITY_NODE = "ConnectivityNode";
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
+    public static final String BASE_VOLTAGE = "BaseVoltage";
     public static final String TERMINAL = "Terminal";
     public static final String SEQUENCE_NUMBER = "sequenceNumber";
     public static final String AC_LINE_SEGMENT = "ACLineSegment";
@@ -200,6 +201,8 @@ public final class CgmesNames {
 
     public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
     public static final String P_TOLERANCE = "pTolerance";
+
+    public static final String CONDUCTING_EQUIPMENT_BASE_VOLTAGE = CgmesNames.CONDUCTING_EQUIPMENT + "." + CgmesNames.BASE_VOLTAGE;
 
     private CgmesNames() {
     }
