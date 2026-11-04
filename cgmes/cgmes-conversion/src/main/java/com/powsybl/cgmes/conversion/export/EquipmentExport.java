@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -179,6 +180,8 @@ public final class EquipmentExport {
     }
 
     private void writeSwitches() throws XMLStreamException {
+        // Write IIDM Switch to CGMES Switch or to the original CGMES branch
+        // in case the switch comes from a zero impedance branch.
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
@@ -195,7 +198,8 @@ public final class EquipmentExport {
                     }
                     case "EquivalentBranch" -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
-                        EquivalentBranchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, writer, context);
+                        EquivalentBranchEq branch = new EquivalentBranchEq(rdfId, name, 0.0, 0.0, baseVoltageId);
+                        CgmesEquivalentBranch.writeEq(branch, writer, context);
                     }
                     case "SeriesCompensator" -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
