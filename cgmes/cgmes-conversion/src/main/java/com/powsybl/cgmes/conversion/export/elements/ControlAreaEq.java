@@ -34,7 +34,7 @@ public final class ControlAreaEq {
         writer.writeEmptyElement(cimNamespace, "ControlArea.type");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CONTROL_AREA_TYPE);
         if (!context.isCim16BusBranchExport()) {
-            CgmesExportUtil.writeReference("ControlArea.EnergyArea", energyAreaId, writer, context);
+            CgmesExportUtil.writeResource("ControlArea.EnergyArea", energyAreaId, writer, context);
         }
         writer.writeEndElement();
     }

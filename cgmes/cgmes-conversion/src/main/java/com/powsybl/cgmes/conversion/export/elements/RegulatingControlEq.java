@@ -31,7 +31,7 @@ public final class RegulatingControlEq {
         String cimNamespace = context.getCim().getNamespace();
         String regulatingControlName = "RC_" + c.getNameOrId();
         CgmesExportUtil.writeStartIdName("RegulatingControl", regulatingControlId, regulatingControlName, writer, context);
-        CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, writer, context);
+        CgmesExportUtil.writeResource("RegulatingControl.Terminal", terminalId, writer, context);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + mode);
         writer.writeEndElement();

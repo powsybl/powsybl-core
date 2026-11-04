@@ -42,14 +42,14 @@ public final class GeneratingUnitEq {
             writer.writeEndElement();
         }
         if (equipmentContainer != null) {
-            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
+            CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         }
         if (energySource == EnergySource.WIND) {
             writer.writeEmptyElement(cimNamespace, "WindGeneratingUnit.windGenUnitType");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s%s", cimNamespace, "WindGenUnitKind.", windGenUnitType));
         }
         if (hydroPowerPlantId != null) {
-            CgmesExportUtil.writeReference("HydroGeneratingUnit.HydroPowerPlant", hydroPowerPlantId, writer, context);
+            CgmesExportUtil.writeResource("HydroGeneratingUnit.HydroPowerPlant", hydroPowerPlantId, writer, context);
         }
         writer.writeEndElement();
     }

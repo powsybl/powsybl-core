@@ -29,7 +29,7 @@ public final class DCConverterUnitEq {
         CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, writer, context);
         writer.writeEmptyElement(cimNamespace, "DCConverterUnit.operationMode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + OPERATING_MODE_KIND + operationMode);
-        CgmesExportUtil.writeReference("DCConverterUnit.Substation", substationId, writer, context);
+        CgmesExportUtil.writeResource("DCConverterUnit.Substation", substationId, writer, context);
         writer.writeEndElement();
     }
 

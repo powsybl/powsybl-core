@@ -26,16 +26,16 @@ public final class SynchronousMachineEq {
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (generatingUnit != null) {
             // Some synchronous machines are not associated to a generating unit (condensers)
-            CgmesExportUtil.writeReference("RotatingMachine.GeneratingUnit", generatingUnit, writer, context);
+            CgmesExportUtil.writeResource("RotatingMachine.GeneratingUnit", generatingUnit, writer, context);
         }
         if (regulatingControlId != null) {
-            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
+            CgmesExportUtil.writeResource("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
         }
         if (reactiveCapabilityCurveId != null) {
-            CgmesExportUtil.writeReference("SynchronousMachine.InitialReactiveCapabilityCurve", reactiveCapabilityCurveId, writer, context);
+            CgmesExportUtil.writeResource("SynchronousMachine.InitialReactiveCapabilityCurve", reactiveCapabilityCurveId, writer, context);
         }
         if (minQ != null) {
             writer.writeStartElement(cimNamespace, "SynchronousMachine.minQ");

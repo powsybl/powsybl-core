@@ -33,7 +33,7 @@ public final class EquivalentBranchEq {
         writer.writeCharacters(CgmesExportUtil.format(x));
         writer.writeEndElement();
         if (baseVoltage != null) {
-            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
+            CgmesExportUtil.writeResource("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
         }
         writer.writeEndElement();
     }

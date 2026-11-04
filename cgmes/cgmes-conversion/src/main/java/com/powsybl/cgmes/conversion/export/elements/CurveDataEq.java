@@ -31,7 +31,7 @@ public final class CurveDataEq {
         writer.writeStartElement(cimNamespace, "CurveData.y2value");
         writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("CurveData.Curve", reactiveLimitsId, writer, context);
+        CgmesExportUtil.writeResource("CurveData.Curve", reactiveLimitsId, writer, context);
         writer.writeEndElement();
     }
 

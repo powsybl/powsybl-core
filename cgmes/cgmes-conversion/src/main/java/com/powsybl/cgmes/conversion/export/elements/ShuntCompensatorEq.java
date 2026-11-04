@@ -63,16 +63,16 @@ public final class ShuntCompensatorEq {
             writer.writeEndElement();
         }
         if (regulatingControlId != null) {
-            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
+            CgmesExportUtil.writeResource("RegulatingCondEq.RegulatingControl", regulatingControlId, writer, context);
         }
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeEndElement();
     }
 
     public static void writePoint(String id, String shuntId, int sectionNumber, double b, double g, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId("NonlinearShuntCompensatorPoint", id, false, writer, context);
-        CgmesExportUtil.writeReference("NonlinearShuntCompensatorPoint.NonlinearShuntCompensator", shuntId, writer, context);
+        CgmesExportUtil.writeResource("NonlinearShuntCompensatorPoint.NonlinearShuntCompensator", shuntId, writer, context);
         writer.writeStartElement(cimNamespace, EQ_NONLINEARSHUNTCOMPENSATOR_SECTIONNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(sectionNumber));
         writer.writeEndElement();

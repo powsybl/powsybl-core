@@ -24,7 +24,7 @@ public final class SwitchEq {
         String cimNamespace = context.getCim().getNamespace();
         String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(switchKind);
         CgmesExportUtil.writeStartIdName(className, id, switchName, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeStartElement(cimNamespace, "Switch.normalOpen");
         writer.writeCharacters(CgmesExportUtil.format(open));
         writer.writeEndElement();

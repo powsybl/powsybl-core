@@ -21,7 +21,7 @@ public final class DCNodeEq {
     public static void write(String id, String dcNodeName, String dcEquipmentContainerId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("DCNode", id, dcNodeName, writer, context);
         if (dcEquipmentContainerId != null) {
-            CgmesExportUtil.writeReference("DCNode.DCEquipmentContainer", dcEquipmentContainerId, writer, context);
+            CgmesExportUtil.writeResource("DCNode.DCEquipmentContainer", dcEquipmentContainerId, writer, context);
         }
         writer.writeEndElement();
     }

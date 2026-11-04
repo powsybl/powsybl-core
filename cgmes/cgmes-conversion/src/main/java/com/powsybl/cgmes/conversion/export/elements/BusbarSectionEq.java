@@ -21,8 +21,8 @@ public final class BusbarSectionEq {
     public static void write(String id, String busName, String voltageLevelId, String baseVoltageId,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("BusbarSection", id, busName, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", voltageLevelId, writer, context);
-        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", voltageLevelId, writer, context);
+        CgmesExportUtil.writeResource("ConductingEquipment.BaseVoltage", baseVoltageId, writer, context);
         writer.writeEndElement();
     }
 

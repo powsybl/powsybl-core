@@ -20,7 +20,7 @@ public final class SubGeographicalRegionEq {
 
     public static void write(String id, String subRegionName, String geographicalRegionId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("SubGeographicalRegion", id, subRegionName, writer, context);
-        CgmesExportUtil.writeReference("SubGeographicalRegion.Region", geographicalRegionId, writer, context);
+        CgmesExportUtil.writeResource("SubGeographicalRegion.Region", geographicalRegionId, writer, context);
         writer.writeEndElement();
     }
 

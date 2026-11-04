@@ -20,7 +20,7 @@ public final class OperationalLimitSetEq {
 
     public static void write(String id, String name, String terminalId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("OperationalLimitSet", id, name, writer, context);
-        CgmesExportUtil.writeReference("OperationalLimitSet.Terminal", terminalId, writer, context);
+        CgmesExportUtil.writeResource("OperationalLimitSet.Terminal", terminalId, writer, context);
         writer.writeEndElement();
     }
 

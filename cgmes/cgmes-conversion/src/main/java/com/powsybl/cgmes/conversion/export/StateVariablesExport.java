@@ -98,14 +98,14 @@ public final class StateVariablesExport {
             }
             String islandId = context.getNamingStrategy().getCgmesId(ref(island.key), TOPOLOGICAL_ISLAND);
             CgmesExportUtil.writeStartIdName(CgmesNames.TOPOLOGICAL_ISLAND, islandId, islandId, writer, context);
-            CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.key), writer, context);
+            CgmesExportUtil.writeResource("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.key), writer, context);
             if (context.isExportLoadFlowStatus()) {
                 writer.writeStartElement(cimNamespace, CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION);
                 writer.writeCharacters(island.loadFlowStatus);
                 writer.writeEndElement();
             }
             for (String tn : island.topologicalNodes) {
-                CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, writer, context);
+                CgmesExportUtil.writeResource("TopologicalIsland.TopologicalNodes", tn, writer, context);
             }
             writer.writeEndElement();
         }
@@ -347,7 +347,7 @@ public final class StateVariablesExport {
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_V);
         writer.writeCharacters(CgmesExportUtil.format(v));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference(SV_VOLTAGE_TOPOLOGICAL_NODE, topologicalNode, writer, context);
+        CgmesExportUtil.writeResource(SV_VOLTAGE_TOPOLOGICAL_NODE, topologicalNode, writer, context);
         writer.writeEndElement();
     }
 
@@ -514,7 +514,7 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, "SvPowerFlow.q");
             writer.writeCharacters(CgmesExportUtil.format(q));
             writer.writeEndElement();
-            CgmesExportUtil.writeReference("SvPowerFlow.Terminal", cgmesTerminalId, writer, context);
+            CgmesExportUtil.writeResource("SvPowerFlow.Terminal", cgmesTerminalId, writer, context);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -551,7 +551,7 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, "SvInjection.qInjection");
             writer.writeCharacters(CgmesExportUtil.format(q));
             writer.writeEndElement();
-            CgmesExportUtil.writeReference("SvInjection.TopologicalNode", topologicalNode, writer, context);
+            CgmesExportUtil.writeResource("SvInjection.TopologicalNode", topologicalNode, writer, context);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -564,7 +564,7 @@ public final class StateVariablesExport {
                 continue;
             }
             CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueRandomId(), false, writer, context);
-            CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator", context.getNamingStrategy().getCgmesId(s), writer, context);
+            CgmesExportUtil.writeResource("SvShuntCompensatorSections.ShuntCompensator", context.getNamingStrategy().getCgmesId(s), writer, context);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.findSolvedSectionCount().orElse(s.getSectionCount())));
             writer.writeEndElement();
@@ -643,7 +643,7 @@ public final class StateVariablesExport {
         writer.writeStartElement(cimNamespace, "SvTapStep.position");
         writer.writeCharacters(CgmesExportUtil.format(tapPosition));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("SvTapStep.TapChanger", tapChangerId, writer, context);
+        CgmesExportUtil.writeResource("SvTapStep.TapChanger", tapChangerId, writer, context);
         writer.writeEndElement();
     }
 
@@ -677,7 +677,7 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, "SvStatus.inService");
             writer.writeCharacters(inService);
             writer.writeEndElement();
-            CgmesExportUtil.writeReference("SvStatus.ConductingEquipment", conductingEquipmentId, writer, context);
+            CgmesExportUtil.writeResource("SvStatus.ConductingEquipment", conductingEquipmentId, writer, context);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
