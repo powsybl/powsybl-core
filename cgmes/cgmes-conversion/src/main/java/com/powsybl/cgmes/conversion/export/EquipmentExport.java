@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
@@ -184,11 +185,13 @@ public final class EquipmentExport {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
                 // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
                 // we only export as retained a switch if it will be exported with different TNs at both ends
+                String rdfId = context.getNamingStrategy().getCgmesId(sw);
+                String name = sw.getNameOrId();
                 switch (switchType) {
                     case "ACLineSegment" -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
-                        AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0,
-                                0.0, 0.0, writer, context);
+                        ACLineSegmentEq line = new ACLineSegmentEq(rdfId, name, 0.0, 0.0, 0.0, 0.0, baseVoltageId);
+                        CgmesACLineSegment.writeEq(line, writer, context);
                     }
                     case "EquivalentBranch" -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
@@ -732,9 +735,16 @@ public final class EquipmentExport {
     private void writeLines() throws XMLStreamException {
         for (Line line : network.getLines()) {
             double baseVoltage = Math.max(line.getTerminal1().getVoltageLevel().getNominalV(), line.getTerminal2().getVoltageLevel().getNominalV());
-            String baseVoltageId = context.getBaseVoltageIdFromNominalV(baseVoltage);
-            AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(),
-                line.getG1() + line.getG2(), line.getB1() + line.getB2(), writer, context);
+            ACLineSegmentEq lineEq = new ACLineSegmentEq(
+                context.getNamingStrategy().getCgmesId(line),
+                line.getNameOrId(),
+                line.getR(),
+                line.getX(),
+                line.getG1() + line.getG2(),
+                line.getB1() + line.getB2(),
+                context.getBaseVoltageIdFromNominalV(baseVoltage)
+            );
+            CgmesACLineSegment.writeEq(lineEq, writer, context);
             writeBranchLimits(line, getTerminalId(line.getTerminal1(), context), getTerminalId(line.getTerminal2(), context));
         }
     }
@@ -1081,10 +1091,12 @@ public final class EquipmentExport {
     }
 
     private void writeUnpairedOrPairedBoundaryLines(List<BoundaryLine> boundaryLineList, List<String> exported) throws XMLStreamException {
-
+        // For each boundary line, write an ACLineSegment, its limits and an EquivalentInjection
         double nominalV = boundaryLineList.stream()
             .map(boundaryLine -> boundaryLine.getTerminal().getVoltageLevel().getNominalV())
-            .collect(Collectors.toSet()).stream().sorted().findFirst().orElseThrow();
+            .sorted()
+            .findFirst()
+            .orElseThrow();
         String baseVoltageId = context.getBaseVoltageIdFromNominalV(nominalV);
         String connectivityNodeId = writeBoundaryLinesConnectivity(boundaryLineList, baseVoltageId);
 
@@ -1093,9 +1105,16 @@ public final class EquipmentExport {
             writeBoundaryLineEquivalentInjection(boundaryLine, baseVoltageId, connectivityNodeId, exported);
 
             // Cast the boundaryLine to an AcLineSegment
-            AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(boundaryLine), boundaryLine.getNameOrId(),
-                    context.getBaseVoltageIdFromNominalV(boundaryLine.getTerminal().getVoltageLevel().getNominalV()),
-                    boundaryLine.getR(), boundaryLine.getX(), boundaryLine.getG(), boundaryLine.getB(), writer, context);
+            ACLineSegmentEq line = new ACLineSegmentEq(
+                context.getNamingStrategy().getCgmesId(boundaryLine),
+                boundaryLine.getNameOrId(),
+                boundaryLine.getR(),
+                boundaryLine.getX(),
+                boundaryLine.getG(),
+                boundaryLine.getB(),
+                context.getBaseVoltageIdFromNominalV(boundaryLine.getTerminal().getVoltageLevel().getNominalV())
+            );
+            CgmesACLineSegment.writeEq(line, writer, context);
             writeFlowsLimits(boundaryLine, getTerminalId(boundaryLine.getTerminal(), context));
         }
     }
