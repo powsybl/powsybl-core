@@ -76,6 +76,8 @@ class DefaultNetworkReducerTest {
         assertEquals(0, observer.getThreeWindingsTransformerRemovedCount());
         assertEquals(0, observer.getHvdcLineReplacedCount());
         assertEquals(0, observer.getHvdcLineRemovedCount());
+        assertEquals(0, observer.getTerminalPSubstitutedCount());
+        assertEquals(0, observer.getTerminalQSubstitutedCount());
     }
 
     @Test
@@ -124,6 +126,8 @@ class DefaultNetworkReducerTest {
         assertEquals(0, observer.getThreeWindingsTransformerRemovedCount());
         assertEquals(0, observer.getHvdcLineRemovedCount());
         assertEquals(0, observer.getHvdcLineRemovedCount());
+        assertEquals(0, observer.getTerminalPSubstitutedCount());
+        assertEquals(0, observer.getTerminalQSubstitutedCount());
     }
 
     @Test
@@ -172,8 +176,11 @@ class DefaultNetworkReducerTest {
     void testWithNoLoadflowResults() {
         Network network = EurostagTutorialExample1Factory.create();
 
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
+
         NetworkReducer reducer = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("P1"))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
 
@@ -188,6 +195,9 @@ class DefaultNetworkReducerTest {
         assertEquals(0.0, load2.getQ0(), 0.0);
         assertTrue(Double.isNaN(load2.getTerminal().getP()));
         assertTrue(Double.isNaN(load2.getTerminal().getQ()));
+
+        assertEquals(2, observer.getTerminalPSubstitutedCount());
+        assertEquals(2, observer.getTerminalQSubstitutedCount());
     }
 
     @Test
@@ -202,8 +212,11 @@ class DefaultNetworkReducerTest {
         line2.getTerminal1().disconnect();
         line2.getTerminal2().disconnect();
 
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
+
         NetworkReducer reducer = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("P1"))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
 
@@ -218,6 +231,9 @@ class DefaultNetworkReducerTest {
         assertEquals(0.0, load2.getQ0(), 0.0);
         assertTrue(Double.isNaN(load2.getTerminal().getP()));
         assertTrue(Double.isNaN(load2.getTerminal().getQ()));
+
+        assertEquals(0, observer.getTerminalPSubstitutedCount());
+        assertEquals(0, observer.getTerminalQSubstitutedCount());
     }
 
     @Test

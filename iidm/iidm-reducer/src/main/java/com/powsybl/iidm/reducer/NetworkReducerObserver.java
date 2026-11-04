@@ -36,4 +36,7 @@ public interface NetworkReducerObserver {
 
     void hvdcLineRemoved(HvdcLine hvdcLine);
 
+    void terminalPSubstituted(Terminal terminal);
+
+    void terminalQSubstituted(Terminal terminal);
 }
