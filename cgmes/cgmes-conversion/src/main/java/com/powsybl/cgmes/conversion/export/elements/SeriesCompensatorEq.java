@@ -45,7 +45,7 @@ public final class SeriesCompensatorEq {
         writer.writeCharacters(CgmesExportUtil.format(varistorVoltageThreshold));
         writer.writeEndElement();
         if (baseVoltage != null) {
-            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
+            CgmesExportUtil.writeResource("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
         }
         writer.writeEndElement();
     }

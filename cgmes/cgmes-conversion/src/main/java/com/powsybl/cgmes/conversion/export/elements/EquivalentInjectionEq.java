@@ -56,9 +56,9 @@ public final class EquivalentInjectionEq {
             writer.writeEndElement();
         }
         if (reactiveCapabilityCurveId != null) {
-            CgmesExportUtil.writeReference(EQ_EQUIVALENTINJECTION_REACTIVE_CAPABILITY_CURVE, reactiveCapabilityCurveId, writer, context);
+            CgmesExportUtil.writeResource(EQ_EQUIVALENTINJECTION_REACTIVE_CAPABILITY_CURVE, reactiveCapabilityCurveId, writer, context);
         }
-        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, writer, context);
+        CgmesExportUtil.writeResource("ConductingEquipment.BaseVoltage", baseVoltageId, writer, context);
         writer.writeEndElement();
     }
 

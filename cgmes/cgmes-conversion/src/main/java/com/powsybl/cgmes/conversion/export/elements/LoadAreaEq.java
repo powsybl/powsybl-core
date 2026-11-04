@@ -28,7 +28,7 @@ public final class LoadAreaEq {
 
     public static void writeSubArea(String id, String loadAreaId, String baseName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("SubLoadArea", id, baseName + " SubLoad Area", writer, context);
-        CgmesExportUtil.writeReference("SubLoadArea.LoadArea", loadAreaId, writer, context);
+        CgmesExportUtil.writeResource("SubLoadArea.LoadArea", loadAreaId, writer, context);
         writer.writeEndElement();
     }
 }

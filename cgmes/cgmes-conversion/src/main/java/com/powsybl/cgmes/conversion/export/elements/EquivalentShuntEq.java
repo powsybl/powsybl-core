@@ -31,7 +31,7 @@ public final class EquivalentShuntEq {
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTSHUNT_G);
         writer.writeCharacters(CgmesExportUtil.format(g));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeEndElement();
     }
 

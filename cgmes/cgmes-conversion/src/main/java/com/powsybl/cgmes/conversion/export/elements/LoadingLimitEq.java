@@ -30,8 +30,8 @@ public final class LoadingLimitEq {
         writer.writeStartElement(cimNamespace, className + "." + getLimitValueAttributeName(context));
         writer.writeCharacters(CgmesExportUtil.format(value));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitSet", operationalLimitSetId, writer, context);
-        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitType", operationalLimitTypeId, writer, context);
+        CgmesExportUtil.writeResource("OperationalLimit.OperationalLimitSet", operationalLimitSetId, writer, context);
+        CgmesExportUtil.writeResource("OperationalLimit.OperationalLimitType", operationalLimitTypeId, writer, context);
         writer.writeEndElement();
     }
 

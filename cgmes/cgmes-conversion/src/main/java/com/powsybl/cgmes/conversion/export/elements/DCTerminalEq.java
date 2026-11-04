@@ -23,9 +23,9 @@ public final class DCTerminalEq {
                              CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartIdName(element, id, name, writer, context);
-        CgmesExportUtil.writeReference(element + ".DCConductingEquipment", dcConductingEquipmentId, writer, context);
+        CgmesExportUtil.writeResource(element + ".DCConductingEquipment", dcConductingEquipmentId, writer, context);
         if (dcNodeId != null) {
-            CgmesExportUtil.writeReference("DCBaseTerminal.DCNode", dcNodeId, writer, context);
+            CgmesExportUtil.writeResource("DCBaseTerminal.DCNode", dcNodeId, writer, context);
         }
         writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));

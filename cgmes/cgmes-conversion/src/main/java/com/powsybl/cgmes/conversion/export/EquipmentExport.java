@@ -283,7 +283,7 @@ public final class EquipmentExport {
         for (LoadGroup loadGroup : loadGroups.found()) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, writer, context);
             if (!context.isCim16BusBranchExport()) {
-                CgmesExportUtil.writeReference("LoadGroup.SubLoadArea", subLoadAreaId, writer, context);
+                CgmesExportUtil.writeResource("LoadGroup.SubLoadArea", subLoadAreaId, writer, context);
             }
             writer.writeEndElement();
         }
@@ -415,7 +415,7 @@ public final class EquipmentExport {
 
     private void writeEnergySource(String id, String name, String equipmentContainer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(CgmesNames.ENERGY_SOURCE, id, name, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeEndElement();
     }
 
@@ -636,7 +636,7 @@ public final class EquipmentExport {
         CgmesExportUtil.writeStartIdName("FossilFuel", id, name, writer, context);
         writer.writeEmptyElement(cimNamespace, "FossilFuel.fossilFuelType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "FuelType." + fuelType));
-        CgmesExportUtil.writeReference("FossilFuel.ThermalGeneratingUnit", generatingUnit, writer, context);
+        CgmesExportUtil.writeResource("FossilFuel.ThermalGeneratingUnit", generatingUnit, writer, context);
         writer.writeEndElement();
     }
 

@@ -32,8 +32,8 @@ public final class VoltageLevelEq {
             writer.writeCharacters(CgmesExportUtil.format(highVoltageLimit));
             writer.writeEndElement();
         }
-        CgmesExportUtil.writeReference("VoltageLevel.Substation", substationId, writer, context);
-        CgmesExportUtil.writeReference("VoltageLevel.BaseVoltage", baseVoltageId, writer, context);
+        CgmesExportUtil.writeResource("VoltageLevel.Substation", substationId, writer, context);
+        CgmesExportUtil.writeResource("VoltageLevel.BaseVoltage", baseVoltageId, writer, context);
         writer.writeEndElement();
     }
 

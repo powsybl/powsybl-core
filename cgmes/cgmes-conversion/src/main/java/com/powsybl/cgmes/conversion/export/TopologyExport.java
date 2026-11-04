@@ -302,14 +302,14 @@ public final class TopologyExport {
 
     private static void writeDCNode(String dcNode, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout("DCNode", dcNode, writer, context);
-        CgmesExportUtil.writeReference("DCNode.DCTopologicalNode", dcTopologicalNode, writer, context);
+        CgmesExportUtil.writeResource("DCNode.DCTopologicalNode", dcTopologicalNode, writer, context);
         writer.writeEndElement();
     }
 
     private static void writeDCBaseTerminal(String className, String dcBaseTerminalId, String dcTopologicalNodeId,
                                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(className, dcBaseTerminalId, writer, context);
-        CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNodeId, writer, context);
+        CgmesExportUtil.writeResource("DCBaseTerminal.DCTopologicalNode", dcTopologicalNodeId, writer, context);
         writer.writeEndElement();
     }
 
@@ -333,7 +333,7 @@ public final class TopologyExport {
 
     private static void writeTerminal(String terminalId, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout("Terminal", terminalId, writer, context);
-        CgmesExportUtil.writeReference("Terminal.TopologicalNode", topologicalNode, writer, context);
+        CgmesExportUtil.writeResource("Terminal.TopologicalNode", topologicalNode, writer, context);
         writer.writeEndElement();
     }
 
@@ -460,8 +460,8 @@ public final class TopologyExport {
     private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId,
                                              String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("TopologicalNode", topologicalNode, topologicalNodeName, writer, context);
-        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, writer, context);
-        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, writer, context);
+        CgmesExportUtil.writeResource(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, writer, context);
+        CgmesExportUtil.writeResource(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, writer, context);
         writer.writeEndElement();
     }
 

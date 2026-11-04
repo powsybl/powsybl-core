@@ -42,7 +42,7 @@ public final class AcLineSegmentEq {
         writer.writeCharacters(CgmesExportUtil.format(bch));
         writer.writeEndElement();
         if (baseVoltage != null) {
-            CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
+            CgmesExportUtil.writeResource("ConductingEquipment.BaseVoltage", baseVoltage, writer, context);
         }
         writer.writeEndElement();
     }

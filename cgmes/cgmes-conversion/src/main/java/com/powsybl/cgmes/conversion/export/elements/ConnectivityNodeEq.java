@@ -20,7 +20,7 @@ public final class ConnectivityNodeEq {
 
     public static void write(String id, String nodeName, String connectivityNodeContainerId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("ConnectivityNode", id, nodeName, writer, context);
-        CgmesExportUtil.writeReference("ConnectivityNode.ConnectivityNodeContainer", connectivityNodeContainerId, writer, context);
+        CgmesExportUtil.writeResource("ConnectivityNode.ConnectivityNodeContainer", connectivityNodeContainerId, writer, context);
         writer.writeEndElement();
     }
 

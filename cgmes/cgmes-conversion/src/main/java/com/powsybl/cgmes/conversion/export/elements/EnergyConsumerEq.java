@@ -21,12 +21,12 @@ public final class EnergyConsumerEq {
     public static void write(String className, String id, String loadName, String loadGroup, String equipmentContainer,
                              String loadResponseCharacteristicId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(className, id, loadName, writer, context);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         if (loadGroup != null) {
-            CgmesExportUtil.writeReference(className + ".LoadGroup", loadGroup, writer, context);
+            CgmesExportUtil.writeResource(className + ".LoadGroup", loadGroup, writer, context);
         }
         if (loadResponseCharacteristicId != null) {
-            CgmesExportUtil.writeReference("EnergyConsumer.LoadResponse", loadResponseCharacteristicId, writer, context);
+            CgmesExportUtil.writeResource("EnergyConsumer.LoadResponse", loadResponseCharacteristicId, writer, context);
         }
         writer.writeEndElement();
     }

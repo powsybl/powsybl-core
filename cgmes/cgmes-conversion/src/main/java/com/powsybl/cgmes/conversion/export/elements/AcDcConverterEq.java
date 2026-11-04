@@ -35,12 +35,12 @@ public final class AcDcConverterEq {
         writer.writeStartElement(cimNamespace, "ACDCConverter.resistiveLoss");
         writer.writeCharacters(CgmesExportUtil.format(resistiveLoss));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", dcEquipmentContainerId, writer, context);
+        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", dcEquipmentContainerId, writer, context);
         if (pccTerminal != null) {
-            CgmesExportUtil.writeReference("ACDCConverter.PccTerminal", pccTerminal, writer, context);
+            CgmesExportUtil.writeResource("ACDCConverter.PccTerminal", pccTerminal, writer, context);
         }
         if (capabilityCurveId != null) {
-            CgmesExportUtil.writeReference("VsConverter.CapabilityCurve", capabilityCurveId, writer, context);
+            CgmesExportUtil.writeResource("VsConverter.CapabilityCurve", capabilityCurveId, writer, context);
         }
         writer.writeEndElement();
     }
