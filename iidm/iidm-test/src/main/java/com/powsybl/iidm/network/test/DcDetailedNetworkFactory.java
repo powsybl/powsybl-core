@@ -966,9 +966,9 @@ public final class DcDetailedNetworkFactory {
     /**
      * <pre>
      *           vsc1p - dn1p ----dl13p---- dn3p ----dl23p---- dn2p - vsc2p
-     *           |    |                                          |    |
+     *           |    |                                              |    |
      *     b1 -- |    |- dn1r ----dl13r---- dn3r ----dl23r---- dn2r -|    | -- b2
-     *           |    |                                          |    |
+     *           |    |                                              |    |
      *           vsc1n - dn1n ----dl13n---- dn3n ----dl23n---- dn2n - vsc2n
      * </pre>
      */
