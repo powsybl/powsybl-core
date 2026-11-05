@@ -142,13 +142,22 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         return property != null ? Boolean.parseBoolean(property) : null;
     }
 
+    /**
+     * Update the open status of a switch. It is open if its SSH {@code open} value says so, if one of its CGMES terminals
+     * is disconnected (bus-breaker models only), or if the switch is out of service.
+     *
+     * @param sw the switch to update
+     * @param cgmesData the SSH data of the switch
+     * @param context the update context
+     */
     public static void update(Switch sw, PropertyBag cgmesData, Context context) {
         // The terminal status of switches is only taken into account in bus-breaker models.
         // In node-breaker models, only the switch status is considered
         boolean isOpenFromAtLeastOneTerminal = sw.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
                 && isOpenFromAtLeastOneTerminal(sw, context).orElse(false);
         boolean isOpen = cgmesData.asBoolean(CgmesNames.OPEN).orElse(getDefaultIsOpen(sw, context));
-        sw.setOpen(isOpen || isOpenFromAtLeastOneTerminal);
+        // Out-of-service switches are opened
+        sw.setOpen(isOpen || isOpenFromAtLeastOneTerminal || context.isOutOfService(sw.getId()));
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

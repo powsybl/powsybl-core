@@ -1,0 +1,22 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:ea9656a7-280d-4efb-9781-97381bfad1c6">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Loads with an out-of-service EnergyConsumer</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:EnergyConsumer rdf:about="#_EnergyConsumer">
+        <cim:Equipment.inService>false</cim:Equipment.inService>
+    </cim:EnergyConsumer>
+
+    <cim:EnergySource rdf:about="#_EnergySource">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:EnergySource>
+
+    <cim:AsynchronousMachine rdf:about="#_AsynchronousMachine">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:AsynchronousMachine>
+</rdf:RDF>

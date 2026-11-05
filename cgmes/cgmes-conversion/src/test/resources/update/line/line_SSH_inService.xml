@@ -1,0 +1,22 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:9c9c1cba-324f-4ff7-9bf8-708d9139c931">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Lines with an out-of-service ACLineSegment</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:Equipment rdf:about="#_ACLineSegment">
+        <cim:Equipment.inService>false</cim:Equipment.inService>
+    </cim:Equipment>
+
+    <cim:Equipment rdf:about="#_EquivalentBranch">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:Equipment>
+
+    <cim:Equipment rdf:about="#_SeriesCompensator">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:Equipment>
+</rdf:RDF>

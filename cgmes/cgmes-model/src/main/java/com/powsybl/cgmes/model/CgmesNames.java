@@ -192,6 +192,8 @@ public final class CgmesNames {
     public static final String NORMAL_OPEN = "normalOpen";
     public static final String CONNECTED = "connected";
     public static final String OPEN = "open";
+    public static final String EQUIPMENT = "Equipment";
+    public static final String IN_SERVICE = "inService";
     public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     public static final String HIGH_VOLTAGE_LIMIT = "highVoltageLimit";
     public static final String LOW_VOLTAGE_LIMIT = "lowVoltageLimit";
