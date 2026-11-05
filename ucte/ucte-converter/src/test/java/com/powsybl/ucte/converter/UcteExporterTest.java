@@ -16,6 +16,7 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
+import static com.powsybl.ucte.converter.UcteExporterTestUtils.reimport;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -259,6 +261,28 @@ class UcteExporterTest extends AbstractSerDeTest {
                 exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho());
         assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(),
                 exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(), 0.0001);
+    }
+
+    @Test
+    void testNominalPowerExport() {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        // Transformer 1: nominal power from ratedS
+        network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").setRatedS(1234.5);
+        // Transformer 2: no ratedS, nominal power from the legacy property
+        TwoWindingsTransformer legacyTransformer = network.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1");
+        legacyTransformer.setRatedS(Double.NaN);
+        legacyTransformer.setProperty(UcteConverterConstants.NOMINAL_POWER_KEY, "1200.0");
+        // Transformer 3: no nominal power at all
+        network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").setRatedS(Double.NaN);
+
+        MemDataSource dataSource = new MemDataSource();
+        new UcteExporter().export(network, new Properties(), dataSource);
+        Network reimported = reimport(dataSource);
+
+        // Here, we accept a difference of 1 (the exporter can only export 5 characters, so exported value is '1234.')
+        assertEquals(1234.5, reimported.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").getRatedS(), 1);
+        assertEquals(1200.0, reimported.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").getRatedS());
+        assertEquals(99999, reimported.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getRatedS());
     }
 
     @Test
