@@ -22,6 +22,10 @@ import java.util.Optional;
  */
 class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements BoundaryLine {
 
+    static VoltageRegulation.VoltageRegulationAttributes defaultLocalVoltageRegulationAttributes() {
+        return new VoltageRegulation.VoltageRegulationAttributes(Double.NaN, Double.NaN, Double.NaN, RegulationMode.VOLTAGE, true, null);
+    }
+
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
         private BoundaryLineImpl boundaryLine;
@@ -142,8 +146,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
             if (voltageRegulation != null) {
                 voltageRegulation.setRegulating(voltageRegulationOn);
             } else if (voltageRegulationOn) {
-                createOrUpdateVoltageRegulation(new VoltageRegulation.VoltageRegulationAttributes(
-                        Double.NaN, Double.NaN, Double.NaN, RegulationMode.VOLTAGE, true));
+                createOrUpdateVoltageRegulation(defaultLocalVoltageRegulationAttributes());
             }
             return this;
         }

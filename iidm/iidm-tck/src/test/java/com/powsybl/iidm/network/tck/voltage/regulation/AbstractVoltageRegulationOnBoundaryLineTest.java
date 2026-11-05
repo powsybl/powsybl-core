@@ -54,7 +54,6 @@ public abstract class AbstractVoltageRegulationOnBoundaryLineTest extends Abstra
         // THEN
         assertNull(generation.getVoltageRegulation());
         assertFalse(generation.isRegulating());
-        new VoltageRegulation.VoltageRegulationAttributes(Double.NaN, Double.NaN, Double.NaN, RegulationMode.REACTIVE_POWER, false);
     }
 
     @Test

@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * @author Matthieu Saur {@literal <matthieu.saur at rte-france.com>}
+ * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public final class VoltageRegulationSerDe {
     // GLOBAL
@@ -91,22 +91,23 @@ public final class VoltageRegulationSerDe {
     }
 
     /**
-     * Reads the voltage regulation of a local-only holder (boundary line generation), written by {@link #writeLocalVoltageRegulation}.
+     * Values of a local-only voltage regulation (boundary line generation), as written by {@link #writeLocalVoltageRegulation}.
      */
-    public static void readLocalVoltageRegulation(VoltageRegulationHolder<?> holder, NetworkDeserializerContext context) {
+    public record LocalVoltageRegulation(double targetDeadband, double slope, RegulationMode mode, boolean regulating) {
+    }
+
+    /**
+     * Reads the attributes of a local-only voltage regulation element, written by {@link #writeLocalVoltageRegulation}.
+     */
+    public static LocalVoltageRegulation readLocalVoltageRegulation(NetworkDeserializerContext context) {
         double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
         double slope = context.getReader().readDoubleAttribute(SLOPE);
         RegulationMode mode = context.getReader().readEnumAttribute(MODE, RegulationMode.class);
-        boolean isRegulating = context.getReader().readBooleanAttribute(REGULATING);
+        boolean regulating = context.getReader().readBooleanAttribute(REGULATING);
         context.getReader().readChildNodes(elementName -> {
             throw new PowsyblException("Unknown sub element name '" + elementName + "' in 'voltageRegulation'");
         });
-        holder.newVoltageRegulation()
-            .withTargetDeadband(targetDeadband)
-            .withSlope(slope)
-            .withMode(mode)
-            .withRegulating(isRegulating)
-            .build();
+        return new LocalVoltageRegulation(targetDeadband, slope, mode, regulating);
     }
 
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(

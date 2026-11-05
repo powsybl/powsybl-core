@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.BoundaryLine.Generation;
 import com.powsybl.iidm.network.regulation.RegulationMode;
@@ -198,7 +197,9 @@ class BoundaryLineSerDe extends AbstractComplexIdentifiableSerDe<BoundaryLine, B
             targetVAttribute = GENERATION_LOCAL_TARGET_V;
             targetQAttribute = GENERATION_LOCAL_TARGET_Q;
         }
-        Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON);
+        Optional<Boolean> legacyVoltageRegulationOn = context.getReader().readOptionalBooleanAttribute(GENERATION_VOLTAGE_REGULATION_ON);
+        // From V1_19 the regulation is read from the voltageRegulation child element: the legacy attribute is ignored
+        Optional<Boolean> voltageRegulationOn = context.getVersion().compareTo(IidmVersion.V_1_19) < 0 ? legacyVoltageRegulationOn : Optional.empty();
         OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
         OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
         OptionalDouble targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
@@ -230,18 +231,12 @@ class BoundaryLineSerDe extends AbstractComplexIdentifiableSerDe<BoundaryLine, B
      * Reads the local voltage regulation child element (version 1.19 and above) and queues its application on the generation adder
      */
     private static void readLocalVoltageRegulation(List<Consumer<BoundaryLineAdder.GenerationAdder>> generationAdderToApply, NetworkDeserializerContext context) {
-        double targetDeadband = context.getReader().readDoubleAttribute(VoltageRegulationSerDe.TARGET_DEADBAND);
-        double slope = context.getReader().readDoubleAttribute(VoltageRegulationSerDe.SLOPE);
-        RegulationMode mode = context.getReader().readEnumAttribute(VoltageRegulationSerDe.MODE, RegulationMode.class);
-        boolean regulating = context.getReader().readBooleanAttribute(VoltageRegulationSerDe.REGULATING);
-        context.getReader().readChildNodes(elementName -> {
-            throw new PowsyblException("Unknown sub element name '" + elementName + "' in 'voltageRegulation'");
-        });
+        VoltageRegulationSerDe.LocalVoltageRegulation regulation = VoltageRegulationSerDe.readLocalVoltageRegulation(context);
         generationAdderToApply.add(generationAdder -> generationAdder.newVoltageRegulation()
-            .withTargetDeadband(targetDeadband)
-            .withSlope(slope)
-            .withMode(mode)
-            .withRegulating(regulating)
+            .withTargetDeadband(regulation.targetDeadband())
+            .withSlope(regulation.slope())
+            .withMode(regulation.mode())
+            .withRegulating(regulation.regulating())
             .add());
     }
 

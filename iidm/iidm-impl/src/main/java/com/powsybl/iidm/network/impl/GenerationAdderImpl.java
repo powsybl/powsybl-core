@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
@@ -98,7 +97,7 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
         if (!Boolean.TRUE.equals(voltageRegulationOn)) {
             return null;
         }
-        return new VoltageRegulation.VoltageRegulationAttributes(Double.NaN, Double.NaN, Double.NaN, RegulationMode.VOLTAGE, true, null);
+        return BoundaryLineImpl.defaultLocalVoltageRegulationAttributes();
     }
 
     @Override
