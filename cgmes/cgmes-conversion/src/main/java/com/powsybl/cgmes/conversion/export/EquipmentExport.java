@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -203,8 +204,8 @@ public final class EquipmentExport {
                     }
                     case "SeriesCompensator" -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
-                        SeriesCompensatorEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), baseVoltageId, 0.0, 0.0, false,
-                                0.0, 0.0, writer, context);
+                        SeriesCompensatorEq sc = new SeriesCompensatorEq(rdfId, name, 0.0, 0.0, false, 0.0, 0.0, baseVoltageId);
+                        CgmesSeriesCompensator.writeEq(sc, writer, context);
                     }
                     case null, default -> {
                         boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
