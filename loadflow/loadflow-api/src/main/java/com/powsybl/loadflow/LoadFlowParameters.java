@@ -32,13 +32,7 @@ import java.util.*;
  */
 public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
-    /**
-     * @deprecated Downstream code should declare its own logger.
-     */
-    @Deprecated(forRemoval = true)
-    public static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
-
-    private static final Logger LOG = LoggerFactory.getLogger(LoadFlowParameters.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
 
     public enum VoltageInitMode {
         UNIFORM_VALUES, // v=1pu, theta=0
@@ -155,7 +149,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
         platformConfig.getOptionalModuleConfig("load-flow")
                 .flatMap(c -> c.getOptionalStringProperty("default-parameters-loader"))
-                .ifPresent(name -> LOG.warn("Property 'default-parameters-loader' of module 'load-flow' ('{}') is ignored: "
+                .ifPresent(name -> LOGGER.warn("Property 'default-parameters-loader' of module 'load-flow' ('{}') is ignored: "
                         + "LoadFlowDefaultParametersLoader has been removed. Ship the values as a runtime configuration "
                         + "instead, see the runtime configuration documentation.", name));
 
