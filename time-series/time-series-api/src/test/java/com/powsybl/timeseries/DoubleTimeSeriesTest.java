@@ -19,6 +19,7 @@ import java.util.List;
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
 import static java.lang.Double.NaN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -232,6 +233,28 @@ class DoubleTimeSeriesTest {
               "offset" : 2,
               "values" : [ 3.0, NaN, NaN, NaN, 7.0 ]
             }""".replaceAll("\n", System.lineSeparator()));
+    }
+
+    @Test
+    void testSplitWithOutOfRangesValues() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        assertThatCode(() -> timeSeries.split(0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Split index 0 out of chunk range ]0, 7]");
+        assertThatCode(() -> timeSeries.split(1)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(2)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(3)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(4)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(5)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(6)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(7)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(8))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Split index 8 out of chunk range ]0, 7]");
     }
 
 }
