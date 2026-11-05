@@ -121,6 +121,36 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
     }
 
     @Test
+    public void testBatteryReactivePowerPerActivePowerOk() {
+        BatteryAdder batteryAdder = newBatteryAdder("ReactivePowerPerActivePower_ok");
+        batteryAdder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withSlope(0.3)
+            .add();
+        Battery battery = batteryAdder.add();
+        assertEquals(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER, battery.getVoltageRegulation().getMode());
+        assertEquals(0.3, battery.getVoltageRegulation().getSlope());
+        assertTrue(battery.isRegulating());
+    }
+
+    @Test
+    public void testBatteryReactivePowerPerActivePowerErrorSlopeMissing() {
+        VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("ReactivePowerPerActivePower_slope_missing").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        assertThrows(ValidationException.class, adder::add);
+    }
+
+    @Test
+    public void testBatteryReactivePowerPerActivePowerErrorTerminalSet() {
+        VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("ReactivePowerPerActivePower_terminal_set").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(10)
+            .withSlope(0.3);
+        assertThrows(ValidationException.class, adder::add);
+    }
+
+    @Test
     public void testBatteryErrorLocalTargetVMissing() {
         // GIVEN
         BatteryAdder batteryAdder = newBatteryAdder("LocalVoltageTargetV_missing");

@@ -131,21 +131,19 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
 
     @Test
     public void testGeneratorReactivePowerPerActivePowerErrorSlopeMissing() {
-        GeneratorAdder generatorAdder = newGeneratorAdder("ReactivePowerPerActivePower_slope_missing");
-        assertThrows(ValidationException.class, () -> generatorAdder.newVoltageRegulation()
-            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
-            .add());
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ReactivePowerPerActivePower_slope_missing").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        assertThrows(ValidationException.class, adder::add);
     }
 
     @Test
     public void testGeneratorReactivePowerPerActivePowerErrorTerminalSet() {
-        GeneratorAdder generatorAdder = newGeneratorAdder("ReactivePowerPerActivePower_terminal_set");
-        assertThrows(ValidationException.class, () -> generatorAdder.newVoltageRegulation()
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ReactivePowerPerActivePower_terminal_set").newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
             .withTerminal(remoteTerminal)
             .withTargetValue(10)
-            .withSlope(0.3)
-            .add());
+            .withSlope(0.3);
+        assertThrows(ValidationException.class, adder::add);
     }
 
     @Test
