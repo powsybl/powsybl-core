@@ -17,6 +17,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.Equiva
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
@@ -238,7 +239,9 @@ public final class EquipmentExport {
     private void writeSubstations() throws XMLStreamException {
         for (Substation substation : network.getSubstations()) {
             String subRegionId = context.getSubstationSubRegion(substation.getId());
-            SubstationEq.write(context.getNamingStrategy().getCgmesId(substation), substation.getNameOrId(), subRegionId, writer, context);
+            String substationId = context.getNamingStrategy().getCgmesId(substation);
+            SubstationEq substationEq = new SubstationEq(substationId, substation.getNameOrId(), subRegionId);
+            CgmesSubstation.writeEq(substationEq, writer, context);
         }
     }
 
@@ -1279,7 +1282,8 @@ public final class EquipmentExport {
         SubGeographicalRegionEq subRegion = new SubGeographicalRegionEq(subGeographicalRegionId, "fictSGR_" + baseName, geographicalRegionId);
         CgmesSubGeographicalRegion.writeEq(subRegion, writer, context);
         String substationId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUBSTATION);
-        SubstationEq.write(substationId, "fictS_" + baseName, subGeographicalRegionId, writer, context);
+        SubstationEq substationEq = new SubstationEq(substationId, "fictS_" + baseName, subGeographicalRegionId);
+        CgmesSubstation.writeEq(substationEq, writer, context);
         return substationId;
     }
 
