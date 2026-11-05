@@ -478,4 +478,57 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
                 Arguments.of("VL2_BBS11", false, SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, "VL2_1_1_BREAKER")
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("getNamingStrategyWithThreeSectionsParameters")
+    void testNamingStrategyWithThreeSections(boolean withInternalConnection, String referenceBusbarSectionId, boolean createAfter,
+                                             String expectedBusbarSectionId) {
+        Network network = createNetwork();
+        VoltageLevel vl3 = network.getSubstation("S1").newVoltageLevel()
+                .setId("VL3")
+                .setNominalV(100.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        // VL3_BBS1 --[BREAKER]-- VL3_BBS2 --[DISCONNECTOR or internal connection]-- VL3_BBS3
+        createBusbarSection(vl3, "VL3_BBS1", 0, 1, 1);
+        createBusbarSection(vl3, "VL3_BBS2", 1, 1, 2);
+        createBusbarSection(vl3, "VL3_BBS3", 2, 1, 3);
+        createBreaker(vl3, "VL3_B_BBS1_BBS2", 0, 1);
+        if (withInternalConnection) {
+            vl3.getNodeBreakerView().newInternalConnection().setNode1(1).setNode2(2).add();
+        } else {
+            createDisconnector(vl3, "VL3_D_BBS2_BBS3", 1, 2);
+        }
+
+        CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
+                .withReferenceBusbarSectionId(referenceBusbarSectionId)
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createAfter)
+                .withAllBusbars(false)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withSwitchPrefixId("VL3")
+                .withBusbarSectionPrefixId("VL3")
+                .build();
+        modification.apply(network, new NamingStrategyTest());
+        List<String> busbarSectionIds = network.getVoltageLevel("VL3")
+                .getNodeBreakerView()
+                .getBusbarSectionStream()
+                .map(BusbarSection::getId)
+                .toList();
+        assertEquals(List.of("VL3_BBS1", "VL3_BBS2", "VL3_BBS3", expectedBusbarSectionId), busbarSectionIds);
+    }
+
+    private static Stream<Arguments> getNamingStrategyWithThreeSectionsParameters() {
+        return Stream.of(
+                // between VL3_BBS1 and VL3_BBS2: the removed breaker must not be taken into account, the disconnector beyond must
+                Arguments.of(false, "VL3_BBS1", true, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS2", false, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
+                // between VL3_BBS2 and VL3_BBS3: the removed disconnector must not be taken into account, the breaker beyond must
+                Arguments.of(false, "VL3_BBS2", true, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS3", false, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                // between VL3_BBS2 and VL3_BBS3 linked by an internal connection: no switch is removed, the breaker beyond must be kept
+                Arguments.of(true, "VL3_BBS2", true, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(true, "VL3_BBS3", false, "VL3_1_BREAKER_3_DISCONNECTOR")
+        );
+    }
 }
