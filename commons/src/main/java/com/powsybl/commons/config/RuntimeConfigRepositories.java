@@ -153,10 +153,12 @@ public final class RuntimeConfigRepositories {
         for (int i = 1; i < sorted.size(); i++) {
             RuntimeConfigProvider previous = sorted.get(i - 1);
             RuntimeConfigProvider current = sorted.get(i);
-            if (previous.getPriority() == current.getPriority() && requireName(previous).equals(requireName(current))) {
+            String name = requireName(current);
+            int priority = current.getPriority();
+            if (previous.getPriority() == priority && requireName(previous).equals(name)) {
                 LOGGER.warn("Several runtime configuration providers are named '{}' with the same priority {}: "
                         + "which one takes precedence depends on the class path order. Give them distinct names "
-                        + "or distinct priorities.", requireName(current), current.getPriority());
+                        + "or distinct priorities.", name, priority);
             }
         }
     }

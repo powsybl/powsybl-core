@@ -156,8 +156,9 @@ class RuntimeConfigRepositoriesTest {
             throw new IllegalStateException("boom");
         });
 
+        List<RuntimeConfigProvider> providers = List.of(failing);
         PowsyblException e = assertThrows(PowsyblException.class,
-            () -> RuntimeConfigRepositories.load(List.of(failing)));
+            () -> RuntimeConfigRepositories.load(providers));
         assertTrue(e.getMessage().contains("broken"));
     }
 
