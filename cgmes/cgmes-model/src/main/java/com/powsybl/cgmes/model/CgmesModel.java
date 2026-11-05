@@ -84,6 +84,16 @@ public interface CgmesModel {
 
     PropertyBags switches();
 
+    /**
+     * Get the {@code Equipment.inService} value of every equipment that has one. The attribute only exists from CGMES 3
+     * (CIM 100): for earlier versions, the result is empty.
+     *
+     * @return one property bag per equipment, with the equipment id ({@code Equipment}) and its {@code inService} value
+     */
+    default PropertyBags equipmentInService() {
+        return new PropertyBags();
+    }
+
     PropertyBags acLineSegments();
 
     PropertyBags equivalentBranches();

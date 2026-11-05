@@ -15,8 +15,13 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.DcConnectable;
+import com.powsybl.iidm.network.DcSwitch;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -24,8 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -79,6 +87,8 @@ public class Context {
         equivalentInjections = new HashMap<>();
         svVoltages = new HashMap<>();
         switches = new HashMap<>();
+        equipmentInService = new HashMap<>();
+        terminalsOfOutOfServiceEquipment = new HashSet<>();
     }
 
     public CgmesModel cgmes() {
@@ -203,6 +213,9 @@ public class Context {
         return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
     }
 
+    /**
+     * Read the CGMES data used by the update (SSH, SV...) and cache it by id, for the update of the network.
+     */
     public void buildUpdateCache() {
         buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
         buildUpdateCache(cgmesDcTerminals, cgmes.dcTerminals(), CgmesNames.DC_TERMINAL);
@@ -214,6 +227,7 @@ public class Context {
         buildUpdateCache(equivalentInjections, cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION);
         buildUpdateCache(svVoltages, cgmes.svVoltages(), CgmesNames.TOPOLOGICAL_NODE);
         buildUpdateCache(switches, cgmes.switches(), CgmesNames.SWITCH);
+        buildOutOfServiceCache();
     }
 
     private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
@@ -221,6 +235,94 @@ public class Context {
             String id = p.getId(tagId);
             cache.put(id, p);
         });
+    }
+
+    /**
+     * Read the {@code Equipment.inService} values of the CGMES model (CGMES 3 only), and record the CGMES terminals of the
+     * out-of-service equipment and of the machines of the out-of-service generating units. These terminals are then seen
+     * as disconnected by the update (see {@link #isCgmesTerminalConnected(String)}).
+     */
+    private void buildOutOfServiceCache() {
+        cgmes.equipmentInService().forEach(p -> equipmentInService.put(p.getId(CgmesNames.EQUIPMENT), p.asBoolean(CgmesNames.IN_SERVICE, true)));
+        equipmentInService.forEach((equipmentId, inService) -> {
+            if (Boolean.FALSE.equals(inService)) {
+                Identifiable<?> identifiable = network.getIdentifiable(equipmentId);
+                if (identifiable != null) {
+                    addTerminalsOfOutOfServiceEquipment(identifiable);
+                }
+            }
+        });
+        network.getGeneratorStream()
+                .filter(generator -> isOutOfService(generator.getProperty(Conversion.PROPERTY_GENERATING_UNIT)))
+                .forEach(this::addTerminalsOfOutOfServiceEquipment);
+    }
+
+    /**
+     * Record the CGMES terminals of an out-of-service equipment. They are found through the terminal aliases of its IIDM
+     * object, because an SSH-only update does not describe the terminals of the equipment.
+     * Switches are skipped: an out-of-service switch is opened instead. DC equipment, converters included, is skipped:
+     * its {@code inService} value is ignored.
+     *
+     * @param identifiable the IIDM object of the out-of-service equipment
+     */
+    private void addTerminalsOfOutOfServiceEquipment(Identifiable<?> identifiable) {
+        if (identifiable instanceof Switch || identifiable instanceof HvdcConverterStation<?>
+                || identifiable instanceof DcConnectable<?> || identifiable instanceof DcSwitch) {
+            return;
+        }
+        for (String alias : identifiable.getAliases()) {
+            if (TERMINAL_ALIAS_TYPES.contains(identifiable.getAliasType(alias).orElse(""))) {
+                terminalsOfOutOfServiceEquipment.add(alias);
+            }
+        }
+    }
+
+    /**
+     * Tell whether a CGMES equipment is out of service ({@code Equipment.inService=false}).
+     *
+     * @param equipmentId the CGMES id of the equipment, can be {@code null}
+     * @return {@code true} if the equipment is out of service; {@code false} if it is in service, if its {@code inService}
+     * value is unknown, or if the id is {@code null}
+     */
+    public boolean isOutOfService(String equipmentId) {
+        return equipmentId != null && Boolean.FALSE.equals(equipmentInService.get(equipmentId));
+    }
+
+    /**
+     * Get the connected status of a CGMES terminal for the update. The terminal of an out-of-service equipment is
+     * disconnected, whatever its {@code connected} value.
+     *
+     * @param cgmesTerminalId the CGMES id of the terminal
+     * @return {@code false} for the terminal of an out-of-service equipment; otherwise the {@code connected} value of the
+     * terminal, or an empty optional if the CGMES model does not give it
+     */
+    public Optional<Boolean> isCgmesTerminalConnected(String cgmesTerminalId) {
+        if (terminalsOfOutOfServiceEquipment.contains(cgmesTerminalId)) {
+            return Optional.of(false);
+        }
+        return Optional.ofNullable(cgmesTerminals.get(cgmesTerminalId)).flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED));
+    }
+
+    /**
+     * Tell whether a CGMES terminal belongs to an out-of-service equipment.
+     *
+     * @param cgmesTerminalId the CGMES id of the terminal
+     * @return {@code true} if the terminal belongs to an out-of-service equipment
+     */
+    public boolean isTerminalOfOutOfServiceEquipment(String cgmesTerminalId) {
+        return terminalsOfOutOfServiceEquipment.contains(cgmesTerminalId);
+    }
+
+    /**
+     * Get the ids of the CGMES terminals known by the update: the terminals read from the CGMES model, and the terminals
+     * of the out-of-service equipment, which the CGMES model may not describe.
+     *
+     * @return the ids of the CGMES terminals
+     */
+    public Set<String> cgmesTerminalIds() {
+        Set<String> ids = new HashSet<>(cgmesTerminals.keySet());
+        ids.addAll(terminalsOfOutOfServiceEquipment);
+        return ids;
     }
 
     public PropertyBag cgmesTerminal(String id) {
@@ -394,5 +496,10 @@ public class Context {
     private final Map<String, PropertyBag> equivalentInjections;
     private final Map<String, PropertyBag> svVoltages;
     private final Map<String, PropertyBag> switches;
+    private final Map<String, Boolean> equipmentInService;
+    private final Set<String> terminalsOfOutOfServiceEquipment;
+
+    private static final Set<String> TERMINAL_ALIAS_TYPES = Set.of(Conversion.ALIAS_TERMINAL, Conversion.ALIAS_TERMINAL1,
+            Conversion.ALIAS_TERMINAL2, Conversion.ALIAS_TERMINAL3, Conversion.ALIAS_TERMINAL_BOUNDARY);
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

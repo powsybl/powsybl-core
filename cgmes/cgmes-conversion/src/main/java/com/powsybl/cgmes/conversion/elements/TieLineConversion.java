@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
@@ -86,12 +85,19 @@ public final class TieLineConversion {
                 });
     }
 
-    // We use the raw terminal connected attribute received in CGMES because in nodeBreaker models,
-    // depending on the configuration, this information is not reflected in the terminal status of the boundaryLine
+    /**
+     * Tell whether the CGMES terminal of a tie line half is connected. We use the terminal connected status received in
+     * CGMES because in node-breaker models, depending on the configuration, this information is not reflected in the
+     * terminal status of the boundary line.
+     *
+     * @param boundaryLine the boundary line of the tie line half
+     * @param context the update context
+     * @return the connected status of the terminal (see {@link Context#isCgmesTerminalConnected(String)}), {@code true}
+     * if it is unknown
+     */
     private static boolean isConnected(BoundaryLine boundaryLine, Context context) {
         return boundaryLine.getAliasFromType(ALIAS_TERMINAL1)
-                .map(context::cgmesTerminal)
-                .map(cgmesData -> cgmesData.asBoolean(CgmesNames.CONNECTED, true))
+                .flatMap(context::isCgmesTerminalConnected)
                 .orElse(true);
     }
 

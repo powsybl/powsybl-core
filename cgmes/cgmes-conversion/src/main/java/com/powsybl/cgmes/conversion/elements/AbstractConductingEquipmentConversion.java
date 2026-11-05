@@ -277,13 +277,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         boundaryLine.getOperationalLimitsGroups().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 
+    /**
+     * Tell whether the CGMES terminal on the boundary side of a boundary line is connected.
+     *
+     * @param boundaryLine the boundary line
+     * @param context the update context
+     * @return the connected status of the terminal (see {@link Context#isCgmesTerminalConnected(String)}), {@code true}
+     * if it is unknown
+     */
     public static boolean isBoundaryTerminalConnected(BoundaryLine boundaryLine, Context context) {
-        return getBoundaryCgmesTerminal(boundaryLine, context).map(cgmesTerminalData -> cgmesTerminalData.asBoolean(CgmesNames.CONNECTED, true)).orElse(true);
-    }
-
-    private static Optional<PropertyBag> getBoundaryCgmesTerminal(BoundaryLine boundaryLine, Context context) {
-        String cgmesTerminalId = boundaryLine.getAliasFromType(ALIAS_TERMINAL_BOUNDARY).orElse(null);
-        return cgmesTerminalId != null ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)) : Optional.empty();
+        return boundaryLine.getAliasFromType(ALIAS_TERMINAL_BOUNDARY).flatMap(context::isCgmesTerminalConnected).orElse(true);
     }
 
     // In a Boundary Line the CGMES side and the IIDM side may not be the same
@@ -523,15 +526,32 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    /**
+     * Update the connection status (bus-breaker voltage levels only) and the flows of the terminals of a connectable from
+     * its CGMES terminals.
+     *
+     * @param connectable the connectable to update
+     * @param context the update context
+     * @param ts the terminals of the connectable, in the order of its CGMES terminals
+     */
     public static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
-        PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
+        List<String> terminalAliasTypes = getTerminalAliasTypes(ts.length);
         for (int k = 0; k < ts.length; k++) {
-            updateTerminal(cgmesTerminals.get(k), ts[k]);
+            Optional<String> cgmesTerminalId = connectable.getAliasFromType(terminalAliasTypes.get(k));
+            PropertyBag cgmesTerminal = cgmesTerminalId.map(id -> getCgmesTerminal(id, context)).orElse(EMPTY_PROPERTY_BAG);
+            boolean connectedInUpdate = cgmesTerminalId.flatMap(context::isCgmesTerminalConnected).orElse(true);
+            updateTerminal(cgmesTerminal, connectedInUpdate, ts[k]);
         }
     }
 
-    private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal) {
-        boolean connectedInUpdate = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
+    /**
+     * Update the connection status (bus-breaker voltage levels only) and the flows of a terminal.
+     *
+     * @param cgmesTerminal the data of the CGMES terminal, holding its flows
+     * @param connectedInUpdate the connected status of the CGMES terminal (see {@link Context#isCgmesTerminalConnected(String)})
+     * @param terminal the terminal to update
+     */
+    private static void updateTerminal(PropertyBag cgmesTerminal, boolean connectedInUpdate, Terminal terminal) {
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
             if (!terminal.isConnected() && connectedInUpdate) {
                 terminal.connect();
@@ -551,16 +571,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static boolean setPQAllowed(Terminal t) {
         return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
-    }
-
-    private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
-        PropertyBags propertyBags = new PropertyBags();
-        getTerminalAliasTypes(numTerminals).forEach(terminalAliasType -> propertyBags.add(
-                connectable.getAliasFromType(terminalAliasType)
-                        .map(cgmesTerminalId -> getCgmesTerminal(cgmesTerminalId, context))
-                        .orElse(EMPTY_PROPERTY_BAG)));
-        return propertyBags;
-
     }
 
     private static List<String> getTerminalAliasTypes(int numTerminals) {
@@ -830,10 +840,18 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 .or(() -> connected2.map(c2 -> !c2));
     }
 
+    /**
+     * Get the connected status of the CGMES terminal on one side of a switch.
+     *
+     * @param sw the switch
+     * @param context the update context
+     * @param side the side of the switch
+     * @return the connected status of the terminal (see {@link Context#isCgmesTerminalConnected(String)}), or an empty
+     * optional if it is unknown
+     */
     private static Optional<Boolean> isTerminalConnected(Switch sw, Context context, TwoSides side) {
         return sw.getAliasFromType(getTerminalAliasType(Integer.toString(side.getNum())))
-                .flatMap(cgmesTerminalId -> Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)))
-                .flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED));
+                .flatMap(context::isCgmesTerminalConnected);
     }
 
     protected static boolean getDefaultIsOpen(Switch sw, Context context) {

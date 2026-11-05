@@ -354,7 +354,7 @@ public class Conversion {
         // Switches are updated first because the subsequent update of the terminals
         // is configurable and, if activated, may modify their state.
         // Then, the update of the terminals can overwrite the state of the switches
-        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, updateContext);
         updateSwitches(network, updateContext);
 
         updateLoads(network, cgmes, updateContext);

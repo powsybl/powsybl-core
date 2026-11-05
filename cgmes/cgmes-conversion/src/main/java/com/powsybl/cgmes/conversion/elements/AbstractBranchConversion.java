@@ -115,8 +115,15 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
         line.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 
+    /**
+     * Update the open status of a branch imported as a switch (zero-impedance line, equivalent branch or series
+     * compensator): it is open if one of its CGMES terminals is disconnected, or if the branch is out of service.
+     *
+     * @param sw the switch representing the branch
+     * @param context the update context
+     */
     protected static void updateBranch(Switch sw, Context context) {
         boolean isOpen = isOpenFromAtLeastOneTerminal(sw, context).orElse(getDefaultIsOpen(sw, context));
-        sw.setOpen(isOpen);
+        sw.setOpen(isOpen || context.isOutOfService(sw.getId()));
     }
 }
