@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -220,12 +221,11 @@ public final class EquipmentExport {
     }
 
     private void writeGeographicalRegions() throws XMLStreamException {
-        List<CgmesExportContext.Region> igmGeographicalRegions = context.getRegions().stream()
-            .filter(r -> r.source() == Source.IGM)
-            .sorted(Comparator.comparing(CgmesExportContext.Region::id))
+        List<GeographicalRegionEq> regions = context.getRegions().stream()
+            .sorted(Comparator.comparing(GeographicalRegionEq::rdfId))
             .toList();
-        for (CgmesExportContext.Region igmGeographicalRegion : igmGeographicalRegions) {
-            GeographicalRegionEq.write(igmGeographicalRegion.id(), igmGeographicalRegion.name(), writer, context);
+        for (GeographicalRegionEq region : regions) {
+            CgmesGeographicalRegion.writeEq(region, writer, context);
         }
     }
 
@@ -1273,7 +1273,8 @@ public final class EquipmentExport {
         // For names we put "fict" as a prefix instead of a suffix to avoid it being lost because name length limitations
         String baseName = identifiable.getNameOrId();
         String geographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, GEOGRAPHICAL_REGION);
-        GeographicalRegionEq.write(geographicalRegionId, "fictGR_" + baseName, writer, context);
+        GeographicalRegionEq region = new GeographicalRegionEq(geographicalRegionId, "fictGR_" + baseName);
+        CgmesGeographicalRegion.writeEq(region, writer, context);
         String subGeographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUB_GEOGRAPHICAL_REGION);
         SubGeographicalRegionEq.write(subGeographicalRegionId, "fictSGR_" + baseName, geographicalRegionId, writer, context);
         String substationId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUBSTATION);

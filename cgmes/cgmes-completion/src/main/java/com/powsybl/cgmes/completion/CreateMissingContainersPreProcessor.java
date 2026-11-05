@@ -195,7 +195,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         regionContainers.geographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(network), ref("GeographicalRegionId"));
         String geographicalRegionName = "GR fix for missing data";
         SubGeographicalRegionEq.write(regionContainers.subGeographicalRegionId, subGeographicalRegionName, regionContainers.geographicalRegionId, writer, context);
-        GeographicalRegionEq.write(regionContainers.geographicalRegionId, geographicalRegionName, writer, context);
+        CgmesGeographicalRegion.writeEq(new CgmesGeographicalRegion.GeographicalRegionEq(regionContainers.geographicalRegionId, geographicalRegionName), writer, context);
         return regionContainers;
     }
 
