@@ -15,6 +15,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSeg
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -218,16 +219,6 @@ public final class EquipmentExport {
         }
     }
 
-    private void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys) {
-        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER) && !context.isBusBranchExport()) {
-            nodeKeys[0] = buildNodeKey(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
-            nodeKeys[1] = buildNodeKey(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
-        } else {
-            nodeKeys[0] = buildNodeKey(vl.getBusBreakerView().getBus1(sw.getId()));
-            nodeKeys[1] = buildNodeKey(vl.getBusBreakerView().getBus2(sw.getId()));
-        }
-    }
-
     private void writeGeographicalRegions() throws XMLStreamException {
         List<CgmesExportContext.Region> igmGeographicalRegions = context.getRegions().stream()
             .filter(r -> r.source() == Source.IGM)
@@ -357,7 +348,8 @@ public final class EquipmentExport {
             EnergyConsumerEq.write(NONCONFORM_LOAD, loadId, loadName, loadGroup, equipmentContainerId, null, writer, context);
         }
 
-        TerminalEq.write(terminalId, loadId, cnId, 1, writer, context);
+        TerminalEq terminal = new TerminalEq(terminalId, 1, loadId, cnId);
+        CgmesTerminal.writeEq(terminal, writer, context);
     }
 
     private void writeLoads() throws XMLStreamException {
@@ -1151,7 +1143,8 @@ public final class EquipmentExport {
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(boundaryLine, PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
         // check if the equivalent injection terminal has already been written (if several boundary lines linked to same X-node)
         if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) {
-            TerminalEq.write(equivalentInjectionTerminalId, equivalentInjectionId, connectivityNodeId, 1, writer, context);
+            TerminalEq terminal = new TerminalEq(equivalentInjectionTerminalId, 1, equivalentInjectionId, connectivityNodeId);
+            CgmesTerminal.writeEq(terminal, writer, context);
             exported.add(equivalentInjectionTerminalId);
         }
     }
@@ -1166,7 +1159,9 @@ public final class EquipmentExport {
 
         for (BoundaryLine boundaryLine : boundaryLineList) {
             String terminalId = CgmesExportUtil.getBoundaryLineBoundaryTerminalId(boundaryLine, context);
-            TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(boundaryLine), connectivityNodeId, 2, writer, context);
+            String boundaryLineId = context.getNamingStrategy().getCgmesId(boundaryLine);
+            TerminalEq terminal = new TerminalEq(terminalId, 2, boundaryLineId, connectivityNodeId);
+            CgmesTerminal.writeEq(terminal, writer, context);
         }
         return connectivityNodeId;
     }
@@ -1728,42 +1723,58 @@ public final class EquipmentExport {
         for (Connectable<?> c : network.getConnectables()) {
             if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t);
+                    writeConnectableTerminal(t);
                 }
             }
         }
 
-        String[] switchNodesKeys = new String[2];
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
-                VoltageLevel vl = sw.getVoltageLevel();
-                fillSwitchNodeKeys(vl, sw, switchNodesKeys);
-                String nodeId1 = mapNodeKey2NodeId.get(switchNodesKeys[0]);
-                String terminalId1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1);
-                TerminalEq.write(terminalId1, context.getNamingStrategy().getCgmesId(sw), nodeId1, 1, writer, context);
-                String nodeId2 = mapNodeKey2NodeId.get(switchNodesKeys[1]);
-                String terminalId2 = context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL2);
-                TerminalEq.write(terminalId2, context.getNamingStrategy().getCgmesId(sw), nodeId2, 2, writer, context);
+                writeSwitchTerminal(sw, 1);
+                writeSwitchTerminal(sw, 2);
             }
         }
     }
 
-    private void writeTerminal(Terminal t) throws XMLStreamException {
+    private void writeConnectableTerminal(Terminal t) throws XMLStreamException {
         int sequenceNumber = getTerminalSequenceNumber(t);
         String terminalId = getTerminalId(t, context);
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
-        String nodeId = connectivityNodeId(t);
-
-        TerminalEq.write(terminalId, equipmentId, nodeId, sequenceNumber, writer, context);
+        String nodeId = getConnectivityNodeId(t);
+        TerminalEq terminal = new TerminalEq(terminalId, sequenceNumber, equipmentId, nodeId);
+        CgmesTerminal.writeEq(terminal, writer, context);
     }
 
-    private String connectivityNodeId(Terminal terminal) {
+    private void writeSwitchTerminal(Switch sw, int end) throws XMLStreamException {
+        String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(sw, getTerminalAliasType(String.valueOf(end)));
+        String switchId = context.getNamingStrategy().getCgmesId(sw);
+        String nodeId = getConnectivityNodeId(sw, end);
+        TerminalEq terminal = new TerminalEq(terminalId, end, switchId, nodeId);
+        CgmesTerminal.writeEq(terminal, writer, context);
+    }
+
+    private String getConnectivityNodeId(Terminal terminal) {
         String key;
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
             key = buildNodeKey(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode());
         } else {
             key = buildNodeKey(terminal.getBusBreakerView().getConnectableBus());
         }
+        return mapNodeKey2NodeId.get(key);
+    }
+
+    private String getConnectivityNodeId(Switch sw, int side) {
+        VoltageLevel vl = sw.getVoltageLevel();
+        boolean isNodeBreaker = vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER) && !context.isBusBranchExport();
+        String key = switch (side) {
+            case 1 -> isNodeBreaker ?
+                buildNodeKey(vl, vl.getNodeBreakerView().getNode1(sw.getId())) :
+                buildNodeKey(vl.getBusBreakerView().getBus1(sw.getId()));
+            case 2 -> isNodeBreaker ?
+                buildNodeKey(vl, vl.getNodeBreakerView().getNode2(sw.getId())) :
+                buildNodeKey(vl.getBusBreakerView().getBus2(sw.getId()));
+            default -> throw new IllegalArgumentException("Invalid switch side: " + side);
+        };
         return mapNodeKey2NodeId.get(key);
     }
 
