@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.Connec
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
@@ -230,8 +231,8 @@ public final class EquipmentExport {
     }
 
     private void writeSubGeographicalRegions() throws XMLStreamException {
-        for (CgmesExportContext.SubRegion subRegion : context.getSubRegions()) {
-            SubGeographicalRegionEq.write(subRegion.id(), subRegion.name(), subRegion.regionId(), writer, context);
+        for (SubGeographicalRegionEq subRegion : context.getSubRegions()) {
+            CgmesSubGeographicalRegion.writeEq(subRegion, writer, context);
         }
     }
 
@@ -1276,7 +1277,8 @@ public final class EquipmentExport {
         GeographicalRegionEq region = new GeographicalRegionEq(geographicalRegionId, "fictGR_" + baseName);
         CgmesGeographicalRegion.writeEq(region, writer, context);
         String subGeographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUB_GEOGRAPHICAL_REGION);
-        SubGeographicalRegionEq.write(subGeographicalRegionId, "fictSGR_" + baseName, geographicalRegionId, writer, context);
+        SubGeographicalRegionEq subRegion = new SubGeographicalRegionEq(subGeographicalRegionId, "fictSGR_" + baseName, geographicalRegionId);
+        CgmesSubGeographicalRegion.writeEq(subRegion, writer, context);
         String substationId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUBSTATION);
         SubstationEq.write(substationId, "fictS_" + baseName, subGeographicalRegionId, writer, context);
         return substationId;
