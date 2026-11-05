@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.events.NetworkEvent;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -62,10 +63,10 @@ public abstract class AbstractVoltageRegulationOnBoundaryLineTest extends Abstra
         BoundaryLine.Generation generation = createBoundaryLineGeneration(new DataVoltageRegulationHolderCreator("bl_reactive",
             null, false, Double.NaN, Double.NaN, 10.0, false));
         // WHEN / THEN
-        assertThrows(ValidationException.class, () -> generation.newVoltageRegulation()
+        VoltageRegulationBuilder builder = generation.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
-            .withRegulating(true)
-            .build());
+            .withRegulating(true);
+        assertThrows(ValidationException.class, builder::build);
         assertNull(generation.getVoltageRegulation());
     }
 
@@ -75,11 +76,11 @@ public abstract class AbstractVoltageRegulationOnBoundaryLineTest extends Abstra
         BoundaryLine.Generation generation = createBoundaryLineGeneration(new DataVoltageRegulationHolderCreator("bl_terminal",
             null, false, Double.NaN, 400.0, 10.0, false));
         // WHEN / THEN
-        assertThrows(ValidationException.class, () -> generation.newVoltageRegulation()
+        VoltageRegulationBuilder builder = generation.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(true)
-            .withTerminal(remoteTerminal)
-            .build());
+            .withTerminal(remoteTerminal);
+        assertThrows(ValidationException.class, builder::build);
         assertNull(generation.getVoltageRegulation());
     }
 
@@ -89,11 +90,11 @@ public abstract class AbstractVoltageRegulationOnBoundaryLineTest extends Abstra
         BoundaryLine.Generation generation = createBoundaryLineGeneration(new DataVoltageRegulationHolderCreator("bl_mode",
             null, false, Double.NaN, 400.0, 10.0, false));
         // WHEN / THEN
-        assertThrows(ValidationException.class, () -> generation.newVoltageRegulation()
+        VoltageRegulationBuilder builder = generation.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)
             .withTargetValue(10.0)
-            .withRegulating(true)
-            .build());
+            .withRegulating(true);
+        assertThrows(ValidationException.class, builder::build);
         assertNull(generation.getVoltageRegulation());
     }
 
