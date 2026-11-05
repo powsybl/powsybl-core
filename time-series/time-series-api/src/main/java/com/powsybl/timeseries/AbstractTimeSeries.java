@@ -132,7 +132,11 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected abstract C toCompactChunk();
 
-    protected abstract boolean isBlank(C chunk);
+    /**
+      * Extracts the points {@code [from, to[} of a compact chunk (relative to its offset)
+      * @return the sub chunk, or null if it only contains empty values
+      */
+    protected abstract C sliceNonBlank(C compactChunk, int from, int to);
 
     /**
      * <p>Splits a chunk into sub-chunks based on the specified first and last indices.</p>
@@ -174,25 +178,10 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         int chunkCount = (int) Math.ceil((double) compactChunk.getLength() / newChunkSize);
         List<T> result = new ArrayList<>(chunkCount);
 
-        C chunkToSplit = compactChunk;
-        int offset = compactChunk.getOffset();
-
-        for (int i = 0; i < chunkCount; i++) {
-            C chunk;
-            if (chunkToSplit.getLength() > newChunkSize) {
-                int splitIndex = offset + (i + 1) * newChunkSize;
-                // cut one (chunk1), keep the rest (chunk2) for the next iteration.
-                DataChunk.Split<P, C> splitAt = chunkToSplit.splitAt(splitIndex);
-                chunk = splitAt.getChunk1();
-                chunkToSplit = splitAt.getChunk2();
-            } else {
-                chunk = chunkToSplit;
-            }
-            if (isBlank(chunk)) {
-                result.add(createTimeSeries(List.of())); // empty serie for a full gap
-            } else {
-                result.add(createTimeSeries(chunk));
-            }
+        int length = compactChunk.getLength();
+        for (int from = 0; from < length; from += newChunkSize) {
+            C chunk = sliceNonBlank(compactChunk, from, Math.min(from + newChunkSize, length));
+            result.add(chunk == null ? createTimeSeries(List.of()) : createTimeSeries(chunk));
         }
         return result;
     }

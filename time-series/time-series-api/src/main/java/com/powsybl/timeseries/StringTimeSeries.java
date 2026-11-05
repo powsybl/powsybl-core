@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static java.util.Arrays.copyOfRange;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -42,12 +44,21 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
 
     @Override
     protected StringDataChunk toCompactChunk() {
+        if (chunks.size() == 1 && chunks.getFirst() instanceof UncompressedStringDataChunk uncompressed) {
+            return uncompressed; // already compact, no copy
+        }
         return new UncompressedStringDataChunk(getMinOffset(), toCompactArray());
     }
 
     @Override
-    protected boolean isBlank(StringDataChunk chunk) {
-        return chunk.stream(metadata.getIndex()).allMatch(p -> p.getValue() == null);
+    protected StringDataChunk sliceNonBlank(StringDataChunk compactChunk, int from, int to) {
+        String[] values = ((UncompressedStringDataChunk) compactChunk).getValues();
+        for (int i = from; i < to; i++) {
+            if (values[i] != null) {
+                return from == 0 && to == values.length ? compactChunk : new UncompressedStringDataChunk(compactChunk.getOffset() + from, copyOfRange(values, from, to));
+            }
+        }
+        return null;
     }
 
     private void forEachChunk(Consumer<StringDataChunk> consumer) {
