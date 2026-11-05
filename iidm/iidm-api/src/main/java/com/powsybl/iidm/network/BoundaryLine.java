@@ -125,8 +125,7 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
     /**
      * <p>Generation of a boundary line.</p>
      * <p>Its voltage regulation is local only: the {@link com.powsybl.iidm.network.regulation.VoltageRegulation}
-     * must have no regulating terminal and no target value, and its mode must be {@code VOLTAGE} or
-     * {@code REACTIVE_POWER}.</p>
+     * must have no regulating terminal and no target value, and its mode must be {@code VOLTAGE}.</p>
      */
     interface Generation extends ReactiveLimitsHolder, VoltageRegulationHolder<Generation> {
         /**

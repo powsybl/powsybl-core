@@ -442,7 +442,7 @@ class TieLineTest {
 
         assertNull(n.getTieLine("ONE_TWO"));
         assertFalse(boundaryLine1.getGeneration().isRegulating());
-        assertNull(boundaryLine1.getGeneration().getVoltageRegulation());
+        assertNotNull(boundaryLine1.getGeneration().getVoltageRegulation());
         assertEquals(0.0, boundaryLine1.getGeneration().getLocalTargetQ(), 0.0);
         assertTrue(Double.isNaN(boundaryLine1.getGeneration().getLocalTargetV()));
     }

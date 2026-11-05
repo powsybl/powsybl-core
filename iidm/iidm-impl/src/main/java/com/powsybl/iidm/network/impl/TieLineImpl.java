@@ -501,7 +501,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
                 BoundaryLine.Generation generation = boundaryLine.getGeneration();
                 // Q must be set before removing the regulation, otherwise validation fails on the NaN localTargetQ
                 generation.setLocalTargetQ(0.0);
-                generation.removeVoltageRegulation();
+                if (generation.isRegulating()) {
+                    generation.getVoltageRegulation().setRegulating(false);
+                }
                 generation.setLocalTargetV(Double.NaN);
             }
         }

@@ -27,6 +27,7 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
     private double localTargetV = Double.NaN;
     private double localTargetQ = Double.NaN;
     private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes;
+    private Boolean voltageRegulationOn;
 
     GenerationAdderImpl(BoundaryLineAdderImpl parent) {
         this.parent = parent;
@@ -57,10 +58,7 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
 
     @Override
     public GenerationAdderImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
-        if (voltageRegulationAttributes == null && voltageRegulationOn) {
-            voltageRegulationAttributes = new VoltageRegulation.VoltageRegulationAttributes(
-                    Double.NaN, Double.NaN, Double.NaN, RegulationMode.VOLTAGE, true, null);
-        }
+        this.voltageRegulationOn = voltageRegulationOn;
         return this;
     }
 
@@ -93,6 +91,14 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
 
     private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
         this.voltageRegulationAttributes = voltageRegulationAttributes;
+        this.voltageRegulationOn = null;
+    }
+
+    private VoltageRegulation.VoltageRegulationAttributes buildVoltageRegulationAttributes() {
+        if (!Boolean.TRUE.equals(voltageRegulationOn)) {
+            return null;
+        }
+        return new VoltageRegulation.VoltageRegulationAttributes(Double.NaN, Double.NaN, Double.NaN, RegulationMode.VOLTAGE, true, null);
     }
 
     @Override
@@ -101,6 +107,12 @@ class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
         ValidationUtil.checkActivePowerLimits(parent, minP, maxP);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(parent, targetP, network.getMinValidationLevel(),
                 network.getReportNodeContext().getReportNode()));
+
+        // Backward compatibility
+        if (voltageRegulationAttributes == null) {
+            voltageRegulationAttributes = buildVoltageRegulationAttributes();
+        }
+
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(parent, BoundaryLine.Generation.class,
                 localTargetV, localTargetQ, voltageRegulationAttributes,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
