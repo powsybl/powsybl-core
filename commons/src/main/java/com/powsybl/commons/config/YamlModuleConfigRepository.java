@@ -30,7 +30,7 @@ public class YamlModuleConfigRepository extends AbstractModuleConfigRepository {
         Objects.requireNonNull(yamlConfigFile);
 
         try (Reader reader = Files.newBufferedReader(yamlConfigFile, StandardCharsets.UTF_8)) {
-            read(reader, yamlConfigFile.getFileSystem());
+            read(reader, yamlConfigFile.getFileSystem(), false);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -48,14 +48,19 @@ public class YamlModuleConfigRepository extends AbstractModuleConfigRepository {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(fileSystem);
 
-        read(reader, fileSystem);
+        read(reader, fileSystem, true);
     }
 
-    private void read(Reader reader, FileSystem fileSystem) {
+    /**
+     * @param allowEmptyDocument when true, a document holding nothing at all yields no module instead of
+     *                           being rejected. Used for the resources bundled in a jar, where an empty
+     *                           placeholder must not bring the whole platform configuration down, whereas
+     *                           an empty configuration file of the user stays a mistake worth reporting.
+     */
+    private void read(Reader reader, FileSystem fileSystem, boolean allowEmptyDocument) {
         Yaml yaml = new Yaml();
         Object data = yaml.load(reader);
-        if (data == null) {
-            // empty or comment-only document: no modules
+        if (data == null && allowEmptyDocument) {
             return;
         }
         if (!(data instanceof Map)) {

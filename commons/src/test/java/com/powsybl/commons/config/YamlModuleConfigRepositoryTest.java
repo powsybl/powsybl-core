@@ -75,7 +75,18 @@ class YamlModuleConfigRepositoryTest {
     }
 
     @Test
-    void emptyOrCommentOnlyDocumentHasNoModules() throws IOException {
+    void emptyFileIsRejected() throws IOException {
+        // an empty configuration file of the user is a mistake worth reporting
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path configFile = fileSystem.getPath("/config.yml");
+            Files.writeString(configFile, "");
+            assertThrows(PowsyblException.class, () -> new YamlModuleConfigRepository(configFile));
+        }
+    }
+
+    @Test
+    void emptyOrCommentOnlyReaderHasNoModule() throws IOException {
+        // a jar bundling an empty placeholder must not bring the whole platform configuration down
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             for (String content : new String[] {"", "# nothing here" + System.lineSeparator()}) {
                 try (Reader reader = new StringReader(content)) {

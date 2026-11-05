@@ -165,4 +165,24 @@ class ClasspathRuntimeConfigProviderTest {
     void providerHasDefaultPriority() {
         assertEquals(0, new ClasspathRuntimeConfigProvider().getPriority());
     }
+
+    @Test
+    void emptyResourceIsIgnoredRatherThanFailing() throws IOException {
+        // a jar shipping an empty placeholder must not bring the whole platform configuration down
+        URL empty = classPathEntry("empty", "# nothing here");
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[] {empty}, null)) {
+            assertTrue(new ClasspathRuntimeConfigProvider(classLoader).getModuleConfigRepository().isEmpty());
+        }
+    }
+
+    @Test
+    void emptyResourceDoesNotHideAValidOne() throws IOException {
+        URL empty = classPathEntry("empty", "");
+        URL valid = classPathEntry("valid", "foo:", "    bar: baz");
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[] {empty, valid}, null)) {
+            ModuleConfigRepository repository = new ClasspathRuntimeConfigProvider(classLoader)
+                    .getModuleConfigRepository().orElseThrow();
+            assertEquals("baz", repository.getModuleConfig("foo").orElseThrow().getStringProperty("bar"));
+        }
+    }
 }

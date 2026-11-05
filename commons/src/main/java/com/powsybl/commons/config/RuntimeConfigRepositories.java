@@ -34,9 +34,9 @@ public final class RuntimeConfigRepositories {
      * Set this system property to {@code false} to ignore every runtime configuration
      * provider, which is the way to check whether a surprising value comes from a jar.
      *
-     * <p>Following {@link Boolean#parseBoolean(String)} semantics, the layer is enabled unless
-     * this property is set to exactly {@code false} (case-insensitive); any other value,
-     * including a typo such as {@code 1}, leaves the layer enabled.
+     * <p>Following {@link Boolean#parseBoolean(String)} semantics, the layer is enabled when this
+     * property is absent or set to {@code true} (case-insensitive). Any other value disables it,
+     * including a typo such as {@code 1}.
      */
     public static final String ENABLED_PROPERTY = "powsybl.config.runtime.enabled";
 
@@ -48,8 +48,7 @@ public final class RuntimeConfigRepositories {
      * {@link Optional#empty()} when there is none.
      */
     public static Optional<ModuleConfigRepository> load() {
-        if (!isEnabled()) {
-            LOGGER.info("Runtime configuration is disabled by system property {}", ENABLED_PROPERTY);
+        if (isDisabled()) {
             return Optional.empty();
         }
         return load(ServiceLoader.load(RuntimeConfigProvider.class, RuntimeConfigRepositories.class.getClassLoader())
@@ -61,8 +60,7 @@ public final class RuntimeConfigRepositories {
     static Optional<ModuleConfigRepository> load(List<RuntimeConfigProvider> providers) {
         Objects.requireNonNull(providers);
 
-        if (!isEnabled()) {
-            LOGGER.info("Runtime configuration is disabled by system property {}", ENABLED_PROPERTY);
+        if (isDisabled()) {
             return Optional.empty();
         }
 
@@ -139,10 +137,28 @@ public final class RuntimeConfigRepositories {
     }
 
     private static List<RuntimeConfigProvider> sortByDecreasingPrecedence(List<RuntimeConfigProvider> providers) {
-        return providers.stream()
+        List<RuntimeConfigProvider> sorted = providers.stream()
                 .sorted(Comparator.comparingInt(RuntimeConfigProvider::getPriority).reversed()
                         .thenComparing(RuntimeConfigRepositories::requireName))
                 .toList();
+        warnOnIndistinguishableProviders(sorted);
+        return sorted;
+    }
+
+    /**
+     * Two providers sharing both a priority and a name cannot be ordered: the sort is stable, so the
+     * winner is whichever the {@link ServiceLoader} discovered first, which depends on the class path.
+     */
+    private static void warnOnIndistinguishableProviders(List<RuntimeConfigProvider> sorted) {
+        for (int i = 1; i < sorted.size(); i++) {
+            RuntimeConfigProvider previous = sorted.get(i - 1);
+            RuntimeConfigProvider current = sorted.get(i);
+            if (previous.getPriority() == current.getPriority() && requireName(previous).equals(requireName(current))) {
+                LOGGER.warn("Several runtime configuration providers are named '{}' with the same priority {}: "
+                        + "which one takes precedence depends on the class path order. Give them distinct names "
+                        + "or distinct priorities.", requireName(current), current.getPriority());
+            }
+        }
     }
 
     private static String requireName(RuntimeConfigProvider provider) {
@@ -162,7 +178,11 @@ public final class RuntimeConfigRepositories {
         }
     }
 
-    private static boolean isEnabled() {
-        return Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "true"));
+    private static boolean isDisabled() {
+        boolean disabled = !Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "true"));
+        if (disabled) {
+            LOGGER.info("Runtime configuration is disabled by system property {}", ENABLED_PROPERTY);
+        }
+        return disabled;
     }
 }

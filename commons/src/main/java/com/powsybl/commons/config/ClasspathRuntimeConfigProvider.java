@@ -89,7 +89,10 @@ public class ClasspathRuntimeConfigProvider implements RuntimeConfigProvider {
 
         List<RankedRepository> ranked = new ArrayList<>();
         for (URL url : urls) {
-            ranked.add(read(url));
+            read(url).ifPresent(ranked::add);
+        }
+        if (ranked.isEmpty()) {
+            return Optional.empty();
         }
         ranked.sort(Comparator.comparingInt(RankedRepository::priority).reversed()
                 .thenComparing(RankedRepository::url));
@@ -114,10 +117,19 @@ public class ClasspathRuntimeConfigProvider implements RuntimeConfigProvider {
         }
     }
 
-    private static RankedRepository read(URL url) {
+    /**
+     * Reads one resource, or {@link Optional#empty()} when it holds no document at all. A jar shipping an
+     * empty placeholder must not bring the whole platform configuration down, whereas an empty configuration
+     * file of the user stays an error, handled by {@link YamlModuleConfigRepository}.
+     */
+    private static Optional<RankedRepository> read(URL url) {
         try (Reader reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
             ModuleConfigRepository repository = new YamlModuleConfigRepository(reader, FileSystems.getDefault());
-            return new RankedRepository(url.toString(), readPriority(repository), repository);
+            if (repository.getModuleNames().isEmpty()) {
+                LOGGER.info("Runtime configuration resource {} defines no module, ignoring it", url);
+                return Optional.empty();
+            }
+            return Optional.of(new RankedRepository(url.toString(), readPriority(repository), repository));
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read the runtime configuration resource " + url, e);
         } catch (Exception e) {
