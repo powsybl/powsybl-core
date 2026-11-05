@@ -241,55 +241,55 @@ Each boundary line will be exported as one `EquivalentInjection` and one `ACLine
 
 #### DC node, DC bus
 
-PowSyBl [`DC Node`](../../grid_model/network_subnetwork.md#dc-node) is exported as CGMES `DCNode` in case of a node breaker export. 
-In case of a bus-branch export, PowSyBl `DC Bus` is exported as CGMES `DCNode` if CIM version is 100 and CGMES `DCNode` is not created at all if CIM version is 16.
+PowSyBl [`DcNode`](../../grid_model/network_subnetwork.md#dc-node) is exported as CGMES `DCNode` in case of a node breaker export. 
+In case of a bus-branch export, PowSyBl `DcBus` is exported as CGMES `DCNode` if CIM version is 100 and CGMES `DCNode` is not created at all if CIM version is 16.
 When a CGMES `DCNode` is created, it has the following attribute:
-- EQ `DCEquipmentContainer` is a CGMES `DCConverterUnit`, which is the container of the closest converter. A PowSyBl `DC Node` 
+- EQ `DCEquipmentContainer` is a CGMES `DCConverterUnit`, which is the container of the closest converter. A PowSyBl `DcNode` 
 that is equidistant from several converters (e.g. a node in the middle of an MTDC network, not directly connected to any
 converter) is assigned the container of the converter with the lowest id.
 
-PowSyBl `DC Bus` is always exported as CGMES `DCTopologicalNode`, with the attribute:
+PowSyBl `DcBus` is always exported as CGMES `DCTopologicalNode`, with the attribute:
 - TP `DCEquipmentContainer` that references the same CGMES `DCConverterUnit`
 
 
 #### DC Line
 
-PowSyBl [`DC Line`](../../grid_model/network_subnetwork.md#dc-line) is exported as CGMES `DCLineSegment`, with attribute:
+PowSyBl [`DcLine`](../../grid_model/network_subnetwork.md#dc-line) is exported as CGMES `DCLineSegment`, with attribute:
 - EQ `resistance` is copied from `R`.
 
 #### DC Switch
 
-PowSyBl [`DC Switch`](../../grid_model/network_subnetwork.md#dc-switch) is exported as:
+PowSyBl [`DcSwitch`](../../grid_model/network_subnetwork.md#dc-switch) is exported as:
 - CGMES `DCBreaker` if attribute `Kind` is `BREAKER`.
 - CGMES `DCDisconnector` if attribute `Kind` is `DISCONNECTOR`.
 
 #### DC Ground
 
-PowSyBl [`DC Ground`](../../grid_model/network_subnetwork.md#dc-ground) is exported as CGMES `DCGround`, with attribute:
+PowSyBl [`DcGround`](../../grid_model/network_subnetwork.md#dc-ground) is exported as CGMES `DCGround`, with attribute:
 - EQ `r` is copied from `R`.
 
 #### AC/DC Converter (Line Commutated Converter, Voltage Source Converter)
-PowSyBl [`Line Commutated Converter`](../../grid_model/network_subnetwork.md#line-commutated-converter) is exported as CGMES `CsConverter`,
-and PowSyBl [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter) as CGMES `VsConverter`.
+PowSyBl [`LineCommutatedConverter`](../../grid_model/network_subnetwork.md#line-commutated-converter) is exported as CGMES `CsConverter`,
+and PowSyBl [`VoltageSourceConverter`](../../grid_model/network_subnetwork.md#voltage-source-converter) as CGMES `VsConverter`.
 They share the following attributes:
 - EQ `idleLoss` is copied from `IdleLoss`.
 - EQ `switchingLoss` is copied from `SwitchingLoss`.
 - EQ `resistiveLoss` is copied from `ResistiveLoss`.
-- EQ `ratedUdc` is copied from the `NominalV` of the associated `DC Node`.
+- EQ `ratedUdc` is copied from the `NominalV` of the associated `DcNode`.
 - EQ `PccTerminal` is copied from `PccTerminal`.
 - SSH `targetPpcc` is copied from `TargetP`.
 - SSH `targetUdc` is copied from `TargetVdc`.
 - SSH `p` is the PCC terminal's `P` value.
 - SSH `q` is the PCC terminal's `Q` value.
 
-Specific `Line Commutated Converter` attributes:
+Specific `LineCommutatedConverter` attributes:
 - SSH `pPccControl` is `CsPpccControlKind.activePower` if `ControlMode` is `P_PCC`, else it is `CsPpccControlKind.dcVoltage`.
 - SSH `operatingMode` is `CsOperatingModeKind.rectifier` if the `TargetP` is greater than 0, else it is `CsOperatingModeKind.inverter`.
 - SSH `targetAlpha` is defaulted to 0.
 - SSH `targetGamma` is defaulted to 0.
 - SSH `targetIdc` is defaulted to 0.
 
-Specific `Voltage Source Converter` attributes:
+Specific `VoltageSourceConverter` attributes:
 - SSH `pPccControl` is `VsPpccControlKind.pPcc` if `ControlMode` is `P_PCC`, else it is `VsPpccControlKind.udc`.
 - SSH `qPccControl` is `VsQpccControlKind.voltagePcc` if `VoltageRegulatorOn` is set to `true`, else it is `VsQpccControlKind.reactivePcc`.
 - SSH `targetUpcc` is copied from `VoltageSetpoint`.
