@@ -46,6 +46,29 @@ into the exported angle regulation δu. This only applies to `ASYM` angle regula
 
 Its default value is `false`.
 
+**ucte.export.post-processors**<br>
+The `ucte.export.post-processors` property is an optional property that defines the list of post-processors to apply,
+in the given order, after the conversion of the network and before the writing of the UCTE-DEF file.
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/ucte/converter/UcteExportPostProcessor.html)
+Post-processors are implementations of `UcteExportPostProcessor`.
+
+Post-processors can:
+
+- Modify the converted UCTE network.
+  Comments can be added to the first comment block, or to additional comment blocks written in front of the `##N`,
+  `##L`, `##T` and `##R` blocks.
+- define the order of the nodes inside each `##Z` block.
+
+Post-processors are applied in the given input order, first for all modifications.
+Once all the post-processors have modified the UCTE network, the UCTE node comparators of the post-processors are
+requested.
+They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the
+given order, each one only breaking the ties of the previous ones.
+The default natural order is always used as a final tie-break.
+
+Its default value is an empty list.
+
 ## From IIDM to UCTE
 
 ### Node conversion
