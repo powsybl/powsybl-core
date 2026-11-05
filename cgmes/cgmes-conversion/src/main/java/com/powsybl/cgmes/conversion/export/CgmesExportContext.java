@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export;
 import com.fasterxml.uuid.Generators;
 import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -86,7 +87,7 @@ public class CgmesExportContext {
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
     private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
     private final Map<String, GeographicalRegionEq> regionsById = new HashMap<>();
-    private final Map<String, SubRegion> subRegionsById = new HashMap<>();
+    private final Map<String, SubGeographicalRegionEq> subRegionsById = new HashMap<>();
     private final Map<String, String> substationsSubRegion = new HashMap<>();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
@@ -292,7 +293,7 @@ public class CgmesExportContext {
         String subRegionId = substation.hasProperty(PROPERTY_SUB_REGION_ID) ?
                 namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_SUB_REGION_ID) :
                 namingStrategy.getCgmesId(ref(subRegionName), SUB_GEOGRAPHICAL_REGION);
-        subRegionsById.computeIfAbsent(subRegionId, k -> new SubRegion(subRegionId, subRegionName, region.rdfId()));
+        subRegionsById.computeIfAbsent(subRegionId, k -> new SubGeographicalRegionEq(subRegionId, subRegionName, region.rdfId()));
 
         return subRegionId;
     }
@@ -510,7 +511,7 @@ public class CgmesExportContext {
         return new HashSet<>(regionsById.values());
     }
 
-    protected Set<SubRegion> getSubRegions() {
+    protected Set<SubGeographicalRegionEq> getSubRegions() {
         return new HashSet<>(subRegionsById.values());
     }
 
@@ -652,7 +653,5 @@ public class CgmesExportContext {
     }
 
     record BaseVoltageSource(Double nominalV, String id, Source source) { }
-
-    record SubRegion(String id, String name, String regionId) { }
 }
 
