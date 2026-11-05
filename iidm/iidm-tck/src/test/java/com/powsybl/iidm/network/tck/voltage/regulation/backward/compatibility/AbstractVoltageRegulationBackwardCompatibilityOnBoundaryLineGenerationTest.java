@@ -157,6 +157,25 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBoundaryLi
     }
 
     @Test
+    void testBoundaryLineGenerationRegulationOnThenOff() {
+        // GIVEN
+        BoundaryLineAdder adder = boundaryLineAdder("bl_backwardCompatibility_onThenOff")
+            .newGeneration()
+                .setTargetP(20)
+                .setMinP(0)
+                .setMaxP(100)
+                .setTargetV(220.0) // deprecated method
+                .setTargetQ(10.0) // deprecated method
+                .setVoltageRegulationOn(true) // deprecated method
+                .setVoltageRegulationOn(false) // deprecated method
+            .add();
+        // WHEN
+        BoundaryLine boundaryLine = adder.add();
+        // THEN
+        assertFalse(boundaryLine.getGeneration().isRegulating());
+    }
+
+    @Test
     void testNotifyUpdateOnSetTargetQ() {
         // GIVEN
         BoundaryLine boundaryLine = boundaryLineAdder("bl_backwardCompatibility_notifyQ")

@@ -275,7 +275,6 @@ class BoundaryLineSerDe extends AbstractComplexIdentifiableSerDe<BoundaryLine, B
                 IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                 ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(generationToApply, context);
             }
-
             case VoltageRegulationSerDe.ELEMENT_NAME -> {
                 IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", VoltageRegulationSerDe.ELEMENT_NAME, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_19, context);
                 readLocalVoltageRegulation(generationAdderToApply, context);
