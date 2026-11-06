@@ -18,6 +18,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.Connec
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesExternalNetworkInjection.ExternalNetworkInjectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
@@ -493,10 +494,18 @@ public final class EquipmentExport {
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     regulatingControlId = writeRegulatingControl(generator);
-                    ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                            context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
-                            obtainGeneratorGovernorScd(generator), generator.getMaxP(), getMaxQ(generator), generator.getMinP(), getMinQ(generator),
-                            regulatingControlId, writer, context);
+                    ExternalNetworkInjectionEq externalNetworkInjection = new ExternalNetworkInjectionEq(
+                        context.getNamingStrategy().getCgmesId(generator),
+                        generator.getNameOrId(),
+                        context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
+                        obtainGeneratorGovernorScd(generator),
+                        generator.getMaxP(),
+                        getMaxQ(generator),
+                        generator.getMinP(),
+                        getMinQ(generator),
+                        regulatingControlId
+                    );
+                    CgmesExternalNetworkInjection.writeEq(externalNetworkInjection, writer, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     regulatingControlId = writeRegulatingControl(generator);
