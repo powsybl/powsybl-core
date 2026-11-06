@@ -228,8 +228,12 @@ public final class CgmesExportUtil {
     }
 
     public static void writeResource(String resourceName, String resourceValue, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeEmptyElement(context.getCim().getNamespace(), resourceName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(resourceValue, context));
+        writeResource(resourceName, context.getCim().getNamespace(), "#" + toRdfId(resourceValue, context), writer);
+    }
+
+    public static void writeResource(String resourceName, String namespace, String resourceValue, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(namespace, resourceName);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, resourceValue);
     }
 
     public static void writeEnd(XMLStreamWriter writer) throws XMLStreamException {
