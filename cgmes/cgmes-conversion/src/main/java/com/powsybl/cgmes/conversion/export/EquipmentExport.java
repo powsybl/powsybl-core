@@ -17,6 +17,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSec
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
@@ -478,10 +479,18 @@ public final class EquipmentExport {
                     String baseVoltageId = context.getBaseVoltageIdFromNominalV(generator.getTerminal().getVoltageLevel().getNominalV());
                     // Regulation capability is EQ data: it must not depend on the current regulating status
                     boolean regulationCapability = generator.getVoltageRegulation() != null;
-                    EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                        regulationCapability, generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
-                            reactiveCapabilityCurveId, baseVoltageId,
-                            writer, context);
+                    EquivalentInjectionEq equivalentInjection = new EquivalentInjectionEq(
+                        context.getNamingStrategy().getCgmesId(generator),
+                        generator.getNameOrId(),
+                        regulationCapability,
+                        generator.getMaxP(),
+                        getNullableMaxQ(generator),
+                        generator.getMinP(),
+                        getNullableMinQ(generator),
+                        reactiveCapabilityCurveId,
+                        baseVoltageId
+                    );
+                    CgmesEquivalentInjection.writeEq(equivalentInjection, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     regulatingControlId = writeRegulatingControl(generator);
@@ -1171,8 +1180,18 @@ public final class EquipmentExport {
         String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(boundaryLine, PROPERTY_EQUIVALENT_INJECTION);
         // check if the equivalent injection has already been written (if several boundary lines linked to same X-node)
         if (equivalentInjectionId != null && !exported.contains(equivalentInjectionId)) {
-            EquivalentInjectionEq.write(equivalentInjectionId, boundaryLine.getNameOrId() + "_EI", boundaryLine.getGeneration() != null,
-                minP, maxP, minQ, maxQ, null, baseVoltageId, writer, context);
+            EquivalentInjectionEq equivalentInjection = new EquivalentInjectionEq(
+                equivalentInjectionId,
+                boundaryLine.getNameOrId() + "_EI",
+                boundaryLine.getGeneration() != null,
+                maxP,
+                maxQ,
+                minP,
+                minQ,
+                null,
+                baseVoltageId
+            );
+            CgmesEquivalentInjection.writeEq(equivalentInjection, writer, context);
             exported.add(equivalentInjectionId);
         }
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(boundaryLine, PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
