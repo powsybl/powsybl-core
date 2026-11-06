@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -68,14 +69,31 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
      * take precedence over the values defined in subsequent directories.
      * Configuration properties encountered in environment variables take precedence
      * over the values defined in config directories.
+     * Configuration properties contributed by the {@link RuntimeConfigProvider} implementations
+     * of the class path are used last, for the properties defined nowhere else.
      */
     static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName) {
+        return loadModuleRepository(configDirs, configName, RuntimeConfigRepositories.load().orElse(null));
+    }
+
+    static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName,
+                                                      ModuleConfigRepository runtimeRepository) {
+        return loadModuleRepository(configDirs, configName, System.getenv(), runtimeRepository);
+    }
+
+    static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName,
+                                                      Map<String, String> environment,
+                                                      ModuleConfigRepository runtimeRepository) {
         List<ModuleConfigRepository> repositoriesFromPath = Arrays.stream(configDirs)
                 .map(configDir -> PlatformConfig.loadModuleRepository(configDir, configName))
                 .toList();
         List<ModuleConfigRepository> repositories = new ArrayList<>();
-        repositories.add(new EnvironmentModuleConfigRepository(System.getenv(), FileSystems.getDefault()));
+        repositories.add(new EnvironmentModuleConfigRepository(environment, FileSystems.getDefault()));
         repositories.addAll(repositoriesFromPath);
+        if (runtimeRepository != null) {
+            // last in the list, therefore lowest precedence: only used for properties the user did not define
+            repositories.add(runtimeRepository);
+        }
         return new StackedModuleConfigRepository(repositories);
     }
 
