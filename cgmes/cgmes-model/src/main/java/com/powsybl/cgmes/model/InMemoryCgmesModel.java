@@ -117,6 +117,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return new EmptyTripleStore();
     }
 
+    @Override
+    public String getCimNamespace() {
+        return CgmesNamespace.CIM_16.getNamespace();
+    }
+
+    @Override
+    public int getCimVersion() {
+        return CgmesNamespace.CIM_16.getVersion();
+    }
+
     public boolean hasEquipmentCore() {
         return true;
     }
