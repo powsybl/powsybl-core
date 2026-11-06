@@ -242,9 +242,10 @@ class DoubleTimeSeriesTest {
         UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
         UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        assertThat(timeSeries.toCompactArray()).isEqualTo(new double[]{1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d});
         assertThatCode(() -> timeSeries.split(0))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Split index 0 out of chunk range ]0, 7]");
+                .hasMessage("Invalid chunk size: 0");
         assertThatCode(() -> timeSeries.split(1)).doesNotThrowAnyException();
         assertThatCode(() -> timeSeries.split(2)).doesNotThrowAnyException();
         assertThatCode(() -> timeSeries.split(3)).doesNotThrowAnyException();
@@ -252,9 +253,10 @@ class DoubleTimeSeriesTest {
         assertThatCode(() -> timeSeries.split(5)).doesNotThrowAnyException();
         assertThatCode(() -> timeSeries.split(6)).doesNotThrowAnyException();
         assertThatCode(() -> timeSeries.split(7)).doesNotThrowAnyException();
-        assertThatCode(() -> timeSeries.split(8))
+        assertThatCode(() -> timeSeries.split(8)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(9))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Split index 8 out of chunk range ]0, 7]");
+                .hasMessage("Invalid chunk size: 9");
     }
 
 }

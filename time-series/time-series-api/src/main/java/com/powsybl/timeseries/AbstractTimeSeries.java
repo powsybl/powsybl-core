@@ -175,11 +175,10 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     public List<T> split(int newChunkSize) {
         C compactChunk = toCompactChunk(); // single chunk view
-        int offset = compactChunk.getOffset();
         int length = compactChunk.getLength();
-        // split out of chunk range is not allowed
-        if (newChunkSize <= offset || newChunkSize > (offset + length - 1)) {
-            throw new IllegalArgumentException("Split index " + newChunkSize + " out of chunk range ]" + offset + ", " + (offset + length - 1) + "]");
+        // chunk size out of range is not allowed
+        if (newChunkSize < 1 || newChunkSize > length) {
+            throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
         int chunkCount = (int) Math.ceil((double) length / newChunkSize);
         List<T> result = new ArrayList<>(chunkCount);
