@@ -23,6 +23,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.CgmesExport.CIM_VERSION;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -114,6 +116,18 @@ class TopologyExportTest extends AbstractSerDeTest {
     void exportPairedBoundaryLinesInNodeBreakerModelWithBoundaryCim100() throws IOException {
         Network network = createPairedBoundaryLinesNodeBreakerModel();
         assertTrue(exportPairedBoundaryLinesWithBoundary(network, "100"));
+    }
+
+    @Test
+    void exportHvdcDcEquipmentContainer() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+        // Export TP profile
+        String tpFile = writeCgmesProfile(network, "TP", tmpDir, new Properties());
+
+        // Check DCTopologicalNode.DCEquipmentContainer field is exported
+        assertEquals(4, getElementCount(tpFile, "DCTopologicalNode"));
+        String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "B1_TN_DCTN");
+        assertEquals("L_DCLS_DCCU_1", getResource(dcTopologicalNode, "DCTopologicalNode.DCEquipmentContainer"));
     }
 
     private static boolean exportPairedBoundaryLinesWithoutBoundary(Network network, String cimVersion) throws IOException {
