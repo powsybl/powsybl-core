@@ -23,7 +23,8 @@ jobs:
 
     steps:
       - name: Setup [JDK, Maven build, Sonar]
-        uses: powsybl/github-ci/setup-powsybl-dev@c52f8aa7ebd2d10cb49085d137d789719ca542e0 #TODO change version to main after merge in github-ci
+        uses: powsybl/github-ci/setup-powsybl-dev@485e9f2030fffa1a40ff0af24a00066ab3b7f6bc #main
         with:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           sonar_projectKey: 'com.powsybl:powsybl-core'
+          maven_args_ubuntu: '-B -ntp -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install'
