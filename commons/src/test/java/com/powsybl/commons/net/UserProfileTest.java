@@ -7,8 +7,8 @@
  */
 package com.powsybl.commons.net;
 
-import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.EqualsTester;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
