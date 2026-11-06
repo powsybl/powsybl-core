@@ -149,6 +149,23 @@
 .sld-closed .sld-ground-disconnection-ground {stroke: var(--sld-vl-color, #c80000); fill: none}
 .sld-ground-disconnection .sld-sw-open {stroke: black; fill: none}
 .sld-ground-disconnection .sld-sw-closed {stroke: black; fill: none}
+
+    @media (prefers-color-scheme: dark) {
+        .sld-label { fill: #eee !important; }
+        .sld-disconnector { stroke: #eee !important; }
+        .sld-node, .sld-flash, .sld-lock, .sld-unknown { fill: #eee !important; }
+        .sld-feeder-info.sld-active-power { fill: #eee !important; }
+        .sld-wire.sld-feeder-disconnected { stroke: #eee !important; }
+        .sld-wire.sld-feeder-disconnected-connected { stroke: #eee !important; }
+        .sld-pst-arrow { stroke: #eee !important; }
+        .sld-open .sld-ground-disconnection-ground { stroke: #eee !important; }
+        .sld-ground-disconnection .sld-sw-open { stroke: #eee !important; }
+        .sld-ground-disconnection .sld-sw-closed { stroke: #eee !important; }
+        .sld-bus-connection { fill: var(--sld-vl-color, #eee) !important; }
+        .sld-busbar-section { stroke: var(--sld-vl-color, #eee) !important; }
+        .sld-breaker.sld-fictitious, .sld-disconnector.sld-fictitious, .sld-load-break-switch.sld-fictitious { stroke: #ff8080 !important; }
+        .sld-grid { stroke: #555 !important; }
+    }
 ]]></style>
     <rect class="sld-frame" height="100%" width="100%"/>
     <g>

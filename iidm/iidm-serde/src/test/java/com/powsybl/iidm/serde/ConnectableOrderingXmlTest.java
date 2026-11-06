@@ -1,0 +1,70 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.serde;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
+ * @author Alexandre Le Jean {@literal <alexandre.le-jean@artelys.com>}
+ */
+class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
+
+    @Test
+    void testRoundTripSorted() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setSorted(true);
+        roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrderingSorted.xiidm");
+    }
+
+    @Test
+    void testRoundTripConnectableCreationOrder() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setConnectableCreationOrder(true);
+        roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrdering.xiidm");
+
+        roundTripTest(Network.read("/twtOrderingSorted.xiidm", getNetworkAsStream("/twtOrderingSorted.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrderingSorted.xiidm");
+    }
+
+    @Test
+    void testRoundTripSortedOverConnectableCreationOrder() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setSorted(true);
+        exportOptions.setConnectableCreationOrder(true);
+        roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrderingSorted.xiidm");
+    }
+
+    @Test
+    void testCopyPreserveConnectableCreationOrderParameter() {
+        Network network = Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm"));
+        Network exportNetwork = NetworkSerDe.copy(network, NetworkFactory.findDefault(), true);
+        assertEquals(network.getTwoWindingsTransformers().toString(), exportNetwork.getTwoWindingsTransformers().toString());
+
+        network = Network.read("/twtOrderingSorted.xiidm", getNetworkAsStream("/twtOrderingSorted.xiidm"));
+        exportNetwork = NetworkSerDe.copy(network, NetworkFactory.findDefault(), true);
+        assertEquals(network.getTwoWindingsTransformers().toString(), exportNetwork.getTwoWindingsTransformers().toString());
+    }
+}

@@ -1,5 +1,5 @@
 {
-  "version" : "1.5",
+  "version" : "1.6",
   "faultResults" : [ {
     "status" : "SUCCESS",
     "fault" : {
@@ -19,7 +19,7 @@
       "operationalLimitsGroupId" : "activated_limits_group",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
       "limit" : 2000.0,
-      "limitReduction" : 1.0,
+      "limitScaling" : 1.0,
       "value" : 2500.0
     } ]
   } ]

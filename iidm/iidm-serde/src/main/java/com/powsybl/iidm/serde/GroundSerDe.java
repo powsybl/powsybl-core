@@ -11,8 +11,7 @@ import com.powsybl.iidm.network.Ground;
 import com.powsybl.iidm.network.GroundAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readNodeOrBus;
-import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeNodeOrBus;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -31,6 +30,7 @@ public class GroundSerDe extends AbstractSimpleIdentifiableSerDe<Ground, GroundA
 
     @Override
     protected void writeRootElementAttributes(Ground ground, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(ground, context);
         writeNodeOrBus(null, ground.getTerminal(), context);
     }
 
@@ -41,6 +41,7 @@ public class GroundSerDe extends AbstractSimpleIdentifiableSerDe<Ground, GroundA
 
     @Override
     protected Ground readRootElementAttributes(GroundAdder adder, VoltageLevel parent, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         readNodeOrBus(adder, context, parent.getTopologyKind());
         return adder.add();
     }

@@ -710,7 +710,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 
 This extension is attached to a [network](network_subnetwork.md#network) and is used to define the angle references of a Power Flow solution.
 The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
-today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priority).
+today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priorities-extension).
 
 The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
 0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.

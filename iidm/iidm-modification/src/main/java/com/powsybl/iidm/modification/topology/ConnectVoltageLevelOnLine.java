@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,6 +126,14 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
         // Remove the existing line
         String originalLineId = line.getId();
+        ConnectablePosition<Line> connectablePosition = line.getExtension(ConnectablePosition.class);
+        ConnectablePositionData connectablePositionDataSide1 = null;
+        ConnectablePositionData connectablePositionDataSide2 = null;
+        if (connectablePosition != null) {
+            connectablePositionDataSide1 = new ConnectablePositionData(connectablePosition.getFeeder1());
+            connectablePositionDataSide2 = new ConnectablePositionData(connectablePosition.getFeeder2());
+        }
+
         line.remove();
 
         // Create the two lines
@@ -134,8 +143,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         // add line positions,
         // add position of line 1 on side two because it is connected to the attached voltage level
         // add position of line 2 on side one because it is connected to the attached voltage level
-        createConnectablePositionExtensionForNewLine(line1, TwoSides.TWO, positionForNewLine1, reportNode, throwException);
-        createConnectablePositionExtensionForNewLine(line2, TwoSides.ONE, positionForNewLine2, reportNode, throwException);
+        createConnectablePositionExtensionForNewLine(line1, TwoSides.TWO, positionForNewLine1, connectablePositionDataSide1, reportNode, throwException);
+        createConnectablePositionExtensionForNewLine(line2, TwoSides.ONE, positionForNewLine2, connectablePositionDataSide2, reportNode, throwException);
 
         //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
         //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available

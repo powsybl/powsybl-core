@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
+import java.util.Optional;
+
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
@@ -54,14 +56,14 @@ public class BranchObservabilitySerDe<T extends Branch<T>> extends AbstractExten
         writeOptionalQuality(context, branchObservability.getQualityQ2(), QUALITY_Q, TwoSides.TWO);
     }
 
-    private void writeOptionalQuality(SerializerContext context, ObservabilityQuality<T> quality, String type, TwoSides side) {
-        if (quality != null) {
+    private void writeOptionalQuality(SerializerContext context, Optional<ObservabilityQuality<T>> quality, String type, TwoSides side) {
+        quality.ifPresent(q -> {
             context.getWriter().writeStartNode(getNamespaceUri(), type);
             context.getWriter().writeEnumAttribute(SIDE, side);
-            context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            context.getWriter().writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant().orElse(null));
+            context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, q.getStandardDeviation());
+            context.getWriter().writeOptionalBooleanAttribute(REDUNDANT, q.isRedundant().orElse(null));
             context.getWriter().writeEndNode();
-        }
+        });
     }
 
     @Override
