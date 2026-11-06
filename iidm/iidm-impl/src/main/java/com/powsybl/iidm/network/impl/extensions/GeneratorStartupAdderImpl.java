@@ -37,6 +37,8 @@ public class GeneratorStartupAdderImpl extends AbstractExtensionAdder<Generator,
     protected GeneratorStartup createExtension(Generator extendable) {
         ValidationUtil.checkRate((Validable) extendable, "GeneratorStartup", forcedOutageRate, "forced outage rate");
         ValidationUtil.checkRate((Validable) extendable, "GeneratorStartup", plannedOutageRate, "planned outage rate");
+        ValidationUtil.checkPlannedActivePowerSetpoint((Validable) extendable, plannedActivePowerSetpoint,
+                extendable.getMinP(), extendable.getMaxP(), extendable.getNetwork().getReportNodeContext().getReportNode());
         return new GeneratorStartupImpl(extendable, plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate);
     }
 

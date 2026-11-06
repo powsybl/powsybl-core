@@ -476,6 +476,28 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void activePowerTargetNotWithinRange(ReportNode reportNode, String id, double targetP, double minP, double maxP) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.activePowerTargetNotWithinRange")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("targetP", targetP, TypedValue.ACTIVE_POWER)
+                .withTypedValue("minP", minP, TypedValue.ACTIVE_POWER)
+                .withTypedValue("maxP", maxP, TypedValue.ACTIVE_POWER)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void plannedActivePowerTargetNotWithinRange(ReportNode reportNode, String id, double plannedActivePowerSetpoint, double minP, double maxP) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.plannedActivePowerTargetNotWithinRange")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withTypedValue("plannedActivePowerSetpoint", plannedActivePowerSetpoint, TypedValue.ACTIVE_POWER)
+                .withTypedValue("minP", minP, TypedValue.ACTIVE_POWER)
+                .withTypedValue("maxP", maxP, TypedValue.ACTIVE_POWER)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void targetDeadbandUndefinedValue(ReportNode reportNode, String validableType, String id) {
         String key = switch (validableType) {
             case "ratio tap changer" -> "core.iidm.network.rtcTargetDeadbandUndefinedValue";

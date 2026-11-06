@@ -8,6 +8,9 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -22,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractGeneratorTest {
 
@@ -149,6 +153,44 @@ public abstract class AbstractGeneratorTest {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, 20.0, 21., 20.0,
                 30.0, 40.0, false, 20.0));
         assertTrue(e.getMessage().contains("invalid active limits"));
+    }
+
+    @Test
+    public void targetPNotWithinRange() {
+        // test adder
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode1);
+        Generator generator = createGenerator(INVALID, EnergySource.HYDRO, 20.0, 19, 20.0,
+                30.0, 40.0, false, 20.0);
+        reportNode1.getChildren();
+        assertEquals("core.iidm.network.activePowerTargetNotWithinRange", reportNode1.getChildren().getFirst().getMessageKey());
+        assertEquals(30.0, generator.getTargetP());
+
+        // test setter
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode2);
+        generator.setTargetP(32);
+        reportNode2.getChildren();
+        assertEquals("core.iidm.network.activePowerTargetNotWithinRange", reportNode2.getChildren().getFirst().getMessageKey());
+        assertEquals(32.0, generator.getTargetP());
+
+        // test with targetP = 0
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode3);
+        generator.setTargetP(0);
+        reportNode3.getChildren();
+        assertEquals(0, reportNode3.getChildren().size());
+        assertEquals(0, generator.getTargetP());
+
     }
 
     /**
