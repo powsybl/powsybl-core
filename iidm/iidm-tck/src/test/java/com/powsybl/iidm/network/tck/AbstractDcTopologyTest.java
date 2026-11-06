@@ -21,6 +21,7 @@ import java.util.stream.StreamSupport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -96,6 +97,33 @@ public abstract class AbstractDcTopologyTest {
         assertDcBusesAre(network, List.of("dcNode1_dcBus", "dcNode2_dcBus"));
         assertNotNull(dcNode2.getDcBus());
         assertNull(dcGround2.getDcTerminal().getDcBus());
+    }
+
+    @Test
+    public void testResistiveSwitchShortedByNonResistiveSwitch() {
+        // dcNode1 -- [dcSwitch closed, R=0.125] -- dcNode2
+        //        \-- [dcShort  closed, R=0]     --/
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        DcSwitch dcShort = network.newDcSwitch().setId("dcShort")
+                .setKind(DcSwitchKind.BREAKER)
+                .setOpen(false)
+                .setR(0.0)
+                .setDcNode1("dcNode1").setDcNode2("dcNode2")
+                .add();
+        DcNode dcNode1 = network.getDcNode("dcNode1");
+        DcNode dcNode2 = network.getDcNode("dcNode2");
+        assertEquals(1, network.getDcBusCount());
+        DcBus dcBus1 = dcNode1.getDcBus();
+        assertNotNull(dcBus1);
+        assertSame(dcBus1, dcNode2.getDcBus());
+        assertDcBusContainsDcNodes(dcBus1, List.of(dcNode1, dcNode2));
+
+        // opening the short gives back one bus per end
+        dcShort.setOpen(true);
+        assertEquals(2, network.getDcBusCount());
+        assertNotNull(dcNode1.getDcBus());
+        assertNotNull(dcNode2.getDcBus());
+        assertNotSame(dcNode1.getDcBus(), dcNode2.getDcBus());
     }
 
     @Test
