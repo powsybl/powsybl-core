@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil.DCConverterUnit;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesBaseVoltage.BaseVoltageEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
@@ -282,9 +283,13 @@ public final class EquipmentExport {
 
     private void writeBusbarSections() throws XMLStreamException {
         for (BusbarSection bbs : network.getBusbarSections()) {
-            BusbarSectionEq.write(context.getNamingStrategy().getCgmesId(bbs), bbs.getNameOrId(),
-                    context.getNamingStrategy().getCgmesId(bbs.getTerminal().getVoltageLevel()),
-                    context.getBaseVoltageIdFromNominalV(bbs.getTerminal().getVoltageLevel().getNominalV()), writer, context);
+            BusbarSectionEq busbarSection = new BusbarSectionEq(
+                context.getNamingStrategy().getCgmesId(bbs),
+                bbs.getNameOrId(),
+                context.getNamingStrategy().getCgmesId(bbs.getTerminal().getVoltageLevel()),
+                context.getBaseVoltageIdFromNominalV(bbs.getTerminal().getVoltageLevel().getNominalV())
+            );
+            CgmesBusbarSection.writeEq(busbarSection, writer, context);
         }
     }
 
