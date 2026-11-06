@@ -1,0 +1,23 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e8a">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Partial SSH: only two generators, some optional attributes missing</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <!-- No SynchronousMachine.referencePriority, no SynchronousMachine.operatingMode -->
+    <cim:SynchronousMachine rdf:about="#_SynchronousMachine">
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-170</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>10</cim:RotatingMachine.q>
+    </cim:SynchronousMachine>
+
+    <!-- No RegulatingCondEq.controlEnabled, no ExternalNetworkInjection.referencePriority -->
+    <cim:ExternalNetworkInjection rdf:about="#_ExternalNetworkInjection">
+        <cim:ExternalNetworkInjection.p>20</cim:ExternalNetworkInjection.p>
+        <cim:ExternalNetworkInjection.q>10</cim:ExternalNetworkInjection.q>
+    </cim:ExternalNetworkInjection>
+</rdf:RDF>
