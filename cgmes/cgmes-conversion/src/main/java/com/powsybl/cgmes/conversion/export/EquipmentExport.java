@@ -19,6 +19,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyCo
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesExternalNetworkInjection.ExternalNetworkInjectionEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesGeneratingUnit.GeneratingUnitEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
@@ -586,9 +587,18 @@ public final class EquipmentExport {
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
             String generatingUnitName = "GU_" + i.getNameOrId();
-            GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP,
-                    i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null),
-                    hydroPowerPlantId, windGenUnitType, writer, context);
+            GeneratingUnitEq generatingUnitEq = new GeneratingUnitEq(
+                generatingUnitClassName(energySource),
+                generatingUnit,
+                generatingUnitName,
+                targetP,
+                maxP,
+                minP,
+                windGenUnitType,
+                i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null),
+                hydroPowerPlantId
+            );
+            CgmesGeneratingUnit.writeEq(generatingUnitEq, writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
     }
