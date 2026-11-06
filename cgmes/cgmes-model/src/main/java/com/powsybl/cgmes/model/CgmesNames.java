@@ -130,6 +130,9 @@ public final class CgmesNames {
     public static final String BUSBAR_SECTION = "BusbarSection";
     public static final String GROUND = "Ground";
     public static final String SHUNT_COMPENSATOR = "ShuntCompensator";
+    public static final String LINEAR_SHUNT_COMPENSATOR = "LinearShuntCompensator";
+    public static final String NONLINEAR_SHUNT_COMPENSATOR = "NonlinearShuntCompensator";
+    public static final String NONLINEAR_SHUNT_COMPENSATOR_POINT = "NonlinearShuntCompensatorPoint";
     public static final String EQUIVALENT_SHUNT = "EquivalentShunt";
     public static final String EQUIVALENT_BRANCH = "EquivalentBranch";
     public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
