@@ -403,7 +403,7 @@ public final class RegulatingTerminalMapper {
 
     static Optional<Terminal> findEquivalentTerminalForVoltageRegulatingTerminalDefinedAtBusbarSection(String cgmesTerminalId, Context context) {
         CgmesTerminal busbarSectionCgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-        if (busbarSectionCgmesTerminal == null) {
+        if (busbarSectionCgmesTerminal == null || busbarSectionCgmesTerminal.topologicalNode() == null) {
             return Optional.empty();
         }
         Bus busInBusBreakerView = context.network().getBusBreakerView().getBus(busbarSectionCgmesTerminal.topologicalNode());

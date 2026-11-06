@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<md:FullModel rdf:about="urn:uuid:test">
+		<md:Model.scenarioTime>2024-02-26T00:00:00Z</md:Model.scenarioTime>
+		<md:Model.created>2024-02-26T00:00:00Z</md:Model.created>
+		<md:Model.description>test busbarsection without TN</md:Model.description>
+		<md:Model.version>1</md:Model.version>
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+	</md:FullModel>
+	<cim:BusbarSection rdf:ID="_bbs">
+		<cim:Equipment.EquipmentContainer rdf:resource="#_bbs_vl"/>
+		<cim:IdentifiedObject.name>BBS</cim:IdentifiedObject.name>
+	</cim:BusbarSection>
+	<cim:Terminal rdf:ID="_bbs_t">
+		<cim:Terminal.ConductingEquipment rdf:resource="#_bbs"/>
+		<cim:IdentifiedObject.name>T</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:BusbarSection rdf:ID="_bbs1">
+		<cim:Equipment.EquipmentContainer rdf:resource="#_bbs_vl"/>
+		<cim:IdentifiedObject.name>BBS1</cim:IdentifiedObject.name>
+	</cim:BusbarSection>
+	<cim:Terminal rdf:ID="_bbs1_t">
+		<cim:Terminal.ConductingEquipment rdf:resource="#_bbs1"/>
+		<cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:Substation rdf:ID="_bbs_s">
+		<cim:Substation.Region rdf:resource="#_bbs_sgr"/>
+		<cim:IdentifiedObject.name>BBS152</cim:IdentifiedObject.name>
+	</cim:Substation>
+	<cim:VoltageLevel rdf:ID="_bbs_vl">
+		<cim:VoltageLevel.BaseVoltage rdf:resource="#_b8e17237e0ca4fca9e4e285b80ab30d0"/>
+		<cim:VoltageLevel.Substation rdf:resource="#_bbs_s"/>
+		<cim:IdentifiedObject.name>BBS_110</cim:IdentifiedObject.name>
+	</cim:VoltageLevel>
+	<cim:SubGeographicalRegion rdf:ID="_bbs_sgr">
+		<cim:SubGeographicalRegion.Region rdf:resource="#_bbs_gr"/>
+		<cim:IdentifiedObject.name>Subgeographical Region</cim:IdentifiedObject.name>
+	</cim:SubGeographicalRegion>
+	<cim:GeographicalRegion rdf:ID="_bbs_gr">
+		<cim:IdentifiedObject.name>AQ</cim:IdentifiedObject.name>
+	</cim:GeographicalRegion>
+	<cim:BaseVoltage rdf:ID="_b8e17237e0ca4fca9e4e285b80ab30d0">
+		<cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+		<cim:IdentifiedObject.name>AC-110</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>Base voltage for 110 kV</cim:IdentifiedObject.description>
+	</cim:BaseVoltage>
+
+	<cim:SynchronousMachine rdf:ID="_sm">
+		<cim:IdentifiedObject.name>SynchronousMachine</cim:IdentifiedObject.name>
+		<cim:Equipment.EquipmentContainer rdf:resource="#_bbs_vl"/>
+		<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generator"/>
+		<cim:RotatingMachine.GeneratingUnit rdf:resource="#_gu"/>
+		<cim:SynchronousMachine.minQ>-100</cim:SynchronousMachine.minQ>
+		<cim:SynchronousMachine.maxQ>100</cim:SynchronousMachine.maxQ>
+		<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_gu_rc"/>
+	</cim:SynchronousMachine>
+	<cim:GeneratingUnit rdf:ID="_gu">
+		<cim:IdentifiedObject.name>GeneratingUnit</cim:IdentifiedObject.name>
+		<cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+		<cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+		<cim:GeneratingUnit.initialP>0</cim:GeneratingUnit.initialP>
+	</cim:GeneratingUnit>
+	<cim:Terminal rdf:ID="_sm_t">
+		<cim:Terminal.ConductingEquipment rdf:resource="#_sm"/>
+		<cim:IdentifiedObject.name>SM_T</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:RegulatingControl rdf:ID="_gu_rc">
+		<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+		<cim:RegulatingControl.Terminal rdf:resource="#_bbs1_t"/>
+		<cim:IdentifiedObject.name>RegulatingControl</cim:IdentifiedObject.name>
+	</cim:RegulatingControl>
+
+	<cim:LinearShuntCompensator rdf:ID="_shunt">
+		<cim:IdentifiedObject.name>Shunt</cim:IdentifiedObject.name>
+		<cim:Equipment.EquipmentContainer rdf:resource="#_bbs_vl"/>
+		<cim:ShuntCompensator.nomU>110</cim:ShuntCompensator.nomU>
+		<cim:ShuntCompensator.maximumSections>1</cim:ShuntCompensator.maximumSections>
+		<cim:ShuntCompensator.normalSections>1</cim:ShuntCompensator.normalSections>
+		<cim:LinearShuntCompensator.bPerSection>0.001</cim:LinearShuntCompensator.bPerSection>
+		<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_shunt_rc"/>
+	</cim:LinearShuntCompensator>
+	<cim:Terminal rdf:ID="_shunt_t">
+		<cim:Terminal.ConductingEquipment rdf:resource="#_shunt"/>
+		<cim:IdentifiedObject.name>SHUNT_T</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:RegulatingControl rdf:ID="_shunt_rc">
+		<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+		<cim:RegulatingControl.Terminal rdf:resource="#_bbs1_t"/>
+		<cim:IdentifiedObject.name>ShuntRegulatingControl</cim:IdentifiedObject.name>
+	</cim:RegulatingControl>
+
+	<cim:StaticVarCompensator rdf:ID="_svc">
+		<cim:IdentifiedObject.name>SVC</cim:IdentifiedObject.name>
+		<cim:Equipment.EquipmentContainer rdf:resource="#_bbs_vl"/>
+		<cim:StaticVarCompensator.capacitiveRating>100</cim:StaticVarCompensator.capacitiveRating>
+		<cim:StaticVarCompensator.inductiveRating>100</cim:StaticVarCompensator.inductiveRating>
+		<cim:StaticVarCompensator.slope>0.02</cim:StaticVarCompensator.slope>
+		<cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.voltage"/>
+		<cim:StaticVarCompensator.voltageSetPoint>110</cim:StaticVarCompensator.voltageSetPoint>
+		<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_svc_rc"/>
+	</cim:StaticVarCompensator>
+	<cim:Terminal rdf:ID="_svc_t">
+		<cim:Terminal.ConductingEquipment rdf:resource="#_svc"/>
+		<cim:IdentifiedObject.name>SVC_T</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:RegulatingControl rdf:ID="_svc_rc">
+		<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+		<cim:RegulatingControl.Terminal rdf:resource="#_bbs1_t"/>
+		<cim:IdentifiedObject.name>SvcRegulatingControl</cim:IdentifiedObject.name>
+	</cim:RegulatingControl>
+</rdf:RDF>
