@@ -5,8 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.gl;
 
+import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.triplestore.api.TripleStore;
@@ -23,8 +24,8 @@ public class SubstationPositionExporter extends AbstractPositionExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubstationPositionExporter.class);
 
-    public SubstationPositionExporter(TripleStore tripleStore, ExportContext context) {
-        super(tripleStore, context);
+    public SubstationPositionExporter(TripleStore tripleStore, ExportContext context, Cim cimModel) {
+        super(tripleStore, context, cimModel);
     }
 
     public void exportPosition(Substation substation) {

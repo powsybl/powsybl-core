@@ -280,11 +280,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-cgmes-gl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-cgmes-measurements</artifactId>
                 <version>${project.version}</version>
             </dependency>
