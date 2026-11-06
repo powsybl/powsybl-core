@@ -56,6 +56,7 @@ public final class CgmesNames {
     public static final String TRANSFORMER_END2 = "TransformerEnd2";
     public static final String TRANSFORMER_END3 = "TransformerEnd3";
     public static final String TAP_CHANGER = "TapChanger";
+    public static final String TAP_CHANGER_CONTROL = "TapChangerControl";
     public static final String CONTINUOUS_POSITION = "continuousPosition";
     public static final String POSITION = "position";
     public static final String LOW_STEP = "lowStep";
@@ -75,7 +76,10 @@ public final class CgmesNames {
     public static final String ANGLE = "angle";
 
     public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
+    public static final String RATIO_TAP_CHANGER_TABLE_POINT = "RatioTapChangerTablePoint";
     public static final String PHASE_TAP_CHANGER_TABLE = "PhaseTapChangerTable";
+    public static final String PHASE_TAP_CHANGER_TABLE_POINT = "PhaseTapChangerTablePoint";
+    public static final String TAP_CHANGER_TABLE_POINT = "TapChangerTablePoint";
 
     public static final String TERMINAL1 = "Terminal1";
     public static final String TERMINAL2 = "Terminal2";
@@ -105,6 +109,7 @@ public final class CgmesNames {
     public static final String STEP_VOLTAGE_INCREMENT = "stepVoltageIncrement";
     public static final String STEP_PHASE_SHIFT_INCREMENT = "stepPhaseShiftIncrement";
     public static final String NEUTRAL_STEP = "neutralStep";
+    public static final String NEUTRAL_U = "neutralU";
     public static final String NORMAL_STEP = "normalStep";
     public static final String SV_TAP_STEP = "SVtapStep";
     public static final String LTC_FLAG = "ltcFlag";
@@ -123,6 +128,7 @@ public final class CgmesNames {
     public static final String ASYMMETRICAL = "asymmetrical";
     public static final String TABULAR = "tabular";
     public static final String TCUL_CONTROL_MODE = "tculControlMode";
+    public static final String TRANSFORMER_CONTROL_MODE = "TransformerControlMode";
     public static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
     public static final String PHASE_TAP_CHANGER_TABULAR = "PhaseTapChangerTabular";
 

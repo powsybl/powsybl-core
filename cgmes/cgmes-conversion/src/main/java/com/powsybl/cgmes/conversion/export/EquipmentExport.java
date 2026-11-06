@@ -33,6 +33,14 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.S
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSwitch.SwitchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSynchronousMachine.SynchronousMachineEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.PhaseTapChangerEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.PhaseTapChangerTableEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.PhaseTapChangerTablePointEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.RatioTapChangerEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.RatioTapChangerTableEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.RatioTapChangerTablePointEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.TapChangerControlEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesVoltageLevel.VoltageLevelEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -1124,22 +1132,42 @@ public final class EquipmentExport {
                             exportedLimitTypes.add(operationalLimitTypeId);
                         }
                     }
-                    TapChangerEq.writeControl(tapChangerControlId, controlName, mode, terminalId, writer, context);
+                    TapChangerControlEq tapChangerControl = new TapChangerControlEq(tapChangerControlId, controlName, mode, terminalId);
+                    CgmesTapChanger.writeTapChangerControlEq(tapChangerControl, writer, context);
                     regulatingControlsWritten.add(tapChangerControlId);
                 }
             }
             String phaseTapChangerTableId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), PHASE_TAP_CHANGER_TABLE);
-            // If we write the EQ, we will always write the Tap Changer as tabular
-            String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
-            TapChangerEq.writePhase(typeTabular, tapChangerId, twtName + "_PTC", endId,
-                ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, normalStep, neutralU, ptc.hasLoadTapChangingCapabilities(),
-                phaseTapChangerTableId, tapChangerControlId, writer, context);
-            TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", writer, context);
+            PhaseTapChangerEq phaseTapChanger = new PhaseTapChangerEq(
+                tapChangerId,
+                twtName + "_PTC",
+                ptc.getHighTapPosition(),
+                ptc.getLowTapPosition(),
+                ptc.hasLoadTapChangingCapabilities(),
+                neutralStep,
+                neutralU,
+                normalStep,
+                phaseTapChangerTableId,
+                endId,
+                tapChangerControlId
+            );
+            CgmesTapChanger.writePhaseTapChangerEq(phaseTapChanger, writer, context);
+            PhaseTapChangerTableEq phaseTapChangerTable = new PhaseTapChangerTableEq(phaseTapChangerTableId, twtName + "_TABLE");
+            CgmesTapChanger.writePhaseTapChangerTableEq(phaseTapChangerTable, writer, context);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), PHASE_TAP_CHANGER_STEP);
-                TapChangerEq.writePhaseTablePoint(stepId, phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(),
-                    step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(),
-                    step.getKey(), writer, context);
+                PhaseTapChangerTablePointEq point = new PhaseTapChangerTablePointEq(
+                    stepId,
+                    phaseTapChangerTableId,
+                    step.getKey(),
+                    step.getValue().getR(),
+                    step.getValue().getX(),
+                    step.getValue().getG(),
+                    step.getValue().getB(),
+                    1 / step.getValue().getRho(),
+                    -step.getValue().getAlpha()
+                );
+                CgmesTapChanger.writePhaseTapChangerTablePointEq(point, writer, context);
             }
         }
     }
@@ -1197,18 +1225,42 @@ public final class EquipmentExport {
                     if (tccMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
                         controlMode = "reactive";
                     }
-                    TapChangerEq.writeControl(tapChangerControlId, controlName, tccMode, terminalId, writer, context);
+                    TapChangerControlEq tapChangerControl = new TapChangerControlEq(tapChangerControlId, controlName, tccMode, terminalId);
+                    CgmesTapChanger.writeTapChangerControlEq(tapChangerControl, writer, context);
                     regulatingControlsWritten.add(tapChangerControlId);
                 }
             }
-            TapChangerEq.writeRatio(tapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(),
-                neutralStep, normalStep, neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
-                    ratioTapChangerTableId, tapChangerControlId, controlMode, writer, context);
-            TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", writer, context);
+            RatioTapChangerEq ratioTapChanger = new RatioTapChangerEq(
+                tapChangerId,
+                twtName + "_RTC",
+                controlMode,
+                stepVoltageIncrement,
+                rtc.getHighTapPosition(),
+                rtc.getLowTapPosition(),
+                rtc.hasLoadTapChangingCapabilities(),
+                neutralStep,
+                neutralU,
+                normalStep,
+                ratioTapChangerTableId,
+                endId,
+                tapChangerControlId
+            );
+            CgmesTapChanger.writeRatioTapChangerEq(ratioTapChanger, writer, context);
+            RatioTapChangerTableEq ratioTapChangerTable = new RatioTapChangerTableEq(ratioTapChangerTableId, twtName + "_TABLE");
+            CgmesTapChanger.writeRatioTapChangerTableEq(ratioTapChangerTable, writer, context);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), RATIO_TAP_CHANGER_STEP);
-                TapChangerEq.writeRatioTablePoint(stepId, ratioTapChangerTableId, step.getValue().getR(), step.getValue().getX(),
-                    step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), step.getKey(), writer, context);
+                RatioTapChangerTablePointEq point = new RatioTapChangerTablePointEq(
+                    stepId,
+                    ratioTapChangerTableId,
+                    step.getKey(),
+                    step.getValue().getR(),
+                    step.getValue().getX(),
+                    step.getValue().getG(),
+                    step.getValue().getB(),
+                    1 / step.getValue().getRho()
+                );
+                CgmesTapChanger.writeRatioTapChangerTablePointEq(point, writer, context);
             }
 
         }
