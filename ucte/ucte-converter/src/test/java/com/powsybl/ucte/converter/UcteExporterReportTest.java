@@ -17,6 +17,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -143,6 +144,78 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                    + Creating UCTE Network
                       + Buses and Switches
                          Switch FFFFFF11 FFFFFF12 1: No current limit provided
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks the entries reported when several generators or loads are aggregated on a bus. See
+     * {@link UcteExporterTestNetworks#createWithMultipleInjections()} for the cases: only the out of bounds aggregated
+     * maxP ({@code CASE6}) and the mixed power plant types ({@code CASE7}) are reported.
+     */
+    @Test
+    void testMultipleInjectionsReports() {
+        Network network = UcteExporterTestNetworks.createWithMultipleInjections();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Buses and Switches
+                         Bus FCASE671: aggregated maxP (12000.0) reaches or exceeds 9999 in absolute value ("no limit" value) and is left undefined
+                         Bus FCASE771: generators have different power plant types, type F (further) is used
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks the entries reported when selecting the voltage reference of a bus. See
+     * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases: conflicting targets
+     * ({@code CASE1}, {@code CASE2}, {@code CASE6}) and rescaled remote targets ({@code CASE4}, {@code CASE8}) are
+     * reported, a remote target on a bus with the same nominal voltage ({@code CASEA}) is not.
+     * <p>
+     * A regulating generator without any voltage target, only accepted at the {@link ValidationLevel#EQUIPMENT}
+     * validation level, is added to {@code CASE9}: the missing voltage target is reported.
+     */
+    @Test
+    void testVoltageTargetReports() {
+        Network network = UcteExporterTestNetworks.createWithMultipleVoltageTargets();
+        // EQUIPMENT to have FCASE971 pass validation (regulating node without generator carrying a voltage target)
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        GeneratorAdder missingTargetAdder = network.getVoltageLevel("VL21").newGenerator()
+                .setId("CASE9_GB")
+                .setBus("FCASE971")
+                .setConnectableBus("FCASE971")
+                .setTargetP(10)
+                .setMinP(0)
+                .setMaxP(100)
+                .setLocalTargetQ(0);
+        missingTargetAdder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add();
+        missingTargetAdder.add();
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Buses and Switches
+                         Bus FCASE171: generators have different voltage targets, 23.0 kV from generator CASE1_GB is used
+                         Bus FCASE271: generators have different voltage targets, 22.0 kV from generator CASE2_GA is used
+                         Bus FCASE471: generator CASE4_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
+                         Bus FCASE671: generators have different voltage targets, 23.0 kV from generator CASE6_GB is used
+                         Bus FCASE871: generator CASE8_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
+                         Bus FCASE971: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
                       Boundary Lines
                       Lines
                       Tie-Lines

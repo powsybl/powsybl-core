@@ -33,6 +33,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.DoublePredicate;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -197,13 +200,6 @@ public class UcteExporter implements Exporter {
     private static void convertBus(UcteNetwork ucteNetwork, Bus bus, UcteExporterContext context) {
         LOGGER.trace("Converting bus {}", bus.getId());
 
-        if (bus.getGeneratorStream().count() > 1) {
-            throw new UcteException("Too many generators connected to this bus");
-        }
-        if (bus.getLoadStream().count() > 1) {
-            throw new UcteException("Too many loads connected to this bus");
-        }
-
         UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
@@ -231,7 +227,7 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addNode(ucteNode);
 
         convertLoads(ucteNode, bus);
-        convertGenerators(ucteNode, bus);
+        convertGenerators(ucteNode, bus, context.getReportNode());
 
         if (isSlackBus(bus)) {
             ucteNode.setTypeCode(UcteNodeTypeCode.UT);
@@ -256,21 +252,17 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Initialize the power generation fields from the generators connected to the specified bus.
+     * Initialize the power generation fields from the generators connected to the specified bus. If there are several
+     * generators, their injections are aggregated (see {@code docs/grid_exchange_formats/ucte/export.md}).
      *
      * @param ucteNode The UCTE node to fill
      * @param bus The bus the generators are connected to
+     * @param reportNode The report node used to report aggregation issues
      */
-    private static void convertGenerators(UcteNode ucteNode, Bus bus) {
+    private static void convertGenerators(UcteNode ucteNode, Bus bus, ReportNode reportNode) {
         double activePowerGeneration = -0.0;
         double reactivePowerGeneration = -0.0;
-        double voltageReference = Double.NaN;
-        double minP = Double.NaN;
-        double maxP = Double.NaN;
-        double minQ = Double.NaN;
-        double maxQ = Double.NaN;
         UcteNodeTypeCode nodeType = UcteNodeTypeCode.PQ;
-        UctePowerPlantType powerPlantType = null;
         for (Generator generator : bus.getGenerators()) {
             if (!Double.isNaN(generator.getTargetP())) {
                 activePowerGeneration += generator.getTargetP();
@@ -278,30 +270,78 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getLocalTargetQ())) {
                 reactivePowerGeneration += generator.getLocalTargetQ();
             }
-            if (!Double.isNaN(generator.getLocalTargetV())) {
-                // FIXME(mathbagu): what if not all the generators have the same targetV?
-                // Should we use bus.getV() instead?
-                voltageReference = generator.getLocalTargetV();
-            }
             if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
-            minP = generator.getMinP();
-            maxP = generator.getMaxP();
-            // FIXME(mathbagu): how to get minQ and maxQ for an aggregated generator
-            minQ = generator.getReactiveLimits().getMinQ(activePowerGeneration);
-            maxQ = generator.getReactiveLimits().getMaxQ(activePowerGeneration);
-
-            // FIXME(mathbagu): what if not all the generators have the same energy source?
-            powerPlantType = energySourceToUctePowerPlantType(generator);
         }
         ucteNode.setActivePowerGeneration(activePowerGeneration != 0 ? -activePowerGeneration : 0);
         ucteNode.setReactivePowerGeneration(reactivePowerGeneration != 0 ? -reactivePowerGeneration : 0);
-        ucteNode.setVoltageReference(voltageReference);
-        ucteNode.setPowerPlantType(powerPlantType);
+        ucteNode.setVoltageReference(selectVoltageReference(bus, reportNode));
+        ucteNode.setPowerPlantType(aggregatePowerPlantType(bus, reportNode));
         ucteNode.setTypeCode(nodeType);
-        // FIXME(mathbagu): to be changed in UcteImporter?
-        setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
+        setNodePowerGenerationLimits(ucteNode,
+                aggregateLimit(Generator::getMinP, UcteExporter::isMinLimitInbounds, "minP", bus, reportNode),
+                aggregateLimit(Generator::getMaxP, UcteExporter::isMaxLimitInbounds, "maxP", bus, reportNode),
+                aggregateLimit(UcteExporter::ownMinReactiveLimit, UcteExporter::isMinLimitInbounds, "minQ", bus, reportNode),
+                aggregateLimit(UcteExporter::ownMaxReactiveLimit, UcteExporter::isMaxLimitInbounds, "maxQ", bus, reportNode));
+    }
+
+    /**
+     * @return the minimum reactive limit of the generator, evaluated at its own target active power
+     */
+    private static double ownMinReactiveLimit(Generator generator) {
+        return generator.getReactiveLimits().getMinQ(getGenTargetP(generator));
+    }
+
+    /**
+     * @return the maximum reactive limit of the generator, evaluated at its own target active power
+     */
+    private static double ownMaxReactiveLimit(Generator generator) {
+        return generator.getReactiveLimits().getMaxQ(getGenTargetP(generator));
+    }
+
+    /**
+     * Aggregate one generator power limit over all the generators of a bus. If any generator has no limit (value out
+     * of bounds), the aggregated limit is "no limit". Otherwise it is the sum of the limits; if the sum is itself out
+     * of bounds, a warning is reported.
+     *
+     * @return the aggregated limit, or NaN if the limit must be left undefined
+     */
+    private static double aggregateLimit(ToDoubleFunction<Generator> limit,
+                                         DoublePredicate isInbounds,
+                                         String limitName,
+                                         Bus bus,
+                                         ReportNode reportNode) {
+        if (bus.getGeneratorStream().findAny().isEmpty()) {
+            return Double.NaN;
+        }
+        double sum = -0.0;
+        for (Generator generator : bus.getGenerators()) {
+            double value = limit.applyAsDouble(generator);
+            if (!isInbounds.test(value)) {
+                return Double.NaN;
+            }
+            sum += value;
+        }
+        if (!isInbounds.test(sum)) {
+            UcteExporterReports.aggregatedPowerLimitOutOfBounds(reportNode, bus.getId(), limitName, sum);
+            return Double.NaN;
+        }
+        return sum;
+    }
+
+    /**
+     * @return the common power plant type of the generators, type F if they differ, or null if there is no generator
+     */
+    private static UctePowerPlantType aggregatePowerPlantType(Bus bus, ReportNode reportNode) {
+        Set<UctePowerPlantType> types = bus.getGeneratorStream()
+                                                  .map(UcteExporter::energySourceToUctePowerPlantType)
+                                                  .collect(Collectors.toSet());
+        if (types.size() > 1) {
+            UcteExporterReports.mixedPowerPlantTypes(reportNode, bus.getId());
+            return UctePowerPlantType.F;
+        }
+        return types.stream().findFirst().orElse(null);
     }
 
     /**
