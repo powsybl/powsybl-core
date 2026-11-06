@@ -50,7 +50,7 @@ When set to `false`, a reactive capability curve point with `minQ > maxQ` is con
 When set to `true`, the importer automatically swaps the values so that `minQ <= maxQ`, allowing the import to succeed.<br>
 
 ```{note}
-IIDM versions prior to 1.18 accepted invalid ordered minQ/maxQ limits. To prevent rejecting those files at the import, the repair is always active for IIDM versions < 1.18 regardless this parameters value.
+IIDM versions prior to 1.18 accepted invalid ordered minQ/maxQ limits. To avoid rejecting such files during import, the repair is always enabled for IIDM versions earlier than 1.18, regardless of the value of this parameter.
 ```
 
 ### Deprecated properties
