@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Setup [JDK, Maven build, Sonar]
-        uses: powsybl/github-ci/setup-powsybl-dev@444321a6d4f81cd5aba3984cfb1def04ae47d335 #TODO change version to main after merge in github-ci
+        uses: powsybl/github-ci/setup-powsybl-dev@c52f8aa7ebd2d10cb49085d137d789719ca542e0 #TODO change version to main after merge in github-ci
         with:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           sonar_projectKey: 'com.powsybl:powsybl-core'
