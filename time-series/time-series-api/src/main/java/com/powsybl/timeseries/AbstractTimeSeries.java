@@ -128,6 +128,16 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected abstract T createTimeSeries(C chunk);
 
+    protected abstract T createTimeSeries(List<C> chunk);
+
+    protected abstract C toCompactChunk();
+
+    /**
+      * Extracts the points {@code [from, to[} of a compact chunk (relative to its offset)
+      * @return the sub chunk, or null if it only contains empty values
+      */
+    protected abstract C sliceNonBlank(C compactChunk, int from, int to);
+
     /**
      * <p>Splits a chunk into sub-chunks based on the specified first and last indices.</p>
      *
@@ -163,68 +173,21 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         }
     }
 
-    private void split(C chunkToSplit, List<C> splitChunks, int newChunkSize) {
-        traceSplitChunk(chunkToSplit.getOffset(), chunkToSplit.getOffset() + chunkToSplit.getLength() - 1);
-
-        boolean usePreviousChunk = false;
-        C previousChunk = splitChunks.isEmpty() ? null : splitChunks.get(splitChunks.size() - 1);
-        int previousChunkSize = 0;
-        //We can complete the previous chunk if 1) it is uncomplete and 2) the current offset is not a multiple of newChunkSize
-        if (previousChunk != null && previousChunk.getLength() < newChunkSize && chunkToSplit.getOffset() % newChunkSize != 0) {
-            usePreviousChunk = true;
-            previousChunkSize = previousChunk.getLength();
-        }
-        int correctedChunkSize = newChunkSize - previousChunkSize;
-
-        if (usePreviousChunk) {
-            LOGGER.trace("Previous output chunk's size is {} ; {} elements can be added.", previousChunkSize, correctedChunkSize);
-        } else {
-            LOGGER.trace("The previous chunk was complete (or there was no previous chunk). Starting a new one.");
-        }
-
-        if (chunkToSplit.getLength() > correctedChunkSize) {
-            splitChunk(chunkToSplit, previousChunk, splitChunks, newChunkSize, correctedChunkSize, usePreviousChunk);
-        } else {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("   Too small...");
-            }
-            if (usePreviousChunk) {
-                C mergedChunk = previousChunk.append(chunkToSplit);
-                splitChunks.remove(splitChunks.size() - 1);
-                splitChunks.add(mergedChunk);
-            } else {
-                splitChunks.add(chunkToSplit);
-            }
-        }
-    }
-
-    private void splitChunk(C chunkToSplit, C previousChunk, List<C> splitChunks, int newChunkSize, int correctedChunkSize, boolean usePreviousChunk) {
-        // compute lower intersection index with new chunk size
-        int newChunkLowIndex = (int) Math.round(0.5f + (double) chunkToSplit.getOffset() / correctedChunkSize) * correctedChunkSize;
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("   At index {}", newChunkLowIndex);
-        }
-        DataChunk.Split<P, C> split = chunkToSplit.splitAt(newChunkLowIndex);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
-        }
-
-        if (usePreviousChunk) {
-            C mergedChunk = previousChunk.append(split.getChunk1());
-            splitChunks.remove(splitChunks.size() - 1);
-            splitChunks.add(mergedChunk);
-        } else {
-            splitChunks.add(split.getChunk1());
-        }
-        split(split.getChunk2(), splitChunks, newChunkSize);
-    }
-
     public List<T> split(int newChunkSize) {
-        List<C> splitNewChunks = new ArrayList<>();
-        for (C chunkToSplit : getCheckedChunks(false)) {
-            split(chunkToSplit, splitNewChunks, newChunkSize);
+        C compactChunk = toCompactChunk(); // single chunk view
+        int length = compactChunk.getLength();
+        // chunk size out of range is not allowed
+        if (newChunkSize < 1 || newChunkSize > length) {
+            throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
-        return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
+        int chunkCount = (int) Math.ceil((double) length / newChunkSize);
+        List<T> result = new ArrayList<>(chunkCount);
+
+        for (int from = 0; from < length; from += newChunkSize) {
+            C chunk = sliceNonBlank(compactChunk, from, Math.min(from + newChunkSize, length));
+            result.add(chunk == null ? createTimeSeries(List.of()) : createTimeSeries(chunk));
+        }
+        return result;
     }
 
     /**

@@ -12,6 +12,8 @@ import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
@@ -23,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -250,6 +253,23 @@ class StringTimeSeriesTest {
         assertEquals(expectedAtIndex1, timeSeries.get(1));
         assertEquals(expectedAtIndex5, timeSeries.get(5));
         assertEquals(expectedAtIndex6, timeSeries.get(6));
+    }
+
+    @ParameterizedTest(name = "tsSize={0}, newChunkSize={1} => chunkCount={2}")
+    @CsvSource({"100000, 100000, 1", "200000, 200000, 1", "200000, 60000, 4"})
+    void splitManyMultiChunkTimeSeriesTest(int tsSize, int newChunkSize, int expectedChunkCount) {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(tsSize);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+
+        StringDataChunk[] chunks = new StringDataChunk[tsSize];
+        for (int i = 0; i < chunks.length; i++) {
+            chunks[i] = new UncompressedStringDataChunk(i, new String[] {"a" + i});
+        }
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunks);
+
+        List<List<StringTimeSeries>> split = TimeSeries.split(Collections.singletonList(timeSeries), newChunkSize);
+        assertThat(split).hasSize(expectedChunkCount);
     }
 
 }

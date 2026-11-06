@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static java.util.Arrays.copyOfRange;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -34,6 +36,30 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
     @Override
     protected DoubleTimeSeries createTimeSeries(DoubleDataChunk chunk) {
         return new StoredDoubleTimeSeries(metadata, chunk);
+    }
+
+    @Override
+    protected DoubleTimeSeries createTimeSeries(List<DoubleDataChunk> chunks) {
+        return new StoredDoubleTimeSeries(metadata, chunks);
+    }
+
+    @Override
+    protected DoubleDataChunk toCompactChunk() {
+        if (chunks.size() == 1 && chunks.getFirst() instanceof UncompressedDoubleDataChunk uncompressed) {
+            return uncompressed; // already compact, no copy
+        }
+        return new UncompressedDoubleDataChunk(getMinOffset(), toCompactArray());
+    }
+
+    @Override
+    protected DoubleDataChunk sliceNonBlank(DoubleDataChunk compactChunk, int from, int to) {
+        double[] values = ((UncompressedDoubleDataChunk) compactChunk).getValues();
+        for (int i = from; i < to; i++) {
+            if (!Double.isNaN(values[i])) {
+                return from == 0 && to == values.length ? compactChunk : new UncompressedDoubleDataChunk(compactChunk.getOffset() + from, copyOfRange(values, from, to));
+            }
+        }
+        return null;
     }
 
     private void forEachChunk(Consumer<DoubleDataChunk> consumer) {
