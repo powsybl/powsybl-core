@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSeg
 import com.powsybl.cgmes.conversion.export.elements.CgmesBaseVoltage.BaseVoltageEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesCurveData.CurveDataEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
@@ -625,7 +626,8 @@ public final class EquipmentExport {
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     String pointId = context.getNamingStrategy().getCgmesId(refTyped(i), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
-                    CurveDataEq.write(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, writer, context);
+                    CurveDataEq curveData = new CurveDataEq(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId);
+                    CgmesCurveData.writeEq(curveData, writer, context);
                     pointIndex++;
                 }
                 String reactiveCapabilityCurveName = "RCC_" + i.getNameOrId();
@@ -1684,7 +1686,8 @@ public final class EquipmentExport {
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     String pointId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
-                    CurveDataEq.write(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, writer, context);
+                    CurveDataEq curveData = new CurveDataEq(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId);
+                    CgmesCurveData.writeEq(curveData, writer, context);
                     pointIndex++;
                 }
                 String reactiveCapabilityCurveName = "RCC_" + identifiable.getNameOrId();
