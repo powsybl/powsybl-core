@@ -66,7 +66,8 @@ public abstract class AbstractVoltageRegulationOnBoundaryLineTest extends Abstra
         VoltageRegulationBuilder builder = generation.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withRegulating(true);
-        assertThrows(ValidationException.class, builder::build);
+        ValidationException e = assertThrows(ValidationException.class, builder::build);
+        assertEquals("Boundary line 'bl_reactive': The current regulationMode is REACTIVE_POWER but allowed modes are [VOLTAGE] when the terminal is not set.", e.getMessage());
         assertNull(generation.getVoltageRegulation());
     }
 
@@ -80,7 +81,8 @@ public abstract class AbstractVoltageRegulationOnBoundaryLineTest extends Abstra
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(true)
             .withTerminal(remoteTerminal);
-        assertThrows(ValidationException.class, builder::build);
+        ValidationException e = assertThrows(ValidationException.class, builder::build);
+        assertEquals("Boundary line 'bl_terminal': The current regulationMode is VOLTAGE but allowed modes are [] when the terminal is set.", e.getMessage());
         assertNull(generation.getVoltageRegulation());
     }
 
@@ -94,7 +96,8 @@ public abstract class AbstractVoltageRegulationOnBoundaryLineTest extends Abstra
             .withMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)
             .withTargetValue(10.0)
             .withRegulating(true);
-        assertThrows(ValidationException.class, builder::build);
+        ValidationException e = assertThrows(ValidationException.class, builder::build);
+        assertEquals("Boundary line 'bl_mode': The current regulationMode is VOLTAGE_PER_REACTIVE_POWER but allowed modes are [VOLTAGE] when the terminal is not set.", e.getMessage());
         assertNull(generation.getVoltageRegulation());
     }
 

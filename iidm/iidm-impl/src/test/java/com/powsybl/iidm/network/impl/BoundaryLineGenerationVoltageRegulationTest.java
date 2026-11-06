@@ -54,7 +54,8 @@ class BoundaryLineGenerationVoltageRegulationTest {
                 .withRegulating(true)
                 .withTerminal(boundaryLine.getTerminal())
                 .withTargetValue(400.0);
-        assertThrows(ValidationException.class, adder::build);
+        ValidationException e = assertThrows(ValidationException.class, adder::build);
+        assertEquals("Boundary line 'BL': The current regulationMode is VOLTAGE but allowed modes are [] when the terminal is set.", e.getMessage());
     }
 
     @Test
@@ -65,7 +66,8 @@ class BoundaryLineGenerationVoltageRegulationTest {
                 .withMode(RegulationMode.VOLTAGE)
                 .withRegulating(true)
                 .withTargetValue(400.0);
-        assertThrows(ValidationException.class, adder::build);
+        ValidationException e = assertThrows(ValidationException.class, adder::build);
+        assertEquals("Boundary line 'BL': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", e.getMessage());
     }
 
     @Test
@@ -89,6 +91,7 @@ class BoundaryLineGenerationVoltageRegulationTest {
         var adder = generation.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)
                 .withRegulating(true);
-        assertThrows(ValidationException.class, adder::build);
+        ValidationException e = assertThrows(ValidationException.class, adder::build);
+        assertEquals("Boundary line 'BL': The current regulationMode is VOLTAGE_PER_REACTIVE_POWER but allowed modes are [VOLTAGE] when the terminal is not set.", e.getMessage());
     }
 }
