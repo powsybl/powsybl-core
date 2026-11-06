@@ -15,6 +15,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSeg
 import com.powsybl.cgmes.conversion.export.elements.CgmesBaseVoltage.BaseVoltageEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
@@ -363,7 +364,8 @@ public final class EquipmentExport {
             writeEnergySource(loadId, loadName, equipmentContainerId);
         } else {
             String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context, network);
-            EnergyConsumerEq.write(NONCONFORM_LOAD, loadId, loadName, loadGroup, equipmentContainerId, null, writer, context);
+            EnergyConsumerEq energyConsumer = new EnergyConsumerEq(NONCONFORM_LOAD, loadId, loadName, loadGroup, equipmentContainerId, null);
+            CgmesEnergyConsumer.writeEq(energyConsumer, writer, context);
         }
 
         TerminalEq terminal = new TerminalEq(terminalId, 1, loadId, cnId);
@@ -383,8 +385,15 @@ public final class EquipmentExport {
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = loadGroups.groupFor(className, context, network);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load);
-                        EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup,
-                            context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, writer, context);
+                        EnergyConsumerEq energyConsumer = new EnergyConsumerEq(
+                            className,
+                            loadId,
+                            load.getNameOrId(),
+                            loadGroup,
+                            context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
+                            loadResponseCharacteristicId
+                        );
+                        CgmesEnergyConsumer.writeEq(energyConsumer, writer, context);
                     }
                     default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
