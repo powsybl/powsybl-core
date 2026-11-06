@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER;
+import static com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER;
 import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE_PER_REACTIVE_POWER;
 
@@ -44,7 +45,7 @@ public final class VoltageRegulationUtils {
     private static Set<RegulationMode> getRemoteSettableRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
-            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == RatioTapChanger.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
             case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
@@ -56,8 +57,8 @@ public final class VoltageRegulationUtils {
 
     private static Set<RegulationMode> getLocalSettableRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
-            case Class<?> c when c == Battery.class -> Set.of(VOLTAGE);
-            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+            case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER);
             case Class<?> c when c == RatioTapChanger.class -> Set.of();
             case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
             case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);

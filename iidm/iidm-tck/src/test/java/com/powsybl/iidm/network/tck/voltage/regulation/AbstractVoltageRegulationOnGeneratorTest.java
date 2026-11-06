@@ -15,12 +15,14 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
@@ -114,6 +116,42 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
         // THEN
         assertEquals(24, generator.getLocalTargetV());
         assertTrue(generator.isRegulating());
+    }
+
+    @Test
+    public void testGeneratorReactivePowerPerActivePowerOk() {
+        GeneratorAdder generatorAdder = newGeneratorAdder("ReactivePowerPerActivePower_ok");
+        generatorAdder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withSlope(0.3)
+            .add();
+        Generator generator = generatorAdder.add();
+        assertEquals(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER, generator.getVoltageRegulation().getMode());
+        assertEquals(0.3, generator.getVoltageRegulation().getSlope());
+        assertTrue(generator.isRegulating());
+    }
+
+    @Test
+    public void testGeneratorReactivePowerPerActivePowerErrorSlopeMissing() {
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ReactivePowerPerActivePower_slope_missing").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
+        assertEquals("Generator 'ReactivePowerPerActivePower_slope_missing': Undefined value for voltageRegulation.slope. "
+            + "Must be not null for regulationMode VOLTAGE_PER_REACTIVE_POWER and REACTIVE_POWER_PER_ACTIVE_POWER", validationException.getMessage());
+    }
+
+    @Test
+    public void testGeneratorReactivePowerPerActivePowerErrorTerminalSet() {
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ReactivePowerPerActivePower_terminal_set").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(10)
+            .withSlope(0.3);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
+        String allowedModes = VoltageRegulationUtils.getSettableRegulationModes(Generator.class, true, true).stream()
+            .map(RegulationMode::name).collect(Collectors.joining(", "));
+        assertEquals("Generator 'ReactivePowerPerActivePower_terminal_set': The current regulationMode is REACTIVE_POWER_PER_ACTIVE_POWER but allowed modes are ["
+            + allowedModes + "] when the terminal is set.", validationException.getMessage());
     }
 
     @Test
