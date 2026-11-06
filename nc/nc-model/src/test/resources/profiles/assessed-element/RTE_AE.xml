@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:nc="http://entsoe.eu/ns/nc#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:dcterms="http://purl.org/dc/terms/#" xmlns:cim="http://iec.ch/TC57/CIM100#">
+  <md:FullModel rdf:about="urn:uuid:00000000-0000-0000-0000-000000000000">
+    <dcat:startDate>2023-01-01T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2100-01-01T00:00:00Z</dcat:endDate>
+    <dcat:keyword>AE</dcat:keyword>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/AssessedElement-EU/2.4</dcterms:Model.conformsTo>
+  </md:FullModel>
+  <nc:AssessedElement rdf:ID="_assessed-element-1">
+    <cim:IdentifiedObject.mRID>assessed-element-1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE1</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Two FlowCNECs on FR2-FR3 (2500 A on right side): preventive + curative (with CO1)</cim:IdentifiedObject.description>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_fr2-fr3-port2-curatiPATL-xxxxxxxxxxx"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_ae1xco1">
+    <nc:AssessedElementWithContingency.mRID>ae1xco1</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_contingency-1"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_assessed-element-1"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithContingency.normalEnabled>true</nc:AssessedElementWithContingency.normalEnabled>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElementWithRemedialAction rdf:ID="_ae1xra1">
+    <nc:AssessedElementWithRemedialAction.mRID>ae1xra1</nc:AssessedElementWithRemedialAction.mRID>
+    <nc:AssessedElementWithRemedialAction.RemedialAction rdf:resource="#_remedial-action-1"/>
+    <nc:AssessedElementWithRemedialAction.AssessedElement rdf:resource="#_assessed-element-1"/>
+    <nc:AssessedElementWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithRemedialAction.normalEnabled>true</nc:AssessedElementWithRemedialAction.normalEnabled>
+  </nc:AssessedElementWithRemedialAction>
+  <nc:AssessedElement rdf:ID="_assessed-element-2">
+    <cim:IdentifiedObject.mRID>assessed-element-2</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE2</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>FlowCNEC on FR2-FR3 (5000 A on right side): outage (with CO1 &amp; CO2)</cim:IdentifiedObject.description>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>true</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_fr2-fr3-port2-outageTATL-xxxxxxxxxxx"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-3">
+    <cim:IdentifiedObject.mRID>assessed-element-3</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE3</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>FlowCNEC on FR2-FR3 (4000 A on right side): auto (with CO2)</cim:IdentifiedObject.description>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_fr2-fr3-port2-autoTATL-xxxxxxxxxxx"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_ae3xco2">
+    <nc:AssessedElementWithContingency.mRID>ae3xco2</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_contingency-2"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_assessed-element-3"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithContingency.normalEnabled>true</nc:AssessedElementWithContingency.normalEnabled>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElement rdf:ID="_assessed-element-4">
+    <cim:IdentifiedObject.mRID>assessed-element-4</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE4</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>FlowCNEC on FR2-FR3 (2500 A on right side): curative (with CO1 &amp; CO2)</cim:IdentifiedObject.description>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithRemedialAction>true</nc:AssessedElement.isCombinableWithRemedialAction>
+    <nc:AssessedElement.isCombinableWithContingency>true</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_fr2-fr3-port2-curatiPATL-xxxxxxxxxxx"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-5">
+    <cim:IdentifiedObject.mRID>assessed-element-5</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE5</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>4 FlowCNECs on FR2-FR3 (on both sides): preventive, outage, auto and curative (with CO1 &amp; CO2)</cim:IdentifiedObject.description>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>true</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR2AA1++FFR3AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-6">
+    <cim:IdentifiedObject.mRID>assessed-element-6</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE6</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>3 FlowCNECs on FR2-FR3 (on both sides): outage, auto and curative (with CO1)</cim:IdentifiedObject.description>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR2AA1++FFR3AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_ae6xco1">
+    <nc:AssessedElementWithContingency.mRID>ae6xco1</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_contingency-1"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_assessed-element-6"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithContingency.normalEnabled>true</nc:AssessedElementWithContingency.normalEnabled>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElement rdf:ID="_assessed-element-7">
+    <cim:IdentifiedObject.mRID>assessed-element-7</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE7</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.isCombinableWithContingency>true</nc:AssessedElement.isCombinableWithContingency>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_nl2-be3-port1-prevenPATL-maxValue"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-8">
+    <cim:IdentifiedObject.mRID>assessed-element-8</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE8</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.normalEnabled>false</nc:AssessedElement.normalEnabled>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR2AA1++FFR3AA1++1"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-9">
+    <cim:IdentifiedObject.mRID>assessed-element-9</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE9</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_unknown-equipment"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-10">
+    <cim:IdentifiedObject.mRID>assessed-element-10</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE10</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_unknown-limit"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-11">
+    <cim:IdentifiedObject.mRID>assessed-element-11</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE11</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_fr2-fr3-port2-curatiPATL-xxxxxxxxxxx"/>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithContingency rdf:ID="_ae11xunknown-contingency">
+    <nc:AssessedElementWithContingency.mRID>ae11xunknown-contingency</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_unknown-contingency"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_assessed-element-11"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithContingency.normalEnabled>true</nc:AssessedElementWithContingency.normalEnabled>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElementWithContingency rdf:ID="_ae11xco1">
+    <nc:AssessedElementWithContingency.mRID>ae11xco1</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_contingency-1"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_assessed-element-11"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithContingency.normalEnabled>true</nc:AssessedElementWithContingency.normalEnabled>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElementWithContingency rdf:ID="_ae11xco2">
+    <nc:AssessedElementWithContingency.mRID>ae11xco2</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_contingency-2"/>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_assessed-element-11"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithContingency.normalEnabled>false</nc:AssessedElementWithContingency.normalEnabled>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElement rdf:ID="_assessed-element-12">
+    <cim:IdentifiedObject.mRID>assessed-element-12</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE12</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_fr2-fr3-port2-curatiPATL-xxxxxxxxxxx"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-13">
+    <cim:IdentifiedObject.mRID>assessed-element-13</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE13</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>false</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR2AA1++FFR3AA1++1"/>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_fr2-fr3-port2-curatiPATL-xxxxxxxxxxx"/>
+  </nc:AssessedElement>
+  <nc:AssessedElement rdf:ID="_assessed-element-14">
+    <cim:IdentifiedObject.mRID>assessed-element-14</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>AE14</cim:IdentifiedObject.name>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:AssessedElement.ConductingEquipment rdf:resource="#_FFR1AA1+_generator"/>
+  </nc:AssessedElement>
+</rdf:RDF>

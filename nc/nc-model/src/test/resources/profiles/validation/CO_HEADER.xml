@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:00000000-0000-0000-0000-000000000001">
+    <dcat:keyword>CO</dcat:keyword>
+    <dcat:startDate>2024-01-31T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2024-01-31T23:59:59Z</dcat:endDate>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/Contingency-EU/2.4</dcterms:Model.conformsTo>
+  </md:FullModel>
+</rdf:RDF>
