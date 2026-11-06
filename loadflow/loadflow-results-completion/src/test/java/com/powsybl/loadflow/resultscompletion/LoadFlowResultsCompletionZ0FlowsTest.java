@@ -25,8 +25,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Marcos De Miguel {@literal <demiguelm at aia.es>}
@@ -67,8 +66,102 @@ class LoadFlowResultsCompletionZ0FlowsTest {
         assertTrue(validateBuses(network));
     }
 
+    @Test
+    void z0FlowsCompletionUsingLoadingLimits() {
+        Network network = createNetwork();
+        // simplify the zero impedance network
+        network.getLine("L3.2-3.4").getTerminal1().disconnect();
+        network.getLine("L3.2-3.5").getTerminal1().disconnect();
+        completeResults(network);
+
+        Line line31To32 = network.getLine("L3.1-3.2");
+        assertNotNull(line31To32);
+        Line line31To33 = network.getLine("L3.1-3.3");
+        assertNotNull(line31To33);
+        Line line32To33 = network.getLine("L3.2-3.3");
+        assertNotNull(line32To33);
+
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+        assertZeroImpedanceLoop(network, line31To32, line31To33, line32To33, LimitType.APPARENT_POWER, 2000.0);
+        assertZeroImpedanceLoop(network, line31To32, line31To33, line32To33, LimitType.ACTIVE_POWER, 1000.0);
+        assertZeroImpedanceLoop(network, line31To32, line31To33, line32To33, LimitType.CURRENT, 500.0);
+    }
+
+    @Test
+    void z0FlowsCompletionWithLoadingLimitsCornerCase() {
+        Network network = createNetwork();
+        // simplify the zero impedance network
+        network.getLine("L3.2-3.4").getTerminal1().disconnect();
+        network.getLine("L3.2-3.5").getTerminal1().disconnect();
+        completeResults(network);
+
+        Line line32To33 = network.getLine("L3.2-3.3");
+        assertNotNull(line32To33);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+
+        // Only loadingLimits < 0.0 are considered
+        setDefaultLoadingLimit(line32To33, TwoSides.ONE, LimitType.APPARENT_POWER, 0.0);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+    }
+
+    private void assertZeroImpedanceLoop(Network network, Line line31To32, Line line31To33, Line line32To33, LimitType limitType, double value) {
+        setDefaultLoadingLimit(line32To33, TwoSides.ONE, limitType, value);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To33);
+
+        setDefaultLoadingLimit(line31To33, TwoSides.ONE, limitType, value * 0.99);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To32);
+
+        setDefaultLoadingLimit(line31To32, TwoSides.ONE, limitType, value * 0.98);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+
+        setDefaultLoadingLimit(line32To33, TwoSides.TWO, limitType, value * 0.97);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To33);
+
+        setDefaultLoadingLimit(line31To33, TwoSides.TWO, limitType, value * 0.96);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line31To32);
+
+        setDefaultLoadingLimit(line31To32, TwoSides.TWO, limitType, value * 0.95);
+        completeResults(network);
+        assertLineHasZeroImpedanceAndZeroFlow(line32To33);
+    }
+
+    private static void setDefaultLoadingLimit(Line line, TwoSides side, LimitType type, double value) {
+        OperationalLimitsGroup group = (side == TwoSides.ONE)
+                ? line.getOrCreateSelectedOperationalLimitsGroup1()
+                : line.getOrCreateSelectedOperationalLimitsGroup2();
+        setOrCreatePermanentLimit(group, type, value);
+    }
+
+    private static void setOrCreatePermanentLimit(OperationalLimitsGroup group, LimitType type, double value) {
+        switch (type) {
+            case APPARENT_POWER -> group.getApparentPowerLimits().ifPresentOrElse(
+                    limits -> limits.setPermanentLimit(value),
+                    () -> group.newApparentPowerLimits().setPermanentLimit(value).add());
+            case ACTIVE_POWER -> group.getActivePowerLimits().ifPresentOrElse(
+                    limits -> limits.setPermanentLimit(value),
+                    () -> group.newActivePowerLimits().setPermanentLimit(value).add());
+            case CURRENT -> group.getCurrentLimits().ifPresentOrElse(
+                    limits -> limits.setPermanentLimit(value),
+                    () -> group.newCurrentLimits().setPermanentLimit(value).add());
+            default -> throw new IllegalArgumentException("Unexpected LimitType: " + type);
+        }
+    }
+
+    private static void assertLineHasZeroImpedanceAndZeroFlow(Line line) {
+        assertEquals(0.0, line.getR(), 0.0);
+        assertEquals(0.0, line.getX(), 0.0);
+        assertEquals(0.0, line.getTerminal1().getP());
+        assertEquals(0.0, line.getTerminal1().getQ());
+    }
+
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
