@@ -9,10 +9,14 @@ package com.powsybl.shortcircuit;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
 
@@ -25,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
@@ -45,6 +50,16 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     // VERSION = 1.3 detailedLog, voltage in voltageRange
     // VERSION = 1.4 debugDir
     public static final String VERSION = "1.4";
+
+    /**
+     * Category of the {@link com.powsybl.commons.extensions.ExtensionJsonSerializer} and {@link ExtensionConfigLoader}
+     * of extensions which are not provider specific parameters.
+     * Unlike provider specific parameters, those extensions cannot be read from or written to a {@code Map<String, String>}.
+     */
+    public static final String EXTENSIONS_CATEGORY = "short-circuit-parameters";
+
+    private static final Supplier<ExtensionProviders<ExtensionConfigLoader>> CONFIG_LOADERS =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionConfigLoader.class, EXTENSIONS_CATEGORY));
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
     private boolean withFortescueResult = DEFAULT_WITH_FORTESCUE_RESULT;
@@ -74,7 +89,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         ShortCircuitParameters parameters = new ShortCircuitParameters();
 
-        platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
+        platformConfig.getOptionalModuleConfig(EXTENSIONS_CATEGORY).ifPresent(config ->
                 parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
                         .setWithVoltageResult(config.getBooleanProperty("with-voltage-result", DEFAULT_WITH_VOLTAGE_RESULT))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
@@ -113,6 +128,16 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         for (ShortCircuitAnalysisProvider provider : new ServiceLoaderCache<>(ShortCircuitAnalysisProvider.class).getServices()) {
             provider.loadSpecificParameters(platformConfig).ifPresent(shortCircuitParametersExtension ->
                     addExtension((Class) shortCircuitParametersExtension.getClass(), shortCircuitParametersExtension));
+        }
+        for (ExtensionConfigLoader loader : CONFIG_LOADERS.get().getProviders()) {
+            // ExtensionConfigLoader cannot update an extension: do not overwrite one set by a provider
+            if (getExtensionByName(loader.getExtensionName()) == null) {
+                Extension extension = loader.load(platformConfig);
+                // a null extension means it is not configured
+                if (extension != null) {
+                    addExtension(loader.getExtensionClass(), extension);
+                }
+            }
         }
     }
 
