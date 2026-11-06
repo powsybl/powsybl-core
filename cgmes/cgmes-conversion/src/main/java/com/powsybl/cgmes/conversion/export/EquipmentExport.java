@@ -19,6 +19,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesCurveData.CurveDataEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentShunt;
+import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentShunt.EquivalentShuntEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesExternalNetworkInjection.ExternalNetworkInjectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeneratingUnit.GeneratingUnitEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
@@ -767,10 +769,14 @@ public final class EquipmentExport {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             if ("true".equals(s.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 // Must have been mapped to a linear shunt compensator with 1 section
-                EquivalentShuntEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(),
-                        s.getG(s.getMaximumSectionCount()), s.getB(s.getMaximumSectionCount()),
-                        context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()),
-                        writer, context);
+                EquivalentShuntEq equivalentShunt = new EquivalentShuntEq(
+                    context.getNamingStrategy().getCgmesId(s),
+                    s.getNameOrId(),
+                    s.getB(s.getMaximumSectionCount()),
+                    s.getG(s.getMaximumSectionCount()),
+                    context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel())
+                );
+                CgmesEquivalentShunt.writeEq(equivalentShunt, writer, context);
             } else {
                 // Shunt can only regulate voltage
                 double bPerSection = 0.0;
