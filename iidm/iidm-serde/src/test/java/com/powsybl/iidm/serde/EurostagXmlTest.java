@@ -24,6 +24,6 @@ class EurostagXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithLFResults(), "eurostag-tutorial1-lf.xml", CURRENT_IIDM_VERSION);
 
         //backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial1-lf.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("eurostag-tutorial1-lf.xml");
     }
 }

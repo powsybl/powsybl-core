@@ -101,7 +101,7 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
 
     @Test
     void roundTripVersion14Test() throws IOException {
-        roundTripTest(createVersion14(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion14.json");
+        roundTripTxtTest(createVersion14(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion14.json");
     }
 
     @Test

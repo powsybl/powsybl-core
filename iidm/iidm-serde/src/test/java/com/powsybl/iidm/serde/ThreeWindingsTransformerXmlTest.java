@@ -23,7 +23,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("threeWindingsTransformerRoundTripRef.xml");
 
         allFormatsRoundTripTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(), "threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }

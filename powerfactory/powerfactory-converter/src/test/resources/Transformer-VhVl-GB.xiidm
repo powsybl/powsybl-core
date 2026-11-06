@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" id="Transformer-VhVl-GB" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" id="Transformer-VhVl-GB" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S8">
         <iidm:voltageLevel id="VL8" nominalV="220.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -32,7 +32,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="1"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.20328000273527924" x="10.99647728654783" b="-5.652892491049017E-4" ratedU1="220.0" ratedU2="110.0" ratedS="180.0" node1="2" voltageLevelId1="VL9" node2="2" voltageLevelId2="VL10">
+        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.20328000273527924" x="10.99647728654783" b="-5.652892491049017E-4" ratedU1="220.0" ratedU2="110.0" ratedS="180.0" voltageLevelId1="VL9" node1="2" voltageLevelId2="VL10" node2="2">
             <iidm:ratioTapChanger tapPosition="19" loadTapChangingCapabilities="false">
                 <iidm:step rho="1.3009692073323427"/>
                 <iidm:step rho="1.2806825747343356"/>
@@ -61,5 +61,5 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="lne_1_2_1" r="9.379916191101074" x="28.638273239135742" b1="3.5752053070068355E-4" b2="3.5752053070068355E-4" node1="1" voltageLevelId1="VL8" node2="1" voltageLevelId2="VL9"/>
+    <iidm:line id="lne_1_2_1" r="9.379916191101074" x="28.638273239135742" b1="3.5752053070068355E-4" b2="3.5752053070068355E-4" voltageLevelId1="VL8" node1="1" voltageLevelId2="VL9" node2="1"/>
 </iidm:network>

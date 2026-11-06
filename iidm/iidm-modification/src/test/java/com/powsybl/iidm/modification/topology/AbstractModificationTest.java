@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public abstract class AbstractModificationTest extends AbstractSerDeTest {
 
-    protected void writeXmlTest(Network network, String refXmlFile) throws IOException {
-        writeXmlTest(network, NetworkSerDe::write, refXmlFile);
+    protected void writeTest(Network network, String refXmlFile) throws IOException {
+        writeTest(network, NetworkSerDe::write, refXmlFile);
     }
 
     protected void testReportNode(ReportNode reportNode, String reportsFile) throws IOException {

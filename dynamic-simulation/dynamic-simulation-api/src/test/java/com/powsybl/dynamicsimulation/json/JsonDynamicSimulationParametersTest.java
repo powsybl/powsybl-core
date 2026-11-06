@@ -28,7 +28,7 @@ class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
                 .setStartTime(0)
                 .setStopTime(1)
                 .setDebugDir("/tmp/debugDir");
-        roundTripTest(parameters, JsonDynamicSimulationParameters::write, JsonDynamicSimulationParameters::read, "/DynamicSimulationParameters.json");
+        roundTripTxtTest(parameters, JsonDynamicSimulationParameters::write, JsonDynamicSimulationParameters::read, "/DynamicSimulationParameters.json");
     }
 
     @Test

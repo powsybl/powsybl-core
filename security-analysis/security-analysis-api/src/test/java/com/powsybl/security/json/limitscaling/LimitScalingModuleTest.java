@@ -135,7 +135,7 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
                 getLimitScaling6()
             ));
 
-        roundTripTest(limitScalingList, LimitScalingListSerDeUtil::write,
+        roundTripTxtTest(limitScalingList, LimitScalingListSerDeUtil::write,
                 LimitScalingListSerDeUtil::read,
             "/LimitScalings.json");
     }

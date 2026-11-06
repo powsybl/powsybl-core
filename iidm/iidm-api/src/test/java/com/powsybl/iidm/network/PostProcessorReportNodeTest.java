@@ -45,7 +45,7 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
         Optional<ReportNode> report = reportRoot.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
-        roundTripTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/postProcessorReportNodeTest.json");
+        roundTripTxtTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/postProcessorReportNodeTest.json");
     }
 
     @Test

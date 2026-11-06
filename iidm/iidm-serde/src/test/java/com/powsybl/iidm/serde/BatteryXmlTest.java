@@ -24,6 +24,6 @@ class BatteryXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(BatteryNetworkFactory.create(), "batteryRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         //backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("batteryRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("batteryRoundTripRef.xml");
     }
 }

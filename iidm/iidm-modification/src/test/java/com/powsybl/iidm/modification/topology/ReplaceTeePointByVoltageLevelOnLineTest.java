@@ -163,7 +163,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reportNode);
-        writeXmlTest(network, "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
+        writeTest(network, "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
         testReportNode(reportNode, "/reportNode/replace-tee-point-by-vl-on-line-nb-report.txt");
     }
 
@@ -193,7 +193,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reportNode);
-        writeXmlTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
+        writeTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
         testReportNode(reportNode, "/reportNode/replace-tee-point-by-vl-on-line-nb-bb-report.txt");
     }
 
@@ -252,7 +252,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, reportNode3);
-        writeXmlTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
+        writeTest(network, "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
         testReportNode(reportNode3, "/reportNode/replace-tee-point-by-vl-on-line-bb-report.txt");
     }
 
@@ -366,6 +366,6 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
-        writeXmlTest(network, "/replace-tee-point-with-vl-on-line-with-limits.xml");
+        writeTest(network, "/replace-tee-point-with-vl-on-line-with-limits.xml");
     }
 }

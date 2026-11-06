@@ -45,7 +45,7 @@ class StudyCaseTest extends AbstractPowerFactoryTest {
 
     @Test
     void jsonTest() throws IOException {
-        var studyCase2 = roundTripTest(studyCase, StudyCase::writeJson, StudyCase::readJson, "/studyCase.json");
+        var studyCase2 = roundTripTxtTest(studyCase, StudyCase::writeJson, StudyCase::readJson, "/studyCase.json");
         assertEquals("test", studyCase2.getName());
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         assertEquals(studyTime, studyCase2.getTime());

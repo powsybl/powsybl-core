@@ -27,7 +27,7 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("staticVarCompensatorRoundTripRef.xml");
 
         Network network = SvcTestCaseFactory.create();
         addProperties(network);
@@ -37,12 +37,10 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     @Test
     void noRegulationModeTest() throws IOException {
         // backward compatibility from 1.7 to 1.13 : regulation mode is exported as OFF if it was not set in input file
-        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml",
-                "staticVarCompensatorRegulationModeOFF.xml", IidmVersion.V_1_7, IidmVersion.V_1_14);
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml", "staticVarCompensatorRegulationModeOFF.xml", IidmVersion.V_1_7, IidmVersion.V_1_14);
 
         // regulation mode is exported as VOLTAGE and regulating is set to false if regulation mode was not set in input file
-        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml",
-                "notRegulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_14, CURRENT_IIDM_VERSION);
+        allFormatsRoundTripFromVersionedTest("staticVarCompensatorNoRegulationMode.xml", "notRegulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

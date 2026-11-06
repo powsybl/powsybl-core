@@ -39,7 +39,7 @@ class SensitivityValueTest extends AbstractSerDeTest {
     void testJson() throws IOException {
         SensitivityValue value = new SensitivityValue(0, 0, -1, 1d, 2d);
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
-        roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
+        roundTripTxtTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityValue.class, objectMapper), "/valueRef.json");
     }
 

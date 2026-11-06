@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="twoTerminalDc_with_negative_setvl" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="twoTerminalDc_with_negative_setvl" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -47,7 +47,7 @@
                 <iidm:bus id="B7" name="Bus 7" v="150.5097264" angle="-13.70448468"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B7-L1" loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B7" connectableBus="B7"/>
-            <iidm:shuntCompensator id="B7-SwSH1" sectionCount="2" bus="B7" connectableBus="B7" localTargetV="109.45">
+            <iidm:shuntCompensator id="B7-SwSH1" sectionCount="2" localTargetV="109.45" bus="B7" connectableBus="B7">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.008264462809917356" g="0.0"/>

@@ -47,7 +47,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
-        writeXmlTest(network, "/fictitious-line-split-vl.xml");
+        writeTest(network, "/fictitious-line-split-vl.xml");
     }
 
     @Test
@@ -62,7 +62,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), reportNode);
-        writeXmlTest(network, "/eurostag-line-split-nb-vl.xml");
+        writeTest(network, "/eurostag-line-split-nb-vl.xml");
     }
 
     @Test
@@ -77,7 +77,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
-        writeXmlTest(network, "/eurostag-line-split-bb-vl.xml");
+        writeTest(network, "/eurostag-line-split-bb-vl.xml");
     }
 
     @Test
@@ -129,7 +129,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
-        writeXmlTest(network, "/fictitious-line-split-vl-complete.xml");
+        writeTest(network, "/fictitious-line-split-vl-complete.xml");
     }
 
     @Test
@@ -140,7 +140,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network, LocalComputationManager.getDefault());
-        writeXmlTest(network, "/fictitious-line-split-vl.xml");
+        writeTest(network, "/fictitious-line-split-vl.xml");
     }
 
     @Test
@@ -194,7 +194,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
         modification2.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
-        writeXmlTest(network, "/eurostag-tutorial-example1.xml");
+        writeTest(network, "/eurostag-tutorial-example1.xml");
     }
 
     @Test
@@ -249,7 +249,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLine(line)
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
-        writeXmlTest(network, "/fictitious-line-split-vl-with-limits.xml");
+        writeTest(network, "/fictitious-line-split-vl-with-limits.xml");
     }
 
     @Test

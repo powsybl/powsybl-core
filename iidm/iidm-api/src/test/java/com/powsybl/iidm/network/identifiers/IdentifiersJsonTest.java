@@ -65,7 +65,7 @@ class IdentifiersJsonTest extends AbstractSerDeTest {
     }
 
     private void roundTrip(NetworkElementIdentifier identifier, String referenceFile) throws IOException {
-        roundTripTest(identifier, (obj, jsonFile) -> JsonUtil.writeJson(jsonFile, obj, MAPPER),
+        roundTripTxtTest(identifier, (obj, jsonFile) -> JsonUtil.writeJson(jsonFile, obj, MAPPER),
                 jsonFile -> JsonUtil.readJson(jsonFile, NetworkElementIdentifier.class, MAPPER), referenceFile);
     }
 }

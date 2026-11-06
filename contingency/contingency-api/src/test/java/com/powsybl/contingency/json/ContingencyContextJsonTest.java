@@ -36,7 +36,7 @@ class ContingencyContextJsonTest extends AbstractSerDeTest {
                 ContingencyContext.all(),
                 ContingencyContext.onlyContingencies(),
                 ContingencyContext.specificContingency("lineId"));
-        roundTripTest(contexts, ContingencyContextJsonTest::writeContexts,
+        roundTripTxtTest(contexts, ContingencyContextJsonTest::writeContexts,
                 ContingencyContextJsonTest::readContingencyContexts,
                 "/contingencyContexts.json");
     }
