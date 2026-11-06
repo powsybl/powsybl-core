@@ -7,6 +7,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
@@ -53,5 +54,23 @@ class UcteCountryCodeTest {
         assertTrue(isUcteCountryCode('A'));
         assertTrue(isUcteCountryCode('1'));
         assertFalse(isUcteCountryCode('&'));
+    }
+
+    @Test
+    void fromCountry() {
+        assertEquals(UcteCountryCode.NL, UcteCountryCode.fromCountry(Country.NL));
+        assertEquals(UcteCountryCode.BE, UcteCountryCode.fromCountry(Country.BE));
+    }
+
+    @Test
+    void fromKosovo() {
+        // ISO 3166 code XK, ENTSO-E code KS
+        assertEquals(UcteCountryCode.KS, UcteCountryCode.fromCountry(Country.XK));
+    }
+
+    @Test
+    void fromUnsupportedCountry() {
+        UcteException e = assertThrows(UcteException.class, () -> UcteCountryCode.fromCountry(Country.US));
+        assertEquals("No UCTE country found for US", e.getMessage());
     }
 }

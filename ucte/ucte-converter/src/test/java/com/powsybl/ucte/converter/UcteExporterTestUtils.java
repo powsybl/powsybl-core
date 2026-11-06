@@ -49,8 +49,22 @@ final class UcteExporterTestUtils {
      * @throws UncheckedIOException if something goes wrong while trying to write the exported data
      */
     static String exportToString(UcteExporter ucteExporter, Network network) {
+        return exportToString(ucteExporter, network, new Properties());
+    }
+
+    /**
+     * Run the UCTE exporter with the given parameters and return its output as a {@link String}. Charset used for
+     * encoding is {@code UTF-8}
+     *
+     * @param ucteExporter an exporter to use for export
+     * @param network      a network to export
+     * @param parameters   the export parameters
+     * @return UTF-8 encoded String containing the exported network
+     * @throws UncheckedIOException if something goes wrong while trying to write the exported data
+     */
+    static String exportToString(UcteExporter ucteExporter, Network network, Properties parameters) {
         MemDataSource dataSource = new MemDataSource();
-        ucteExporter.export(network, new Properties(), dataSource);
+        ucteExporter.export(network, parameters, dataSource);
         try (InputStream is = dataSource.newInputStream(null, "uct")) {
             // The export timestamp changes at each run
             return new String(is.readAllBytes(), StandardCharsets.UTF_8)
