@@ -23,6 +23,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesGeneratingUnit.Generati
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEndEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.NonlinearShuntCompensatorPointEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.ShuntCompensatorEq;
@@ -843,8 +845,12 @@ public final class EquipmentExport {
 
     private void writeTwoWindingsTransformers() throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(),
-                twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
+            PowerTransformerEq powerTransformer = new PowerTransformerEq(
+                context.getNamingStrategy().getCgmesId(twt),
+                twt.getNameOrId(),
+                twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null)
+            );
+            CgmesPowerTransformer.writeEq(powerTransformer, writer, context);
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END1);
 
             // High voltage could be assigned to endNumber = 1 if parameterized.
@@ -852,14 +858,38 @@ public final class EquipmentExport {
             PowerTransformerEndsParameters p = new PowerTransformerEndsParameters(twt, endNumberAssigner.getEndNumberForSide1());
 
             String baseVoltage1Id = context.getBaseVoltageIdFromNominalV(twt.getTerminal1().getVoltageLevel().getNominalV());
-            PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", context.getNamingStrategy().getCgmesId(twt),
-                endNumberAssigner.getEndNumberForSide1(), p.getEnd1R(), p.getEnd1X(), p.getEnd1G(), p.getEnd1B(),
-                    twt.getRatedS(), twt.getRatedU1(), getTerminalId(twt.getTerminal1(), context), baseVoltage1Id, writer, context);
+            PowerTransformerEndEq end1 = new PowerTransformerEndEq(
+                end1Id,
+                twt.getNameOrId() + "_1",
+                endNumberAssigner.getEndNumberForSide1(),
+                p.getEnd1R(),
+                p.getEnd1X(),
+                p.getEnd1G(),
+                p.getEnd1B(),
+                twt.getRatedS(),
+                twt.getRatedU1(),
+                context.getNamingStrategy().getCgmesId(twt),
+                baseVoltage1Id,
+                getTerminalId(twt.getTerminal1(), context)
+            );
+            CgmesPowerTransformer.writeEndEq(end1, writer, context);
             String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END2);
             String baseVoltage2Id = context.getBaseVoltageIdFromNominalV(twt.getTerminal2().getVoltageLevel().getNominalV());
-            PowerTransformerEq.writeEnd(end2Id, twt.getNameOrId() + "_2", context.getNamingStrategy().getCgmesId(twt),
-                endNumberAssigner.getEndNumberForSide2(), p.getEnd2R(), p.getEnd2X(), p.getEnd2G(), p.getEnd2B(),
-                    twt.getRatedS(), twt.getRatedU2(), getTerminalId(twt.getTerminal2(), context), baseVoltage2Id, writer, context);
+            PowerTransformerEndEq end2 = new PowerTransformerEndEq(
+                end2Id,
+                twt.getNameOrId() + "_2",
+                endNumberAssigner.getEndNumberForSide2(),
+                p.getEnd2R(),
+                p.getEnd2X(),
+                p.getEnd2G(),
+                p.getEnd2B(),
+                twt.getRatedS(),
+                twt.getRatedU2(),
+                context.getNamingStrategy().getCgmesId(twt),
+                baseVoltage2Id,
+                getTerminalId(twt.getTerminal2(), context)
+            );
+            CgmesPowerTransformer.writeEndEq(end2, writer, context);
 
             // Export tap changers:
             // We are exporting the tap changer as it is modeled in IIDM, always at end 1
@@ -872,8 +902,12 @@ public final class EquipmentExport {
 
     private void writeThreeWindingsTransformers() throws XMLStreamException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(),
-                twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
+            PowerTransformerEq powerTransformer = new PowerTransformerEq(
+                context.getNamingStrategy().getCgmesId(twt),
+                twt.getNameOrId(),
+                twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null)
+            );
+            CgmesPowerTransformer.writeEq(powerTransformer, writer, context);
             double ratedU0 = twt.getRatedU0();
 
             EndNumberAssignerForThreeWindingsTransformer endNumberAssigner = new EndNumberAssignerForThreeWindingsTransformer(twt, context.exportTransformersWithHighestVoltageAtEnd1());
@@ -1019,8 +1053,21 @@ public final class EquipmentExport {
         double g = leg.getG() / a02;
         double b = leg.getB() / a02;
         String baseVoltageId = context.getBaseVoltageIdFromNominalV(leg.getTerminal().getVoltageLevel().getNominalV());
-        PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedS(), leg.getRatedU(), terminalId,
-            baseVoltageId, writer, context);
+        PowerTransformerEndEq end = new PowerTransformerEndEq(
+            endId,
+            twtName,
+            endNumber,
+            r,
+            x,
+            g,
+            b,
+            leg.getRatedS(),
+            leg.getRatedU(),
+            twtId,
+            baseVoltageId,
+            terminalId
+        );
+        CgmesPowerTransformer.writeEndEq(end, writer, context);
         writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU());
         writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, legNumber, endId, leg.getRatedU());
         writeFlowsLimits(leg, terminalId);
