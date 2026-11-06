@@ -18,6 +18,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.Connec
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
@@ -306,8 +308,10 @@ public final class EquipmentExport {
         String subLoadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), SUB_LOAD_AREA);
         if (!context.isCim16BusBranchExport()) {
             String baseName = network.getNameOrId();
-            LoadAreaEq.write(loadAreaId, baseName, writer, context);
-            LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, baseName, writer, context);
+            LoadAreaEq loadAreaEq = new LoadAreaEq(loadAreaId, baseName);
+            CgmesLoadArea.writeEq(loadAreaEq, writer, context);
+            SubLoadAreaEq subLoadAreaEq = new SubLoadAreaEq(subLoadAreaId, loadAreaId, baseName);
+            CgmesLoadArea.writeSubLoadAreaEq(subLoadAreaEq, writer, context);
         }
         for (LoadGroup loadGroup : loadGroups.found()) {
             CgmesExportUtil.writeStartId(loadGroup.className, loadGroup.id, true, writer, context);
