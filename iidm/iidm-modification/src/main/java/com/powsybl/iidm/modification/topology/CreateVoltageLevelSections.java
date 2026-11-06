@@ -227,9 +227,11 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         SwitchKind createdLeftSwitchKind = isAfter || isInsertedBetweenSections ? leftSwitchKind : null;
         SwitchKind createdRightSwitchKind = !isAfter || isInsertedBetweenSections ? rightSwitchKind : null;
 
-        // When inserting between two sections, the existing switches between the busbarSection and the neighbour
-        // busbar section must be removed. Therefore, the graph is traversed, starting from the referenceBusbarSection
-        // terminal with a customized Traverser to get these switches and this neighbour busbar section
+        // When inserting between two sections, the existing switches between the reference busbar section and the
+        // neighbour busbar section must be removed, as the new busbar section takes its place between them.
+        // Therefore, the graph is traversed, starting from the reference busbar section terminal, with a customized
+        // traverser (BusbarSectionFinderTraverser) to get this neighbour busbar section and the switches linking it to
+        // the reference busbar section. These switches are removed later, when the new busbar section is created
         BusbarSection neighbourBusbarSection = null;
         List<Switch> switchesEncountered = List.of();
         if (isInsertedBetweenSections) {
@@ -246,12 +248,15 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             switchesEncountered = traverser.getSwitchesEncountered();
         }
 
+        // The switch kinds on each side of the reference busbar section are collected with a second traverser
+        // (SwitchKindsBetweenBusbarSectionsTraverser), to be passed to the naming strategy. The kind of the switches
+        // found above towards the neighbour busbar section must be removed from them, since these switches will no
+        // longer exist. There is none to remove if the reference and the neighbour busbar sections are linked by an
+        // internal connection
         SwitchKindsBetweenBusbarSectionsTraverser switchKindsBetweenBusbarSectionsTraverser = new SwitchKindsBetweenBusbarSectionsTraverser(busbarSection);
         busbarSection.getTerminal().traverse(switchKindsBetweenBusbarSectionsTraverser);
         List<SwitchKind> existingLeftSwitchKinds = new ArrayList<>(switchKindsBetweenBusbarSectionsTraverser.getLeftSwitchesBetweenBusbar());
         List<SwitchKind> existingRightSwitchKinds = new ArrayList<>(switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar());
-        // The switches between the reference busbar section and its neighbour are removed when inserting the new busbar section,
-        // so their kind must not be passed to the naming strategy. There is none if they are linked by an internal connection.
         SwitchKind switchKindToRemove = SwitchKindsBetweenBusbarSectionsTraverser.getSwitchKind(switchesEncountered);
         if (switchKindToRemove != null) {
             (isAfter ? existingRightSwitchKinds : existingLeftSwitchKinds).remove(switchKindToRemove);
