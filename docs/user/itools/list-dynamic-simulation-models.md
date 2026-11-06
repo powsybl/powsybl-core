@@ -4,6 +4,7 @@ The `list-dynamic-simulation-models` command lists all models used by the [time 
 
 ## Usage
 ```
+$> itools list-dynamic-simulation-models --help
 usage: itools [OPTIONS] list-dynamic-simulation-models [--dynamic-models]
        [--event-models] [--help]
 
