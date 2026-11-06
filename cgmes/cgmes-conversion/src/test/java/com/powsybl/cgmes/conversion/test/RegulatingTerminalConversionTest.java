@@ -8,11 +8,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
@@ -30,11 +26,11 @@ class RegulatingTerminalConversionTest {
 
     @Test
     void microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCaseRegulatingTerminalsDefinedOnSwitches(), config);
+        Network n = readCgmesResources("/issues/regulator",
+                "switch_cim100_EQ.xml", "switch_cim100_SSH.xml", "switch_cim100_TP.xml");
 
         // Flow control in transformer
-        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("PT_BE_TR2_1");
         assertNotNull(tw2t);
         PhaseTapChanger ptc = tw2t.getPhaseTapChanger();
         assertNotNull(ptc);
@@ -48,7 +44,7 @@ class RegulatingTerminalConversionTest {
         assertEquals(65.0, regulationValue, 0.0);
 
         // Voltage control
-        Generator gen = n.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator gen = n.getGenerator("SM_BE_G2");
         assertNotNull(gen);
 
         regulatingTerminal = gen.getRegulatingTerminal();
@@ -62,11 +58,11 @@ class RegulatingTerminalConversionTest {
 
     @Test
     void microGridBaseBECaseRegulatingTerminalsDefinedOnSwitches() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERegulatingTerminalsDefinedOnSwitches(), config);
+        Network n = readCgmesResources("/issues/regulator",
+                "switch_cim16_EQ.xml", "switch_cim16_SSH.xml", "switch_cim16_TP.xml");
 
         // Flow control in transformer
-        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("PT_BE_TR2_1");
         assertNotNull(tw2t);
         PhaseTapChanger ptc = tw2t.getPhaseTapChanger();
         assertNotNull(ptc);
@@ -80,7 +76,7 @@ class RegulatingTerminalConversionTest {
         assertEquals(-65.0, regulationValue, 0.0);
 
         // Voltage control
-        Generator gen = n.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator gen = n.getGenerator("SM_BE_G2");
         assertNotNull(gen);
 
         regulatingTerminal = gen.getRegulatingTerminal();
@@ -119,10 +115,5 @@ class RegulatingTerminalConversionTest {
         assertNotNull(generator);
         assertEquals("LOAD", generator.getRegulatingTerminal().getConnectable().getId());
         assertSame(IdentifiableType.LOAD, generator.getRegulatingTerminal().getConnectable().getType());
-    }
-
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
-        config.setConvertSvInjections(true);
-        return ConversionUtil.networkModel(testGridModel, config);
     }
 }

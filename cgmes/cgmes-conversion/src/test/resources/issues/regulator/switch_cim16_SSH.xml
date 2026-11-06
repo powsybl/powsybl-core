@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:switch_cim16_SSH">
+        <md:Model.created>2014-10-24T11:42:40</md:Model.created>
+        <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
+        <md:Model.version>2</md:Model.version>
+        <md:Model.description>Regulating terminals connected through switches</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+        <md:Model.DependentOn rdf:resource="urn:uuid:switch_cim16_EQ"/>
+    </md:FullModel>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BBS_BE_Busbar_6_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:GeneratingUnit rdf:about="#_GU_1">
+        <cim:GeneratingUnit.normalPF>0e+000</cim:GeneratingUnit.normalPF>
+    </cim:GeneratingUnit>
+    <cim:SynchronousMachine rdf:about="#_SM_BE_G2">
+        <cim:RotatingMachine.p>-118.000000</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>-18.720301</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineOperatingMode.generator"/>
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+        <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
+    </cim:SynchronousMachine>
+    <cim:PhaseTapChangerAsymmetrical rdf:about="#_PTC_BE_TR2_1">
+        <cim:TapChanger.step>10</cim:TapChanger.step>
+        <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+    </cim:PhaseTapChangerAsymmetrical>
+    <cim:TapChangerControl rdf:about="#_TCC_BE_TR2_1">
+        <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>35.00000</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.M"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>-65.000000</cim:RegulatingControl.targetValue>
+    </cim:TapChangerControl>
+    <cim:RegulatingControl rdf:about="#_RC_BE_G2">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>21.987000</cim:RegulatingControl.targetValue>
+    </cim:RegulatingControl>
+    <cim:Terminal rdf:about="#_T_PT_BE_TR2_1_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_1_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_1_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_SM_BE_G2_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_10_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_BR_BE_Breaker_10_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+</rdf:RDF>
