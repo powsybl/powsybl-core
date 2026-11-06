@@ -20,6 +20,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.Serie
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesVoltageLevel.VoltageLevelEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -268,8 +269,15 @@ public final class EquipmentExport {
                 // create a new fictitious substation inside this network
                 fictSubstationId = writeFictitiousSubstationFor(network);
             }
-            VoltageLevelEq.write(context.getNamingStrategy().getCgmesId(voltageLevel), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(),
-                    substationId.orElse(fictSubstationId), baseVoltageId, writer, context);
+            VoltageLevelEq voltageLevelEq = new VoltageLevelEq(
+                context.getNamingStrategy().getCgmesId(voltageLevel),
+                voltageLevel.getNameOrId(),
+                voltageLevel.getLowVoltageLimit(),
+                voltageLevel.getHighVoltageLimit(),
+                substationId.orElse(fictSubstationId),
+                baseVoltageId
+            );
+            CgmesVoltageLevel.writeEq(voltageLevelEq, writer, context);
         }
     }
 
@@ -1293,7 +1301,9 @@ public final class EquipmentExport {
     private String writeFictitiousVoltageLevelFor(Identifiable<?> identifiable, String substationId, String baseVoltageId) throws XMLStreamException {
         // New VoltageLevel
         String voltageLevelId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, VOLTAGE_LEVEL);
-        VoltageLevelEq.write(voltageLevelId, identifiable.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, writer, context);
+        String voltageLevelName = identifiable.getNameOrId() + "_VL";
+        VoltageLevelEq voltageLevel = new VoltageLevelEq(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId);
+        CgmesVoltageLevel.writeEq(voltageLevel, writer, context);
         return voltageLevelId;
     }
 
