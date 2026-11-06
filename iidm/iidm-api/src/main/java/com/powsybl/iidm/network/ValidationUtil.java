@@ -1114,9 +1114,8 @@ public final class ValidationUtil {
         if (generation != null) {
             validationLevel = ValidationLevel.min(validationLevel,
                 checkActivePowerSetpoint(validable, generation.getTargetP(), actionOnError, reportNode));
-            validationLevel = ValidationLevel.min(validationLevel,
-                checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(),
-                    actionOnError, reportNode));
+            validationLevel = checkVoltageRegulationHolder(validationLevel, validable, generation, boundaryLine.getNetwork(),
+                BoundaryLine.Generation.class, actionOnError, reportNode);
         }
         return validationLevel;
     }
