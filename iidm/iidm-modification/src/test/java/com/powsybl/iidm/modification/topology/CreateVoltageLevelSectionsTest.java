@@ -435,40 +435,61 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
         assertTrue(busbarSectionIds.containsAll(List.of("VL1_1_LOAD_BREAKER_2_BREAKER", "VL1_2_LOAD_BREAKER_2_BREAKER", "VL1_3_LOAD_BREAKER_2_BREAKER")));
     }
 
-    @Test
-    void testNamingStrategyWhenReplacingBreakerWithDisconnectors() {
+    @ParameterizedTest
+    @MethodSource("getNamingStrategyParameters")
+    void testNamingStrategyOnlyUsesSwitchKindsExistingAfterCreation(String referenceBusbarSectionId,
+                                                                     boolean createAfter,
+                                                                     boolean withInternalConnection,
+                                                                     String expectedBusbarSectionId) {
         Network network = createNetwork();
         VoltageLevel vl2 = network.getSubstation("S1").newVoltageLevel()
                 .setId("VL2")
                 .setNominalV(100.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
+        // VL2_BBS11 --[BREAKER]-- VL2_BBS12 --[DISCONNECTOR or internal connection]-- VL2_BBS13
         createBusbarSection(vl2, "VL2_BBS11", 0, 1, 1);
         createBusbarSection(vl2, "VL2_BBS12", 1, 1, 2);
-        createBreaker(vl2, "VL2_B_BBS12_BBS13", 0, 1);
+        createBusbarSection(vl2, "VL2_BBS13", 2, 1, 3);
+        createBreaker(vl2, "VL2_B_BBS11_BBS12", 0, 1);
+        if (withInternalConnection) {
+            vl2.getNodeBreakerView().newInternalConnection().setNode1(1).setNode2(2).add();
+        } else {
+            createDisconnector(vl2, "VL2_D_BBS12_BBS13", 1, 2);
+        }
 
-        // add a new busbar between two created busbars. it will turn the existing breaker into a disconnector
-        CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
-                .withReferenceBusbarSectionId("VL2_BBS11")
-                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
-                .withAllBusbars(true)
+        CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
+                .withReferenceBusbarSectionId(referenceBusbarSectionId)
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createAfter)
+                .withAllBusbars(false)
                 .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
-                .withLeftSwitchFictitious(false)
-                .withLeftSwitchOpen(false)
                 .withRightSwitchKind(SwitchKind.DISCONNECTOR)
-                .withRightSwitchFictitious(false)
-                .withRightSwitchOpen(false)
                 .withSwitchPrefixId("VL2")
                 .withBusbarSectionPrefixId("VL2")
                 .build();
-        modification1.apply(network, new NamingStrategyTest());
+        modification.apply(network, new NamingStrategyTest());
         List<String> busbarSectionIds = network.getVoltageLevel("VL2")
                 .getNodeBreakerView()
                 .getBusbarSectionStream()
                 .map(BusbarSection::getId)
                 .toList();
-        assertEquals(3, busbarSectionIds.size());
-        // the Breaker was removed so new busbar is named with DISCONNECTOR and not with BREAKER
-        assertTrue(busbarSectionIds.containsAll(List.of("VL2_BBS11", "VL2_BBS12", "VL2_1_DISCONNECTOR_2_DISCONNECTOR")));
+        assertEquals(List.of("VL2_BBS11", "VL2_BBS12", "VL2_BBS13", expectedBusbarSectionId), busbarSectionIds);
+    }
+
+    private static Stream<Arguments> getNamingStrategyParameters() {
+        return Stream.of(
+                // between VL2_BBS11 and VL2_BBS12: the removed breaker must not be taken into account, the disconnector beyond must
+                Arguments.of("VL2_BBS11", true, false, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of("VL2_BBS12", false, false, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
+                // between VL2_BBS12 and VL2_BBS13: the removed disconnector must not be taken into account, the breaker beyond must
+                Arguments.of("VL2_BBS12", true, false, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of("VL2_BBS13", false, false, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                // between VL2_BBS12 and VL2_BBS13 linked by an internal connection: no switch is removed, the breaker beyond must be kept
+                Arguments.of("VL2_BBS12", true, true, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of("VL2_BBS13", false, true, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                // at an extremity: no switch is created on the outer side, so its kind must not be taken into account
+                Arguments.of("VL2_BBS13", true, false, "VL2_1_BREAKER_4"),
+                Arguments.of("VL2_BBS11", false, false, "VL2_1_1_BREAKER")
+        );
     }
 }
