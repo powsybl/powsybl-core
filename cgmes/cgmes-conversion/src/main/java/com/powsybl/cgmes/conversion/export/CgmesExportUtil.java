@@ -40,7 +40,7 @@ import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransfo
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
-import static com.powsybl.cgmes.model.CgmesNames.GENERATING_UNIT;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -559,6 +559,15 @@ public final class CgmesExportUtil {
             return GENERATING_UNIT;
         }
         return GENERATING_UNIT;
+    }
+
+    public static String shuntCompensatorClassName(ShuntCompensatorModelType modelType) {
+        if (ShuntCompensatorModelType.LINEAR.equals(modelType)) {
+            return LINEAR_SHUNT_COMPENSATOR;
+        } else if (ShuntCompensatorModelType.NON_LINEAR.equals(modelType)) {
+            return NONLINEAR_SHUNT_COMPENSATOR;
+        }
+        return LINEAR_SHUNT_COMPENSATOR;
     }
 
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {

@@ -24,6 +24,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.Geog
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.NonlinearShuntCompensatorPointEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.ShuntCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSwitch.SwitchEq;
@@ -764,15 +766,32 @@ public final class EquipmentExport {
                     gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
                 }
                 String regulatingControlId = writeRegulatingControl(s);
-                ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(),
-                    s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId,
-                        context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()), writer, context);
+                ShuntCompensatorEq shuntCompensator = new ShuntCompensatorEq(
+                    shuntCompensatorClassName(s.getModelType()),
+                    context.getNamingStrategy().getCgmesId(s),
+                    s.getNameOrId(),
+                    bPerSection,
+                    gPerSection,
+                    s.getMaximumSectionCount(),
+                    s.getTerminal().getVoltageLevel().getNominalV(),
+                    s.getSectionCount(),
+                    regulatingControlId,
+                    context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel())
+                );
+                CgmesShuntCompensator.writeEq(shuntCompensator, writer, context);
                 if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
                     double b = 0.0;
                     double g = 0.0;
                     for (int section = 1; section <= s.getMaximumSectionCount(); section++) {
                         String pointId = context.getNamingStrategy().getCgmesId(refTyped(s), ref(section), SHUNT_COMPENSATOR);
-                        ShuntCompensatorEq.writePoint(pointId, context.getNamingStrategy().getCgmesId(s), section, s.getB(section) - b, s.getG(section) - g, writer, context);
+                        NonlinearShuntCompensatorPointEq point = new NonlinearShuntCompensatorPointEq(
+                            pointId,
+                            s.getB(section) - b,
+                            s.getG(section) - g,
+                            section,
+                            context.getNamingStrategy().getCgmesId(s)
+                        );
+                        CgmesShuntCompensator.writePointEq(point, writer, context);
                         b = s.getB(section);
                         g = s.getG(section);
                     }
