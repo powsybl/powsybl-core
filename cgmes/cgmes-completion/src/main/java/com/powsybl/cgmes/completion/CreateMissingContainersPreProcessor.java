@@ -216,7 +216,8 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         VoltageLevelEq.write(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId, writer, context);
         CgmesSubstation.SubstationEq substation = new CgmesSubstation.SubstationEq(substationId, substationName, regionContainers.subGeographicalRegionId);
         CgmesSubstation.writeEq(substation, writer, context);
-        BaseVoltageEq.write(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS, writer, context);
+        CgmesBaseVoltage.BaseVoltageEq baseVoltage = new CgmesBaseVoltage.BaseVoltageEq(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS);
+        CgmesBaseVoltage.writeEq(baseVoltage, writer, context);
     }
 
     private static void writeHeader(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
