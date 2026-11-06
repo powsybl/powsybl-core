@@ -9,11 +9,13 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
@@ -23,7 +25,9 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityValue> values = new ArrayList<>();
 
-    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new HashMap<>();
+    private final Map<SensitivityState, List<SensitivityStateStatus.ComponentStatus>> stateStatuses = new LinkedHashMap<>();
+
+    private boolean computationComplete = false;
 
     public SensitivityResultModelWriter(List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.contingencies = Objects.requireNonNull(contingencies);
@@ -34,8 +38,10 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
         return values;
     }
 
-    public List<SensitivityAnalysisResult.SensitivityStateStatus> getStateStatuses() {
-        return new ArrayList<>(stateStatuses.values());
+    public List<SensitivityStateStatus> getStateStatuses() {
+        return stateStatuses.entrySet().stream()
+                .map(e -> new SensitivityStateStatus(e.getKey(), e.getValue()))
+                .toList();
     }
 
     @Override
@@ -44,9 +50,25 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
-        SensitivityState state = new SensitivityState(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
-                                                      operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
-        stateStatuses.put(state, new SensitivityAnalysisResult.SensitivityStateStatus(state, status));
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
+                                 int connectedComponentNum, int synchronousComponentNum,
+                                 LoadFlowResult.ComponentResult.Status status, String statusText) {
+        Objects.requireNonNull(status);
+        Objects.requireNonNull(statusText);
+        SensitivityState state = new SensitivityState(
+                contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
+                operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
+        stateStatuses.computeIfAbsent(state, s -> new ArrayList<>())
+                .add(new SensitivityStateStatus.ComponentStatus(connectedComponentNum, synchronousComponentNum, status, statusText));
+    }
+
+    @Override
+    public void computationComplete() {
+        computationComplete = true;
+    }
+
+    @Override
+    public boolean isComputationComplete() {
+        return computationComplete;
     }
 }

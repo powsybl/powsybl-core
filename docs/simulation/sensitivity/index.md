@@ -109,6 +109,26 @@ The outputs of the sensitivity analysis are called sensitivity values. A sensiti
 
 These results may be serialized in JSON format.
 
+(sensitivity-state-statuses)=
+### State statuses
+For each computed state (the pre-contingency state, a post-contingency state, or a post-contingency state with an operator strategy applied),
+the result provides a list of computation statuses, one per network component on which a load flow has been run. Each component status contains:
+- The connected component number 
+- The synchronous component number
+- The load flow status of the component (`CONVERGED`, `FAILED`, `MAX_ITERATION_REACHED`, `NO_CALCULATION`)
+- A text giving details about the load flow status
+
+States that have no impact on the computed sensitivities and are thus never computed are reported with a single status `NO_CALCULATION`,
+with connected and synchronous component numbers set to -1.
+
+These statuses can be retrieved with `SensitivityAnalysisResult.getStateComponentStatuses(SensitivityState)`.
+
+(sensitivity-computation-completeness)=
+### Computation completeness
+A sensitivity analysis may be interrupted before the end of the computation. In that case, the result only contains partial
+sensitivity values and state statuses. `SensitivityAnalysisResult.isComputationComplete()` returns `true` if the computation
+has fully completed, and `false` if it has been interrupted. This information is also serialized in the `computationComplete` field of the JSON result.
+
 ### Example of interpretation
 Let's imagine that one wants to compute the impact of an increase of active power generation of the
 generator G on the branch B. The sensitivity analysis input will contain one sensitivity factor, with sensitivity function type `BRANCH_ACTIVE_POWER_1` and sensitivity variable type `INJECTION_ACTIVE_POWER`, and we do not provide any input contingencies.

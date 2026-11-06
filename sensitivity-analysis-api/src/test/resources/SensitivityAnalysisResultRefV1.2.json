@@ -105,8 +105,22 @@
   } ],
   "stateStatus" : [ {
     "contingencyId" : "NHV1_NHV2_2",
-    "status" : "SUCCESS"
+    "componentStatuses" : [ {
+      "loadFlowStatus" : "CONVERGED",
+      "loadFlowStatusText" : "",
+      "numCC" : 0,
+      "numSC" : 0
+    } ]
+  }, {
+    "contingencyId" : "NHV1_NHV2_2",
+    "operatorStrategyId" : "op1",
+    "componentStatuses" : [ {
+      "loadFlowStatus" : "CONVERGED",
+      "loadFlowStatusText" : "",
+      "numCC" : 0,
+      "numSC" : 0
+    } ]
   } ],
   "contingencyIds" : [ "NHV1_NHV2_2" ],
-  "operatorStrategyIds" : [ ]
+  "operatorStrategyIds" : [ "op1" ]
 }
