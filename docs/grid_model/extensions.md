@@ -388,6 +388,21 @@ Side 1 and side 2 correspond respectively to terminal1 and terminal2 of the line
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
+(line-non-reciprocal-impedance-extension)=
+## Line Non-Reciprocal Impedance
+
+This extension models a line whose series impedance seen from side 2 differs from the one seen from side 1 (the `r` and
+`x` of the line): the current entering at side 1 is $(V_1 - V_2) / (r + jx)$ and the current entering at side 2 is
+$(V_2 - V_1) / (r_{21} + jx_{21})$. Such a line is the result of a network reduction; the CGMES import creates it from an
+`EquivalentBranch` whose `r21` and `x21` differ from `r` and `x`.
+
+| Attribute | Type   | Unit | Required | Default value | Description                                 |
+|-----------|--------|------|----------|---------------|---------------------------------------------|
+| r21       | double | Ω    | yes      | -             | The series resistance seen from side 2      |
+| x21       | double | Ω    | yes      | -             | The series reactance seen from side 2       |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
 (line-couplings-extension)=
 ## Line Couplings
 
