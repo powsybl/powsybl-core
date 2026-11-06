@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,6 +23,8 @@ import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.math.graph.GraphConnectivity;
+import com.powsybl.math.graph.dtree.DTreeGraphConnectivityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1153,14 +1155,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private final class VariantImpl implements Variant {
 
-        private final ConnectedComponentsManager connectedComponentsManager
-                = new ConnectedComponentsManager(NetworkImpl.this);
-
-        private final SynchronousComponentsManager synchronousComponentsManager
-                = new SynchronousComponentsManager(NetworkImpl.this);
-
-        private final DcComponentsManager dcComponentsManager
-                = new DcComponentsManager(NetworkImpl.this);
+        private ComponentsManager connectedComponentsManager
+                = new SimpleComponentsManager(NetworkImpl.this, "connected", true, true);
+        private ComponentsManager synchronousComponentsManager
+                = new GraphConnectivityComponentsManager(NetworkImpl.this, new DTreeGraphConnectivityFactory<>());
+        // = new SimpleComponentsManager(NetworkImpl.this, "synchronous", true, false);
+        private ComponentsManager dcComponentsManager
+                = new SimpleComponentsManager(NetworkImpl.this, "DC", false, true);
 
         private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
 
@@ -1175,25 +1176,37 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             return new VariantImpl();
         }
 
+        public void setGraphConnectivity(ComponentType componentType, GraphConnectivity<Identifiable<?>, Identifiable<?>> connectivity) {
+            /*switch (componentType) {
+                case SYNCHRONOUS -> synchronousComponentsManager.setGraphConnectivity(connectivity);
+                case DC -> dcComponentsManager.setGraphConnectivity(connectivity);
+                case CONNECTED -> connectedComponentsManager.setGraphConnectivity(connectivity);
+            }*/
+        }
     }
 
     private final VariantArray<VariantImpl> variants;
 
-    ConnectedComponentsManager getConnectedComponentsManager() {
+    ComponentsManager getConnectedComponentsManager() {
         return variants.get().connectedComponentsManager;
     }
 
-    SynchronousComponentsManager getSynchronousComponentsManager() {
+    ComponentsManager getSynchronousComponentsManager() {
         return variants.get().synchronousComponentsManager;
     }
 
-    DcComponentsManager getDcComponentsManager() {
+    ComponentsManager getDcComponentsManager() {
         return variants.get().dcComponentsManager;
     }
 
     @Override
     public Collection<Component> getDcComponents() {
         return Collections.unmodifiableList(variants.get().dcComponentsManager.getConnectedComponents());
+    }
+
+    @Override
+    public void setGraphConnectivity(ComponentType componentType, GraphConnectivity<Identifiable<?>, Identifiable<?>> connectivity) {
+        variants.get().setGraphConnectivity(componentType, connectivity);
     }
 
     @Override
