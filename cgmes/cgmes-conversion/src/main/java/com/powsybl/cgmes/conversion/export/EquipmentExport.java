@@ -26,6 +26,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.Serie
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSwitch.SwitchEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesSynchronousMachine.SynchronousMachineEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesVoltageLevel.VoltageLevelEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -563,10 +564,19 @@ public final class EquipmentExport {
         String kind = obtainSynchronousMachineKind(i);
         String generatingUnit = "condenser".equals(kind) ? null : context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT);
 
-        SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
-                context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
-                generatingUnit, regulatingControlId, reactiveLimitsId, getNullableMinQ(i), getNullableMaxQ(i),
-                ratedS, defaultRatedS, kind, writer, context);
+        SynchronousMachineEq synchronousMachine = new SynchronousMachineEq(
+            context.getNamingStrategy().getCgmesId(i),
+            i.getNameOrId(),
+            getNullableMaxQ(i),
+            getNullableMinQ(i),
+            kind,
+            format(ratedS, defaultRatedS),
+            reactiveLimitsId,
+            generatingUnit,
+            regulatingControlId,
+            context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel())
+        );
+        CgmesSynchronousMachine.writeEq(synchronousMachine, writer, context);
 
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
 
