@@ -258,6 +258,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         List<SwitchKind> existingLeftSwitchKinds = new ArrayList<>(switchKindsBetweenBusbarSectionsTraverser.getLeftSwitchesBetweenBusbar());
         List<SwitchKind> existingRightSwitchKinds = new ArrayList<>(switchKindsBetweenBusbarSectionsTraverser.getRightSwitchesBetweenBusbar());
         SwitchKind switchKindToRemove = SwitchKindsBetweenBusbarSectionsTraverser.getSwitchKind(switchesEncountered);
+        // null when inserting at an extremity, or when the neighbour is linked by an internal connection: nothing to remove
         if (switchKindToRemove != null) {
             (isAfter ? existingRightSwitchKinds : existingLeftSwitchKinds).remove(switchKindToRemove);
         }

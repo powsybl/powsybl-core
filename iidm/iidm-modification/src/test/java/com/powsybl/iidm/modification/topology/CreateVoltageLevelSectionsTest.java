@@ -437,52 +437,9 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     @ParameterizedTest
     @MethodSource("getNamingStrategyParameters")
-    void testNamingStrategyOnlyUsesSwitchKindsAroundNewBusbarSection(String referenceBusbarSectionId, boolean createAfter,
+    void testNamingStrategyOnlyUsesSwitchKindsAroundNewBusbarSection(boolean withInternalConnection, String referenceBusbarSectionId, boolean createAfter,
                                                                       SwitchKind leftSwitchKind, SwitchKind rightSwitchKind,
                                                                       String expectedBusbarSectionId) {
-        Network network = createNetwork();
-        VoltageLevel vl2 = network.getSubstation("S1").newVoltageLevel()
-                .setId("VL2")
-                .setNominalV(100.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        createBusbarSection(vl2, "VL2_BBS11", 0, 1, 1);
-        createBusbarSection(vl2, "VL2_BBS12", 1, 1, 2);
-        createBreaker(vl2, "VL2_B_BBS11_BBS12", 0, 1);
-
-        CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
-                .withReferenceBusbarSectionId(referenceBusbarSectionId)
-                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createAfter)
-                .withAllBusbars(false)
-                .withLeftSwitchKind(leftSwitchKind)
-                .withRightSwitchKind(rightSwitchKind)
-                .withSwitchPrefixId("VL2")
-                .withBusbarSectionPrefixId("VL2")
-                .build();
-        modification.apply(network, new NamingStrategyTest());
-        List<String> busbarSectionIds = network.getVoltageLevel("VL2")
-                .getNodeBreakerView()
-                .getBusbarSectionStream()
-                .map(BusbarSection::getId)
-                .toList();
-        assertEquals(List.of("VL2_BBS11", "VL2_BBS12", expectedBusbarSectionId), busbarSectionIds);
-    }
-
-    private static Stream<Arguments> getNamingStrategyParameters() {
-        return Stream.of(
-                // between two sections: the existing breaker is removed, so it must not be taken into account in the naming
-                Arguments.of("VL2_BBS11", true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
-                Arguments.of("VL2_BBS12", false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
-                // at an extremity: no switch is created on the outer side, so its kind must not be taken into account in the naming
-                Arguments.of("VL2_BBS12", true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, "VL2_1_BREAKER_3"),
-                Arguments.of("VL2_BBS11", false, SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, "VL2_1_1_BREAKER")
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("getNamingStrategyWithThreeSectionsParameters")
-    void testNamingStrategyWithThreeSections(boolean withInternalConnection, String referenceBusbarSectionId, boolean createAfter,
-                                             String expectedBusbarSectionId) {
         Network network = createNetwork();
         VoltageLevel vl3 = network.getSubstation("S1").newVoltageLevel()
                 .setId("VL3")
@@ -504,8 +461,8 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
                 .withReferenceBusbarSectionId(referenceBusbarSectionId)
                 .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createAfter)
                 .withAllBusbars(false)
-                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
-                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withLeftSwitchKind(leftSwitchKind)
+                .withRightSwitchKind(rightSwitchKind)
                 .withSwitchPrefixId("VL3")
                 .withBusbarSectionPrefixId("VL3")
                 .build();
@@ -518,17 +475,22 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
         assertEquals(List.of("VL3_BBS1", "VL3_BBS2", "VL3_BBS3", expectedBusbarSectionId), busbarSectionIds);
     }
 
-    private static Stream<Arguments> getNamingStrategyWithThreeSectionsParameters() {
+    private static Stream<Arguments> getNamingStrategyParameters() {
+        SwitchKind disconnector = SwitchKind.DISCONNECTOR;
+        SwitchKind breaker = SwitchKind.BREAKER;
         return Stream.of(
                 // between VL3_BBS1 and VL3_BBS2: the removed breaker must not be taken into account, the disconnector beyond must
-                Arguments.of(false, "VL3_BBS1", true, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
-                Arguments.of(false, "VL3_BBS2", false, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS1", true, disconnector, disconnector, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS2", false, disconnector, disconnector, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
                 // between VL3_BBS2 and VL3_BBS3: the removed disconnector must not be taken into account, the breaker beyond must
-                Arguments.of(false, "VL3_BBS2", true, "VL3_1_BREAKER_3_DISCONNECTOR"),
-                Arguments.of(false, "VL3_BBS3", false, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS2", true, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS3", false, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
                 // between VL3_BBS2 and VL3_BBS3 linked by an internal connection: no switch is removed, the breaker beyond must be kept
-                Arguments.of(true, "VL3_BBS2", true, "VL3_1_BREAKER_3_DISCONNECTOR"),
-                Arguments.of(true, "VL3_BBS3", false, "VL3_1_BREAKER_3_DISCONNECTOR")
+                Arguments.of(true, "VL3_BBS2", true, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(true, "VL3_BBS3", false, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                // at an extremity: no switch is created on the outer side, so its kind must not be taken into account
+                Arguments.of(false, "VL3_BBS3", true, disconnector, breaker, "VL3_1_BREAKER_4"),
+                Arguments.of(false, "VL3_BBS1", false, breaker, disconnector, "VL3_1_1_BREAKER")
         );
     }
 }
