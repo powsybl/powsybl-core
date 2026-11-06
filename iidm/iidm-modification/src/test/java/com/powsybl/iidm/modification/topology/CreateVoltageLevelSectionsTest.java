@@ -476,21 +476,19 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
     }
 
     private static Stream<Arguments> getNamingStrategyParameters() {
-        SwitchKind disconnector = SwitchKind.DISCONNECTOR;
-        SwitchKind breaker = SwitchKind.BREAKER;
         return Stream.of(
                 // between VL3_BBS1 and VL3_BBS2: the removed breaker must not be taken into account, the disconnector beyond must
-                Arguments.of(false, "VL3_BBS1", true, disconnector, disconnector, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
-                Arguments.of(false, "VL3_BBS2", false, disconnector, disconnector, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS1", true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS2", false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL3_1_DISCONNECTOR_2_DISCONNECTOR"),
                 // between VL3_BBS2 and VL3_BBS3: the removed disconnector must not be taken into account, the breaker beyond must
-                Arguments.of(false, "VL3_BBS2", true, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
-                Arguments.of(false, "VL3_BBS3", false, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS2", true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(false, "VL3_BBS3", false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL3_1_BREAKER_3_DISCONNECTOR"),
                 // between VL3_BBS2 and VL3_BBS3 linked by an internal connection: no switch is removed, the breaker beyond must be kept
-                Arguments.of(true, "VL3_BBS2", true, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
-                Arguments.of(true, "VL3_BBS3", false, disconnector, disconnector, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(true, "VL3_BBS2", true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL3_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of(true, "VL3_BBS3", false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL3_1_BREAKER_3_DISCONNECTOR"),
                 // at an extremity: no switch is created on the outer side, so its kind must not be taken into account
-                Arguments.of(false, "VL3_BBS3", true, disconnector, breaker, "VL3_1_BREAKER_4"),
-                Arguments.of(false, "VL3_BBS1", false, breaker, disconnector, "VL3_1_1_BREAKER")
+                Arguments.of(false, "VL3_BBS3", true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, "VL3_1_BREAKER_4"),
+                Arguments.of(false, "VL3_BBS1", false, SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, "VL3_1_1_BREAKER")
         );
     }
 }
