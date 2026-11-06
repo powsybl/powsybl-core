@@ -20,6 +20,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -540,5 +541,14 @@ public final class CgmesExportUtil {
         String pairingKey = bl.getPairingKey();
         return pairingKey != null ? pairingKey : bl.getTieLine().orElseThrow().getId();
 
+    }
+
+    // Get normalPF for GeneratingUnits in SSH and to write ControlAreaGeneratingUnits in EQ
+    public static <I extends ReactiveLimitsHolder & Injection<I>> double getParticipationFactor(I i) {
+        if (i.getExtension(ActivePowerControl.class) != null) {
+            return i.getExtension(ActivePowerControl.class).getParticipationFactor();
+        } else {
+            return Double.parseDouble(i.getProperty(PROPERTY_NORMAL_PF));
+        }
     }
 }
