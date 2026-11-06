@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSegmentEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesBaseVoltage.BaseVoltageEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
@@ -252,7 +253,8 @@ public final class EquipmentExport {
             .sorted(Comparator.comparing(CgmesExportContext.BaseVoltageSource::id))
             .toList();
         for (CgmesExportContext.BaseVoltageSource igmBaseVoltageSource : igmBaseVoltageSources) {
-            BaseVoltageEq.write(igmBaseVoltageSource.id(), igmBaseVoltageSource.nominalV(), writer, context);
+            BaseVoltageEq baseVoltageEq = new BaseVoltageEq(igmBaseVoltageSource.id(), igmBaseVoltageSource.nominalV());
+            CgmesBaseVoltage.writeEq(baseVoltageEq, writer, context);
         }
     }
 
