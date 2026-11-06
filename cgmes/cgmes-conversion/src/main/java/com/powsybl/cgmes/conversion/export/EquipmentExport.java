@@ -21,6 +21,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.Geog
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesSwitch.SwitchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesVoltageLevel.VoltageLevelEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -217,9 +218,11 @@ public final class EquipmentExport {
                         CgmesSeriesCompensator.writeEq(sc, writer, context);
                     }
                     case null, default -> {
+                        String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(sw.getKind());
                         boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
-                        SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(),
-                                context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), exportAsRetained, writer, context);
+                        String cgmesVlId = context.getNamingStrategy().getCgmesId(vl);
+                        SwitchEq switchEq = new SwitchEq(className, rdfId, name, sw.isOpen(), exportAsRetained, cgmesVlId);
+                        CgmesSwitch.writeEq(switchEq, writer, context);
                     }
                 }
             }
