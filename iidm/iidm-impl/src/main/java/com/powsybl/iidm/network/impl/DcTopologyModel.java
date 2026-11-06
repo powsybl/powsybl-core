@@ -229,11 +229,11 @@ class DcTopologyModel implements MultiVariantObject {
      */
     private final class CalculatedDcBusTopology {
 
-        private static boolean isDcBusValid(List<DcNodeImpl> dcNodes, Set<DcNodeImpl> resistiveSwitchEnd) {
+        private static boolean isDcBusValid(List<DcNodeImpl> dcNodes, Set<DcNodeImpl> resistiveSwitchEnds) {
             // DcBus is valid if at least one DcTerminal is connected, or if one of its DcNodes
             // is an end of a closed DcSwitch with non-zero resistance
             return dcNodes.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent()
-                    || !Collections.disjoint(dcNodes, resistiveSwitchEnd);
+                    || !Collections.disjoint(dcNodes, resistiveSwitchEnds);
         }
 
         private DcBusImpl createDcBus(List<DcNodeImpl> dcNodes) {
