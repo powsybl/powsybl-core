@@ -213,7 +213,8 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         String substationName = voltageLevelId + "SUB for missing VL " + voltageLevelId;
         String baseVoltageId = context.getNamingStrategy().getCgmesId(ref(voltageLevelId), ref("BaseVoltage"));
 
-        VoltageLevelEq.write(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId, writer, context);
+        CgmesVoltageLevel.VoltageLevelEq voltageLevel = new CgmesVoltageLevel.VoltageLevelEq(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId);
+        CgmesVoltageLevel.writeEq(voltageLevel, writer, context);
         CgmesSubstation.SubstationEq substation = new CgmesSubstation.SubstationEq(substationId, substationName, regionContainers.subGeographicalRegionId);
         CgmesSubstation.writeEq(substation, writer, context);
         CgmesBaseVoltage.BaseVoltageEq baseVoltage = new CgmesBaseVoltage.BaseVoltageEq(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS);
