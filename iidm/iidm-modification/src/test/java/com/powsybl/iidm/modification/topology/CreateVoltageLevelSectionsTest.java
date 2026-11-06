@@ -437,8 +437,11 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     @ParameterizedTest
     @MethodSource("getNamingStrategyParameters")
-    void testNamingStrategyOnlyUsesSwitchKindsExistingAfterCreation(boolean withInternalConnection, String referenceBusbarSectionId, boolean createAfter,
-                                                                     SwitchKind leftSwitchKind, SwitchKind rightSwitchKind,
+    void testNamingStrategyOnlyUsesSwitchKindsExistingAfterCreation(String referenceBusbarSectionId,
+                                                                     boolean createAfter,
+                                                                     boolean withInternalConnection,
+                                                                     SwitchKind leftSwitchKind,
+                                                                     SwitchKind rightSwitchKind,
                                                                      String expectedBusbarSectionId) {
         Network network = createNetwork();
         VoltageLevel vl2 = network.getSubstation("S1").newVoltageLevel()
@@ -478,17 +481,17 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
     private static Stream<Arguments> getNamingStrategyParameters() {
         return Stream.of(
                 // between VL2_BBS11 and VL2_BBS12: the removed breaker must not be taken into account, the disconnector beyond must
-                Arguments.of(false, "VL2_BBS11", true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
-                Arguments.of(false, "VL2_BBS12", false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of("VL2_BBS11", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
+                Arguments.of("VL2_BBS12", false, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_DISCONNECTOR_2_DISCONNECTOR"),
                 // between VL2_BBS12 and VL2_BBS13: the removed disconnector must not be taken into account, the breaker beyond must
-                Arguments.of(false, "VL2_BBS12", true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
-                Arguments.of(false, "VL2_BBS13", false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of("VL2_BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of("VL2_BBS13", false, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
                 // between VL2_BBS12 and VL2_BBS13 linked by an internal connection: no switch is removed, the breaker beyond must be kept
-                Arguments.of(true, "VL2_BBS12", true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
-                Arguments.of(true, "VL2_BBS13", false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of("VL2_BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
+                Arguments.of("VL2_BBS13", false, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, "VL2_1_BREAKER_3_DISCONNECTOR"),
                 // at an extremity: no switch is created on the outer side, so its kind must not be taken into account
-                Arguments.of(false, "VL2_BBS13", true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, "VL2_1_BREAKER_4"),
-                Arguments.of(false, "VL2_BBS11", false, SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, "VL2_1_1_BREAKER")
+                Arguments.of("VL2_BBS13", true, false, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, "VL2_1_BREAKER_4"),
+                Arguments.of("VL2_BBS11", false, false, SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, "VL2_1_1_BREAKER")
         );
     }
 }
