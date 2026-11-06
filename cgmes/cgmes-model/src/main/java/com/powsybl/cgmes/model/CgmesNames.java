@@ -86,6 +86,7 @@ public final class CgmesNames {
     public static final String TOPOLOGICAL_NODES = "TopologicalNodes";
 
     public static final String POWER_TRANSFORMER = "PowerTransformer";
+    public static final String POWER_TRANSFORMER_END = "PowerTransformerEnd";
     public static final String R = "r";
     public static final String X = "x";
     public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
