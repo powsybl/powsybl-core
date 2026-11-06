@@ -40,6 +40,7 @@ import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransfo
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
+import static com.powsybl.cgmes.model.CgmesNames.GENERATING_UNIT;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -541,6 +542,23 @@ public final class CgmesExportUtil {
             return "motor";
         }
         return "generatorOrMotor";
+    }
+
+    public static String generatingUnitClassName(EnergySource energySource) {
+        if (EnergySource.HYDRO.equals(energySource)) {
+            return "HydroGeneratingUnit";
+        } else if (EnergySource.NUCLEAR.equals(energySource)) {
+            return "NuclearGeneratingUnit";
+        } else if (EnergySource.THERMAL.equals(energySource)) {
+            return "ThermalGeneratingUnit";
+        } else if (EnergySource.WIND.equals(energySource)) {
+            return "WindGeneratingUnit";
+        } else if (EnergySource.SOLAR.equals(energySource)) {
+            return "SolarGeneratingUnit";
+        } else if (EnergySource.OTHER.equals(energySource)) {
+            return GENERATING_UNIT;
+        }
+        return GENERATING_UNIT;
     }
 
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
