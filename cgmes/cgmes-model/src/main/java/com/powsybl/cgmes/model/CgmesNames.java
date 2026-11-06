@@ -204,6 +204,7 @@ public final class CgmesNames {
     public static final String P_TOLERANCE = "pTolerance";
 
     public static final String CONDUCTING_EQUIPMENT_BASE_VOLTAGE = CgmesNames.CONDUCTING_EQUIPMENT + "." + CgmesNames.BASE_VOLTAGE;
+    public static final String EQUIPMENT_EQUIPMENT_CONTAINER = "Equipment.EquipmentContainer";
 
     private CgmesNames() {
     }
