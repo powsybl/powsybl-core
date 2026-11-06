@@ -14,6 +14,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
 
 /**
@@ -66,11 +68,11 @@ public class DCLinkUpdate {
     }
 
     private boolean isRectifier(String operatingMode) {
-        return operatingMode != null && operatingMode.toLowerCase().endsWith("rectifier");
+        return operatingMode != null && operatingMode.toLowerCase(Locale.ROOT).endsWith("rectifier");
     }
 
     private boolean isInverter(String operatingMode) {
-        return operatingMode != null && operatingMode.toLowerCase().endsWith("inverter");
+        return operatingMode != null && operatingMode.toLowerCase(Locale.ROOT).endsWith("inverter");
     }
 
     private double targetPpcc1() {
