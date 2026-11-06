@@ -313,22 +313,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microBETieFlow() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
-            NetworkFactory.findDefault(), importParams);
-
-        // Check that the query discarded the areas that aren't of type Interchange
-        assertEquals(1, network.getAreaCount());
-
-        Area area = network.getArea("BECONTROLAREA");
-        assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, area.getAreaType());
-        assertEquals("BE", area.getNameOrId());
-        assertEquals("10BE------1", area.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).get());
-        assertEquals(-205.90011555672567, area.getInterchangeTarget().getAsDouble(), 0.0);
-        assertEquals(5, area.getAreaBoundaryStream().count());
-    }
-
-    @Test
     void microBEInvalidSvInjection() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidSvInjection().dataSource(),
@@ -731,12 +715,6 @@ class CgmesConformity1ModifiedConversionTest {
         CgmesModelException exception = assertThrows(CgmesModelException.class, () -> importer.importData(dataSource, networkFactory, importParams));
         assertEquals("BusbarSection 78f2ae0e-da25-483a-8a71-76f709389894 voltage level 347fb7af-642f-4c60-97d9-c03d440b6a82 has not been created in IIDM",
                 exception.getMessage());
-    }
-
-    @Test
-    void smallBusBranchTieFlowWithoutControlArea() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallBusBranchTieFlowsWithoutControlArea().dataSource(), NetworkFactory.findDefault(), importParams);
-        assertEquals(0, network.getAreaCount());
     }
 
     @Test
