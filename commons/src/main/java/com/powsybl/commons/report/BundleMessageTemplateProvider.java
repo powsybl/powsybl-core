@@ -34,7 +34,7 @@ public class BundleMessageTemplateProvider extends AbstractMessageTemplateProvid
 
     @Override
     public String getTemplate(String key, Locale locale) {
-        ResourceBundle resourceBundle = resourceBundlesMap.computeIfAbsent(locale, l -> ResourceBundle.getBundle(bundleBaseName, l, NO_FALLBACK_CONTROL));
+        ResourceBundle resourceBundle = resourceBundlesMap.computeIfAbsent(locale, l -> ReportBundles.getBundle(bundleBaseName, l));
         if (!throwIfUnknownKey && !resourceBundle.containsKey(key)) {
             return MessageTemplateProvider.getMissingKeyMessage(key, locale, isStrictMode());
         }

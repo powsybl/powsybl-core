@@ -10,5 +10,6 @@ configuration/index.md
 itools/index.md
 functional_logs/index.md
 frequent_errors/index.md
+jpms/index.md
 ```
 

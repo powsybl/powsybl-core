@@ -22,22 +22,6 @@
     <name>Math</name>
     <description>A set of mathematical utilities</description>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.math</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
@@ -118,6 +102,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-</project>
 
+</project>

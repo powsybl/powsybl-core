@@ -53,6 +53,7 @@ public interface GroovyExtension<T> {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(providerName);
 
+        GroovyExtension.class.getModule().addUses(clazz); // generic service type, cannot be declared in module-info
         return StreamSupport.stream(ServiceLoader.load(clazz, GroovyExtension.class.getClassLoader()).spliterator(), true)
                 .filter(e -> e.getName() == null || e.getName().equals(providerName))
                 .collect(Collectors.toList());

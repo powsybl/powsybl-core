@@ -60,7 +60,7 @@ public interface MessageTemplateProvider {
 
     static String getMissingKeyMessage(String key, Locale locale, boolean strictMode) {
         if (strictMode) {
-            String pattern = ResourceBundle.getBundle(PowsyblCoreReportResourceBundle.BASE_NAME, locale, NO_FALLBACK_CONTROL)
+            String pattern = ReportBundles.getBundle(PowsyblCoreReportResourceBundle.BASE_NAME, locale)
                     .getString("core.commons.missingKey");
             return new MessageFormat(pattern, locale).format(new Object[]{key});
         }
