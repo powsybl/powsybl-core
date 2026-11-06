@@ -205,6 +205,7 @@ public final class CgmesNames {
 
     public static final String CONDUCTING_EQUIPMENT_BASE_VOLTAGE = CgmesNames.CONDUCTING_EQUIPMENT + "." + CgmesNames.BASE_VOLTAGE;
     public static final String EQUIPMENT_EQUIPMENT_CONTAINER = "Equipment.EquipmentContainer";
+    public static final String REGULATING_COND_EQ_REGULATING_CONTROL = "RegulatingCondEq." + REGULATING_CONTROL;
 
     private CgmesNames() {
     }
