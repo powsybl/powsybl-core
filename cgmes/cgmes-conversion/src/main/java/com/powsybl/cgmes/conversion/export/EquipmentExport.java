@@ -26,6 +26,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.NonlinearShuntCompensatorPointEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.ShuntCompensatorEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesStaticVarCompensator.StaticVarCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSubstation.SubstationEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSwitch.SwitchEq;
@@ -806,19 +807,20 @@ public final class EquipmentExport {
             String regulatingControlId = writeRegulatingControl(svc);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
-            RegulationMode regulationMode = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getMode() : null;
+            String regulationMode = svc.isWithMode(RegulationMode.VOLTAGE) ? "SVCControlMode.voltage" : "SVCControlMode.reactivePower";
             double slope = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getSlope() : Double.NaN;
-            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc),
+            StaticVarCompensatorEq staticVarCompensator = new StaticVarCompensatorEq(
+                context.getNamingStrategy().getCgmesId(svc),
                 svc.getNameOrId(),
-                context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()),
-                regulatingControlId,
-                inductiveRating,
                 capacitiveRating,
+                inductiveRating,
                 slope,
                 regulationMode,
                 svc.getRegulatingTargetV(),
-                writer,
-                context);
+                regulatingControlId,
+                context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel())
+            );
+            CgmesStaticVarCompensator.writeEq(staticVarCompensator, writer, context);
         }
     }
 
