@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.identifiers.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.iidm.network.identifiers.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -25,37 +25,37 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
     }
 
     @Override
-    public void serialize(NetworkElementIdentifier networkElementIdentifier, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(NetworkElementIdentifier networkElementIdentifier, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", networkElementIdentifier.getType().toString());
+        jsonGenerator.writeStringProperty("type", networkElementIdentifier.getType().toString());
         Optional<String> optionalContingencyId = networkElementIdentifier.getContingencyId();
         if (optionalContingencyId.isPresent()) {
-            jsonGenerator.writeStringField("contingencyId", optionalContingencyId.get());
+            jsonGenerator.writeStringProperty("contingencyId", optionalContingencyId.get());
         }
         switch (networkElementIdentifier.getType()) {
             case ID_BASED:
-                jsonGenerator.writeStringField("identifier", ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifier());
+                jsonGenerator.writeStringProperty("identifier", ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifier());
                 break;
             case LIST:
-                serializerProvider.defaultSerializeField("identifierList",
+                serializationContext.defaultSerializeProperty("identifierList",
                     ((NetworkElementIdentifierContingencyList) networkElementIdentifier).getNetworkElementIdentifiers(),
                     jsonGenerator);
                 break;
             case VOLTAGE_LEVELS_AND_ORDER:
                 VoltageLevelAndOrderNetworkElementIdentifier ucteIdentifier = (VoltageLevelAndOrderNetworkElementIdentifier) networkElementIdentifier;
-                jsonGenerator.writeStringField("voltageLevelId1", ucteIdentifier.getVoltageLevelId1());
-                jsonGenerator.writeStringField("voltageLevelId2", ucteIdentifier.getVoltageLevelId2());
-                jsonGenerator.writeStringField("order", Character.toString(ucteIdentifier.getOrder()));
+                jsonGenerator.writeStringProperty("voltageLevelId1", ucteIdentifier.getVoltageLevelId1());
+                jsonGenerator.writeStringProperty("voltageLevelId2", ucteIdentifier.getVoltageLevelId2());
+                jsonGenerator.writeStringProperty("order", Character.toString(ucteIdentifier.getOrder()));
                 break;
             case ID_WITH_WILDCARDS:
                 IdWithWildcardsNetworkElementIdentifier identifier = (IdWithWildcardsNetworkElementIdentifier) networkElementIdentifier;
-                jsonGenerator.writeStringField("identifier", identifier.getIdentifier());
-                jsonGenerator.writeStringField("wildcard", identifier.getWildcardCharacter());
+                jsonGenerator.writeStringProperty("identifier", identifier.getIdentifier());
+                jsonGenerator.writeStringProperty("wildcard", identifier.getWildcardCharacter());
                 break;
             case SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS:
                 SubstationOrVoltageLevelEquipmentsIdentifier substIdentifier = (SubstationOrVoltageLevelEquipmentsIdentifier) networkElementIdentifier;
-                jsonGenerator.writeStringField("substationOrVoltageLevelId", substIdentifier.getSubstationOrVoltageLevelId());
-                serializerProvider.defaultSerializeField("voltageLevelIdentifiableTypes", substIdentifier.getVoltageLevelIdentifiableTypes(), jsonGenerator);
+                jsonGenerator.writeStringProperty("substationOrVoltageLevelId", substIdentifier.getSubstationOrVoltageLevelId());
+                serializationContext.defaultSerializeProperty("voltageLevelIdentifiableTypes", substIdentifier.getVoltageLevelIdentifiableTypes(), jsonGenerator);
                 break;
         }
         jsonGenerator.writeEndObject();

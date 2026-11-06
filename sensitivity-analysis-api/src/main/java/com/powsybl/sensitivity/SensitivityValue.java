@@ -7,13 +7,11 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /**
@@ -99,23 +97,19 @@ public class SensitivityValue {
         Objects.requireNonNull(parser);
 
         var context = new ParsingContext();
-        try {
-            JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    parseJson(parser, context);
-                } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.operatorStrategyIndex,
-                                                context.value, context.functionReference);
-                }
+        JsonToken token;
+        while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.PROPERTY_NAME) {
+                parseJson(parser, context);
+            } else if (token == JsonToken.END_OBJECT) {
+                return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.operatorStrategyIndex,
+                                            context.value, context.functionReference);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
         throw new PowsyblException("Parsing error");
     }
 
-    private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
+    private static void parseJson(JsonParser parser, ParsingContext context) {
         String fieldName = parser.currentName();
         switch (fieldName) {
             case "factorIndex":
@@ -153,21 +147,17 @@ public class SensitivityValue {
                           int operatorStrategyIndex,
                           double value,
                           double functionReference) {
-        try {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("factorIndex", factorIndex);
-            if (contingencyIndex != -1) {
-                jsonGenerator.writeNumberField("contingencyIndex", contingencyIndex);
-            }
-            if (operatorStrategyIndex != -1) {
-                jsonGenerator.writeNumberField("operatorStrategyIndex", operatorStrategyIndex);
-            }
-            jsonGenerator.writeNumberField("value", value);
-            jsonGenerator.writeNumberField("functionReference", functionReference);
-
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeNumberProperty("factorIndex", factorIndex);
+        if (contingencyIndex != -1) {
+            jsonGenerator.writeNumberProperty("contingencyIndex", contingencyIndex);
         }
+        if (operatorStrategyIndex != -1) {
+            jsonGenerator.writeNumberProperty("operatorStrategyIndex", operatorStrategyIndex);
+        }
+        jsonGenerator.writeNumberProperty("value", value);
+        jsonGenerator.writeNumberProperty("functionReference", functionReference);
+
+        jsonGenerator.writeEndObject();
     }
 }

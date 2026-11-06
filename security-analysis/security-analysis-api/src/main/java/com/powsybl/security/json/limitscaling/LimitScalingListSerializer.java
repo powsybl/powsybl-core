@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json.limitscaling;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.limitscaling.LimitScalingList;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import static com.powsybl.security.limitscaling.LimitScalingList.VERSION;
 
@@ -26,10 +25,10 @@ public class LimitScalingListSerializer extends StdSerializer<LimitScalingList> 
     }
 
     @Override
-    public void serialize(LimitScalingList limitScalingList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitScalingList limitScalingList, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
-        serializerProvider.defaultSerializeField("limitScalings", limitScalingList.getLimitScalings(), jsonGenerator);
+        jsonGenerator.writeStringProperty("version", VERSION);
+        serializationContext.defaultSerializeProperty("limitScalings", limitScalingList.getLimitScalings(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

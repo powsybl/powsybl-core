@@ -7,14 +7,15 @@
  */
 package com.powsybl.iidm.modification.scalable.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,12 +63,8 @@ public final class JsonScalingParameters {
      * Updates parameters by reading the content of a JSON stream.
      */
     public static ScalingParameters update(ScalingParameters parameters, InputStream jsonStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        return jsonMapper.readerForUpdating(parameters).readValue(jsonStream);
     }
 
     /**
@@ -87,39 +84,36 @@ public final class JsonScalingParameters {
      * Writes parameters as JSON to an output stream.
      */
     public static void write(ScalingParameters parameters, OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, parameters);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, parameters);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new ScalingParametersJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new ScalingParametersJsonModule())
+            .build();
     }
 
     /**
      * Low level deserialization method, to be used for instance for updating scaling parameters nested in another object.
      */
     public static ScalingParameters deserialize(JsonParser parser, DeserializationContext deserializationContext,
-                                         ScalingParameters scalingParameters) throws IOException {
+                                         ScalingParameters scalingParameters) throws JacksonException {
         return new ScalingParametersDeserializer().deserialize(parser, deserializationContext, scalingParameters);
     }
 
     /**
      * Low level deserialization method, to be used for instance for reading scaling parameters nested in another object.
      */
-    public static ScalingParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public static ScalingParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         return new ScalingParametersDeserializer().deserialize(parser, deserializationContext);
     }
 
     /**
      * Low level serialization method, to be used for instance for writing scaling parameters nested in another object.
      */
-    public static void serialize(ScalingParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        new ScalingParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+    public static void serialize(ScalingParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
+        new ScalingParametersSerializer().serialize(parameters, jsonGenerator, serializationContext);
     }
 }

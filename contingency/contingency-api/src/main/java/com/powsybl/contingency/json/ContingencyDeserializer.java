@@ -7,10 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -18,8 +14,12 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -39,7 +39,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
     }
 
     @Override
-    public Contingency deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public Contingency deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String id = null;
         String name = null;
         List<ContingencyElement> elements = Collections.emptyList();
@@ -48,8 +48,8 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "id" -> id = parser.nextTextValue();
-                case "name" -> name = parser.nextTextValue();
+                case "id" -> id = parser.nextStringValue();
+                case "name" -> name = parser.nextStringValue();
                 case "elements" -> {
                     parser.nextToken();
                     elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);

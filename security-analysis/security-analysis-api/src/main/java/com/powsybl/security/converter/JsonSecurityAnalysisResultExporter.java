@@ -11,8 +11,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.json.SecurityAnalysisResultSerializer;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 
 /**
@@ -34,10 +32,6 @@ public class JsonSecurityAnalysisResultExporter implements SecurityAnalysisResul
 
     @Override
     public void export(SecurityAnalysisResult result, Writer writer) {
-        try {
-            SecurityAnalysisResultSerializer.write(result, writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        SecurityAnalysisResultSerializer.write(result, writer);
     }
 }

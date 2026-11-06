@@ -7,16 +7,26 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.criteria.*;
+import com.powsybl.iidm.criteria.AtLeastOneCountryCriterion;
+import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
+import com.powsybl.iidm.criteria.PropertyCriterion;
+import com.powsybl.iidm.criteria.RegexCriterion;
+import com.powsybl.iidm.criteria.SingleCountryCriterion;
+import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.ThreeNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.TwoCountriesCriterion;
+import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.VoltageInterval;
 import com.powsybl.iidm.network.Country;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,7 +40,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
     }
 
     @Override
-    public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         CriterionType type = null;
         VoltageInterval voltageInterval = null;
         VoltageInterval voltageInterval1 = null;
@@ -46,7 +56,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         PropertyCriterion.SideToCheck sideToCheck = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "type" -> type = CriterionType.valueOf(parser.nextTextValue());
+                case "type" -> type = CriterionType.valueOf(parser.nextStringValue());
                 case "voltageInterval" -> {
                     parser.nextToken();
                     voltageInterval = JsonUtil.readValue(deserializationContext, parser,
@@ -79,14 +89,14 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     parser.nextToken();
                     countries2 = JsonUtil.readList(deserializationContext, parser, String.class);
                 }
-                case "propertyKey" -> propertyKey = parser.nextTextValue();
-                case "regex" -> regex = parser.nextTextValue();
+                case "propertyKey" -> propertyKey = parser.nextStringValue();
+                case "regex" -> regex = parser.nextStringValue();
                 case "propertyValue" -> {
                     parser.nextToken();
                     propertyValues = JsonUtil.readList(deserializationContext, parser, String.class);
                 }
-                case "equipmentToCheck" -> equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
-                case "sideToCheck" -> sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
+                case "equipmentToCheck" -> equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextStringValue());
+                case "sideToCheck" -> sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextStringValue());
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
