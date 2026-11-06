@@ -41,7 +41,7 @@ public final class ReactiveCapabilityShapeImpl extends AbstractPropertiesHolder 
      */
     @Override
     public double getMinQ(final double p, final double u) {
-        return polyhedron.getMinQ(p, u);
+        return polyhedron.getAnalyticMinQ(p, u);
     }
 
     /**
@@ -52,7 +52,7 @@ public final class ReactiveCapabilityShapeImpl extends AbstractPropertiesHolder 
      */
     @Override
     public double getMaxQ(final double p, final double u) {
-        return polyhedron.getMaxQ(p, u);
+        return polyhedron.getAnalyticMaxQ(p, u);
     }
 
     /**

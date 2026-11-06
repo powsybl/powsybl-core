@@ -201,6 +201,32 @@ public final class ReactiveCapabilityShapePolyhedron {
         }
     }
 
+    public double getAnalyticMinQ(double p, double u) {
+        double computedMinQ = -Double.MAX_VALUE;
+        ReactiveCapabilityShapePlane.ReactiveCapabilityShapeBound bound;
+        for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
+            if ((bound = plane.getBoundQ(p, u)) != null) {
+                if (bound.isMin() && bound.qBound() > computedMinQ) {
+                    computedMinQ = bound.qBound();
+                }
+            }
+        }
+        return computedMinQ;
+    }
+
+    public double getAnalyticMaxQ(double p, double u) {
+        double computedMaxQ = Double.MAX_VALUE;
+        ReactiveCapabilityShapePlane.ReactiveCapabilityShapeBound bound;
+        for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
+            if ((bound = plane.getBoundQ(p, u)) != null) {
+                if (!bound.isMin() && bound.qBound() < computedMaxQ) {
+                    computedMaxQ = bound.qBound();
+                }
+            }
+        }
+        return computedMaxQ;
+    }
+
     /**
      * Utility method using a linear program solver to compute minimal or maximal possible values for reactive power Q
      * @param p The fixed active power in kW

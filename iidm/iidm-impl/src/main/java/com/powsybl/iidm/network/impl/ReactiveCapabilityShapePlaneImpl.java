@@ -184,4 +184,15 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
     public double getGamma() {
         return gamma;
     }
+
+    @Override
+    public ReactiveCapabilityShapeBound getBoundQ(double p, double u) {
+        if (delta > 0) {
+            return new ReactiveCapabilityShapeBound((gamma - alpha * u - beta * p) / delta, isGreaterOrEqual());
+        } else if (delta < 0) {
+            return new ReactiveCapabilityShapeBound((gamma - alpha * u - beta * p) / delta, isLessOrEqual());
+        } else {
+            return null;
+        }
+    }
 }
