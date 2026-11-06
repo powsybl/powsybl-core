@@ -84,7 +84,7 @@ public class SwitchKindsBetweenBusbarSectionsTraverser implements Terminal.Topol
         return rightSwitchesBetweenBusbar;
     }
 
-    static SwitchKind getSwitchKind(List<Switch> switchList) {
+    public static SwitchKind getSwitchKind(List<Switch> switchList) {
         if (switchList == null || switchList.isEmpty()) {
             return null;
         }
