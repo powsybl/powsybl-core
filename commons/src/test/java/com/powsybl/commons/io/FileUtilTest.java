@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -68,6 +69,26 @@ class FileUtilTest {
         assertTrue(Files.exists(workingDir));
         assertTrue(Files.exists(workingDir.resolve("validFile1")));
         assertTrue(Files.exists(workingDir.resolve("validFile2")));
+        assertNoStagingDir(workingDir);
+    }
+
+    @Test
+    void testUnzipTooManyEntries() throws Exception {
+        Path workingDir = fsFoo.getPath("/tmp/workingDir");
+        Files.createDirectories(workingDir);
+
+        Path zipPath = workingDir.resolve("tooManyEntries.zip");
+        try (ZipOutputStream os = new ZipOutputStream(Files.newOutputStream(zipPath))) {
+            for (int i = 0; i <= 10000; i++) {
+                os.putNextEntry(new ZipEntry("file" + i));
+                os.closeEntry();
+            }
+        }
+
+        IOException exception = assertThrows(IOException.class, () -> FileUtil.unzipArchive(workingDir, zipPath));
+        assertEquals("Max entries to read exceeded", exception.getMessage());
+        assertFalse(Files.exists(workingDir.resolve("file0")));
+        assertNoStagingDir(workingDir);
     }
 
     @ParameterizedTest
@@ -93,5 +114,12 @@ class FileUtilTest {
         assertFalse(Files.exists(workingDir.resolve("validFile1")));
         assertFalse(Files.exists(workingDir.resolve(invalidFile)));
         assertFalse(Files.exists(workingDir.resolve("validFile2")));
+        assertNoStagingDir(workingDir);
+    }
+
+    private static void assertNoStagingDir(Path workingDir) throws IOException {
+        try (Stream<Path> files = Files.list(workingDir)) {
+            assertTrue(files.noneMatch(f -> f.getFileName().toString().startsWith(".unzip-")));
+        }
     }
 }
