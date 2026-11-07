@@ -31,6 +31,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteris
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteristic.LoadResponseCharacteristicEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEndEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesRegulatingControl;
+import com.powsybl.cgmes.conversion.export.elements.CgmesRegulatingControl.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.NonlinearShuntCompensatorPointEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesShuntCompensator.ShuntCompensatorEq;
@@ -554,7 +556,14 @@ public final class EquipmentExport {
             String regulatingTerminalId = getTerminalId(regulatingTerminal, context);
             String mode = getRegulatingControlMode(regulationHolder.getVoltageRegulation());
             if (!regulatingControlsWritten.contains(regulatingControlId)) {
-                RegulatingControlEq.writeRegulatingControlEq(connectable, regulatingTerminalId, regulatingControlId, mode, writer, context);
+                String regulatingControlName = "RC_" + connectable.getNameOrId();
+                RegulatingControlEq regulatingControl = new RegulatingControlEq(
+                    regulatingControlId,
+                    regulatingControlName,
+                    regulatingTerminalId,
+                    mode
+                );
+                CgmesRegulatingControl.writeEq(regulatingControl, writer, context);
                 regulatingControlsWritten.add(regulatingControlId);
             }
         }
@@ -1124,7 +1133,7 @@ public final class EquipmentExport {
             if (CgmesExportUtil.hasTapChangerControlCapability(ptc)) {
                 tapChangerControlId = getTapChangerControlId(eq, PHASE_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
-                    String mode = RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
+                    String mode = CgmesNames.REGULATING_CONTROL_ACTIVE_POWER;
                     String controlName = twtName + "_PTC_RC";
                     String terminalId = getTapChangerRegulatingTerminalId(eq, ptc.getRegulationTerminal(), endNumber, context);
                     if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER && !Double.isNaN(ptc.getRegulationValue())) {
@@ -1236,7 +1245,7 @@ public final class EquipmentExport {
                 tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String tccMode = getRegulatingControlMode(rtc.getVoltageRegulation());
-                    if (tccMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
+                    if (tccMode.equals(CgmesNames.REGULATING_CONTROL_REACTIVE_POWER)) {
                         controlMode = "reactive";
                     }
                     TapChangerControlEq tapChangerControl = new TapChangerControlEq(tapChangerControlId, controlName, tccMode, terminalId);
