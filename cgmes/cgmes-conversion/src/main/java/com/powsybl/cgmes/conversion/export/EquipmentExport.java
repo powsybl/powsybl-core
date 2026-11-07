@@ -26,6 +26,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesGeneratingUnit.Generati
 import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteristic;
+import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteristic.LoadResponseCharacteristicEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEndEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesSeriesCompensator.SeriesCompensatorEq;
@@ -435,41 +437,46 @@ public final class EquipmentExport {
         if (optionalLoadModel.isEmpty()) {
             return null;
         }
+        String loadResponseId = context.getNamingStrategy().getCgmesId(refTyped(load), LOAD_RESPONSE_CHARACTERISTICS);
+        String loadResponseName = "LRC_" + load.getNameOrId();
         if (optionalLoadModel.get().getType() == LoadModelType.EXPONENTIAL) {
             ExponentialLoadModel exponentialLoadModel = (ExponentialLoadModel) optionalLoadModel.get();
             boolean exponentModel = exponentialLoadModel.getNp() != 0 || exponentialLoadModel.getNq() != 0;
-            return writeLoadResponseCharacteristicModel(load, exponentModel,
-                exponentialLoadModel.getNp(), exponentialLoadModel.getNq(),
-                0.0, 0.0,
-                0.0, 0.0,
-                0.0, 0.0);
+            LoadResponseCharacteristicEq loadResponseCharacteristic = new LoadResponseCharacteristicEq(
+                loadResponseId,
+                loadResponseName,
+                exponentModel,
+                exponentialLoadModel.getNp(),
+                exponentialLoadModel.getNq(),
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            );
+            CgmesLoadResponseCharacteristic.writeEq(loadResponseCharacteristic, writer, context);
+            return loadResponseId;
         } else if (optionalLoadModel.get().getType() == LoadModelType.ZIP) {
             ZipLoadModel zipLoadModel = (ZipLoadModel) optionalLoadModel.get();
-            return writeLoadResponseCharacteristicModel(load, false,
-                0.0, 0.0,
-                zipLoadModel.getC0p(), zipLoadModel.getC0q(),
-                zipLoadModel.getC1p(), zipLoadModel.getC1q(),
-                zipLoadModel.getC2p(), zipLoadModel.getC2q());
+            LoadResponseCharacteristicEq loadResponseCharacteristic = new LoadResponseCharacteristicEq(
+                loadResponseId,
+                loadResponseName,
+                false,
+                0.0,
+                0.0,
+                zipLoadModel.getC0p(),
+                zipLoadModel.getC0q(),
+                zipLoadModel.getC1p(),
+                zipLoadModel.getC1q(),
+                zipLoadModel.getC2p(),
+                zipLoadModel.getC2q()
+            );
+            CgmesLoadResponseCharacteristic.writeEq(loadResponseCharacteristic, writer, context);
+            return loadResponseId;
         } else {
             return null;
         }
-    }
-
-    private String writeLoadResponseCharacteristicModel(Load load, boolean exponentModel,
-                                                               double pVoltageExponent, double qVoltageExponent,
-                                                               double pConstantPower, double qConstantPower,
-                                                               double pConstantCurrent, double qConstantCurrent,
-                                                               double pConstantImpedance, double qConstantImpedance) throws XMLStreamException {
-        String loadResponseId = context.getNamingStrategy().getCgmesId(refTyped(load), LOAD_RESPONSE_CHARACTERISTICS);
-        String loadResponseName = "LRC_" + load.getNameOrId();
-
-        LoadResponseCharacteristicEq.write(loadResponseId, loadResponseName,
-                exponentModel, pVoltageExponent, qVoltageExponent,
-                pConstantPower, qConstantPower, pConstantCurrent,
-                qConstantCurrent, pConstantImpedance, qConstantImpedance,
-                writer, context);
-
-        return loadResponseId;
     }
 
     private void writeAsynchronousMachine(String id, String name) throws XMLStreamException {
