@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesReports;
-import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -573,8 +572,8 @@ public final class CgmesExportUtil {
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
         return switch (regulationMode) {
-            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-            case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> REGULATING_CONTROL_VOLTAGE;
+            case REACTIVE_POWER -> REGULATING_CONTROL_REACTIVE_POWER;
             case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
         };
     }

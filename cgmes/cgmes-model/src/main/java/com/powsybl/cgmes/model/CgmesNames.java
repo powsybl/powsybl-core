@@ -216,6 +216,9 @@ public final class CgmesNames {
     public static final String CONDUCTING_EQUIPMENT_BASE_VOLTAGE = CgmesNames.CONDUCTING_EQUIPMENT + "." + CgmesNames.BASE_VOLTAGE;
     public static final String EQUIPMENT_EQUIPMENT_CONTAINER = "Equipment.EquipmentContainer";
     public static final String REGULATING_COND_EQ_REGULATING_CONTROL = "RegulatingCondEq." + REGULATING_CONTROL;
+    public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
+    public static final String REGULATING_CONTROL_REACTIVE_POWER = "RegulatingControlModeKind.reactivePower";
+    public static final String REGULATING_CONTROL_ACTIVE_POWER = "RegulatingControlModeKind.activePower";
 
     private CgmesNames() {
     }
