@@ -28,6 +28,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.LoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadArea.SubLoadAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteristic;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteristic.LoadResponseCharacteristicEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesLoadingLimit;
+import com.powsybl.cgmes.conversion.export.elements.CgmesLoadingLimit.LoadingLimitEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEndEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesRegulatingControl;
@@ -77,7 +79,6 @@ import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
-import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -1149,7 +1150,15 @@ public final class EquipmentExport {
                         String className = "CurrentLimit";
                         String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), PATL, OPERATIONAL_LIMIT_VALUE);
                         String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(network));
-                        LoadingLimitEq.write(operationalLimitId, className, "PATL", ptc.getRegulationValue(), operationalLimitTypeId, operationalLimitSetId, writer, context);
+                        LoadingLimitEq loadingLimit = new LoadingLimitEq(
+                            className,
+                            operationalLimitId,
+                            "PATL",
+                            ptc.getRegulationValue(),
+                            operationalLimitTypeId,
+                            operationalLimitSetId
+                        );
+                        CgmesLoadingLimit.writeEq(loadingLimit, writer, context);
 
                         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
                             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, writer, context);
@@ -1606,8 +1615,15 @@ public final class EquipmentExport {
         // Write the permanent limit
         String className = loadingLimitClassName(limits);
         String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), PATL, OPERATIONAL_LIMIT_VALUE);
-        LoadingLimitEq.write(operationalLimitId, className, "PATL", limits.getPermanentLimit(), operationalLimitTypeId,
-            operationalLimitSetId, writer, context);
+        LoadingLimitEq loadingLimit = new LoadingLimitEq(
+            className,
+            operationalLimitId,
+            "PATL",
+            limits.getPermanentLimit(),
+            operationalLimitTypeId,
+            operationalLimitSetId
+        );
+        CgmesLoadingLimit.writeEq(loadingLimit, writer, context);
 
         if (!limits.getTemporaryLimits().isEmpty()) {
             for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
@@ -1625,7 +1641,15 @@ public final class EquipmentExport {
                 String temporaryLimitName = temporaryLimit.getName().isEmpty() ?
                     "TATL " + temporaryLimit.getAcceptableDuration() : // If the temporary limit name is empty, write TATL and the acceptable duration
                     temporaryLimit.getName();
-                LoadingLimitEq.write(operationalLimitId, className, temporaryLimitName, temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, writer, context);
+                LoadingLimitEq temporaryLoadingLimit = new LoadingLimitEq(
+                    className,
+                    operationalLimitId,
+                    temporaryLimitName,
+                    temporaryLimit.getValue(),
+                    operationalLimitTypeId,
+                    operationalLimitSetId
+                );
+                CgmesLoadingLimit.writeEq(temporaryLoadingLimit, writer, context);
             }
         }
     }

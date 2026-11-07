@@ -569,6 +569,17 @@ public final class CgmesExportUtil {
         return LINEAR_SHUNT_COMPENSATOR;
     }
 
+    public static String loadingLimitClassName(LoadingLimits loadingLimits) {
+        if (loadingLimits instanceof CurrentLimits) {
+            return CURRENT_LIMIT;
+        } else if (loadingLimits instanceof ActivePowerLimits) {
+            return ACTIVE_POWER_LIMIT;
+        } else if (loadingLimits instanceof ApparentPowerLimits) {
+            return APPARENT_POWER_LIMIT;
+        }
+        throw new PowsyblException("Unsupported loading limits " + loadingLimits.getClass().getSimpleName());
+    }
+
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
         return switch (regulationMode) {
