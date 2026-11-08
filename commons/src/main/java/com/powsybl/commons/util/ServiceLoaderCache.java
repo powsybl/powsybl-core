@@ -29,6 +29,8 @@ public class ServiceLoaderCache<S> {
 
     public synchronized List<S> getServices() {
         if (services == null) {
+            // The service type is unknown to this module: declare the 'uses' dependency at runtime (no-op on the classpath)
+            ServiceLoaderCache.class.getModule().addUses(serviceClass);
             services = Lists.newArrayList(ServiceLoader.load(serviceClass, ServiceLoaderCache.class.getClassLoader()));
         }
         return services;
