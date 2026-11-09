@@ -17,8 +17,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -346,12 +344,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
      * @return a new copied instance and with original's extensions found based-on json serializer.
      */
     public SecurityAnalysisParameters copy() {
-        byte[] bytes = writeInMemory();
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
-            return JsonSecurityAnalysisParameters.read(bais);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return JsonSecurityAnalysisParameters.read(new ByteArrayInputStream(writeInMemory()));
     }
 
     private byte[] writeInMemory() {

@@ -30,7 +30,11 @@ import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -355,6 +359,57 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         assertNotSame(dummyExtension, copiedExt);
         assertSame(parameters, dummyExtension.getExtendable());
         assertSame(copy, copiedExt.getExtendable());
+    }
+
+    @Test
+    void roundTripWithJsonSensitivityAnalysisParameters() throws IOException {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        roundTripTest(parameters, JsonSensitivityAnalysisParameters::write, JsonSensitivityAnalysisParameters::read,
+                "/SensitivityAnalysisParameters.json");
+    }
+
+    @Test
+    void writeExtensionWithJsonSensitivityAnalysisParameters() throws IOException {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        parameters.addExtension(DummyExtension.class, new DummyExtension());
+        writeTest(parameters, JsonSensitivityAnalysisParameters::write,
+                ComparisonUtils::assertTxtEquals, "/SensitivityAnalysisParametersWithExtension.json");
+    }
+
+    @Test
+    void writeToStream() throws IOException {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        Path file = tmpDir.resolve("parameters.json");
+        try (OutputStream os = Files.newOutputStream(file)) {
+            JsonSensitivityAnalysisParameters.write(parameters, os);
+        }
+        ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/SensitivityAnalysisParameters.json"), Files.newInputStream(file));
+    }
+
+    @Test
+    void writeToMissingDirectory() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        Path file = tmpDir.resolve("missing").resolve("parameters.json");
+        assertThrows(UncheckedIOException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, file));
+    }
+
+    @Test
+    void writeToFailingStream() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        OutputStream failingStream = new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException("write failure");
+            }
+        };
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, failingStream));
+        assertEquals("write failure", e.getCause().getMessage());
+    }
+
+    @Test
+    void writeNullPath() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        assertThrows(NullPointerException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, (Path) null));
     }
 
     @Test

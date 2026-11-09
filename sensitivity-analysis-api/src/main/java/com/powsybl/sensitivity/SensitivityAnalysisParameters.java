@@ -15,8 +15,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /**
@@ -191,12 +189,7 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
      * @return a new copied instance and with original's extensions found based-on json serializer.
      */
     public SensitivityAnalysisParameters copy() {
-        byte[] bytes = writeInMemory();
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
-            return JsonSensitivityAnalysisParameters.read(bais);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return JsonSensitivityAnalysisParameters.read(new ByteArrayInputStream(writeInMemory()));
     }
 
     private byte[] writeInMemory() {
