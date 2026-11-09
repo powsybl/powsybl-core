@@ -144,7 +144,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
                         new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values, true);
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues(SensitivityState.postContingency("NHV1_NHV2_2")).size());
 
@@ -212,7 +212,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
                         new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values, true);
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues(SensitivityState.postContingency("NHV1_NHV2_2")).size());
 
@@ -276,7 +276,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
                         new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "")))));
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values, true);
         assertEquals(4, result.getValues().size());
         assertEquals(1, result.getValues(SensitivityState.postContingency("NHV1_NHV2_2")).size());
 

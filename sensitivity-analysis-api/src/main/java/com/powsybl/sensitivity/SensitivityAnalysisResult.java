@@ -79,19 +79,6 @@ public class SensitivityAnalysisResult {
      * @param contingencyIds the list of contingency IDs that have been considered during the sensitivity analysis.
      * @param operatorStrategyIds the list of operator strategy IDs that have been considered during the sensitivity analysis.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
-     */
-    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityStateStatus> stateStatuses, List<String> contingencyIds,
-                                     List<String> operatorStrategyIds, List<SensitivityValue> values) {
-        this(factors, stateStatuses, contingencyIds, operatorStrategyIds, values, true);
-    }
-
-    /**
-     * Sensitivity analysis result
-     * @param factors the list of sensitivity factors that have been computed.
-     * @param stateStatuses the list of states and their associated computation status.
-     * @param contingencyIds the list of contingency IDs that have been considered during the sensitivity analysis.
-     * @param operatorStrategyIds the list of operator strategy IDs that have been considered during the sensitivity analysis.
-     * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      * @param computationComplete whether the sensitivity computation fully or partially completed
      */
     public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityStateStatus> stateStatuses, List<String> contingencyIds,
@@ -555,18 +542,6 @@ public class SensitivityAnalysisResult {
      */
     public double getBusVoltageFunctionReferenceValue(String functionId) {
         return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BUS_VOLTAGE);
-    }
-
-    /**
-     * Get the status associated to a state.
-     *
-     * @param state the considered state.
-     * @return the associated status.
-     * @deprecated Use {@link SensitivityAnalysisResult#getStateComponentStatuses(SensitivityState)} instead.
-     */
-    @Deprecated(since = "7.5.0")
-    public Status getStateStatus(SensitivityState state) {
-        return checkAndGetStateStatus(state).getStatus();
     }
 
     /**
