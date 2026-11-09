@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.commons.json.JsonUtil.compareVersions;
 import static com.powsybl.sensitivity.SensitivityAnalysisResult.CONTEXT_NAME;
 
 /**
@@ -87,7 +88,7 @@ public class SensitivityStateStatus {
     @Deprecated(since = "7.5.0")
     public SensitivityStateStatus(SensitivityState state, SensitivityAnalysisResult.Status status) {
         this(state, List.of(new ComponentStatus(
-                -1, -1, toLoadFlowStatus(status), "")));
+                0, 0, toLoadFlowStatus(status), "")));
     }
 
     private static LoadFlowResult.ComponentResult.Status toLoadFlowStatus(SensitivityAnalysisResult.Status status) {
@@ -153,7 +154,7 @@ public class SensitivityStateStatus {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context, version == null ? SensitivityAnalysisResult.VERSION : version);
                 } else if (token == JsonToken.END_OBJECT) {
-                    if (version != null && JsonUtil.compareVersions(version, "1.1") <= 0) {
+                    if (version != null && compareVersions(version, "1.2") <= 0) {
                         return new SensitivityStateStatus(
                                 new SensitivityState(context.contingencyId, context.operatorStrategyId), context.status);
                     } else {
@@ -187,12 +188,12 @@ public class SensitivityStateStatus {
                 context.status = SensitivityAnalysisResult.Status.valueOf(parser.getValueAsString());
                 break;
             case "status":
-                JsonUtil.assertEqualToReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
+                JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.2");
                 parser.nextToken();
                 context.status = SensitivityAnalysisResult.Status.valueOf(parser.getValueAsString());
                 break;
             case COMPONENT_STATUSES:
-                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + COMPONENT_STATUSES, version, "1.2");
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + COMPONENT_STATUSES, version, "1.3");
                 context.componentsLoadFlowStatusList = parseComponentLoadFlowStatuses(parser);
                 break;
             default:
