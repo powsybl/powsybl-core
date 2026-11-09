@@ -67,7 +67,7 @@ class GeneratorConverter extends AbstractConverter {
                 double qMin = capabilityCurvePoint.qMin;
                 double qMax = capabilityCurvePoint.qMax;
                 if (qMax < qMin) {
-                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swap values", generatorId, qMin, qMax);
+                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swapping values", generatorId, qMin, qMax);
                     qMin = capabilityCurvePoint.qMax;
                     qMax = capabilityCurvePoint.qMin;
                 }

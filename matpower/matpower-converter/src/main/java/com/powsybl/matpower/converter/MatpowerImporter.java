@@ -217,14 +217,14 @@ public class MatpowerImporter implements Importer {
                 double qc1Min = mGen.getQc1Min();
                 double qc1Max = mGen.getQc1Max();
                 if (qc1Max < qc1Min) {
-                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swap values", genId, qc1Min, qc1Max);
+                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swapping values", genId, qc1Min, qc1Max);
                     qc1Min = mGen.getQc1Max();
                     qc1Max = mGen.getQc1Min();
                 }
                 double qc2Min = mGen.getQc2Min();
                 double qc2Max = mGen.getQc2Max();
                 if (qc2Max < qc2Min) {
-                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swap values", genId, qc2Min, qc2Max);
+                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swapping values", genId, qc2Min, qc2Max);
                     qc2Min = mGen.getQc2Max();
                     qc2Max = mGen.getQc2Min();
                 }
