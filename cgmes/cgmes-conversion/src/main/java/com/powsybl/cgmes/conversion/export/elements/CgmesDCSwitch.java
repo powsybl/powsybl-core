@@ -5,27 +5,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import static com.powsybl.cgmes.model.CgmesNames.IDENTIFIED_OBJECT_NAME;
+
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
-public final class DCSwitchEq {
+public final class CgmesDCSwitch {
 
-    public static void write(String className, String id, String name, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartId(className, id, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
-        writer.writeEndElement();
+    private CgmesDCSwitch() {
     }
 
-    private DCSwitchEq() {
+    public static void writeEq(DCSwitchEq dcSwitch, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartId(dcSwitch.className, dcSwitch.rdfId, true, writer, context);
+        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcSwitch.name), writer, context);
+        CgmesExportUtil.writeEnd(writer);
     }
+
+    public record DCSwitchEq(
+        String className,
+        String rdfId,
+        String name
+    ) {
+    }
+
 }

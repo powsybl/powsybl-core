@@ -22,6 +22,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesDCConverterUnit.DCConve
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCGround.DCGroundEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCLineSegment.DCLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCNode.DCNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesDCSwitch.DCSwitchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
@@ -1941,7 +1942,8 @@ public final class EquipmentExport {
             for (DcSwitch dcSwitch : network.getDcSwitches()) {
                 String className = dcSwitch.getKind() == DcSwitchKind.BREAKER ? "DCBreaker" : "DCDisconnector";
                 String dcSwitchId = context.getNamingStrategy().getCgmesId(dcSwitch);
-                DCSwitchEq.write(className, dcSwitchId, dcSwitch.getNameOrId(), writer, context);
+                DCSwitchEq dcSwitchEq = new DCSwitchEq(className, dcSwitchId, dcSwitch.getNameOrId());
+                CgmesDCSwitch.writeEq(dcSwitchEq, writer, context);
 
                 writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1);
                 writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2);
