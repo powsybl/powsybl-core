@@ -19,6 +19,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.Connec
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurve.CurveEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurveData.CurveDataEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCConverterUnit.DCConverterUnitEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesDCGround.DCGroundEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
@@ -1831,7 +1832,8 @@ public final class EquipmentExport {
     }
 
     private void writeDCGround(String id, String dcGroundName, double resistance) throws XMLStreamException {
-        DCGroundEq.write(id, dcGroundName, resistance, writer, context);
+        DCGroundEq dcGround = new DCGroundEq(id, dcGroundName, resistance);
+        CgmesDCGround.writeEq(dcGround, writer, context);
     }
 
     private void writeDcTerminal(DcTerminal dcTerminal) throws XMLStreamException {
@@ -1946,7 +1948,8 @@ public final class EquipmentExport {
     private void writeDcGrounds() throws XMLStreamException {
         for (DcGround dcGround : network.getDcGrounds()) {
             String dcGroundId = context.getNamingStrategy().getCgmesId(dcGround);
-            DCGroundEq.write(dcGroundId, dcGround.getNameOrId(), dcGround.getR(), writer, context);
+            DCGroundEq dcGroundEq = new DCGroundEq(dcGroundId, dcGround.getNameOrId(), dcGround.getR());
+            CgmesDCGround.writeEq(dcGroundEq, writer, context);
 
             writeDcTerminal(dcGround.getDcTerminal());
         }
