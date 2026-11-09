@@ -254,7 +254,7 @@ public class UcteImporter implements Importer {
     }
 
     private static EnergySource getNodeEnergySource(final UcteNode ucteNode) {
-        return switch (ucteNode.getPowerPlantType()) {
+        return ucteNode.getPowerPlantType() == null ? null : switch (ucteNode.getPowerPlantType()) {
             case C, G, L, O -> EnergySource.THERMAL;
             case H -> EnergySource.HYDRO;
             case N -> EnergySource.NUCLEAR;
@@ -1064,7 +1064,7 @@ public class UcteImporter implements Importer {
                         .add());
     }
 
-    static List<UcteImportPostProcessor> findPostProcessors(List<String> names, List<UcteImportPostProcessor> postProcessors) {
+    private static List<UcteImportPostProcessor> findPostProcessors(List<String> names, List<UcteImportPostProcessor> postProcessors) {
         return names.stream()
                 .flatMap(name -> postProcessors.stream().filter(pp -> names.contains(pp.getName())))
                 .toList();

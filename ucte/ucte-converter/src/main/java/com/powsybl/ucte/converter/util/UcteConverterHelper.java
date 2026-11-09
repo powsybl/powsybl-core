@@ -125,10 +125,20 @@ public final class UcteConverterHelper {
                 theta);
     }
 
+    /**
+     * Get a number's value or 0 if no value
+     * @param value a Double that can be null or NaN
+     * @return 0 if null or NaN, else same value as input
+     */
     public static double getOrZero(final Double value) {
         return Double.isNaN(value) ? 0 : value;
     }
 
+    /**
+     * Test whether a node is an X-Node or not
+     * @param ucteNodeCode the node code to test
+     * @return true if it is an X-Node
+     */
     public static boolean isAnXNode(final UcteNodeCode ucteNodeCode) {
         return ucteNodeCode.getUcteCountryCode() == UcteCountryCode.XX;
     }

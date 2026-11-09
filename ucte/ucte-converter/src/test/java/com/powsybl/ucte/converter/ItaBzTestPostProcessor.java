@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
@@ -12,8 +19,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+/**
+ * @author Antoine Limouzin {@literal <antoine.limouzin at rte.com>}
+ */
 @AutoService(UcteImportPostProcessor.class)
-public class ItaBzTestPostProcessor implements UcteImportPostProcessor {
+class ItaBzTestPostProcessor implements UcteImportPostProcessor {
 
     private static final String COMMENTS_REGEX = "(?<zone>[A-Z_.]*) (?<count>\\d*) Nodes First Node: (?<first>[A-Z1-9_.]*), Last Node: (?<last>[A-Z1-9_.]*)";
     private static final Pattern BZ_INFO_REGEX = Pattern.compile(COMMENTS_REGEX);
