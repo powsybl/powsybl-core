@@ -8,9 +8,11 @@
 package com.powsybl.commons.config;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A {@link ModuleConfigRepository} backed by a list of modules repositories.
@@ -45,5 +47,14 @@ public class StackedModuleConfigRepository implements ModuleConfigRepository {
             }
         }
         return Optional.ofNullable(stackedConfig);
+    }
+
+    @Override
+    public Set<String> getModuleNames() {
+        Set<String> names = new LinkedHashSet<>();
+        for (ModuleConfigRepository repository : repositories) {
+            names.addAll(repository.getModuleNames());
+        }
+        return names;
     }
 }

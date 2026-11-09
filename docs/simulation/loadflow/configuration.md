@@ -33,19 +33,6 @@ Each implementation is identified by its name, that should be unique in the clas
 - use "OpenLoadFlow" to use PowSyBl OpenLoadFlow
 - use "DynaFlow" to use DynaFlow implementation
 
-### default-parameters-loader
-
-To define a set of load flow parameters (generic or specific) that should be set for your application before any configuration file is read,
-you can use an implementation of `LoadFlowDefaultParametersLoader`.
-It uses a JSON parameters file in your java classpath to override default values with whenever a new `LoadFlowParameters` object is created.
-
-If multiple `LoadFlowDefaultParametersLoader` classes are present in your classpath, you should specify which one you want to use using the `default-parameters-loader` parameter of module `load-flow`:
-
-```yaml
-load-flow:
-  default-parameters-loader: "MyDefaultParameters"
-```
-
 ## Parameters
 
 You may configure some generic parameters for all load flow implementations:
