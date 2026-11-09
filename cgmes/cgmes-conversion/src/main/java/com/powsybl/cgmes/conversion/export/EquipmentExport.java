@@ -20,6 +20,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesCurve.CurveEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurveData.CurveDataEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCConverterUnit.DCConverterUnitEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCGround.DCGroundEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesDCLineSegment.DCLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
@@ -1754,7 +1755,8 @@ public final class EquipmentExport {
             String acdcConverterDcTerminal2G = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL2);
             writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3);
 
-            DCLineSegmentEq.write(lineId, line.getNameOrId(), line.getR(), writer, context);
+            DCLineSegmentEq dcLineSegment = new DCLineSegmentEq(lineId, line.getNameOrId(), line.getR());
+            CgmesDCLineSegment.writeEq(dcLineSegment, writer, context);
             writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, capabilityCurveId1);
             writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, capabilityCurveId2);
         }
@@ -1958,7 +1960,8 @@ public final class EquipmentExport {
     private void writeDcLineSegments() throws XMLStreamException {
         for (DcLine dcLine : network.getDcLines()) {
             String dcLineId = context.getNamingStrategy().getCgmesId(dcLine);
-            DCLineSegmentEq.write(dcLineId, dcLine.getNameOrId(), dcLine.getR(), writer, context);
+            DCLineSegmentEq dcLineSegment = new DCLineSegmentEq(dcLineId, dcLine.getNameOrId(), dcLine.getR());
+            CgmesDCLineSegment.writeEq(dcLineSegment, writer, context);
 
             writeDcTerminal(dcLine.getDcTerminal1());
             writeDcTerminal(dcLine.getDcTerminal2());
