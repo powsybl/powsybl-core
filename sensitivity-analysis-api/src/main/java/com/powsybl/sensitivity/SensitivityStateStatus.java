@@ -61,15 +61,6 @@ public class SensitivityStateStatus {
         this.componentsLoadFlowStatusList = ImmutableList.copyOf(Objects.requireNonNull(statusList));
     }
 
-    /**
-     * @deprecated Use {@link SensitivityStateStatus} instead.
-     */
-    @Deprecated(since = "7.5.0")
-    public SensitivityStateStatus(SensitivityState state, SensitivityAnalysisResult.Status status) {
-        this(state, List.of(new ComponentStatus(
-                0, 0, toLoadFlowStatus(status), "")));
-    }
-
     private static LoadFlowResult.ComponentResult.Status toLoadFlowStatus(SensitivityAnalysisResult.Status status) {
         switch (status) {
             case SUCCESS -> {
@@ -135,7 +126,9 @@ public class SensitivityStateStatus {
                 } else if (token == JsonToken.END_OBJECT) {
                     if (version != null && compareVersions(version, "1.2") <= 0) {
                         return new SensitivityStateStatus(
-                                new SensitivityState(context.contingencyId, context.operatorStrategyId), context.status);
+                                new SensitivityState(context.contingencyId, context.operatorStrategyId), List.of(
+                                        new ComponentStatus(0, 0,
+                                                toLoadFlowStatus(context.status), "")));
                     } else {
                         return new SensitivityStateStatus(
                                 new SensitivityState(context.contingencyId, context.operatorStrategyId),
