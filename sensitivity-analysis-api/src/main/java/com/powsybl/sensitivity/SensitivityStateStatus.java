@@ -11,6 +11,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -74,12 +75,12 @@ public class SensitivityStateStatus {
     }
 
     public List<ComponentStatus> getComponentsLoadFlowStatusList() {
-        return componentsLoadFlowStatusList;
+        return ImmutableList.copyOf(componentsLoadFlowStatusList);
     }
 
     public SensitivityStateStatus(SensitivityState state, List<ComponentStatus> statusList) {
         this.state = Objects.requireNonNull(state);
-        this.componentsLoadFlowStatusList = new ArrayList<>(statusList);
+        this.componentsLoadFlowStatusList = new ArrayList<>(Objects.requireNonNull(statusList));
     }
 
     /**
@@ -215,21 +216,21 @@ public class SensitivityStateStatus {
     }
 
     private static ComponentStatus parseSingleComponentStatus(JsonParser parser) throws IOException {
-        String statusStr = null;
-        String descStr = null;
+        LoadFlowResult.ComponentResult.Status status = LoadFlowResult.ComponentResult.Status.CONVERGED;
+        String descStr = "";
         int connectedComponentNum = 0;
         int synchronousComponentNum = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
-                case LOAD_FLOW_STATUS -> statusStr = parser.getText();
+                case LOAD_FLOW_STATUS -> status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getText());
                 case LOAD_FLOW_STATUS_TEXT -> descStr = parser.getText();
                 case NUM_CC -> connectedComponentNum = parser.getIntValue();
                 case NUM_SC -> synchronousComponentNum = parser.getIntValue();
-                default -> parser.skipChildren();
+                default -> throw new PowsyblException("Unexpected field: " + fieldName);
             }
         }
-        return new ComponentStatus(connectedComponentNum, synchronousComponentNum, LoadFlowResult.ComponentResult.Status.valueOf(statusStr), descStr);
+        return new ComponentStatus(connectedComponentNum, synchronousComponentNum, status, descStr);
     }
 }
