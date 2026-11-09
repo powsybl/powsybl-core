@@ -30,6 +30,8 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteris
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadResponseCharacteristic.LoadResponseCharacteristicEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadingLimit;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadingLimit.LoadingLimitEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesOperationalLimitSet;
+import com.powsybl.cgmes.conversion.export.elements.CgmesOperationalLimitSet.OperationalLimitSetEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEndEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesRegulatingControl;
@@ -1145,7 +1147,12 @@ public final class EquipmentExport {
                         // Add a CurrentLimit with the PhaseTapChanger current limiter regulation value to the regulated terminal.
                         String operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(PhaseTapChanger.RegulationMode.CURRENT_LIMITER.name()), OPERATIONAL_LIMIT_SET);
                         String operationalLimitSetName = twtName + "_PTC_" + PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
-                        OperationalLimitSetEq.write(operationalLimitSetId, operationalLimitSetName, terminalId, writer, context);
+                        OperationalLimitSetEq operationalLimitSet = new OperationalLimitSetEq(
+                            operationalLimitSetId,
+                            operationalLimitSetName,
+                            terminalId
+                        );
+                        CgmesOperationalLimitSet.writeEq(operationalLimitSet, writer, context);
 
                         String className = "CurrentLimit";
                         String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), PATL, OPERATIONAL_LIMIT_VALUE);
@@ -1582,7 +1589,12 @@ public final class EquipmentExport {
         } else {
             operationalLimitSetName = limitsGroup.getId();
         }
-        OperationalLimitSetEq.write(operationalLimitSetId, operationalLimitSetName, terminalId, writer, context);
+        OperationalLimitSetEq operationalLimitSet = new OperationalLimitSetEq(
+            operationalLimitSetId,
+            operationalLimitSetName,
+            terminalId
+        );
+        CgmesOperationalLimitSet.writeEq(operationalLimitSet, writer, context);
 
         // Write the OperationalLimit objects
         Optional<ActivePowerLimits> activePowerLimits = limitsGroup.getActivePowerLimits();
