@@ -18,6 +18,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     private Map<Class<?>, Extension<T>> extensions = null;
 
     private Map<String, Extension<T>> extensionsByName = null;
+    private long creationOrder = 0;
 
     @Override
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
@@ -29,6 +30,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         initiateExtensions();
         extensions.put(type, extension);
         extensionsByName.put(extension.getName(), extension);
+        ((AbstractExtension<?>) extension).setCreationOrder(creationOrder++);
     }
 
     @Override
