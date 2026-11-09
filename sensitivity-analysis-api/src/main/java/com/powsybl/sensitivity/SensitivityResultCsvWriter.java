@@ -32,7 +32,7 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final List<OperatorStrategy> operatorStrategies;
 
-    private boolean computationComplete = true;
+    private boolean computationComplete = false;
 
     public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterStatus,
                                       List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
