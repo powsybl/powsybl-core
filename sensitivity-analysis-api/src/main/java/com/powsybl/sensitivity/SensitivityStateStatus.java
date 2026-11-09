@@ -75,12 +75,12 @@ public class SensitivityStateStatus {
     }
 
     public List<ComponentStatus> getComponentsLoadFlowStatusList() {
-        return ImmutableList.copyOf(componentsLoadFlowStatusList);
+        return componentsLoadFlowStatusList;
     }
 
     public SensitivityStateStatus(SensitivityState state, List<ComponentStatus> statusList) {
         this.state = Objects.requireNonNull(state);
-        this.componentsLoadFlowStatusList = new ArrayList<>(Objects.requireNonNull(statusList));
+        this.componentsLoadFlowStatusList = ImmutableList.copyOf(Objects.requireNonNull(statusList));
     }
 
     /**

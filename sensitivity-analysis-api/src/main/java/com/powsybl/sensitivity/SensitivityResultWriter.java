@@ -38,7 +38,7 @@ public interface SensitivityResultWriter {
      * Called for every state and every connectedComponentNum/synchronousComponentNum where the state has an impact.
      * For pre-contingency reporting, both {@code contingencyIndex} and
      * {@code operatorStrategyIndex} are -1.
-     * For contingencies that are never run, called once in the end with NO_IMPACT
+     * For contingencies that are never run, called once in the end with NO_CALCULATION
      * and connectedComponentNum and synchronousComponentNum set to -1.
      *
      * @param contingencyIndex        the contingency index, -1 for pre-contingency state

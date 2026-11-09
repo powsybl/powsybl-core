@@ -40,7 +40,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         List<String> contingencyIds = Collections.emptyList();
         List<String> operatorStrategyIds = Collections.emptyList();
         List<SensitivityFactor> factors = Collections.emptyList();
-        Boolean computationComplete = true;
+        boolean computationComplete = true;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
@@ -86,7 +86,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                 case "computationComplete":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: computationComplete", version, "1.3");
                     parser.nextToken();
-                    computationComplete = JsonUtil.readValue(deserializationContext, parser, Boolean.class);
+                    computationComplete = parser.getBooleanValue();
                     break;
 
                 default:
