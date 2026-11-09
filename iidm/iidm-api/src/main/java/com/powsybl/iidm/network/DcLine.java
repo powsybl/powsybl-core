@@ -92,7 +92,7 @@ public interface DcLine extends DcConnectable<DcLine> {
     double getR();
 
     /**
-     * @param r the new DC Line series resistance in &#937;.
+     * @param r the new DC Line series resistance in &#937; must be positive.
      * @return self for method chaining
      */
     DcLine setR(double r);

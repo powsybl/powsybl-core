@@ -20,6 +20,17 @@
         <cim:SvPowerFlow.Terminal rdf:resource="#_T2W-Terminal2" />
     </cim:SvPowerFlow>
 
+    <cim:SvPowerFlow rdf:ID="_T2W-SYMMETRICAL-Terminal1-SvPowerFlow">
+        <cim:SvPowerFlow.p>101.0</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>-51.0</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_T2W-SYMMETRICAL-Terminal1" />
+    </cim:SvPowerFlow>
+    <cim:SvPowerFlow rdf:ID="_T2W-SYMMETRICAL-Terminal2-SvPowerFlow">
+        <cim:SvPowerFlow.p>-101.1</cim:SvPowerFlow.p>
+        <cim:SvPowerFlow.q>51.5</cim:SvPowerFlow.q>
+        <cim:SvPowerFlow.Terminal rdf:resource="#_T2W-SYMMETRICAL-Terminal2" />
+    </cim:SvPowerFlow>
+
     <cim:SvPowerFlow rdf:ID="_T3W-Terminal1-SvPowerFlow">
         <cim:SvPowerFlow.p>200.0</cim:SvPowerFlow.p>
         <cim:SvPowerFlow.q>50.0</cim:SvPowerFlow.q>
@@ -55,6 +66,10 @@
     <cim:SvTapStep rdf:ID="_T2W-PhaseTapChanger-svStep">
         <cim:SvTapStep.position>7</cim:SvTapStep.position>
         <cim:SvTapStep.TapChanger rdf:resource="#_T2W-PhaseTapChanger" />
+    </cim:SvTapStep>
+    <cim:SvTapStep rdf:ID="_T2W-SYMMETRICAL-PhaseTapChanger-svStep">
+        <cim:SvTapStep.position>12</cim:SvTapStep.position>
+        <cim:SvTapStep.TapChanger rdf:resource="#_T2W-SYMMETRICAL-PhaseTapChanger" />
     </cim:SvTapStep>
     <cim:SvTapStep rdf:ID="_T3W-Winding2-RatioTapChanger-svStep">
         <cim:SvTapStep.position>13</cim:SvTapStep.position>

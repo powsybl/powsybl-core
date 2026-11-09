@@ -24,6 +24,9 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<T>, A extends Id
 
     protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkSerializerContext context);
 
+    protected void addExtinctExtensions(T identifiable, NetworkSerializerContext context) {
+    }
+
     protected void writeSubElements(T identifiable, P parent, NetworkSerializerContext context) {
     }
 
@@ -38,6 +41,7 @@ abstract class AbstractIdentifiableSerDe<T extends Identifiable<T>, A extends Id
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> context.getWriter().writeBooleanAttribute("fictitious", identifiable.isFictitious(), false));
 
         writeRootElementAttributes(identifiable, parent, context);
+        addExtinctExtensions(identifiable, context);
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> AliasesSerDe.write(identifiable, getRootElementName(), context));
 

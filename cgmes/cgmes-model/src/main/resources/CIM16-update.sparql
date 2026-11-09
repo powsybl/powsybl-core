@@ -186,8 +186,8 @@ SELECT *
         SELECT DISTINCT ?PhaseTapChanger
         WHERE {
             {
-                ?PhaseTapChanger a ?phaseTapChangerType ;
-                VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
+                ?PhaseTapChanger a ?phaseTapChangerType .
+                VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerSymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
             }
             UNION
             {
@@ -288,7 +288,8 @@ SELECT *
     ?ExternalNetworkInjection  a cim:ExternalNetworkInjection ;
         cim:ExternalNetworkInjection.p ?p ;
         cim:ExternalNetworkInjection.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled ;
+        cim:ExternalNetworkInjection.referencePriority ?referencePriority
 }
 
 # query: asynchronousMachines

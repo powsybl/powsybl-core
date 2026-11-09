@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -68,8 +69,8 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .setMaxP(100)
             .setMinP(0)
             .setTargetP(100)
-            .setTargetV(400)
-            .setVoltageRegulatorOn(true)
+            .setLocalTargetV(400)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
     }
 
@@ -432,5 +433,42 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
                 .map(BusbarSection::getId)
                 .toList();
         assertTrue(busbarSectionIds.containsAll(List.of("VL1_1_LOAD_BREAKER_2_BREAKER", "VL1_2_LOAD_BREAKER_2_BREAKER", "VL1_3_LOAD_BREAKER_2_BREAKER")));
+    }
+
+    @Test
+    void testNamingStrategyWhenReplacingBreakerWithDisconnectors() {
+        Network network = createNetwork();
+        VoltageLevel vl2 = network.getSubstation("S1").newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(100.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        createBusbarSection(vl2, "VL2_BBS11", 0, 1, 1);
+        createBusbarSection(vl2, "VL2_BBS12", 1, 1, 2);
+        createBreaker(vl2, "VL2_B_BBS12_BBS13", 0, 1);
+
+        // add a new busbar between two created busbars. it will turn the existing breaker into a disconnector
+        CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
+                .withReferenceBusbarSectionId("VL2_BBS11")
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+                .withAllBusbars(true)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withLeftSwitchFictitious(false)
+                .withLeftSwitchOpen(false)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchFictitious(false)
+                .withRightSwitchOpen(false)
+                .withSwitchPrefixId("VL2")
+                .withBusbarSectionPrefixId("VL2")
+                .build();
+        modification1.apply(network, new NamingStrategyTest());
+        List<String> busbarSectionIds = network.getVoltageLevel("VL2")
+                .getNodeBreakerView()
+                .getBusbarSectionStream()
+                .map(BusbarSection::getId)
+                .toList();
+        assertEquals(3, busbarSectionIds.size());
+        // the Breaker was removed so new busbar is named with DISCONNECTOR and not with BREAKER
+        assertTrue(busbarSectionIds.containsAll(List.of("VL2_BBS11", "VL2_BBS12", "VL2_1_DISCONNECTOR_2_DISCONNECTOR")));
     }
 }

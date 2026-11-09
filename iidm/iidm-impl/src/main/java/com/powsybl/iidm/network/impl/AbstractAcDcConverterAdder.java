@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T>> extends AbstractIdentifiableAdder<T> {
+abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T>> extends AbstractConnectableAdder<T> {
 
     protected String dcNode1Id;
     protected boolean dcConnected1 = true;
@@ -179,7 +179,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
     }
 
-    private boolean hasTwoAcTerminals() {
+    public boolean hasTwoAcTerminals() {
         return bus2 != null || connectableBus2 != null || node2 != null;
     }
 
@@ -192,8 +192,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         dcConverter.addTerminal(terminal1);
         voltageLevel.getTopologyModel().attach(terminal1, false);
         if (pccTerminal == null) {
-            // default to use terminal1 as pccTerminal
-            dcConverter.setPccTerminal(terminal1);
+            dcConverter.setDefaultPccTerminal();
         }
         terminal2.ifPresent(terminal -> {
             dcConverter.addTerminal(terminal);

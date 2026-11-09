@@ -45,7 +45,7 @@ public class LineCommutatedConverterAdderImpl extends AbstractAcDcConverterAdder
         super.preCheck();
         ValidationUtil.checkPositivePowerFactor(this, powerFactor);
         ValidationUtil.checkLccReactiveModel(this, reactiveModel);
-        LineCommutatedConverterImpl dcCsConverter = new LineCommutatedConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
+        LineCommutatedConverterImpl dcCsConverter = new LineCommutatedConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(), isEquivalent(),
                 minP, maxP,
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,

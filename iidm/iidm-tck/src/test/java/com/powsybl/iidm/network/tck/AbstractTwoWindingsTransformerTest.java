@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.jupiter.api.Test;
 
@@ -56,6 +57,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                                                                     .setVoltageLevel2("vl2")
                                                                     .setConnectableBus1("busA")
                                                                     .setConnectableBus2("busB")
+                                                                    .setEquivalent(true)
                                                                 .add();
         assertEquals("twt", twoWindingsTransformer.getId());
         assertEquals(TWT_NAME, twoWindingsTransformer.getOptionalName().orElse(null));
@@ -69,6 +71,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(7.0, twoWindingsTransformer.getRatedS(), 0.0);
         assertEquals(IdentifiableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
         assertSame(substation, twoWindingsTransformer.getSubstation().orElse(null));
+        assertTrue(twoWindingsTransformer.isEquivalent());
 
         // setter getter
         double r = 0.5;
@@ -92,6 +95,8 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         double ratedS = 32.0;
         twoWindingsTransformer.setRatedS(ratedS);
         assertEquals(ratedS, twoWindingsTransformer.getRatedS(), 0.0);
+        twoWindingsTransformer.setEquivalent(false);
+        assertFalse(twoWindingsTransformer.isEquivalent());
 
         assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
         VoltageLevel vl1 = network.getVoltageLevel("vl1");
@@ -103,8 +108,9 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.ONE));
         assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
-        ratioTapChangerInLeg1.setTargetV(12).setTapPosition(2);
-        assertEquals(ratioTapChangerInLeg1.getTargetV(), twoWindingsTransformer.getRatioTapChanger().getTargetV(), 0.0);
+        ratioTapChangerInLeg1.setTapPosition(2);
+        ratioTapChangerInLeg1.getVoltageRegulation().setTargetValue(12);
+        assertEquals(ratioTapChangerInLeg1.getRegulatingTargetV(), twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV(), 0.0);
         assertEquals(ratioTapChangerInLeg1.getTapPosition(), twoWindingsTransformer.getRatioTapChanger().getTapPosition());
         assertTrue(ratioTapChangerInLeg1.findSolvedTapPosition().isEmpty());
 
@@ -137,6 +143,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertSame(vl2, twoWindingsTransformer.getTerminal2().getVoltageLevel());
         assertEquals(vl1.getNominalV(), twoWindingsTransformer.getRatedU1(), 0.0);
         assertEquals(vl2.getNominalV(), twoWindingsTransformer.getRatedU2(), 0.0);
+        assertFalse(twoWindingsTransformer.isEquivalent());
     }
 
     @Test
@@ -379,36 +386,39 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating, Integer solvedTapPosition) {
         return transformer.newRatioTapChanger()
-                .setRegulationValue(200.0)
-                .setLoadTapChangingCapabilities(false)
-                .setLowTapPosition(0)
-                .setTapPosition(0)
-                .setRegulating(regulating)
-                .setRegulationTerminal(terminal)
-                .setTargetDeadband(0.5)
-                .beginStep()
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(200.0)
+                .withRegulating(regulating)
+                .withTerminal(terminal)
+                .withTargetDeadband(0.5)
+                .add()
+            .setLoadTapChangingCapabilities(false)
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .beginStep()
                 .setR(39.78473)
                 .setX(39.784725)
                 .setG(0.0)
                 .setB(0.0)
                 .setRho(1.0)
                 .endStep()
-                .beginStep()
+            .beginStep()
                 .setR(39.78474)
                 .setX(39.784726)
                 .setG(0.0)
                 .setB(0.0)
                 .setRho(1.0)
                 .endStep()
-                .beginStep()
+            .beginStep()
                 .setR(39.78475)
                 .setX(39.784727)
                 .setG(0.0)
                 .setB(0.0)
                 .setRho(1.0)
                 .endStep()
-                .setSolvedTapPosition(solvedTapPosition)
-                .add();
+            .setSolvedTapPosition(solvedTapPosition)
+            .add();
     }
 
     private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal) {

@@ -138,7 +138,7 @@ class DynamicSecurityAnalysisCommandOptionsTest {
                 .parametersFile(fileSystem.getPath("params.json"))
                 .actionsFile(fileSystem.getPath("actions.json"))
                 .strategiesFile(fileSystem.getPath("strategies.json"))
-                .limitReductionsFile(fileSystem.getPath("limit-reductions.json"));
+                .limitScalingsFile(fileSystem.getPath("limit-scalings.json"));
 
         SimpleCommand cmd = options.toCommand();
         String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
@@ -151,7 +151,7 @@ class DynamicSecurityAnalysisCommandOptionsTest {
                         "--parameters-file=params.json",
                         "--actions-file=actions.json",
                         "--strategies-file=strategies.json",
-                        "--limit-reductions-file=limit-reductions.json",
+                        "--limit-scalings-file=limit-scalings.json",
                         "--dynamic-models-file=dynamic_models.groovy");
 
     }

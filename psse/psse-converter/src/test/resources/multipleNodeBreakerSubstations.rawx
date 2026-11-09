@@ -1,0 +1,47 @@
+{
+  "network": {
+    "caseid": {
+      "fields": ["sbase", "rev", "title1"],
+      "data": [100.0, 35, "MULTIPLE NODE BREAKER SUBSTATIONS"]
+    },
+    "bus": {
+      "fields": ["ibus", "name", "baskv", "ide", "area", "vm", "va"],
+      "data": [
+        [100, "PRIMARY", 110.0, 1, 1, 1.0, 0.0],
+        [101, "SECONDARY A", 10.0, 1, 1, 1.0, 0.0],
+        [102, "SECONDARY B", 10.0, 1, 1, 1.0, 0.0]
+      ]
+    },
+    "transformer": {
+      "fields": ["ibus", "jbus", "kbus", "ckt", "name", "r1_2", "x1_2", "sbase1_2", "windv1", "nomv1", "windv2", "nomv2"],
+      "data": [
+        [100, 101, 0, "1", "TRANSFORMER A", 0.0, 0.1, 100.0, 1.0, 110.0, 1.0, 10.0],
+        [100, 102, 0, "1", "TRANSFORMER B", 0.0, 0.1, 100.0, 1.0, 110.0, 1.0, 10.0]
+      ]
+    },
+    "sub": {
+      "fields": ["isub", "name"],
+      "data": [
+        [1, "SUBSTATION A"],
+        [2, "SUBSTATION B"]
+      ]
+    },
+    "subnode": {
+      "fields": ["isub", "inode", "name", "ibus", "stat", "vm", "va"],
+      "data": [
+        [1, 1, "PRIMARY NODE", 100, 1, 1.01, 1.0],
+        [1, 2, "SECONDARY A NODE", 101, 1, 1.05, 5.0],
+        [2, 1, "SECONDARY B NODE", 102, 1, 0.97, -3.0]
+      ]
+    },
+    "subterm": {
+      "fields": ["isub", "inode", "type", "eqid", "ibus", "jbus", "kbus"],
+      "data": [
+        [1, 1, "2", "1", 100, 101, null],
+        [1, 2, "2", "1", 101, 100, null],
+        [1, 1, "2", "1", 100, 102, null],
+        [2, 1, "2", "1", 102, 100, null]
+      ]
+    }
+  }
+}
