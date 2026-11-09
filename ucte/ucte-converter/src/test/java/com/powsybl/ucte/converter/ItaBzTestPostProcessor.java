@@ -25,9 +25,6 @@ import java.util.stream.IntStream;
 @AutoService(UcteImportPostProcessor.class)
 class ItaBzTestPostProcessor implements UcteImportPostProcessor {
 
-    public ItaBzTestPostProcessor() {
-    }
-
     private static final String COMMENTS_REGEX = "(?<zone>[A-Z_.]*) (?<count>\\d*) Nodes First Node: (?<first>[A-Z1-9_.]*), Last Node: (?<last>[A-Z1-9_.]*)";
     private static final Pattern BZ_INFO_REGEX = Pattern.compile(COMMENTS_REGEX);
     private final Map<String, Pair<String, String>> firstAndLastNodesByBiddingZone = new HashMap<>();

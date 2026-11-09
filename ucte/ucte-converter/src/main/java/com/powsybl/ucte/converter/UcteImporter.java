@@ -73,16 +73,15 @@ public class UcteImporter implements Importer {
             = new Parameter(CREATE_AREAS, ParameterType.BOOLEAN, "Create Areas", true);
     private static final Parameter AREAS_DC_XNODES_PARAMETER
             = new Parameter(AREAS_DC_XNODES, ParameterType.STRING_LIST, "X-Nodes to be considered as DC when creating area boundaries", List.of());
+    private static final String POST_PROCESSORS = "ucte.import.post-processors";
+    private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(POST_PROCESSORS, ParameterType.STRING_LIST, "Post processors", Collections.emptyList());
 
     private static final List<Parameter> PARAMETERS = List.of(
             COMBINE_PHASE_ANGLE_REGULATION_PARAMETER,
             CREATE_AREAS_PARAMETER,
-            AREAS_DC_XNODES_PARAMETER
+            AREAS_DC_XNODES_PARAMETER,
+            POST_PROCESSORS_PARAMETER
     );
-
-    public static final String POST_PROCESSORS = "ucte.import.post-processors";
-
-    private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(POST_PROCESSORS, ParameterType.STRING_LIST, "Post processors", Collections.emptyList());
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
