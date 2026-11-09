@@ -55,6 +55,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.RatioTapChan
 import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.RatioTapChangerTablePointEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTapChanger.TapChangerControlEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesTerminal.TerminalEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesTieFlow.TieFlowEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesVoltageLevel.VoltageLevelEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
@@ -1990,7 +1991,8 @@ public final class EquipmentExport {
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
             Optional<TieFlow> tieFlow = TieFlow.from(areaBoundary, context);
             if (tieFlow.isPresent()) {
-                TieFlowEq.write(tieFlow.get().id(), controlAreaCgmesId, tieFlow.get().terminalId(), writer, context);
+                TieFlowEq tieFlowEq = new TieFlowEq(tieFlow.get().id(), controlAreaCgmesId, tieFlow.get().terminalId());
+                CgmesTieFlow.writeEq(tieFlowEq, writer, context);
             }
         }
     }
