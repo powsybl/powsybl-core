@@ -33,7 +33,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -115,15 +114,15 @@ public class UcteExporter implements Exporter {
         UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(UcteExporterReports.networkCreation(reportNode)));
 
         // apply post-processors modifications
-        List<UcteExporterContext> postProcessorContexts = postProcessors.stream()
-                .map(postProcessor -> context.withReportNode(UcteExporterReports.postProcessor(reportNode, postProcessor.getName())))
-                .toList();
-        for (int i = 0; i < postProcessors.size(); i++) {
-            postProcessors.get(i).process(network, ucteNetwork, postProcessorContexts.get(i));
+        Map<UcteExportPostProcessor, UcteExporterContext> postProcessorContexts = new LinkedHashMap<>();
+        for (UcteExportPostProcessor postProcessor : postProcessors) {
+            UcteExporterContext postProcessorContext = context.withReportNode(UcteExporterReports.postProcessor(reportNode, postProcessor.getName()));
+            postProcessor.process(network, ucteNetwork, postProcessorContext);
+            postProcessorContexts.put(postProcessor, postProcessorContext);
         }
-        // get post-processors UcteNode comparators
-        Comparator<UcteNode> nodeComparator = IntStream.range(0, postProcessors.size())
-                .mapToObj(i -> postProcessors.get(i).getNodeComparator(network, ucteNetwork, postProcessorContexts.get(i)))
+        // get post-processors UcteNode comparators, only once all post-processors have modified the UCTE network
+        Comparator<UcteNode> nodeComparator = postProcessorContexts.entrySet().stream()
+                .map(e -> e.getKey().getNodeComparator(network, ucteNetwork, e.getValue()))
                 .flatMap(Optional::stream)
                 .reduce(Comparator::thenComparing)
                 .orElse(Comparator.naturalOrder());
