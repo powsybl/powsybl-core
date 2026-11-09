@@ -14,12 +14,14 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
@@ -118,6 +120,42 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
         // THEN
         assertEquals(24, battery.getLocalTargetV());
         assertTrue(battery.isRegulating());
+    }
+
+    @Test
+    public void testBatteryReactivePowerPerActivePowerOk() {
+        BatteryAdder batteryAdder = newBatteryAdder("ReactivePowerPerActivePower_ok");
+        batteryAdder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withSlope(0.3)
+            .add();
+        Battery battery = batteryAdder.add();
+        assertEquals(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER, battery.getVoltageRegulation().getMode());
+        assertEquals(0.3, battery.getVoltageRegulation().getSlope());
+        assertTrue(battery.isRegulating());
+    }
+
+    @Test
+    public void testBatteryReactivePowerPerActivePowerErrorSlopeMissing() {
+        VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("ReactivePowerPerActivePower_slope_missing").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
+        assertEquals("Battery 'ReactivePowerPerActivePower_slope_missing': Undefined value for voltageRegulation.slope. "
+            + "Must be not null for regulationMode VOLTAGE_PER_REACTIVE_POWER and REACTIVE_POWER_PER_ACTIVE_POWER", validationException.getMessage());
+    }
+
+    @Test
+    public void testBatteryReactivePowerPerActivePowerErrorTerminalSet() {
+        VoltageRegulationAdder<BatteryAdder> adder = newBatteryAdder("ReactivePowerPerActivePower_terminal_set").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(10)
+            .withSlope(0.3);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
+        String allowedModes = VoltageRegulationUtils.getSettableRegulationModes(Battery.class, true, true).stream()
+            .map(RegulationMode::name).collect(Collectors.joining(", "));
+        assertEquals("Battery 'ReactivePowerPerActivePower_terminal_set': The current regulationMode is REACTIVE_POWER_PER_ACTIVE_POWER but allowed modes are ["
+            + allowedModes + "] when the terminal is set.", validationException.getMessage());
     }
 
     @Test
