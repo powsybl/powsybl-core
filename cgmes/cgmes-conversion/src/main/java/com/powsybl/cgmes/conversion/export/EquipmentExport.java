@@ -32,6 +32,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesLoadingLimit;
 import com.powsybl.cgmes.conversion.export.elements.CgmesLoadingLimit.LoadingLimitEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesOperationalLimitSet;
 import com.powsybl.cgmes.conversion.export.elements.CgmesOperationalLimitSet.OperationalLimitSetEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesOperationalLimitType.OperationalLimitTypeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEndEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesPowerTransformer.PowerTransformerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesRegulatingControl;
@@ -1168,7 +1169,14 @@ public final class EquipmentExport {
                         CgmesLoadingLimit.writeEq(loadingLimit, writer, context);
 
                         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
-                            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, writer, context);
+                            OperationalLimitTypeEq operationalLimitType = new OperationalLimitTypeEq(
+                                operationalLimitTypeId,
+                                "PATL",
+                                0,
+                                true,
+                                "patl"
+                            );
+                            CgmesOperationalLimitType.writeEq(operationalLimitType, writer, context);
                             exportedLimitTypes.add(operationalLimitTypeId);
                         }
                     }
@@ -1620,7 +1628,13 @@ public final class EquipmentExport {
         // Write the permanent limit type (if not already written)
         String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE, ref(network));
         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
-            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, writer, context);
+            OperationalLimitTypeEq operationalLimitType = new OperationalLimitTypeEq(
+                operationalLimitTypeId,
+                "PATL",
+                0,
+                true,
+                "patl");
+            CgmesOperationalLimitType.writeEq(operationalLimitType, writer, context);
             exportedLimitTypes.add(operationalLimitTypeId);
         }
 
@@ -1644,7 +1658,13 @@ public final class EquipmentExport {
                 // Write the temporary limit type (if not already written)
                 operationalLimitTypeId = context.getNamingStrategy().getCgmesId(TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_TYPE, ref(network));
                 if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
-                    OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getAcceptableDuration(), writer, context);
+                    OperationalLimitTypeEq operationalLimitType = new OperationalLimitTypeEq(
+                        operationalLimitTypeId,
+                        "TATL " + temporaryLimit.getAcceptableDuration(),
+                        temporaryLimit.getAcceptableDuration(),
+                        false,
+                        "tatl");
+                    CgmesOperationalLimitType.writeEq(operationalLimitType, writer, context);
                     exportedLimitTypes.add(operationalLimitTypeId);
                 }
 
