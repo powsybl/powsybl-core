@@ -580,6 +580,15 @@ public final class CgmesExportUtil {
         throw new PowsyblException("Unsupported loading limits " + loadingLimits.getClass().getSimpleName());
     }
 
+    public static String reactiveLimitsHolderClassName(ReactiveLimitsHolder holder) {
+        if (holder instanceof Generator || holder instanceof Battery) {
+            return REACTIVE_CAPABILITY_CURVE;
+        } else if (holder instanceof VscConverterStation || holder instanceof VoltageSourceConverter) {
+            return VS_CAPABILITY_CURVE;
+        }
+        throw new PowsyblException("Unexpected holder type " + holder.getClass().getName());
+    }
+
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
         return switch (regulationMode) {
