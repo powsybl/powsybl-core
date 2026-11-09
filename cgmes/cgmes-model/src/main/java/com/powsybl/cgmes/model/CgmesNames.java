@@ -143,6 +143,9 @@ public final class CgmesNames {
     public static final String EQUIVALENT_SHUNT = "EquivalentShunt";
     public static final String EQUIVALENT_BRANCH = "EquivalentBranch";
     public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
+    public static final String REACTIVE_CAPABILITY_CURVE = "ReactiveCapabilityCurve";
+    public static final String VS_CAPABILITY_CURVE = "VsCapabilityCurve";
+    public static final String CURVE = "Curve";
     public static final String REGULATING_CONTROL = "RegulatingControl";
     public static final String CONTROL_AREA = "ControlArea";
     public static final String CONTROL_AREA_TYPE_KIND_INTERCHANGE = "ControlAreaTypeKind.Interchange";

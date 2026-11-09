@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSeg
 import com.powsybl.cgmes.conversion.export.elements.CgmesBaseVoltage.BaseVoltageEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesCurve.CurveEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurveData.CurveDataEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
@@ -653,7 +654,12 @@ public final class EquipmentExport {
                     pointIndex++;
                 }
                 String reactiveCapabilityCurveName = "RCC_" + i.getNameOrId();
-                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, i, writer, context);
+                CurveEq reactiveCapabilityCurve = new CurveEq(
+                    reactiveLimitsHolderClassName(i),
+                    reactiveLimitsId,
+                    reactiveCapabilityCurveName
+                );
+                CgmesCurve.writeEq(reactiveCapabilityCurve, writer, context);
             }
         }
         return reactiveLimitsId;
@@ -1769,7 +1775,12 @@ public final class EquipmentExport {
                     pointIndex++;
                 }
                 String reactiveCapabilityCurveName = "RCC_" + identifiable.getNameOrId();
-                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, limitsHolder, writer, context);
+                CurveEq reactiveCapabilityCurve = new CurveEq(
+                    reactiveLimitsHolderClassName(limitsHolder),
+                    reactiveLimitsId,
+                    reactiveCapabilityCurveName
+                );
+                CgmesCurve.writeEq(reactiveCapabilityCurve, writer, context);
             }
             case MIN_MAX ->
                 //Do not have to export anything
