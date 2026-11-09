@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Antoine Limouzin {@literal <antoine.limouzin at rte.com>}
  */
 class UcteImportPostProcessorTest {
-    
+
     private Network getNetwork(final String fileName) {
         final Properties properties = new Properties();
         properties.put(UcteImporter.POST_PROCESSORS, "test-ita-bz");
