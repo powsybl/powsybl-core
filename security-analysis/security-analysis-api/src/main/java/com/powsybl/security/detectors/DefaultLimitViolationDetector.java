@@ -13,7 +13,7 @@ import com.powsybl.contingency.violations.LoadingLimitType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.security.*;
-import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -27,16 +27,16 @@ import static com.powsybl.security.LimitViolationDetection.createViolationLocati
  */
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
-    private final double limitReductionValue;
+    private final double limitScalingValue;
     private final Set<LoadingLimitType> currentLimitTypes;
     private final LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer;
 
-    public DefaultLimitViolationDetector(double limitReductionValue, Collection<LoadingLimitType> currentLimitTypes) {
-        if (limitReductionValue <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
+    public DefaultLimitViolationDetector(double limitScalingValue, Collection<LoadingLimitType> currentLimitTypes) {
+        if (limitScalingValue < 0) {
+            throw new IllegalArgumentException("Bad limit scaling " + limitScalingValue);
         }
-        this.limitReductionValue = limitReductionValue;
-        limitsComputer = new SimpleLimitsComputer(limitReductionValue);
+        this.limitScalingValue = limitScalingValue;
+        limitsComputer = new SimpleLimitsComputer(limitScalingValue);
         this.currentLimitTypes = EnumSet.copyOf(Objects.requireNonNull(currentLimitTypes));
     }
 
@@ -92,7 +92,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
                     .subjectName(vl.getOptionalName().orElse(null))
                     .type(LimitViolationType.LOW_VOLTAGE)
                     .limit(vl.getLowVoltageLimit())
-                    .reduction(limitReductionValue)
+                    .scaling(limitScalingValue)
                     .value(value)
                     .violationLocation(createViolationLocation(bus))
                     .build()
@@ -106,7 +106,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
                     .subjectName(vl.getOptionalName().orElse(null))
                     .type(LimitViolationType.HIGH_VOLTAGE)
                     .limit(vl.getHighVoltageLimit())
-                    .reduction(limitReductionValue)
+                    .scaling(limitScalingValue)
                     .value(value)
                     .violationLocation(createViolationLocation(bus))
                     .build()
@@ -127,7 +127,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
                             .subject(voltageAngleLimit.getId())
                             .type(LimitViolationType.LOW_VOLTAGE_ANGLE)
                             .limit(lowLimit)
-                            .reduction(limitReductionValue)
+                            .scaling(limitScalingValue)
                             .value(value)
                             .build()
                     );
@@ -141,7 +141,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
                             .subject(voltageAngleLimit.getId())
                             .type(LimitViolationType.HIGH_VOLTAGE_ANGLE)
                             .limit(highLimit)
-                            .reduction(limitReductionValue)
+                            .scaling(limitScalingValue)
                             .value(value)
                             .build()
                     );

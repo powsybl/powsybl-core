@@ -153,6 +153,39 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
+    public void testExtensionCreatedAfterVariants() {
+        // create variants
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        List<String> targetVariantIds = Arrays.asList(variant1, variant2);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
+
+        ReferenceTerminals ext = network.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Set.of(gh1.getTerminal()))
+                .add();
+
+        // add gh2 to variant1
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(0, ext.getReferenceTerminals().size());
+        ext.addReferenceTerminal(gh2.getTerminal());
+        assertEquals(1, ext.getReferenceTerminals().size());
+
+        // add gh3 to variant2
+        variantManager.setWorkingVariant(variant2);
+        assertEquals(0, ext.getReferenceTerminals().size());
+        ext.addReferenceTerminal(gh3.getTerminal());
+        assertEquals(1, ext.getReferenceTerminals().size());
+
+        // initial variant unmodified
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(1, ext.getReferenceTerminals().size());
+
+        // test array resize for coverage completeness
+        variantManager.removeVariant(variant1);
+        variantManager.removeVariant(variant2);
+    }
+
+    @Test
     public void testVariantsCloning() {
         // create variants
         String variant1 = "variant1";

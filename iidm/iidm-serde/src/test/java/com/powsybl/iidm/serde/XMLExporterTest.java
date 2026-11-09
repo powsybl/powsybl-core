@@ -91,7 +91,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     @Test
     void paramsTest() {
         var xmlExporter = new XMLExporter();
-        assertEquals(18, xmlExporter.getParameters().size());
+        assertEquals(19, xmlExporter.getParameters().size());
         assertEquals("IIDM XML v" + CURRENT_IIDM_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 
@@ -140,5 +140,35 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         Properties params = new Properties();
         params.setProperty(XMLExporter.VERSION, IidmVersion.V_1_2.toString("."));
         exporterTest(network, IidmVersion.V_1_2, "extensionTooRecentExportTest.xml", params);
+    }
+
+    @Test
+    void testChangeAllIdentifiablesAndWriteBusBreaker() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Path workingDir = fileSystem.getPath("/working-dir");
+        Network network = EurostagTutorialExample1Factory.create();
+        int count = 0;
+        for (var identifiable : network.getIdentifiables().stream().toList()) {
+            String id = String.valueOf(count);
+            identifiable.setId(id);
+            assertSame(network.getIdentifiable(id), identifiable);
+            count++;
+        }
+        network.write("XIIDM", new Properties(), workingDir);
+    }
+
+    @Test
+    void testChangeAllIdentifiablesAndWriteNodeBreaker() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Path workingDir = fileSystem.getPath("/working-dir");
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        int count = 0;
+        for (var identifiable : network.getIdentifiables().stream().toList()) {
+            String id = String.valueOf(count);
+            identifiable.setId(id);
+            assertSame(network.getIdentifiable(id), identifiable);
+            count++;
+        }
+        network.write("XIIDM", new Properties(), workingDir);
     }
 }

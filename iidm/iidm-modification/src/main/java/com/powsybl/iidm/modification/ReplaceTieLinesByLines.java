@@ -119,18 +119,18 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     private static void warningAboutExtensions(BoundaryLine dl1, BoundaryLine dl2, TieLine tl, ReportNode reportNode) {
         String dl1Id = dl1.getId();
         String dl2Id = dl2.getId();
-        if (!dl1.getExtensions().isEmpty()) {
-            String extensions = dl1.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+        if (dl1.hasExtensions()) {
+            String extensions = dl1.getExtensionsStream().map(Extension::getName).collect(Collectors.joining(","));
             LOG.warn("Extension [{}] of boundary line {} will be lost", extensions, dl1Id);
             lostBoundaryLineExtensions(reportNode, extensions, dl1Id);
         }
-        if (!dl2.getExtensions().isEmpty()) {
-            String extensions = dl2.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+        if (dl2.hasExtensions()) {
+            String extensions = dl2.getExtensionsStream().map(Extension::getName).collect(Collectors.joining(","));
             LOG.warn("Extension [{}] of boundary line {} will be lost", extensions, dl2Id);
             lostBoundaryLineExtensions(reportNode, extensions, dl2Id);
         }
-        if (!tl.getExtensions().isEmpty()) {
-            String extensions = tl.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+        if (tl.hasExtensions()) {
+            String extensions = tl.getExtensionsStream().map(Extension::getName).collect(Collectors.joining(","));
             LOG.warn("Extension [{}] of tie line {} will be lost", extensions, tl.getId());
             lostTieLineExtensions(reportNode, extensions, tl.getId());
         }

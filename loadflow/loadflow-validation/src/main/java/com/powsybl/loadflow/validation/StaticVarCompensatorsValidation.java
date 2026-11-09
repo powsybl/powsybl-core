@@ -10,7 +10,7 @@ package com.powsybl.loadflow.validation;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,10 +90,14 @@ public final class StaticVarCompensatorsValidation {
         double p = svc.getTerminal().getP();
         double q = svc.getTerminal().getQ();
         Bus bus = svc.getTerminal().getBusView().getBus();
-        double reactivePowerSetpoint = svc.getReactivePowerSetpoint();
-        double voltageSetpoint = svc.getVoltageSetpoint();
-        RegulationMode regulationMode = svc.getRegulationMode();
-        boolean regulating = svc.isRegulating();
+        double reactivePowerSetpoint = svc.getRegulatingTargetQ();
+        double voltageSetpoint = svc.getRegulatingTargetV();
+        RegulationMode regulationMode = RegulationMode.REACTIVE_POWER;
+        boolean regulating = false;
+        if (svc.getVoltageRegulation() != null) {
+            regulationMode = svc.getVoltageRegulation().getMode();
+            regulating = svc.getVoltageRegulation().isRegulating();
+        }
         double bMin = svc.getBmin();
         double bMax = svc.getBmax();
         double nominalVcontroller = svc.getTerminal().getVoltageLevel().getNominalV();

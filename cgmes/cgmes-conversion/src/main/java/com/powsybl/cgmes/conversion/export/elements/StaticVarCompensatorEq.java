@@ -11,8 +11,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,8 +30,8 @@ public final class StaticVarCompensatorEq {
     private static final String EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT = "StaticVarCompensator.voltageSetPoint";
 
     public static void write(String id, String svcName, String equipmentContainer, String regulatingControlId,
-                             double inductiveRating, double capacitiveRating, VoltagePerReactivePowerControl voltagePerReactivePowerControl,
-                             StaticVarCompensator.RegulationMode svcControlMode, double voltageSetPoint,
+                             double inductiveRating, double capacitiveRating, double slope,
+                             RegulationMode svcControlMode, double voltageSetPoint,
                              String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("StaticVarCompensator", id, svcName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
@@ -46,11 +45,7 @@ public final class StaticVarCompensatorEq {
         writer.writeCharacters(CgmesExportUtil.format(capacitiveRating));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SLOPE);
-        if (voltagePerReactivePowerControl != null) {
-            writer.writeCharacters(CgmesExportUtil.format(voltagePerReactivePowerControl.getSlope()));
-        } else {
-            writer.writeCharacters(CgmesExportUtil.format(0.0));
-        }
+        writer.writeCharacters(CgmesExportUtil.format(Double.isNaN(slope) ? 0. : slope));
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + regulationMode(svcControlMode));
@@ -60,10 +55,10 @@ public final class StaticVarCompensatorEq {
         writer.writeEndElement();
     }
 
-    private static String regulationMode(StaticVarCompensator.RegulationMode svcControlMode) {
-        if (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svcControlMode)) {
+    private static String regulationMode(RegulationMode svcControlMode) {
+        if (RegulationMode.VOLTAGE.equals(svcControlMode)) {
             return "SVCControlMode.voltage";
-        } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
+        } else if (RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
             return "SVCControlMode.reactivePower";
         }
         throw new PowsyblException("Invalid regulation mode for Static Var Compensator " + svcControlMode);
