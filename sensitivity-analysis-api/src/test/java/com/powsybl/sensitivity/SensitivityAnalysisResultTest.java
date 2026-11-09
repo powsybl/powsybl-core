@@ -396,10 +396,13 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
     void testCanReadResult12() throws IOException {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         try (InputStream is12 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.2.json")) {
+            // check that we can still read 1.2
             SensitivityAnalysisResult result = objectMapper.readValue(is12, SensitivityAnalysisResult.class);
-            assertEquals(2, result.getStateStatuses().size());
-            assertEquals(9, result.getFactors().size());
-            assertEquals(9, result.getValues().size());
+            // and when we write to the 1.2 version, we get the expected result
+            String json12 = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            try (InputStream isRef = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.2-upgraded.json")) {
+                assertEquals(new String(Objects.requireNonNull(isRef).readAllBytes(), StandardCharsets.UTF_8), json12);
+            }
         }
     }
 }

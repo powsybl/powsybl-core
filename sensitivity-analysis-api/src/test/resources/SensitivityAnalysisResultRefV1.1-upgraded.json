@@ -53,8 +53,8 @@
     "componentStatuses" : [ {
       "loadFlowStatus" : "CONVERGED",
       "loadFlowStatusText" : "",
-      "numCC" : -1,
-      "numSC" : -1
+      "numCC" : 0,
+      "numSC" : 0
     } ]
   } ],
   "contingencyIds" : [ "NHV1_NHV2_2" ],
