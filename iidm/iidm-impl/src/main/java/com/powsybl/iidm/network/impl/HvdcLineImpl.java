@@ -199,6 +199,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
 
+        convertersMode.remove(convertersMode.size() - number, number);
+
         activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
     }
 
