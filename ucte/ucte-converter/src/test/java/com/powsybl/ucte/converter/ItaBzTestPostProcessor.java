@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
  * @author Antoine Limouzin {@literal <antoine.limouzin at rte.com>}
  */
 @AutoService(UcteImportPostProcessor.class)
-class ItaBzTestPostProcessor implements UcteImportPostProcessor {
+public class ItaBzTestPostProcessor implements UcteImportPostProcessor {
 
     private static final String COMMENTS_REGEX = "(?<zone>[A-Z_.]*) (?<count>\\d*) Nodes First Node: (?<first>[A-Z1-9_.]*), Last Node: (?<last>[A-Z1-9_.]*)";
     private static final Pattern BZ_INFO_REGEX = Pattern.compile(COMMENTS_REGEX);
