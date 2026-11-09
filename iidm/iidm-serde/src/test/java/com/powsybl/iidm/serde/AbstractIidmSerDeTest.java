@@ -261,7 +261,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * @return an array containing all versions more recent than <code>minVersionIncluded</code> (equal or more recent) and older than <code>maxVersionExcluded</code>
      * (strictly older)
      */
-    private static IidmVersion[] allBetweenVersions(IidmVersion minVersionIncluded, IidmVersion maxVersionExcluded) {
+    protected static IidmVersion[] allBetweenVersions(IidmVersion minVersionIncluded, IidmVersion maxVersionExcluded) {
         return Stream.of(IidmVersion.values())
             .filter(v -> v.compareTo(minVersionIncluded) >= 0 && v.compareTo(maxVersionExcluded) < 0)
             .toArray(IidmVersion[]::new);

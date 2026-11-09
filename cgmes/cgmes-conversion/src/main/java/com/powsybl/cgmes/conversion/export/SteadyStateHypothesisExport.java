@@ -35,6 +35,7 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.getSignToUseLoadSignConvention;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -532,11 +533,13 @@ public final class SteadyStateHypothesisExport {
             String targetValueUnitMultiplier;
             String mode = getRegulatingControlMode(voltageRegulation);
             if (REGULATING_CONTROL_REACTIVE_POWER.equals(mode)) {
-                // Generator are in generator sign convention in IIDM and load sign convention in CGMES
+                // The returned targetQ use the sign convention of the regulation holder
                 targetValue = regulationHolder.getRegulatingTargetQ();
-                if (regulationHolder instanceof Generator) {
-                    targetValue = -targetValue;
-                }
+                // Generator, Battery and VscConverterStation are in generator sign convention in IIDM
+                // and load sign convention in CGMES
+                // We need to negate the target value to convert it to load sign convention for CGMES
+                int signToUseLoadConvention = getSignToUseLoadSignConvention(regulationHolder);
+                targetValue = signToUseLoadConvention * targetValue;
                 targetValueUnitMultiplier = "M";
             } else if (REGULATING_CONTROL_VOLTAGE.equals(mode)) {
                 targetValue = regulationHolder.getRegulatingTargetV();

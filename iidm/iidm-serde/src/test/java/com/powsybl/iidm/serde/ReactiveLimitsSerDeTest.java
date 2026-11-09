@@ -33,23 +33,32 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void importShouldSucceedWhenInvertedMinQMaxQ() {
+    void importShouldRepairInvalidPointsForIidm118OrGreaterWithTheOption() {
         ImportOptions options = new ImportOptions()
                 .setRepairInvalidReactiveCurveLimits(true);
-        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
-            InputStream is = getVersionedNetworkAsStream("reactive-limit-inverted-minq-maxq.xiidm", version);
-            Network network = NetworkSerDe.read(is, options, null);
-
-            ReactiveCapabilityCurve curve = network.getGenerator("G1")
-                    .getReactiveLimits(ReactiveCapabilityCurve.class);
-
-            assertEquals(2.0, curve.getMinQ(100.0));
-            assertEquals(10.0, curve.getMaxQ(100.0));
-        });
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> assertImportSuccessWithInvertedPoint(version, options));
     }
 
     @Test
-    void importShouldThrowExceptionWhenNotInvertedMinQMaxQ() {
+    void importShouldRepairInvalidPointsForIidm117OrLower() {
+        ImportOptions options = new ImportOptions();
+        assertFalse(options.isRepairInvalidReactiveCurveLimits()); // The option is not enabled
+        testForAllPreviousVersions(IidmVersion.V_1_18, version -> assertImportSuccessWithInvertedPoint(version, options));
+    }
+
+    private void assertImportSuccessWithInvertedPoint(IidmVersion version, ImportOptions options) {
+        InputStream is = getVersionedNetworkAsStream("reactive-limit-inverted-minq-maxq.xiidm", version);
+        Network network = NetworkSerDe.read(is, options, null);
+
+        ReactiveCapabilityCurve curve = network.getGenerator("G1")
+                .getReactiveLimits(ReactiveCapabilityCurve.class);
+
+        assertEquals(2.0, curve.getMinQ(100.0));
+        assertEquals(10.0, curve.getMaxQ(100.0));
+    }
+
+    @Test
+    void importShouldNotRepairInvalidPointsForIidm118OrGreaterWithoutTheOption() {
         ImportOptions options = new ImportOptions()
                 .setRepairInvalidReactiveCurveLimits(false);
         testForAllVersionsSince(IidmVersion.V_1_18, version -> {

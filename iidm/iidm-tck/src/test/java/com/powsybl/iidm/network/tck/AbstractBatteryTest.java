@@ -258,8 +258,8 @@ public abstract class AbstractBatteryTest {
         assertThrows(PowsyblException.class, battery::getTargetP);
     }
 
-    private void createBattery(String id, double targetP, double targetQ, double minP, double maxP) {
-        voltageLevel.newBattery()
+    private Battery createBattery(String id, double targetP, double targetQ, double minP, double maxP) {
+        return voltageLevel.newBattery()
                 .setId(id)
                 .setTargetP(targetP)
                 .setLocalTargetQ(targetQ)
@@ -384,5 +384,22 @@ public abstract class AbstractBatteryTest {
         VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
         // THEN
         assertNotNull(voltageRegulation);
+    }
+
+    @Test
+    void testSignOnRemoteReactiveMode() {
+        Terminal remoteTerminal = network.getGenerator("GEN").getTerminal();
+        double localTargetQ = 40.0;
+        double remoteTargetQGeneratorSignConvention = 10.0;
+        Battery battery = createBattery("battery_remoteReactive", 10, localTargetQ, 0, 100);
+        battery.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(-remoteTargetQGeneratorSignConvention)
+            .build();
+
+        assertEquals(localTargetQ, battery.getLocalTargetQ());
+        assertEquals(-remoteTargetQGeneratorSignConvention, battery.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQGeneratorSignConvention, battery.getRegulatingTargetQ());
     }
 }
