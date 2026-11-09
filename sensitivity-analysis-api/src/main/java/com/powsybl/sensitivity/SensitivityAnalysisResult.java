@@ -566,8 +566,7 @@ public class SensitivityAnalysisResult {
      */
     @Deprecated(since = "7.5.0")
     public Status getStateStatus(SensitivityState state) {
-        Objects.requireNonNull(state);
-        return statusByState.get(state).getStatus();
+        return checkAndGetStateStatus(state).getStatus();
     }
 
     /**
@@ -577,8 +576,17 @@ public class SensitivityAnalysisResult {
      * @return the components' statuses.
      */
     public List<SensitivityStateStatus.ComponentStatus> getStateComponentStatuses(SensitivityState state) {
+        return checkAndGetStateStatus(state).getComponentsLoadFlowStatusList();
+    }
+
+    private SensitivityStateStatus checkAndGetStateStatus(SensitivityState state) {
         Objects.requireNonNull(state);
-        return statusByState.get(state).getComponentsLoadFlowStatusList();
+        SensitivityStateStatus stateStatus = statusByState.get(state);
+        if (stateStatus != null) {
+            return stateStatus;
+        } else {
+            throw new PowsyblException("Sensitivity state status not found for state with contingency '" + state.contingencyId() + "', operator strategy '" + state.operatorStrategyId());
+        }
     }
 
     /**
