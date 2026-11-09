@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.export.elements.CgmesACLineSegment.ACLineSegmentEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesAcDcConverter.AcDcConverterEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesBaseVoltage.BaseVoltageEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
@@ -1801,8 +1802,19 @@ public final class EquipmentExport {
                                                   String capabilityCurveId) throws XMLStreamException {
         String pccTerminal = getConverterStationPccTerminal(converterStation);
         String className = converterClassName(converterStation);
-        AcDcConverterEq.write(context.getNamingStrategy().getCgmesId(converterStation), converterStation.getNameOrId(), className, ratedUdc,
-                0.0, 0.0, 0.0, dcEquipmentContainerId, pccTerminal, capabilityCurveId, writer, context);
+        AcDcConverterEq acDcConverter = new AcDcConverterEq(
+            className,
+            context.getNamingStrategy().getCgmesId(converterStation),
+            converterStation.getNameOrId(),
+            ratedUdc,
+            0.0,
+            0.0,
+            0.0,
+            capabilityCurveId,
+            pccTerminal,
+            dcEquipmentContainerId
+        );
+        CgmesAcDcConverter.writeEq(acDcConverter, writer, context);
     }
 
     private String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation) {
@@ -1958,9 +1970,19 @@ public final class EquipmentExport {
                 pccTerminalId = getTerminalId(converter.getPccTerminal(), context);
             }
             String capabilityCurveId = writeVsCapabilityCurve(converter);
-            AcDcConverterEq.write(converterId, converter.getNameOrId(), className, converter.getDcTerminal1().getDcNode().getNominalV(),
-                    converter.getIdleLoss(), converter.getSwitchingLoss(), converter.getResistiveLoss(), dcConverterUnitId,
-                    pccTerminalId, capabilityCurveId, writer, context);
+            AcDcConverterEq acDcConverter = new AcDcConverterEq(
+                className,
+                converterId,
+                converter.getNameOrId(),
+                converter.getDcTerminal1().getDcNode().getNominalV(),
+                converter.getIdleLoss(),
+                converter.getSwitchingLoss(),
+                converter.getResistiveLoss(),
+                capabilityCurveId,
+                pccTerminalId,
+                dcConverterUnitId
+            );
+            CgmesAcDcConverter.writeEq(acDcConverter, writer, context);
 
             writeDcTerminal(converter.getDcTerminal1());
             writeDcTerminal(converter.getDcTerminal2());
