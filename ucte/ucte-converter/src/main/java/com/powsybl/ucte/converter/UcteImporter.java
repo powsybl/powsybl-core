@@ -253,7 +253,7 @@ public class UcteImporter implements Importer {
     }
 
     private static EnergySource getNodeEnergySource(final UcteNode ucteNode) {
-        return ucteNode.getPowerPlantType() == null ? null : switch (ucteNode.getPowerPlantType()) {
+        return ucteNode.getPowerPlantType() == null ? EnergySource.OTHER : switch (ucteNode.getPowerPlantType()) {
             case C, G, L, O -> EnergySource.THERMAL;
             case H -> EnergySource.HYDRO;
             case N -> EnergySource.NUCLEAR;
