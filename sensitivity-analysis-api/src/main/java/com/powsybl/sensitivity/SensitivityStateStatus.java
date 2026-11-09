@@ -52,28 +52,6 @@ public class SensitivityStateStatus {
         return state;
     }
 
-    /**
-     * @deprecated Use {@link SensitivityStateStatus#getComponentsLoadFlowStatusList()} instead.
-     */
-    @Deprecated(since = "7.5.0")
-    public SensitivityAnalysisResult.Status getStatus() {
-        if (!getComponentsLoadFlowStatusList().isEmpty()) {
-            switch (getComponentsLoadFlowStatusList().getFirst().status()) {
-                case CONVERGED -> {
-                    return SensitivityAnalysisResult.Status.SUCCESS;
-                }
-                case NO_CALCULATION -> {
-                    return SensitivityAnalysisResult.Status.NO_IMPACT;
-                }
-                default -> {
-                    return SensitivityAnalysisResult.Status.FAILURE;
-                }
-            }
-        } else {
-            return SensitivityAnalysisResult.Status.FAILURE;
-        }
-    }
-
     public List<ComponentStatus> getComponentsLoadFlowStatusList() {
         return componentsLoadFlowStatusList;
     }
