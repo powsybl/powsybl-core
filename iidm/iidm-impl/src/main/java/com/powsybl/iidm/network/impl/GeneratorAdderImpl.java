@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibilityForGenerator;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createGeneratorVoltageRegulationBackwardCompatibility;
 
 /**
  *
@@ -156,7 +156,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             // If a generator with old setters is added and voltageRegulation does not exist,
             // the new voltageRegulation will be created from the old attributes.
-            createVoltageRegulationBackwardCompatibilityForGenerator(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
+            createGeneratorVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
         } else {
             // In the case of a generator with old setters and newVoltageRegulation method used
             // the old local attributes will be set without overriding the local attributes if already set

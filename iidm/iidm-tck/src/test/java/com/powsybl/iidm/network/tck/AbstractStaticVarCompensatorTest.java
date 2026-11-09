@@ -233,6 +233,25 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals("Variant index not set", exception.getMessage());
     }
 
+    /**
+     * Removing a variant shrinks the per-variant arrays of the VoltageRegulation too, so that a variant cloned later
+     * reads the values of its source and not those of the removed variant that occupied its slot.
+     */
+    @Test
+    public void voltageRegulationOfARemovedVariantDoesNotLeakIntoTheNextClone() {
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        VariantManager variantManager = network.getVariantManager();
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "a");
+        variantManager.setWorkingVariant("a");
+        svc.getVoltageRegulation().setRegulating(false);
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        variantManager.removeVariant("a");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "b");
+        variantManager.setWorkingVariant("b");
+        assertTrue(svc.getVoltageRegulation().isRegulating());
+    }
+
     @Test
     public void testNewVoltageRegulationInMultiVariants() {
         // GIVEN
@@ -324,6 +343,24 @@ public abstract class AbstractStaticVarCompensatorTest {
         VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
         // THEN
         assertNotNull(voltageRegulation);
+    }
+
+    @Test
+    void testSignOnRemoteReactiveMode() {
+        Terminal remoteTerminal = network.getGenerator("G1").getTerminal();
+        double localTargetQ = 40.0;
+        double remoteTargetQLoadSignConvention = 10.0;
+        StaticVarCompensator svc = createSvc("svc_remoteReactive", null, RegulationMode.VOLTAGE);
+        svc.setLocalTargetQ(localTargetQ);
+        svc.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(remoteTerminal)
+            .withTargetValue(remoteTargetQLoadSignConvention)
+            .build();
+
+        assertEquals(localTargetQ, svc.getLocalTargetQ());
+        assertEquals(remoteTargetQLoadSignConvention, svc.getVoltageRegulation().getTargetValue());
+        assertEquals(remoteTargetQLoadSignConvention, svc.getRegulatingTargetQ());
     }
 
     private StaticVarCompensatorAdder createSvcAdder(String id, Terminal regulatingTerminal, RegulationMode regulationMode) {
