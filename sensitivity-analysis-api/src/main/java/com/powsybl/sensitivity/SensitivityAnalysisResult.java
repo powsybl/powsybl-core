@@ -551,14 +551,10 @@ public class SensitivityAnalysisResult {
      * @return the components' statuses.
      */
     public List<SensitivityStateStatus.ComponentStatus> getStateComponentStatuses(SensitivityState state) {
-        return checkAndGetStateStatus(state).getComponentsLoadFlowStatusList();
-    }
-
-    private SensitivityStateStatus checkAndGetStateStatus(SensitivityState state) {
         Objects.requireNonNull(state);
         SensitivityStateStatus stateStatus = statusByState.get(state);
         if (stateStatus != null) {
-            return stateStatus;
+            return stateStatus.getComponentsLoadFlowStatusList();
         } else {
             throw new PowsyblException("Sensitivity state status not found for state with contingency '" + state.contingencyId() + "', operator strategy '" + state.operatorStrategyId());
         }
