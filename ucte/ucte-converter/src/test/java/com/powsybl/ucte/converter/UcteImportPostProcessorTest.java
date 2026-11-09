@@ -25,16 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Antoine Limouzin {@literal <antoine.limouzin at rte.com>}
  */
 class UcteImportPostProcessorTest {
-    private final static Properties PARAMETERS = new Properties();
-
-    static {
-        PARAMETERS.put(UcteImporter.POST_PROCESSORS, "test-ita-bz");
-    }
-
-
+    
     private Network getNetwork(final String fileName) {
+        final Properties properties = new Properties();
+        properties.put(UcteImporter.POST_PROCESSORS, "test-ita-bz");
         final ReadOnlyDataSource dataSource = new ResourceDataSource(fileName, new ResourceSet("/importPostProcessors/", fileName + ".uct"));
-        return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), PARAMETERS);
+        return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), properties);
     }
 
     @Test
