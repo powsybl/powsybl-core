@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18"
-              xmlns:twowtpac="http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_phase_angle_clock/1_0"
               id="sim1" caseDate="2019-05-27T12:17:02.504+02:00" forecastDistance="0" sourceFormat="test"
-              minimumValidationLevel="STEADY_STATE_HYPOTHESIS"
-              xmlns:xs="http://www.powsybl.org/schema/iidm/ext/substation_position/1_0"
-              xmlns:bar="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0"
-              xmlns:foo="http://www.itesla_project.eu/schema/iidm/ext/loadfoo/1_0">
+              minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
         <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -66,11 +62,4 @@
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:extension id="LOAD">
-        <foo:loadFoo/>
-        <bar:loadBar/>
-    </iidm:extension>
-    <iidm:extension id="LOAD2">
-        <foo:loadFoo/>
-    </iidm:extension>
 </iidm:network>
