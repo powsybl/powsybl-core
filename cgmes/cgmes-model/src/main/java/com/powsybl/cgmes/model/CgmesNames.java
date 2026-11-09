@@ -163,6 +163,7 @@ public final class CgmesNames {
     public static final String ACDC_CONVERTER = "ACDCConverter";
     public static final String VS_CONVERTER = "VsConverter";
     public static final String CS_CONVERTER = "CsConverter";
+    public static final String DC_CONVERTER_UNIT = "DCConverterUnit";
     public static final String DC_LINE_SEGMENT = "DCLineSegment";
     public static final String DC_LINE_SEGMENT2 = "DCLineSegment2";
     public static final String DC_SWITCH = "DCSwitch";

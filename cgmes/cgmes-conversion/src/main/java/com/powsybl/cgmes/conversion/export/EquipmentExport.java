@@ -18,6 +18,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSec
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurve.CurveEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurveData.CurveDataEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesDCConverterUnit.DCConverterUnitEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
@@ -1795,7 +1796,8 @@ public final class EquipmentExport {
     }
 
     private void writeDCConverterUnit(String id, String dcConverterUnitName, String operationMode, String substationId) throws XMLStreamException {
-        DCConverterUnitEq.write(id, dcConverterUnitName, operationMode, substationId, writer, context);
+        DCConverterUnitEq dcConverterUnit = new DCConverterUnitEq(id, dcConverterUnitName, operationMode, substationId);
+        CgmesDCConverterUnit.writeEq(dcConverterUnit, writer, context);
     }
 
     private void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId,
