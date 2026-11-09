@@ -23,6 +23,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesDCGround.DCGroundEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCLineSegment.DCLineSegmentEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCNode.DCNodeEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCSwitch.DCSwitchEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesDCTerminal.DCTerminalEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEnergyConsumer.EnergyConsumerEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentBranch.EquivalentBranchEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesEquivalentInjection.EquivalentInjectionEq;
@@ -1864,7 +1865,8 @@ public final class EquipmentExport {
 
     private void writeDcTerminal(String className, String id, String name, String conductingEquipmentId, String dcNodeId,
                                         int sequenceNumber) throws XMLStreamException {
-        DCTerminalEq.write(className, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, writer, context);
+        DCTerminalEq dcTerminal = new DCTerminalEq(className, id, name, sequenceNumber, conductingEquipmentId, dcNodeId);
+        CgmesDCTerminal.writeEq(dcTerminal, writer, context);
     }
 
     private void writeDcConverterUnits() throws XMLStreamException {
