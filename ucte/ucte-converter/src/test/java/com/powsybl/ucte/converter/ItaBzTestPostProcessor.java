@@ -78,10 +78,8 @@ class ItaBzTestPostProcessor implements UcteImportPostProcessor {
                     .map(busBreakerView::getBus)
                     .forEach(bus -> bus.setProperty("italianBiddingZone", currentBiddingZone));
 
-            startOfBlock += expectedCount;
-            startOfBlock++;
+            startOfBlock += expectedCount + 1;
         }
-
     }
 
     private static boolean isItalian(final UcteNode ucteNode) {
@@ -100,6 +98,5 @@ class ItaBzTestPostProcessor implements UcteImportPostProcessor {
                 .map(Map.Entry::getKey)
                 .orElseThrow(() -> new UcteException("%s does not belong to a bidding zone".formatted(name)));
     }
-
 
 }

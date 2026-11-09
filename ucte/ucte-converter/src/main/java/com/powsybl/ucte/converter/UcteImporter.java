@@ -234,8 +234,8 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(bus.getId())
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
-                .setTargetP(-getOrZero(ucteNode.getActivePowerGeneration()))
-                .setLocalTargetQ(-getOrZero(ucteNode.getReactivePowerGeneration()))
+                .setTargetP(getOrZero(-ucteNode.getActivePowerGeneration()))
+                .setLocalTargetQ(getOrZero(-ucteNode.getReactivePowerGeneration()))
                 .setLocalTargetV(ucteNode.getVoltageReference());
         if (ucteNode.isRegulatingVoltage()) {
             adder.newVoltageRegulation()
@@ -282,8 +282,8 @@ public class UcteImporter implements Importer {
                 .setPairingKey(xnode.getCode().toString())
                 .setFictitious(isFictitious(ucteLine))
                 .newGeneration()
-                .setTargetP(-getOrZero(xnode.getActivePowerGeneration()))
-                .setTargetQ(-getOrZero(xnode.getReactivePowerGeneration()))
+                .setTargetP(getOrZero(-xnode.getActivePowerGeneration()))
+                .setTargetQ(getOrZero(-xnode.getReactivePowerGeneration()))
                 .add()
                 .add();
 
@@ -659,8 +659,8 @@ public class UcteImporter implements Importer {
                 .setQ0(getOrZero(ucteXnode.getReactiveLoad()))
                 .setPairingKey(ucteXnode.getCode().toString())
                 .newGeneration()
-                .setTargetP(-getOrZero(ucteXnode.getActivePowerGeneration()))
-                .setTargetQ(-getOrZero(ucteXnode.getReactivePowerGeneration()))
+                .setTargetP(getOrZero(-ucteXnode.getActivePowerGeneration()))
+                .setTargetQ(getOrZero(-ucteXnode.getReactivePowerGeneration()))
                 .add()
                 .add();
         addXnodeStatusProperty(ucteXnode, yBoundaryLine);
@@ -829,9 +829,9 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addCurrentLimitProperty(UcteLine ucteLine, Switch aSwitch) {
+    private static void addCurrentLimitProperty(UcteLine ucteLine, Switch sw) {
         if (ucteLine.getCurrentLimit() != null) {
-            aSwitch.setProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
+            sw.setProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
         }
     }
 
@@ -852,9 +852,9 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addOrderCodeProperty(UcteLine ucteLine, Switch aSwitch) {
+    private static void addOrderCodeProperty(UcteLine ucteLine, Switch sw) {
         String ucteLineId = ucteLine.getId().toString();
-        aSwitch.setProperty(ORDER_CODE, String.valueOf(ucteLineId.charAt(ucteLineId.length() - 1)));
+        sw.setProperty(ORDER_CODE, String.valueOf(ucteLineId.charAt(ucteLineId.length() - 1)));
     }
 
     private static void addXnodeStatusProperty(UcteNode ucteNode, Identifiable<?> identifiable) {
