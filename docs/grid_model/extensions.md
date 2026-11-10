@@ -650,6 +650,64 @@ All of this extension's attributes are multi-variants: they can vary from one va
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(phase-to-phase-loads-extension)=
+## Phase to phase loads
+This extension is attached to a [load](network_subnetwork.md#load) and describes the parts of this load that are connected **between two phases** of a 
+three-phase system (for example a two-phase load between phases A and B). A single load can carry several phase-to-phase components 
+(e.g. AB, BC, CA), which makes it possible to describe delta-connected or mixed loads.
+
+Each component gives the active power $P$ and the reactive power $Q$ consumed between its two phases. These values are the total powers consumed by the load connected between the two phases, not powers per phase-to-neutral. They follow the same conventions as the active power setpoint $P0$ and the reactive power setpoint $Q0$ of the load: $P$ is in MW, $Q$ is in MVar and consumption is positive.
+
+The phases are chosen among `A`, `B` and `C`. The two phases of a component must be different, and a load can hold at most one component for a given pair of phases: the pair is not ordered, so (A, B) and (B, A) designate the same component.
+
+This extension is independent of the [load asymmetrical](#load-asymmetrical-extension) extension and of the active and reactive power
+setpoints $P0$ and $Q0$ of the load: no consistency check is performed between them.
+
+The extension contains a list of phase-to-phase loads:
+
+| Attribute         | Type                    | Unit | Required | Default value | Description                                |
+|-------------------|-------------------------|------|----------|---------------|--------------------------------------------|
+| phaseToPhaseLoads | List<PhaseToPhaseLoad> | -    | no       | empty         | The phase-to-phase components of this load |
+
+The `PhaseToPhaseLoad` class characteristics are the following:
+
+| Attribute | Type   | Unit | Required | Default value | Description                                                       |
+|-----------|--------|------|----------|---------------|-------------------------------------------------------------------|
+| phase1    | Phase  | -    | yes      | -             | The first phase (`A`, `B` or `C`)                                 |
+| phase2    | Phase  | -    | yes      | -             | The second phase (`A`, `B` or `C`), different from `phase1`       |
+| p         | double | MW   | yes      | -             | The active power consumed between `phase1` and `phase2`           |
+| q         | double | MVar | yes      | -             | The reactive power consumed between `phase1` and `phase2`         |
+
+`p` and `q` are multi-variants: they can vary from one variant to another. The phases are the same in all variants.
+
+Here is how to add a phase to phase loads extension to a load:
+```java
+PhaseToPhaseLoads phaseToPhaseLoads = load.newExtension(PhaseToPhaseLoadsAdder.class).add();
+phaseToPhaseLoads.newPhaseToPhaseLoad()
+        .withPhase1(Phase.A)
+        .withPhase2(Phase.B)
+        .withP(10)
+        .withQ(5)
+        .add();
+phaseToPhaseLoads.newPhaseToPhaseLoad()
+        .withPhase1(Phase.B)
+        .withPhase2(Phase.C)
+        .withP(3)
+        .withQ(1)
+        .add();
+```
+
+A component can then be retrieved whatever the order of its phases, updated or removed:
+```java
+PhaseToPhaseLoad ab = phaseToPhaseLoads.findPhaseToPhaseLoad(Phase.B, Phase.A).orElseThrow();
+ab.setP(12).setQ(6);
+phaseToPhaseLoads.removePhaseToPhaseLoad(Phase.B, Phase.C);
+```
+
+An extension without any component is not serialized.
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
 (measurements-extension)=
 ## Measurements
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2026, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ppl="http://www.powsybl.org/schema/iidm/ext/phase_to_phase_loads/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/phase_to_phase_loads/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name="Phase">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="A"/>
+            <xs:enumeration value="B"/>
+            <xs:enumeration value="C"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="phaseToPhaseLoads">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="phaseToPhaseLoad" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="phase1" use="required" type="ppl:Phase"/>
+                        <xs:attribute name="phase2" use="required" type="ppl:Phase"/>
+                        <xs:attribute name="p" use="required" type="xs:double"/>
+                        <xs:attribute name="q" use="required" type="xs:double"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
