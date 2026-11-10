@@ -8,6 +8,7 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
@@ -30,10 +31,24 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
         return "Counter";
     }
 
+    private ExportedVoltageLevels exportedVoltageLevels = ExportedVoltageLevels.all();
+
     @Override
     public void initializeNetwork(Network network) {
+        initializeNetwork(network, ReportNode.NO_OP);
+    }
+
+    @Override
+    public ExportedVoltageLevels getExportedVoltageLevels() {
+        return exportedVoltageLevels;
+    }
+
+    @Override
+    public void initializeNetwork(Network network, ReportNode reportNode) {
+        exportedVoltageLevels = ExportedVoltageLevels.compute(network, reportNode);
         voltageLevelCounter = 0;
         network.getVoltageLevelStream()
+                .filter(exportedVoltageLevels::isExported)
                 .forEach(this::processVoltageLevel);
 
         network.getBranchStream().forEach(this::generateUcteElementId);
@@ -69,7 +84,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
 
     private UcteNodeCode createNewUcteNodeId(String busId, VoltageLevel voltageLevel, char orderCode) {
         String newNodeId = String.format("%05d", voltageLevelCounter);
-        char countryCode = UcteCountryCode.fromVoltagelevel(voltageLevel).getUcteCode();
+        char countryCode = exportedVoltageLevels.getCountry(voltageLevel).getUcteCode();
         char voltageLevelCode = UcteVoltageLevelCode.voltageLevelCodeFromVoltage(voltageLevel.getNominalV());
 
         UcteNodeCode ucteNodeCode = new UcteNodeCode(
