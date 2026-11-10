@@ -38,8 +38,9 @@ public final class CgmesPowerTransformer {
     }
 
     public static void writeEq(PowerTransformerEq powerTransformer, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(POWER_TRANSFORMER, powerTransformer.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(powerTransformer.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(powerTransformer.name), writer);
         if (powerTransformer.equipmentContainer != null) {
             CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, powerTransformer.equipmentContainer, writer, context);
         }
@@ -47,15 +48,16 @@ public final class CgmesPowerTransformer {
     }
 
     public static void writeEndEq(PowerTransformerEndEq powerTransformerEnd, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(POWER_TRANSFORMER_END, powerTransformerEnd.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(powerTransformerEnd.name), writer, context);
-        CgmesExportUtil.writeAttribute(TRANSFORMER_END_END_NUMBER, CgmesExportUtil.format(powerTransformerEnd.endNumber), writer, context);
-        CgmesExportUtil.writeAttribute(POWER_TRANSFORMER_END_R, CgmesExportUtil.format(powerTransformerEnd.r), writer, context);
-        CgmesExportUtil.writeAttribute(POWER_TRANSFORMER_END_X, CgmesExportUtil.format(powerTransformerEnd.x), writer, context);
-        CgmesExportUtil.writeAttribute(POWER_TRANSFORMER_END_G, CgmesExportUtil.format(powerTransformerEnd.g), writer, context);
-        CgmesExportUtil.writeAttribute(POWER_TRANSFORMER_END_B, CgmesExportUtil.format(powerTransformerEnd.b), writer, context);
-        CgmesExportUtil.writeAttribute(POWER_TRANSFORMER_END_RATED_S, CgmesExportUtil.format(powerTransformerEnd.ratedS, POWER_TRANSFORMER_END_RATED_S_DEFAULT_VALUE), writer, context);
-        CgmesExportUtil.writeAttribute(POWER_TRANSFORMER_END_RATED_U, CgmesExportUtil.format(powerTransformerEnd.ratedU), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(powerTransformerEnd.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, TRANSFORMER_END_END_NUMBER, CgmesExportUtil.format(powerTransformerEnd.endNumber), writer);
+        CgmesExportUtil.writeAttribute(namespace, POWER_TRANSFORMER_END_R, CgmesExportUtil.format(powerTransformerEnd.r), writer);
+        CgmesExportUtil.writeAttribute(namespace, POWER_TRANSFORMER_END_X, CgmesExportUtil.format(powerTransformerEnd.x), writer);
+        CgmesExportUtil.writeAttribute(namespace, POWER_TRANSFORMER_END_G, CgmesExportUtil.format(powerTransformerEnd.g), writer);
+        CgmesExportUtil.writeAttribute(namespace, POWER_TRANSFORMER_END_B, CgmesExportUtil.format(powerTransformerEnd.b), writer);
+        CgmesExportUtil.writeAttribute(namespace, POWER_TRANSFORMER_END_RATED_S, CgmesExportUtil.format(powerTransformerEnd.ratedS, POWER_TRANSFORMER_END_RATED_S_DEFAULT_VALUE), writer);
+        CgmesExportUtil.writeAttribute(namespace, POWER_TRANSFORMER_END_RATED_U, CgmesExportUtil.format(powerTransformerEnd.ratedU), writer);
         CgmesExportUtil.writeResource(POWER_TRANSFORMER_END_POWER_TRANSFORMER, powerTransformerEnd.powerTransformer, writer, context);
         CgmesExportUtil.writeResource(TRANSFORMER_END_TERMINAL, powerTransformerEnd.terminal, writer, context);
         CgmesExportUtil.writeResource(TRANSFORMER_END_BASE_VOLTAGE, powerTransformerEnd.baseVoltage, writer, context);

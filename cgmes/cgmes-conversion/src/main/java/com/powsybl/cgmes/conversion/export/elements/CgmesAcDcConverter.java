@@ -31,12 +31,13 @@ public final class CgmesAcDcConverter {
     }
 
     public static void writeEq(AcDcConverterEq acDcConverter, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(acDcConverter.className, acDcConverter.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(acDcConverter.name), writer, context);
-        CgmesExportUtil.writeAttribute(ACDC_CONVERTER_RATED_UDC, CgmesExportUtil.format(acDcConverter.ratedUdc), writer, context);
-        CgmesExportUtil.writeAttribute(ACDC_CONVERTER_IDLE_LOSS, CgmesExportUtil.format(acDcConverter.idleLoss), writer, context);
-        CgmesExportUtil.writeAttribute(ACDC_CONVERTER_SWITCHING_LOSS, CgmesExportUtil.format(acDcConverter.switchingLoss), writer, context);
-        CgmesExportUtil.writeAttribute(ACDC_CONVERTER_RESISTIVE_LOSS, CgmesExportUtil.format(acDcConverter.resistiveLoss), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(acDcConverter.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, ACDC_CONVERTER_RATED_UDC, CgmesExportUtil.format(acDcConverter.ratedUdc), writer);
+        CgmesExportUtil.writeAttribute(namespace, ACDC_CONVERTER_IDLE_LOSS, CgmesExportUtil.format(acDcConverter.idleLoss), writer);
+        CgmesExportUtil.writeAttribute(namespace, ACDC_CONVERTER_SWITCHING_LOSS, CgmesExportUtil.format(acDcConverter.switchingLoss), writer);
+        CgmesExportUtil.writeAttribute(namespace, ACDC_CONVERTER_RESISTIVE_LOSS, CgmesExportUtil.format(acDcConverter.resistiveLoss), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, acDcConverter.equipmentContainer, writer, context);
         if (acDcConverter.pccTerminal != null) {
             CgmesExportUtil.writeResource(ACDC_CONVERTER_PCC_TERMINAL, acDcConverter.pccTerminal, writer, context);

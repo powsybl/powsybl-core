@@ -26,9 +26,10 @@ public final class CgmesDCGround {
     }
 
     public static void writeEq(DCGroundEq dcGround, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_GROUND, dcGround.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcGround.name), writer, context);
-        CgmesExportUtil.writeAttribute(DC_GROUND_R, CgmesExportUtil.format(dcGround.r), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcGround.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, DC_GROUND_R, CgmesExportUtil.format(dcGround.r), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

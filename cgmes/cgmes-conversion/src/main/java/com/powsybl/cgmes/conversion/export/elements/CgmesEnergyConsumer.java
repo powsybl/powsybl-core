@@ -27,8 +27,9 @@ public final class CgmesEnergyConsumer {
     }
 
     public static void writeEq(EnergyConsumerEq energyConsumer, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(energyConsumer.className, energyConsumer.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(energyConsumer.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(energyConsumer.name), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, energyConsumer.equipmentContainer, writer, context);
         if (energyConsumer.loadGroup != null) {
             CgmesExportUtil.writeResource(energyConsumer.className + LOAD_GROUP, energyConsumer.loadGroup, writer, context);

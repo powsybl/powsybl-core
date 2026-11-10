@@ -28,13 +28,14 @@ public final class CgmesTerminal {
     }
 
     public static void writeEq(TerminalEq terminal, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(TERMINAL, terminal.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(terminal.conductingEquipment), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(terminal.conductingEquipment), writer);
         CgmesExportUtil.writeResource(TERMINAL_CONDUCTING_EQUIPMENT, terminal.conductingEquipment, writer, context);
         if (terminal.connectivityNode != null) {
             CgmesExportUtil.writeResource(TERMINAL_CONNECTIVITY_NODE, terminal.connectivityNode, writer, context);
         }
-        CgmesExportUtil.writeAttribute(AC_DC_TERMINAL_SEQUENCE_NUMBER, CgmesExportUtil.format(terminal.sequenceNumber), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, AC_DC_TERMINAL_SEQUENCE_NUMBER, CgmesExportUtil.format(terminal.sequenceNumber), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

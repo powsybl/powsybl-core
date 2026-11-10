@@ -32,8 +32,9 @@ public final class CgmesSynchronousMachine {
     }
 
     public static void writeEq(SynchronousMachineEq synchronousMachine, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SYNCHRONOUS_MACHINE, synchronousMachine.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(synchronousMachine.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(synchronousMachine.name), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, synchronousMachine.equipmentContainer, writer, context);
         if (synchronousMachine.generatingUnit != null) {
             // Some synchronous machines are not associated to a generating unit (condensers)
@@ -46,14 +47,14 @@ public final class CgmesSynchronousMachine {
             CgmesExportUtil.writeResource(SYNCHRONOUS_MACHINE_INITIAL_REACTIVE_CAPABILITY_CURVE, synchronousMachine.initialReactiveCapabilityCurve, writer, context);
         }
         if (synchronousMachine.minQ != null) {
-            CgmesExportUtil.writeAttribute(SYNCHRONOUS_MACHINE_MIN_Q, CgmesExportUtil.format(synchronousMachine.minQ), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, SYNCHRONOUS_MACHINE_MIN_Q, CgmesExportUtil.format(synchronousMachine.minQ), writer);
         }
         if (synchronousMachine.maxQ != null) {
-            CgmesExportUtil.writeAttribute(SYNCHRONOUS_MACHINE_MAX_Q, CgmesExportUtil.format(synchronousMachine.maxQ), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, SYNCHRONOUS_MACHINE_MAX_Q, CgmesExportUtil.format(synchronousMachine.maxQ), writer);
         }
-        CgmesExportUtil.writeAttribute(ROTATING_MACHINE_RATED_S, synchronousMachine.ratedS, writer, context);
-        CgmesExportUtil.writeResource(SYNCHRONOUS_MACHINE_TYPE, context.getCim().getNamespace(),
-            context.getCim().getNamespace() + SYNCHRONOUS_MACHINE_KIND + synchronousMachine.type, writer);
+        CgmesExportUtil.writeAttribute(namespace, ROTATING_MACHINE_RATED_S, synchronousMachine.ratedS, writer);
+        CgmesExportUtil.writeResource(SYNCHRONOUS_MACHINE_TYPE, namespace,
+            namespace + SYNCHRONOUS_MACHINE_KIND + synchronousMachine.type, writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

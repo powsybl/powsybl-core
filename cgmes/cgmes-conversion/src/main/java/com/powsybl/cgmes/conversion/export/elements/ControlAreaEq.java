@@ -24,16 +24,16 @@ public final class ControlAreaEq {
 
     public static void write(String id, String controlAreaName, String energyIdentCodeEIC, String energyAreaId,
                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId("ControlArea", id, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(controlAreaName), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(controlAreaName), writer);
         if (energyIdentCodeEIC != null) {
             writer.writeStartElement(context.getCim().getEuNamespace(), "IdentifiedObject.energyIdentCodeEic");
             writer.writeCharacters(energyIdentCodeEIC);
             writer.writeEndElement();
         }
-        writer.writeEmptyElement(cimNamespace, "ControlArea.type");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CONTROL_AREA_TYPE);
+        writer.writeEmptyElement(namespace, "ControlArea.type");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, namespace + CONTROL_AREA_TYPE);
         if (!context.isCim16BusBranchExport()) {
             CgmesExportUtil.writeResource("ControlArea.EnergyArea", energyAreaId, writer, context);
         }

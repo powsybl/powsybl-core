@@ -28,10 +28,11 @@ public final class CgmesEquivalentBranch {
     }
 
     public static void writeEq(EquivalentBranchEq branch, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EQUIVALENT_BRANCH, branch.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(branch.name), writer, context);
-        CgmesExportUtil.writeAttribute(EQUIVALENT_BRANCH_R, CgmesExportUtil.format(branch.r), writer, context);
-        CgmesExportUtil.writeAttribute(EQUIVALENT_BRANCH_X, CgmesExportUtil.format(branch.x), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(branch.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_BRANCH_R, CgmesExportUtil.format(branch.r), writer);
+        CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_BRANCH_X, CgmesExportUtil.format(branch.x), writer);
         if (branch.baseVoltage != null) {
             CgmesExportUtil.writeResource(CONDUCTING_EQUIPMENT_BASE_VOLTAGE, branch.baseVoltage, writer, context);
         }

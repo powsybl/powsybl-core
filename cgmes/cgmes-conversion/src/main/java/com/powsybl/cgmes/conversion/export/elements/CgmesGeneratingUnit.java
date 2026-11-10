@@ -32,19 +32,20 @@ public final class CgmesGeneratingUnit {
     }
 
     public static void writeEq(GeneratingUnitEq generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(generatingUnit.className, generatingUnit.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(generatingUnit.name), writer, context);
-        CgmesExportUtil.writeAttribute(GENERATING_UNIT_MIN_OPERATING_P, CgmesExportUtil.format(generatingUnit.minOperatingP), writer, context);
-        CgmesExportUtil.writeAttribute(GENERATING_UNIT_MAX_OPERATING_P, CgmesExportUtil.format(generatingUnit.maxOperatingP), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(generatingUnit.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, GENERATING_UNIT_MIN_OPERATING_P, CgmesExportUtil.format(generatingUnit.minOperatingP), writer);
+        CgmesExportUtil.writeAttribute(namespace, GENERATING_UNIT_MAX_OPERATING_P, CgmesExportUtil.format(generatingUnit.maxOperatingP), writer);
         if (context.getCimVersion() == 16) {
-            CgmesExportUtil.writeAttribute(GENERATING_UNIT_INITIAL_P, CgmesExportUtil.format(generatingUnit.initialP), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, GENERATING_UNIT_INITIAL_P, CgmesExportUtil.format(generatingUnit.initialP), writer);
         }
         if (generatingUnit.equipmentContainer != null) {
             CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, generatingUnit.equipmentContainer, writer, context);
         }
         if (WIND_GENERATING_UNIT.equals(generatingUnit.className)) {
-            CgmesExportUtil.writeResource(WIND_GENERATING_UNIT_WIND_GEN_UNIT_TYPE, context.getCim().getNamespace(),
-                context.getCim().getNamespace() + WIND_GEN_UNIT_KIND + generatingUnit.windGenUnitType, writer);
+            CgmesExportUtil.writeResource(WIND_GENERATING_UNIT_WIND_GEN_UNIT_TYPE, namespace,
+                namespace + WIND_GEN_UNIT_KIND + generatingUnit.windGenUnitType, writer);
         }
         if (generatingUnit.hydroPowerPlant != null) {
             CgmesExportUtil.writeResource(HYDRO_GENERATING_UNIT_HYDRO_POWER_PLANT, generatingUnit.hydroPowerPlant, writer, context);

@@ -28,10 +28,11 @@ public final class CgmesCurveData {
     }
 
     public static void writeEq(CurveDataEq curveData, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(CURVE_DATA, curveData.rdfId, false, writer, context);
-        CgmesExportUtil.writeAttribute(CURVE_DATA_XVALUE, CgmesExportUtil.format(curveData.xvalue), writer, context);
-        CgmesExportUtil.writeAttribute(CURVE_DATA_Y1VALUE, CgmesExportUtil.format(curveData.y1value), writer, context);
-        CgmesExportUtil.writeAttribute(CURVE_DATA_Y2VALUE, CgmesExportUtil.format(curveData.y2value), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, CURVE_DATA_XVALUE, CgmesExportUtil.format(curveData.xvalue), writer);
+        CgmesExportUtil.writeAttribute(namespace, CURVE_DATA_Y1VALUE, CgmesExportUtil.format(curveData.y1value), writer);
+        CgmesExportUtil.writeAttribute(namespace, CURVE_DATA_Y2VALUE, CgmesExportUtil.format(curveData.y2value), writer);
         CgmesExportUtil.writeResource(CURVE_DATA_CURVE, curveData.curve, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }

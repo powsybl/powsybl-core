@@ -29,13 +29,14 @@ public final class CgmesVoltageLevel {
     }
 
     public static void writeEq(VoltageLevelEq voltageLevel, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(VOLTAGE_LEVEL, voltageLevel.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(voltageLevel.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(voltageLevel.name), writer);
         if (!Double.isNaN(voltageLevel.lowVoltageLimit)) {
-            CgmesExportUtil.writeAttribute(VOLTAGE_LEVEL_LOW_VOLTAGE_LIMIT, CgmesExportUtil.format(voltageLevel.lowVoltageLimit), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, VOLTAGE_LEVEL_LOW_VOLTAGE_LIMIT, CgmesExportUtil.format(voltageLevel.lowVoltageLimit), writer);
         }
         if (!Double.isNaN(voltageLevel.highVoltageLimit)) {
-            CgmesExportUtil.writeAttribute(VOLTAGE_LEVEL_HIGH_VOLTAGE_LIMIT, CgmesExportUtil.format(voltageLevel.highVoltageLimit), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, VOLTAGE_LEVEL_HIGH_VOLTAGE_LIMIT, CgmesExportUtil.format(voltageLevel.highVoltageLimit), writer);
         }
         CgmesExportUtil.writeResource(VOLTAGE_LEVEL_SUBSTATION, voltageLevel.substation, writer, context);
         CgmesExportUtil.writeResource(VOLTAGE_LEVEL_BASE_VOLTAGE, voltageLevel.baseVoltage, writer, context);

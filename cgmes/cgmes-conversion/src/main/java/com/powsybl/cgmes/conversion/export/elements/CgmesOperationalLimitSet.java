@@ -26,8 +26,9 @@ public final class CgmesOperationalLimitSet {
     }
 
     public static void writeEq(OperationalLimitSetEq operationalLimitSet, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(OPERATIONAL_LIMIT_SET, operationalLimitSet.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(operationalLimitSet.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(operationalLimitSet.name), writer);
         CgmesExportUtil.writeResource(OPERATIONAL_LIMIT_SET_TERMINAL, operationalLimitSet.terminal, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }

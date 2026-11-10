@@ -438,7 +438,7 @@ public final class TopologyExport {
             String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
             DCConverterUnit unit = dcBusesConverterUnit.get(dcBus);
             String dcConverterUnitId = unit != null ? unit.id() : null;
-            writeDCTopologicalNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+            writeDCTopologicalNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId, writer, context);
         }
     }
 
@@ -452,30 +452,32 @@ public final class TopologyExport {
             String id = context.getNamingStrategy().getCgmesId(refTyped(b), DC_TOPOLOGICAL_NODE);
             String name = line.getNameOrId() + side;
             String dcConverterUnit = getDcConverterUnitId(line, side, context);
-            writeDCTopologicalNode(id, name, dcConverterUnit, cimNamespace, writer, context);
+            writeDCTopologicalNode(id, name, dcConverterUnit, writer, context);
 
             id = context.getNamingStrategy().getCgmesId(refTyped(b), DC_TOPOLOGICAL_NODE, ref(side + "G"));
             name = line.getNameOrId() + side + "G";
-            writeDCTopologicalNode(id, name, dcConverterUnit, cimNamespace, writer, context);
+            writeDCTopologicalNode(id, name, dcConverterUnit, writer, context);
 
             written.add(b.getId());
         }
     }
 
-    private static void writeDCTopologicalNode(String id, String name, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer,
+    private static void writeDCTopologicalNode(String id, String name, String dcEquipmentContainerId, XMLStreamWriter writer,
                                                CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId("DCTopologicalNode", id, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
         if (dcEquipmentContainerId != null) {
-            CgmesExportUtil.writeResource(DC_TOPOLOGICAL_NODE_EQUIPMENT_CONTAINER, dcEquipmentContainerId, writer, context);
+            CgmesExportUtil.writeResource(namespace, DC_TOPOLOGICAL_NODE_EQUIPMENT_CONTAINER, dcEquipmentContainerId, writer);
         }
         writer.writeEndElement();
     }
 
     private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId,
                                              String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId("TopologicalNode", topologicalNode, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(topologicalNodeName), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(topologicalNodeName), writer);
         CgmesExportUtil.writeResource(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, writer, context);
         CgmesExportUtil.writeResource(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, writer, context);
         writer.writeEndElement();

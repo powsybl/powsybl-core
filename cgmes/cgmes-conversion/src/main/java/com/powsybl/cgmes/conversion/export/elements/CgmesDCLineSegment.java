@@ -26,9 +26,10 @@ public final class CgmesDCLineSegment {
     }
 
     public static void writeEq(DCLineSegmentEq dcLineSegment, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_LINE_SEGMENT, dcLineSegment.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcLineSegment.name), writer, context);
-        CgmesExportUtil.writeAttribute(DC_LINE_SEGMENT_RESISTANCE, CgmesExportUtil.format(dcLineSegment.resistance), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcLineSegment.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, DC_LINE_SEGMENT_RESISTANCE, CgmesExportUtil.format(dcLineSegment.resistance), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

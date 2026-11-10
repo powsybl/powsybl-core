@@ -26,8 +26,9 @@ public final class CgmesConnectivityNode {
     }
 
     public static void writeEq(ConnectivityNodeEq node, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(CONNECTIVITY_NODE, node.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(node.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(node.name), writer);
         CgmesExportUtil.writeResource(CONNECTIVITY_NODE_CONNECTIVITY_NODE_CONTAINER, node.connectivityNodeContainer, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }

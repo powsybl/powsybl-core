@@ -55,15 +55,16 @@ public final class CgmesTapChanger {
     }
 
     public static void writePhaseTapChangerEq(PhaseTapChangerEq phaseTapChanger, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(PHASE_TAP_CHANGER_TABULAR, phaseTapChanger.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(phaseTapChanger.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(phaseTapChanger.name), writer);
         CgmesExportUtil.writeResource(PHASE_TAP_CHANGER_TRANSFORMER_END, phaseTapChanger.transformerEnd, writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_LOW_STEP, CgmesExportUtil.format(phaseTapChanger.lowStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_HIGH_STEP, CgmesExportUtil.format(phaseTapChanger.highStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_NORMAL_STEP, CgmesExportUtil.format(phaseTapChanger.normalStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_NEUTRAL_STEP, CgmesExportUtil.format(phaseTapChanger.neutralStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_NEUTRAL_U, CgmesExportUtil.format(phaseTapChanger.neutralU), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_LTC_FLAG, CgmesExportUtil.format(phaseTapChanger.ltcFlag), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_LOW_STEP, CgmesExportUtil.format(phaseTapChanger.lowStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_HIGH_STEP, CgmesExportUtil.format(phaseTapChanger.highStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_NORMAL_STEP, CgmesExportUtil.format(phaseTapChanger.normalStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_NEUTRAL_STEP, CgmesExportUtil.format(phaseTapChanger.neutralStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_NEUTRAL_U, CgmesExportUtil.format(phaseTapChanger.neutralU), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_LTC_FLAG, CgmesExportUtil.format(phaseTapChanger.ltcFlag), writer);
         CgmesExportUtil.writeResource(PHASE_TAP_CHANGER_TABULAR_PHASE_TAP_CHANGER_TABLE, phaseTapChanger.phaseTapChangerTable, writer, context);
         if (phaseTapChanger.tapChangerControl != null) {
             CgmesExportUtil.writeResource(TAP_CHANGER_TAP_CHANGER_CONTROL, phaseTapChanger.tapChangerControl, writer, context);
@@ -72,38 +73,41 @@ public final class CgmesTapChanger {
     }
 
     public static void writePhaseTapChangerTableEq(PhaseTapChangerTableEq phaseTapChangerTable, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(PHASE_TAP_CHANGER_TABLE, phaseTapChangerTable.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(phaseTapChangerTable.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(phaseTapChangerTable.name), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 
     public static void writePhaseTapChangerTablePointEq(PhaseTapChangerTablePointEq point, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(PHASE_TAP_CHANGER_TABLE_POINT, point.rdfId, false, writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_R, CgmesExportUtil.format(point.r), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_X, CgmesExportUtil.format(point.x), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_G, CgmesExportUtil.format(point.g), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_B, CgmesExportUtil.format(point.b), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_STEP, CgmesExportUtil.format(point.step), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_RATIO, CgmesExportUtil.format(point.ratio), writer, context);
-        CgmesExportUtil.writeAttribute(PHASE_TAP_CHANGER_TABLE_POINT_ANGLE, CgmesExportUtil.format(point.angle), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_R, CgmesExportUtil.format(point.r), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_X, CgmesExportUtil.format(point.x), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_G, CgmesExportUtil.format(point.g), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_B, CgmesExportUtil.format(point.b), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_STEP, CgmesExportUtil.format(point.step), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_RATIO, CgmesExportUtil.format(point.ratio), writer);
+        CgmesExportUtil.writeAttribute(namespace, PHASE_TAP_CHANGER_TABLE_POINT_ANGLE, CgmesExportUtil.format(point.angle), writer);
         CgmesExportUtil.writeResource(PHASE_TAP_CHANGER_TABLE_POINT_PHASE_TAP_CHANGER_TABLE, point.phaseTapChangerTable, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }
 
     public static void writeRatioTapChangerEq(RatioTapChangerEq ratioTapChanger, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(RATIO_TAP_CHANGER, ratioTapChanger.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(ratioTapChanger.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(ratioTapChanger.name), writer);
         CgmesExportUtil.writeResource(RATIO_TAP_CHANGER_TRANSFORMER_END, ratioTapChanger.transformerEnd, writer, context);
-        CgmesExportUtil.writeAttribute(RATIO_TAP_CHANGER_STEP_VOLTAGE_INCREMENT, CgmesExportUtil.format(ratioTapChanger.stepVoltageIncrement), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_LOW_STEP, CgmesExportUtil.format(ratioTapChanger.lowStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_HIGH_STEP, CgmesExportUtil.format(ratioTapChanger.highStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_NORMAL_STEP, CgmesExportUtil.format(ratioTapChanger.normalStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_NEUTRAL_STEP, CgmesExportUtil.format(ratioTapChanger.neutralStep), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_NEUTRAL_U, CgmesExportUtil.format(ratioTapChanger.neutralU), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_LTC_FLAG, CgmesExportUtil.format(ratioTapChanger.ltcFlag), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, RATIO_TAP_CHANGER_STEP_VOLTAGE_INCREMENT, CgmesExportUtil.format(ratioTapChanger.stepVoltageIncrement), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_LOW_STEP, CgmesExportUtil.format(ratioTapChanger.lowStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_HIGH_STEP, CgmesExportUtil.format(ratioTapChanger.highStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_NORMAL_STEP, CgmesExportUtil.format(ratioTapChanger.normalStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_NEUTRAL_STEP, CgmesExportUtil.format(ratioTapChanger.neutralStep), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_NEUTRAL_U, CgmesExportUtil.format(ratioTapChanger.neutralU), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_LTC_FLAG, CgmesExportUtil.format(ratioTapChanger.ltcFlag), writer);
         if (context.getCimVersion() == 16) {
-            CgmesExportUtil.writeResource(RATIO_TAP_CHANGER_TCUL_CONTROL_MODE, context.getCim().getNamespace(),
-                context.getCim().getNamespace() + TRANSFORMER_CONTROL_MODE + "." + ratioTapChanger.tculControlMode, writer);
+            CgmesExportUtil.writeResource(RATIO_TAP_CHANGER_TCUL_CONTROL_MODE, namespace,
+                namespace + TRANSFORMER_CONTROL_MODE + "." + ratioTapChanger.tculControlMode, writer);
         }
         CgmesExportUtil.writeResource(RATIO_TAP_CHANGER_RATIO_TAP_CHANGER_TABLE, ratioTapChanger.ratioTapChangerTable, writer, context);
         if (ratioTapChanger.tapChangerControl != null) {
@@ -113,28 +117,31 @@ public final class CgmesTapChanger {
     }
 
     public static void writeRatioTapChangerTableEq(RatioTapChangerTableEq ratioTapChangerTable, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(RATIO_TAP_CHANGER_TABLE, ratioTapChangerTable.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(ratioTapChangerTable.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(ratioTapChangerTable.name), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 
     public static void writeRatioTapChangerTablePointEq(RatioTapChangerTablePointEq point, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(RATIO_TAP_CHANGER_TABLE_POINT, point.rdfId, false, writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_R, CgmesExportUtil.format(point.r), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_X, CgmesExportUtil.format(point.x), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_G, CgmesExportUtil.format(point.g), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_B, CgmesExportUtil.format(point.b), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_STEP, CgmesExportUtil.format(point.step), writer, context);
-        CgmesExportUtil.writeAttribute(TAP_CHANGER_TABLE_POINT_RATIO, CgmesExportUtil.format(point.ratio), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_R, CgmesExportUtil.format(point.r), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_X, CgmesExportUtil.format(point.x), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_G, CgmesExportUtil.format(point.g), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_B, CgmesExportUtil.format(point.b), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_STEP, CgmesExportUtil.format(point.step), writer);
+        CgmesExportUtil.writeAttribute(namespace, TAP_CHANGER_TABLE_POINT_RATIO, CgmesExportUtil.format(point.ratio), writer);
         CgmesExportUtil.writeResource(RATIO_TAP_CHANGER_TABLE_POINT_RATIO_TAP_CHANGER_TABLE, point.ratioTapChangerTable, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }
 
     public static void writeTapChangerControlEq(TapChangerControlEq tapChangerControl, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(TAP_CHANGER_CONTROL, tapChangerControl.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(tapChangerControl.name), writer, context);
-        CgmesExportUtil.writeResource(REGULATING_CONTROL_MODE, context.getCim().getNamespace(),
-            context.getCim().getNamespace() + tapChangerControl.mode, writer);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(tapChangerControl.name), writer);
+        CgmesExportUtil.writeResource(REGULATING_CONTROL_MODE, namespace,
+            namespace + tapChangerControl.mode, writer);
         CgmesExportUtil.writeResource(REGULATING_CONTROL_TERMINAL, tapChangerControl.terminal, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }

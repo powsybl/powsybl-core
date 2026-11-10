@@ -24,8 +24,9 @@ public final class CgmesDCSwitch {
     }
 
     public static void writeEq(DCSwitchEq dcSwitch, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(dcSwitch.className, dcSwitch.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcSwitch.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcSwitch.name), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

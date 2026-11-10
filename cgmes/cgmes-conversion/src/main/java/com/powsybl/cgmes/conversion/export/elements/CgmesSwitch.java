@@ -27,11 +27,12 @@ public final class CgmesSwitch {
     }
 
     public static void writeEq(SwitchEq switchEq, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(switchEq.className, switchEq.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(switchEq.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(switchEq.name), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, switchEq.equipmentContainer, writer, context);
-        CgmesExportUtil.writeAttribute(SWITCH_NORMAL_OPEN, CgmesExportUtil.format(switchEq.normalOpen), writer, context);
-        CgmesExportUtil.writeAttribute(SWITCH_RETAINED, CgmesExportUtil.format(switchEq.retained), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, SWITCH_NORMAL_OPEN, CgmesExportUtil.format(switchEq.normalOpen), writer);
+        CgmesExportUtil.writeAttribute(namespace, SWITCH_RETAINED, CgmesExportUtil.format(switchEq.retained), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 
