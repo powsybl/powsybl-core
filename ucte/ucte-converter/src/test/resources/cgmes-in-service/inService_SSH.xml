@@ -23,6 +23,33 @@
         <cim:EnergyConsumer.p>10</cim:EnergyConsumer.p>
         <cim:EnergyConsumer.q>1</cim:EnergyConsumer.q>
     </cim:EnergyConsumer>
+    <cim:EnergyConsumer rdf:about="#_Load2Out">
+        <cim:Equipment.inService>false</cim:Equipment.inService>
+        <cim:EnergyConsumer.p>20</cim:EnergyConsumer.p>
+        <cim:EnergyConsumer.q>2</cim:EnergyConsumer.q>
+    </cim:EnergyConsumer>
+    <cim:SynchronousMachine rdf:about="#_Generator2In">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-100</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>0</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineOperatingMode.generator"/>
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+    </cim:SynchronousMachine>
+    <cim:SynchronousMachine rdf:about="#_Generator2Out">
+        <cim:Equipment.inService>false</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-50</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>0</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineOperatingMode.generator"/>
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+    </cim:SynchronousMachine>
+    <cim:Equipment rdf:about="#_Generator2In-GeneratingUnit">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:Equipment>
+    <cim:Equipment rdf:about="#_Generator2Out-GeneratingUnit">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:Equipment>
     <cim:EquivalentInjection rdf:about="#_BoundaryLineOut-EquivalentInjection">
         <cim:Equipment.inService>true</cim:Equipment.inService>
         <cim:EquivalentInjection.p>0</cim:EquivalentInjection.p>

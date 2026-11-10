@@ -141,6 +141,65 @@
         <cim:Terminal.ConductingEquipment rdf:resource="#_Load2"/>
         <cim:Terminal.ConnectivityNode rdf:resource="#_Node2"/>
     </cim:Terminal>
+    <cim:EnergyConsumer rdf:ID="_Load2Out">
+        <cim:IdentifiedObject.name>Load2Out</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel2"/>
+    </cim:EnergyConsumer>
+    <cim:Terminal rdf:ID="_Load2Out-T">
+        <cim:IdentifiedObject.name>Load2Out-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Load2Out"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Node2"/>
+    </cim:Terminal>
+    <cim:SynchronousMachine rdf:ID="_Generator2In">
+        <cim:IdentifiedObject.name>Generator2In</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel2"/>
+        <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+        <cim:SynchronousMachine.r0>0</cim:SynchronousMachine.r0>
+        <cim:SynchronousMachine.r2>0</cim:SynchronousMachine.r2>
+        <cim:SynchronousMachine.satDirectSubtransX>0</cim:SynchronousMachine.satDirectSubtransX>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator"/>
+        <cim:SynchronousMachine.x0>0</cim:SynchronousMachine.x0>
+        <cim:SynchronousMachine.x2>0</cim:SynchronousMachine.x2>
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_Generator2In-GeneratingUnit"/>
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:ID="_Generator2In-T">
+        <cim:IdentifiedObject.name>Generator2In-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Generator2In"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Node2"/>
+    </cim:Terminal>
+    <cim:ThermalGeneratingUnit rdf:ID="_Generator2In-GeneratingUnit">
+        <cim:IdentifiedObject.name>Generator2In-GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_Substation2"/>
+        <cim:GeneratingUnit.genControlSource rdf:resource="http://iec.ch/TC57/CIM100#GeneratorControlSource.offAGC"/>
+        <cim:GeneratingUnit.maxOperatingP>200</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.nominalP>200</cim:GeneratingUnit.nominalP>
+    </cim:ThermalGeneratingUnit>
+    <cim:SynchronousMachine rdf:ID="_Generator2Out">
+        <cim:IdentifiedObject.name>Generator2Out</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel2"/>
+        <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+        <cim:SynchronousMachine.r0>0</cim:SynchronousMachine.r0>
+        <cim:SynchronousMachine.r2>0</cim:SynchronousMachine.r2>
+        <cim:SynchronousMachine.satDirectSubtransX>0</cim:SynchronousMachine.satDirectSubtransX>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineKind.generator"/>
+        <cim:SynchronousMachine.x0>0</cim:SynchronousMachine.x0>
+        <cim:SynchronousMachine.x2>0</cim:SynchronousMachine.x2>
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_Generator2Out-GeneratingUnit"/>
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:ID="_Generator2Out-T">
+        <cim:IdentifiedObject.name>Generator2Out-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Generator2Out"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_Node2"/>
+    </cim:Terminal>
+    <cim:ThermalGeneratingUnit rdf:ID="_Generator2Out-GeneratingUnit">
+        <cim:IdentifiedObject.name>Generator2Out-GeneratingUnit</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_Substation2"/>
+        <cim:GeneratingUnit.genControlSource rdf:resource="http://iec.ch/TC57/CIM100#GeneratorControlSource.offAGC"/>
+        <cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.nominalP>100</cim:GeneratingUnit.nominalP>
+    </cim:ThermalGeneratingUnit>
     <cim:ACLineSegment rdf:ID="_LineOut">
         <cim:IdentifiedObject.name>LineOut</cim:IdentifiedObject.name>
         <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>

@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.ucte.network.UcteElement;
 import com.powsybl.ucte.network.UcteElementStatus;
 import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UcteNode;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.io.UcteReader;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.ELEMENT_NAME_PROPERTY_KEY;
@@ -66,6 +68,23 @@ class CgmesInServiceUcteExportTest {
         UcteElement lineOut = elementOf(ucte, "LINE OUT");
         assertTrue(isReferencedOnlyBy(ucte, lineOut.getId().getNodeCode1(), lineOut)
                 || isReferencedOnlyBy(ucte, lineOut.getId().getNodeCode2(), lineOut));
+    }
+
+    @Test
+    @DisplayName("Node-breaker: an out-of-service generator or load is exported on a UCTE node of its own, with its power")
+    void outOfServiceInjectionsTest() throws IOException {
+        // Current output in node-breaker: an out-of-service generator or load is detached by a fictitious switch, and its
+        // bus-breaker view bus is exported as an extra UCTE node, referenced by no element, that holds its power
+        UcteNetwork ucte = exportToUcte(importDataset());
+
+        // The node of the in-service generator and load does not count the out-of-service ones
+        UcteNode node2 = nodeWith(ucte, UcteNode::getActivePowerGeneration, -100);
+        assertEquals(10, node2.getActiveLoad(), 1e-6);
+
+        UcteNode loadOutNode = nodeWith(ucte, UcteNode::getActiveLoad, 20);
+        assertTrue(isReferencedByNoElement(ucte, loadOutNode.getCode()));
+        UcteNode generatorOutNode = nodeWith(ucte, UcteNode::getActivePowerGeneration, -50);
+        assertTrue(isReferencedByNoElement(ucte, generatorOutNode.getCode()));
     }
 
     /**
@@ -135,6 +154,31 @@ class CgmesInServiceUcteExportTest {
      */
     private static UcteElementStatus statusOf(UcteNetwork ucte, String elementName) {
         return elementOf(ucte, elementName).getStatus();
+    }
+
+    /**
+     * Get the single node of a UCTE network that has the given value.
+     *
+     * @param ucte the UCTE network
+     * @param value the value of the node to look at
+     * @param expected the expected value
+     * @return the node
+     */
+    private static UcteNode nodeWith(UcteNetwork ucte, ToDoubleFunction<UcteNode> value, double expected) {
+        return ucte.getNodes().stream().filter(n -> Math.abs(value.applyAsDouble(n) - expected) < 1e-6).reduce((n1, n2) -> {
+            throw new AssertionError("Several nodes with the value " + expected);
+        }).orElseThrow();
+    }
+
+    /**
+     * Tell whether a UCTE node is referenced by no element.
+     *
+     * @param ucte the UCTE network
+     * @param node the code of the node
+     * @return {@code true} if no element references the node
+     */
+    private static boolean isReferencedByNoElement(UcteNetwork ucte, UcteNodeCode node) {
+        return elements(ucte).noneMatch(e -> node.equals(e.getId().getNodeCode1()) || node.equals(e.getId().getNodeCode2()));
     }
 
     /**
