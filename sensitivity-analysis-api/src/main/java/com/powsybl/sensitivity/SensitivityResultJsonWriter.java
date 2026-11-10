@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.sensitivity.json.SensitivityStateStatusJsonSerializer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -81,7 +82,7 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
             jsonGenerator.writeFieldName("stateStatus");
             jsonGenerator.writeStartArray();
             for (var stateStatus : stateStatusBuffer.entrySet()) {
-                SensitivityStateStatus.writeJson(jsonGenerator, new SensitivityStateStatus(stateStatus.getKey(), stateStatus.getValue()));
+                SensitivityStateStatusJsonSerializer.writeJson(jsonGenerator, new SensitivityStateStatus(stateStatus.getKey(), stateStatus.getValue()));
             }
             jsonGenerator.writeEndArray();
 

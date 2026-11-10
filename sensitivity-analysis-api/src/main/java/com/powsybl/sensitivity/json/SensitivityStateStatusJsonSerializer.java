@@ -10,7 +10,14 @@ package com.powsybl.sensitivity.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.sensitivity.SensitivityState;
 import com.powsybl.sensitivity.SensitivityStateStatus;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.List;
+
+import static com.powsybl.sensitivity.json.SensitivityStateStatusJsonDeserializer.*;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -23,6 +30,38 @@ public class SensitivityStateStatusJsonSerializer extends StdSerializer<Sensitiv
 
     @Override
     public void serialize(SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
-        SensitivityStateStatus.writeJson(jsonGenerator, value);
+        writeJson(jsonGenerator, value);
+    }
+
+    public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
+        writeJson(jsonGenerator, stateStatus.getState(), stateStatus.getComponentsLoadFlowStatusList());
+    }
+
+    public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state,
+                                 List<SensitivityStateStatus.ComponentStatus> componentsLoadFlowStatusList) {
+        try {
+            jsonGenerator.writeStartObject();
+            if (state.contingencyId() != null) {
+                jsonGenerator.writeStringField("contingencyId", state.contingencyId());
+            }
+            if (state.operatorStrategyId() != null) {
+                jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
+            }
+            if (componentsLoadFlowStatusList != null && !componentsLoadFlowStatusList.isEmpty()) {
+                jsonGenerator.writeArrayFieldStart(COMPONENT_STATUSES);
+                for (SensitivityStateStatus.ComponentStatus componentStatus : componentsLoadFlowStatusList) {
+                    jsonGenerator.writeStartObject();
+                    jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().toString());
+                    jsonGenerator.writeStringField(LOAD_FLOW_STATUS_TEXT, componentStatus.statusText());
+                    jsonGenerator.writeNumberField(NUM_CC, componentStatus.connectedComponentNum());
+                    jsonGenerator.writeNumberField(NUM_SC, componentStatus.synchronousComponentNum());
+                    jsonGenerator.writeEndObject();
+                }
+                jsonGenerator.writeEndArray();
+            }
+            jsonGenerator.writeEndObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

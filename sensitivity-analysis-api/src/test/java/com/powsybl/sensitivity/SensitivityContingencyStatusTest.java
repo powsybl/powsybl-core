@@ -10,6 +10,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.sensitivity.json.SensitivityStateStatusJsonDeserializer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +41,7 @@ class SensitivityContingencyStatusTest {
         try (JsonParser parser = factory.createParser(json)) {
             parser.nextToken();
             SensitivityStateStatus stateStatus =
-                    SensitivityStateStatus.parseJson(parser, "1.3");
+                    SensitivityStateStatusJsonDeserializer.parseJson(parser, "1.3");
             assertEquals("ID_001", stateStatus.getState().contingencyId());
             assertNull(stateStatus.getState().operatorStrategyId());
             assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, stateStatus.getComponentsLoadFlowStatusList().getFirst().status());
@@ -66,7 +67,7 @@ class SensitivityContingencyStatusTest {
         try (JsonParser parser = factory.createParser(json)) {
             parser.nextToken();
             SensitivityStateStatus stateStatus =
-                    SensitivityStateStatus.parseJson(parser, "1.3");
+                    SensitivityStateStatusJsonDeserializer.parseJson(parser, "1.3");
 
             assertEquals("ID_001", stateStatus.getState().contingencyId());
             assertEquals(1, stateStatus.getComponentsLoadFlowStatusList().size());
@@ -96,7 +97,7 @@ class SensitivityContingencyStatusTest {
         try (JsonParser parser = factory.createParser(json)) {
             parser.nextToken();
             SensitivityStateStatus stateStatus =
-                    SensitivityStateStatus.parseJson(parser, "1.3");
+                    SensitivityStateStatusJsonDeserializer.parseJson(parser, "1.3");
 
             assertEquals(SensitivityState.PRE_CONTINGENCY, stateStatus.getState());
             assertEquals(1, stateStatus.getComponentsLoadFlowStatusList().size());
