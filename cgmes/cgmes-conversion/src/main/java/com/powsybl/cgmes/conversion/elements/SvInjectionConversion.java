@@ -13,6 +13,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.elements.TerminalConversion.getTerminal;
 
 /**
@@ -57,32 +58,53 @@ public final class SvInjectionConversion {
         int newNode = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
 
         terminal.getVoltageLevel().getNodeBreakerView().newInternalConnection().setNode1(node).setNode2(newNode).add();
+        // P0 and Q0 are set to zero for all variants except the current one
+        // Two calls to setP0 and setQ0 are required to achieve this
         Load load = terminal.getVoltageLevel().newLoad()
                 .setId(id)
+                .setEnsureIdUnicity(true)
                 .setName(id)
-                .setP0(p0)
-                .setQ0(q0)
+                .setName(id)
+                // These calls set P0 and Q0 to zero for all variants
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setFictitious(true)
                 .setLoadType(LoadType.FICTITIOUS)
                 .setNode(newNode)
                 .add();
+        // These call set P0 and Q0 for the current variant
+        load.setP0(p0).setQ0(q0);
         load.getTerminal().setP(p0).setQ(q0);
+        load.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SV_INJECTION);
     }
 
     private static void createBusBreakerLoad(Bus bus, PropertyBag svInjection) {
         String id = svInjection.getId(CgmesNames.SV_INJECTION);
         double p0 = svInjection.asDouble("pInjection");
         double q0 = svInjection.asDouble("qInjection", 0.0);
+        // P0 and Q0 are set to zero for all variants except the current one
+        // Two calls to setP0 and setQ0 are required to achieve this
         Load load = bus.getVoltageLevel().newLoad()
                 .setId(id)
+                .setEnsureIdUnicity(true)
                 .setName(id)
-                .setP0(p0)
-                .setQ0(q0)
+                // These calls set P0 and Q0 to zero for all variants
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setFictitious(true)
                 .setLoadType(LoadType.FICTITIOUS)
                 .setConnectableBus(bus.getId())
                 .setBus(bus.getId())
                 .add();
+        // These call set P0 and Q0 for the current variant
+        load.setP0(p0).setQ0(q0);
         load.getTerminal().setP(p0).setQ(q0);
+        load.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SV_INJECTION);
+    }
+
+    public static void resetSvInjectionLoadsForCurrentVariant(Network network) {
+        network.getLoadStream()
+                .filter(load -> CgmesNames.SV_INJECTION.equals(load.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS)))
+                .forEach(load -> load.setP0(0.0).setQ0(0.0));
     }
 }
