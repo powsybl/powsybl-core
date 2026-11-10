@@ -63,16 +63,6 @@ public class SensitivityAnalysisResult {
     private final boolean computationComplete;
 
     /**
-     * @deprecated See {@link SensitivityStateStatus.ComponentStatus} instead.
-     */
-    @Deprecated(since = "7.5.0")
-    public enum Status {
-        SUCCESS,
-        FAILURE,
-        NO_IMPACT
-    }
-
-    /**
      * Sensitivity analysis result
      * @param factors the list of sensitivity factors that have been computed.
      * @param stateStatuses the list of states and their associated computation status.
