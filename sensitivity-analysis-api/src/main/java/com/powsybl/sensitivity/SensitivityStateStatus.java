@@ -8,23 +8,11 @@
 
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import static com.powsybl.commons.json.JsonUtil.compareVersions;
-import static com.powsybl.sensitivity.SensitivityAnalysisResult.CONTEXT_NAME;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
