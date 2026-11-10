@@ -84,6 +84,17 @@ class LocalCommandExecutorTest {
         assertTrue(Files.readString(errPath).isEmpty());
         assertEquals(0, exitCode);
 
+        // Spaces and some special characters
+        Files.delete(outPath);
+        Files.writeString(tempDir.resolve("my @ batch (copy).bat"), "@echo Hello, World");
+        exitCode = windowsLocalCommandExecutor.execute("my @ batch (copy).bat", 5, List.of(), outPath, errPath, tempDir, Collections.emptyMap());
+        System.out.println("Files.readString(outPath) = " + Files.readString(outPath));
+        System.out.println("Files.readString(errPath) = " + Files.readString(errPath));
+        System.out.println("exitCode = " + exitCode);
+        assertTrue(Files.readString(outPath).contains("Hello, World"));
+        assertTrue(Files.readString(errPath).isEmpty());
+        assertEquals(0, exitCode);
+
         // Check exit code
         Files.delete(outPath);
         Files.writeString(tempDir.resolve("my_batch_which_fails.bat"), "@exit /B 37");
@@ -95,6 +106,7 @@ class LocalCommandExecutorTest {
         // Program not found
         Files.delete(outPath);
         Path nonExistentProgram = tempDir.resolve("non_existent_program.exe");
+        System.out.println("nonExistentProgram = " + nonExistentProgram);
         exitCode = windowsLocalCommandExecutor.execute(nonExistentProgram.toString(), 5, List.of(), outPath, errPath, tempDir, Map.of("MY_VAR", " World"));
         assertTrue(Files.readString(outPath).isEmpty());
         assertTrue(Files.readString(errPath).length() > 3);
