@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.export.elements.CgmesAcDcConverter.AcDcConve
 import com.powsybl.cgmes.conversion.export.elements.CgmesBaseVoltage.BaseVoltageEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesBusbarSection.BusbarSectionEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesConnectivityNode.ConnectivityNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.CgmesControlArea.ControlAreaEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurve.CurveEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesCurveData.CurveDataEq;
 import com.powsybl.cgmes.conversion.export.elements.CgmesDCConverterUnit.DCConverterUnitEq;
@@ -2026,7 +2027,8 @@ public final class EquipmentExport {
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
         String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse(null);
-        ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId, writer, context);
+        ControlAreaEq controlAreaEq = new ControlAreaEq(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId);
+        CgmesControlArea.writeEq(controlAreaEq, writer, context);
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
             Optional<TieFlow> tieFlow = TieFlow.from(areaBoundary, context);
             if (tieFlow.isPresent()) {
