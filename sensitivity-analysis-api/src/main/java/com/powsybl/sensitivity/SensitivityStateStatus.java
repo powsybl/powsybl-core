@@ -61,12 +61,12 @@ public class SensitivityStateStatus {
         this.componentsLoadFlowStatusList = ImmutableList.copyOf(Objects.requireNonNull(statusList));
     }
 
-    private static LoadFlowResult.ComponentResult.Status toLoadFlowStatus(SensitivityAnalysisResult.Status status) {
-        switch (status) {
-            case SUCCESS -> {
+    private static LoadFlowResult.ComponentResult.Status toLoadFlowStatus(String oldStatus) {
+        switch (oldStatus) {
+            case "SUCCESS" -> {
                 return LoadFlowResult.ComponentResult.Status.CONVERGED;
             }
-            case NO_IMPACT -> {
+            case "NO_IMPACT" -> {
                 return LoadFlowResult.ComponentResult.Status.NO_CALCULATION;
             }
             default -> {
@@ -110,7 +110,7 @@ public class SensitivityStateStatus {
     static final class ParsingContext {
         private String contingencyId;
         private String operatorStrategyId;
-        private SensitivityAnalysisResult.Status status;
+        private String oldStatus;
         private List<ComponentStatus> componentsLoadFlowStatusList;
     }
 
@@ -128,7 +128,7 @@ public class SensitivityStateStatus {
                         return new SensitivityStateStatus(
                                 new SensitivityState(context.contingencyId, context.operatorStrategyId), List.of(
                                         new ComponentStatus(0, 0,
-                                                toLoadFlowStatus(context.status), "")));
+                                                toLoadFlowStatus(context.oldStatus), "")));
                     } else {
                         return new SensitivityStateStatus(
                                 new SensitivityState(context.contingencyId, context.operatorStrategyId),
@@ -157,12 +157,12 @@ public class SensitivityStateStatus {
             case "contingencyStatus":
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
                 parser.nextToken();
-                context.status = SensitivityAnalysisResult.Status.valueOf(parser.getValueAsString());
+                context.oldStatus = parser.getValueAsString();
                 break;
             case "status":
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.2");
                 parser.nextToken();
-                context.status = SensitivityAnalysisResult.Status.valueOf(parser.getValueAsString());
+                context.oldStatus = parser.getValueAsString();
                 break;
             case COMPONENT_STATUSES:
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + COMPONENT_STATUSES, version, "1.3");
