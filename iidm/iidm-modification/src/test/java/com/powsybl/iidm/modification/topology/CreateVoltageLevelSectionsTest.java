@@ -165,7 +165,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .withBusbarSectionPrefixId("VL1")
             .build();
         modification.apply(network);
-        writeXmlTest(network, resourceFile);
+        writeTest(network, resourceFile);
     }
 
     private static Stream<Arguments> parametersOK() {

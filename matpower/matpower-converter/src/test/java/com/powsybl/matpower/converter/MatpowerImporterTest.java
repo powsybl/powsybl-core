@@ -9,6 +9,7 @@ package com.powsybl.matpower.converter;
 
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonType;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -33,7 +34,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -199,7 +199,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path file = tmpDir.resolve(fileName);
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            assertXmlEquals(getClass().getResourceAsStream("/" + fileName), is);
+            ComparisonType.getDefault().getComparator().accept(getClass().getResourceAsStream("/" + fileName), is);
         }
     }
 

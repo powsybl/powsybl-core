@@ -35,7 +35,7 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
                 .setLoadMinPowerFactor(0.07)
                 .setLoadMinQRate(-1.007)
                 .setLoadMaxQRate(1.007);
-        roundTripTest(parameters, JsonScalingParameters::write, JsonScalingParameters::read, "/json/ScalingParameters.json");
+        roundTripTxtTest(parameters, JsonScalingParameters::write, JsonScalingParameters::read, "/json/ScalingParameters.json");
     }
 
     @Test

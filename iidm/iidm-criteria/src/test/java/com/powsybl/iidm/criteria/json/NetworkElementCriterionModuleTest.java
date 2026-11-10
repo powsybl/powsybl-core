@@ -37,39 +37,39 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     @Test
-    void lineCriterionRoundTripTest() throws IOException {
+    void lineCriterionroundTripTxtTest() throws IOException {
         LineCriterion criterion = new LineCriterion("criterion1", new TwoCountriesCriterion(List.of(Country.FR, Country.BE)),
                         new TwoNominalVoltageCriterion(
                                 VoltageInterval.between(190., 210., true, true),
                                 VoltageInterval.between(220., 230., true, true)));
         LineCriterion empty = new LineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
-        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readLineCriteria,
                 "/criterion/line-criteria.json");
     }
 
     @Test
-    void tieLineCriterionRoundTripTest() throws IOException {
+    void tieLineCriterionroundTripTxtTest() throws IOException {
         TieLineCriterion criterion = new TieLineCriterion("criterion5", new TwoCountriesCriterion(List.of(Country.FR, Country.DE)),
                 new TwoNominalVoltageCriterion(
                         VoltageInterval.between(190., 210., true, true),
                         VoltageInterval.between(220., 230., true, true)));
         TieLineCriterion empty = new TieLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
-        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readTieLineCriteria,
                 "/criterion/tie-line-criteria.json");
     }
 
     @Test
-    void boundaryLineCriterionRoundTripTest() throws IOException {
+    void boundaryLineCriterionroundTripTxtTest() throws IOException {
         BoundaryLineCriterion criterion = new BoundaryLineCriterion("criterion6", new SingleCountryCriterion(List.of(Country.FR, Country.DE)),
                 new SingleNominalVoltageCriterion(
                         VoltageInterval.between(80., 100., true, true)));
         BoundaryLineCriterion empty = new BoundaryLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
-        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readBoundaryLineCriteria,
                 "/criterion/boundary-line-criteria.json");
     }
@@ -89,7 +89,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     }
 
     @Test
-    void twoWindingsTransformerCriterionRoundTripTest() throws IOException {
+    void twoWindingsTransformerCriterionroundTripTxtTest() throws IOException {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion("criterion2",
                 new SingleCountryCriterion(List.of(Country.FR, Country.BE)),
                 new TwoNominalVoltageCriterion(
@@ -97,13 +97,13 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
                         VoltageInterval.between(380., 420., true, false)));
         TwoWindingsTransformerCriterion empty = new TwoWindingsTransformerCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
-        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readTwoWindingsTransformerCriteria,
                 "/criterion/two-windings-transformer-criteria.json");
     }
 
     @Test
-    void threeWindingsTransformerCriterionRoundTripTest() throws IOException {
+    void threeWindingsTransformerCriterionroundTripTxtTest() throws IOException {
         ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion("criterion3",
                 new SingleCountryCriterion(List.of(Country.BE)),
                 new ThreeNominalVoltageCriterion(
@@ -112,13 +112,13 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
                         VoltageInterval.between(380., 420., true, false)));
         ThreeWindingsTransformerCriterion empty = new ThreeWindingsTransformerCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
-        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readThreeWindingsTransformerCriteria,
                 "/criterion/three-windings-transformer-criteria.json");
     }
 
     @Test
-    void identifiableCriterionRoundTripTest() throws IOException {
+    void identifiableCriterionroundTripTxtTest() throws IOException {
         IdentifiableCriterion criterion = new IdentifiableCriterion("criterion7", new AtLeastOneCountryCriterion(List.of(Country.FR, Country.DE)),
                 new AtLeastOneNominalVoltageCriterion(
                         VoltageInterval.between(80., 100., true, true)));
@@ -126,7 +126,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         IdentifiableCriterion small2 = new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
                 VoltageInterval.between(80., 100., true, true)));
         List<NetworkElementCriterion> criteria = List.of(criterion, small1, small2);
-        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readIdentifiableCriteria,
                 "/criterion/identifiable-criteria.json");
     }
@@ -151,11 +151,11 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     }
 
     @Test
-    void networkElementIdListCriterionRoundTripTest() throws IOException {
+    void networkElementIdListCriterionroundTripTxtTest() throws IOException {
         NetworkElementIdListCriterion criterion = new NetworkElementIdListCriterion("criterion4", Set.of("lineId1", "lineId2"));
         NetworkElementIdListCriterion empty = new NetworkElementIdListCriterion(Set.of());
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
-        roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
+        roundTripTxtTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readNetworkElementIdListCriteria,
                 "/criterion/network-element-id-list-criteria.json");
     }

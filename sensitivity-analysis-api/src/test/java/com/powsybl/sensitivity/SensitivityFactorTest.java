@@ -86,7 +86,7 @@ class SensitivityFactorTest extends AbstractSerDeTest {
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
-        roundTripTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, objectMapper),
+        roundTripTxtTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityFactor.class, objectMapper), "/factorRef.json");
     }
 

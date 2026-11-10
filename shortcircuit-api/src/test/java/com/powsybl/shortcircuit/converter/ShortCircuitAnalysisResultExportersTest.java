@@ -68,7 +68,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void roundTripJson() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithExtension();
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-with-extensions-results.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-with-extensions-results.json");
     }
 
     @Test
@@ -80,13 +80,13 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void roundTripJsonWithFeederResult() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
     void roundTripJsonWithOperationalLimitsGroupId() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createWithOperationalLimitsGroupIdResults();
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-operational-limits-group-id.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-operational-limits-group-id.json");
     }
 
     @Test
@@ -207,25 +207,25 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void roundtripTestWithTwoFaults() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithTwoFaultResults();
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-faults.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-faults.json");
     }
 
     @Test
     void roundTripJsonMagnitudeResults() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createMagnitudeResult();
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-magnitude-results.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-magnitude-results.json");
     }
 
     @Test
     void roundTripJsonFortescueResults() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createFortescueResult();
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-fortescue-results.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-fortescue-results.json");
     }
 
     @Test
     void roundTripJsonFailedResults() throws IOException {
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(new FailedFaultResult(new BusFault("id", "elementId"), FaultResult.Status.FAILURE)));
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-failed-result.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-failed-result.json");
     }
 
     @Test
@@ -235,13 +235,13 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
         feederResults.add(new MagnitudeFeederResult("connectableId2", 20));
         MagnitudeFaultResult faultResult = new MagnitudeFaultResult(new BusFault("faultId", "busId"), 100, feederResults, Collections.EMPTY_LIST, 200, FaultResult.Status.SUCCESS);
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-multiple-feeder-results.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-multiple-feeder-results.json");
     }
 
     @Test
     void roundtripTestWithTwoFaultTypes() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithTwoFaultResults(Fault.FaultType.LINE_TO_LINE, Fault.FaultType.LINE_TO_LINE_WITH_EARTH_CONNECTION);
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-fault-types.json");
+        roundTripTxtTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-fault-types.json");
     }
 
 }

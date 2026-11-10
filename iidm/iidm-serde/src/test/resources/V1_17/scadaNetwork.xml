@@ -54,6 +54,6 @@
             </iidm:phaseTapChanger2>
         </iidm:threeWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="line" r="1.0" x="1.0" bus1="bus" connectableBus1="bus" voltageLevelId1="vl" bus2="bus2" connectableBus2="bus2" voltageLevelId2="vl2"/>
+    <iidm:line id="line" r="1.0" x="1.0" voltageLevelId1="vl" bus1="bus" connectableBus1="bus" voltageLevelId2="vl2" bus2="bus2" connectableBus2="bus2"/>
     <iidm:hvdcLine id="hvdcline" r="1.0" nominalV="400.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" maxP="20.0" converterStation1="lcs" converterStation2="vcs"/>
 </iidm:network>

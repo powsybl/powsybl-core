@@ -46,11 +46,11 @@ class ConnectFeedersToBusbarSectionsTest extends AbstractModificationTest {
                 .build();
 
         modification.apply(network);
-        writeXmlTest(network, "/testNetworkNodeBreakerWithConnectFeedersToBusbarSectionsWithCouplingDevices.xiidm");
+        writeTest(network, "/testNetworkNodeBreakerWithConnectFeedersToBusbarSectionsWithCouplingDevices.xiidm");
 
         // Check that nothing changes if we apply the modification a second time
         modification.apply(network);
-        writeXmlTest(network, "/testNetworkNodeBreakerWithConnectFeedersToBusbarSectionsWithCouplingDevices.xiidm");
+        writeTest(network, "/testNetworkNodeBreakerWithConnectFeedersToBusbarSectionsWithCouplingDevices.xiidm");
     }
 
     @Test
@@ -64,11 +64,11 @@ class ConnectFeedersToBusbarSectionsTest extends AbstractModificationTest {
                 .build();
 
         modification.apply(network);
-        writeXmlTest(network, "/testNetwork3BusbarSectionsWithCouplingDeviceAndConnectedLoads.xiidm");
+        writeTest(network, "/testNetwork3BusbarSectionsWithCouplingDeviceAndConnectedLoads.xiidm");
 
         // Check that nothing changes if we apply the modification a second time
         modification.apply(network);
-        writeXmlTest(network, "/testNetwork3BusbarSectionsWithCouplingDeviceAndConnectedLoads.xiidm");
+        writeTest(network, "/testNetwork3BusbarSectionsWithCouplingDeviceAndConnectedLoads.xiidm");
     }
 
     @Test

@@ -95,6 +95,6 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
                         3.0, true, TerminalNumber.TWO),
                     List.of("actionId3", "actionId4", "actionId5")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
-        roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
+        roundTripTxtTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
     }
 }

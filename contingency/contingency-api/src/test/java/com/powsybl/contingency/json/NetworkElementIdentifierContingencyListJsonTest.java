@@ -48,7 +48,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripTest(create(), NetworkElementIdentifierContingencyListJsonTest::write, NetworkElementIdentifierContingencyListJsonTest::readContingencyList,
+        roundTripTxtTest(create(), NetworkElementIdentifierContingencyListJsonTest::write, NetworkElementIdentifierContingencyListJsonTest::readContingencyList,
                 "/identifierContingencyList.json");
     }
 

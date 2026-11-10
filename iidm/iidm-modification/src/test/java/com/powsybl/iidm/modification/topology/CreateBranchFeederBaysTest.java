@@ -62,7 +62,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(nbNetwork);
-        writeXmlTest(nbNetwork, "/network-node-breaker-with-new-line.xml");
+        writeTest(nbNetwork, "/network-node-breaker-with-new-line.xml");
     }
 
     @Test
@@ -86,7 +86,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(bbNetwork);
-        writeXmlTest(bbNetwork, "/eurostag-create-line-feeder-bays.xml");
+        writeTest(bbNetwork, "/eurostag-create-line-feeder-bays.xml");
     }
 
     @Test
@@ -109,7 +109,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withDirection2(BOTTOM)
                 .build();
         modification.apply(nbNetwork);
-        writeXmlTest(nbNetwork, "/network-node-breaker-with-new-line-order-used.xml");
+        writeTest(nbNetwork, "/network-node-breaker-with-new-line-order-used.xml");
     }
 
     @Test
@@ -132,7 +132,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withDirection2(BOTTOM)
                 .build();
         modification.apply(nbNetwork);
-        writeXmlTest(nbNetwork, "/network-node-breaker-with-new-internal-line.xml");
+        writeTest(nbNetwork, "/network-node-breaker-with-new-internal-line.xml");
     }
 
     @Test
@@ -290,7 +290,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(nbNetwork);
-        writeXmlTest(nbNetwork, "/network-node-breaker-with-new-twt-feeders-bbs.xml");
+        writeTest(nbNetwork, "/network-node-breaker-with-new-twt-feeders-bbs.xml");
     }
 
     @Test
@@ -314,7 +314,7 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(bbNetwork);
-        writeXmlTest(bbNetwork, "/eurostag-create-twt-feeder-bays.xml");
+        writeTest(bbNetwork, "/eurostag-create-twt-feeder-bays.xml");
     }
 
     @Test

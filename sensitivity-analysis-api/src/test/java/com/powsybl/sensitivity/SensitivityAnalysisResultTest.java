@@ -349,7 +349,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<String> operatorStrategyIds = Collections.emptyList();
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
-        roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
+        roundTripTxtTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.2.json");
     }
 

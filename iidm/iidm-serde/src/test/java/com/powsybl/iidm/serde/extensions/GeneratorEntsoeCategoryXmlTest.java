@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -72,7 +71,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
         network.getGenerator("G4").newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
 
         // Check with latest version
-        Network network2 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
         assertEqualsEntsoeCategory(network2.getGenerator("G0"), 0);
         assertEqualsEntsoeCategory(network2.getGenerator("G4"), 4);
 

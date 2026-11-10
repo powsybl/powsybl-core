@@ -39,7 +39,7 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));
         parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 0.8, true, false, false, false, InitialVoltageProfileMode.PREVIOUS_VALUE, null));
-        roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
+        roundTripTxtTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));
         assertNotEquals(parameters.get(0), parameters.get(1));

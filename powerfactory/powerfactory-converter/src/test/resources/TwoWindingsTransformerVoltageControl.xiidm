@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" id="TwoWindingsTransformerVoltageControl" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" id="TwoWindingsTransformerVoltageControl" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S50">
         <iidm:voltageLevel id="VL50" nominalV="400.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -40,7 +40,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetDeadband="3.9999961853027344" targetValue="403.99999618530273">
+                <iidm:voltageRegulation targetValue="403.99999618530273" targetDeadband="3.9999961853027344" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="T2w_2_2L_1" side="ONE"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -52,7 +52,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="false" targetDeadband="3.9999961853027344">
+                <iidm:voltageRegulation targetDeadband="3.9999961853027344" mode="VOLTAGE" regulating="false">
                     <iidm:terminalRef id="T2w_2_2L_2" side="ONE"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -83,7 +83,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetDeadband="0.19999980926513672" targetValue="20.399999618530273">
+                <iidm:voltageRegulation targetValue="20.399999618530273" targetDeadband="0.19999980926513672" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="T2w_3_3L_1" side="TWO"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -95,7 +95,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetDeadband="0.0" targetValue="20.399999618530273">
+                <iidm:voltageRegulation targetValue="20.399999618530273" targetDeadband="0.0" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="T2w_3_3L_2" side="TWO"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>
@@ -135,7 +135,7 @@
                 <iidm:step rho="1.0"/>
                 <iidm:step rho="0.9523809523809523"/>
                 <iidm:step rho="0.9090909090909091"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetDeadband="3.9999961853027344" targetValue="411.9999885559082">
+                <iidm:voltageRegulation targetValue="411.9999885559082" targetDeadband="3.9999961853027344" mode="VOLTAGE" regulating="true">
                     <iidm:terminalRef id="VL52_Bus 3"/>
                 </iidm:voltageRegulation>
             </iidm:ratioTapChanger>

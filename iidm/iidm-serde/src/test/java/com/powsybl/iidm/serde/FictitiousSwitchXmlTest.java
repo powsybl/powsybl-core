@@ -24,7 +24,7 @@ class FictitiousSwitchXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(FictitiousSwitchFactory.create(), "fictitiousSwitchRef.xml", CURRENT_IIDM_VERSION);
 
         //backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("fictitiousSwitchRef.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("fictitiousSwitchRef.xml");
     }
 
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_18" id="Hvdc" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_19" id="Hvdc" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S11">
         <iidm:voltageLevel id="VL11" nominalV="165.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -42,7 +42,7 @@
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="lne_1_2_1" r="5.276180267333984" x="16.109027862548828" b1="6.35592357635498E-4" b2="6.35592357635498E-4" node1="1" voltageLevelId1="VL11" node2="1" voltageLevelId2="VL12"/>
-    <iidm:line id="lne_1_3_1" r="5.276180267333984" x="16.109027862548828" b1="6.35592357635498E-4" b2="6.35592357635498E-4" node1="2" voltageLevelId1="VL11" node2="1" voltageLevelId2="VL13"/>
+    <iidm:line id="lne_1_2_1" r="5.276180267333984" x="16.109027862548828" b1="6.35592357635498E-4" b2="6.35592357635498E-4" voltageLevelId1="VL11" node1="1" voltageLevelId2="VL12" node2="1"/>
+    <iidm:line id="lne_1_3_1" r="5.276180267333984" x="16.109027862548828" b1="6.35592357635498E-4" b2="6.35592357635498E-4" voltageLevelId1="VL11" node1="2" voltageLevelId2="VL13" node2="1"/>
     <iidm:hvdcLine id="DC-Line_pos" r="2.5366251468658447" nominalV="320.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="600.0" maxP="900.0" converterStation1="HVDC Converter 1" converterStation2="HVDC Converter 2"/>
 </iidm:network>

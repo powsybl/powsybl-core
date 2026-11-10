@@ -56,7 +56,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                 new TrueCondition(), Collections.singletonList("actionId4"));
         operatorStrategy2.addExtension(DummyOperatorStrategyExtension.class, new DummyOperatorStrategyExtension());
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(Arrays.asList(operatorStrategy, operatorStrategy2));
-        roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read,
+        roundTripTxtTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read,
                 "/OperatorStrategyFileExtensionsTest2.json");
     }
 

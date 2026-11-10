@@ -81,7 +81,7 @@ class ProjectTest extends AbstractPowerFactoryTest {
 
     @Test
     void jsonTest() throws IOException {
-        var project2 = roundTripTest(project, Project::writeJson, Project::readJson, "/project.json");
+        var project2 = roundTripTxtTest(project, Project::writeJson, Project::readJson, "/project.json");
         assertEquals("TestProject", project2.getName());
     }
 

@@ -57,7 +57,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+        allFormatsRoundTripAllPreviousVersionedTest("eurostag-tutorial-example1.xml");
     }
 
     @Test

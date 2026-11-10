@@ -237,7 +237,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         voltageRanges.add(new VoltageRange(0, 225, 1.1));
         voltageRanges.add(new VoltageRange(230, 375, 1.09));
         parameters.setVoltageRanges(voltageRanges);
-        roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
+        roundTripTxtTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
     }
 
@@ -477,7 +477,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         ShortCircuitParameters parameters = new ShortCircuitParameters()
                 .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED)
                 .setVoltageRanges(voltageRanges);
-        roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
+        roundTripTxtTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParametersWithRangeVoltage.json");
     }
 

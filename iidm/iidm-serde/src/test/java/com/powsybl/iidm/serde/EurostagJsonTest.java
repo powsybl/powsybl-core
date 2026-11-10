@@ -28,7 +28,7 @@ class EurostagJsonTest extends AbstractIidmSerDeTest {
     void roundTripTest() throws IOException {
         ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
-        roundTripTest(EurostagTutorialExample1Factory.createWithLFResults(),
+        roundTripTxtTest(EurostagTutorialExample1Factory.createWithLFResults(),
                 (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
                 jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
                 getVersionedNetworkPath("eurostag-tutorial1-lf.json", CURRENT_IIDM_VERSION));
@@ -44,7 +44,7 @@ class EurostagJsonTest extends AbstractIidmSerDeTest {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
         network.getGeneratorStream().findFirst().ifPresent(g -> g.newExtension(ActivePowerControlAdder.class).withDroop(2).withParticipate(true).add());
         network.getLoadStream().forEach(l -> l.newExtension(ConnectablePositionAdder.class).newFeeder().withDirection(ConnectablePosition.Direction.BOTTOM).add().add());
-        roundTripTest(network,
+        roundTripTxtTest(network,
                 (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
                 jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
                 getVersionedNetworkPath("eurostag-tutorial1-lf-extensions.json", CURRENT_IIDM_VERSION));
