@@ -18,10 +18,7 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
-import com.powsybl.matpower.model.MBus;
-import com.powsybl.matpower.model.MatpowerModel;
-import com.powsybl.matpower.model.MatpowerModelFactory;
-import com.powsybl.matpower.model.MatpowerWriter;
+import com.powsybl.matpower.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -153,6 +150,26 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     @Test
     void testCase9DcLine() throws IOException {
         testCase(MatpowerModelFactory.create9Dcline());
+    }
+
+    @Test
+    void testReactiveCapabilityCurveWithInvalidPoints() throws IOException {
+        MatpowerModel model = MatpowerModelFactory.create9Dcline();
+
+        // Swap minQ and maxQ for both points
+        // The importer must detect that the points are invalid (minQ > maxQ) and fix them by swapping the values
+        MGen generator = model.getGenerators().get(1);
+        double qc1Min = generator.getQc1Min();
+        double qc1Max = generator.getQc1Max();
+        double qc2Min = generator.getQc2Min();
+        double qc2Max = generator.getQc2Max();
+        generator.setQc1Min(qc1Max);
+        generator.setQc1Max(qc1Min);
+        generator.setQc2Min(qc2Max);
+        generator.setQc2Max(qc2Min);
+
+        // The result must be identical to the regular "create9Dcline()"
+        testCase(model);
     }
 
     @Test
