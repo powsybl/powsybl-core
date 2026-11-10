@@ -57,10 +57,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0), switchesToTerminalRef, openSwitches);
     }
 
-    private void checkValidityAndUpdateTerminalRefOnSwitchModification() {
+    private void checkValidity() {
         if (!valid) {
             throw new PowsyblException("Bus has been invalidated");
         }
+    }
+
+    private void checkValidityAndUpdateTerminalRefOnSwitchModification() {
+        checkValidity();
         if (terminalRef != null) {
             // Check if a switch has been opened
             for (Switch sw : switchesToTerminalRef) {
@@ -94,13 +98,13 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getVoltageLevel();
     }
 
     @Override
     public int getConnectedTerminalCount() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return terminals.size();
     }
 
@@ -111,19 +115,19 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Stream<TerminalExt> getConnectedTerminalStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return terminals.stream().map(Function.identity());
     }
 
     @Override
     public Collection<TerminalExt> getTerminals() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return Collections.unmodifiableCollection(terminals);
     }
 
     @Override
     public BusExt setV(double v) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         for (NodeTerminal terminal : terminals) {
             terminal.setV(v);
         }
@@ -138,7 +142,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public BusExt setAngle(double angle) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         for (NodeTerminal terminal : terminals) {
             terminal.setAngle(angle);
         }
@@ -153,13 +157,13 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public double getP() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getP();
     }
 
     @Override
     public double getQ() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getQ();
     }
 
@@ -169,7 +173,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public double getFictitiousP0() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         if (!voltageLevel.getNodeBreakerView().hasFictitiousP0()) {
             return 0.0;
         }
@@ -180,7 +184,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Bus setFictitiousP0(double p0) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         getCalculatedBusNodes().forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousP0(n, 0.0));
         voltageLevel.getNodeBreakerView().setFictitiousP0(getCalculatedBusNodes()
                 .findFirst()
@@ -191,7 +195,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public double getFictitiousQ0() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         if (!voltageLevel.getNodeBreakerView().hasFictitiousQ0()) {
             return 0.0;
         }
@@ -202,7 +206,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Bus setFictitiousQ0(double q0) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         getCalculatedBusNodes().forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousQ0(n, 0.0));
         voltageLevel.getNodeBreakerView().setFictitiousQ0(getCalculatedBusNodes()
                 .findFirst()
@@ -212,7 +216,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         for (NodeTerminal terminal : terminals) {
             terminal.setConnectedComponentNumber(connectedComponentNumber);
         }
@@ -228,7 +232,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public void setSynchronousComponentNumber(int componentNumber) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         for (NodeTerminal terminal : terminals) {
             terminal.setSynchronousComponentNumber(componentNumber);
         }
@@ -244,133 +248,133 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Iterable<Line> getLines() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getLines();
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getLineStream();
     }
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getTwoWindingsTransformers();
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getTwoWindingsTransformerStream();
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getThreeWindingsTransformers();
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getThreeWindingsTransformerStream();
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getLoads();
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getLoadStream();
     }
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getShuntCompensators();
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getShuntCompensatorStream();
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getGenerators();
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getGeneratorStream();
     }
 
     @Override
     public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getBoundaryLines(boundaryLineFilter);
     }
 
     @Override
     public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getBoundaryLineStream(boundaryLineFilter);
     }
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getStaticVarCompensators();
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getStaticVarCompensatorStream();
     }
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getLccConverterStations();
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getLccConverterStationStream();
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getVscConverterStations();
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         return super.getVscConverterStationStream();
     }
 
     @Override
     public void visitConnectedEquipments(TopologyVisitor visitor) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         super.visitConnectedEquipments(visitor);
     }
 
     @Override
     public void visitConnectedOrConnectableEquipments(TopologyVisitor visitor) {
-        checkValidityAndUpdateTerminalRefOnSwitchModification();
+        checkValidity();
         super.visitConnectedOrConnectableEquipments(visitor);
     }
 }
