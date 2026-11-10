@@ -20,6 +20,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.converter.util.UcteExporterReports;
 import com.powsybl.ucte.network.*;
@@ -300,16 +301,36 @@ public class UcteExporter implements Exporter {
         ucteNode.setPowerPlantType(powerPlantType);
         ucteNode.setTypeCode(nodeType);
         // FIXME(mathbagu): to be changed in UcteImporter?
-        if (minP != -DEFAULT_POWER_LIMIT) {
+        setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
+    }
+
+    /**
+     * If provided generator power limits are permissible, set the ucteNode corresponding active and reactive power
+     * generation limits. Max limit is valid if it is lower than {@code 9999} and min limit is valid if it is greater
+     * than {@code -9999}. See {@link UcteConverterConstants#DEFAULT_POWER_LIMIT} that defines the special "no value" in
+     * UCTE import. Invalid values are simply not exported (cell left empty in the export file)
+     *
+     * @param ucteNode an exported node
+     * @param minP min active power
+     * @param maxP max active power
+     * @param minQ min reactive power
+     * @param maxQ max reactive power
+     */
+    private static void setNodePowerGenerationLimits(UcteNode ucteNode,
+                                                     double minP,
+                                                     double maxP,
+                                                     double minQ,
+                                                     double maxQ) {
+        if (isMinLimitInbounds(minP)) {
             ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
         }
-        if (maxP != DEFAULT_POWER_LIMIT) {
+        if (isMaxLimitInbounds(maxP)) {
             ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
         }
-        if (minQ != -DEFAULT_POWER_LIMIT) {
+        if (isMinLimitInbounds(minQ)) {
             ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
         }
-        if (maxQ != DEFAULT_POWER_LIMIT) {
+        if (isMaxLimitInbounds(maxQ)) {
             ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
         }
     }
@@ -329,30 +350,57 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
         ucteNode.setActiveLoad(boundaryLine.getP0());
         ucteNode.setReactiveLoad(boundaryLine.getQ0());
-        double generatorTargetP = boundaryLine.getGeneration().getTargetP();
-        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = boundaryLine.getGeneration().getTargetQ();
-        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (boundaryLine.getGeneration().isVoltageRegulationOn()) {
-            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference(boundaryLine.getGeneration().getTargetV());
-            double minP = boundaryLine.getGeneration().getMinP();
-            double maxP = boundaryLine.getGeneration().getMaxP();
-            double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
-            double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
-            if (minP != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
-            }
-            if (maxP != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
-            }
-            if (minQ != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
-            }
-            if (maxQ != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
-            }
+        if (boundaryLine.getGeneration() != null) {
+            applyGenerationToUcteNode(boundaryLine.getGeneration(), ucteNode);
         }
+    }
+
+    /**
+     * Given a non-null {@link BoundaryLine.Generation} from the original boundary line, apply it to the exported
+     * {@link UcteNode}.
+     *
+     * @param generation The {@link BoundaryLine.Generation} associated to the {@link BoundaryLine} at the origin of
+     *                   {@code ucteNode}
+     * @param ucteNode   an {@link UcteNode} to export
+     */
+    private static void applyGenerationToUcteNode(BoundaryLine.Generation generation, UcteNode ucteNode) {
+        double generatorTargetP = generation.getTargetP();
+        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
+        double generatorTargetQ = generation.getTargetQ();
+        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
+        if (generation.isVoltageRegulationOn()) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
+            ucteNode.setVoltageReference(generation.getTargetV());
+            double minP = generation.getMinP();
+            double maxP = generation.getMaxP();
+            double minQ = generation.getReactiveLimits().getMinQ(generatorTargetP);
+            double maxQ = generation.getReactiveLimits().getMaxQ(generatorTargetP);
+            setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
+        }
+    }
+
+    /**
+     * Generator min power limits must be strictly greater than -9999 (see
+     * {@link UcteConverterConstants#DEFAULT_POWER_LIMIT}). Values that are out of bounds must be ignored and exported
+     * blank.
+     *
+     * @param value a generator min power limit
+     * @return whether this min power limit should be exported
+     */
+    private static boolean isMinLimitInbounds(double value) {
+        return value > -DEFAULT_POWER_LIMIT;
+    }
+
+    /**
+     * Generator max power limits must be strictly smaller than 9999 (see
+     * {@link UcteConverterConstants#DEFAULT_POWER_LIMIT}). Values that are out of bounds must be ignored and exported
+     * blank.
+     *
+     * @param value a generator max power limit
+     * @return whether this max power limit should be exported
+     */
+    private static boolean isMaxLimitInbounds(double value) {
+        return value < DEFAULT_POWER_LIMIT;
     }
 
     /**
@@ -669,10 +717,8 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        double nominalPower = Double.NaN;
-        if (twoWindingsTransformer.hasProperty(NOMINAL_POWER_KEY)) {
-            nominalPower = Double.parseDouble(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
-        }
+
+        double nominalPower = extractNominalPowerFromTransformer(twoWindingsTransformer, context);
 
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
@@ -689,6 +735,36 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addTransformer(ucteTransformer);
 
         convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context.withCombinePhaseAngleRegulation());
+    }
+
+    /**
+     * Extract a nominal power value from the provided transformer. It should be present in the dedicated
+     * {@link TwoWindingsTransformer} as the {@code ratedS} field. For retro-compatibility, if ratedS is {@code NaN},
+     * also look in the {@code nomimalPower} property (now deprecated).
+     * <br>
+     * If both are absent, return default value {@code 99999} and log + report a warning
+     * @param twoWindingsTransformer a transformer
+     * @return The nominal power of the transformer
+     */
+    private static double extractNominalPowerFromTransformer(TwoWindingsTransformer twoWindingsTransformer,
+                                                             UcteExporterContext context) {
+        if (!Double.isNaN(twoWindingsTransformer.getRatedS())) {
+            return twoWindingsTransformer.getRatedS();
+        }
+        String legacyNominalPowerProperty = twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null);
+        if (legacyNominalPowerProperty != null) {
+            double legacyNominalPower = Double.parseDouble(legacyNominalPowerProperty);
+            if (!Double.isNaN(legacyNominalPower)) {
+                return legacyNominalPower;
+            }
+        }
+        LOGGER.warn("Transformer {}: No nominal power provided. Defaulting to {}",
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        UcteExporterReports.nominalPowerMissing(context.getReportNode(),
+                twoWindingsTransformer.getId(),
+                NOMINAL_POWER_NOVALUE);
+        return NOMINAL_POWER_NOVALUE;
     }
 
     /**
@@ -795,15 +871,18 @@ public class UcteExporter implements Exporter {
     }
 
     private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw, UcteExporterContext context) {
+        boolean wasSet = false;
         if (sw.hasProperty(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
-            } catch (NumberFormatException exception) {
-                ucteLine.setCurrentLimit(null);
-                LOGGER.warn("Switch {}: No current limit provided", sw.getId());
-                UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
+                wasSet = true;
+            } catch (NumberFormatException e) {
+                LOGGER.debug("Couldn't parse number '{}': {}",
+                        sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY),
+                        e.getMessage());
             }
-        } else {
+        }
+        if (!wasSet) {
             ucteLine.setCurrentLimit(null);
             LOGGER.warn("Switch {}: No current limit provided", sw.getId());
             UcteExporterReports.switchCurrentLimitMissing(context.getReportNode(), sw.getId());
