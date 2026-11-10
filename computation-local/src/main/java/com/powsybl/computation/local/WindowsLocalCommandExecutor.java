@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +58,7 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
             }
             internalCmd.append("\" & ");
         }
-        // Quote the program name to handle spaces in paths and validate it contains no quotes.
-        if (program.contains("\"")) {
-            throw new IllegalArgumentException("Program name must not contain double quotes");
-        }
-        if (program.contains(" ")) {
-            throw new IllegalArgumentException("Program name must not contain spaces");
-        }
-        internalCmd.append(program);
+        internalCmd.append(escapeProgram(program));
         for (String arg : args) {
             internalCmd.append(" \"").append(escapeCmdArg(arg)).append("\"");
         }
@@ -74,6 +68,7 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
                 .add("/c")
                 .add(internalCmd.toString())
                 .build();
+        System.out.println("cmdLs = " + cmdLs);
         return execute(cmdLs, workingDir, outFile, errFile, timeoutSecondes);
     }
 
@@ -92,11 +87,11 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
         //   - &, |, <, > do NOT need escaping inside quotes (they are literal)
         //   - newlines are stripped to prevent command structure breakout
         return value
-            .replace("%", "%%")
-            .replace("!", "^!")
-            .replace("\"", "\"\"")
-            .replace("\n", "")
-            .replace("\r", "");
+                .replace("%", "%%")
+                .replace("!", "^!")
+                .replace("\"", "\"\"")
+                .replace("\n", "")
+                .replace("\r", "");
     }
 
     protected static String escapeCmdArg(String arg) {
@@ -107,12 +102,41 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
         }
         String suffix = "\\".repeat(trailingBackslashes); // repeat them once more
         return arg
-            .replace("^", "^^")   // escape ^ first (outside-quote context for & | etc.)
-            .replace("%", "^%")   // prevent variable expansion like %PATH%
-            .replace("!", "^!")   // prevent delayed expansion like !VAR!
-            .replace("\"", "\"\"") // double quotes inside the quoted string
-            .replace("\n", "") // prevents newline-based injection
-            .replace("\r", "") // prevents newline-based injection
-            + suffix;
+                       .replace("^", "^^")   // escape ^ first (outside-quote context for & | etc.)
+                       .replace("%", "^%")   // prevent variable expansion like %PATH%
+                       .replace("!", "^!")   // prevent delayed expansion like !VAR!
+                       .replace("\"", "\"\"") // double quotes inside the quoted string
+                       .replace("\n", "") // prevents newline-based injection
+                       .replace("\r", "") // prevents newline-based injection
+               + suffix;
+    }
+
+    private String escapeProgram(String program) {
+        if (program == null || program.isBlank()) {
+            throw new IllegalArgumentException("Program path must not be empty");
+        }
+        // Case of simple names. Cover more than 99% of executables on a fresh Windows installation
+        // And it includes built-in commands (dir, echo, ...) which does not support quoting
+        if (program.matches("[A-Za-z0-9-_.]+")) {
+            return program;
+        }
+        // Quote other cases
+        try {
+            // Check path is a valid Windows Path (does not check it exists, as it can be a program in PATH).
+            // Among other thing, it checks that it does not contain non-printable ASCII characters and reserved characters
+            Path ignored = Path.of(program);
+        } catch (InvalidPathException e) {
+            throw new IllegalArgumentException("Program path is invalid", e);
+        }
+        // Block special characters in program name, because cmd.exe parsing and escaping rules are very complex for these.
+        String specialChars = "\"&|<>%!^";
+        if (program.chars().anyMatch(c -> specialChars.indexOf(c) != -1)) {
+            throw new IllegalArgumentException("Program path must not contain these special characters: " + specialChars);
+        }
+        if (program.contains("\u00A0")) {
+            throw new IllegalArgumentException("Program path must not contain non-breaking space: \\u00A0");
+        }
+
+        return "\"" + program + "\"";
     }
 }

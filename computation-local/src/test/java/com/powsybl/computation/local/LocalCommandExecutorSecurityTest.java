@@ -16,10 +16,7 @@ import org.junit.jupiter.api.condition.OS;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -150,6 +147,22 @@ class LocalCommandExecutorSecurityTest {
         assertFalse(Files.exists(pwndFileEnvVariable), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVariable));
     }
 
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testCommandInjectionInProgramOnWindows() throws IOException, InterruptedException {
+        WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
+        int exitCode;
+
+        exitCode = executor.execute("dir&", 5, List.of("echo", "abc"), outFile, errFile, tempDir, Collections.emptyMap());
+        assertEquals(1, exitCode);
+        assertTrue(Files.readString(outFile).isEmpty());
+        assertTrue(Files.readString(errFile).length() > 3);
+
+        assertThrows(IllegalArgumentException.class, () -> executor.execute("echo:a&echo:b", 5, List.of(), outFile, errFile, tempDir, Collections.emptyMap()));
+
+        assertThrows(IllegalArgumentException.class, () -> executor.execute("dir&cmd/c", 5, List.of("whoami.exe"), outFile, errFile, tempDir, Collections.emptyMap()));
+    }
+
     // The following test can be executed on every OS.
     // It asserts that no system command is run when invalid environment variable names are detected.
     @Test
@@ -158,15 +171,15 @@ class LocalCommandExecutorSecurityTest {
         //    so the executor must reject invalid names outright.
         Map<String, String> maliciousEnv = new HashMap<>();
         maliciousEnv.put(
-            String.format("FOO\" & type nul > \"%s\" & set \"BAR", pwndFileEnvVarName),
-            "value"
+                String.format("FOO\" & type nul > \"%s\" & set \"BAR", pwndFileEnvVarName),
+                "value"
         );
         List<String> cmdArgs = List.of("test");
 
         WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> executor.execute("echo", cmdArgs, outFile, errFile, tempDir, maliciousEnv)
+                IllegalArgumentException.class,
+                () -> executor.execute("echo", cmdArgs, outFile, errFile, tempDir, maliciousEnv)
         );
         assertEquals("Invalid environment variable name", exception.getMessage());
         assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
@@ -184,8 +197,8 @@ class LocalCommandExecutorSecurityTest {
 
         WindowsLocalCommandExecutor executor = new WindowsLocalCommandExecutor();
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> executor.execute(maliciousProgram, cmdArgs, outFile, errFile, tempDir, env)
+                IllegalArgumentException.class,
+                () -> executor.execute(maliciousProgram, cmdArgs, outFile, errFile, tempDir, env)
         );
         assertEquals("Program name must not contain double quotes", exception.getMessage());
         assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
@@ -194,8 +207,8 @@ class LocalCommandExecutorSecurityTest {
         //    The executor must reject program names with quotes rather than pass them raw.
         String maliciousProgram2 = String.format("echo & type nul > %s & echo ", pwndFileEnvVarName);
         IllegalArgumentException exception2 = assertThrows(
-            IllegalArgumentException.class,
-            () -> executor.execute(maliciousProgram2, cmdArgs, outFile, errFile, tempDir, env)
+                IllegalArgumentException.class,
+                () -> executor.execute(maliciousProgram2, cmdArgs, outFile, errFile, tempDir, env)
         );
         assertEquals("Program name must not contain spaces", exception2.getMessage());
         assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
@@ -209,15 +222,15 @@ class LocalCommandExecutorSecurityTest {
     void testCommandInjectionViaEnvVarNameOnUnix() {
         Map<String, String> maliciousEnv = new HashMap<>();
         maliciousEnv.put(
-            String.format("FOO=1; touch %s; BAR", pwndFileUnixEnvVarName),
-            "value"
+                String.format("FOO=1; touch %s; BAR", pwndFileUnixEnvVarName),
+                "value"
         );
         List<String> cmdArgs = List.of("test");
 
         UnixLocalCommandExecutor executor = new UnixLocalCommandExecutor();
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> executor.execute("echo", cmdArgs, outFile, errFile, tempDir, maliciousEnv)
+                IllegalArgumentException.class,
+                () -> executor.execute("echo", cmdArgs, outFile, errFile, tempDir, maliciousEnv)
         );
         assertEquals("Invalid environment variable name", exception.getMessage());
         assertFalse(Files.exists(pwndFileUnixEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileUnixEnvVarName));
