@@ -40,7 +40,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         List<String> contingencyIds = Collections.emptyList();
         List<String> operatorStrategyIds = Collections.emptyList();
         List<SensitivityFactor> factors = Collections.emptyList();
-        boolean computationComplete = true;
+        Boolean computationComplete = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
@@ -86,7 +86,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                 case "computationComplete":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: computationComplete", version, "1.3");
                     parser.nextToken();
-                    computationComplete = parser.getBooleanValue();
+                    computationComplete = JsonUtil.readValue(deserializationContext, parser, Boolean.class);
                     break;
 
                 default:
@@ -96,6 +96,10 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
 
         if (JsonUtil.compareVersions(version, "1.0") < 0 || JsonUtil.compareVersions(version, "1.3") > 0) {
             throw new IllegalStateException("Only versions 1.0, 1.1, 1.2, 1.3 are supported.");
+        }
+        // Before version 1.3 computationComplete was not present, default to true
+        if (JsonUtil.compareVersions(version, "1.3") < 0) {
+            computationComplete = true;
         }
         if (JsonUtil.compareVersions(version, "1.0") == 0) {
             // In 1.0 the contingency IDs and the mapping contingency index -> ID were directly taken from 'contingencyStatus' list.
