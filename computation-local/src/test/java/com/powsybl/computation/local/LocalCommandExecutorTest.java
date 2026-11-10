@@ -84,6 +84,14 @@ class LocalCommandExecutorTest {
         assertTrue(Files.readString(errPath).isEmpty());
         assertEquals(0, exitCode);
 
+        // Spaces and some special characters
+        Files.delete(outPath);
+        Files.writeString(tempDir.resolve("my @ batch (copy).bat"), "@echo Hello, World");
+        exitCode = windowsLocalCommandExecutor.execute("my @ batch (copy).bat", 5, List.of(), outPath, errPath, tempDir, Collections.emptyMap());
+        assertTrue(Files.readString(outPath).contains("Hello, World"));
+        assertTrue(Files.readString(errPath).isEmpty());
+        assertEquals(0, exitCode);
+
         // Non zero exit code
         Files.delete(outPath);
         Files.writeString(tempDir.resolve("my_batch_which_fails.bat"), "@exit /B 37");
