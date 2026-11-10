@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.fasterxml.uuid.Generators;
 import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
-import com.powsybl.cgmes.conversion.export.elements.CgmesGeographicalRegion.GeographicalRegionEq;
-import com.powsybl.cgmes.conversion.export.elements.CgmesSubGeographicalRegion.SubGeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.CgmesRecords.GeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.CgmesRecords.SubGeographicalRegionEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
