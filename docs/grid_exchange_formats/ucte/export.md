@@ -68,10 +68,10 @@ IIDM source is left undefined in the exported node.
 | Reactive load (MVar)                                 | Connected load's `Q0`                                                                | Used as-is; `0` if there is no load.                                                                                                                                                                                                                      |
 | Active power generation (MW)                         | Connected generator's target active power (`targetP`)                                | Opposite of `targetP` (UCTE-DEF convention: generation is negative); `0` if there is no generator, or its `targetP` is undefined.                                                                                                                         |
 | Reactive power generation (MVar)                     | Connected generator's target reactive power (`targetQ`)                              | Opposite of `targetQ`; `0` if there is no generator, or its `targetQ` is undefined.                                                                                                                                                                       |
-| Minimum permissible active power generation (MW)     | Connected generator's `minP`                                                         | Opposite of `minP`; left undefined if `minP` is equal to `-9999` MW (the exporter's sentinel value for "undefined").                                                                                                                                      |
-| Maximum permissible active power generation (MW)     | Connected generator's `maxP`                                                         | Opposite of `maxP`; left undefined if `maxP` is equal to `9999` MW.                                                                                                                                                                                       |
-| Minimum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the minimum reactive limit; left undefined if it is equal to `-9999` MVar.                                                                                                                                                                    |
-| Maximum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the maximum reactive limit; left undefined if it is equal to `9999` MVar.                                                                                                                                                                     |
+| Minimum permissible active power generation (MW)     | Connected generator's `minP`                                                         | Opposite of `minP`; left undefined if `minP` is lower than or equal to `-9999` MW. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                                       |
+| Maximum permissible active power generation (MW)     | Connected generator's `maxP`                                                         | Opposite of `maxP`; left undefined if `maxP` is greater than or equal to `9999` MW. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                                      |
+| Minimum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the minimum reactive limit; left undefined if it is lower than or equal to `-9999` MVar. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                     |
+| Maximum permissible reactive power generation (MVar) | Connected generator's reactive limits, evaluated at its target active power          | Opposite of the maximum reactive limit; left undefined if it is greater than or equal to `9999` MVar. See [Active and reactive power generation limits](#active-and-reactive-power-generation-limits).                                                    |
 | Static of primary control (%)                        | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
 | Nominal power for primary control (MW)               | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
 | Three-phase short-circuit power (MVA)                | *(none)*                                                                             | Always left undefined.                                                                                                                                                                                                                                    |
@@ -102,6 +102,18 @@ the energy source of the generator is converted to a UCTE power plant type accor
 
 See the convention for power plant types in
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf):
+
+#### Active and reactive power generation limits
+
+In a UCTE-DEF file, the minimum and maximum permissible generation of a node can be left empty, meaning that the limit
+is not defined. When such a file is imported, PowSyBl sets the missing limits to `-9999` (minimum) and `9999`
+(maximum). CGMES conversion implements a similar behavior, using a very large value to signify "no limit" (actually, the
+largest encodable: `Double.MAX_VALUE`).
+
+On export, a limit is left empty if it is outside of bounds `-9999` and `9999` (included):
+
+- a minimum limit lower than or equal to `-9999` is left undefined,
+- a maximum limit greater than or equal to `9999` is left undefined.
 
 ### Line conversion
 
@@ -162,23 +174,31 @@ boundary line.
 The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following
 the same conventions as [node conversion](#node-conversion) above.
 
-| UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                       |
-|--------------------------------------------------------|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Node code                                              | Boundary line's pairing key, or id if it has none (tie line: pairing key) | Computed by the [naming strategy](#options).                                                                                                                                      |
-| Geographical name                                      | Boundary line's `geographicalName` property                               | Used as-is; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                     |
-| Node status                                            | Boundary line's `status_XNode` property                                   | `EQUIVALENT` if set to `EQUIVALENT`, `REAL` otherwise; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                          |
-| Node type                                              | Unpaired boundary line's generation part voltage regulation               | `PU` if the generation part regulates voltage, `PQ` otherwise; always `PQ` for a tie line's X-node.                                                                               |
-| Voltage reference (kV)                                 | Unpaired boundary line's generation part target voltage                   | Used as-is, only if the generation part regulates voltage; left undefined otherwise, and always for a tie line's X-node.                                                          |
-| Active load (MW)                                       | Unpaired boundary line's `P0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                          |
-| Reactive load (MVar)                                   | Unpaired boundary line's `Q0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                          |
-| Active power generation (MW)                           | Unpaired boundary line's generation part target active power              | Opposite sign; `0` if undefined, or for a tie line's X-node.                                                                                                                      |
-| Reactive power generation (MVar)                       | Unpaired boundary line's generation part target reactive power            | Opposite sign; `0` if undefined, or for a tie line's X-node.                                                                                                                      |
-| Min./max. permissible active/reactive power generation | Unpaired boundary line's generation part min/max limits                   | Same sign and sentinel-based undefined rules as [node conversion](#node-conversion); only set if the generation part regulates voltage; always undefined for a tie line's X-node. |
-| Static of primary control (%)                          | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
-| Nominal power for primary control (MW)                 | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
-| Three-phase short-circuit power (MVA)                  | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
-| X/R ratio                                              | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
-| Power plant type                                       | *(none)*                                                                  | Always undefined.                                                                                                                                                                 |
+| UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                                                                    |
+|--------------------------------------------------------|---------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Node code                                              | Boundary line's pairing key, or id if it has none (tie line: pairing key) | Computed by the [naming strategy](#options).                                                                                                                                                                                   |
+| Geographical name                                      | Boundary line's `geographicalName` property                               | Used as-is; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                                                                  |
+| Node status                                            | Boundary line's `status_XNode` property                                   | `EQUIVALENT` if set to `EQUIVALENT`, `REAL` otherwise; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                       |
+| Node type                                              | Unpaired boundary line's generation part voltage regulation               | `PU` if the generation part regulates voltage, `PQ` otherwise; always `PQ` for a tie line's X-node or if the boundary line has no generation part (see [Boundary line without generation](#boundary-line-without-generation)). |
+| Voltage reference (kV)                                 | Unpaired boundary line's generation part target voltage                   | Used as-is, only if the generation part regulates voltage; left undefined otherwise (including with [no generation](#boundary-line-without-generation) part), and always for a tie line's X-node.                              |
+| Active load (MW)                                       | Unpaired boundary line's `P0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                                                                       |
+| Reactive load (MVar)                                   | Unpaired boundary line's `Q0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                                                                       |
+| Active power generation (MW)                           | Unpaired boundary line's generation part target active power              | Opposite sign; `0` if undefined, for a tie line's X-node or if the boundary line has no generation part (see [Boundary line without generation](#boundary-line-without-generation)).                                           |
+| Reactive power generation (MVar)                       | Unpaired boundary line's generation part target reactive power            | Opposite sign; `0` if undefined, for a tie line's X-node or if the boundary line has no generation part (see [Boundary line without generation](#boundary-line-without-generation)).                                           |
+| Min./max. permissible active/reactive power generation | Unpaired boundary line's generation part min/max limits                   | Same rules as for a node, see [Active and reactive power generation limits](#active-and-reactive-power-generation-limits); only set if the generation part regulates voltage; always undefined for a tie line's X-node.        |
+| Static of primary control (%)                          | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| Nominal power for primary control (MW)                 | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| Three-phase short-circuit power (MVA)                  | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| X/R ratio                                              | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| Power plant type                                       | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+
+##### Boundary line without generation
+
+If the original boundary line has no generation part, its X-node is exported as a `PQ` node without generation:
+
+- the voltage reference is left undefined
+- the permissible generation limits are left undefined
+- the active and reactive power generations are set to `0`
 
 #### Tie line properties
 
@@ -208,7 +228,7 @@ The table below maps every UCTE-DEF transformer attribute to its source in IIDM.
 | Element name                                | `elementName` property                              | Used as-is; left undefined if the property is absent.                                                  |
 | Rated voltage 1 (kV, non-regulated winding) | Transformer's `ratedU2`                             | Used as-is; swapped with rated voltage 2, see [Rated voltages](#rated-voltages).                       |
 | Rated voltage 2 (kV, regulated winding)     | Transformer's `ratedU1`                             | Used as-is; swapped with rated voltage 1, see [Rated voltages](#rated-voltages).                       |
-| Nominal power (MVA)                         | `nomimalPower` property                             | Parsed as a double; left undefined if the property is absent, and a warning is [reported](#reporting). |
+| Nominal power (MVA)                         | Transformer's `ratedS`                              | See [Nominal power](#nominal-power).                                                                   |
 | Conductance G (μS)                          | Transformer's `g`                                   | Used as-is.                                                                                            |
 
 #### Rated voltages
@@ -218,6 +238,17 @@ export: the UCTE transformer's rated voltage 1 (non-regulated winding) is the tr
 voltage 2 (regulated winding) is its `ratedU1`.
 
 If the transformer has a ratio and/or a phase tap changer, a regulation is exported.
+
+#### Nominal power
+
+The nominal power is the transformer's rated apparent power `ratedS`, used as-is.<br>
+If `ratedS` is undefined (`Double.NaN`), the value of the `nomimalPower` property is used instead:
+the `nomimalPower` property was set by the UCTE-DEF import in older PowSyBl versions (with a typo),
+and this is to remain retro-compatible with networks serialized with these older versions.
+
+If both `ratedS` is `NaN` and legacy property `nomimalPower` is absent or null, `99999` MVA is written in the file, and
+a warning is [reported](#reporting). This value is chosen because it cannot be mistaken for the nominal power of a real
+transformer (too large).
 
 #### Phase regulation
 
@@ -283,5 +314,5 @@ conversion step (buses and switches, boundary lines, lines, tie lines, transform
 following situations are reported with a `WARN` severity:
 
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
-- a two-winding transformer has no usable nominal power
-  (see [two-winding transformer conversion](#two-winding-transformer-conversion)).
+- a two-winding transformer has no nominal power, and the default value `99999` is exported instead
+  (see [Nominal power](#nominal-power)).
