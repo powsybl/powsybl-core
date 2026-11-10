@@ -95,7 +95,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         }
 
         if (JsonUtil.compareVersions(version, "1.0") < 0 || JsonUtil.compareVersions(version, "1.3") > 0) {
-            throw new IllegalStateException("Only version 1.0, 1.1, 1.2, 1.3  are supported.");
+            throw new IllegalStateException("Only versions 1.0, 1.1, 1.2, 1.3 are supported.");
         }
         if (JsonUtil.compareVersions(version, "1.0") == 0) {
             // In 1.0 the contingency IDs and the mapping contingency index -> ID were directly taken from 'contingencyStatus' list.

@@ -190,7 +190,7 @@ public class SensitivityAnalysisResult {
             return value.getValue();
         }
         throw new PowsyblException("Sensitivity value not found for contingency '" + state.contingencyId() + "', operator strategy '" + state.operatorStrategyId() + "', function '"
-                                   + functionId + "', variable '" + variableId + "'" + "', functionType '" + functionType);
+                                   + functionId + "', variable '" + variableId + "'" + "', functionType '" + functionType + "'");
     }
 
     /**
@@ -381,7 +381,7 @@ public class SensitivityAnalysisResult {
         Double value = functionReferenceByContingencyAndFunction.get(Triple.of(functionType, state, functionId));
         if (value == null) {
             throw new PowsyblException("Reference flow value not found for contingency '" + state.contingencyId() + "' and operator strategy '"
-                    + state.operatorStrategyId() + "', function '" + functionId + "'" + "', functionType '" + functionType);
+                    + state.operatorStrategyId() + "', function '" + functionId + "'" + "', functionType '" + functionType + "'");
         }
         return value;
     }
@@ -556,7 +556,7 @@ public class SensitivityAnalysisResult {
         if (stateStatus != null) {
             return stateStatus.getComponentsLoadFlowStatusList();
         } else {
-            throw new PowsyblException("Sensitivity state status not found for state with contingency '" + state.contingencyId() + "', operator strategy '" + state.operatorStrategyId());
+            throw new PowsyblException("Sensitivity state status not found for state with contingency '" + state.contingencyId() + "', operator strategy '" + state.operatorStrategyId() + "'");
         }
     }
 
