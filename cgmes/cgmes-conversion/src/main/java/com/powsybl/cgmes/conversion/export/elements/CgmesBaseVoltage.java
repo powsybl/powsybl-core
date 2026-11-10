@@ -26,10 +26,11 @@ public final class CgmesBaseVoltage {
     }
 
     public static void writeEq(BaseVoltageEq baseVoltage, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         String nominalVoltage = CgmesExportUtil.format(baseVoltage.nominalVoltage);
         CgmesExportUtil.writeStartId(BASE_VOLTAGE, baseVoltage.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(nominalVoltage), writer, context);
-        CgmesExportUtil.writeAttribute(BASE_VOLTAGE_NOMINAL_VOLTAGE, nominalVoltage, writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(nominalVoltage), writer);
+        CgmesExportUtil.writeAttribute(namespace, BASE_VOLTAGE_NOMINAL_VOLTAGE, nominalVoltage, writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

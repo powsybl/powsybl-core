@@ -352,8 +352,9 @@ public final class EquipmentExport {
             CgmesLoadArea.writeSubLoadAreaEq(subLoadAreaEq, writer, context);
         }
         for (LoadGroup loadGroup : loadGroups.found()) {
+            String namespace = context.getCim().getNamespace();
             CgmesExportUtil.writeStartId(loadGroup.className, loadGroup.id, true, writer, context);
-            CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadGroup.name), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadGroup.name), writer);
             if (!context.isCim16BusBranchExport()) {
                 CgmesExportUtil.writeResource("LoadGroup.SubLoadArea", subLoadAreaId, writer, context);
             }
@@ -495,14 +496,16 @@ public final class EquipmentExport {
     }
 
     private void writeAsynchronousMachine(String id, String name) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(CgmesNames.ASYNCHRONOUS_MACHINE, id, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
         writer.writeEndElement();
     }
 
     private void writeEnergySource(String id, String name, String equipmentContainer) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(CgmesNames.ENERGY_SOURCE, id, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
         CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
         writer.writeEndElement();
     }
@@ -759,20 +762,20 @@ public final class EquipmentExport {
     }
 
     private void writeHydroPowerPlant(String id, String name, String hydroPlantStorageType) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId("HydroPowerPlant", id, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
-        writer.writeEmptyElement(cimNamespace, "HydroPowerPlant.hydroPlantStorageType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "HydroPlantStorageKind." + hydroPlantStorageType));
+        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
+        writer.writeEmptyElement(namespace, "HydroPowerPlant.hydroPlantStorageType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", namespace, "HydroPlantStorageKind." + hydroPlantStorageType));
         writer.writeEndElement();
     }
 
     private void writeFossilFuel(String id, String name, String fuelType, String generatingUnit) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId("FossilFuel", id, true, writer, context);
-        CgmesExportUtil.writeAttribute(CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer, context);
-        writer.writeEmptyElement(cimNamespace, "FossilFuel.fossilFuelType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "FuelType." + fuelType));
+        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
+        writer.writeEmptyElement(namespace, "FossilFuel.fossilFuelType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", namespace, "FuelType." + fuelType));
         CgmesExportUtil.writeResource("FossilFuel.ThermalGeneratingUnit", generatingUnit, writer, context);
         writer.writeEndElement();
     }

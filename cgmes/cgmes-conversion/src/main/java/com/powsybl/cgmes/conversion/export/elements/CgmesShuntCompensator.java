@@ -36,18 +36,19 @@ public final class CgmesShuntCompensator {
     }
 
     public static void writeEq(ShuntCompensatorEq shuntCompensator, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(shuntCompensator.className, shuntCompensator.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(shuntCompensator.name), writer, context);
-        CgmesExportUtil.writeAttribute(SHUNT_COMPENSATOR_NORMAL_SECTIONS, CgmesExportUtil.format(shuntCompensator.normalSections), writer, context);
-        CgmesExportUtil.writeAttribute(SHUNT_COMPENSATOR_MAXIMUM_SECTIONS, CgmesExportUtil.format(shuntCompensator.maximumSections), writer, context);
-        CgmesExportUtil.writeAttribute(SHUNT_COMPENSATOR_NOM_U, CgmesExportUtil.format(shuntCompensator.nomU), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(shuntCompensator.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, SHUNT_COMPENSATOR_NORMAL_SECTIONS, CgmesExportUtil.format(shuntCompensator.normalSections), writer);
+        CgmesExportUtil.writeAttribute(namespace, SHUNT_COMPENSATOR_MAXIMUM_SECTIONS, CgmesExportUtil.format(shuntCompensator.maximumSections), writer);
+        CgmesExportUtil.writeAttribute(namespace, SHUNT_COMPENSATOR_NOM_U, CgmesExportUtil.format(shuntCompensator.nomU), writer);
         if (LINEAR_SHUNT_COMPENSATOR.equals(shuntCompensator.className)) {
             String bPerSection = Math.abs(shuntCompensator.bPerSection) < B_PER_SECTION_FORMAT_THRESHOLD
                 ? CgmesExportUtil.scientificFormat(shuntCompensator.bPerSection)
                 : CgmesExportUtil.format(shuntCompensator.bPerSection);
-            CgmesExportUtil.writeAttribute(LINEAR_SHUNT_COMPENSATOR_B_PER_SECTION, bPerSection, writer, context);
+            CgmesExportUtil.writeAttribute(namespace, LINEAR_SHUNT_COMPENSATOR_B_PER_SECTION, bPerSection, writer);
             String gPerSection = !Double.isNaN(shuntCompensator.gPerSection) ? CgmesExportUtil.format(shuntCompensator.gPerSection) : "0";
-            CgmesExportUtil.writeAttribute(LINEAR_SHUNT_COMPENSATOR_G_PER_SECTION, gPerSection, writer, context);
+            CgmesExportUtil.writeAttribute(namespace, LINEAR_SHUNT_COMPENSATOR_G_PER_SECTION, gPerSection, writer);
         }
         if (shuntCompensator.regulatingControl != null) {
             CgmesExportUtil.writeResource(REGULATING_COND_EQ_REGULATING_CONTROL, shuntCompensator.regulatingControl, writer, context);
@@ -57,11 +58,12 @@ public final class CgmesShuntCompensator {
     }
 
     public static void writePointEq(NonlinearShuntCompensatorPointEq point, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(NONLINEAR_SHUNT_COMPENSATOR_POINT, point.rdfId, false, writer, context);
         CgmesExportUtil.writeResource(NONLINEAR_SHUNT_COMPENSATOR_POINT_NONLINEAR_SHUNT_COMPENSATOR, point.nonlinearShuntCompensator, writer, context);
-        CgmesExportUtil.writeAttribute(NONLINEAR_SHUNT_COMPENSATOR_POINT_SECTION_NUMBER, CgmesExportUtil.format(point.sectionNumber), writer, context);
-        CgmesExportUtil.writeAttribute(NONLINEAR_SHUNT_COMPENSATOR_POINT_B, CgmesExportUtil.format(point.b), writer, context);
-        CgmesExportUtil.writeAttribute(NONLINEAR_SHUNT_COMPENSATOR_POINT_G, CgmesExportUtil.format(point.g), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, NONLINEAR_SHUNT_COMPENSATOR_POINT_SECTION_NUMBER, CgmesExportUtil.format(point.sectionNumber), writer);
+        CgmesExportUtil.writeAttribute(namespace, NONLINEAR_SHUNT_COMPENSATOR_POINT_B, CgmesExportUtil.format(point.b), writer);
+        CgmesExportUtil.writeAttribute(namespace, NONLINEAR_SHUNT_COMPENSATOR_POINT_G, CgmesExportUtil.format(point.g), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

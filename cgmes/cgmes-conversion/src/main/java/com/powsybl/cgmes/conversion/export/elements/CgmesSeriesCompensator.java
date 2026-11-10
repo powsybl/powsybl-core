@@ -31,13 +31,14 @@ public final class CgmesSeriesCompensator {
     }
 
     public static void writeEq(SeriesCompensatorEq sc, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SERIES_COMPENSATOR, sc.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(sc.name), writer, context);
-        CgmesExportUtil.writeAttribute(SERIES_COMPENSATOR_R, CgmesExportUtil.format(sc.r), writer, context);
-        CgmesExportUtil.writeAttribute(SERIES_COMPENSATOR_X, CgmesExportUtil.format(sc.x), writer, context);
-        CgmesExportUtil.writeAttribute(SERIES_COMPENSATOR_VARISTOR_PRESENT, CgmesExportUtil.format(sc.varistorPresent), writer, context);
-        CgmesExportUtil.writeAttribute(SERIES_COMPENSATOR_VARISTOR_RATED_CURRENT, CgmesExportUtil.format(sc.varistorRatedCurrent), writer, context);
-        CgmesExportUtil.writeAttribute(SERIES_COMPENSATOR_VARISTOR_VOLTAGE_THRESHOLD, CgmesExportUtil.format(sc.varistorVoltageThreshold), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(sc.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, SERIES_COMPENSATOR_R, CgmesExportUtil.format(sc.r), writer);
+        CgmesExportUtil.writeAttribute(namespace, SERIES_COMPENSATOR_X, CgmesExportUtil.format(sc.x), writer);
+        CgmesExportUtil.writeAttribute(namespace, SERIES_COMPENSATOR_VARISTOR_PRESENT, CgmesExportUtil.format(sc.varistorPresent), writer);
+        CgmesExportUtil.writeAttribute(namespace, SERIES_COMPENSATOR_VARISTOR_RATED_CURRENT, CgmesExportUtil.format(sc.varistorRatedCurrent), writer);
+        CgmesExportUtil.writeAttribute(namespace, SERIES_COMPENSATOR_VARISTOR_VOLTAGE_THRESHOLD, CgmesExportUtil.format(sc.varistorVoltageThreshold), writer);
         if (sc.baseVoltage != null) {
             CgmesExportUtil.writeResource(CONDUCTING_EQUIPMENT_BASE_VOLTAGE, sc.baseVoltage, writer, context);
         }

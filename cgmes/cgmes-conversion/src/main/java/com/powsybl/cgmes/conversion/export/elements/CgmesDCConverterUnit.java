@@ -28,11 +28,11 @@ public final class CgmesDCConverterUnit {
     }
 
     public static void writeEq(DCConverterUnitEq dcConverterUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_CONVERTER_UNIT, dcConverterUnit.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcConverterUnit.name), writer, context);
-        CgmesExportUtil.writeResource(DC_CONVERTER_UNIT_OPERATION_MODE, cimNamespace,
-            cimNamespace + OPERATING_MODE_KIND + dcConverterUnit.operationMode, writer);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcConverterUnit.name), writer);
+        CgmesExportUtil.writeResource(DC_CONVERTER_UNIT_OPERATION_MODE, namespace,
+            namespace + OPERATING_MODE_KIND + dcConverterUnit.operationMode, writer);
         CgmesExportUtil.writeResource(DC_CONVERTER_UNIT_SUBSTATION, dcConverterUnit.substation, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }

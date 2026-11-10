@@ -29,17 +29,18 @@ public final class CgmesOperationalLimitType {
     }
 
     public static void writeEq(OperationalLimitTypeEq limitType, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(OPERATIONAL_LIMIT_TYPE, limitType.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(limitType.name), writer, context);
-        CgmesExportUtil.writeResource(OPERATIONAL_LIMIT_TYPE_DIRECTION, context.getCim().getNamespace(),
-            context.getCim().getNamespace() + OPERATIONAL_LIMIT_DIRECTION_KIND_ABSOLUTE_VALUE, writer);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(limitType.name), writer);
+        CgmesExportUtil.writeResource(OPERATIONAL_LIMIT_TYPE_DIRECTION, namespace,
+            namespace + OPERATIONAL_LIMIT_DIRECTION_KIND_ABSOLUTE_VALUE, writer);
         CgmesExportUtil.writeResource(getLimitTypeAttributeName(context), context.getCim().getEuNamespace(),
             context.getCim().getEuNamespace() + getLimitKindClassName(context) + "." + limitType.kind, writer);
         if (context.getCimVersion() == 100) {
-            CgmesExportUtil.writeAttribute(OPERATIONAL_LIMIT_TYPE_IS_INFINITE_DURATION, Boolean.toString(limitType.isInfiniteDuration), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, OPERATIONAL_LIMIT_TYPE_IS_INFINITE_DURATION, Boolean.toString(limitType.isInfiniteDuration), writer);
         }
         if (!limitType.isInfiniteDuration) {
-            CgmesExportUtil.writeAttribute(OPERATIONAL_LIMIT_TYPE_ACCEPTABLE_DURATION, CgmesExportUtil.format(limitType.acceptableDuration), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, OPERATIONAL_LIMIT_TYPE_ACCEPTABLE_DURATION, CgmesExportUtil.format(limitType.acceptableDuration), writer);
         }
         CgmesExportUtil.writeEnd(writer);
     }

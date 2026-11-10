@@ -27,11 +27,12 @@ public final class CgmesRegulatingControl {
     }
 
     public static void writeEq(RegulatingControlEq regulatingControl, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(REGULATING_CONTROL, regulatingControl.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(regulatingControl.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(regulatingControl.name), writer);
         CgmesExportUtil.writeResource(REGULATING_CONTROL_TERMINAL, regulatingControl.terminal, writer, context);
-        CgmesExportUtil.writeResource(REGULATING_CONTROL_MODE, context.getCim().getNamespace(),
-            context.getCim().getNamespace() + regulatingControl.mode, writer);
+        CgmesExportUtil.writeResource(REGULATING_CONTROL_MODE, namespace,
+            namespace + regulatingControl.mode, writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

@@ -31,14 +31,15 @@ public final class CgmesExternalNetworkInjection {
     }
 
     public static void writeEq(ExternalNetworkInjectionEq externalNetworkInjection, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EXTERNAL_NETWORK_INJECTION, externalNetworkInjection.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(externalNetworkInjection.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(externalNetworkInjection.name), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, externalNetworkInjection.equipmentContainer, writer, context);
-        CgmesExportUtil.writeAttribute(EXTERNAL_NETWORK_INJECTION_GOVERNOR_SCD, CgmesExportUtil.format(externalNetworkInjection.governorScd), writer, context);
-        CgmesExportUtil.writeAttribute(EXTERNAL_NETWORK_INJECTION_MAX_P, CgmesExportUtil.format(externalNetworkInjection.maxP), writer, context);
-        CgmesExportUtil.writeAttribute(EXTERNAL_NETWORK_INJECTION_MAX_Q, CgmesExportUtil.format(externalNetworkInjection.maxQ), writer, context);
-        CgmesExportUtil.writeAttribute(EXTERNAL_NETWORK_INJECTION_MIN_P, CgmesExportUtil.format(externalNetworkInjection.minP), writer, context);
-        CgmesExportUtil.writeAttribute(EXTERNAL_NETWORK_INJECTION_MIN_Q, CgmesExportUtil.format(externalNetworkInjection.minQ), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, EXTERNAL_NETWORK_INJECTION_GOVERNOR_SCD, CgmesExportUtil.format(externalNetworkInjection.governorScd), writer);
+        CgmesExportUtil.writeAttribute(namespace, EXTERNAL_NETWORK_INJECTION_MAX_P, CgmesExportUtil.format(externalNetworkInjection.maxP), writer);
+        CgmesExportUtil.writeAttribute(namespace, EXTERNAL_NETWORK_INJECTION_MAX_Q, CgmesExportUtil.format(externalNetworkInjection.maxQ), writer);
+        CgmesExportUtil.writeAttribute(namespace, EXTERNAL_NETWORK_INJECTION_MIN_P, CgmesExportUtil.format(externalNetworkInjection.minP), writer);
+        CgmesExportUtil.writeAttribute(namespace, EXTERNAL_NETWORK_INJECTION_MIN_Q, CgmesExportUtil.format(externalNetworkInjection.minQ), writer);
         if (externalNetworkInjection.regulatingControl != null) {
             CgmesExportUtil.writeResource(REGULATING_COND_EQ_REGULATING_CONTROL, externalNetworkInjection.regulatingControl, writer, context);
         }

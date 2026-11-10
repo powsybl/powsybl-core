@@ -24,8 +24,9 @@ public final class CgmesBusbarSection {
     }
 
     public static void writeEq(BusbarSectionEq busbarSection, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(BUSBAR_SECTION, busbarSection.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(busbarSection.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(busbarSection.name), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, busbarSection.equipmentContainer, writer, context);
         CgmesExportUtil.writeResource(CONDUCTING_EQUIPMENT_BASE_VOLTAGE, busbarSection.baseVoltage, writer, context);
         CgmesExportUtil.writeEnd(writer);

@@ -27,13 +27,14 @@ public final class CgmesDCTerminal {
     }
 
     public static void writeEq(DCTerminalEq dcTerminal, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(dcTerminal.className, dcTerminal.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcTerminal.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcTerminal.name), writer);
         CgmesExportUtil.writeResource(dcTerminal.className + "." + DC_CONDUCTING_EQUIPMENT, dcTerminal.dcConductingEquipment, writer, context);
         if (dcTerminal.dcNode != null) {
             CgmesExportUtil.writeResource(DC_BASE_TERMINAL_DC_NODE, dcTerminal.dcNode, writer, context);
         }
-        CgmesExportUtil.writeAttribute(AC_DC_TERMINAL_SEQUENCE_NUMBER, CgmesExportUtil.format(dcTerminal.sequenceNumber), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, AC_DC_TERMINAL_SEQUENCE_NUMBER, CgmesExportUtil.format(dcTerminal.sequenceNumber), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

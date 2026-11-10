@@ -206,13 +206,14 @@ public final class CgmesExportUtil {
     }
 
     public static void writeStartId(String className, String id, boolean writeMasterResourceId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(context.getCim().getNamespace(), className);
+        String namespace = context.getCim().getNamespace();
+        writer.writeStartElement(namespace, className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
         // points of tables and curve data objects do not have mRID, although they have an RDF:ID
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id, context));
         if (writeMasterResourceId && context.getCim().getVersion() >= 100) {
-            writeAttribute(CgmesNames.MRID, toMasterResourceId(id, context), writer, context);
+            writeAttribute(namespace, CgmesNames.MRID, toMasterResourceId(id, context), writer);
         }
     }
 
@@ -221,8 +222,8 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
     }
 
-    public static void writeAttribute(String attributeName, String attributeValue, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(context.getCim().getNamespace(), attributeName);
+    public static void writeAttribute(String namespace, String attributeName, String attributeValue, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(namespace, attributeName);
         writer.writeCharacters(attributeValue);
         writer.writeEndElement();
     }

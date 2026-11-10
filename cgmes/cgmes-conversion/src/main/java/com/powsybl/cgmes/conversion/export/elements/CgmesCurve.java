@@ -32,13 +32,13 @@ public final class CgmesCurve {
     }
 
     public static void writeEq(CurveEq curve, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(curve.className, curve.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(curve.name), writer, context);
-        CgmesExportUtil.writeResource(CURVE_CURVE_STYLE, cimNamespace, cimNamespace + CURVE_STYLE_STRAIGHT_LINE_Y_VALUES, writer);
-        CgmesExportUtil.writeResource(CURVE_X_UNIT, cimNamespace, cimNamespace + UNIT_SYMBOL_W, writer);
-        CgmesExportUtil.writeResource(CURVE_Y1_UNIT, cimNamespace, cimNamespace + UNIT_SYMBOL_VAR, writer);
-        CgmesExportUtil.writeResource(CURVE_Y2_UNIT, cimNamespace, cimNamespace + UNIT_SYMBOL_VAR, writer);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(curve.name), writer);
+        CgmesExportUtil.writeResource(CURVE_CURVE_STYLE, namespace, namespace + CURVE_STYLE_STRAIGHT_LINE_Y_VALUES, writer);
+        CgmesExportUtil.writeResource(CURVE_X_UNIT, namespace, namespace + UNIT_SYMBOL_W, writer);
+        CgmesExportUtil.writeResource(CURVE_Y1_UNIT, namespace, namespace + UNIT_SYMBOL_VAR, writer);
+        CgmesExportUtil.writeResource(CURVE_Y2_UNIT, namespace, namespace + UNIT_SYMBOL_VAR, writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

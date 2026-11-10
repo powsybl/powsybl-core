@@ -27,10 +27,11 @@ public final class CgmesEquivalentShunt {
     }
 
     public static void writeEq(EquivalentShuntEq equivalentShunt, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EQUIVALENT_SHUNT, equivalentShunt.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(equivalentShunt.name), writer, context);
-        CgmesExportUtil.writeAttribute(EQUIVALENT_SHUNT_B, CgmesExportUtil.format(equivalentShunt.b), writer, context);
-        CgmesExportUtil.writeAttribute(EQUIVALENT_SHUNT_G, CgmesExportUtil.format(equivalentShunt.g), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(equivalentShunt.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_SHUNT_B, CgmesExportUtil.format(equivalentShunt.b), writer);
+        CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_SHUNT_G, CgmesExportUtil.format(equivalentShunt.g), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, equivalentShunt.equipmentContainer, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }

@@ -30,14 +30,15 @@ public final class CgmesACLineSegment {
     }
 
     public static void writeEq(ACLineSegmentEq line, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(AC_LINE_SEGMENT, line.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(line.name), writer, context);
-        CgmesExportUtil.writeAttribute(AC_LINE_SEGMENT_R, CgmesExportUtil.format(line.r), writer, context);
-        CgmesExportUtil.writeAttribute(AC_LINE_SEGMENT_X, CgmesExportUtil.format(line.x), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(line.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, AC_LINE_SEGMENT_R, CgmesExportUtil.format(line.r), writer);
+        CgmesExportUtil.writeAttribute(namespace, AC_LINE_SEGMENT_X, CgmesExportUtil.format(line.x), writer);
         if (line.g != 0.0) {
-            CgmesExportUtil.writeAttribute(AC_LINE_SEGMENT_GCH, CgmesExportUtil.format(line.g), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, AC_LINE_SEGMENT_GCH, CgmesExportUtil.format(line.g), writer);
         }
-        CgmesExportUtil.writeAttribute(AC_LINE_SEGMENT_BCH, CgmesExportUtil.format(line.b), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, AC_LINE_SEGMENT_BCH, CgmesExportUtil.format(line.b), writer);
         if (line.baseVoltage != null) {
             CgmesExportUtil.writeResource(CONDUCTING_EQUIPMENT_BASE_VOLTAGE, line.baseVoltage, writer, context);
         }

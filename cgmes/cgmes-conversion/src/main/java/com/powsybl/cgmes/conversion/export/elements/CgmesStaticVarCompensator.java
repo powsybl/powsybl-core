@@ -30,18 +30,19 @@ public final class CgmesStaticVarCompensator {
     }
 
     public static void writeEq(StaticVarCompensatorEq staticVarCompensator, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(STATIC_VAR_COMPENSATOR, staticVarCompensator.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(staticVarCompensator.name), writer, context);
-        CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, staticVarCompensator.equipmentContainer, writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(staticVarCompensator.name), writer);
         if (staticVarCompensator.regulatingControl != null) {
             CgmesExportUtil.writeResource(REGULATING_COND_EQ_REGULATING_CONTROL, staticVarCompensator.regulatingControl, writer, context);
         }
-        CgmesExportUtil.writeAttribute(STATIC_VAR_COMPENSATOR_INDUCTIVE_RATING, CgmesExportUtil.format(staticVarCompensator.inductiveRating), writer, context);
-        CgmesExportUtil.writeAttribute(STATIC_VAR_COMPENSATOR_CAPACITIVE_RATING, CgmesExportUtil.format(staticVarCompensator.capacitiveRating), writer, context);
-        CgmesExportUtil.writeAttribute(STATIC_VAR_COMPENSATOR_SLOPE, CgmesExportUtil.format(Double.isNaN(staticVarCompensator.slope) ? 0. : staticVarCompensator.slope), writer, context);
-        CgmesExportUtil.writeResource(STATIC_VAR_COMPENSATOR_SVC_CONTROL_MODE, context.getCim().getNamespace(),
-            context.getCim().getNamespace() + staticVarCompensator.svcControlMode, writer);
-        CgmesExportUtil.writeAttribute(STATIC_VAR_COMPENSATOR_VOLTAGE_SET_POINT, CgmesExportUtil.format(staticVarCompensator.voltageSetPoint), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, STATIC_VAR_COMPENSATOR_INDUCTIVE_RATING, CgmesExportUtil.format(staticVarCompensator.inductiveRating), writer);
+        CgmesExportUtil.writeAttribute(namespace, STATIC_VAR_COMPENSATOR_CAPACITIVE_RATING, CgmesExportUtil.format(staticVarCompensator.capacitiveRating), writer);
+        CgmesExportUtil.writeAttribute(namespace, STATIC_VAR_COMPENSATOR_SLOPE, CgmesExportUtil.format(Double.isNaN(staticVarCompensator.slope) ? 0. : staticVarCompensator.slope), writer);
+        CgmesExportUtil.writeResource(STATIC_VAR_COMPENSATOR_SVC_CONTROL_MODE, namespace,
+            namespace + staticVarCompensator.svcControlMode, writer);
+        CgmesExportUtil.writeAttribute(namespace, STATIC_VAR_COMPENSATOR_VOLTAGE_SET_POINT, CgmesExportUtil.format(staticVarCompensator.voltageSetPoint), writer);
+        CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, staticVarCompensator.equipmentContainer, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }
 

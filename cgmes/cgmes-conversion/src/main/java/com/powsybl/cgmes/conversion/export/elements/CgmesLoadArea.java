@@ -28,14 +28,16 @@ public final class CgmesLoadArea {
     }
 
     public static void writeEq(LoadAreaEq loadArea, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(LOAD_AREA, loadArea.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadArea.name + " Load Area"), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadArea.name + " Load Area"), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 
     public static void writeSubLoadAreaEq(SubLoadAreaEq subLoadArea, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SUB_LOAD_AREA, subLoadArea.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(subLoadArea.name + " SubLoad Area"), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(subLoadArea.name + " SubLoad Area"), writer);
         CgmesExportUtil.writeResource(SUB_LOAD_AREA_LOAD_AREA, subLoadArea.loadArea, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }

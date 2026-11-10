@@ -26,8 +26,9 @@ public final class CgmesGeographicalRegion {
     }
 
     public static void writeEq(GeographicalRegionEq region, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(GEOGRAPHICAL_REGION, region.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(region.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(region.name), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

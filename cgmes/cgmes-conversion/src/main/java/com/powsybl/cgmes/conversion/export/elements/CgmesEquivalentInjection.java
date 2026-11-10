@@ -31,21 +31,22 @@ public final class CgmesEquivalentInjection {
     }
 
     public static void writeEq(EquivalentInjectionEq equivalentInjection, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EQUIVALENT_INJECTION, equivalentInjection.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(equivalentInjection.name), writer, context);
-        CgmesExportUtil.writeAttribute(EQUIVALENT_INJECTION_REGULATION_CAPABILITY, CgmesExportUtil.format(equivalentInjection.regulationCapability), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(equivalentInjection.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_INJECTION_REGULATION_CAPABILITY, CgmesExportUtil.format(equivalentInjection.regulationCapability), writer);
         // To avoid Infinite values during reimport, default values are not exported
         if (!CgmesExportUtil.isMinusOrMaxValue(equivalentInjection.minP)) {
-            CgmesExportUtil.writeAttribute(EQUIVALENT_INJECTION_MIN_P, CgmesExportUtil.format(equivalentInjection.minP), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_INJECTION_MIN_P, CgmesExportUtil.format(equivalentInjection.minP), writer);
         }
         if (!CgmesExportUtil.isMinusOrMaxValue(equivalentInjection.maxP)) {
-            CgmesExportUtil.writeAttribute(EQUIVALENT_INJECTION_MAX_P, CgmesExportUtil.format(equivalentInjection.maxP), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_INJECTION_MAX_P, CgmesExportUtil.format(equivalentInjection.maxP), writer);
         }
         if (equivalentInjection.minQ != null && !CgmesExportUtil.isMinusOrMaxValue(equivalentInjection.minQ)) {
-            CgmesExportUtil.writeAttribute(EQUIVALENT_INJECTION_MIN_Q, CgmesExportUtil.format(equivalentInjection.minQ), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_INJECTION_MIN_Q, CgmesExportUtil.format(equivalentInjection.minQ), writer);
         }
         if (equivalentInjection.maxQ != null && !CgmesExportUtil.isMinusOrMaxValue(equivalentInjection.maxQ)) {
-            CgmesExportUtil.writeAttribute(EQUIVALENT_INJECTION_MAX_Q, CgmesExportUtil.format(equivalentInjection.maxQ), writer, context);
+            CgmesExportUtil.writeAttribute(namespace, EQUIVALENT_INJECTION_MAX_Q, CgmesExportUtil.format(equivalentInjection.maxQ), writer);
         }
         if (equivalentInjection.reactiveCapabilityCurve != null) {
             CgmesExportUtil.writeResource(EQUIVALENT_INJECTION_REACTIVE_CAPABILITY_CURVE, equivalentInjection.reactiveCapabilityCurve, writer, context);

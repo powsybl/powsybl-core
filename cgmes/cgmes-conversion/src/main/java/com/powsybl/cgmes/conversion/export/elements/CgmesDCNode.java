@@ -26,8 +26,9 @@ public final class CgmesDCNode {
     }
 
     public static void writeEq(DCNodeEq dcNode, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_NODE, dcNode.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcNode.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcNode.name), writer);
         if (dcNode.equipmentContainer != null) {
             CgmesExportUtil.writeResource(DC_NODE_DC_EQUIPMENT_CONTAINER, dcNode.equipmentContainer, writer, context);
         }

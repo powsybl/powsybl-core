@@ -28,10 +28,11 @@ public final class CgmesTieFlow {
     }
 
     public static void writeEq(TieFlowEq tieFlow, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(TIE_FLOW, tieFlow.rdfId, false, writer, context);
         CgmesExportUtil.writeResource(TIE_FLOW_CONTROL_AREA, tieFlow.controlArea, writer, context);
         CgmesExportUtil.writeResource(TIE_FLOW_TERMINAL, tieFlow.terminal, writer, context);
-        CgmesExportUtil.writeAttribute(TIE_FLOW_POSITIVE_FLOW_IN, Boolean.toString(true), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, TIE_FLOW_POSITIVE_FLOW_IN, Boolean.toString(true), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

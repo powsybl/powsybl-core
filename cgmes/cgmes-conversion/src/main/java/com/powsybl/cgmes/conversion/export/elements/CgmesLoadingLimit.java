@@ -27,9 +27,10 @@ public final class CgmesLoadingLimit {
     }
 
     public static void writeEq(LoadingLimitEq loadingLimit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(loadingLimit.className, loadingLimit.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadingLimit.name), writer, context);
-        CgmesExportUtil.writeAttribute(loadingLimit.className + "." + getLimitValueAttributeName(context), CgmesExportUtil.format(loadingLimit.value), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadingLimit.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, loadingLimit.className + "." + getLimitValueAttributeName(context), CgmesExportUtil.format(loadingLimit.value), writer);
         CgmesExportUtil.writeResource(OPERATIONAL_LIMIT_OPERATIONAL_LIMIT_SET, loadingLimit.operationalLimitSet, writer, context);
         CgmesExportUtil.writeResource(OPERATIONAL_LIMIT_OPERATIONAL_LIMIT_TYPE, loadingLimit.operationalLimitType, writer, context);
         CgmesExportUtil.writeEnd(writer);

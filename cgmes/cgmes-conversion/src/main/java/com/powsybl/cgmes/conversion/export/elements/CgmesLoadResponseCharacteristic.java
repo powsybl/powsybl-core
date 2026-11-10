@@ -36,17 +36,18 @@ public final class CgmesLoadResponseCharacteristic {
     }
 
     public static void writeEq(LoadResponseCharacteristicEq loadResponseCharacteristic, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(LOAD_RESPONSE_CHARACTERISTIC, loadResponseCharacteristic.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadResponseCharacteristic.name), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_EXPONENT_MODEL, CgmesExportUtil.format(loadResponseCharacteristic.exponentModel), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_P_CONSTANT_CURRENT, CgmesExportUtil.format(loadResponseCharacteristic.pConstantCurrent), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_P_CONSTANT_IMPEDANCE, CgmesExportUtil.format(loadResponseCharacteristic.pConstantImpedance), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_P_CONSTANT_POWER, CgmesExportUtil.format(loadResponseCharacteristic.pConstantPower), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_P_VOLTAGE_EXPONENT, CgmesExportUtil.format(loadResponseCharacteristic.pVoltageExponent), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_Q_CONSTANT_CURRENT, CgmesExportUtil.format(loadResponseCharacteristic.qConstantCurrent), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_Q_CONSTANT_IMPEDANCE, CgmesExportUtil.format(loadResponseCharacteristic.qConstantImpedance), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_Q_CONSTANT_POWER, CgmesExportUtil.format(loadResponseCharacteristic.qConstantPower), writer, context);
-        CgmesExportUtil.writeAttribute(LOAD_RESPONSE_CHARACTERISTIC_Q_VOLTAGE_EXPONENT, CgmesExportUtil.format(loadResponseCharacteristic.qVoltageExponent), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadResponseCharacteristic.name), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_EXPONENT_MODEL, CgmesExportUtil.format(loadResponseCharacteristic.exponentModel), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_P_CONSTANT_CURRENT, CgmesExportUtil.format(loadResponseCharacteristic.pConstantCurrent), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_P_CONSTANT_IMPEDANCE, CgmesExportUtil.format(loadResponseCharacteristic.pConstantImpedance), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_P_CONSTANT_POWER, CgmesExportUtil.format(loadResponseCharacteristic.pConstantPower), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_P_VOLTAGE_EXPONENT, CgmesExportUtil.format(loadResponseCharacteristic.pVoltageExponent), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_Q_CONSTANT_CURRENT, CgmesExportUtil.format(loadResponseCharacteristic.qConstantCurrent), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_Q_CONSTANT_IMPEDANCE, CgmesExportUtil.format(loadResponseCharacteristic.qConstantImpedance), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_Q_CONSTANT_POWER, CgmesExportUtil.format(loadResponseCharacteristic.qConstantPower), writer);
+        CgmesExportUtil.writeAttribute(namespace, LOAD_RESPONSE_CHARACTERISTIC_Q_VOLTAGE_EXPONENT, CgmesExportUtil.format(loadResponseCharacteristic.qVoltageExponent), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 

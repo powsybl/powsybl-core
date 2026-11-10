@@ -26,8 +26,9 @@ public final class CgmesSubstation {
     }
 
     public static void writeEq(SubstationEq substation, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SUBSTATION, substation.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(substation.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(substation.name), writer);
         CgmesExportUtil.writeResource(SUBSTATION_REGION, substation.region, writer, context);
         writer.writeEndElement();
     }

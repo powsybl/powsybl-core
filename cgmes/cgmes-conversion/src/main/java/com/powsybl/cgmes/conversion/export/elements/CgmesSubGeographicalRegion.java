@@ -27,8 +27,9 @@ public final class CgmesSubGeographicalRegion {
     }
 
     public static void writeEq(SubGeographicalRegionEq subRegion, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SUB_GEOGRAPHICAL_REGION, subRegion.rdfId, true, writer, context);
-        CgmesExportUtil.writeAttribute(IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(subRegion.name), writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(subRegion.name), writer);
         CgmesExportUtil.writeResource(SUB_GEOGRAPHICAL_REGION_REGION, subRegion.region, writer, context);
         CgmesExportUtil.writeEnd(writer);
     }
