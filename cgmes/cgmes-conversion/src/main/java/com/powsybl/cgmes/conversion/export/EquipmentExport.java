@@ -41,7 +41,6 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNames.NONCONFORM_LOAD;
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -332,13 +331,13 @@ public final class EquipmentExport {
             EquipmentWriter.writeSubLoadArea(subLoadArea, writer, context);
         }
         for (LoadGroup loadGroup : loadGroups.found()) {
-            String namespace = context.getCim().getNamespace();
-            CgmesExportUtil.writeStartId(loadGroup.className, loadGroup.id, true, writer, context);
-            CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadGroup.name), writer);
-            if (!context.isCim16BusBranchExport()) {
-                CgmesExportUtil.writeResource("LoadGroup.SubLoadArea", subLoadAreaId, writer, context);
-            }
-            writer.writeEndElement();
+            CgmesRecords.LoadGroupEq loadGroupEq = new CgmesRecords.LoadGroupEq(
+                loadGroup.className,
+                loadGroup.id,
+                loadGroup.name,
+                subLoadAreaId
+            );
+            EquipmentWriter.writeLoadGroup(loadGroupEq, writer, context);
         }
         return loadAreaId;
     }
@@ -387,7 +386,8 @@ public final class EquipmentExport {
     private void writeFictitiousInjection(double p, String loadId, String loadName, String terminalId, String cnId, VoltageLevel vl) throws XMLStreamException {
         String equipmentContainerId = context.getNamingStrategy().getCgmesId(vl);
         if (p <= 0) {
-            writeEnergySource(loadId, loadName, equipmentContainerId);
+            CgmesRecords.EnergySourceEq energySource = new CgmesRecords.EnergySourceEq(loadId, loadName, equipmentContainerId);
+            EquipmentWriter.writeEnergySource(energySource, writer, context);
         } else {
             String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context, network);
             CgmesRecords.EnergyConsumerEq energyConsumer = new CgmesRecords.EnergyConsumerEq(
@@ -412,9 +412,17 @@ public final class EquipmentExport {
                 String loadId = context.getNamingStrategy().getCgmesId(load);
                 switch (className) {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
-                        writeAsynchronousMachine(loadId, load.getNameOrId());
-                    case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(),
-                        context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()));
+                        EquipmentWriter.writeAsynchronousMachine(
+                            new CgmesRecords.AsynchronousMachineEq(loadId, load.getNameOrId()), writer, context
+                        );
+                    case CgmesNames.ENERGY_SOURCE -> {
+                        CgmesRecords.EnergySourceEq energySource = new CgmesRecords.EnergySourceEq(
+                            loadId,
+                            load.getNameOrId(),
+                            context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel())
+                        );
+                        EquipmentWriter.writeEnergySource(energySource, writer, context);
+                    }
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = loadGroups.groupFor(className, context, network);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load);
@@ -480,21 +488,6 @@ public final class EquipmentExport {
         } else {
             return null;
         }
-    }
-
-    private void writeAsynchronousMachine(String id, String name) throws XMLStreamException {
-        String namespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartId(CgmesNames.ASYNCHRONOUS_MACHINE, id, true, writer, context);
-        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
-        writer.writeEndElement();
-    }
-
-    private void writeEnergySource(String id, String name, String equipmentContainer) throws XMLStreamException {
-        String namespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartId(CgmesNames.ENERGY_SOURCE, id, true, writer, context);
-        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
-        CgmesExportUtil.writeResource("Equipment.EquipmentContainer", equipmentContainer, writer, context);
-        writer.writeEndElement();
     }
 
     private void writeGenerators() throws XMLStreamException {
@@ -738,7 +731,12 @@ public final class EquipmentExport {
         if (hydroPlantStorageType != null && energySource.equals(EnergySource.HYDRO)) {
             String hydroPowerPlantName = i.getNameOrId();
             hydroPowerPlantId = context.getNamingStrategy().getCgmesId(ref(i), HYDRO_POWER_PLANT);
-            writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType);
+            CgmesRecords.HydroPowerPlantEq hydroPlant = new CgmesRecords.HydroPowerPlantEq(
+                hydroPowerPlantId,
+                hydroPowerPlantName,
+                "HydroPlantStorageKind." + hydroPlantStorageType
+            );
+            EquipmentWriter.writeHydroPowerPlant(hydroPlant, writer, context);
         }
 
         String fossilFuelType = i.getProperty(PROPERTY_FOSSIL_FUEL_TYPE);
@@ -747,30 +745,17 @@ public final class EquipmentExport {
             for (int j = 0; j < fossilFuelTypeArray.length; j++) {
                 String fossilFuelName = i.getNameOrId();
                 String fossilFuelId = context.getNamingStrategy().getCgmesId(refTyped(i), ref(j), THERMAL_GENERATING_UNIT, FOSSIL_FUEL);
-                writeFossilFuel(fossilFuelId, fossilFuelName, fossilFuelTypeArray[j], generatingUnit);
+                CgmesRecords.FossilFuelEq fossilFuelEq = new CgmesRecords.FossilFuelEq(
+                    fossilFuelId,
+                    fossilFuelName,
+                    "FuelType." + fossilFuelTypeArray[j],
+                    generatingUnit
+                );
+                EquipmentWriter.writeFossilFuel(fossilFuelEq, writer, context);
             }
         }
 
         return hydroPowerPlantId;
-    }
-
-    private void writeHydroPowerPlant(String id, String name, String hydroPlantStorageType) throws XMLStreamException {
-        String namespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartId("HydroPowerPlant", id, true, writer, context);
-        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
-        writer.writeEmptyElement(namespace, "HydroPowerPlant.hydroPlantStorageType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", namespace, "HydroPlantStorageKind." + hydroPlantStorageType));
-        writer.writeEndElement();
-    }
-
-    private void writeFossilFuel(String id, String name, String fuelType, String generatingUnit) throws XMLStreamException {
-        String namespace = context.getCim().getNamespace();
-        CgmesExportUtil.writeStartId("FossilFuel", id, true, writer, context);
-        CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(name), writer);
-        writer.writeEmptyElement(namespace, "FossilFuel.fossilFuelType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", namespace, "FuelType." + fuelType));
-        CgmesExportUtil.writeResource("FossilFuel.ThermalGeneratingUnit", generatingUnit, writer, context);
-        writer.writeEndElement();
     }
 
     private <I extends ReactiveLimitsHolder & Injection<I>> double computeDefaultRatedS(I i, double minP, double maxP) {

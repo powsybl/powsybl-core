@@ -56,33 +56,40 @@ public final class EquipmentWriter {
     private static final String DC_BASE_TERMINAL_DC_NODE = DC_BASE_TERMINAL + "." + DC_NODE;
     private static final String AC_DC_TERMINAL_SEQUENCE_NUMBER = AC_DC_TERMINAL + "." + SEQUENCE_NUMBER;
     private static final String ENERGY_CONSUMER_LOAD_RESPONSE = ENERGY_CONSUMER + ".LoadResponse";
-    private static final String LOAD_GROUP = ".LoadGroup";
+    private static final String LOAD_GROUP = "LoadGroup";
     private static final String EQUIVALENT_BRANCH_R = EQUIVALENT_BRANCH + "." + R;
     private static final String EQUIVALENT_BRANCH_X = EQUIVALENT_BRANCH + "." + X;
     private static final String EQUIVALENT_INJECTION_REGULATION_CAPABILITY = EQUIVALENT_INJECTION + "." + REGULATION_CAPABILITY;
-    private static final String EQUIVALENT_INJECTION_MIN_P = EQUIVALENT_INJECTION + ".minP";
-    private static final String EQUIVALENT_INJECTION_MAX_P = EQUIVALENT_INJECTION + ".maxP";
-    private static final String EQUIVALENT_INJECTION_MIN_Q = EQUIVALENT_INJECTION + ".minQ";
-    private static final String EQUIVALENT_INJECTION_MAX_Q = EQUIVALENT_INJECTION + ".maxQ";
+    private static final String EQUIVALENT_INJECTION_MIN_P = EQUIVALENT_INJECTION + "." + MIN_P;
+    private static final String EQUIVALENT_INJECTION_MAX_P = EQUIVALENT_INJECTION + "." + MAX_P;
+    private static final String EQUIVALENT_INJECTION_MIN_Q = EQUIVALENT_INJECTION + "." + MIN_Q;
+    private static final String EQUIVALENT_INJECTION_MAX_Q = EQUIVALENT_INJECTION + "." + MAX_Q;
     private static final String EQUIVALENT_INJECTION_REACTIVE_CAPABILITY_CURVE = EQUIVALENT_INJECTION + ".ReactiveCapabilityCurve";
     private static final String EQUIVALENT_SHUNT_B = EQUIVALENT_SHUNT + "." + B;
     private static final String EQUIVALENT_SHUNT_G = EQUIVALENT_SHUNT + "." + G;
     private static final String EXTERNAL_NETWORK_INJECTION_GOVERNOR_SCD = EXTERNAL_NETWORK_INJECTION + ".governorSCD";
-    private static final String EXTERNAL_NETWORK_INJECTION_MAX_P = EXTERNAL_NETWORK_INJECTION + ".maxP";
-    private static final String EXTERNAL_NETWORK_INJECTION_MAX_Q = EXTERNAL_NETWORK_INJECTION + ".maxQ";
-    private static final String EXTERNAL_NETWORK_INJECTION_MIN_P = EXTERNAL_NETWORK_INJECTION + ".minP";
-    private static final String EXTERNAL_NETWORK_INJECTION_MIN_Q = EXTERNAL_NETWORK_INJECTION + ".minQ";
+    private static final String EXTERNAL_NETWORK_INJECTION_MAX_P = EXTERNAL_NETWORK_INJECTION + "." + MAX_P;
+    private static final String EXTERNAL_NETWORK_INJECTION_MAX_Q = EXTERNAL_NETWORK_INJECTION + "." + MAX_Q;
+    private static final String EXTERNAL_NETWORK_INJECTION_MIN_P = EXTERNAL_NETWORK_INJECTION + "." + MIN_P;
+    private static final String EXTERNAL_NETWORK_INJECTION_MIN_Q = EXTERNAL_NETWORK_INJECTION + "." + MIN_Q;
+    private static final String FOSSIL_FUEL = "FossilFuel";
+    private static final String FOSSIL_FUEL_FOSSIL_FUEL_TYPE = FOSSIL_FUEL + ".fossilFuelType";
+    private static final String FOSSIL_FUEL_THERMAL_GENERATING_UNIT = FOSSIL_FUEL + ".ThermalGeneratingUnit";
     private static final String GENERATING_UNIT_MIN_OPERATING_P = GENERATING_UNIT + ".minOperatingP";
     private static final String GENERATING_UNIT_MAX_OPERATING_P = GENERATING_UNIT + ".maxOperatingP";
     private static final String GENERATING_UNIT_INITIAL_P = GENERATING_UNIT + "." + INITIAL_P;
     private static final String WIND_GENERATING_UNIT = "WindGeneratingUnit";
     private static final String WIND_GENERATING_UNIT_WIND_GEN_UNIT_TYPE = WIND_GENERATING_UNIT + ".windGenUnitType";
     private static final String WIND_GEN_UNIT_KIND = "WindGenUnitKind.";
-    private static final String HYDRO_GENERATING_UNIT_HYDRO_POWER_PLANT = "HydroGeneratingUnit.HydroPowerPlant";
+    private static final String HYDRO_GENERATING_UNIT = "HydroGeneratingUnit";
+    private static final String HYDRO_POWER_PLANT = "HydroPowerPlant";
+    private static final String HYDRO_GENERATING_UNIT_HYDRO_POWER_PLANT = HYDRO_GENERATING_UNIT + "." + HYDRO_POWER_PLANT;
+    private static final String HYDRO_POWER_PLANT_HYDRO_PLANT_STORAGE_TYPE = HYDRO_POWER_PLANT + ".hydroPlantStorageType";
     private static final String GEOGRAPHICAL_REGION = "GeographicalRegion";
     private static final String LOAD_AREA = "LoadArea";
     private static final String SUB_LOAD_AREA = "SubLoadArea";
-    private static final String SUB_LOAD_AREA_LOAD_AREA = "SubLoadArea.LoadArea";
+    private static final String SUB_LOAD_AREA_LOAD_AREA = SUB_LOAD_AREA + "." + LOAD_AREA;
+    private static final String LOAD_GROUP_SUB_LOAD_AREA = LOAD_GROUP + "." + SUB_LOAD_AREA;
     private static final String LOAD_RESPONSE_CHARACTERISTIC = "LoadResponseCharacteristic";
     private static final String LOAD_RESPONSE_CHARACTERISTIC_EXPONENT_MODEL = LOAD_RESPONSE_CHARACTERISTIC + ".exponentModel";
     private static final String LOAD_RESPONSE_CHARACTERISTIC_P_CONSTANT_CURRENT = LOAD_RESPONSE_CHARACTERISTIC + ".pConstantCurrent";
@@ -140,8 +147,8 @@ public final class EquipmentWriter {
     private static final String SWITCH_RETAINED = SWITCH + ".retained";
     private static final String ROTATING_MACHINE_GENERATING_UNIT = "RotatingMachine." + GENERATING_UNIT;
     private static final String SYNCHRONOUS_MACHINE_INITIAL_REACTIVE_CAPABILITY_CURVE = SYNCHRONOUS_MACHINE + ".InitialReactiveCapabilityCurve";
-    private static final String SYNCHRONOUS_MACHINE_MIN_Q = SYNCHRONOUS_MACHINE + ".minQ";
-    private static final String SYNCHRONOUS_MACHINE_MAX_Q = SYNCHRONOUS_MACHINE + ".maxQ";
+    private static final String SYNCHRONOUS_MACHINE_MIN_Q = SYNCHRONOUS_MACHINE + "." + MIN_Q;
+    private static final String SYNCHRONOUS_MACHINE_MAX_Q = SYNCHRONOUS_MACHINE + "." + MAX_Q;
     private static final String ROTATING_MACHINE_RATED_S = "RotatingMachine." + RATEDS;
     private static final String SYNCHRONOUS_MACHINE_TYPE = SYNCHRONOUS_MACHINE + ".type";
     private static final String SYNCHRONOUS_MACHINE_KIND = "SynchronousMachineKind.";
@@ -211,6 +218,13 @@ public final class EquipmentWriter {
         if (acDcConverter.capabilityCurve() != null) {
             CgmesExportUtil.writeResource(VS_CONVERTER_CAPABILITY_CURVE, acDcConverter.capabilityCurve(), writer, context);
         }
+        CgmesExportUtil.writeEnd(writer);
+    }
+
+    public static void writeAsynchronousMachine(AsynchronousMachineEq asynchronousMachine, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId(ASYNCHRONOUS_MACHINE, asynchronousMachine.rdfId(), true, writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(asynchronousMachine.name()), writer);
         CgmesExportUtil.writeEnd(writer);
     }
 
@@ -337,11 +351,19 @@ public final class EquipmentWriter {
         CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(energyConsumer.name()), writer);
         CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, energyConsumer.equipmentContainer(), writer, context);
         if (energyConsumer.loadGroup() != null) {
-            CgmesExportUtil.writeResource(energyConsumer.className() + LOAD_GROUP, energyConsumer.loadGroup(), writer, context);
+            CgmesExportUtil.writeResource(energyConsumer.className() + "." + LOAD_GROUP, energyConsumer.loadGroup(), writer, context);
         }
         if (energyConsumer.loadResponse() != null) {
             CgmesExportUtil.writeResource(ENERGY_CONSUMER_LOAD_RESPONSE, energyConsumer.loadResponse(), writer, context);
         }
+        CgmesExportUtil.writeEnd(writer);
+    }
+
+    public static void writeEnergySource(EnergySourceEq energySource, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId(ENERGY_SOURCE, energySource.rdfId(), true, writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(energySource.name()), writer);
+        CgmesExportUtil.writeResource(EQUIPMENT_EQUIPMENT_CONTAINER, energySource.equipmentContainer(), writer, context);
         CgmesExportUtil.writeEnd(writer);
     }
 
@@ -408,6 +430,16 @@ public final class EquipmentWriter {
         CgmesExportUtil.writeEnd(writer);
     }
 
+    public static void writeFossilFuel(FossilFuelEq fossilFuel, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId(FOSSIL_FUEL, fossilFuel.rdfId(), true, writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(fossilFuel.name()), writer);
+        CgmesExportUtil.writeResource(FOSSIL_FUEL_FOSSIL_FUEL_TYPE, namespace,
+            namespace + fossilFuel.fossilFuelType(), writer);
+        CgmesExportUtil.writeResource(FOSSIL_FUEL_THERMAL_GENERATING_UNIT, fossilFuel.thermalGeneratingUnit(), writer, context);
+        CgmesExportUtil.writeEnd(writer);
+    }
+
     public static void writeGeneratingUnit(GeneratingUnitEq generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(generatingUnit.className(), generatingUnit.rdfId(), true, writer, context);
@@ -437,10 +469,29 @@ public final class EquipmentWriter {
         CgmesExportUtil.writeEnd(writer);
     }
 
+    public static void writeHydroPowerPlant(HydroPowerPlantEq plant, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId(HYDRO_POWER_PLANT, plant.rdfId(), true, writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(plant.name()), writer);
+        CgmesExportUtil.writeResource(HYDRO_POWER_PLANT_HYDRO_PLANT_STORAGE_TYPE, namespace,
+            namespace + plant.hydroPlantStorageType(), writer);
+        CgmesExportUtil.writeEnd(writer);
+    }
+
     public static void writeLoadArea(LoadAreaEq loadArea, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(LOAD_AREA, loadArea.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadArea.name() + " Load Area"), writer);
+        CgmesExportUtil.writeEnd(writer);
+    }
+
+    public static void writeLoadGroup(LoadGroupEq loadGroup, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
+        CgmesExportUtil.writeStartId(loadGroup.className(), loadGroup.rdfId(), true, writer, context);
+        CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadGroup.name()), writer);
+        if (!context.isCim16BusBranchExport()) {
+            CgmesExportUtil.writeResource(LOAD_GROUP_SUB_LOAD_AREA, loadGroup.subLoadArea(), writer, context);
+        }
         CgmesExportUtil.writeEnd(writer);
     }
 
@@ -641,7 +692,7 @@ public final class EquipmentWriter {
         CgmesExportUtil.writeStartId(SUBSTATION, substation.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(namespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(substation.name()), writer);
         CgmesExportUtil.writeResource(SUBSTATION_REGION, substation.region(), writer, context);
-        writer.writeEndElement();
+        CgmesExportUtil.writeEnd(writer);
     }
 
     public static void writeSwitch(SwitchEq switchEq, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

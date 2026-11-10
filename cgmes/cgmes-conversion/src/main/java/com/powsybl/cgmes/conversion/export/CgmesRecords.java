@@ -40,6 +40,12 @@ public final class CgmesRecords {
     ) {
     }
 
+    public record AsynchronousMachineEq(
+        String rdfId,
+        String name
+    ) {
+    }
+
     public record BaseVoltageEq(
         String rdfId,
         double nominalVoltage
@@ -141,6 +147,13 @@ public final class CgmesRecords {
     ) {
     }
 
+    public record EnergySourceEq(
+        String rdfId,
+        String name,
+        String equipmentContainer
+    ) {
+    }
+
     public record EquivalentBranchEq(
         String rdfId,
         String name,
@@ -185,6 +198,14 @@ public final class CgmesRecords {
     ) {
     }
 
+    public record FossilFuelEq(
+        String rdfId,
+        String name,
+        String fossilFuelType,
+        String thermalGeneratingUnit
+    ) {
+    }
+
     public record GeneratingUnitEq(
         String className,
         String rdfId,
@@ -204,9 +225,24 @@ public final class CgmesRecords {
     ) {
     }
 
+    public record HydroPowerPlantEq(
+        String rdfId,
+        String name,
+        String hydroPlantStorageType
+    ) {
+    }
+
     public record LoadAreaEq(
         String rdfId,
         String name
+    ) {
+    }
+
+    public record LoadGroupEq(
+        String className,
+        String rdfId,
+        String name,
+        String subLoadArea
     ) {
     }
 
