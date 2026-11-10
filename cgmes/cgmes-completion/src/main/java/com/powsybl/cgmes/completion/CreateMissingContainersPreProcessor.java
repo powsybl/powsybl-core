@@ -12,7 +12,8 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImportPreProcessor;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.cgmes.conversion.export.CgmesRecords.*;
+import com.powsybl.cgmes.conversion.export.EquipmentWriter;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -194,13 +195,13 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         String subGeographicalRegionName = "SGR fix for missing data";
         regionContainers.geographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(network), ref("GeographicalRegionId"));
         String geographicalRegionName = "GR fix for missing data";
-        CgmesSubGeographicalRegion.SubGeographicalRegionEq subRegion = new CgmesSubGeographicalRegion.SubGeographicalRegionEq(
+        SubGeographicalRegionEq subRegion = new SubGeographicalRegionEq(
             regionContainers.subGeographicalRegionId,
             subGeographicalRegionName,
             regionContainers.geographicalRegionId
         );
-        CgmesSubGeographicalRegion.writeEq(subRegion, writer, context);
-        CgmesGeographicalRegion.writeEq(new CgmesGeographicalRegion.GeographicalRegionEq(regionContainers.geographicalRegionId, geographicalRegionName), writer, context);
+        EquipmentWriter.writeSubGeographicalRegion(subRegion, writer, context);
+        EquipmentWriter.writeGeographicalRegion(new GeographicalRegionEq(regionContainers.geographicalRegionId, geographicalRegionName), writer, context);
         return regionContainers;
     }
 
@@ -213,12 +214,12 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         String substationName = voltageLevelId + "SUB for missing VL " + voltageLevelId;
         String baseVoltageId = context.getNamingStrategy().getCgmesId(ref(voltageLevelId), ref("BaseVoltage"));
 
-        CgmesVoltageLevel.VoltageLevelEq voltageLevel = new CgmesVoltageLevel.VoltageLevelEq(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId);
-        CgmesVoltageLevel.writeEq(voltageLevel, writer, context);
-        CgmesSubstation.SubstationEq substation = new CgmesSubstation.SubstationEq(substationId, substationName, regionContainers.subGeographicalRegionId);
-        CgmesSubstation.writeEq(substation, writer, context);
-        CgmesBaseVoltage.BaseVoltageEq baseVoltage = new CgmesBaseVoltage.BaseVoltageEq(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS);
-        CgmesBaseVoltage.writeEq(baseVoltage, writer, context);
+        VoltageLevelEq voltageLevel = new VoltageLevelEq(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId);
+        EquipmentWriter.writeVoltageLevel(voltageLevel, writer, context);
+        SubstationEq substation = new SubstationEq(substationId, substationName, regionContainers.subGeographicalRegionId);
+        EquipmentWriter.writeSubstation(substation, writer, context);
+        BaseVoltageEq baseVoltage = new BaseVoltageEq(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS);
+        EquipmentWriter.writeBaseVoltage(baseVoltage, writer, context);
     }
 
     private static void writeHeader(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
