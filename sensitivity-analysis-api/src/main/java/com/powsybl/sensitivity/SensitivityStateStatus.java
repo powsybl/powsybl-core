@@ -125,10 +125,15 @@ public class SensitivityStateStatus {
                     parseJson(parser, context, version == null ? SensitivityAnalysisResult.VERSION : version);
                 } else if (token == JsonToken.END_OBJECT) {
                     if (version != null && compareVersions(version, "1.2") <= 0) {
+                        LoadFlowResult.ComponentResult.Status status = toLoadFlowStatus(context.oldStatus);
+                        ComponentStatus componentStatus;
+                        if (LoadFlowResult.ComponentResult.Status.NO_CALCULATION.equals(status)) {
+                            componentStatus = new ComponentStatus(-1, -1, status, "");
+                        } else {
+                            componentStatus = new ComponentStatus(0, 0, status, "");
+                        }
                         return new SensitivityStateStatus(
-                                new SensitivityState(context.contingencyId, context.operatorStrategyId), List.of(
-                                        new ComponentStatus(0, 0,
-                                                toLoadFlowStatus(context.oldStatus), "")));
+                                new SensitivityState(context.contingencyId, context.operatorStrategyId), List.of(componentStatus));
                     } else {
                         return new SensitivityStateStatus(
                                 new SensitivityState(context.contingencyId, context.operatorStrategyId),
@@ -189,8 +194,8 @@ public class SensitivityStateStatus {
     private static ComponentStatus parseSingleComponentStatus(JsonParser parser) throws IOException {
         LoadFlowResult.ComponentResult.Status status = LoadFlowResult.ComponentResult.Status.CONVERGED;
         String descStr = "";
-        int connectedComponentNum = 0;
-        int synchronousComponentNum = 0;
+        Integer connectedComponentNum = null;
+        Integer synchronousComponentNum = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = parser.currentName();
             parser.nextToken();
@@ -202,6 +207,7 @@ public class SensitivityStateStatus {
                 default -> throw new PowsyblException("Unexpected field: " + fieldName);
             }
         }
-        return new ComponentStatus(connectedComponentNum, synchronousComponentNum, status, descStr);
+        return new ComponentStatus(Objects.requireNonNull(connectedComponentNum),
+                Objects.requireNonNull(synchronousComponentNum), Objects.requireNonNull(status), descStr);
     }
 }
