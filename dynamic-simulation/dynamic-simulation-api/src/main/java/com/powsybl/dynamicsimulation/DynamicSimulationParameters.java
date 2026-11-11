@@ -43,8 +43,15 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     public static final double DEFAULT_STOP_TIME = 10d;
     public static final String DEFAULT_DEBUG_DIR = null;
 
+    /**
+     * Category of the {@link com.powsybl.commons.extensions.ExtensionJsonSerializer} and {@link ExtensionConfigLoader}
+     * of extensions which are not provider specific parameters.
+     * Unlike provider specific parameters, those extensions cannot be read from or written to a {@code Map<String, String>}.
+     */
+    public static final String EXTENSIONS_CATEGORY = "dynamic-simulation-parameters";
+
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
-        .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "dynamic-simulation-parameters"));
+        .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, EXTENSIONS_CATEGORY));
 
     public static DynamicSimulationParameters load() {
         return load(PlatformConfig.defaultConfig());
