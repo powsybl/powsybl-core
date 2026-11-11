@@ -19,7 +19,6 @@ import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
@@ -176,12 +175,10 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         Network network = NetworkFactory.findDefault().createNetwork("empty", "CGMES");
         // We ensure that the fixes are exported to CGMES files with the same version of the input files
         // To achieve it, we set the CIM characteristics of the empty Network created
-        if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
-            network.newExtension(CimCharacteristicsAdder.class)
-                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
-                    .setCimVersion(cgmesModelTripleStore.getCimVersion())
-                    .add();
-        }
+        network.newExtension(CimCharacteristicsAdder.class)
+                .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                .setCimVersion(cgmes.getCimVersion())
+                .add();
         return network;
     }
 
