@@ -25,6 +25,8 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
     private final List<ComponentResult> componentResults;
     private final List<BusResult> busResults;
     private final List<BranchResult> branchResults;
+    private final List<ThreeWindingsTransformerResult> threeWindingsTransformerResults;
+    private final List<InjectionResult> injectionResults;
     private final List<MeasurementResult> measurementResults;
 
     /**
@@ -34,16 +36,22 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
      * @param componentResults one entry per synchronous component
      * @param busResults the estimated state, one entry per bus
      * @param branchResults the flows that follow from the estimated state, one entry per branch
+     * @param threeWindingsTransformerResults the flows, one entry per three-winding transformer
+     * @param injectionResults the injections that follow from the estimated state
      * @param measurementResults one entry per measurement the estimation consumed
      */
     public StateEstimationResultImpl(String variantId,
                                      List<ComponentResult> componentResults, List<BusResult> busResults,
                                      List<BranchResult> branchResults,
+                                     List<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
+                                     List<InjectionResult> injectionResults,
                                      List<MeasurementResult> measurementResults) {
         this.variantId = Objects.requireNonNull(variantId);
         this.componentResults = List.copyOf(Objects.requireNonNull(componentResults));
         this.busResults = List.copyOf(Objects.requireNonNull(busResults));
         this.branchResults = List.copyOf(Objects.requireNonNull(branchResults));
+        this.threeWindingsTransformerResults = List.copyOf(Objects.requireNonNull(threeWindingsTransformerResults));
+        this.injectionResults = List.copyOf(Objects.requireNonNull(injectionResults));
         this.measurementResults = List.copyOf(Objects.requireNonNull(measurementResults));
         this.status = computeStatus(this.componentResults);
     }
@@ -65,7 +73,7 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
      * @return a failed estimation, holding no component, bus, branch or measurement results
      */
     public static StateEstimationResultImpl failed(String variantId) {
-        return new StateEstimationResultImpl(variantId, List.of(), List.of(), List.of(), List.of());
+        return new StateEstimationResultImpl(variantId, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
     }
 
     @Override
@@ -91,6 +99,16 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
     @Override
     public List<BranchResult> getBranchResults() {
         return branchResults;
+    }
+
+    @Override
+    public List<ThreeWindingsTransformerResult> getThreeWindingsTransformerResults() {
+        return threeWindingsTransformerResults;
+    }
+
+    @Override
+    public List<InjectionResult> getInjectionResults() {
+        return injectionResults;
     }
 
     @Override
@@ -193,6 +211,145 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         @Override
         public double getAngle() {
             return angle;
+        }
+    }
+
+    /** Immutable {@link ThreeWindingsTransformerResult}. */
+    public static class ThreeWindingsTransformerResultImpl implements ThreeWindingsTransformerResult {
+
+        private final String threeWindingsTransformerId;
+        private final double p1;
+        private final double q1;
+        private final double i1;
+        private final double p2;
+        private final double q2;
+        private final double i2;
+        private final double p3;
+        private final double q3;
+        private final double i3;
+
+        /**
+         * Powers are in MW and MVar, currents in A, each positive when flowing from the bus into
+         * the leg. A current of {@code NaN} means the implementation does not produce one.
+         *
+         * @param threeWindingsTransformerId the identifier of the transformer
+         * @param p1 the active power at leg 1, in MW
+         * @param q1 the reactive power at leg 1, in MVar
+         * @param i1 the current magnitude at leg 1, in A
+         * @param p2 the active power at leg 2, in MW
+         * @param q2 the reactive power at leg 2, in MVar
+         * @param i2 the current magnitude at leg 2, in A
+         * @param p3 the active power at leg 3, in MW
+         * @param q3 the reactive power at leg 3, in MVar
+         * @param i3 the current magnitude at leg 3, in A
+         */
+        public ThreeWindingsTransformerResultImpl(String threeWindingsTransformerId,
+                                                  double p1, double q1, double i1,
+                                                  double p2, double q2, double i2,
+                                                  double p3, double q3, double i3) {
+            this.threeWindingsTransformerId = Objects.requireNonNull(threeWindingsTransformerId);
+            this.p1 = p1;
+            this.q1 = q1;
+            this.i1 = i1;
+            this.p2 = p2;
+            this.q2 = q2;
+            this.i2 = i2;
+            this.p3 = p3;
+            this.q3 = q3;
+            this.i3 = i3;
+        }
+
+        /** The flows at the three legs, with no current magnitudes. */
+        public ThreeWindingsTransformerResultImpl(String threeWindingsTransformerId,
+                                                  double p1, double q1, double p2, double q2,
+                                                  double p3, double q3) {
+            this(threeWindingsTransformerId, p1, q1, Double.NaN, p2, q2, Double.NaN, p3, q3, Double.NaN);
+        }
+
+        @Override
+        public String getThreeWindingsTransformerId() {
+            return threeWindingsTransformerId;
+        }
+
+        @Override
+        public double getP1() {
+            return p1;
+        }
+
+        @Override
+        public double getQ1() {
+            return q1;
+        }
+
+        @Override
+        public double getI1() {
+            return i1;
+        }
+
+        @Override
+        public double getP2() {
+            return p2;
+        }
+
+        @Override
+        public double getQ2() {
+            return q2;
+        }
+
+        @Override
+        public double getI2() {
+            return i2;
+        }
+
+        @Override
+        public double getP3() {
+            return p3;
+        }
+
+        @Override
+        public double getQ3() {
+            return q3;
+        }
+
+        @Override
+        public double getI3() {
+            return i3;
+        }
+    }
+
+    /** Immutable {@link InjectionResult}. */
+    public static class InjectionResultImpl implements InjectionResult {
+
+        private final String injectionId;
+        private final double p;
+        private final double q;
+
+        /**
+         * Powers are in MW and MVar, positive when flowing from the bus into the device.
+         *
+         * @param injectionId the identifier of the injection
+         * @param p the active power, in MW
+         * @param q the reactive power, in MVar
+         */
+        public InjectionResultImpl(String injectionId, double p, double q) {
+            this.injectionId = Objects.requireNonNull(injectionId);
+            this.p = p;
+            this.q = q;
+        }
+
+        @Override
+        public String getInjectionId() {
+            return injectionId;
+        }
+
+        @Override
+        public double getP() {
+            return p;
+        }
+
+        @Override
+        public double getQ() {
+            return q;
         }
     }
 

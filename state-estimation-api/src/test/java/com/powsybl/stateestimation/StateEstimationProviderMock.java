@@ -148,7 +148,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
                 MEASUREMENT_ID, MEASURED_VALUE, ESTIMATED_VALUE, NORMALIZED_RESIDUAL, false);
 
         return new StateEstimationResultImpl(variantId,
-                List.of(component), List.of(bus), List.of(branch), List.of(measurement));
+                List.of(component), List.of(bus), List.of(branch), List.of(), List.of(), List.of(measurement));
     }
 
     /** One observable area containing the one bus, whose active power is redundant. */

@@ -31,6 +31,8 @@ with stale flows.
 | componentResults   | List<ComponentResult>   | -    | yes      | -             | One entry per synchronous component the estimation covered |
 | busResults         | List<BusResult>         | -    | no       | Empty list    | The estimated state, one entry per estimated bus           |
 | branchResults      | List<BranchResult>      | -    | no       | Empty list    | The flows the state implies, one entry per estimated branch |
+| threeWindingsTransformerResults | List<ThreeWindingsTransformerResult> | - | no | Empty list | The flows, one entry per estimated three-winding transformer |
+| injectionResults   | List<InjectionResult>   | -    | no       | Empty list    | The injections the state implies, one entry per estimated device |
 | measurementResults | List<MeasurementResult> | -    | no       | Empty list    | One entry per measurement consumed, in no guaranteed order |
 
 `ComponentResult`:
@@ -84,6 +86,33 @@ the bus into the branch at that side:
 Flows are derived rather than estimated: they follow from the voltages at the two ends and the
 branch admittance. They are carried so that a caller holding a result can write it back, compare it
 or serialize it without rebuilding the network model.
+
+A paired boundary line is reported through its tie line, which is itself a branch, and never through
+the two boundary lines behind it, so summing branch flows does not count an interconnector twice. An
+unpaired boundary line is reported as a `BranchResult` as well, with side 1 the network side and
+side 2 the boundary side, even though IIDM models it as an injection.
+
+`ThreeWindingsTransformerResult` is in the same units, each quantity positive when flowing from the
+bus into the leg:
+
+| Attribute                  | Type   | Unit | Required | Default value | Description                  |
+|----------------------------|--------|------|----------|---------------|------------------------------|
+| threeWindingsTransformerId | String | -    | yes      | -             | The transformer              |
+| p1, p2, p3                 | double | MW   | yes      | -             | Active power at each leg     |
+| q1, q2, q3                 | double | MVar | yes      | -             | Reactive power at each leg   |
+| i1, i2, i3                 | double | A    | no       | `NaN`         | Current magnitude at each leg |
+
+`InjectionResult` covers generators, loads, shunt compensators and static var compensators, each
+quantity positive when flowing from the bus into the device:
+
+| Attribute   | Type   | Unit | Required | Default value | Description    |
+|-------------|--------|------|----------|---------------|----------------|
+| injectionId | String | -    | yes      | -             | The device     |
+| p           | double | MW   | yes      | -             | Active power   |
+| q           | double | MVar | yes      | -             | Reactive power |
+
+The estimated voltages fix what a bus injects in total, not how that total divides between the
+devices on it, so an injection is reported rather than derived.
 
 `MeasurementResult` is in the unit the measurement was given in:
 

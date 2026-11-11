@@ -16,9 +16,12 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Networks;
@@ -214,6 +217,13 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
      * that the topology still matches, so a caller holding an older result is responsible for
      * knowing whether it still applies.</p>
      *
+     * <p>This selects {@code workingVariantId} on the calling thread and puts back whatever was
+     * selected before, so two calls on one thread are not safe to interleave. A caller running
+     * estimations concurrently gives each its own thread and turns on
+     * {@link VariantManager#allowVariantMultiThreadAccess(boolean)}. In that mode a thread may have
+     * nothing selected yet, in which case there is nothing to put back and none is left
+     * selected.</p>
+     *
      * @param network the network to write into
      * @param workingVariantId the identifier of the variant the result was computed against
      * @param result the result to write
@@ -224,7 +234,7 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
         Objects.requireNonNull(result);
 
         VariantManager variantManager = network.getVariantManager();
-        String previousVariantId = variantManager.getWorkingVariantId();
+        String previousVariantId = selectedVariantId(variantManager);
         variantManager.setWorkingVariant(workingVariantId);
         try {
             Networks.unsetSolvedValues(network);
@@ -233,14 +243,48 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
                         .setAngle(busResult.getAngle()));
             }
             for (StateEstimationResult.BranchResult branchResult : result.getBranchResults()) {
-                Branch<?> branch = network.getBranch(branchResult.getBranchId());
-                if (branch != null) {
-                    branch.getTerminal1().setP(branchResult.getP1()).setQ(branchResult.getQ1());
-                    branch.getTerminal2().setP(branchResult.getP2()).setQ(branchResult.getQ2());
+                writeBranchResult(network, branchResult);
+            }
+            for (StateEstimationResult.ThreeWindingsTransformerResult twtResult : result.getThreeWindingsTransformerResults()) {
+                ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtResult.getThreeWindingsTransformerId());
+                if (twt != null) {
+                    twt.getLeg1().getTerminal().setP(twtResult.getP1()).setQ(twtResult.getQ1());
+                    twt.getLeg2().getTerminal().setP(twtResult.getP2()).setQ(twtResult.getQ2());
+                    twt.getLeg3().getTerminal().setP(twtResult.getP3()).setQ(twtResult.getQ3());
+                }
+            }
+            for (StateEstimationResult.InjectionResult injectionResult : result.getInjectionResults()) {
+                if (network.getIdentifiable(injectionResult.getInjectionId()) instanceof Injection<?> injection) {
+                    injection.getTerminal().setP(injectionResult.getP()).setQ(injectionResult.getQ());
                 }
             }
         } finally {
-            variantManager.setWorkingVariant(previousVariantId);
+            if (previousVariantId != null) {
+                variantManager.setWorkingVariant(previousVariantId);
+            }
+        }
+    }
+
+    /**
+     * The variant selected on this thread, or null when none is. Reading it throws under
+     * {@link VariantManager#allowVariantMultiThreadAccess(boolean)} on a thread that has not
+     * selected one yet, which is the case a write-back from a worker thread runs into.
+     */
+    private static String selectedVariantId(VariantManager variantManager) {
+        return variantManager.isVariantMultiThreadAccessAllowed() ? null : variantManager.getWorkingVariantId();
+    }
+
+    /** Writes a branch result, which an unpaired boundary line is also reported as. */
+    private static void writeBranchResult(Network network, StateEstimationResult.BranchResult branchResult) {
+        Branch<?> branch = network.getBranch(branchResult.getBranchId());
+        if (branch != null) {
+            branch.getTerminal1().setP(branchResult.getP1()).setQ(branchResult.getQ1());
+            branch.getTerminal2().setP(branchResult.getP2()).setQ(branchResult.getQ2());
+            return;
+        }
+        BoundaryLine boundaryLine = network.getBoundaryLine(branchResult.getBranchId());
+        if (boundaryLine != null) {
+            boundaryLine.getTerminal().setP(branchResult.getP1()).setQ(branchResult.getQ1());
         }
     }
 

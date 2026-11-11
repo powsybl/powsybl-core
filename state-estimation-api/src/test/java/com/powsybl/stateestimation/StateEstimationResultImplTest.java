@@ -43,7 +43,7 @@ class StateEstimationResultImplTest {
         List<StateEstimationResult.ComponentResult> components = new ArrayList<>(List.of(component()));
 
         StateEstimationResultImpl result = new StateEstimationResultImpl(
-                "InitialVariant", components, List.of(), List.of(), List.of());
+                "InitialVariant", components, List.of(), List.of(), List.of(), List.of(), List.of());
         components.clear();
 
         assertEquals(1, result.getComponentResults().size());

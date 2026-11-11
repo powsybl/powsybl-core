@@ -63,6 +63,18 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
     List<BranchResult> getBranchResults();
 
     /**
+     * The flows through the three-winding transformers the estimation covered, one entry per
+     * transformer. Empty when the estimation failed.
+     */
+    List<ThreeWindingsTransformerResult> getThreeWindingsTransformerResults();
+
+    /**
+     * The injections that follow from the estimated state, one entry per generator, load, shunt
+     * compensator or static var compensator at an estimated bus. Empty when the estimation failed.
+     */
+    List<InjectionResult> getInjectionResults();
+
+    /**
      * One entry per measurement the estimation consumed, in no guaranteed order. Empty when the
      * implementation does not report per-measurement diagnostics.
      */
@@ -135,10 +147,15 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
     /**
      * The flows at the two ends of one branch, in the units IIDM uses for a terminal. Field order
      * and naming follow {@code com.powsybl.security.results.BranchResult}.
+     *
+     * <p>A paired boundary line is reported through its tie line, which is itself a branch, and
+     * never through the two boundary lines behind it. An unpaired boundary line is reported here
+     * too, with side 1 the network side and side 2 the boundary side, since both ends carry a
+     * flow even though IIDM models it as an injection.</p>
      */
     interface BranchResult {
 
-        /** The IIDM identifier of the branch. */
+        /** The IIDM identifier of the branch, or of an unpaired boundary line. */
         String getBranchId();
 
         /** Active power at side 1, in MW, positive when flowing from the bus into the branch. */
@@ -158,6 +175,61 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
 
         /** Current magnitude at side 2, in A. {@code NaN} when the implementation does not produce it. */
         double getI2();
+    }
+
+    /**
+     * The flows at the three legs of one three-winding transformer, in the units IIDM uses for a
+     * terminal. Field order and naming follow
+     * {@code com.powsybl.security.results.ThreeWindingsTransformerResult}.
+     */
+    interface ThreeWindingsTransformerResult {
+
+        /** The IIDM identifier of the transformer. */
+        String getThreeWindingsTransformerId();
+
+        /** Active power at leg 1, in MW, positive when flowing from the bus into the leg. */
+        double getP1();
+
+        /** Reactive power at leg 1, in MVar, positive when flowing from the bus into the leg. */
+        double getQ1();
+
+        /** Current magnitude at leg 1, in A. {@code NaN} when the implementation does not produce it. */
+        double getI1();
+
+        /** Active power at leg 2, in MW, positive when flowing from the bus into the leg. */
+        double getP2();
+
+        /** Reactive power at leg 2, in MVar, positive when flowing from the bus into the leg. */
+        double getQ2();
+
+        /** Current magnitude at leg 2, in A. {@code NaN} when the implementation does not produce it. */
+        double getI2();
+
+        /** Active power at leg 3, in MW, positive when flowing from the bus into the leg. */
+        double getP3();
+
+        /** Reactive power at leg 3, in MVar, positive when flowing from the bus into the leg. */
+        double getQ3();
+
+        /** Current magnitude at leg 3, in A. {@code NaN} when the implementation does not produce it. */
+        double getI3();
+    }
+
+    /**
+     * The flow at the one terminal of an injection, in the units IIDM uses for a terminal. An
+     * unpaired boundary line is reported as a {@link BranchResult} instead, since its boundary end
+     * carries a flow of its own.
+     */
+    interface InjectionResult {
+
+        /** The IIDM identifier of the generator, load, shunt compensator or static var compensator. */
+        String getInjectionId();
+
+        /** Active power, in MW, positive when flowing from the bus into the device. */
+        double getP();
+
+        /** Reactive power, in MVar, positive when flowing from the bus into the device. */
+        double getQ();
     }
 
     /**
