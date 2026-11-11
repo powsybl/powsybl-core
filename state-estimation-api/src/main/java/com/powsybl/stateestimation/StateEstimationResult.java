@@ -92,6 +92,7 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
         /**
          * The bus whose voltage angle was held fixed, which also identifies the component. Only
          * angle differences are physical, so one angle per synchronous component is not an unknown.
+         * In the bus view, as {@link BusResult} is.
          */
         String getReferenceBusId();
 
@@ -106,16 +107,16 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
     /**
      * The estimated state at one bus, in the units {@link com.powsybl.iidm.network.Bus} uses:
      * kV for the magnitude, degrees for the angle.
+     *
+     * <p>Buses are those of the bus view, since the same identifier can name a different bus in
+     * each view.</p>
      */
     interface BusResult {
 
-        /** The IIDM identifier of the bus. */
+        /** The identifier of the bus, in the bus view. */
         String getBusId();
 
-        /**
-         * The IIDM identifier of the voltage level holding the bus. A bus identifier alone does not
-         * say which topology view it belongs to, so both are needed to find the bus again.
-         */
+        /** The IIDM identifier of the voltage level holding the bus. */
         String getVoltageLevelId();
 
         /** The estimated voltage magnitude, in kV. */

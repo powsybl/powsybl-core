@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -155,8 +156,30 @@ class StateEstimationProviderTest {
     }
 
     @Test
-    void theWriterFindsABusThroughEitherTopologyView() {
+    void theWriterFindsABusInTheBusView() {
         Network network = EurostagTutorialExample1Factory.create();
+        String busId = busViewBusId(network);
+
+        StateEstimationResult result = new StateEstimationResultImpl(
+                StateEstimationResult.Status.FULLY_ESTIMATED,
+                List.of(),
+                List.of(new StateEstimationResultImpl.BusResultImpl(busId, "VLGEN", 24.5, 1.5)),
+                List.of(), List.of());
+
+        bareProvider().writeResultsToNetwork(network,
+                network.getVariantManager().getWorkingVariantId(), result);
+
+        Bus bus = network.getVoltageLevel("VLGEN").getBusView().getBus(busId);
+        assertEquals(24.5, bus.getV(), 1e-12);
+        assertEquals(1.5, bus.getAngle(), 1e-12);
+    }
+
+    @Test
+    void theWriterIgnoresAnIdentifierFromTheOtherView() {
+        Network network = EurostagTutorialExample1Factory.create();
+        String busId = busViewBusId(network);
+        assertNotEquals("NGEN", busId, "the two views must name the bus differently");
+
         StateEstimationResult result = new StateEstimationResultImpl(
                 StateEstimationResult.Status.FULLY_ESTIMATED,
                 List.of(),
@@ -166,8 +189,10 @@ class StateEstimationProviderTest {
         bareProvider().writeResultsToNetwork(network,
                 network.getVariantManager().getWorkingVariantId(), result);
 
-        Bus bus = network.getVoltageLevel("VLGEN").getBusBreakerView().getBus("NGEN");
-        assertEquals(24.5, bus.getV(), 1e-12);
-        assertEquals(1.5, bus.getAngle(), 1e-12);
+        assertTrue(Double.isNaN(network.getVoltageLevel("VLGEN").getBusView().getBus(busId).getV()));
+    }
+
+    private static String busViewBusId(Network network) {
+        return network.getVoltageLevel("VLGEN").getBusView().getBuses().iterator().next().getId();
     }
 }

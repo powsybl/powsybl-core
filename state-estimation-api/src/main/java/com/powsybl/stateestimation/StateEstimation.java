@@ -227,6 +227,7 @@ public final class StateEstimation {
          * @return true if the implementation can honor the parameters, false otherwise
          */
         public boolean checkParameters(StateEstimationRunParameters runParameters) {
+            Objects.requireNonNull(runParameters, "StateEstimationRunParameters should not be null");
             return provider.checkParameters(runParameters);
         }
 
@@ -238,6 +239,7 @@ public final class StateEstimation {
          * @return true if the implementation can honor the default parameters, false otherwise
          */
         public boolean checkDefaultParameters(ReportNode reportNode) {
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
             return checkParameters(StateEstimationRunParameters.getDefault().setReportNode(reportNode));
         }
 

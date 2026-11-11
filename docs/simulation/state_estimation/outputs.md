@@ -56,14 +56,15 @@ chi-square test is computed from. An estimator in another family does not produc
 
 | Attribute       | Type   | Unit    | Required | Default value | Description                            |
 |-----------------|--------|---------|----------|---------------|----------------------------------------|
-| busId           | String | -       | yes      | -             | The bus                                |
+| busId           | String | -       | yes      | -             | The bus, in the bus view               |
 | voltageLevelId  | String | -       | yes      | -             | The voltage level holding the bus      |
 | v               | double | kV      | yes      | -             | Estimated voltage magnitude            |
 | angle           | double | degrees | yes      | -             | Estimated voltage angle                |
 
-A bus identifier does not say which topology view it came from, so the voltage level is carried
-alongside it and both are needed to find the bus again. `ShortCircuitBusResults` and security
-analysis' `BusResult` pair them the same way.
+Buses are those of the bus view, and so is `referenceBusId` on a `ComponentResult`. The same
+identifier can name a different bus in each view, so an implementation working in the bus/breaker
+view maps back before it reports. The voltage level is carried alongside, the way
+`ShortCircuitBusResults` and security analysis' `BusResult` pair them.
 
 `BranchResult` is in the units IIDM uses for a terminal, each quantity positive when flowing from
 the bus into the branch at that side:

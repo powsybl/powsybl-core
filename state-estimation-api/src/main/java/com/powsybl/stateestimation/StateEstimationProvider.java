@@ -243,15 +243,13 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
         }
     }
 
-    /** The bus a result refers to, looked up through either topology view of its voltage level. */
+    /** The bus a result refers to, in the bus view of its voltage level. */
     private static Optional<Bus> findBus(Network network, StateEstimationResult.BusResult busResult) {
         VoltageLevel voltageLevel = network.getVoltageLevel(busResult.getVoltageLevelId());
         if (voltageLevel == null) {
             return Optional.empty();
         }
-        Bus bus = voltageLevel.getBusView().getBus(busResult.getBusId());
-        return Optional.ofNullable(bus != null ? bus
-                : voltageLevel.getBusBreakerView().getBus(busResult.getBusId()));
+        return Optional.ofNullable(voltageLevel.getBusView().getBus(busResult.getBusId()));
     }
 
     /**

@@ -90,18 +90,20 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         private final double objectiveFunctionValue;
 
         /**
+         * {@code statusText} may be null and is read as empty; nothing else may.
+         *
          * @param status the outcome being recorded
-         * @param statusText implementation-defined text explaining the status
+         * @param statusText implementation-defined text explaining the status, or null for none
          * @param iterationCount how many iterations the estimation took on this component
          * @param referenceBusId the identifier of the bus whose voltage angle was held fixed
          * @param objectiveFunctionValue the weighted sum of squared residuals at the solution
-             */
+         */
         public ComponentResultImpl(Status status, String statusText, int iterationCount,
                                    String referenceBusId, double objectiveFunctionValue) {
             this.status = Objects.requireNonNull(status);
-            this.statusText = statusText;
+            this.statusText = Objects.requireNonNullElse(statusText, "");
             this.iterationCount = iterationCount;
-            this.referenceBusId = referenceBusId;
+            this.referenceBusId = Objects.requireNonNull(referenceBusId);
             this.objectiveFunctionValue = objectiveFunctionValue;
         }
 
