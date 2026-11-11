@@ -29,7 +29,7 @@ class StateEstimationResultImplTest {
 
     @Test
     void aFailedEstimationHoldsNothing() {
-        StateEstimationResultImpl result = StateEstimationResultImpl.failed();
+        StateEstimationResultImpl result = StateEstimationResultImpl.failed("InitialVariant");
 
         assertEquals(StateEstimationResult.Status.FAILED, result.getStatus());
         assertTrue(result.getComponentResults().isEmpty());
@@ -43,7 +43,7 @@ class StateEstimationResultImplTest {
         List<StateEstimationResult.ComponentResult> components = new ArrayList<>(List.of(component()));
 
         StateEstimationResultImpl result = new StateEstimationResultImpl(
-                StateEstimationResult.Status.FULLY_ESTIMATED, components, List.of(), List.of(), List.of());
+                "InitialVariant", components, List.of(), List.of(), List.of());
         components.clear();
 
         assertEquals(1, result.getComponentResults().size());

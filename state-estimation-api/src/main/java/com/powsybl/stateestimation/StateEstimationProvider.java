@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.Networks;
 
 import java.util.Collections;
 import java.util.List;
@@ -201,10 +202,9 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
      * Writes a result that this implementation produced back into the network, under the variant it
      * was computed against.
      *
-     * <p>The estimated voltages go onto the buses and the flows onto the branch terminals, so the
-     * network is left describing one state rather than a mixture of a new estimate and whatever was
-     * there before. Buses and branches the result does not mention are left alone, which is how a
-     * partly estimated network keeps saying which parts carry an estimate.</p>
+     * <p>Every solved value on the variant is cleared first, so a partly estimated network says
+     * which parts carry an estimate instead of mixing one with whatever was there before. The
+     * estimated voltages then go onto the buses and the flows onto the branch terminals.</p>
      *
      * <p>This default writes what {@link StateEstimationResult} models. An implementation with more
      * to publish, such as the IIDM observability extensions or solved tap positions, overrides it
@@ -227,6 +227,7 @@ public interface StateEstimationProvider extends Versionable, PlatformConfigName
         String previousVariantId = variantManager.getWorkingVariantId();
         variantManager.setWorkingVariant(workingVariantId);
         try {
+            Networks.unsetSolvedValues(network);
             for (StateEstimationResult.BusResult busResult : result.getBusResults()) {
                 findBus(network, busResult).ifPresent(bus -> bus.setV(busResult.getV())
                         .setAngle(busResult.getAngle()));

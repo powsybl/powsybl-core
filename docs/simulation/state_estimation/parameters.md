@@ -11,7 +11,7 @@ state-estimation-default-parameters:
   busInjectionPolicy: REQUIRE_ALL_METERED
   duplicateMeasurementPolicy: MERGE_INVERSE_VARIANCE
   unobservablePolicy: ESTIMATE_OBSERVABLE_ISLANDS
-  componentMode: MAIN
+  componentMode: MAIN_CONNECTED
   relativeStandardDeviationFloor: 0.0
   residualFlaggingThreshold: 3.0
   writeResultsToNetwork: false
@@ -103,9 +103,14 @@ The default value is `ESTIMATE_OBSERVABLE_ISLANDS`.
 (param-se-component-mode)=
 ### componentMode
 
-Whether to estimate the main connected component only (`MAIN`) or all of them (`ALL`).
+Which components are estimated. The names follow `LoadFlowParameters.ComponentMode`, and each one
+is a set of synchronous components, since a component result carries one reference bus.
 
-The default value is `MAIN`.
+- `MAIN_CONNECTED`: every synchronous component in the main connected component.
+- `ALL`: every synchronous component of every connected component.
+- `MAIN_SYNCHRONOUS`: the main synchronous component only.
+
+The default value is `MAIN_CONNECTED`.
 
 (param-se-relative-standard-deviation-floor)=
 ### relativeStandardDeviationFloor
@@ -133,9 +138,8 @@ must be positive.
 ### writeResultsToNetwork
 
 Whether the estimated state is written back into the network. The result carries it either way.
-Leaving this off also leaves the voltages already on the network untouched, which matters when
-only part of a component was estimated: the buses that were not keep whatever was there before,
-and only the result distinguishes them.
+Leaving this off leaves the voltages already on the network untouched, since the write clears every
+solved value on the variant before it writes.
 
 It is the same write the implementation performs for
 [StateEstimation.writeResultsToNetwork](outputs.md#stateestimationresult), done automatically at

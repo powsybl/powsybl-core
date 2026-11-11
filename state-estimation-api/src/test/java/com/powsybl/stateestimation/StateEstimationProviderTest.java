@@ -75,7 +75,7 @@ class StateEstimationProviderTest {
             @Override
             public CompletableFuture<StateEstimationResult> estimate(Network network, String workingVariantId,
                                                                      StateEstimationRunParameters runParameters) {
-                return CompletableFuture.completedFuture(StateEstimationResultImpl.failed());
+                return CompletableFuture.completedFuture(StateEstimationResultImpl.failed(workingVariantId));
             }
 
             @Override
@@ -144,7 +144,7 @@ class StateEstimationProviderTest {
     void theWriterSkipsWhatTheNetworkNoLongerHas() {
         Network network = EurostagTutorialExample1Factory.create();
         StateEstimationResult stale = new StateEstimationResultImpl(
-                StateEstimationResult.Status.FULLY_ESTIMATED,
+                network.getVariantManager().getWorkingVariantId(),
                 List.of(),
                 List.of(new StateEstimationResultImpl.BusResultImpl("GONE_0", "GONE", 400.0, 0.0),
                         new StateEstimationResultImpl.BusResultImpl("ALSO_GONE", "VLHV1", 400.0, 0.0)),
@@ -161,7 +161,7 @@ class StateEstimationProviderTest {
         String busId = busViewBusId(network);
 
         StateEstimationResult result = new StateEstimationResultImpl(
-                StateEstimationResult.Status.FULLY_ESTIMATED,
+                network.getVariantManager().getWorkingVariantId(),
                 List.of(),
                 List.of(new StateEstimationResultImpl.BusResultImpl(busId, "VLGEN", 24.5, 1.5)),
                 List.of(), List.of());
@@ -181,7 +181,7 @@ class StateEstimationProviderTest {
         assertNotEquals("NGEN", busId, "the two views must name the bus differently");
 
         StateEstimationResult result = new StateEstimationResultImpl(
-                StateEstimationResult.Status.FULLY_ESTIMATED,
+                network.getVariantManager().getWorkingVariantId(),
                 List.of(),
                 List.of(new StateEstimationResultImpl.BusResultImpl("NGEN", "VLGEN", 24.5, 1.5)),
                 List.of(), List.of());

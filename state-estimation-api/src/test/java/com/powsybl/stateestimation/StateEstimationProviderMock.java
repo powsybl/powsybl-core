@@ -90,7 +90,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
                 .withMessageTemplate("testStateEstimation")
                 .withUntypedValue("variantId", workingVariantId)
                 .add();
-        return CompletableFuture.completedFuture(result());
+        return CompletableFuture.completedFuture(result(workingVariantId));
     }
 
     @Override
@@ -134,7 +134,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
     }
 
     /** One component, one estimated bus, one measurement. */
-    private static StateEstimationResult result() {
+    private static StateEstimationResult result(String variantId) {
         StateEstimationResult.ComponentResult component = new StateEstimationResultImpl.ComponentResultImpl(
                 StateEstimationResult.ComponentResult.Status.ESTIMATED, "estimated", 3, BUS_ID, 1.25);
 
@@ -147,7 +147,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
         StateEstimationResult.MeasurementResult measurement = new StateEstimationResultImpl.MeasurementResultImpl(
                 MEASUREMENT_ID, MEASURED_VALUE, ESTIMATED_VALUE, NORMALIZED_RESIDUAL, false);
 
-        return new StateEstimationResultImpl(StateEstimationResult.Status.FULLY_ESTIMATED,
+        return new StateEstimationResultImpl(variantId,
                 List.of(component), List.of(bus), List.of(branch), List.of(measurement));
     }
 

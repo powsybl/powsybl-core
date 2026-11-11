@@ -37,8 +37,14 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
         FAILED
     }
 
-    /** The outcome over every component in scope. */
+    /** The outcome over every component in scope, which follows from the component results. */
     Status getStatus();
+
+    /**
+     * The variant the estimation ran against. Writing a result into a different variant is allowed,
+     * since a clone of the one it ran on describes the same network, and is the caller's call.
+     */
+    String getVariantId();
 
     /** One entry per synchronous component the estimation covered. */
     List<ComponentResult> getComponentResults();

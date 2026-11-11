@@ -292,15 +292,15 @@ class StateEstimationTest {
     }
 
     @Test
-    void leavesAloneWhateverTheResultDoesNotMention() {
-        Bus untouched = network.getVoltageLevel("VLLOAD").getBusView().getBus("VLLOAD_0");
-        untouched.setV(147.6).setAngle(-9.6);
+    void clearsWhateverTheResultDoesNotMention() {
+        Bus stale = network.getVoltageLevel("VLLOAD").getBusView().getBus("VLLOAD_0");
+        stale.setV(147.6).setAngle(-9.6);
 
         StateEstimation.writeResultsToNetwork(network, StateEstimation.estimate(network));
 
-        assertEquals(147.6, untouched.getV(), 1e-12,
-                "a bus the estimation skipped keeps what was there, which is how partial results stay readable");
-        assertEquals(-9.6, untouched.getAngle(), 1e-12);
+        assertTrue(Double.isNaN(stale.getV()),
+                "a bus the estimation skipped is cleared, so the network says which parts carry an estimate");
+        assertTrue(Double.isNaN(stale.getAngle()));
     }
 
     @Test

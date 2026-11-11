@@ -81,10 +81,12 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
 
     /** Which connected components are estimated. */
     public enum ComponentMode {
-        /** The main connected component only. */
-        MAIN,
-        /** Every connected component. */
-        ALL
+        /** Every synchronous component in the main connected component. */
+        MAIN_CONNECTED,
+        /** Every synchronous component of every connected component. */
+        ALL,
+        /** The main synchronous component only. */
+        MAIN_SYNCHRONOUS
     }
 
     /** Default for {@link #getVoltageInitMode()}. */
@@ -98,7 +100,7 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
     /** Default for {@link #getUnobservablePolicy()}. */
     public static final UnobservablePolicy DEFAULT_UNOBSERVABLE_POLICY = UnobservablePolicy.ESTIMATE_OBSERVABLE_ISLANDS;
     /** Default for {@link #getComponentMode()}. */
-    public static final ComponentMode DEFAULT_COMPONENT_MODE = ComponentMode.MAIN;
+    public static final ComponentMode DEFAULT_COMPONENT_MODE = ComponentMode.MAIN_CONNECTED;
     /** Default for {@link #getRelativeStandardDeviationFloor()}. Zero applies no floor. */
     public static final double DEFAULT_RELATIVE_STANDARD_DEVIATION_FLOOR = 0.0;
     /** Default for {@link #getResidualFlaggingThreshold()}. */

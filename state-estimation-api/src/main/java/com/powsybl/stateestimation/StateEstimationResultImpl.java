@@ -20,6 +20,7 @@ import java.util.Objects;
 public class StateEstimationResultImpl extends AbstractExtendable<StateEstimationResult>
         implements StateEstimationResult {
 
+    private final String variantId;
     private final Status status;
     private final List<ComponentResult> componentResults;
     private final List<BusResult> busResults;
@@ -27,32 +28,49 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
     private final List<MeasurementResult> measurementResults;
 
     /**
-     * Records the outcome of an estimation.
+     * Records the outcome of an estimation. The overall status follows from the component results.
      *
-     * @param status the outcome being recorded
+     * @param variantId the variant the estimation ran against
      * @param componentResults one entry per synchronous component
      * @param busResults the estimated state, one entry per bus
      * @param branchResults the flows that follow from the estimated state, one entry per branch
      * @param measurementResults one entry per measurement the estimation consumed
      */
-    public StateEstimationResultImpl(Status status,
+    public StateEstimationResultImpl(String variantId,
                                      List<ComponentResult> componentResults, List<BusResult> busResults,
                                      List<BranchResult> branchResults,
                                      List<MeasurementResult> measurementResults) {
-        this.status = Objects.requireNonNull(status);
+        this.variantId = Objects.requireNonNull(variantId);
         this.componentResults = List.copyOf(Objects.requireNonNull(componentResults));
         this.busResults = List.copyOf(Objects.requireNonNull(busResults));
         this.branchResults = List.copyOf(Objects.requireNonNull(branchResults));
         this.measurementResults = List.copyOf(Objects.requireNonNull(measurementResults));
+        this.status = computeStatus(this.componentResults);
+    }
+
+    private static Status computeStatus(List<ComponentResult> componentResults) {
+        long estimated = componentResults.stream()
+                .filter(c -> c.getStatus() == ComponentResult.Status.ESTIMATED)
+                .count();
+        if (estimated == 0) {
+            return Status.FAILED;
+        }
+        return estimated == componentResults.size() ? Status.FULLY_ESTIMATED : Status.PARTIALLY_ESTIMATED;
     }
 
     /**
      * An estimation that produced nothing.
      *
+     * @param variantId the variant the estimation ran against
      * @return a failed estimation, holding no component, bus, branch or measurement results
      */
-    public static StateEstimationResultImpl failed() {
-        return new StateEstimationResultImpl(Status.FAILED, List.of(), List.of(), List.of(), List.of());
+    public static StateEstimationResultImpl failed(String variantId) {
+        return new StateEstimationResultImpl(variantId, List.of(), List.of(), List.of(), List.of());
+    }
+
+    @Override
+    public String getVariantId() {
+        return variantId;
     }
 
     @Override

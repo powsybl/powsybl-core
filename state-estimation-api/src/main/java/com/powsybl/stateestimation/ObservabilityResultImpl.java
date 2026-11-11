@@ -10,7 +10,9 @@ package com.powsybl.stateestimation;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +29,8 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
     private final String statusText;
     private final List<ObservableIsland> islands;
     private final List<ElementObservability> elementObservabilities;
+    private final Map<String, ObservableIsland> islandsByBusId;
+    private final Map<String, ElementObservability> observabilitiesByElementId;
 
     /**
      * {@code statusText} may be null and is read as empty; nothing else may.
@@ -42,6 +46,14 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         this.statusText = Objects.requireNonNullElse(statusText, "");
         this.islands = List.copyOf(Objects.requireNonNull(islands));
         this.elementObservabilities = List.copyOf(Objects.requireNonNull(elementObservabilities));
+        this.islandsByBusId = new HashMap<>();
+        for (ObservableIsland island : this.islands) {
+            island.getBusIds().forEach(busId -> islandsByBusId.putIfAbsent(busId, island));
+        }
+        this.observabilitiesByElementId = new HashMap<>();
+        for (ElementObservability observability : this.elementObservabilities) {
+            observabilitiesByElementId.putIfAbsent(observability.getElementId(), observability);
+        }
     }
 
     @Override
@@ -62,7 +74,7 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
     @Override
     public Optional<ObservableIsland> getIsland(String busId) {
         Objects.requireNonNull(busId);
-        return islands.stream().filter(i -> i.getBusIds().contains(busId)).findFirst();
+        return Optional.ofNullable(islandsByBusId.get(busId));
     }
 
     @Override
@@ -73,7 +85,7 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
     @Override
     public Optional<ElementObservability> getElementObservability(String elementId) {
         Objects.requireNonNull(elementId);
-        return elementObservabilities.stream().filter(e -> e.getElementId().equals(elementId)).findFirst();
+        return Optional.ofNullable(observabilitiesByElementId.get(elementId));
     }
 
     /** Immutable {@link ObservableIsland}. */

@@ -19,13 +19,15 @@ StateEstimationResult estimate = StateEstimation.estimate(network);
 StateEstimation.writeResultsToNetwork(network, estimate);
 ```
 
-That writes the voltages onto the buses and the flows onto the branch terminals, so the network is
-left describing one state rather than a new estimate sitting next to stale flows. Buses and branches
-the result does not mention are left alone.
+Every solved value on the variant is cleared first, through `Networks.unsetSolvedValues`, and the
+voltages then go onto the buses and the flows onto the branch terminals. A bus the result does not
+mention is left at `NaN`, so the network says which parts carry an estimate rather than mixing one
+with stale flows.
 
 | Attribute          | Type                    | Unit | Required | Default value | Description                                                |
 |--------------------|-------------------------|------|----------|---------------|------------------------------------------------------------|
-| status             | Status                  | -    | yes      | -             | `FULLY_ESTIMATED`, `PARTIALLY_ESTIMATED` or `FAILED`       |
+| variantId          | String                  | -    | yes      | -             | The variant the estimation ran against                     |
+| status             | Status                  | -    | yes      | -             | `FULLY_ESTIMATED`, `PARTIALLY_ESTIMATED` or `FAILED`, derived from the component results |
 | componentResults   | List<ComponentResult>   | -    | yes      | -             | One entry per synchronous component the estimation covered |
 | busResults         | List<BusResult>         | -    | no       | Empty list    | The estimated state, one entry per estimated bus           |
 | branchResults      | List<BranchResult>      | -    | no       | Empty list    | The flows the state implies, one entry per estimated branch |
