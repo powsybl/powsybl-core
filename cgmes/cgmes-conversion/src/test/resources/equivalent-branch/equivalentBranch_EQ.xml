@@ -1,0 +1,191 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:3c2a2f0e-0b1e-4b7e-9c3e-7d1a5b6c8e01">
+        <md:Model.created>2026-10-31T10:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2026-10-31T10:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Equivalent branches with a side 2 impedance</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:Substation rdf:ID="_Substation2">
+        <cim:IdentifiedObject.name>Substation2</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage400">
+        <cim:IdentifiedObject.name>400.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:BaseVoltage rdf:ID="_BaseVoltage220">
+        <cim:IdentifiedObject.name>220.0 kV</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>220.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel2">
+        <cim:IdentifiedObject.name>VoltageLevel2</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel3">
+        <cim:IdentifiedObject.name>VoltageLevel3</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode2">
+        <cim:IdentifiedObject.name>Connectivity Node 2</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel2" />
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode3">
+        <cim:IdentifiedObject.name>Connectivity Node 3</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel3" />
+    </cim:ConnectivityNode>
+
+    <cim:Line rdf:ID="_LineNonReciprocal">
+        <cim:IdentifiedObject.name>LineNonReciprocal</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_SubGeographicalRegionTest"/>
+    </cim:Line>
+    <cim:Line rdf:ID="_LineNonReciprocalDifferentNominalVoltages">
+        <cim:IdentifiedObject.name>LineNonReciprocalDifferentNominalVoltages</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_SubGeographicalRegionTest"/>
+    </cim:Line>
+    <cim:Line rdf:ID="_LineReciprocal">
+        <cim:IdentifiedObject.name>LineReciprocal</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_SubGeographicalRegionTest"/>
+    </cim:Line>
+    <cim:Line rdf:ID="_LineWithoutImpedance21">
+        <cim:IdentifiedObject.name>LineWithoutImpedance21</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_SubGeographicalRegionTest"/>
+    </cim:Line>
+    <cim:Line rdf:ID="_LineZeroImpedance21">
+        <cim:IdentifiedObject.name>LineZeroImpedance21</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_SubGeographicalRegionTest"/>
+    </cim:Line>
+
+    <cim:EquivalentBranch rdf:ID="_NonReciprocal">
+        <cim:IdentifiedObject.name>NonReciprocal</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_LineNonReciprocal"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.r>10.0</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>40.0</cim:EquivalentBranch.x>
+        <cim:EquivalentBranch.r21>-5.0</cim:EquivalentBranch.r21>
+        <cim:EquivalentBranch.x21>42.0</cim:EquivalentBranch.x21>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_NonReciprocal-T1">
+        <cim:IdentifiedObject.name>NonReciprocal-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_NonReciprocal"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_NonReciprocal-T2">
+        <cim:IdentifiedObject.name>NonReciprocal-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_NonReciprocal"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:EquivalentBranch rdf:ID="_NonReciprocalDifferentNominalVoltages">
+        <cim:IdentifiedObject.name>NonReciprocalDifferentNominalVoltages</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_LineNonReciprocalDifferentNominalVoltages"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.r>10.0</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>40.0</cim:EquivalentBranch.x>
+        <cim:EquivalentBranch.r21>-5.0</cim:EquivalentBranch.r21>
+        <cim:EquivalentBranch.x21>42.0</cim:EquivalentBranch.x21>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_NonReciprocalDifferentNominalVoltages-T1">
+        <cim:IdentifiedObject.name>NonReciprocalDifferentNominalVoltages-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_NonReciprocalDifferentNominalVoltages"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_NonReciprocalDifferentNominalVoltages-T2">
+        <cim:IdentifiedObject.name>NonReciprocalDifferentNominalVoltages-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_NonReciprocalDifferentNominalVoltages"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3"/>
+    </cim:Terminal>
+
+    <cim:EquivalentBranch rdf:ID="_Reciprocal">
+        <cim:IdentifiedObject.name>Reciprocal</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_LineReciprocal"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.r>10.0</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>40.0</cim:EquivalentBranch.x>
+        <cim:EquivalentBranch.r21>10.0</cim:EquivalentBranch.r21>
+        <cim:EquivalentBranch.x21>40.0</cim:EquivalentBranch.x21>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_Reciprocal-T1">
+        <cim:IdentifiedObject.name>Reciprocal-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Reciprocal"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Reciprocal-T2">
+        <cim:IdentifiedObject.name>Reciprocal-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_Reciprocal"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:EquivalentBranch rdf:ID="_WithoutImpedance21">
+        <cim:IdentifiedObject.name>WithoutImpedance21</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_LineWithoutImpedance21"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.r>10.0</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>40.0</cim:EquivalentBranch.x>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_WithoutImpedance21-T1">
+        <cim:IdentifiedObject.name>WithoutImpedance21-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_WithoutImpedance21"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_WithoutImpedance21-T2">
+        <cim:IdentifiedObject.name>WithoutImpedance21-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_WithoutImpedance21"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:EquivalentBranch rdf:ID="_ZeroImpedance21">
+        <cim:IdentifiedObject.name>ZeroImpedance21</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_LineZeroImpedance21"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:EquivalentBranch.r>10.0</cim:EquivalentBranch.r>
+        <cim:EquivalentBranch.x>40.0</cim:EquivalentBranch.x>
+        <cim:EquivalentBranch.r21>0.0</cim:EquivalentBranch.r21>
+        <cim:EquivalentBranch.x21>0.0</cim:EquivalentBranch.x21>
+    </cim:EquivalentBranch>
+    <cim:Terminal rdf:ID="_ZeroImpedance21-T1">
+        <cim:IdentifiedObject.name>ZeroImpedance21-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ZeroImpedance21"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ZeroImpedance21-T2">
+        <cim:IdentifiedObject.name>ZeroImpedance21-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ZeroImpedance21"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+</rdf:RDF>

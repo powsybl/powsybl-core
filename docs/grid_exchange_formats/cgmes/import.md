@@ -272,6 +272,9 @@ If the `EquivalentBranch` is mapped to a PowSyBl [`Line`](../../grid_model/netwo
 - `G2` is `0.0`
 - `B1` is `0.0`
 - `B2` is `0.0`
+- If CGMES `r21` or `x21` differs from `r` or `x`, a [`LineNonReciprocalImpedance`](../../grid_model/extensions.md#line-non-reciprocal-impedance) extension is created with `R21` copied from CGMES `r21` and `X21` copied from CGMES `x21`. An `EquivalentBranch` with a zero impedance on one side only is not supported and `r21`/`x21` are ignored.
+
+If the nominal voltages of the two ends differ, the ideal ratio between them is folded into `R`, `X`, `G1`, `B1`, `G2`, `B2` and, when present, `R21` and `X21`.
 
 If the `EquivalentBranch` is mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line):
 - `R` is copied from CGMES `r`
