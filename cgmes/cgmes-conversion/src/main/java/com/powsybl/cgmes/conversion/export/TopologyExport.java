@@ -302,14 +302,14 @@ public final class TopologyExport {
 
     private static void writeDCNode(String dcNode, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout("DCNode", dcNode, writer, context);
-        CgmesExportUtil.writeResource("DCNode.DCTopologicalNode", dcTopologicalNode, writer, context);
+        CgmesExportUtil.writeResource(cimNamespace, "DCNode.DCTopologicalNode", CgmesExportUtil.toRdfAbout(dcTopologicalNode, context), writer);
         writer.writeEndElement();
     }
 
     private static void writeDCBaseTerminal(String className, String dcBaseTerminalId, String dcTopologicalNodeId,
                                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(className, dcBaseTerminalId, writer, context);
-        CgmesExportUtil.writeResource("DCBaseTerminal.DCTopologicalNode", dcTopologicalNodeId, writer, context);
+        CgmesExportUtil.writeResource(cimNamespace, "DCBaseTerminal.DCTopologicalNode", CgmesExportUtil.toRdfAbout(dcTopologicalNodeId, context), writer);
         writer.writeEndElement();
     }
 
@@ -333,7 +333,7 @@ public final class TopologyExport {
 
     private static void writeTerminal(String terminalId, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout("Terminal", terminalId, writer, context);
-        CgmesExportUtil.writeResource("Terminal.TopologicalNode", topologicalNode, writer, context);
+        CgmesExportUtil.writeResource(cimNamespace, "Terminal.TopologicalNode", CgmesExportUtil.toRdfAbout(topologicalNode, context), writer);
         writer.writeEndElement();
     }
 
@@ -464,8 +464,8 @@ public final class TopologyExport {
         String namespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId("TopologicalNode", topologicalNode, true, writer, context);
         CgmesExportUtil.writeAttribute(namespace, CgmesNames.IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(topologicalNodeName), writer);
-        CgmesExportUtil.writeResource(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, writer, context);
-        CgmesExportUtil.writeResource(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, writer, context);
+        CgmesExportUtil.writeResource(cimNamespace, TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, CgmesExportUtil.toRdfAbout(connectivityNodeContainerId, context), writer);
+        CgmesExportUtil.writeResource(cimNamespace, TOPOLOGICAL_NODE_BASE_VOLTAGE, CgmesExportUtil.toRdfAbout(baseVoltageId, context), writer);
         writer.writeEndElement();
     }
 
