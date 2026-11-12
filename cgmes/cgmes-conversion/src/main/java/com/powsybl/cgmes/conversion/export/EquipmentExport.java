@@ -121,6 +121,8 @@ public final class EquipmentExport {
             writeControlAreas(loadAreaId);
 
             writer.writeEndDocument();
+
+            clear();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -2159,6 +2161,16 @@ public final class EquipmentExport {
             default -> throw new IllegalArgumentException("Invalid switch side: " + side);
         };
         return mapNodeKey2NodeId.get(key);
+    }
+
+    private void clear() {
+        mapNodeKey2NodeId.clear();
+        regulatingControlsWritten.clear();
+        generatingUnitsWritten.clear();
+        exportedLimitTypes.clear();
+        loadGroupsByLoadClass.clear();
+        dcConvertersToUnit.clear();
+        dcNodesToUnit.clear();
     }
 
     private List<List<Integer>> getVoltageLevelAdjacencies(VoltageLevel.NodeBreakerView nodeBreakerView) {
