@@ -188,6 +188,9 @@ For each `SvInjection` in the CGMES network model a new PowSyBl `Load` with attr
 - `LoadType` is always set to `FICTITIOUS`.
 - `Fictitious` is set to `true`.
 
+Fictitious loads representing SvInjections are created during the update process. Each network update involving an SV profile containing SvInjections generates a new set of fictitious loads.
+Before creating the new set, `P0` and `Q0` are set to zero in the current variant for all fictitious loads generated from SvInjections during previous updates.
+
 (cgmes-equivalent-injection-import)=
 ### EquivalentInjection
 
