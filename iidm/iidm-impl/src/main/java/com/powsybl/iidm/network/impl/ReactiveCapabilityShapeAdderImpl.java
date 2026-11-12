@@ -42,12 +42,12 @@ class ReactiveCapabilityShapeAdderImpl<O extends ReactiveLimitsOwner & Validable
     }
 
     @Override
-    public ReactiveCapabilityShapeAdder addPlane(double alpha, double beta, double delta, boolean isGreaterOrEqual, double gamma) {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(alpha, beta, delta);
+    public ReactiveCapabilityShapeAdder addPlane(double coeffU, double coeffP, double coeffQ, boolean isGreaterOrEqual, double rhs) {
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(coeffU, coeffP, coeffQ);
         if (isGreaterOrEqual) {
-            plane.greaterOrEqual(gamma);
+            plane.greaterOrEqual(rhs);
         } else {
-            plane.lessOrEqual(gamma);
+            plane.lessOrEqual(rhs);
         }
         polyhedron.addReactiveCapabilityShapePlane(plane);
         return this;
