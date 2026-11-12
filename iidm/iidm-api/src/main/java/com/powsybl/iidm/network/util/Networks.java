@@ -398,9 +398,7 @@ public final class Networks {
      * @return A terminal for the specified node or null.
      */
     public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node, List<Switch> switchesToTerminalRef, List<Switch> openSwitches) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
+        checkNodeBreakerVoltageLevel(voltageLevel);
         switchesToTerminalRef.clear();
         openSwitches.clear();
 
