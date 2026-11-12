@@ -49,7 +49,6 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
      * and therefore can be used as reference.
      *
      * @param nodes The nodes which belong to this bus
-     * @param terminals The terminals belong to this bus
      * @return The first terminal with defined voltage or angle if exists, otherwise the first
      * terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
