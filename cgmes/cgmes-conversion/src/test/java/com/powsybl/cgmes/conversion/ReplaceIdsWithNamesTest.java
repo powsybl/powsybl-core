@@ -9,11 +9,11 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
+import com.powsybl.iidm.modification.ReplaceIdsByNames;
+import com.powsybl.iidm.modification.ReplaceIdsByNames.IdentifierChangeSkipped;
+import com.powsybl.iidm.modification.ReplaceIdsByNames.IdentifierChangeSkipped.IdentifierChangeSkippedReason;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.util.Networks;
-import com.powsybl.iidm.network.util.Networks.IdentifierChangeSkipped;
-import com.powsybl.iidm.network.util.Networks.IdentifierChangeSkipped.IdentifierChangeSkippedReason;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -30,7 +30,9 @@ class ReplaceIdsWithNamesTest {
     void testSvedala() {
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.svedala(), new Conversion.Config());
 
-        List<IdentifierChangeSkipped> skipped = Networks.replaceIdsWithNames(network);
+        ReplaceIdsByNames replaceIdsByNames = new ReplaceIdsByNames();
+        replaceIdsByNames.apply(network);
+        List<IdentifierChangeSkipped> skipped = replaceIdsByNames.getSkipped();
 
         checkChangedIdentifiables(network);
 
@@ -49,7 +51,8 @@ class ReplaceIdsWithNamesTest {
         // If we try again over the already changed identifiers,
         // all identifiables must be skipped
         // There should be skipped changes with reason ORIGINAL_ID_ALIAS_ALREADY_PRESENT
-        List<IdentifierChangeSkipped> skipped1 = Networks.replaceIdsWithNames(network);
+        replaceIdsByNames.apply(network);
+        List<IdentifierChangeSkipped> skipped1 = replaceIdsByNames.getSkipped();
         assertEquals(network.getIdentifiables().size(), skipped1.size());
         assertEquals(countChanged, skipped1.stream()
                 .filter(p -> p.reason() == IdentifierChangeSkippedReason.ORIGINAL_ID_ALIAS_ALREADY_PRESENT)
@@ -59,7 +62,7 @@ class ReplaceIdsWithNamesTest {
     private void checkChangedIdentifiables(Network network) {
         for (Identifiable<?> i : network.getIdentifiables()) {
             // An identifiable has been changed if it has an alias for the original id
-            Optional<String> originalId = i.getAliasFromType(Networks.ALIAS_TYPE_ORIGINAL_ID);
+            Optional<String> originalId = i.getAliasFromType(ReplaceIdsByNames.ALIAS_TYPE_ORIGINAL_ID);
             if (originalId.isEmpty()) {
                 continue;
             }
