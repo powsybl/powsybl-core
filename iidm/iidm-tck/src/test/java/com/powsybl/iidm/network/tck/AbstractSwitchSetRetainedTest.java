@@ -140,24 +140,24 @@ public abstract class AbstractSwitchSetRetainedTest {
     void testRetainedSwitchModification() {
         Network network = createMinimalNetworkWithRetainedSwitch();
         VoltageLevel vl = network.getVoltageLevel("VL");
-        Bus bus1 = vl.getBusBreakerView().getBus("VL_0");
-        Bus bus2 = vl.getBusBreakerView().getBus("VL_1");
+        Bus bus0 = vl.getBusBreakerView().getBus("VL_0");
+        Bus bus1 = vl.getBusBreakerView().getBus("VL_1");
 
-        bus1.setV(123.0);
+        bus0.setV(123.0);
+        assertEquals(123.0, bus0.getV(), 0.0);
         assertEquals(123.0, bus1.getV(), 0.0);
-        assertEquals(123.0, bus2.getV(), 0.0);
 
         vl.getNodeBreakerView().getSwitch("B1").setOpen(true);
 
-        vl.getBusBreakerView().getBus("VL_0").setV(456.0);
-        assertEquals(456.0, bus1.getV(), 0.0);
-        assertEquals(Double.NaN, bus2.getV(), 0.0);
+        bus0.setV(456.0);
+        assertEquals(456.0, bus0.getV(), 0.0);
+        assertEquals(Double.NaN, bus1.getV(), 0.0);
 
         vl.getNodeBreakerView().getSwitch("B1").setOpen(false);
 
-        vl.getBusBreakerView().getBus("VL_0").setV(789.0);
+        bus0.setV(789.0);
+        assertEquals(789.0, bus0.getV(), 0.0);
         assertEquals(789.0, bus1.getV(), 0.0);
-        assertEquals(789.0, bus2.getV(), 0.0);
     }
 
     @Test
@@ -175,14 +175,14 @@ public abstract class AbstractSwitchSetRetainedTest {
 
         vl.getNodeBreakerView().getSwitch("B1").setOpen(true);
 
-        vl.getBusBreakerView().getBus("VL_0").setV(456.0);
+        bus0.setV(456.0);
         assertEquals(456.0, bus0.getV(), 0.0);
         assertEquals(Double.NaN, bus1.getV(), 0.0);
         assertEquals(Double.NaN, bus2.getV(), 0.0);
 
         vl.getNodeBreakerView().getSwitch("B2").setOpen(false);
 
-        vl.getBusBreakerView().getBus("VL_0").setV(789.0);
+        bus0.setV(789.0);
         assertEquals(789.0, bus0.getV(), 0.0);
         assertEquals(Double.NaN, bus1.getV(), 0.0);
         assertEquals(789.0, bus2.getV(), 0.0);
