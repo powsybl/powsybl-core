@@ -31,7 +31,8 @@ abstract class AbstractFileSystemDataSource implements DataSource {
                                  String dataExtension,
                                  CompressionFormat compressionFormat,
                                  DataSourceObserver observer) {
-        this.directory = Objects.requireNonNull(directory);
+        this.directory = Objects.requireNonNull(directory)
+                .normalize(); // Allow easy comparison with startsWith to avoid path traversal vulnerability
         this.baseName = Objects.requireNonNull(baseName);
         this.dataExtension = dataExtension;
         this.compressionFormat = compressionFormat;

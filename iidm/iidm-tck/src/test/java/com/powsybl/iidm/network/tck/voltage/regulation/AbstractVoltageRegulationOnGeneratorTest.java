@@ -362,6 +362,12 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
     }
 
     @Test
+    void testNotifyUpdate() {
+        Generator generator = voltageLevel.getGeneratorStream().toList().getFirst();
+        this.testNotifyCommon(generator, generator.getId());
+    }
+
+    @Test
     public void testCreateVoltageRegulationInMultiVariant() {
         Generator otherGen = network.getGenerator("GEN");
         Generator gen = newGeneratorAdder("gen3")
