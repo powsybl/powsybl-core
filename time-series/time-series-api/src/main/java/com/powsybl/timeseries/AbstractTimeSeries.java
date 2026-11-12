@@ -136,7 +136,25 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
       * Extracts the points {@code [from, to[} of a compact chunk (relative to its offset)
       * @return the sub chunk, or null if it only contains empty values
       */
-    protected abstract C sliceNonBlank(C compactChunk, int from, int to);
+    protected abstract C sliceNonBlank(C chunk, int from, int to);
+
+    /**
+     * Extracts the points {@code [from, to[} of a chunk, keeping its compressed or uncompressed form.
+     *
+     * @param from absolute index, at least the chunk offset
+     * @param to absolute index (exclusive), at most the chunk end
+     * @return the sub chunk, or null if it only contains empty values
+    */
+    // protected abstract C sliceNonBlank(C chunk, int from, int to);
+
+    /**
+     * Merges successive chunks of the same kind (all compressed or all uncompressed) into a single one.
+     */
+    protected abstract C mergeRun(List<C> successiveChunks);
+
+    private static int chunkEnd(DataChunk<?, ?> chunk) {
+        return chunk.getOffset() + chunk.getLength();
+    }
 
     /**
      * <p>Splits a chunk into sub-chunks based on the specified first and last indices.</p>
@@ -174,20 +192,69 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     }
 
     public List<T> split(int newChunkSize) {
-        C compactChunk = toCompactChunk(); // single chunk view
-        int length = compactChunk.getLength();
+        // C compactChunk = toCompactChunk(); // single chunk view
+        // int length = compactChunk.getLength();
         // chunk size out of range is not allowed
-        if (newChunkSize < 1 || newChunkSize > length) {
+        if (newChunkSize < 1) {
             throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
-        int chunkCount = (int) Math.ceil((double) length / newChunkSize);
+        // merge successive chunks once, so that the windows below never need to be merged again
+        List<C> sortedChunks = mergeSuccessive(isSortedByOffset(chunks) ? chunks : getSortedChunks());
+        int pointCount = metadata.getIndex().getPointCount();
+        int chunkCount = (int) Math.ceil((double) pointCount / newChunkSize);
         List<T> result = new ArrayList<>(chunkCount);
 
-        for (int from = 0; from < length; from += newChunkSize) {
-            C chunk = sliceNonBlank(compactChunk, from, Math.min(from + newChunkSize, length));
-            result.add(chunk == null ? createTimeSeries(List.of()) : createTimeSeries(chunk));
+        // windows are aligned on the absolute grid, so every series yields the same number of sub-series
+        int firstChunk = 0;
+        for (int i = 0; i < chunkCount; i++) {
+            int windowStart = i * newChunkSize;
+            int windowEnd = Math.min(windowStart + newChunkSize, pointCount);
+            while (firstChunk < sortedChunks.size() && chunkEnd(sortedChunks.get(firstChunk)) <= windowStart) {
+                firstChunk++;
+            }
+            List<C> windowChunks = new ArrayList<>();
+            for (int j = firstChunk; j < sortedChunks.size() && sortedChunks.get(j).getOffset() < windowEnd; j++) {
+                C chunk = sortedChunks.get(j);
+                C slice = sliceNonBlank(chunk, Math.max(windowStart, chunk.getOffset()), Math.min(windowEnd, chunkEnd(chunk)));
+                if (slice != null) {
+                    windowChunks.add(slice);
+                }
+            }
+            result.add(createTimeSeries(windowChunks));
         }
         return result;
+    }
+
+    private boolean isSortedByOffset(List<C> chunkList) {
+        for (int i = 1; i < chunkList.size(); i++) {
+            if (chunkList.get(i - 1).getOffset() > chunkList.get(i).getOffset()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     *  Merges the successive chunks of the same kind in one pass, to avoid quadratic copies with many small chunks.
+     * @param chunks
+     * @return
+     */
+    private List<C> mergeSuccessive(List<C> chunks) {
+        if (chunks.size() < 2) {
+            return chunks;
+        }
+        List<C> merged = new ArrayList<>();
+        int runStart = 0;
+        for (int i = 1; i <= chunks.size(); i++) {
+            boolean runEnds = i == chunks.size()
+                    || chunkEnd(chunks.get(i - 1)) != chunks.get(i).getOffset()
+                    || chunks.get(i - 1).isCompressed() != chunks.get(i).isCompressed();
+            if (runEnds) {
+                merged.add(i - runStart == 1 ? chunks.get(runStart) : mergeRun(chunks.subList(runStart, i)));
+                runStart = i;
+            }
+        }
+        return merged;
     }
 
     /**

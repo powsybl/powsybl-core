@@ -61,6 +61,22 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         return null;
     }
 
+    @Override
+    protected StringDataChunk mergeRun(List<StringDataChunk> successiveChunks) {
+        if (successiveChunks.getFirst().isCompressed()) {
+            return successiveChunks.stream().reduce(StringDataChunk::append).orElseThrow();
+        }
+        int length = successiveChunks.getLast().getOffset() + successiveChunks.getLast().getLength() - successiveChunks.getFirst().getOffset();
+        String[] values = new String[length];
+        int position = 0;
+        for (StringDataChunk chunk : successiveChunks) {
+            String[] chunkValues = ((UncompressedStringDataChunk) chunk).getValues();
+            System.arraycopy(chunkValues, 0, values, position, chunkValues.length);
+            position += chunkValues.length;
+        }
+        return new UncompressedStringDataChunk(successiveChunks.getFirst().getOffset(), values);
+    }
+
     private void forEachChunk(Consumer<StringDataChunk> consumer) {
         chunks.forEach(consumer);
     }
