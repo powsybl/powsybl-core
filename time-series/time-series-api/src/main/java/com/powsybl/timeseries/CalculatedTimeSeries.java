@@ -12,6 +12,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.timeseries.ast.*;
 import org.jspecify.annotations.NonNull;
 
@@ -57,6 +58,13 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     private TimeSeriesIndex index;
 
+    private final ArrayCache<double[]> arrayCache = new ArrayCache<>(double[]::clone);
+
+    private final WeakListenerList<TimeSeriesStoreListener> listeners = new WeakListenerList<>();
+
+    // Strongly held, as dependencies only keep a weak reference to it
+    private final TimeSeriesStoreListener dependencyListener = this::invalidateArrays;
+
     public CalculatedTimeSeries(String name, NodeCalc nodeCalc, TimeSeriesNameResolver resolver) {
         this.name = Objects.requireNonNull(name);
         this.nodeCalc = Objects.requireNonNull(nodeCalc);
@@ -76,11 +84,41 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     @Override
     public void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver) {
         this.resolver = Objects.requireNonNull(resolver);
+        invalidateArrays();
+    }
+
+    /**
+     * Listeners are weakly referenced: the caller must keep a strong reference to its listener.
+     */
+    public void addListener(TimeSeriesStoreListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(TimeSeriesStoreListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void invalidateArrays() {
+        arrayCache.invalidate();
+        listeners.notify(TimeSeriesStoreListener::timeSeriesUpdated);
     }
 
     private List<DoubleTimeSeries> loadData() {
         Set<String> timeSeriesNames = TimeSeriesNames.list(nodeCalc);
-        return timeSeriesNames.isEmpty() ? Collections.emptyList() : resolver.getDoubleTimeSeries(timeSeriesNames);
+        if (timeSeriesNames.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<DoubleTimeSeries> timeSeriesList = resolver.getDoubleTimeSeries(timeSeriesNames);
+        timeSeriesList.forEach(this::listenTo);
+        return timeSeriesList;
+    }
+
+    private void listenTo(DoubleTimeSeries dependency) {
+        if (dependency instanceof StoredDoubleTimeSeries stored) {
+            stored.addListener(dependencyListener);
+        } else if (dependency instanceof CalculatedTimeSeries calculated) {
+            calculated.addListener(dependencyListener);
+        }
     }
 
     private NodeCalc resolve(List<DoubleTimeSeries> timeSeriesList) {
@@ -160,6 +198,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
                 throw new UnsupportedOperationException("Not yet implemented");
             }
         }
+        invalidateArrays();
     }
 
     //To remove if we ever get it from somewhere else
@@ -201,9 +240,11 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     @Override
     public double[] toArray() {
-        DoubleBuffer buffer = DoubleBuffer.allocate(metadata.getIndex().getPointCount());
-        fillBuffer(buffer, 0);
-        return buffer.array();
+        return arrayCache.get(loadData(), () -> {
+            DoubleBuffer buffer = DoubleBuffer.allocate(metadata.getIndex().getPointCount());
+            fillBuffer(buffer, 0);
+            return buffer.array();
+        });
     }
 
     @Override

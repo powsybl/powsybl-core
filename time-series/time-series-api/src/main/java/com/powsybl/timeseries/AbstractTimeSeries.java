@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.util.WeakListenerList;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +33,15 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected final List<C> chunks;
 
+    private final WeakListenerList<TimeSeriesStoreListener> listeners = new WeakListenerList<>();
+
     protected AbstractTimeSeries(TimeSeriesMetadata metadata, C... chunks) {
         this(metadata, Arrays.asList(chunks));
     }
 
     protected AbstractTimeSeries(TimeSeriesMetadata metadata, List<C> chunks) {
         this.metadata = Objects.requireNonNull(metadata);
-        this.chunks = Objects.requireNonNull(chunks);
+        this.chunks = new ArrayList<>(Objects.requireNonNull(chunks));
     }
 
     public void synchronize(TimeSeriesIndex newIndex) {
@@ -51,10 +54,33 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     public void addChunk(C chunk) {
         Objects.requireNonNull(chunk);
         chunks.add(chunk);
+        invalidateArrays();
+        listeners.notify(TimeSeriesStoreListener::timeSeriesUpdated);
     }
 
+    /**
+     * Listeners are weakly referenced: the caller must keep a strong reference to its listener.
+     */
+    public void addListener(TimeSeriesStoreListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(TimeSeriesStoreListener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * Called when the chunks have been modified, to drop any data computed from them.
+     */
+    protected void invalidateArrays() {
+        // nothing to invalidate by default
+    }
+
+    /**
+     * @return an unmodifiable view of the chunks, which can only be changed through {@link #addChunk(DataChunk)}
+     */
     public List<C> getChunks() {
-        return chunks;
+        return Collections.unmodifiableList(chunks);
     }
 
     public TimeSeriesMetadata getMetadata() {
