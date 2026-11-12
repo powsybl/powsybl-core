@@ -159,10 +159,10 @@ public final class CgmesExportUtil {
         }
         writeAttribute(MD_NAMESPACE, CgmesNames.VERSION, format(modelDescription.getVersion()), writer);
         for (String dependentOn : modelDescription.getDependentOn()) {
-            writeResource(CgmesNames.DEPENDENT_ON, MD_NAMESPACE, dependentOn, writer);
+            writeResource(MD_NAMESPACE, CgmesNames.DEPENDENT_ON, dependentOn, writer);
         }
         for (String supersedes : modelDescription.getSupersedes()) {
-            writeResource(CgmesNames.SUPERSEDES, MD_NAMESPACE, supersedes, writer);
+            writeResource(MD_NAMESPACE, CgmesNames.SUPERSEDES, supersedes, writer);
         }
         if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER && context.getCimVersion() < 100) {
             // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
@@ -180,6 +180,10 @@ public final class CgmesExportUtil {
         // We have to be careful with "resource" and "about" references, and apply the same conversions
         // Encode IDs to be URL compatible (prevent issues when importing)
         return context.encode(id.startsWith("_") ? id : "_" + id);
+    }
+
+    public static String toRdfAbout(String id, CgmesExportContext context) {
+        return "#" + toRdfId(id, context);
     }
 
     private static String toMasterResourceId(String id, CgmesExportContext context) {
@@ -209,7 +213,7 @@ public final class CgmesExportUtil {
 
     public static void writeStartAbout(String className, String id, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(context.getCim().getNamespace(), className);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, toRdfAbout(id, context));
     }
 
     public static void writeAttribute(String namespace, String attributeName, String attributeValue, XMLStreamWriter writer) throws XMLStreamException {
@@ -218,11 +222,7 @@ public final class CgmesExportUtil {
         writer.writeEndElement();
     }
 
-    public static void writeResource(String resourceName, String resourceValue, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writeResource(resourceName, context.getCim().getNamespace(), "#" + toRdfId(resourceValue, context), writer);
-    }
-
-    public static void writeResource(String resourceName, String namespace, String resourceValue, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeResource(String namespace, String resourceName, String resourceValue, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeEmptyElement(namespace, resourceName);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, resourceValue);
     }
