@@ -59,6 +59,16 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     }
 
     /**
+     * Removes a chunk from the time series.
+     */
+    public void removeChunk(C chunk) {
+        Objects.requireNonNull(chunk);
+        chunks.remove(chunk);
+        invalidateArrays();
+        listeners.notify(TimeSeriesStoreListener::timeSeriesUpdated);
+    }
+
+    /**
      * Add a listener to be notified when the time series is updated.
      * <p>
      * Listeners are weakly referenced: the caller must keep a strong reference to its listener.
