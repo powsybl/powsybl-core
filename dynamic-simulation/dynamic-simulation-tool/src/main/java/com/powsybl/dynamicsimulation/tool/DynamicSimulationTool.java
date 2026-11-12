@@ -19,7 +19,6 @@ import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -147,7 +146,6 @@ public class DynamicSimulationTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
         // process a single network: output-file/output-format options available
 
         Path outputCaseFile = null;
@@ -163,15 +161,8 @@ public class DynamicSimulationTool implements Tool {
             throw new ParseException("Missing required option: " + OUTPUT_CASE_FILE);
         }
 
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
-        if (network == null) {
-            throw new PowsyblException("Case '" + caseFile + "' not found");
-        }
-
+        Network network = readNetwork(line, context);
         DynamicSimulation.Runner runner = DynamicSimulation.find();
-
         Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODELS_FILE));
         DynamicModelsSupplier dynamicModelsSupplier = DynamicSimulationSupplierFactory.createDynamicModelsSupplier(dydFile, runner.getName());
 
@@ -194,8 +185,13 @@ public class DynamicSimulationTool implements Tool {
         }
 
         ReportNode reportNode = DynamicSimulationReports.buildRootDynamicSimulationTool();
-        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, outputVariablesSupplier,
-            VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
+        DynamicSimulationRunParameters runParameters = new DynamicSimulationRunParameters()
+                .setEventModelsSupplier(eventSupplier)
+                .setOutputVariablesSupplier(outputVariablesSupplier)
+                .setComputationManager(context.getShortTimeExecutionComputationManager())
+                .setParameters(params)
+                .setReportNode(reportNode);
+        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, runParameters);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
         if (outputLogFile != null) {
@@ -216,6 +212,17 @@ public class DynamicSimulationTool implements Tool {
             Properties outputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
             network.write(outputCaseFormat, outputParams, outputCaseFile);
         }
+    }
+
+    private Network readNetwork(CommandLine line, ToolRunningContext context) throws IOException {
+        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
+        context.getOutputStream().println("Loading network '" + caseFile + "'");
+        Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        if (network == null) {
+            throw new PowsyblException("Case '" + caseFile + "' not found");
+        }
+        return network;
     }
 
     private void printResult(DynamicSimulationResult result, ToolRunningContext context) {
