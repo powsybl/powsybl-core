@@ -33,7 +33,7 @@ public class SecondaryVoltageControlImpl extends AbstractMultiVariantIdentifiabl
     public void afterRemoval(String identifiable) {
         for (var zone : controlZones) {
             ((ControlZoneImpl) zone).removeControlUnitIf(e -> e.getId().equals(identifiable));
-            ((PilotPointImpl) zone.getPilotPoint()).removeBusbarSectionsOrBusesIdIf(e -> e.equals(identifiable));
+            ((PilotPointImpl) zone.getPilotPoint()).removeIdIf(e -> e.equals(identifiable));
         }
     }
 
@@ -48,7 +48,7 @@ public class SecondaryVoltageControlImpl extends AbstractMultiVariantIdentifiabl
                     }
                     return unit;
                 });
-                ((PilotPointImpl) zone.getPilotPoint()).updateBusbarSectionsOrBusesIds(e -> e.equals(oldValue) ? (String) newValue : e);
+                ((PilotPointImpl) zone.getPilotPoint()).updateIds(e -> e.equals(oldValue) ? (String) newValue : e);
             }
         }
     }
