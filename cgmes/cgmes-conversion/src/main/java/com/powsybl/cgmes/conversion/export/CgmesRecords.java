@@ -8,22 +8,11 @@
 package com.powsybl.cgmes.conversion.export;
 
 /**
- * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
+ * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 public final class CgmesRecords {
 
     private CgmesRecords() {
-    }
-
-    public record ACLineSegmentEq(
-        String rdfId,
-        String name,
-        double r,
-        double x,
-        double g,
-        double b,
-        String baseVoltage
-    ) {
     }
 
     public record AcDcConverterEq(
@@ -37,6 +26,17 @@ public final class CgmesRecords {
         String capabilityCurve,
         String pccTerminal,
         String equipmentContainer
+    ) {
+    }
+
+    public record ACLineSegmentEq(
+        String rdfId,
+        String name,
+        double r,
+        double x,
+        double g,
+        double b,
+        String baseVoltage
     ) {
     }
 
@@ -246,13 +246,6 @@ public final class CgmesRecords {
     ) {
     }
 
-    public record SubLoadAreaEq(
-        String rdfId,
-        String name,
-        String loadArea
-    ) {
-    }
-
     public record LoadResponseCharacteristicEq(
         String rdfId,
         String name,
@@ -265,6 +258,15 @@ public final class CgmesRecords {
         double qConstantCurrent,
         double pConstantImpedance,
         double qConstantImpedance
+    ) {
+    }
+
+    public record NonlinearShuntCompensatorPointEq(
+        String rdfId,
+        double b,
+        double g,
+        int sectionNumber,
+        String nonlinearShuntCompensator
     ) {
     }
 
@@ -291,123 +293,6 @@ public final class CgmesRecords {
         int acceptableDuration,
         boolean isInfiniteDuration,
         String kind
-    ) {
-    }
-
-    public record PowerTransformerEq(
-        String rdfId,
-        String name,
-        String equipmentContainer
-    ) {
-    }
-
-    public record PowerTransformerEndEq(
-        String rdfId,
-        String name,
-        int endNumber,
-        double r,
-        double x,
-        double g,
-        double b,
-        double ratedS,
-        double ratedU,
-        String powerTransformer,
-        String baseVoltage,
-        String terminal
-    ) {
-    }
-
-    public record RegulatingControlEq(
-        String rdfId,
-        String name,
-        String terminal,
-        String mode
-    ) {
-    }
-
-    public record SeriesCompensatorEq(
-        String rdfId,
-        String name,
-        double r,
-        double x,
-        boolean varistorPresent,
-        double varistorRatedCurrent,
-        double varistorVoltageThreshold,
-        String baseVoltage
-    ) {
-    }
-
-    public record ShuntCompensatorEq(
-        String className,
-        String rdfId,
-        String name,
-        double bPerSection,
-        double gPerSection,
-        int maximumSections,
-        double nomU,
-        int normalSections,
-        String regulatingControl,
-        String equipmentContainer
-    ) {
-    }
-
-    public record NonlinearShuntCompensatorPointEq(
-        String rdfId,
-        double b,
-        double g,
-        int sectionNumber,
-        String nonlinearShuntCompensator
-    ) {
-    }
-
-    public record StaticVarCompensatorEq(
-        String rdfId,
-        String name,
-        double capacitiveRating,
-        double inductiveRating,
-        double slope,
-        String svcControlMode,
-        double voltageSetPoint,
-        String regulatingControl,
-        String equipmentContainer
-    ) {
-    }
-
-    public record SubGeographicalRegionEq(
-        String rdfId,
-        String name,
-        String region
-    ) {
-    }
-
-    public record SubstationEq(
-        String rdfId,
-        String name,
-        String region
-    ) {
-    }
-
-    public record SwitchEq(
-        String className,
-        String rdfId,
-        String name,
-        boolean normalOpen,
-        boolean retained,
-        String equipmentContainer
-    ) {
-    }
-
-    public record SynchronousMachineEq(
-        String rdfId,
-        String name,
-        Double maxQ,
-        Double minQ,
-        String type,
-        String ratedS,
-        String initialReactiveCapabilityCurve,
-        String generatingUnit,
-        String regulatingControl,
-        String equipmentContainer
     ) {
     }
 
@@ -445,6 +330,29 @@ public final class CgmesRecords {
     ) {
     }
 
+    public record PowerTransformerEq(
+        String rdfId,
+        String name,
+        String equipmentContainer
+    ) {
+    }
+
+    public record PowerTransformerEndEq(
+        String rdfId,
+        String name,
+        int endNumber,
+        double r,
+        double x,
+        double g,
+        double b,
+        double ratedS,
+        double ratedU,
+        String powerTransformer,
+        String baseVoltage,
+        String terminal
+    ) {
+    }
+
     public record RatioTapChangerEq(
         String rdfId,
         String name,
@@ -477,6 +385,98 @@ public final class CgmesRecords {
         double g,
         double b,
         double ratio
+    ) {
+    }
+
+    public record RegulatingControlEq(
+        String rdfId,
+        String name,
+        String terminal,
+        String mode
+    ) {
+    }
+
+    public record SeriesCompensatorEq(
+        String rdfId,
+        String name,
+        double r,
+        double x,
+        boolean varistorPresent,
+        double varistorRatedCurrent,
+        double varistorVoltageThreshold,
+        String baseVoltage
+    ) {
+    }
+
+    public record ShuntCompensatorEq(
+        String className,
+        String rdfId,
+        String name,
+        double bPerSection,
+        double gPerSection,
+        int maximumSections,
+        double nomU,
+        int normalSections,
+        String regulatingControl,
+        String equipmentContainer
+    ) {
+    }
+
+    public record StaticVarCompensatorEq(
+        String rdfId,
+        String name,
+        double capacitiveRating,
+        double inductiveRating,
+        double slope,
+        String svcControlMode,
+        double voltageSetPoint,
+        String regulatingControl,
+        String equipmentContainer
+    ) {
+    }
+
+    public record SubGeographicalRegionEq(
+        String rdfId,
+        String name,
+        String region
+    ) {
+    }
+
+    public record SubLoadAreaEq(
+        String rdfId,
+        String name,
+        String loadArea
+    ) {
+    }
+
+    public record SubstationEq(
+        String rdfId,
+        String name,
+        String region
+    ) {
+    }
+
+    public record SwitchEq(
+        String className,
+        String rdfId,
+        String name,
+        boolean normalOpen,
+        boolean retained,
+        String equipmentContainer
+    ) {
+    }
+
+    public record SynchronousMachineEq(
+        String rdfId,
+        String name,
+        Double maxQ,
+        Double minQ,
+        String type,
+        String ratedS,
+        String initialReactiveCapabilityCurve,
+        String generatingUnit,
+        String regulatingControl,
+        String equipmentContainer
     ) {
     }
 
