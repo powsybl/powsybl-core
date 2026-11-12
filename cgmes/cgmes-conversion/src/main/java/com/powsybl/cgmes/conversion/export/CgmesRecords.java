@@ -8,6 +8,14 @@
 package com.powsybl.cgmes.conversion.export;
 
 /**
+ * <p>The definitions of the CGMES objects for serialization.</p>
+ *
+ * <p>Each record represents a CGMES object of a certain class uniquely defined by its rdf:Id,
+ * its attributes and its associations.</p>
+ *
+ * <p>This is meant to decouple the extraction of the data in {@link EquipmentExport}
+ * and the writing of the data in the CGMES XML file in {@link EquipmentWriter}</p>
+ *
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 public final class CgmesRecords {
@@ -15,6 +23,9 @@ public final class CgmesRecords {
     private CgmesRecords() {
     }
 
+    /**
+     * An ACDCConverter from the EQ profile.
+     */
     public record AcDcConverterEq(
         String className,
         String rdfId,
@@ -29,6 +40,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An ACLineSegment from the EQ profile.
+     */
     public record ACLineSegmentEq(
         String rdfId,
         String name,
@@ -40,18 +54,27 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An AsynchronousMachine from the EQ profile.
+     */
     public record AsynchronousMachineEq(
         String rdfId,
         String name
     ) {
     }
 
+    /**
+     * A BaseVoltage from the EQ profile.
+     */
     public record BaseVoltageEq(
         String rdfId,
         double nominalVoltage
     ) {
     }
 
+    /**
+     * A BusbarSection from the EQ profile.
+     */
     public record BusbarSectionEq(
         String rdfId,
         String name,
@@ -60,6 +83,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A ConnectivityNode from the EQ profile.
+     */
     public record ConnectivityNodeEq(
         String rdfId,
         String name,
@@ -67,6 +93,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A ControlArea from the EQ profile.
+     */
     public record ControlAreaEq(
         String rdfId,
         String name,
@@ -75,6 +104,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A Curve from the EQ profile.
+     */
     public record CurveEq(
         String className,
         String rdfId,
@@ -82,6 +114,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A CurveData from the EQ profile.
+     */
     public record CurveDataEq(
         String rdfId,
         double xvalue,
@@ -91,6 +126,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A DCConverterUnit from the EQ profile.
+     */
     public record DCConverterUnitEq(
         String rdfId,
         String name,
@@ -99,6 +137,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A DCGround from the EQ profile.
+     */
     public record DCGroundEq(
         String rdfId,
         String name,
@@ -106,6 +147,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A DCLineSegment from the EQ profile.
+     */
     public record DCLineSegmentEq(
         String rdfId,
         String name,
@@ -113,6 +157,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A DCNode from the EQ profile.
+     */
     public record DCNodeEq(
         String rdfId,
         String name,
@@ -120,6 +167,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A DCSwitch from the EQ profile.
+     */
     public record DCSwitchEq(
         String className,
         String rdfId,
@@ -127,6 +177,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A DCTerminal from the EQ profile.
+     */
     public record DCTerminalEq(
         String className,
         String rdfId,
@@ -137,6 +190,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An EnergyConsumer from the EQ profile.
+     */
     public record EnergyConsumerEq(
         String className,
         String rdfId,
@@ -147,6 +203,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An EnergySource from the EQ profile.
+     */
     public record EnergySourceEq(
         String rdfId,
         String name,
@@ -154,6 +213,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An EquivalentBranch from the EQ profile.
+     */
     public record EquivalentBranchEq(
         String rdfId,
         String name,
@@ -163,6 +225,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An EquivalentInjection from the EQ profile.
+     */
     public record EquivalentInjectionEq(
         String rdfId,
         String name,
@@ -176,6 +241,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An EquivalentShunt from the EQ profile.
+     */
     public record EquivalentShuntEq(
         String rdfId,
         String name,
@@ -185,6 +253,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An ExternalNetworkInjection from the EQ profile.
+     */
     public record ExternalNetworkInjectionEq(
         String rdfId,
         String name,
@@ -198,6 +269,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A FossilFuel from the EQ profile.
+     */
     public record FossilFuelEq(
         String rdfId,
         String name,
@@ -206,6 +280,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A GeneratingUnit from the EQ profile.
+     */
     public record GeneratingUnitEq(
         String className,
         String rdfId,
@@ -219,12 +296,18 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A GeographicalRegion from the EQ profile.
+     */
     public record GeographicalRegionEq(
         String rdfId,
         String name
     ) {
     }
 
+    /**
+     * A HydroPowerPlant from the EQ profile.
+     */
     public record HydroPowerPlantEq(
         String rdfId,
         String name,
@@ -232,12 +315,18 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A LoadArea from the EQ profile.
+     */
     public record LoadAreaEq(
         String rdfId,
         String name
     ) {
     }
 
+    /**
+     * A LoadGroup from the EQ profile.
+     */
     public record LoadGroupEq(
         String className,
         String rdfId,
@@ -246,6 +335,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A LoadResponseCharacteristic from the EQ profile.
+     */
     public record LoadResponseCharacteristicEq(
         String rdfId,
         String name,
@@ -261,6 +353,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A NonlinearShuntCompensatorPoint from the EQ profile.
+     */
     public record NonlinearShuntCompensatorPointEq(
         String rdfId,
         double b,
@@ -270,6 +365,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An OperationalLimit from the EQ profile.
+     */
     public record OperationalLimitEq(
         String className,
         String rdfId,
@@ -280,6 +378,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An OperationalLimitSet from the EQ profile.
+     */
     public record OperationalLimitSetEq(
         String rdfId,
         String name,
@@ -287,6 +388,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * An OperationalLimitType from the EQ profile.
+     */
     public record OperationalLimitTypeEq(
         String rdfId,
         String name,
@@ -296,6 +400,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A PhaseTapChanger from the EQ profile.
+     */
     public record PhaseTapChangerEq(
         String rdfId,
         String name,
@@ -311,12 +418,18 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A PhaseTapChangerTable from the EQ profile.
+     */
     public record PhaseTapChangerTableEq(
         String rdfId,
         String name
     ) {
     }
 
+    /**
+     * A PhaseTapChangerTablePoint from the EQ profile.
+     */
     public record PhaseTapChangerTablePointEq(
         String rdfId,
         String phaseTapChangerTable,
@@ -330,6 +443,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A PowerTransformer from the EQ profile.
+     */
     public record PowerTransformerEq(
         String rdfId,
         String name,
@@ -337,6 +453,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A PowerTransformerEnd from the EQ profile.
+     */
     public record PowerTransformerEndEq(
         String rdfId,
         String name,
@@ -353,6 +472,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A RatioTapChanger from the EQ profile.
+     */
     public record RatioTapChangerEq(
         String rdfId,
         String name,
@@ -370,12 +492,18 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A RatioTapChangerTable from the EQ profile.
+     */
     public record RatioTapChangerTableEq(
         String rdfId,
         String name
     ) {
     }
 
+    /**
+     * A RatioTapChangerTablePoint from the EQ profile.
+     */
     public record RatioTapChangerTablePointEq(
         String rdfId,
         String ratioTapChangerTable,
@@ -388,6 +516,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A RegulatingControl from the EQ profile.
+     */
     public record RegulatingControlEq(
         String rdfId,
         String name,
@@ -396,6 +527,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A SeriesCompensator from the EQ profile.
+     */
     public record SeriesCompensatorEq(
         String rdfId,
         String name,
@@ -408,6 +542,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A ShuntCompensator from the EQ profile.
+     */
     public record ShuntCompensatorEq(
         String className,
         String rdfId,
@@ -422,6 +559,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A StaticVarCompensator from the EQ profile.
+     */
     public record StaticVarCompensatorEq(
         String rdfId,
         String name,
@@ -435,6 +575,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A SubGeographicalRegion from the EQ profile.
+     */
     public record SubGeographicalRegionEq(
         String rdfId,
         String name,
@@ -442,6 +585,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A SubLoadArea from the EQ profile.
+     */
     public record SubLoadAreaEq(
         String rdfId,
         String name,
@@ -449,6 +595,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A Substation from the EQ profile.
+     */
     public record SubstationEq(
         String rdfId,
         String name,
@@ -456,6 +605,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A Switch from the EQ profile.
+     */
     public record SwitchEq(
         String className,
         String rdfId,
@@ -466,6 +618,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A SynchronousMachine from the EQ profile.
+     */
     public record SynchronousMachineEq(
         String rdfId,
         String name,
@@ -480,6 +635,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A TapChangerControl from the EQ profile.
+     */
     public record TapChangerControlEq(
         String rdfId,
         String name,
@@ -488,6 +646,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A Terminal from the EQ profile.
+     */
     public record TerminalEq(
         String rdfId,
         int sequenceNumber,
@@ -496,6 +657,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A TieFlow from the EQ profile.
+     */
     public record TieFlowEq(
         String rdfId,
         String controlArea,
@@ -503,6 +667,9 @@ public final class CgmesRecords {
     ) {
     }
 
+    /**
+     * A VoltageLevel from the EQ profile.
+     */
     public record VoltageLevelEq(
         String rdfId,
         String name,

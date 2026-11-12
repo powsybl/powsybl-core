@@ -43,6 +43,8 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNames.NONCONFORM_LOAD;
 
 /**
+ * Export an IIDM network to CGMES Equipment profile.
+ *
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -52,9 +54,9 @@ public final class EquipmentExport {
     private static final String MONOPOLAR_GROUND_RETURN = "monopolarGroundReturn";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
+    private final Network network;
     private final XMLStreamWriter writer;
     private final CgmesExportContext context;
-    private final Network network;
     private final Map<String, String> mapNodeKey2NodeId;
     private final Set<String> regulatingControlsWritten;
     private final Set<String> generatingUnitsWritten;
@@ -62,10 +64,17 @@ public final class EquipmentExport {
     private final Map<String, String> loadGroupsByLoadClass;
     private final Map<AcDcConverter<?>, DCConverterUnit> dcConvertersToUnit;
 
+    /**
+     * Create an EquipmentExport instance for writing the CGMES Equipment profile.
+     *
+     * @param network The IIDM {@link Network} to export.
+     * @param writer The {@link XMLStreamWriter} to serialize the CGMES Equipment profile.
+     * @param context The {@link CgmesExportContext} containing the export context.
+     */
     public EquipmentExport(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+        this.network = network;
         this.writer = writer;
         this.context = context;
-        this.network = network;
         mapNodeKey2NodeId = new HashMap<>();
         regulatingControlsWritten = new HashSet<>();
         generatingUnitsWritten = new HashSet<>();
@@ -74,12 +83,20 @@ public final class EquipmentExport {
         dcConvertersToUnit = new HashMap<>();
     }
 
+    /**
+     * Write the CGMES Equipment profile. Default metadata are used.
+     */
     public void write() {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(
                 network, CgmesSubset.EQUIPMENT, context, true, false);
         write(model);
     }
 
+    /**
+     * Write the CGMES Equipment profile for the given model.
+     *
+     * @param model The {@link CgmesMetadataModel} containing the metadata.
+     */
     public void write(CgmesMetadataModel model) {
         try {
             CgmesExportUtil.writeRdfRoot(context, writer);
