@@ -17,12 +17,17 @@ import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
+import java.nio.DoubleBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,6 +35,28 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class CalculatedTimeSeriesTest {
+
+    private static final RegularTimeSeriesIndex CACHE_INDEX = RegularTimeSeriesIndex.create(
+        Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15));
+
+    private static TimeSeriesNameResolver resolverOf(List<DoubleTimeSeries> series) {
+        return new TimeSeriesNameResolver() {
+            @Override
+            public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
+                return series.stream().map(DoubleTimeSeries::getMetadata).toList();
+            }
+
+            @Override
+            public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
+                return Set.of(1);
+            }
+
+            @Override
+            public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames) {
+                return series;
+            }
+        };
+    }
 
     private CalculatedTimeSeries timeSeries;
 
@@ -436,5 +463,116 @@ class CalculatedTimeSeriesTest {
             "} ]");
         e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonValueNull));
         assertEquals("Unexpected JSON token: VALUE_NULL", e0.getMessage());
+    }
+
+    @Test
+    void testArrayIsCachedAndCopied() {
+        timeSeries.synchronize(CACHE_INDEX);
+        double[] values1 = timeSeries.toArray();
+        double[] values2 = timeSeries.toArray();
+        assertArrayEquals(new double[] {1d, 1d}, values1);
+        assertNotSame(values1, values2);
+        values1[0] = 42d;
+    }
+
+    @Test
+    void testArrayIsComputedOnlyOnce() {
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(0, new double[] {1d, 2d});
+        StoredDoubleTimeSeries dependency = new StoredDoubleTimeSeries(new TimeSeriesMetadata("dep", TimeSeriesDataType.DOUBLE, CACHE_INDEX), chunk);
+        CalculatedTimeSeries calculated = Mockito.spy(new CalculatedTimeSeries("calc", new TimeSeriesNameNodeCalc("dep"), resolverOf(List.of(dependency))));
+        calculated.synchronize(CACHE_INDEX);
+
+        assertArrayEquals(new double[] {1d, 2d}, calculated.toArray());
+        assertArrayEquals(new double[] {1d, 2d}, calculated.toArray());
+        Mockito.verify(calculated, Mockito.times(1)).fillBuffer(Mockito.any(DoubleBuffer.class), Mockito.anyInt());
+    }
+
+    @Test
+    void testCacheInvalidatedOnSynchronize() {
+        timeSeries.synchronize(CACHE_INDEX);
+        assertArrayEquals(new double[] {1d, 1d}, timeSeries.toArray());
+        timeSeries.synchronize(CACHE_INDEX);
+        assertArrayEquals(new double[] {1d, 1d}, timeSeries.toArray());
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:30:00Z"), Duration.ofMinutes(15));
+        assertThrows(UnsupportedOperationException.class, () -> timeSeries.synchronize(index));
+        assertArrayEquals(new double[] {1d, 1d}, timeSeries.toArray());
+    }
+
+    @Test
+    void testCacheInvalidatedOnResolverChange() {
+        StoredDoubleTimeSeries dependency1 = TimeSeries.createDouble("dep", CACHE_INDEX, 1d, 2d);
+        StoredDoubleTimeSeries dependency2 = TimeSeries.createDouble("dep", CACHE_INDEX, 10d, 20d);
+        CalculatedTimeSeries calculated = new CalculatedTimeSeries("calc", new TimeSeriesNameNodeCalc("dep"), resolverOf(List.of(dependency1)));
+        calculated.synchronize(CACHE_INDEX);
+        assertArrayEquals(new double[] {1d, 2d}, calculated.toArray());
+
+        calculated.setTimeSeriesNameResolver(resolverOf(List.of(dependency2)));
+        assertArrayEquals(new double[] {10d, 20d}, calculated.toArray());
+    }
+
+    @Test
+    void testCacheInvalidatedWhenResolverReturnsNewDependencyInstance() {
+        List<DoubleTimeSeries> series = new ArrayList<>(List.of(TimeSeries.createDouble("dep", CACHE_INDEX, 1d, 2d)));
+        CalculatedTimeSeries calculated = new CalculatedTimeSeries("calc", new TimeSeriesNameNodeCalc("dep"), resolverOf(series));
+        calculated.synchronize(CACHE_INDEX);
+        assertArrayEquals(new double[] {1d, 2d}, calculated.toArray());
+
+        series.set(0, TimeSeries.createDouble("dep", CACHE_INDEX, 123d, 456d));
+        assertArrayEquals(new double[] {123d, 456d}, calculated.toArray());
+    }
+
+    @Test
+    void testCacheInvalidatedWhenDependencyIsModified() {
+        StoredDoubleTimeSeries dependency = new StoredDoubleTimeSeries(new TimeSeriesMetadata("dep", TimeSeriesDataType.DOUBLE, CACHE_INDEX),
+            new UncompressedDoubleDataChunk(0, new double[] {1d}));
+        CalculatedTimeSeries calculated = new CalculatedTimeSeries("calc", BinaryOperation.plus(new TimeSeriesNameNodeCalc("dep"), new IntegerNodeCalc(1)),
+            resolverOf(List.of(dependency)));
+        calculated.synchronize(CACHE_INDEX);
+        assertArrayEquals(new double[] {2d, Double.NaN}, calculated.toArray());
+
+        dependency.addChunk(new UncompressedDoubleDataChunk(1, new double[] {5d}));
+        assertArrayEquals(new double[] {2d, 6d}, calculated.toArray());
+    }
+
+    @Test
+    void testCacheInvalidatedThroughNestedCalculatedTimeSeries() {
+        StoredDoubleTimeSeries dependency = new StoredDoubleTimeSeries(new TimeSeriesMetadata("dep", TimeSeriesDataType.DOUBLE, CACHE_INDEX),
+            new UncompressedDoubleDataChunk(0, new double[] {1d}));
+        CalculatedTimeSeries inner = new CalculatedTimeSeries("inner", new TimeSeriesNameNodeCalc("dep"), resolverOf(List.of(dependency)));
+        inner.synchronize(CACHE_INDEX);
+        CalculatedTimeSeries outer = new CalculatedTimeSeries("outer", new TimeSeriesNameNodeCalc("inner"), resolverOf(List.of(inner)));
+        outer.synchronize(CACHE_INDEX);
+        assertArrayEquals(new double[] {1d, Double.NaN}, outer.toArray());
+
+        dependency.addChunk(new UncompressedDoubleDataChunk(1, new double[] {5d}));
+        assertArrayEquals(new double[] {1d, 5d}, outer.toArray());
+    }
+
+    @Test
+    void testListenersNotifiedOnInvalidation() {
+        int[] count = {0};
+        TimeSeriesStoreListener listener = () -> count[0]++;
+        timeSeries.addListener(listener);
+        timeSeries.synchronize(CACHE_INDEX);
+        assertEquals(1, count[0]);
+        timeSeries.removeListener(listener);
+        timeSeries.setTimeSeriesNameResolver(CalculatedTimeSeries.EMPTY_RESOLVER);
+        assertEquals(1, count[0]);
+    }
+
+    @Test
+    void testConcurrentToArray() throws Exception {
+        StoredDoubleTimeSeries dependency = TimeSeries.createDouble("dep", CACHE_INDEX, 1d, 2d);
+        CalculatedTimeSeries calculated = new CalculatedTimeSeries("calc", new TimeSeriesNameNodeCalc("dep"), resolverOf(List.of(dependency)));
+        calculated.synchronize(CACHE_INDEX);
+        try (ExecutorService executor = Executors.newFixedThreadPool(8)) {
+            List<Future<double[]>> futures = new ArrayList<>();
+            for (int i = 0; i < 64; i++) {
+                futures.add(executor.submit(calculated::toArray));
+            }
+            for (Future<double[]> future : futures) {
+                assertArrayEquals(new double[] {1d, 2d}, future.get());
+            }
+        }
     }
 }

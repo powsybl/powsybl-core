@@ -252,4 +252,43 @@ class StringTimeSeriesTest {
         assertEquals(expectedAtIndex6, timeSeries.get(6));
     }
 
+    private static TimeSeriesMetadata cacheTestMetadata() {
+        return new TimeSeriesMetadata("ts", TimeSeriesDataType.STRING, Collections.emptyMap(),
+            RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15)));
+    }
+
+    @Test
+    void testArraysAreComputedOnlyOnceAndCopied() {
+        UncompressedStringDataChunk chunk = Mockito.spy(new UncompressedStringDataChunk(0, new String[] {"a", "b"}));
+        StringTimeSeries ts = new StringTimeSeries(cacheTestMetadata(), chunk);
+
+        String[] values1 = ts.toArray();
+        String[] values2 = ts.toArray();
+        assertArrayEquals(new String[] {"a", "b"}, values1);
+        assertNotSame(values1, values2);
+        Mockito.verify(chunk, Mockito.times(1)).fillBuffer(Mockito.any(CompactStringBuffer.class), Mockito.eq(0));
+
+        values1[0] = "changed";
+        assertArrayEquals(new String[] {"a", "b"}, ts.toArray());
+        ts.toCompactArray()[0] = "changed";
+        assertArrayEquals(new String[] {"a", "b"}, ts.toCompactArray());
+    }
+
+    @Test
+    void testArraysReflectAddedChunk() {
+        StringTimeSeries ts = new StringTimeSeries(cacheTestMetadata());
+        assertArrayEquals(new String[] {null, null}, ts.toArray());
+        assertArrayEquals(new String[0], ts.toCompactArray());
+
+        ts.addChunk(new UncompressedStringDataChunk(1, new String[] {"b"}));
+        assertArrayEquals(new String[] {null, "b"}, ts.toArray());
+        assertArrayEquals(new String[] {"b"}, ts.toCompactArray());
+    }
+
+    @Test
+    void testChunksAreNotModifiableFromOutside() {
+        StringTimeSeries ts = new StringTimeSeries(cacheTestMetadata(), new UncompressedStringDataChunk(0, new String[] {"a", "b"}));
+        List<StringDataChunk> chunks = ts.getChunks();
+        assertThrows(UnsupportedOperationException.class, chunks::clear);
+    }
 }
