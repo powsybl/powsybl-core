@@ -101,19 +101,24 @@ public final class EquipmentExport {
             CgmesExportUtil.writeRdfRoot(context, writer);
             CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, model, context);
 
+            // Write connectivity
             writeConnectivityNodes();
             writeTerminals();
             writeSwitches();
 
+            // Write containers
             writeGeographicalRegions();
             writeSubGeographicalRegions();
             writeSubstations();
             writeBaseVoltages();
             writeVoltageLevels();
+            writeLoadAreas();
+            writeControlAreas();
+
+            // Write equipments
             writeBusbarSections();
             writeLoads();
             writeFictitiousInjections();
-            String loadAreaId = writeLoadGroups();
             writeGenerators();
             writeBatteries();
             writeShuntCompensators();
@@ -121,18 +126,16 @@ public final class EquipmentExport {
             writeLines();
             writeTwoWindingsTransformers();
             writeThreeWindingsTransformers();
-
             writeBoundaryLines();
-            writeHvdcLines();
 
+            // Write HVDC
+            writeHvdcLines();
             writeDcConverterUnits();
             writeDcNodes();
             writeDcSwitches();
             writeDcGrounds();
             writeDcLineSegments();
             writeAcDcConverters();
-
-            writeControlAreas(loadAreaId);
 
             writer.writeEndDocument();
 
@@ -332,10 +335,7 @@ public final class EquipmentExport {
         }
     }
 
-    // We may receive a warning if we define an empty load group,
-    // So we will output only the load groups that have been found during export of loads
-    // one load area and one sub load area is created in any case
-    private String writeLoadGroups() throws XMLStreamException {
+    private void writeLoadAreas() throws XMLStreamException {
         // Write one load area and one sub load area for the whole network
         String loadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), LOAD_AREA);
         String subLoadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), SUB_LOAD_AREA);
@@ -343,24 +343,10 @@ public final class EquipmentExport {
             String baseName = network.getNameOrId();
             CgmesRecords.LoadAreaEq loadArea = new CgmesRecords.LoadAreaEq(loadAreaId, baseName);
             EquipmentWriter.writeLoadArea(loadArea, writer, context);
+
             CgmesRecords.SubLoadAreaEq subLoadArea = new CgmesRecords.SubLoadAreaEq(subLoadAreaId, baseName, loadAreaId);
             EquipmentWriter.writeSubLoadArea(subLoadArea, writer, context);
         }
-
-        for (Map.Entry<String, String> group : loadGroupsByLoadClass.entrySet()) {
-            boolean isConformLoad = CgmesNames.CONFORM_LOAD.equals(group.getKey());
-            String className = isConformLoad ? CgmesNames.CONFORM_LOAD_GROUP : CgmesNames.NONCONFORM_LOAD_GROUP;
-            String groupName = isConformLoad ? "Conform loads" : "NonConform loads";
-            CgmesRecords.LoadGroupEq loadGroupEq = new CgmesRecords.LoadGroupEq(
-                className,
-                group.getValue(),
-                groupName,
-                subLoadAreaId
-            );
-            EquipmentWriter.writeLoadGroup(loadGroupEq, writer, context);
-        }
-
-        return loadAreaId;
     }
 
     private void writeFictitiousInjections() throws XMLStreamException {
@@ -463,15 +449,33 @@ public final class EquipmentExport {
         }
     }
 
-    private String getLoadGroup(String loadClassName) {
+    private String getLoadGroup(String loadClassName) throws XMLStreamException {
         // Only ConformLoad and NonConformLoad belong to a LoadGroup
         if (!CgmesNames.CONFORM_LOAD.equals(loadClassName) && !CgmesNames.NONCONFORM_LOAD.equals(loadClassName)) {
             return null;
         }
 
-        loadGroupsByLoadClass.putIfAbsent(loadClassName, context.getNamingStrategy().getCgmesId(ref(loadClassName), LOAD_GROUP, ref(network)));
-
+        // Get or create load group for that load class
+        if (!loadGroupsByLoadClass.containsKey(loadClassName)) {
+            writeLoadGroup(loadClassName);
+        }
         return loadGroupsByLoadClass.get(loadClassName);
+    }
+
+    private void writeLoadGroup(String loadClassName) throws XMLStreamException {
+        boolean isConformLoad = CgmesNames.CONFORM_LOAD.equals(loadClassName);
+        String groupClassName = isConformLoad ? CgmesNames.CONFORM_LOAD_GROUP : CgmesNames.NONCONFORM_LOAD_GROUP;
+        String groupId = context.getNamingStrategy().getCgmesId(ref(loadClassName), LOAD_GROUP, ref(network));
+        String groupName = isConformLoad ? "Conform loads" : "NonConform loads";
+        String subLoadAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), SUB_LOAD_AREA);
+        CgmesRecords.LoadGroupEq loadGroupEq = new CgmesRecords.LoadGroupEq(
+            groupClassName,
+            groupId,
+            groupName,
+            subLoadAreaId
+        );
+        EquipmentWriter.writeLoadGroup(loadGroupEq, writer, context);
+        loadGroupsByLoadClass.put(loadClassName, groupId);
     }
 
     private String writeLoadResponseCharacteristic(Load load) throws XMLStreamException {
@@ -2063,8 +2067,9 @@ public final class EquipmentExport {
         }
     }
 
-    private void writeControlAreas(String energyAreaId) throws XMLStreamException {
+    private void writeControlAreas() throws XMLStreamException {
         // Log a warning if we are a stand-alone network (an IGM) and no control area is being exported
+        String energyAreaId = context.getNamingStrategy().getCgmesId(refTyped(network), LOAD_AREA);
         long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)).count();
         int numSubnetworks = network.getSubnetworks().size();
         if (numControlAreas == 0 && numSubnetworks == 0) {
