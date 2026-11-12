@@ -88,12 +88,17 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     /**
+     * Add a listener to be notified when the time series is updated.
+     * <p>
      * Listeners are weakly referenced: the caller must keep a strong reference to its listener.
      */
     public void addListener(TimeSeriesStoreListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Remove a listener previously added with {@link #addListener(TimeSeriesStoreListener)}.
+     */
     public void removeListener(TimeSeriesStoreListener listener) {
         listeners.remove(listener);
     }
