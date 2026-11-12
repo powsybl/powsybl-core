@@ -40,7 +40,6 @@ import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
-import static com.powsybl.cgmes.model.CgmesNames.NONCONFORM_LOAD;
 
 /**
  * Export an IIDM network to CGMES Equipment profile.
@@ -50,8 +49,6 @@ import static com.powsybl.cgmes.model.CgmesNames.NONCONFORM_LOAD;
  */
 public final class EquipmentExport {
 
-    private static final String AC_DC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
-    private static final String MONOPOLAR_GROUND_RETURN = "monopolarGroundReturn";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     private final Network network;
@@ -413,9 +410,9 @@ public final class EquipmentExport {
             CgmesRecords.EnergySourceEq energySource = new CgmesRecords.EnergySourceEq(loadId, loadName, equipmentContainerId);
             EquipmentWriter.writeEnergySource(energySource, writer, context);
         } else {
-            String loadGroup = getLoadGroup(NONCONFORM_LOAD);
+            String loadGroup = getLoadGroup(CgmesNames.NONCONFORM_LOAD);
             CgmesRecords.EnergyConsumerEq energyConsumer = new CgmesRecords.EnergyConsumerEq(
-                NONCONFORM_LOAD,
+                CgmesNames.NONCONFORM_LOAD,
                 loadId,
                 loadName,
                 loadGroup,
@@ -447,7 +444,7 @@ public final class EquipmentExport {
                         );
                         EquipmentWriter.writeEnergySource(energySource, writer, context);
                     }
-                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = getLoadGroup(className);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load);
                         CgmesRecords.EnergyConsumerEq energyConsumer = new CgmesRecords.EnergyConsumerEq(
@@ -1765,14 +1762,14 @@ public final class EquipmentExport {
             // - DCNode 1G is connected to a DCGround inside DCConverterUnit 1.
             // - DCNode 2G is connected to a DCGround inside DCConverterUnit 2.
             String dcConverterUnit1 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(1));
-            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation1Id);
+            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", CgmesNames.MONOPOLAR_GROUND_RETURN, substation1Id);
             String dcNode1 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(1));
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1);
             String dcNode1G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("1G"));
             writeDCNode(dcNode1G, line.getNameOrId() + "_1G", dcConverterUnit1);
 
             String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(2));
-            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_2", MONOPOLAR_GROUND_RETURN, substation2Id);
+            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_2", CgmesNames.MONOPOLAR_GROUND_RETURN, substation2Id);
             String dcNode2 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(2));
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2);
             String dcNode2G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("2G"));
@@ -1797,16 +1794,16 @@ public final class EquipmentExport {
             HvdcConverterStation<?> converter = line.getConverterStation1();
             String capabilityCurveId1 = writeVsCapabilityCurve(converter);
             String acdcConverterDcTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL1);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1, converter.getNameOrId() + " 2", converter1Id, dcNode1, 2);
+            writeDcTerminal(CgmesNames.ACDC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1, converter.getNameOrId() + " 2", converter1Id, dcNode1, 2);
             String acdcConverterDcTerminal1G = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL2);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1G, converter.getNameOrId() + " 3", converter1Id, dcNode1G, 3);
+            writeDcTerminal(CgmesNames.ACDC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1G, converter.getNameOrId() + " 3", converter1Id, dcNode1G, 3);
 
             converter = line.getConverterStation2();
             String capabilityCurveId2 = writeVsCapabilityCurve(converter);
             String acdcConverterDcTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL1);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2, converter.getNameOrId() + " 2", converter2Id, dcNode2, 2);
+            writeDcTerminal(CgmesNames.ACDC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2, converter.getNameOrId() + " 2", converter2Id, dcNode2, 2);
             String acdcConverterDcTerminal2G = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL2);
-            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3);
+            writeDcTerminal(CgmesNames.ACDC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3);
 
             CgmesRecords.DCLineSegmentEq dcLineSegment = new CgmesRecords.DCLineSegmentEq(lineId, line.getNameOrId(), line.getR());
             EquipmentWriter.writeDCLineSegment(dcLineSegment, writer, context);
@@ -1915,7 +1912,7 @@ public final class EquipmentExport {
         }
         String aliasType = sequenceNumber == 1 ? ALIAS_DC_TERMINAL1 : ALIAS_DC_TERMINAL2;
         String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcIdentifiable, aliasType);
-        String className = dcIdentifiable instanceof AcDcConverter<?> ? AC_DC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
+        String className = dcIdentifiable instanceof AcDcConverter<?> ? CgmesNames.ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
         writeDcTerminal(className, dcTerminalId, dcIdentifiable.getNameOrId() + " " + sequenceNumber, dcIdentifiableId, dcNodeId, sequenceNumber);
     }
 
@@ -1976,7 +1973,7 @@ public final class EquipmentExport {
                 .count() > 1) {
             return "monopolarMetallicReturn";
         }
-        return MONOPOLAR_GROUND_RETURN;
+        return CgmesNames.MONOPOLAR_GROUND_RETURN;
     }
 
     private void writeDcNodes() throws XMLStreamException {
