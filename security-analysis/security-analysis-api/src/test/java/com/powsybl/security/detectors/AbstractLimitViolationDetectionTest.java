@@ -56,7 +56,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     protected abstract void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
-                                                LimitType limitType, double limitReduction);
+                                                LimitType limitType, double limitScaling);
 
     protected abstract void checkCurrent(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer);
 
@@ -91,7 +91,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     @Test
-    void testLimitReductionOnCurrentPermanentLimit() {
+    void testLimitScalingOnCurrentPermanentLimit() {
         final double i = 460;
         Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = line1.getLimits(LimitType.CURRENT, TwoSides.ONE);
@@ -99,11 +99,11 @@ public abstract class AbstractLimitViolationDetectionTest {
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
-        // no violation if limitReductionValue is 1
+        // no violation if limitScalingValue is 1
         checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 1.0);
         assertTrue(violationsCollector.isEmpty());
 
-        // violation reported if limitReductionValue is 0.9
+        // violation reported if limitScalingValue is 0.9
         checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 0.9);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -111,7 +111,7 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
-                    assertEquals(0.9, l.getLimitReduction(), 0.001);
+                    assertEquals(0.9, l.getLimitScaling(), 0.001);
                 });
     }
 
@@ -161,7 +161,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     @Test
-    void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
+    void testLimitScalingOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = tieLine1.getBoundaryLine(TwoSides.ONE).getCurrentLimits();
@@ -169,11 +169,11 @@ public abstract class AbstractLimitViolationDetectionTest {
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
-        // no violation if limitReduction is 1
+        // no violation if limitScaling is 1
         checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 1.0);
         assertTrue(violationsCollector.isEmpty());
 
-        // violation reported if limitReduction is 0.9
+        // violation reported if limitScaling is 0.9
         checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 0.9);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -181,7 +181,7 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
-                    assertEquals(0.9, l.getLimitReduction(), 0.001);
+                    assertEquals(0.9, l.getLimitScaling(), 0.001);
                 });
     }
 

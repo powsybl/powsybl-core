@@ -127,6 +127,74 @@
         <cim:RegulatingControl.Terminal rdf:resource="#_T2W-Terminal2"/>
     </cim:TapChangerControl>
 
+    <cim:PowerTransformer rdf:ID="_T2W-SYMMETRICAL">
+        <cim:IdentifiedObject.name>T2W-SYMMETRICAL</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_Substation1"/>
+    </cim:PowerTransformer>
+
+    <cim:PowerTransformerEnd rdf:ID="_T2W-SYMMETRICAL-End1">
+        <cim:PowerTransformerEnd.b>0.0</cim:PowerTransformerEnd.b>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.g>0.0</cim:PowerTransformerEnd.g>
+        <cim:IdentifiedObject.name>T2W-SYMMETRICAL-End1</cim:IdentifiedObject.name>
+        <cim:PowerTransformerEnd.r>0.11</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.ratedS>998</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>405</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>5.45</cim:PowerTransformerEnd.x>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_T2W-SYMMETRICAL"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T2W-SYMMETRICAL-Terminal1"/>
+    </cim:PowerTransformerEnd>
+
+    <cim:Terminal rdf:ID="_T2W-SYMMETRICAL-Terminal1">
+        <cim:IdentifiedObject.name>T2W-SYMMETRICAL-Terminal1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_T2W-SYMMETRICAL"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+
+    <cim:PowerTransformerEnd rdf:ID="_T2W-SYMMETRICAL-End2">
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:IdentifiedObject.name>T2W-SYMMETRICAL-End2</cim:IdentifiedObject.name>
+        <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.ratedS>998</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>220</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_BaseVoltage220"/>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_T2W-SYMMETRICAL"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_T2W-SYMMETRICAL-Terminal2"/>
+    </cim:PowerTransformerEnd>
+
+    <cim:Terminal rdf:ID="_T2W-SYMMETRICAL-Terminal2">
+        <cim:IdentifiedObject.name>T2W-SYMMETRICAL-Terminal2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_T2W-SYMMETRICAL"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+
+    <cim:PhaseTapChangerSymmetrical rdf:ID="_T2W-SYMMETRICAL-PhaseTapChanger">
+        <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
+        <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+        <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+        <cim:IdentifiedObject.name>T2W-SYMMETRICAL-PhaseTapChanger</cim:IdentifiedObject.name>
+        <cim:TapChanger.neutralStep>13</cim:TapChanger.neutralStep>
+        <cim:TapChanger.neutralU>400</cim:TapChanger.neutralU>
+        <cim:TapChanger.normalStep>10</cim:TapChanger.normalStep>
+        <cim:PhaseTapChangerNonLinear.voltageStepIncrement>1.25</cim:PhaseTapChangerNonLinear.voltageStepIncrement>
+        <cim:PhaseTapChangerNonLinear.xMax>16.93872</cim:PhaseTapChangerNonLinear.xMax>
+        <cim:PhaseTapChangerNonLinear.xMin>14.5189</cim:PhaseTapChangerNonLinear.xMin>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_T2W-SYMMETRICAL-PhaseTapChanger-Control" />
+        <cim:PhaseTapChanger.TransformerEnd rdf:resource="#_T2W-SYMMETRICAL-End1" />
+    </cim:PhaseTapChangerSymmetrical>
+
+    <cim:TapChangerControl rdf:ID="_T2W-SYMMETRICAL-PhaseTapChanger-Control">
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.activePower"/>
+        <cim:IdentifiedObject.name>TT2W-SYMMETRICAL-PhaseTapChanger-Control</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.Terminal rdf:resource="#_T2W-SYMMETRICAL-Terminal2"/>
+    </cim:TapChangerControl>
+
     <cim:PowerTransformer rdf:ID="_T3W">
         <cim:IdentifiedObject.name>T3W</cim:IdentifiedObject.name>
         <cim:Equipment.EquipmentContainer rdf:resource="#_Substation1"/>

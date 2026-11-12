@@ -8,12 +8,16 @@
 package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,8 @@ import java.util.OptionalInt;
 
 class GeneratorConverter extends AbstractConverter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorConverter.class);
+
     GeneratorConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
@@ -36,26 +42,41 @@ class GeneratorConverter extends AbstractConverter {
         GeneratorModel generatorModel = GeneratorModel.create(elmSym);
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
-        Generator g = vl.newGenerator()
-                .setId(getId(elmSym))
+        boolean voltageRegulatorOn = generatorModel.voltageRegulatorOn;
+
+        String generatorId = getId(elmSym);
+        GeneratorAdder gAdder = vl.newGenerator()
+                .setId(generatorId)
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setTargetP(generatorModel.targetP)
-                .setTargetQ(generatorModel.targetQ)
-                .setTargetV(generatorModel.targetVpu * vl.getNominalV())
-                .setVoltageRegulatorOn(generatorModel.voltageRegulatorOn)
+                .setLocalTargetQ(generatorModel.targetQ)
+                .setLocalTargetV(generatorModel.targetVpu * vl.getNominalV())
                 .setMinP(generatorModel.minP)
-                .setMaxP(generatorModel.maxP)
+                .setMaxP(generatorModel.maxP);
+        if (voltageRegulatorOn) {
+            gAdder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
                 .add();
-
-        Optional<List<CapabilityCurvePoint>> capabitlityCurve = CapabilityCurvePoint.create(elmSym);
-        if (capabitlityCurve.isPresent()) {
+        }
+        Generator g = gAdder.add();
+        Optional<List<CapabilityCurvePoint>> capabilityCurve = CapabilityCurvePoint.create(elmSym);
+        if (capabilityCurve.isPresent()) {
             ReactiveCapabilityCurveAdder adder = g.newReactiveCapabilityCurve();
-            capabitlityCurve.get().forEach(capabitlityCurvePoint -> adder.beginPoint()
-                .setP(capabitlityCurvePoint.p)
-                .setMinQ(capabitlityCurvePoint.qMin)
-                .setMaxQ(capabitlityCurvePoint.qMax)
-                .endPoint());
+            capabilityCurve.get().forEach(capabilityCurvePoint -> {
+                double qMin = capabilityCurvePoint.qMin;
+                double qMax = capabilityCurvePoint.qMax;
+                if (qMax < qMin) {
+                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swapping values", generatorId, qMin, qMax);
+                    qMin = capabilityCurvePoint.qMax;
+                    qMax = capabilityCurvePoint.qMin;
+                }
+                adder.beginPoint()
+                        .setP(capabilityCurvePoint.p)
+                        .setMinQ(qMin)
+                        .setMaxQ(qMax)
+                        .endPoint();
+            });
             adder.add();
         } else {
             ReactiveLimits.create(elmSym).ifPresent(reactiveLimits -> g.newMinMaxReactiveLimits()

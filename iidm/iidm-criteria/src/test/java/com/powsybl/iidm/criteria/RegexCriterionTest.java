@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -120,6 +121,16 @@ class RegexCriterionTest {
 
         @Override
         public <E extends Extension<MaliciousIdentifiable>> boolean removeExtension(Class<E> type) {
+            return false;
+        }
+
+        @Override
+        public Stream<Extension<MaliciousIdentifiable>> getExtensionsStream() {
+            return Stream.empty();
+        }
+
+        @Override
+        public boolean hasExtensions() {
             return false;
         }
 

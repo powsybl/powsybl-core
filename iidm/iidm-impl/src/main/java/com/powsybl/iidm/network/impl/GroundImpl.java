@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.Ground;
 class GroundImpl extends AbstractConnectable<Ground> implements Ground {
 
     GroundImpl(Ref<NetworkImpl> networkRef,
-               String id, String name) {
-        super(networkRef, id, name, false);
+               String id, String name, boolean equivalent) {
+        super(networkRef, id, name, false, equivalent);
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamConstants;
@@ -35,11 +36,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Summary from CGM Building Process Implementation Guide:
@@ -580,6 +581,153 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertEquals(Set.of("mySvDependency1", "mySvDependency2"), getUniqueMatches(outputSvXml, REGEX_DEPENDENT_ON));
     }
 
+    @Test
+    void testCgmExportWithTpProfileForCGM() throws IOException {
+        // Create a node breaker network with two subnetworks
+        Network network = nodeBreakerNetwork2Subnetworks();
+
+        // Perform a CGM export with TP profile export for the CGM enabled and check the exported files
+        Properties exportParamsTp = new Properties();
+        exportParamsTp.put(CgmesExport.CGM_EXPORT, true);
+        exportParamsTp.put(CgmesExport.CGM_EXPORT_WITH_TP, "CGM");
+        String basenameTp = "test_cgm_with_tp";
+        network.write("CGMES", exportParamsTp, tmpDir.resolve(basenameTp));
+        checkCGMExportWithCGMTp(basenameTp, Optional.empty());
+
+        // Perform a CGM export with TP profile enabled for the CGM and explicit boundary TP id and read the exported files
+        String explicitBoundaryTpBdId = "myBoundaryTpId";
+        Properties exportParamsTpTpBdExplicit = new Properties();
+        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT, true);
+        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT_WITH_TP, "CGM");
+        exportParamsTpTpBdExplicit.put(CgmesExport.BOUNDARY_TP_ID, explicitBoundaryTpBdId);
+        String basenameTpTpBdExplicit = "test_cgm_with_tp_and_tp_bd_explicit";
+        network.write("CGMES", exportParamsTpTpBdExplicit, tmpDir.resolve(basenameTpTpBdExplicit));
+        checkCGMExportWithCGMTp(basenameTpTpBdExplicit, Optional.of(explicitBoundaryTpBdId));
+
+        // When CGM_EXPORT_WITH_TP is empty (the default), no TP files should be exported
+        Properties exportParamsNoTp = new Properties();
+        exportParamsNoTp.put(CgmesExport.CGM_EXPORT, true);
+        String basenameNoTp = "test_cgm_without_tp";
+        network.write("CGMES", exportParamsNoTp, tmpDir.resolve(basenameNoTp));
+        assertFalse(Files.exists(tmpDir.resolve(basenameNoTp + "_BE_TP.xml")));
+        assertFalse(Files.exists(tmpDir.resolve(basenameNoTp + "_NL_TP.xml")));
+    }
+
+    @Test
+    void testCgmExportWithTpProfileForEachIGM() throws IOException {
+        // Create a node breaker network with two subnetworks
+        Network network = nodeBreakerNetwork2Subnetworks();
+
+        // Perform a CGM export with TP profile export for the CGM enabled and check the exported files
+        Properties exportParamsTp = new Properties();
+        exportParamsTp.put(CgmesExport.CGM_EXPORT, true);
+        exportParamsTp.put(CgmesExport.CGM_EXPORT_WITH_TP, "IGM");
+        String basenameTp = "test_cgm_with_tp";
+        network.write("CGMES", exportParamsTp, tmpDir.resolve(basenameTp));
+        checkCGMExportWithIGMTp(basenameTp, Optional.empty());
+
+        // Perform a CGM export with TP profile enabled for the CGM and explicit boundary TP id and read the exported files
+        String explicitBoundaryTpBdId = "myBoundaryTpId";
+        Properties exportParamsTpTpBdExplicit = new Properties();
+        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT, true);
+        exportParamsTpTpBdExplicit.put(CgmesExport.CGM_EXPORT_WITH_TP, "IGM");
+        exportParamsTpTpBdExplicit.put(CgmesExport.BOUNDARY_TP_ID, explicitBoundaryTpBdId);
+        String basenameTpTpBdExplicit = "test_cgm_with_tp_and_tp_bd_explicit";
+        network.write("CGMES", exportParamsTpTpBdExplicit, tmpDir.resolve(basenameTpTpBdExplicit));
+        checkCGMExportWithIGMTp(basenameTpTpBdExplicit, Optional.of(explicitBoundaryTpBdId));
+
+        // When CGM_EXPORT_WITH_TP is empty (the default), no TP files should be exported
+        Properties exportParamsNoTp = new Properties();
+        exportParamsNoTp.put(CgmesExport.CGM_EXPORT, true);
+        String basenameNoTp = "test_cgm_without_tp";
+        network.write("CGMES", exportParamsNoTp, tmpDir.resolve(basenameNoTp));
+        assertFalse(Files.exists(tmpDir.resolve(basenameNoTp + "_BE_TP.xml")));
+        assertFalse(Files.exists(tmpDir.resolve(basenameNoTp + "_NL_TP.xml")));
+    }
+
+    private void checkCGMExportWithCGMTp(String basename, Optional<String> explicitTpBdId) throws IOException {
+        String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
+        String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
+        String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
+        String updatedTpXml = Files.readString(tmpDir.resolve(basename + "_TP.xml"));
+
+        // Scenario time should be the same for all models
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedCgmSvXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedTpXml, REGEX_SCENARIO_TIME));
+
+        // Profiles should be consistent with the instance files
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedNlSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getFirstMatch(updatedCgmSvXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedTpXml, REGEX_PROFILE));
+
+        // Dependency check
+        // The updated TPs should depend on the original EQ model and on the original TP_BD model
+        // The updated SV model should depend on the updated TP models
+        // Here the version number part of the id 1 for original models and 2 for updated ones
+        String originalBeEqId = "urn:uuid:Network_BE_N_EQUIPMENT_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlEqId = "urn:uuid:Network_NL_N_EQUIPMENT_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        Set<String> expectedDependenciesTp = new HashSet<>(Set.of(originalBeEqId, originalNlEqId));
+        if (explicitTpBdId.isEmpty()) {
+            expectedDependenciesTp.add(originalBeTpBdId);
+            expectedDependenciesTp.add(originalNlTpBdId);
+        } else {
+            expectedDependenciesTp.add(explicitTpBdId.get());
+        }
+        assertEquals(expectedDependenciesTp, getUniqueMatches(updatedTpXml, REGEX_DEPENDENT_ON));
+        String updatedTpId = "urn:uuid:Network_BE+Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedTpId));
+    }
+
+    private void checkCGMExportWithIGMTp(String basename, Optional<String> explicitTpBdId) throws IOException {
+        String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
+        String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
+        String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
+        String updatedBeTpXml = Files.readString(tmpDir.resolve(basename + "_BE_TP.xml"));
+        String updatedNlTpXml = Files.readString(tmpDir.resolve(basename + "_NL_TP.xml"));
+
+        // Scenario time should be the same for all models
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedCgmSvXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedBeTpXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstMatch(updatedNlTpXml, REGEX_SCENARIO_TIME));
+
+        // Profiles should be consistent with the instance files
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedNlSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getFirstMatch(updatedCgmSvXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedBeTpXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedNlTpXml, REGEX_PROFILE));
+
+        // Dependency check
+        // The updated TPs should depend on the original EQ model and on the original TP_BD model
+        // The updated SV model should depend on the updated TP models
+        // Here the version number part of the id 1 for original models and 2 for updated ones
+        String originalBeEqId = "urn:uuid:Network_BE_N_EQUIPMENT_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlEqId = "urn:uuid:Network_NL_N_EQUIPMENT_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        Set<String> expectedDependenciesBeTp = Set.of(originalBeEqId, explicitTpBdId.orElse(originalBeTpBdId));
+        assertEquals(expectedDependenciesBeTp, getUniqueMatches(updatedBeTpXml, REGEX_DEPENDENT_ON));
+        Set<String> expectedDependenciesNlTp = Set.of(originalNlEqId, explicitTpBdId.orElse(originalNlTpBdId));
+        assertEquals(expectedDependenciesNlTp, getUniqueMatches(updatedNlTpXml, REGEX_DEPENDENT_ON));
+        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedBeTpId));
+        assertTrue(getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON).contains(updatedNlTpId));
+
+        // TP should supersede the original model
+        String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
+        assertEquals(originalBeTpId, getFirstMatch(updatedBeTpXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlTpId, getFirstMatch(updatedNlTpXml, REGEX_SUPERSEDES));
+    }
+
     private static final Map<Country, String> TSO_BY_COUNTRY = Map.of(
             Country.BE, "Elia",
             Country.NL, "Tennet");
@@ -634,6 +782,34 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    private Network nodeBreakerNetwork2Subnetworks() {
+        Network network1 = Network.create("Network_BE", "test");
+        network1.setCaseDate(ZonedDateTime.parse("2021-02-03T04:30:00.000+00:00"));
+        Substation substation1 = network1.newSubstation().setId("Substation_BE").setCountry(Country.BE).add();
+        VoltageLevel vl1 = substation1.newVoltageLevel()
+                .setId("VoltageLevel_BE")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().newBusbarSection().setId("BusbarSection_BE").setNode(0).add();
+        vl1.newLoad().setId("Load_BE").setNode(1).setP0(100.0).setQ0(10.0).add();
+        vl1.getNodeBreakerView().newBreaker().setId("Breaker_BE").setNode1(0).setNode2(1).setOpen(false).add();
+
+        Network network2 = Network.create("Network_NL", "test");
+        network2.setCaseDate(ZonedDateTime.parse("2021-02-03T04:30:00.000+00:00"));
+        Substation substation2 = network2.newSubstation().setId("Substation_NL").setCountry(Country.NL).add();
+        VoltageLevel vl2 = substation2.newVoltageLevel()
+                .setId("VoltageLevel_NL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection().setId("BusbarSection_NL").setNode(0).add();
+        vl2.newLoad().setId("Load_NL").setNode(1).setP0(100.0).setQ0(10.0).add();
+        vl2.getNodeBreakerView().newBreaker().setId("Breaker_NL").setNode1(0).setNode2(1).setOpen(false).add();
+
+        return Network.merge(network1, network2);
     }
 
     private Network bareNetwork2Subnetworks() {
@@ -706,6 +882,129 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .addProfile("http://entsoe.eu/CIM/TopologyBoundary/3/1")
                 .add()
                 .add();
+    }
+
+    @Test
+    void testCgmExportLoadGroupsAndOperationalLimitTypesHaveDifferentIds() throws IOException {
+        // Create a network with two subnetworks, each with a NonConformLoad and a line with current limits
+        Network network = networkWithLoadsAndLimits2Subnetworks();
+
+        // Export each subnetwork EQ independently (as IGM)
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.CGM_EXPORT, false);
+        exportParams.put(CgmesExport.PROFILES, List.of("EQ"));
+
+        String beEqXml = writeCgmesProfile(network.getSubnetwork("Network_BE"), "EQ", tmpDir, exportParams);
+        String nlEqXml = writeCgmesProfile(network.getSubnetwork("Network_NL"), "EQ", tmpDir, exportParams);
+
+        // Each EQ file must contain exactly one NonConformLoadGroup
+        Set<String> beLoadGroups = getElements(beEqXml, "NonConformLoadGroup");
+        Set<String> nlLoadGroups = getElements(nlEqXml, "NonConformLoadGroup");
+        assertEquals(1, beLoadGroups.size());
+        assertEquals(1, nlLoadGroups.size());
+
+        // Each EQ file must contain one OperationalLimitType for the PATL and two OperationalLimitType for the TATL
+        Set<String> beOpLimitTypes = getElements(beEqXml, "OperationalLimitType");
+        Set<String> bePatlOpLimitTypes = beOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("PATL_"))
+                .collect(Collectors.toSet());
+        Set<String> beTatlOpLimitTypes = beOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("TATL_"))
+                .collect(Collectors.toSet());
+        Set<String> nlOpLimitTypes = getElements(nlEqXml, "OperationalLimitType");
+        Set<String> nlPatlOpLimitTypes = nlOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("PATL_"))
+                .collect(Collectors.toSet());
+        Set<String> nlTatlOpLimitTypes = nlOpLimitTypes.stream()
+                .filter(e -> getIdentifier(e).startsWith("TATL_"))
+                .collect(Collectors.toSet());
+
+        assertEquals(1, bePatlOpLimitTypes.size());
+        assertEquals(2, beTatlOpLimitTypes.size());
+        assertEquals(1, nlPatlOpLimitTypes.size());
+        assertEquals(2, nlTatlOpLimitTypes.size());
+
+        // The LoadGroup IDs and OperationalLimitType IDs must be different between the two IGMs
+        assertTrue(Collections.disjoint(beLoadGroups, nlLoadGroups));
+        assertTrue(Collections.disjoint(bePatlOpLimitTypes, nlPatlOpLimitTypes));
+        assertTrue(Collections.disjoint(beTatlOpLimitTypes, nlTatlOpLimitTypes));
+    }
+
+    private Network networkWithLoadsAndLimits2Subnetworks() {
+        // Create two subnetworks each with a NonConformLoad and a line with current limits
+        Network network1 = Network.create("Network_BE", "test");
+        network1.setCaseDate(ZonedDateTime.parse("2021-02-03T04:30:00.000+00:00"));
+        Substation s1 = network1.newSubstation().setId("Substation_BE").setCountry(Country.BE).add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL_BE").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1.getBusBreakerView().newBus().setId("Bus_BE").add();
+        Load load1 = vl1.newLoad().setId("Load_BE").setConnectableBus("Bus_BE").setBus("Bus_BE").setP0(100.0).setQ0(50.0).add();
+        // Make the load a NonConformLoad by setting the LoadDetail extension with fixed part only
+        load1.newExtension(LoadDetailAdder.class)
+                .withFixedActivePower(100.0)
+                .withFixedReactivePower(50.0)
+                .withVariableActivePower(0.0)
+                .withVariableReactivePower(0.0)
+                .add();
+        // Add a line with current limits within the subnetwork
+        Substation s1b = network1.newSubstation().setId("Substation_BE2").setCountry(Country.BE).add();
+        VoltageLevel vl1b = s1b.newVoltageLevel().setId("VL_BE2").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl1b.getBusBreakerView().newBus().setId("Bus_BE2").add();
+        network1.newLine().setId("Line_BE")
+                .setVoltageLevel1("VL_BE").setBus1("Bus_BE")
+                .setVoltageLevel2("VL_BE2").setBus2("Bus_BE2")
+                .setR(1.0).setX(10.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add()
+                .newOperationalLimitsGroup1("OLG_BE_1")
+                .newCurrentLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("OLG_BE_T_1")
+                .setAcceptableDuration(10)
+                .setValue(1100.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("OLG_BE_T_2")
+                .setAcceptableDuration(5)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .add();
+
+        Network network2 = Network.create("Network_NL", "test");
+        network2.setCaseDate(ZonedDateTime.parse("2021-02-03T04:30:00.000+00:00"));
+        Substation s2 = network2.newSubstation().setId("Substation_NL").setCountry(Country.NL).add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("VL_NL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl2.getBusBreakerView().newBus().setId("Bus_NL").add();
+        Load load2 = vl2.newLoad().setId("Load_NL").setConnectableBus("Bus_NL").setBus("Bus_NL").setP0(100.0).setQ0(50.0).add();
+        // Make the load a NonConformLoad by setting the LoadDetail extension with fixed part only
+        load2.newExtension(LoadDetailAdder.class)
+                .withFixedActivePower(100.0)
+                .withFixedReactivePower(50.0)
+                .withVariableActivePower(0.0)
+                .withVariableReactivePower(0.0)
+                .add();
+        // Add a line with current limits within the subnetwork
+        Substation s2b = network2.newSubstation().setId("Substation_NL2").setCountry(Country.NL).add();
+        VoltageLevel vl2b = s2b.newVoltageLevel().setId("VL_NL2").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl2b.getBusBreakerView().newBus().setId("Bus_NL2").add();
+        network2.newLine().setId("Line_NL")
+                .setVoltageLevel1("VL_NL").setBus1("Bus_NL")
+                .setVoltageLevel2("VL_NL2").setBus2("Bus_NL2")
+                .setR(1.0).setX(10.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add()
+                .newOperationalLimitsGroup1("OLG_NL_1")
+                .newCurrentLimits()
+                .setPermanentLimit(1000.0)
+                .beginTemporaryLimit()
+                .setName("OLG_NL_T_1")
+                .setAcceptableDuration(10)
+                .setValue(1100.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("OLG_NL_T_2")
+                .setAcceptableDuration(5)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .add();
+
+        return Network.merge(network1, network2);
     }
 
     private void addModelForNetwork(Network network, int version) {
