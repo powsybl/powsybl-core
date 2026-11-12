@@ -14,6 +14,68 @@ package com.powsybl.iidm.network;
  * <div>
  *    <object data="doc-files/line.svg" type="image/svg+xml"></object>
  * </div>
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Default value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">R</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The series resistance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">X</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The series reactance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">G1</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The first side shunt conductance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">B1</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The first side shunt susceptance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">G2</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The second side shunt conductance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">B2</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The second side shunt susceptance</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
  * To create a line, see {@link LineAdder}
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

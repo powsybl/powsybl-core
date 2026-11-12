@@ -19,12 +19,14 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.iidm.modification.TestUtils.assertConnectablePositionEquals;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -259,9 +261,22 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportAttachVoltageLevelOnLineNbTest")
                 .build();
+        Line line = network.getLine("CJ");
+        line.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                .withName("feeder1")
+                .withDirection(ConnectablePosition.Direction.TOP)
+                .withOrder(1)
+                .add()
+                .newFeeder2()
+                .withName("feeder2")
+                .withDirection(ConnectablePosition.Direction.BOTTOM)
+                .withOrder(3)
+                .add()
+            .add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
-                .withLine(network.getLine("CJ"))
+                .withLine(line)
                 .withPositionForNewLine1(5)
                 .withPositionForNewLine2(10)
                 .build();
@@ -270,22 +285,19 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertNotNull(line1);
         ConnectablePosition<Line> connectablePosition = line1.getExtension(ConnectablePosition.class);
         assertNotNull(connectablePosition);
+        // side one identical to side one of the split line CJ
+        assertConnectablePositionEquals("feeder1", 1, ConnectablePosition.Direction.TOP, connectablePosition.getFeeder1());
+
+        // side two defined in the modification
         assertNotNull(connectablePosition.getFeeder2());
-        assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder2().getDirection());
-        assertTrue(connectablePosition.getFeeder2().getOrder().isPresent());
-        assertEquals(5, connectablePosition.getFeeder2().getOrder().get());
-        assertTrue(connectablePosition.getFeeder2().getName().isPresent());
-        assertEquals("CJ_1", connectablePosition.getFeeder2().getName().get());
+        assertConnectablePositionEquals("CJ_1", 5, ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder2());
 
         Line line2 = network.getLine("CJ_2");
         assertNotNull(line2);
         connectablePosition = line2.getExtension(ConnectablePosition.class);
         assertNotNull(connectablePosition);
-        assertNotNull(connectablePosition.getFeeder1());
-        assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder1().getDirection());
-        assertTrue(connectablePosition.getFeeder1().getOrder().isPresent());
-        assertEquals(10, connectablePosition.getFeeder1().getOrder().get());
-        assertTrue(connectablePosition.getFeeder1().getName().isPresent());
-        assertEquals("CJ_2", connectablePosition.getFeeder1().getName().get());
+
+        assertConnectablePositionEquals("CJ_2", 10, ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder1());
+        assertConnectablePositionEquals("feeder2", 3, ConnectablePosition.Direction.BOTTOM, connectablePosition.getFeeder2());
     }
 }
