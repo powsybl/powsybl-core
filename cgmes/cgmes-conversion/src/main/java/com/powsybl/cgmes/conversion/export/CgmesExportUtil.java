@@ -148,40 +148,26 @@ public final class CgmesExportUtil {
                 subset.getIdentifier(),
                 network.getId()
         );
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
-        writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
-        writer.writeCharacters(DATE_TIME_FORMATTER.format(ZonedDateTime.now()));
-        writer.writeEndElement();
+        writeAttribute(MD_NAMESPACE, CgmesNames.SCENARIO_TIME, DATE_TIME_FORMATTER.format(context.getScenarioTime()), writer);
+        writeAttribute(MD_NAMESPACE, CgmesNames.CREATED, DATE_TIME_FORMATTER.format(ZonedDateTime.now()), writer);
         if (modelDescription.getDescription() != null) {
-            writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
-            writer.writeCharacters(modelDescription.getDescription());
-            writer.writeEndElement();
+            writeAttribute(MD_NAMESPACE, CgmesNames.DESCRIPTION, modelDescription.getDescription(), writer);
         }
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(format(modelDescription.getVersion()));
-        writer.writeEndElement();
+        writeAttribute(MD_NAMESPACE, CgmesNames.VERSION, format(modelDescription.getVersion()), writer);
         for (String dependentOn : modelDescription.getDependentOn()) {
-            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependentOn);
+            writeResource(CgmesNames.DEPENDENT_ON, MD_NAMESPACE, dependentOn, writer);
         }
         for (String supersedes : modelDescription.getSupersedes()) {
-            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, supersedes);
+            writeResource(CgmesNames.SUPERSEDES, MD_NAMESPACE, supersedes, writer);
         }
         if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER && context.getCimVersion() < 100) {
             // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
             modelDescription.addProfiles(List.of(context.getCim().getProfileUri("EQ_OP")));
         }
         for (String profile : modelDescription.getProfiles()) {
-            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-            writer.writeCharacters(profile);
-            writer.writeEndElement();
+            writeAttribute(MD_NAMESPACE, CgmesNames.PROFILE, profile, writer);
         }
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
-        writer.writeCharacters(modelDescription.getModelingAuthoritySet());
-        writer.writeEndElement();
+        writeAttribute(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET, modelDescription.getModelingAuthoritySet(), writer);
         writer.writeEndElement();
     }
 
