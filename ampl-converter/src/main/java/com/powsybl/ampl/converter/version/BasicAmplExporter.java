@@ -632,32 +632,34 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
     @Override
     public void writeBusesColumnsToFormatter(TableFormatter formatter, Bus b) throws IOException {
-        int ccNum = ConnectedComponents.getCcNum(b);
-        String id = b.getId();
-        VoltageLevel vl = b.getVoltageLevel();
-        int num = mapper.getInt(AmplSubset.BUS, id);
-        int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
-        double nomV = vl.getNominalV();
-        double v = b.getV() / nomV;
-        double theta = Math.toRadians(b.getAngle());
-        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
-        formatterHelper.addCell(variantIndex)
-            .addCell(num)
-            .addCell(vlNum)
-            .addCell(ccNum)
-            .addCell(v)
-            .addCell(theta)
-            .addCell(b.getP())
-            .addCell(b.getQ())
-            .addCell(faultNum)
-            .addCell(actionNum)
-            .addCell(id);
+        if (b != null) {
+            int ccNum = ConnectedComponents.getCcNum(b);
+            String id = b.getId();
+            VoltageLevel vl = b.getVoltageLevel();
+            int num = mapper.getInt(AmplSubset.BUS, id);
+            int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
+            double nomV = vl.getNominalV();
+            double v = b.getV() / nomV;
+            double theta = Math.toRadians(b.getAngle());
+            TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+            formatterHelper.addCell(variantIndex)
+                .addCell(num)
+                .addCell(vlNum)
+                .addCell(ccNum)
+                .addCell(v)
+                .addCell(theta)
+                .addCell(b.getP())
+                .addCell(b.getQ())
+                .addCell(faultNum)
+                .addCell(actionNum)
+                .addCell(id);
 
-        // Add cells if necessary
-        addAdditionalCellsBusesColumns(formatterHelper, b);
+            // Add cells if necessary
+            addAdditionalCellsBusesColumns(formatterHelper, b);
 
-        // Write the cells
-        formatterHelper.write();
+            // Write the cells
+            formatterHelper.write();
+        }
     }
 
     public void addAdditionalCellsBusesColumns(TableFormatterHelper formatterHelper, Bus b) {
