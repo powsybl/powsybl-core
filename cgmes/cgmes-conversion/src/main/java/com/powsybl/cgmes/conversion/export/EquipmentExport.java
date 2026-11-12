@@ -844,7 +844,7 @@ public final class EquipmentExport {
                             section,
                             context.getNamingStrategy().getCgmesId(s)
                         );
-                        EquipmentWriter.writeNontLinearShuntCompensatorPoint(point, writer, context);
+                        EquipmentWriter.writeNonLinearShuntCompensatorPoint(point, writer, context);
                         b = s.getB(section);
                         g = s.getG(section);
                     }
