@@ -71,6 +71,7 @@ public final class CgmesNames {
     public static final String DC_TERMINAL1 = "DCTerminal1";
     public static final String DC_TERMINAL2 = "DCTerminal2";
     public static final String RATED_UDC = "ratedUdc";
+    public static final String MONOPOLAR_GROUND_RETURN = "monopolarGroundReturn";
 
     public static final String B_PER_SECTION = "bPerSection";
 
