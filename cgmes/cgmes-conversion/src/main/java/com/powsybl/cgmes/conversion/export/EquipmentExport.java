@@ -59,7 +59,7 @@ public final class EquipmentExport {
     private final Set<String> regulatingControlsWritten;
     private final Set<String> generatingUnitsWritten;
     private final Set<String> exportedLimitTypes;
-    private final LoadGroups loadGroups;
+    private final Map<String, String> loadGroupsByLoadClass;
     private final Map<AcDcConverter<?>, DCConverterUnit> dcConvertersToUnit;
 
     public EquipmentExport(Network network, XMLStreamWriter writer, CgmesExportContext context) {
@@ -70,7 +70,7 @@ public final class EquipmentExport {
         regulatingControlsWritten = new HashSet<>();
         generatingUnitsWritten = new HashSet<>();
         exportedLimitTypes = new HashSet<>();
-        loadGroups = new LoadGroups();
+        loadGroupsByLoadClass = new HashMap<>();
         dcConvertersToUnit = new HashMap<>();
     }
 
@@ -328,15 +328,20 @@ public final class EquipmentExport {
             CgmesRecords.SubLoadAreaEq subLoadArea = new CgmesRecords.SubLoadAreaEq(subLoadAreaId, baseName, loadAreaId);
             EquipmentWriter.writeSubLoadArea(subLoadArea, writer, context);
         }
-        for (LoadGroup loadGroup : loadGroups.found()) {
+
+        for (Map.Entry<String, String> group : loadGroupsByLoadClass.entrySet()) {
+            boolean isConformLoad = CgmesNames.CONFORM_LOAD.equals(group.getKey());
+            String className = isConformLoad ? CgmesNames.CONFORM_LOAD_GROUP : CgmesNames.NONCONFORM_LOAD_GROUP;
+            String groupName = isConformLoad ? "Conform loads" : "NonConform loads";
             CgmesRecords.LoadGroupEq loadGroupEq = new CgmesRecords.LoadGroupEq(
-                loadGroup.className,
-                loadGroup.id,
-                loadGroup.name,
+                className,
+                group.getValue(),
+                groupName,
                 subLoadAreaId
             );
             EquipmentWriter.writeLoadGroup(loadGroupEq, writer, context);
         }
+
         return loadAreaId;
     }
 
@@ -387,7 +392,7 @@ public final class EquipmentExport {
             CgmesRecords.EnergySourceEq energySource = new CgmesRecords.EnergySourceEq(loadId, loadName, equipmentContainerId);
             EquipmentWriter.writeEnergySource(energySource, writer, context);
         } else {
-            String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context, network);
+            String loadGroup = getLoadGroup(NONCONFORM_LOAD);
             CgmesRecords.EnergyConsumerEq energyConsumer = new CgmesRecords.EnergyConsumerEq(
                 NONCONFORM_LOAD,
                 loadId,
@@ -422,7 +427,7 @@ public final class EquipmentExport {
                         EquipmentWriter.writeEnergySource(energySource, writer, context);
                     }
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
-                        String loadGroup = loadGroups.groupFor(className, context, network);
+                        String loadGroup = getLoadGroup(className);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load);
                         CgmesRecords.EnergyConsumerEq energyConsumer = new CgmesRecords.EnergyConsumerEq(
                             className,
@@ -438,6 +443,17 @@ public final class EquipmentExport {
                 }
             }
         }
+    }
+
+    private String getLoadGroup(String loadClassName) {
+        // Only ConformLoad and NonConformLoad belong to a LoadGroup
+        if (!CgmesNames.CONFORM_LOAD.equals(loadClassName) && !CgmesNames.NONCONFORM_LOAD.equals(loadClassName)) {
+            return null;
+        }
+
+        loadGroupsByLoadClass.putIfAbsent(loadClassName, context.getNamingStrategy().getCgmesId(ref(loadClassName), LOAD_GROUP, ref(network)));
+
+        return loadGroupsByLoadClass.get(loadClassName);
     }
 
     private String writeLoadResponseCharacteristic(Load load) throws XMLStreamException {
