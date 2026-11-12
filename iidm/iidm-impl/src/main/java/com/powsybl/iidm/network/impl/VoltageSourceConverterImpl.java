@@ -183,7 +183,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         localTargetQ.remove(localTargetQ.size() - number, number);
         localTargetV.remove(localTargetV.size() - number, number);
         if (voltageRegulation != null) {
-            voltageRegulation.deleteVariantArrayElement(number);
+            voltageRegulation.reduceVariantArraySize(number);
         }
     }
 
