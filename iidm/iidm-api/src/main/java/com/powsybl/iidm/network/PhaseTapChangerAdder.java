@@ -27,4 +27,12 @@ public interface PhaseTapChangerAdder extends TapChangerAdder<
     PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode);
 
     PhaseTapChangerAdder setRegulationValue(double regulationValue);
+
+    PhaseTapChangerAdder setRegulating(boolean regulating);
+
+    PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
+
+    default PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -23,10 +25,16 @@ import static java.lang.Integer.MAX_VALUE;
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends AbstractBasePropertiesHolder implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
+    private final NetworkImpl network;
+    Supplier<OperationalLimitsGroupImpl> groupSupplier;
+
     protected final Validable validable;
     private final String ownerId;
 
+    protected String permanentLimitName;
     protected double permanentLimit = Double.NaN;
+    protected DetectionKind detectionKind = DetectionKind.HIGH;
+    protected final String operationalGroupId;
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
@@ -81,19 +89,19 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         @Override
         public B endTemporaryLimit() {
             if (Double.isNaN(value)) {
-                throw new ValidationException(validable, "temporary limit value is not set");
+                throw new ValidationException(validable, "temporary limit value is not set for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             if (value < 0) {
-                throw new ValidationException(validable, "temporary limit value must be >= 0");
+                throw new ValidationException(validable, "temporary limit value must be >= 0 for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             if (value == 0) {
                 LOGGER.info("{}temporary limit value is set to 0", validable.getMessageHeader());
             }
             if (acceptableDuration == null) {
-                throw new ValidationException(validable, "acceptable duration is not set");
+                throw new ValidationException(validable, "acceptable duration is not set for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             if (acceptableDuration < 0) {
-                throw new ValidationException(validable, "acceptable duration must be >= 0");
+                throw new ValidationException(validable, "acceptable duration must be >= 0 for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             checkAndGetUniqueName();
             AbstractLoadingLimits.TemporaryLimitImpl temporaryLimit = new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious);
@@ -122,14 +130,49 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
     }
 
-    AbstractLoadingLimitsAdder(Validable validable, String ownerId) {
+    AbstractLoadingLimitsAdder(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalGroupId, NetworkImpl network) {
         this.validable = Objects.requireNonNull(validable);
         this.ownerId = ownerId;
+        this.operationalGroupId = operationalGroupId;
+        this.network = network;
+        this.groupSupplier = groupSupplier;
+    }
+
+    /**
+     * Define how to build a limit from the given group
+     * @param group the group that owns the limit
+     * @return the limit that was built
+     */
+    protected abstract L buildLimit(OperationalLimitsGroupImpl group);
+
+    /**
+     * How to set the limit to the group
+     * @param limits the limit to set
+     * @param group the group that owns the limit
+     */
+    protected abstract void setLimitToGroup(L limits, OperationalLimitsGroupImpl group);
+
+    /**
+     * Get the type of the limit
+     * @return the type of the limit
+     */
+    protected abstract String getLimitTypeName();
+
+    @Override
+    public A setPermanentLimitName(String limitName) {
+        this.permanentLimitName = limitName;
+        return (A) this;
     }
 
     @Override
     public A setPermanentLimit(double permanentLimit) {
         this.permanentLimit = permanentLimit;
+        return (A) this;
+    }
+
+    @Override
+    public A setDetectionKind(DetectionKind detectionKind) {
+        this.detectionKind = detectionKind;
         return (A) this;
     }
 
@@ -141,6 +184,11 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public double getPermanentLimit() {
         return permanentLimit;
+    }
+
+    @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
     }
 
     @Override
@@ -158,7 +206,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected ValidationLevel checkLoadingLimits(ValidationLevel validationLevel, ReportNode reportNode) {
-        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), validationLevel, reportNode);
+        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, permanentLimitName, detectionKind, temporaryLimits.values(), validationLevel, reportNode);
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
@@ -196,4 +244,24 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         return ownerId;
     }
 
+    @Override
+    public L add() {
+        checkAndUpdateValidationLevel(network);
+        OperationalLimitsGroupImpl group = groupSupplier.get();
+        if (group == null) {
+            throw new PowsyblException(String.format(
+                "Error adding %s on %s: error getting or creating the group",
+                getLimitTypeName(),
+                getOwnerId()
+            ));
+        }
+        if (detectionKind == DetectionKind.HIGH && permanentLimitName == null) {
+            permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
+        }
+        L limits = buildLimit(group);
+        setLimitToGroup(limits, group);
+        this.copyPropertiesTo(limits);
+
+        return limits;
+    }
 }

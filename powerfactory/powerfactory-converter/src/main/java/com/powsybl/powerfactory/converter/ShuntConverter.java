@@ -7,15 +7,14 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.Optional;
-
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.math3.complex.Complex;
+
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

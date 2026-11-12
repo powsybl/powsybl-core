@@ -241,6 +241,7 @@ public class ConversionTester {
         return config;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     public static void computeMissingFlows(Network network, LoadFlowParameters lfparams, boolean useSv) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,

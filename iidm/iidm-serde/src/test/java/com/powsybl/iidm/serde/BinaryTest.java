@@ -9,19 +9,35 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.test.LoadBarExt;
+import com.powsybl.iidm.network.test.LoadZipModel;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class BinaryTest extends AbstractIidmSerDeTest {
+
+    @Test
+    void testSkipNode() {
+        Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
+        Path binFile = fileSystem.getPath("/work/skipped");
+        NetworkSerDe.write(network, new ExportOptions().setFormat(TreeDataFormat.BIN), binFile);
+
+        Network read = NetworkSerDe.read(binFile,
+                new ImportOptions().setFormat(TreeDataFormat.BIN).addIncludedExtension("loadZipModel"));
+        Load load = read.getLoad("LOAD1");
+        assertNull(load.getExtension(LoadBarExt.class));
+        assertNotNull(load.getExtension(LoadZipModel.class));
+    }
 
     @Test
     void testEmptyNullStringAttributes() {

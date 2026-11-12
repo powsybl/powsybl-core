@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,8 +50,8 @@ public abstract class AbstractTopologyTraverserTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         vl1.getNodeBreakerView().newInternalConnection()
                 .setNode1(1)

@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 
 import java.util.Optional;
 
@@ -22,8 +22,8 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
 
     private float lossFactor = Float.NaN;
 
-    AbstractHvdcConverterStation(Ref<NetworkImpl> network, String id, String name, boolean fictitious, float lossFactor) {
-        super(network, id, name, fictitious);
+    AbstractHvdcConverterStation(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent, float lossFactor) {
+        super(network, id, name, fictitious, equivalent);
         this.hvdcLine = null;
         this.lossFactor = lossFactor;
     }

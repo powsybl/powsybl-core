@@ -19,6 +19,8 @@ import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -71,30 +73,32 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         int position = ptc.getTapPosition();
         ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
-        ptc.getSteps().forEach(step -> {
-            double ratio = step.getRatio();
-            double angle = step.getAngle();
-            double r = step.getR();
-            double x = step.getX();
-            if (Double.isNaN(x)) {
-                context.fixed("ptc.step.x", "ptc.step.x is undefined", x, 0.0);
-                x = 0.0;
-            }
-            double b1 = step.getB1();
-            double g1 = step.getG1();
-            // double b2 = step.getB2();
-            // double g2 = step.getG2();
-            // Only b1 and g1 instead of b1 + b2 and g1 + g2
-            ptca.beginStep()
-                    .setRho(1 / ratio)
-                    .setAlpha(-angle)
-                    .setR(r)
-                    .setX(x)
-                    .setB(b1)
-                    .setG(g1)
-                    .endStep();
-        });
+        ptc.getSteps().forEach(step -> setPhaseTapChangerStep(ptca, step, context));
         ptca.add();
+    }
+
+    private static void setPhaseTapChangerStep(PhaseTapChangerAdder ptca, TapChanger.Step step, Context context) {
+        double ratio = step.getRatio();
+        double angle = step.getAngle();
+        double r = step.getR();
+        double x = step.getX();
+        if (Double.isNaN(x)) {
+            context.fixed("ptc.step.x", "ptc.step.x is undefined", x, 0.0);
+            x = 0.0;
+        }
+        double b1 = step.getB1();
+        double g1 = step.getG1();
+        // double b2 = step.getB2();
+        // double g2 = step.getG2();
+        // Only b1 and g1 instead of b1 + b2 and g1 + g2
+        ptca.beginStep()
+            .setRho(1 / ratio)
+            .setAlpha(-angle)
+            .setR(r)
+            .setX(x)
+            .setB(b1)
+            .setG(g1)
+            .endStep();
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
@@ -192,39 +196,59 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context));
         findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresentOrElse(rtc::setSolvedTapPosition, rtc::unsetSolvedTapPosition);
 
-        if (rtc.getRegulationTerminal() != null) {
-            Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
+        if (rtc.getVoltageRegulation() == null) {
+            return;
+        }
+
+        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
+
+        double targetValue = Double.NaN;
+        boolean validTargetValue = false;
+
+        if (rtc.isWithMode(RegulationMode.VOLTAGE)) {
             double defaultTargetV = getDefaultTargetV(rtc, context);
-            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
-
-            double defaultTargetDeadband = getDefaultTargetDeadband(rtc, context);
-            double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
-
-            boolean defaultRegulatingOn = getDefaultRegulatingOn(rtc, context);
-            boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+            targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
 
             // We always keep the targetValue
             // If targetValue is not valid, emit a warning and deactivate regulating control
-            boolean validTargetV = isValidTargetV(targetV);
-            if (!validTargetV) {
-                context.invalid(ratioTapChangerId, "Regulating control has a bad target voltage " + targetV);
-                badVoltageTargetValueRegulatingControlReport(context.getReportNode(), ratioTapChangerId, targetV);
+            validTargetValue = isValidTargetV(targetValue);
+            if (!validTargetValue) {
+                context.invalid(ratioTapChangerId, "Regulating control has a bad target voltage " + targetValue);
+                badVoltageTargetValueRegulatingControlReport(context.getReportNode(), ratioTapChangerId, targetValue);
             }
-            boolean validTargetDeadband = isValidTargetDeadband(targetDeadband);
-            if (!validTargetDeadband) {
-                context.invalid(ratioTapChangerId, "Regulating control has a bad target deadband " + targetDeadband);
-                badTargetDeadbandRegulatingControlReport(context.getReportNode(), ratioTapChangerId, targetDeadband);
-                targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
-            }
+        } else if (rtc.isWithMode(RegulationMode.REACTIVE_POWER)) {
+            double defaultTargetQ = getDefaultTargetQ(rtc, context);
+            int terminalSign = findTerminalSign(tw, end);
+            targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
 
-            boolean regulating = regulatingOn && isRegulatingAllowed && validTargetV && validTargetDeadband;
-            if (regulating && !rtc.hasLoadTapChangingCapabilities()) {
-                badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), ratioTapChangerId);
-                rtc.setLoadTapChangingCapabilities(true);
+            validTargetValue = isValidTargetQ(targetValue);
+            if (!validTargetValue) {
+                context.invalid(ratioTapChangerId, "Regulating control has a bad target reactive power " + targetValue);
+                badTargetValueRegulatingControlReport(context.getReportNode(), ratioTapChangerId, targetValue);
             }
-
-            setRegulation(rtc, targetV, targetDeadband, regulating);
         }
+
+        double defaultTargetDeadband = getDefaultTargetDeadband(rtc, context);
+        double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
+
+        boolean validTargetDeadband = isValidTargetDeadband(targetDeadband);
+        if (!validTargetDeadband) {
+            context.invalid(ratioTapChangerId, "Regulating control has a bad target deadband " + targetDeadband);
+            badTargetDeadbandRegulatingControlReport(context.getReportNode(), ratioTapChangerId, targetDeadband);
+            targetDeadband = Double.NaN; // To avoid an exception from checkTargetDeadband
+        }
+
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(rtc, context);
+        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+
+        boolean regulating = regulatingOn && isRegulatingAllowed && validTargetValue && validTargetDeadband;
+        if (regulating && !rtc.hasLoadTapChangingCapabilities()) {
+            badLoadTapChangingCapabilityTapChangerReport(context.getReportNode(), ratioTapChangerId);
+            rtc.setLoadTapChangingCapabilities(true);
+        }
+
+        setRegulation(rtc, targetValue, targetDeadband, regulating);
+
     }
 
     private static <C extends Connectable<C>> Optional<PropertyBag> findCgmesRegulatingControl(Connectable<C> tw, String tapChangerId, Context context) {
@@ -239,15 +263,19 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     // Regulation values (targetValue and targetDeadband) must be valid before the regulation is turned on,
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
-    private static void setRegulation(RatioTapChanger rtc, double targetV, double targetDeadband, boolean regulatingOn) {
-        if (regulatingOn) {
-            rtc.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband)
-                    .setRegulating(true);
+    private static void setRegulation(RatioTapChanger rtc, double targetValue, double targetDeadband, boolean regulatingOn) {
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
+        if (voltageRegulation != null) {
+            voltageRegulation.setTargetValue(targetValue);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+            voltageRegulation.setRegulating(regulatingOn);
         } else {
-            rtc.setRegulating(false)
-                    .setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
+            rtc.newVoltageRegulation()
+                .withTargetValue(targetValue)
+                .withTargetDeadband(targetDeadband)
+                .withRegulating(regulatingOn)
+                .withMode(regulatingOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER)
+                .build();
         }
     }
 
@@ -261,7 +289,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         if (ptc.getRegulationTerminal() != null) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);
             double defaultTargetValue = getDefaultTargetValue(ptc, context);
-            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetValue);
+            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED))
+                .orElse(defaultTargetValue);
 
             double defaultTargetDeadband = getDefaultTargetDeadband(ptc, context);
             double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
@@ -339,7 +368,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultTapPosition;
     }
 
-    private static <C extends Connectable<C>> int getDefaultTapPosition(C tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
+    private static <C extends Connectable<C>> int getDefaultTapPosition(C tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger,
+                                                                        String tapChangerId, int closestNeutralTapPosition, Context context) {
         Integer validNormalStep = null;
         OptionalInt normalStep = getNormalStep(tw, tapChangerId);
         if (normalStep.isPresent() && isValidTapPosition(tapChanger, normalStep.getAsInt())) {
@@ -410,7 +440,11 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static double getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
-        return getDefaultValue(null, ratioTapChanger.getTargetV(), Double.NaN, Double.NaN, context);
+        return getDefaultValue(null, ratioTapChanger.getRegulatingTargetV(), Double.NaN, Double.NaN, context);
+    }
+
+    private static double getDefaultTargetQ(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
+        return getDefaultValue(null, ratioTapChanger.getRegulatingTargetQ(), Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetValue(com.powsybl.iidm.network.PhaseTapChanger phaseTapChanger, Context context) {
@@ -419,7 +453,13 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
 
     // targetDeadBand is optional in Cgmes and mandatory in IIDM then a default value is provided when it is not defined in Cgmes
     private static double getDefaultTargetDeadband(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, Context context) {
-        return getDefaultValue(0.0, tapChanger.getTargetDeadband(), 0.0, 0.0, context);
+        double previousTargetDeadband = Double.NaN;
+        if (tapChanger instanceof PhaseTapChanger phaseTapChanger) {
+            previousTargetDeadband = phaseTapChanger.getTargetDeadband();
+        } else if (tapChanger instanceof RatioTapChanger ratioTapChanger && ratioTapChanger.getVoltageRegulation() != null) {
+            previousTargetDeadband = ratioTapChanger.getVoltageRegulation().getTargetDeadband();
+        }
+        return getDefaultValue(0.0, previousTargetDeadband, 0.0, 0.0, context);
     }
 
     private static boolean getDefaultRegulatingOn(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, Context context) {

@@ -109,7 +109,11 @@ public final class LoadingLimitsUtil {
             LOGGER.warn("Created adder is empty");
             return adder;
         }
-        adder.setPermanentLimit(limits.getPermanentLimit());
+        adder.setDetectionKind(limits.getDetectionKind());
+        if (limits.getDetectionKind() == DetectionKind.HIGH) {
+            adder.setPermanentLimit(limits.getPermanentLimit());
+            adder.setPermanentLimitName(limits.getPermanentLimitName());
+        }
         limits.getTemporaryLimits().forEach(limit ->
                 adder.beginTemporaryLimit()
                         .setName(limit.getName())

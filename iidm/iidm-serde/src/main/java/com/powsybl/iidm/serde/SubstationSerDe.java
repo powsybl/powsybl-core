@@ -52,7 +52,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     private static void writeVoltageLevels(Substation s, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (VoltageLevel vl : IidmSerDeUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
+        for (VoltageLevel vl : IidmSerDeUtil.sorted(s.getNetwork(), s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelSerDe.INSTANCE.write(vl, null, context);
         }
         context.getWriter().writeEndNodes();
@@ -60,7 +60,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     private static void writeTwoWindingsTransformers(Substation s, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        Iterable<TwoWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getTwoWindingsTransformers(), context.getOptions());
+        Iterable<TwoWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getNetwork(), s.getTwoWindingsTransformers(), context.getOptions());
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
                 continue;
@@ -72,7 +72,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     private static void writeThreeWindingsTransformers(Substation s, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        Iterable<ThreeWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getThreeWindingsTransformers(), context.getOptions());
+        Iterable<ThreeWindingsTransformer> twts = IidmSerDeUtil.sorted(s.getNetwork(), s.getThreeWindingsTransformers(), context.getOptions());
         for (ThreeWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
                 continue;
@@ -90,7 +90,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
             Collection<OverloadManagementSystem> validOverloadManagementSystems = filterValidOverloadManagementSystems(s);
             if (!validOverloadManagementSystems.isEmpty()) {
                 context.getWriter().writeStartNodes();
-                IidmSerDeUtil.sorted(validOverloadManagementSystems, context.getOptions())
+                IidmSerDeUtil.sorted(s.getNetwork(), validOverloadManagementSystems, context.getOptions())
                         .forEach(oms -> OverloadManagementSystemSerDe.INSTANCE.write(oms, null, context));
                 context.getWriter().writeEndNodes();
             }
@@ -99,41 +99,7 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
 
     private static Collection<OverloadManagementSystem> filterValidOverloadManagementSystems(Substation s) {
         Network n = s.getNetwork();
-        return s.getOverloadManagementSystemStream().filter(o -> {
-            if (n.getIdentifiable(o.getMonitoredElementId()) == null) {
-                LOGGER.warn(String.format("Discard overload management system '%s': monitored element '%s' is unknown.",
-                        o.getNameOrId(), o.getMonitoredElementId()));
-                return false;
-            }
-            for (OverloadManagementSystem.Tripping tripping : o.getTrippings()) {
-                Identifiable<?> element = null;
-                String id = "";
-                String type = "";
-                switch (tripping.getType()) {
-                    case BRANCH_TRIPPING -> {
-                        type = "branch";
-                        id = ((OverloadManagementSystem.BranchTripping) tripping).getBranchToOperateId();
-                        element = n.getBranch(id);
-                    }
-                    case SWITCH_TRIPPING -> {
-                        type = "switch";
-                        id = ((OverloadManagementSystem.SwitchTripping) tripping).getSwitchToOperateId();
-                        element = n.getSwitch(id);
-                    }
-                    case THREE_WINDINGS_TRANSFORMER_TRIPPING -> {
-                        type = "three windings transformer";
-                        id = ((OverloadManagementSystem.ThreeWindingsTransformerTripping) tripping).getThreeWindingsTransformerToOperateId();
-                        element = n.getThreeWindingsTransformer(id);
-                    }
-                }
-                if (element == null) {
-                    LOGGER.warn(String.format("Discard overload management system '%s': invalid %s tripping. '%s' is unknown.",
-                            o.getNameOrId(), type, id));
-                    return false;
-                }
-            }
-            return true;
-        }).toList();
+        return s.getOverloadManagementSystemStream().filter(o -> filterOverloadManagementSystem(n, o)).toList();
     }
 
     @Override
@@ -167,6 +133,42 @@ class SubstationSerDe extends AbstractSimpleIdentifiableSerDe<Substation, Substa
                 default -> readSubElement(elementName, s, context);
             }
         });
+    }
+
+    private static boolean filterOverloadManagementSystem(Network n, OverloadManagementSystem o) {
+        if (n.getIdentifiable(o.getMonitoredElementId()) == null) {
+            LOGGER.warn("Discard overload management system '{}': monitored element '{}' is unknown.",
+                o.getNameOrId(), o.getMonitoredElementId());
+            return false;
+        }
+        for (OverloadManagementSystem.Tripping tripping : o.getTrippings()) {
+            Identifiable<?> element = null;
+            String id = "";
+            String type = "";
+            switch (tripping.getType()) {
+                case BRANCH_TRIPPING -> {
+                    type = "branch";
+                    id = ((OverloadManagementSystem.BranchTripping) tripping).getBranchToOperateId();
+                    element = n.getBranch(id);
+                }
+                case SWITCH_TRIPPING -> {
+                    type = "switch";
+                    id = ((OverloadManagementSystem.SwitchTripping) tripping).getSwitchToOperateId();
+                    element = n.getSwitch(id);
+                }
+                case THREE_WINDINGS_TRANSFORMER_TRIPPING -> {
+                    type = "three windings transformer";
+                    id = ((OverloadManagementSystem.ThreeWindingsTransformerTripping) tripping).getThreeWindingsTransformerToOperateId();
+                    element = n.getThreeWindingsTransformer(id);
+                }
+            }
+            if (element == null) {
+                LOGGER.warn("Discard overload management system '{}': invalid {} tripping. '{}' is unknown.",
+                    o.getNameOrId(), type, id);
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void checkSupportedAndReadOverloadManagementSystems(Substation s, NetworkDeserializerContext context) {

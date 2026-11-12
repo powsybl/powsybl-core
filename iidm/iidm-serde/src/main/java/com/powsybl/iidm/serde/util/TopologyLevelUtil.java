@@ -33,6 +33,21 @@ public final class TopologyLevelUtil {
         return exportTopologyLevel;
     }
 
+    public static boolean withNullConnectableBus(VoltageLevel vl) {
+        return vl.getConnectableStream()
+                .map(Connectable::getTerminals)
+                .flatMap(List<Terminal>::stream)
+                .anyMatch(t -> t.getBusView().getConnectableBus() == null);
+    }
+
+    public static boolean hasReferencedBusbarSections(VoltageLevel vl) {
+        if (vl.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            return false;
+        }
+        return vl.getNodeBreakerView().getBusbarSectionStream()
+                .anyMatch(bbs -> !bbs.getTerminal().getReferrers().isEmpty());
+    }
+
     /**
      * <p>Validates and possibly adjusts the topology level to use when exporting a voltage level.</p>
      *
@@ -56,11 +71,8 @@ public final class TopologyLevelUtil {
      * @throws PowsyblException When the topology to check is BUS_BRANCH, an export problem is detected, and the configured behavior is THROW_EXCEPTION.
      */
     private static TopologyLevel checkVoltageLevelExportTopology(VoltageLevel vl, NetworkSerializerContext context, TopologyLevel topologyLevel) {
-        if (topologyLevel == TopologyLevel.BUS_BRANCH
-                && vl.getConnectableStream()
-                    .map(Connectable::getTerminals)
-                    .flatMap(List<Terminal>::stream)
-                    .anyMatch(t -> t.getBusView().getConnectableBus() == null)) {
+        if (topologyLevel == TopologyLevel.BUS_BRANCH &&
+                (withNullConnectableBus(vl) || hasReferencedBusbarSections(vl))) {
             if (context.getOptions()
                     .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
                 throw new PowsyblException("Cannot export voltage level \"" + vl.getId() + "\" in BUS_BRANCH topology: this would lead to an invalid IIDM.");

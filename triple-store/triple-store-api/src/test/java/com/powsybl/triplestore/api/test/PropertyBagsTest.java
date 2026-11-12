@@ -8,16 +8,15 @@
 
 package com.powsybl.triplestore.api.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

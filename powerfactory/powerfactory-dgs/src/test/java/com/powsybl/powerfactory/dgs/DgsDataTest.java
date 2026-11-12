@@ -74,6 +74,13 @@ class DgsDataTest extends AbstractSerDeTest {
     }
 
     @Test
+    void matrixOversizedRowsTest() {
+        // A matrix row declaring far more values than it carries must not allocate a matrix of that size.
+        StudyCase studyCase = assertDoesNotThrow(() -> loadCase("/MatrixOversizedRows.dgs"));
+        assertNotNull(studyCase);
+    }
+
+    @Test
     void v6ErrorTest() {
         assertThrows(PowerFactoryException.class, () -> loadCase("/ascii_v6.dgs"));
     }
@@ -92,6 +99,11 @@ class DgsDataTest extends AbstractSerDeTest {
     @Test
     void bomTest() {
         assertDoesNotThrow(() -> loadCase("/BOMTest.dgs"));
+    }
+
+    @Test
+    void objectLinkReferencesTest() throws IOException {
+        assertTrue(test("/object_link_references.dgs", "/object_link_references.json"));
     }
 
     private boolean test(String dgs, String json) throws IOException {

@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,9 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectVoltageLevelOnLine.class);
 
+    private final Integer positionForNewLine1;
+    private final Integer positionForNewLine2;
+
     /**
      * Constructor.
      * <br/>
@@ -46,10 +50,15 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
+     * @param positionForNewLine1 The order position for the new line connection at side 1 if the ConnectablePosition should be created, or null.
+     * @param positionForNewLine2 The order position for the new line connection at side 2 if the ConnectablePosition should be created, or null.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                              String line2Id, String line2Name, Line line) {
+                              String line2Id, String line2Name, Line line,
+                              Integer positionForNewLine1, Integer positionForNewLine2) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
+        this.positionForNewLine1 = positionForNewLine1;
+        this.positionForNewLine2 = positionForNewLine2;
     }
 
     @Override
@@ -117,11 +126,26 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
         // Remove the existing line
         String originalLineId = line.getId();
+        ConnectablePosition<Line> connectablePosition = line.getExtension(ConnectablePosition.class);
+        ConnectablePositionData connectablePositionDataSide1 = null;
+        ConnectablePositionData connectablePositionDataSide2 = null;
+        if (connectablePosition != null) {
+            connectablePositionDataSide1 = new ConnectablePositionData(connectablePosition.getFeeder1());
+            connectablePositionDataSide2 = new ConnectablePositionData(connectablePosition.getFeeder2());
+        }
+
         line.remove();
 
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
+
+        // add line positions,
+        // add position of line 1 on side two because it is connected to the attached voltage level
+        // add position of line 2 on side one because it is connected to the attached voltage level
+        createConnectablePositionExtensionForNewLine(line1, TwoSides.TWO, positionForNewLine1, connectablePositionDataSide1, reportNode, throwException);
+        createConnectablePositionExtensionForNewLine(line2, TwoSides.ONE, positionForNewLine2, connectablePositionDataSide2, reportNode, throwException);
+
         //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
         //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
         groupsCopy.applyGroupsToBranch(line1, TwoSides.values());

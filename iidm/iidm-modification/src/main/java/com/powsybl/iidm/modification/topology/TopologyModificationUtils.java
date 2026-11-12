@@ -198,13 +198,28 @@ public final class TopologyModificationUtils {
         adder.add();
     }
 
-    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, ReportNode reportNode) {
+    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, boolean forceRemoveIsolatedVoltageLevel, ReportNode reportNode) {
         String vlId = voltageLevel.getId();
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
-            voltageLevelRemovingEquipmentsLeftReport(reportNode, vlId);
-            LOGGER.warn("Voltage level {} still contains equipments.", vlId);
-            return;
+            boolean noMoreBranch = voltageLevel.getConnectableStream().noneMatch(c -> switch (c.getType()) {
+                case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION -> true;
+                default -> false;
+            });
+            if (noMoreBranch) {
+                if (forceRemoveIsolatedVoltageLevel) {
+                    voltageLevel.getConnectables().forEach(Connectable::remove);
+                    voltageLevelForceRemovedWithNoBranch(reportNode, vlId);
+                } else {
+                    voltageLevelNotRemovedWithNoBranch(reportNode, vlId);
+                    LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
+                    return;
+                }
+            } else {
+                voltageLevelNotRemovedWithRemainingBranches(reportNode, vlId);
+                LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
+                return;
+            }
         }
         // substation must be gotten before removing the voltageLevel
         Optional<Substation> substation = voltageLevel.getSubstation();
@@ -212,7 +227,7 @@ public final class TopologyModificationUtils {
         voltageLevelRemovedReport(reportNode, vlId);
         LOGGER.info("Voltage level {} removed", vlId);
         substation.ifPresent(s -> {
-            if (s.getVoltageLevelStream().count() == 0) {
+            if (s.getVoltageLevelStream().findAny().isEmpty()) {
                 String substationId = s.getId();
                 s.remove();
                 substationRemovedReport(reportNode, substationId);
@@ -358,14 +373,16 @@ public final class TopologyModificationUtils {
     /**
      * Creates a breaker and a disconnector between the connectable and the specified busbar
      */
-    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode,
+                                                  NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
         createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, List.of(bbs), bbs);
     }
 
     /**
      * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
      */
-    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode,
+                                                  NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         // Closed breaker
         createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), namingStrategy.getBreakerName(baseId), voltageLevel.getNodeBreakerView(), false);
 
@@ -376,14 +393,16 @@ public final class TopologyModificationUtils {
     /**
      * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
      */
-    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode,
+                                           NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs, 0);
     }
 
     /**
      * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
      */
-    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode,
+                                           NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
@@ -765,7 +784,9 @@ public final class TopologyModificationUtils {
     /**
      * Create topology and generate new connectable node and return it.
      */
-    public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+    public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network,
+                                                          VoltageLevel voltageLevel, Connectable<?> connectable,
+                                                          NamingStrategy namingStrategy, ReportNode reportNode) {
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int connectableNode = forkNode + 1;
         buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
@@ -775,12 +796,16 @@ public final class TopologyModificationUtils {
     /**
      * Create topology by using the provided connectable node (pre-determined connectable node)
      */
-    public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+    public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network,
+                                                         VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable,
+                                                         NamingStrategy namingStrategy, ReportNode reportNode) {
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
     }
 
-    private static void buildTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int forkNode, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+    private static void buildTopology(int side, String busOrBusbarSectionId, Network network,
+                                      VoltageLevel voltageLevel, int forkNode, int connectableNode, Connectable<?> connectable,
+                                      NamingStrategy namingStrategy, ReportNode reportNode) {
         // Information gathering
         String baseId = namingStrategy.getSwitchBaseId(connectable, side);
         BusbarSection bbs = network.getBusbarSection(busOrBusbarSectionId);
@@ -813,6 +838,12 @@ public final class TopologyModificationUtils {
      * fork node is encountered, for which special care is needed to clean the topology.
      */
     public static void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, String connectableId, ReportNode reportNode) {
+        // Check if a connectable is connected on that node: removing the switches beyond it would disconnect it
+        Optional<String> otherConnectableId = getOtherConnectableId(nbv, node, connectableId);
+        if (otherConnectableId.isPresent()) {
+            reportAndLogRemoveFeederBayAborted(reportNode, connectableId, node, otherConnectableId.get());
+            return;
+        }
         Set<Object> edges = graph.edgesOf(node);
         if (edges.size() == 1) {
             Object edge = edges.iterator().next();
@@ -822,6 +853,27 @@ public final class TopologyModificationUtils {
         } else if (edges.size() > 1) {
             cleanFork(nbv, graph, node, edges, connectableId, reportNode);
         }
+    }
+
+    /**
+     * Report and log that the feeder bay removal cannot go further than the given node.
+     */
+    private static void reportAndLogRemoveFeederBayAborted(ReportNode reportNode, String connectableId, int node, String otherConnectableId) {
+        removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
+        LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
+    }
+
+    /**
+     * Return the id of the connectable connected on the given node, if there is one, if it is not the connectable
+     * being removed, and if it is not a busbar section. A busbar section is the normal end of a feeder bay and is
+     * handled by the caller, not reported as an obstacle.
+     */
+    private static Optional<String> getOtherConnectableId(VoltageLevel.NodeBreakerView nbv, int node, String connectableId) {
+        return nbv.getOptionalTerminal(node)
+                .map(Terminal::getConnectable)
+                .filter(c -> !(c instanceof BusbarSection))
+                .map(Connectable::getId)
+                .filter(id -> !id.equals(connectableId));
     }
 
     public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode) {
@@ -841,7 +893,7 @@ public final class TopologyModificationUtils {
         }
     }
 
-    private static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
+    public static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             Graph<Integer, Object> graph = createGraphFromTerminal(terminal);
             int node = terminal.getNodeBreakerView().getNode();
@@ -880,8 +932,7 @@ public final class TopologyModificationUtils {
                 // the edge is only linked to other non-busbarSection connectables, no further cleaning can be done
                 // Note that connectables cannot be empty because of previous if
                 String otherConnectableId = connectables.stream().map(Connectable::getId).findFirst().orElse("none");
-                removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
-                LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
+                reportAndLogRemoveFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
                 return;
             } else {
                 // the edge is linked to busbarSections and non-busbarSection connectables, some further cleaning can be done if there's only one edge of that type

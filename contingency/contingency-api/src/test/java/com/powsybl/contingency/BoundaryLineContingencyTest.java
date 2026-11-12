@@ -9,14 +9,16 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.list.ContingencyList;
+import com.powsybl.iidm.modification.tripping.BoundaryLineTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
-import com.powsybl.iidm.modification.tripping.BoundaryLineTripping;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

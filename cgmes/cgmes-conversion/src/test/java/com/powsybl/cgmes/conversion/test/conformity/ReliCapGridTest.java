@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,12 +119,55 @@ class ReliCapGridTest {
     }
 
     @Test
-    void cgmNineRealmsTest() {
+    void cgmNineRealmsSeparatingByFilenameTest() {
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.FILENAME.name());
         ReadOnlyDataSource ds = ReliCapGridCatalog.nineRealms().dataSource();
         Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(8, network.getSubnetworks().size());
         assertEquals(168, network.getSubstationCount());
+        // Subnetworks are sorted by IGM name: Belgovia, Britheim, Espheim, Galia,
+        // HVDC-Espheim-Svedala, HVDC-Nordheim-Galia, Nordheim, Svedala
+        assertEquals(List.of(
+                "urn:uuid:15c8a8ad-08d5-4b59-8417-db80e273bd1a",
+                "urn:uuid:33bd4875-01b7-4442-a5a2-dc04419143bf",
+                "urn:uuid:e3beb946-afc6-4304-9660-517d5115cbb0",
+                "urn:uuid:b89a6150-43bd-442c-8c58-9efd3d537d11",
+                "urn:uuid:105893e4-668b-4b00-a351-0e436b53cbc9",
+                "urn:uuid:9212d819-3f09-4062-aa13-82d4be4e2f4a",
+                "urn:uuid:b2d38b16-0d3a-4d6d-8bf2-e894632a2912",
+                "urn:uuid:bea45848-a05d-496b-9ab2-f42c6714183e"),
+                network.getSubnetworks().stream().map(Network::getId).toList());
+    }
+
+    @Test
+    void cgmNineRealmsSeparatingByModelingAuthorityTest() {
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.MODELING_AUTHORITY.name());
+        ReadOnlyDataSource ds = ReliCapGridCatalog.nineRealms().dataSource();
+        Network network = Network.read(ds, importParams);
+
+        assertNotNull(network);
+        assertEquals(8, network.getSubnetworks().size());
+        assertEquals(168, network.getSubstationCount());
+        // Subnetworks are sorted by modeling authority:
+        // " http://belgovia.bo/CGMES" (Belgovia, note the leading space),
+        // "http://britheim.bh/CGMES" (Britheim),
+        // "http://espheim-svedala.es/CGMES" (HVDC-Espheim-Svedala),
+        // "http://espheim.eh/CGMES" (Espheim),
+        // "http://galia.ga/CGMES" (Galia),
+        // "http://nordheim-galia.ng/CGMES" (HVDC-Nordheim-Galia),
+        // "http://nordheim.nh/CGMES" (Nordheim),
+        // "http://svedala.sd/CGMES" (Svedala)
+        assertEquals(List.of(
+                "urn:uuid:15c8a8ad-08d5-4b59-8417-db80e273bd1a",
+                "urn:uuid:33bd4875-01b7-4442-a5a2-dc04419143bf",
+                "urn:uuid:105893e4-668b-4b00-a351-0e436b53cbc9",
+                "urn:uuid:e3beb946-afc6-4304-9660-517d5115cbb0",
+                "urn:uuid:b89a6150-43bd-442c-8c58-9efd3d537d11",
+                "urn:uuid:9212d819-3f09-4062-aa13-82d4be4e2f4a",
+                "urn:uuid:b2d38b16-0d3a-4d6d-8bf2-e894632a2912",
+                "urn:uuid:bea45848-a05d-496b-9ab2-f42c6714183e"),
+                network.getSubnetworks().stream().map(Network::getId).toList());
     }
 }

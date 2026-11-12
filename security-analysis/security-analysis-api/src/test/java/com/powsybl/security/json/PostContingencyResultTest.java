@@ -8,14 +8,15 @@
 package com.powsybl.security.json;
 
 import com.powsybl.action.json.ActionJsonModule;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.violations.BusBreakerViolationLocation;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.contingency.violations.NodeBreakerViolationLocation;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.*;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +41,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
             .subject("violation")
             .type(LimitViolationType.HIGH_VOLTAGE)
             .limit(420)
-            .reduction(0.1)
+            .scaling(0.1)
             .value(500)
             .build();
         LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
@@ -51,7 +52,12 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")), Double.NaN);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+            PostContingencyComputationStatus.CONVERGED, result,
+            new NetworkResult(branchResults, busResults, threeWindingsTransformerResults),
+            new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")),
+            Double.NaN,
+            Collections.emptyList());
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
@@ -71,7 +77,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
             .subject("violation")
             .type(LimitViolationType.HIGH_VOLTAGE)
             .limit(420)
-            .reduction(0.1f)
+            .scaling(0.1f)
             .value(500)
             .build();
         LimitViolation violation2 = new LimitViolation("subject_id", LimitViolationType.HIGH_VOLTAGE, 420,
@@ -92,7 +98,8 @@ class PostContingencyResultTest extends AbstractSerDeTest {
                 result,
                 new NetworkResult(branchResults, busResults, threeWindingsTransformerResults),
                 new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()),
-                1.23);
+                1.23,
+                Collections.emptyList());
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 

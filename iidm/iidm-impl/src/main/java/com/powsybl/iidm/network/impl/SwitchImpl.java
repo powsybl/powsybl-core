@@ -146,4 +146,12 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     protected String getTypeDescription() {
         return "Switch";
     }
+
+    @Override
+    public Switch setId(String id) {
+        String oldId = this.id;
+        super.setId(id);
+        this.voltageLevel.getTopologyModel().updateSwitchId(oldId, id);
+        return this;
+    }
 }

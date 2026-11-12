@@ -24,6 +24,15 @@ import java.util.OptionalInt;
  *     <li>Use {@link #HVDC_LINE_ACTIVE_POWER} to model the change of the active power set point of an HVDC line. The increase is in MW.</li>
  *     <li>Use {@link #TRANSFORMER_PHASE_1}, {@link #TRANSFORMER_PHASE_2} or {@link #TRANSFORMER_PHASE_3} to model the change of the tap position of a phase
  * tap changer of a three windings transformer that contains several phase tap changers.</li>
+ *      <li>Use {@link #SHUNT_COMPENSATOR_SUSCEPTANCE} to model an increase of the aggregated shunt susceptance B at the bus
+ * hosting a shunt compensator. The increase is in Siemens.</li>
+ *      <li>Use {@link #BRANCH_RESISTANCE} or {@link #BRANCH_REACTANCE} to model the change of the series resistance / reactance
+ * of a two-windings transformer or line. The increase is in Ohms.</li>
+ *      <li>Use {@link #BRANCH_ADMITTANCE} to model the change of the admittance of a two-windings transformer or line. The increase is in Siemens.</li>
+ *      <li>Use {@link #SVC_PILOT_POINT_TARGET_VOLTAGE} to model an increase of the pilot-point voltage target of a
+ * secondary voltage control zone (closed loop: the controllers in the zone re-coordinate so that, at the
+ * new equilibrium, the pilot bus voltage tracks the new target). The variable id must be a pilot bus of
+ * an SVC zone in the network. The increase is in kV.</li>
  * </ul>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -43,7 +52,18 @@ public enum SensitivityVariableType {
     /** increase in degrees */
     TRANSFORMER_PHASE_2(2),
     /** increase in degrees */
-    TRANSFORMER_PHASE_3(3);
+    TRANSFORMER_PHASE_3(3),
+    /** increase in S */
+    SHUNT_COMPENSATOR_SUSCEPTANCE,
+    /** increase in Ohm */
+    BRANCH_RESISTANCE,
+    /** increase in Ohm */
+    BRANCH_REACTANCE,
+    /** increase in S */
+    BRANCH_ADMITTANCE,
+    /** increase in kV — closed-loop SVC sensitivity. Variable ID is the zone name.
+     * Accounts for the SVC control law (reactive power equalization + pilot voltage tracking). */
+    SVC_PILOT_POINT_TARGET_VOLTAGE;
 
     private final Integer side;
 

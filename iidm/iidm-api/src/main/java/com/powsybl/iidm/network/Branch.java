@@ -51,54 +51,6 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoad
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">Human-readable name of the branch</td>
  *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">R</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">&Omega;</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The series resistance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">X</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">&Omega;</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The series reactance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">G1</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The first side shunt conductance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">B1</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The first side shunt susceptance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">G2</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The second side shunt conductance</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">B2</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">S</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The second side shunt susceptance</td>
- *         </tr>
  *     </tbody>
  * </table>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -150,7 +102,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @param side the side to get the group limits on
      * @return all the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
      */
-    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
+    List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
 
     /**
      * Get the ids of all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
@@ -713,7 +665,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * Only checks overloading for LimitType.Current and permanent limits
      */
-    boolean isOverloaded(double limitReductionValue);
+    boolean isOverloaded(double limitScalingValue);
 
     default int getOverloadDuration() {
         return Stream.concat(
@@ -724,28 +676,28 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
             .orElse(Integer.MAX_VALUE);
     }
 
-    boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit(TwoSides side, double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit(TwoSides side, LimitType type);
 
-    boolean checkPermanentLimit1(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit1(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit1(LimitType type);
 
-    boolean checkPermanentLimit2(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit2(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit2(LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
-     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the branch to look at
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
-    Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
@@ -758,13 +710,13 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
-     * return an overload for the side 1 of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * return an overload for the side 1 of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
-    Overload checkTemporaryLimits1(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits1(double limitScalingValue, LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
@@ -776,13 +728,13 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
-     * return an overload for the side 2 of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * return an overload for the side 2 of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
-    Overload checkTemporaryLimits2(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits2(double limitScalingValue, LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
@@ -794,13 +746,13 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
-     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
+     * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the branch to look at
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (higher than 0, values above 1 are allowed)
      * @param type the type of the limit
      */
-    Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type);
+    Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type);
 
     /**
      * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},

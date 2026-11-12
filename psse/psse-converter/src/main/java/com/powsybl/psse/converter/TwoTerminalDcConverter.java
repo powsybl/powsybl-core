@@ -7,16 +7,16 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
 
-import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE;
-
 import java.util.*;
+
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

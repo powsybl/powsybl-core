@@ -15,8 +15,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.computation.*;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +29,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  *
@@ -144,7 +140,9 @@ public class LocalComputationManager implements ComputationManager {
 
     }
 
-    private ExecutionReport execute(Path workingDir, Path dumpDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ComputationParameters computationParameters, ExecutionMonitor monitor)
+    private ExecutionReport execute(Path workingDir, Path dumpDir, List<CommandExecution> commandExecutionList,
+                                    Map<String, String> variables, ComputationParameters computationParameters,
+                                    ExecutionMonitor monitor)
             throws InterruptedException {
         // TODO concurrent
         List<ExecutionError> errors = new ArrayList<>();
@@ -206,48 +204,51 @@ public class LocalComputationManager implements ComputationManager {
     }
 
     private void performSingleExecution(ExecutionParameters executionParameters, int idx) {
-        executionParameters.executionSubmitter.execute(() -> {
-            try {
-                enter();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Executing command {} in working directory {}",
-                        executionParameters.command.toString(idx), executionParameters.workingDir);
-                }
-                preProcess(executionParameters.workingDir, executionParameters.command, idx);
-                Stopwatch stopwatch = null;
-                if (LOGGER.isDebugEnabled()) {
-                    stopwatch = Stopwatch.createStarted();
-                }
-                int exitValue = process(executionParameters.workingDir, executionParameters.commandExecution, idx,
-                    executionParameters.variables, executionParameters.computationParameters);
-                if (stopwatch != null) {
-                    stopwatch.stop();
-                    LOGGER.debug("Command {} executed in {} ms",
-                        executionParameters.command.toString(idx), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                }
-                postProcess(executionParameters.workingDir, executionParameters.commandExecution, idx, exitValue,
-                    executionParameters.errors, executionParameters.monitor);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.warn(e.getMessage(), e);
-            } catch (Exception e) {
-                LOGGER.warn(e.getMessage(), e);
-            } finally {
-                if (executionParameters.dumpDir != null) {
-                    try {
-                        Path sourcePath = executionParameters.workingDir;
-                        Path destinationPath = executionParameters.dumpDir.resolve(executionParameters.workingDir.getFileName());
-                        FileUtil.createDirectory(destinationPath);
-                        FileUtil.copyDir(sourcePath, destinationPath);
+        executionParameters.executionSubmitter.execute(() -> singleExecution(executionParameters, idx));
+    }
 
-                    } catch (IOException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    }
-                }
-                executionParameters.latch.countDown();
-                exit();
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
+    private void singleExecution(ExecutionParameters executionParameters, int idx) {
+        try {
+            enter();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Executing command {} in working directory {}",
+                    executionParameters.command.toString(idx), executionParameters.workingDir);
             }
-        });
+            preProcess(executionParameters.workingDir, executionParameters.command, idx);
+            Stopwatch stopwatch = null;
+            if (LOGGER.isDebugEnabled()) {
+                stopwatch = Stopwatch.createStarted();
+            }
+            int exitValue = process(executionParameters.workingDir, executionParameters.commandExecution, idx,
+                executionParameters.variables, executionParameters.computationParameters);
+            if (stopwatch != null) {
+                stopwatch.stop();
+                LOGGER.debug("Command {} executed in {} ms",
+                    executionParameters.command.toString(idx), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            }
+            postProcess(executionParameters.workingDir, executionParameters.commandExecution, idx, exitValue,
+                executionParameters.errors, executionParameters.monitor);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.warn(e.getMessage(), e);
+        } catch (Exception e) {
+            LOGGER.warn(e.getMessage(), e);
+        } finally {
+            if (executionParameters.dumpDir != null) {
+                try {
+                    Path sourcePath = executionParameters.workingDir;
+                    Path destinationPath = executionParameters.dumpDir.resolve(executionParameters.workingDir.getFileName());
+                    FileUtil.createDirectory(destinationPath);
+                    FileUtil.copyDir(sourcePath, destinationPath);
+
+                } catch (IOException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }
+            executionParameters.latch.countDown();
+            exit();
+        }
     }
 
     private void preProcess(Path workingDir, Command command, int executionIndex) throws IOException {
@@ -267,13 +268,7 @@ public class LocalComputationManager implements ComputationManager {
                         break;
                     case ARCHIVE_UNZIP:
                         // extract the archive
-                        try (ZipFile zipFile = ZipFile.builder()
-                            .setSeekableByteChannel(Files.newByteChannel(path))
-                            .get()) {
-                            for (ZipArchiveEntry ze : Collections.list(zipFile.getEntries())) {
-                                Files.copy(zipFile.getInputStream(zipFile.getEntry(ze.getName())), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
-                            }
-                        }
+                        FileUtil.unzipArchive(workingDir, path);
                         break;
 
                     default:
@@ -283,7 +278,8 @@ public class LocalComputationManager implements ComputationManager {
         }
     }
 
-    private int process(Path workingDir, CommandExecution commandExecution, int executionIndex, Map<String, String> variables, ComputationParameters computationParameters) throws IOException, InterruptedException {
+    private int process(Path workingDir, CommandExecution commandExecution, int executionIndex, Map<String, String> variables,
+                        ComputationParameters computationParameters) throws IOException, InterruptedException {
         Command command = commandExecution.getCommand();
         int exitValue = 0;
         long timeout = -1;

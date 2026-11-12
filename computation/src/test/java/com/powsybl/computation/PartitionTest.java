@@ -7,8 +7,8 @@
  */
 package com.powsybl.computation;
 
-import org.junit.jupiter.api.Test;
 import com.powsybl.commons.PowsyblException;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

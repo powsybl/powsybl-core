@@ -75,27 +75,29 @@ class CgmesTapChangersSerDeTest extends AbstractCgmesExtensionTest {
         CgmesTapChangers cgmesTapChangers = twoWT.getExtension(CgmesTapChangers.class);
         assertNotNull(cgmesTapChangers);
 
-        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
-            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
-            // When Export (with anonymized option)
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
-            // Then check anonymized id, controlId != original values
-            String anonymizedId = anonymizer.anonymizeString("tc1");
-            String anonymizedControlId = anonymizer.anonymizeString("control1");
-            assertNotEquals("tc1", anonymizedId);
-            assertNotEquals("control1", anonymizedControlId);
-            // Then check xml content (contain only anonymized id and controlId)
-            String xmlContent = os.toString(StandardCharsets.UTF_8);
-            assertTrue(xmlContent.contains("id=\"" + anonymizedId + "\""));
-            assertTrue(xmlContent.contains("controlId=\"" + anonymizedControlId + "\""));
-            // Then check import without anonymizer
-            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            assertWhenImport(importedNetwork1, anonymizer.anonymizeString("NGEN_NHV1"), anonymizedId, anonymizedControlId);
-            // Then check import with anonymizer
-            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
-            assertWhenImport(importedNetwork2, "NGEN_NHV1", "tc1", "control1");
-        });
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> testAnonymizedCgmesTapChangersIdAndControlIdWhenExported(version, network));
+    }
+
+    private void testAnonymizedCgmesTapChangersIdAndControlIdWhenExported(IidmVersion version, Network network) {
+        ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+        // When Export (with anonymized option)
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+        // Then check anonymized id, controlId != original values
+        String anonymizedId = anonymizer.anonymizeString("tc1");
+        String anonymizedControlId = anonymizer.anonymizeString("control1");
+        assertNotEquals("tc1", anonymizedId);
+        assertNotEquals("control1", anonymizedControlId);
+        // Then check xml content (contain only anonymized id and controlId)
+        String xmlContent = os.toString(StandardCharsets.UTF_8);
+        assertTrue(xmlContent.contains("id=\"" + anonymizedId + "\""));
+        assertTrue(xmlContent.contains("controlId=\"" + anonymizedControlId + "\""));
+        // Then check import without anonymizer
+        Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+        assertWhenImport(importedNetwork1, anonymizer.anonymizeString("NGEN_NHV1"), anonymizedId, anonymizedControlId);
+        // Then check import with anonymizer
+        Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+        assertWhenImport(importedNetwork2, "NGEN_NHV1", "tc1", "control1");
     }
 
     private void assertWhenImport(Network importedNetwork, String twtName, String expectedId, String expectedControlId) {

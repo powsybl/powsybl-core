@@ -26,20 +26,21 @@ abstract class AbstractHvdcConverter extends AbstractConverter {
     }
 
     /**
+     * Check if a DGS DataObject belongs to the DC part of the network.
+     *
+     * @param obj DataObject from the DGS data model.
+     * @return true iff the object is part of the DC network, and can therefore be omitted by the
+     *         AC importer.
+     */
+    abstract boolean isDcObject(DataObject obj);
+
+    /**
      * Check if a given DGS terminal is in a DC subgrid.
      *
      * @param elmTerm Terminal to check.
      * @return true iff the terminal is in a DC subgrid.
      */
     abstract boolean isDcNode(DataObject elmTerm);
-
-    /**
-     * Check if a given DGS line is in a DC subgrid.
-     *
-     * @param elmLne Line to check.
-     * @return true iff the line is in a DC subgrid.
-     */
-    abstract boolean isDcLink(DataObject elmLne);
 
     /**
      * Create the DC subgrids in the network.

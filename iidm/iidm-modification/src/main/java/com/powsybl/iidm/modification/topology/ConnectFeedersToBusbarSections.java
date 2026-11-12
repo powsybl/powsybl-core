@@ -242,31 +242,7 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         final Map<Integer, List<Connectable<?>>> foundConnectables = new HashMap<>();
         final Map<Integer, Switch> switchesPerNode = new HashMap<>();
 
-        nodeBreakerView.traverse(startNode, (fromNode, sw, toNode) -> {
-            if (sw == null) { // Internal connection
-                return TraverseResult.CONTINUE;
-            }
-
-            // Keep switches that are connected to the busbar section
-            if (fromNode == startNode) {
-                firstNode[0] = toNode;
-                switchesPerNode.put(toNode, sw);
-            }
-
-            // Continue if there is no terminal yet
-            Optional<Terminal> terminalOpt = nodeBreakerView.getOptionalTerminal(toNode);
-            if (terminalOpt.isEmpty()) {
-                return TraverseResult.CONTINUE;
-            }
-
-            // Add the connectable to the list of connectables at the node
-            Connectable<?> connectable = terminalOpt.get().getConnectable();
-            List<Connectable<?>> connectablesAtNode = foundConnectables.getOrDefault(firstNode[0], new ArrayList<>());
-            connectablesAtNode.add(connectable);
-            foundConnectables.put(firstNode[0], connectablesAtNode);
-
-            return TraverseResult.TERMINATE_PATH;
-        });
+        nodeBreakerView.traverse(startNode, (fromNode, sw, toNode) -> traverseSwitch(fromNode, sw, toNode, startNode, firstNode, switchesPerNode, foundConnectables, nodeBreakerView));
 
         foundConnectables.forEach((node, connectable) -> {
             if (keepSwitch(connectable, busbarSection)) {
@@ -276,11 +252,44 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         return result;
     }
 
+    private TraverseResult traverseSwitch(int fromNode, Switch sw, int toNode,
+                                          int startNode, int[] firstNode,
+                                          Map<Integer, Switch> switchesPerNode,
+                                          Map<Integer, List<Connectable<?>>> foundConnectables,
+                                          VoltageLevel.NodeBreakerView nodeBreakerView) {
+        if (sw == null) { // Internal connection
+            return TraverseResult.CONTINUE;
+        }
+
+        // Keep switches that are connected to the busbar section
+        if (fromNode == startNode) {
+            firstNode[0] = toNode;
+            switchesPerNode.put(toNode, sw);
+        }
+
+        // Continue if there is no terminal yet
+        Optional<Terminal> terminalOpt = nodeBreakerView.getOptionalTerminal(toNode);
+        if (terminalOpt.isEmpty()) {
+            return TraverseResult.CONTINUE;
+        }
+
+        // Add the connectable to the list of connectables at the node
+        Connectable<?> connectable = terminalOpt.get().getConnectable();
+        List<Connectable<?>> connectablesAtNode = foundConnectables.getOrDefault(firstNode[0], new ArrayList<>());
+        connectablesAtNode.add(connectable);
+        foundConnectables.put(firstNode[0], connectablesAtNode);
+
+        return TraverseResult.TERMINATE_PATH;
+    }
+
     private boolean keepSwitch(List<Connectable<?>> connectables, BusbarSection startBusbarSection) {
         boolean isOnlyBusbarSections = isOnlyBusbarSections(connectables);
         if (isOnlyBusbarSections) { // Check if we have a coupling device switch
             int startBusbarSectionPosition = startBusbarSection.getExtension(BusbarSectionPosition.class).getBusbarIndex();
-            boolean isCouplingDevice = connectables.stream().map(c -> (BusbarSection) c).map(b -> b.getExtension(BusbarSectionPosition.class)).anyMatch(position -> ((BusbarSectionPosition) position).getBusbarIndex() != startBusbarSectionPosition);
+            boolean isCouplingDevice = connectables.stream()
+                .map(c -> (BusbarSection) c)
+                .map(b -> b.getExtension(BusbarSectionPosition.class))
+                .anyMatch(position -> ((BusbarSectionPosition) position).getBusbarIndex() != startBusbarSectionPosition);
             return isCouplingDevice && connectCouplingDevices;
         }
         return connectables.stream().anyMatch(connectablesToConnect::contains);

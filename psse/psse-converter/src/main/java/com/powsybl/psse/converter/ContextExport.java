@@ -7,8 +7,8 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.psse.model.PsseException;

@@ -1,0 +1,83 @@
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+  1;Version;5.0
+
+$$ChaRef;ID(a:40);loc_name(a:40);fold_id(p)
+  2;fline;6
+  3;ratfac;13
+
+$$ChaVec;ID(a:40);loc_name(a:40);fold_id(p);scale(p);usage(i);approx(i);vector:SIZEROW(i);vector:0(r);vector:1(r);vector:2(r)
+  4;vec_1;;;0;0;3;100;199,98;199,98
+  5;vec_2;;;0;0;3;100;33598,7903225806;33598,7903225806
+
+$$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
+  8;1 aux_1;;;60;
+
+$$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fline(r)
+  10;Line_1_2_1;;8;200;52;1
+  11;Line_1_3_1;;8;200;52;1
+  12;Line_1_4_1;;8;200;52;1
+  13;Line_4_5_1;;8;200;52;1
+
+$$ElmLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);mode_inp(a:3);slini(r);plini(r);qlini(r);coslini(r);pf_recap(i);scale0(r);i_scale(i);outserv(i)
+  20;Load_2L_1;;8;300;PQ;55,9017;50;25;0,894427;0;1;0;0
+  21;Load_3L_1;;8;300;PQ;55,9017;50;25;0,894427;0;1;0;0
+  22;Load_5L_1;;8;300;PQ;55,9017;50;25;0,894427;0;1;0;0
+
+$$ElmSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);cCategory(a);ngnum(i);i_mot(i);pgini(r);qgini(r);cosgini(r);usetp(r);pf_recap(i);q_min(r);q_max(r);outserv(i);av_mode(a);phtech(i)
+  30;Gen_1_1;;8;400;Others;1;0;50,47;0;1;1,06;0;0;0;0;constv;1
+
+$$ElmTr2;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);typ_id(p);ntnum(i);outserv(i);nntap(i);ntrcn(i);t2ldc(i);imldc(a:2);i_rem(i);p_cub(p);qsetp(r);qsp_up(r);qsp_low(r)
+  40;T2w_2_2L_1;8;;500;1;0;0;1;0;Q;0;;50.0;55.0;45.0
+  41;T2w_3_3L_1;8;;500;1;0;0;1;1;Q;0;;55.0;60.0;50.0
+  42;T2w_5_5L_1;8;;500;1;0;0;1;0;Q;1;84;60.0;65.0;55.0
+  43;T2w_2_2L_2;8;;500;1;0;0;1;0;Q;0;;;55.0;45.0
+  44;T2w_3_3L_2;8;;500;1;0;0;1;1;Q;0;;55.0;60.0;
+  45;T2w_5_5L_2;8;;500;1;0;0;1;0;Q;1;;60.0;65.0;55.0
+
+$$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);outserv(i)
+  50;Bus 1-Slack;;8;;0;0;400;0
+  51;Bus 2;;8;;0;0;400;0
+  52;Bus 3;;8;;0;0;400;0
+  53;Bus 4;;8;;0;0;400;0
+  54;Bus 5;;8;;0;0;400;0
+  55;Bus 2L;;8;;0;0;20;0
+  56;Bus 3L;;8;;0;0;20;0
+  57;Bus 5L;;8;;0;0;20;0
+
+$$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_id(p);obj_bus(i)
+  80;SC-Line_1_2_1-1;;50;10;0
+  81;SC-Line_1_2_1-2;;51;10;1
+  82;SC-Line_1_3_1-1;;50;11;0
+  83;SC-Line_1_3_1-2;;52;11;1
+  84;SC-Line_1_4_1-1;;50;12;0
+  85;SC-Line_1_4_1-2;;53;12;1
+  86;SC-Line_4_5_1-1;;53;13;0
+  87;SC-Line_4_5_1-2;;54;13;1
+  88;SC-Load_2L_1;;51;20;0
+  89;SC-Load_3L_1;;52;21;0
+  90;SC-Load_5L_1;;54;22;0
+  91;SC-Gen_1_1;;50;30;0
+  92;SC-T2w_2_2L_1-1;;51;40;0
+  93;SC-T2w_2_2L_1-2;;55;40;1
+  94;SC-T2w_3_3L_1-1;;52;41;0
+  95;SC-T2w_3_3L_1-2;;56;41;1
+  96;SC-T2w_5_5L_1-1;;54;42;0
+  97;SC-T2w_5_5L_1-2;;57;42;1
+  98;SC-T2w_2_2L_2-1;;51;43;0
+  99;SC-T2w_2_2L_2-2;;55;43;1
+ 100;SC-T2w_3_3L_2-1;;52;44;0
+ 101;SC-T2w_3_3L_2-2;;56;44;1
+ 102;SC-T2w_5_5L_2-1;;54;45;0
+ 103;SC-T2w_5_5L_2-2;;57;45;1
+
+$$TypLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);uline(r);sline(r);InomAir(r);cohl_(i);rline(r);xline(r);rline0(r);xline0(r);Ithr(r);tmax(r);rtemp(r);systp(i);nlnph(i);nneutral(i);frnom(r);mlei(a:2);bline(r);bline0(r)
+  200;Line-type;;8;400;7,216878;1;0;0,596307;1,820615;999999;999999;0;80;80;0;3;0;60;Cu;4,159616;0
+
+$$TypLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);systp(i);phtech(i);aP(r);bP(r);kpu0(r);kpu1(r);kpu(r);aQ(r);bQ(r);kqu0(r);kqu1(r);kqu(r)
+  300;Load-type;;8;0;0;1;0;0;1;2;1;0;0;1;2
+
+$$TypSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sgn(r);ugn(r);cosn(r);xd(r);xq(r);xdsss(r);rstr(r);xdsat(r);satur(i);nphase(i);nslty(i);x0sy(r);r0sy(r);x2sy(r);r2sy(r);iopt_data(i);xds(r);xqs(r);xl(r);xdss(r);xqss(r);xrlq(r);tds(r);tqs(r);tdss(r);tqss(r)
+  400;Gen-type;;8;615;400;1;2;2;1;0;1,2;0;3;2;1;0;1;0;1;0,3;0,3;0,1;1;1;0;1;0;0,05;0,05
+
+$$TypTr2;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);nt2ph(i);strn(r);frnom(r);utrn_h(r);utrn_l(r);uktr(r);pcutr(r);uk0tr(r);ur0tr(r);tr2cn_h(a:2);tr2cn_l(a:2);nt2ag(r);curmg(r);pfe(r);zx0hl_n(r);itapch(i);tap_side(i);dutap(r);phitr(r);nntap0(i);ntpmn(i);ntpmx(i);manuf(a:20)
+  500;T2w-type;;8;3;29,76;60;400;20;0,727407;6,908129;0;0;D;D;0;0.0;0;100;1;0;5;0;0;-2;2;

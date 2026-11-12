@@ -144,11 +144,11 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     /**
-     * Set the option to connect the existing connectables.</br>
+     * Set the option to connect the existing connectables.<br/>
      * If the voltage level is not empty, some connectables might be connected to a busbar section parallel to the
      * created one. If this boolean is set to true, then the connectables will be connected to the new busbar section
      * via an open switch of the same type as the first switch between the parallel busbar section and the connectables.
-     * </br>
+     * <br/>
      * This option should only be set to true if the voltage level has a node-breaker topology and if the
      * BusbarSectionPosition extensions are present on the voltage level.
      *
@@ -160,6 +160,7 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     public CreateVoltageLevelTopology build() {
-        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds, connectExistingConnectables);
+        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount,
+            lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds, connectExistingConnectables);
     }
 }

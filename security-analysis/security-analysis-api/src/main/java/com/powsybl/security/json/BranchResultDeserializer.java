@@ -57,53 +57,56 @@ public class BranchResultDeserializer extends StdDeserializer<BranchResult> {
     @Override
     public BranchResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parseObject(jsonParser, name -> {
-            switch (name) {
-                case "branchId":
-                    context.branchId = jsonParser.nextTextValue();
-                    return true;
-                case "p1":
-                    jsonParser.nextToken();
-                    context.p1 = jsonParser.getValueAsDouble();
-                    return true;
-                case "q1":
-                    jsonParser.nextToken();
-                    context.q1 = jsonParser.getValueAsDouble();
-                    return true;
-                case "i1":
-                    jsonParser.nextToken();
-                    context.i1 = jsonParser.getValueAsDouble();
-                    return true;
-                case "p2":
-                    jsonParser.nextToken();
-                    context.p2 = jsonParser.getValueAsDouble();
-                    return true;
-                case "q2":
-                    jsonParser.nextToken();
-                    context.q2 = jsonParser.getValueAsDouble();
-                    return true;
-                case "i2":
-                    jsonParser.nextToken();
-                    context.i2 = jsonParser.getValueAsDouble();
-                    return true;
-                case "flowTransfer":
-                    jsonParser.nextToken();
-                    context.flowTransfer = jsonParser.getValueAsDouble();
-                    return true;
-                case "extensions":
-                    jsonParser.nextToken();
-                    context.extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, SUPPLIER.get());
-                    break;
-                default:
-                    return false;
-            }
-            return false;
-        });
+        JsonUtil.parseObject(jsonParser, name -> parseBranchResult(jsonParser, deserializationContext, context, name));
         BranchResult branchResult = new BranchResult(context.branchId,
                                                      context.p1, context.q1, context.i1,
                                                      context.p2, context.q2, context.i2,
                                                      context.flowTransfer);
         SUPPLIER.get().addExtensions(branchResult, context.extensions);
         return branchResult;
+    }
+
+    private boolean parseBranchResult(JsonParser jsonParser, DeserializationContext deserializationContext,
+                                      ParsingContext context, String name) throws IOException {
+        switch (name) {
+            case "branchId":
+                context.branchId = jsonParser.nextTextValue();
+                return true;
+            case "p1":
+                jsonParser.nextToken();
+                context.p1 = jsonParser.getValueAsDouble();
+                return true;
+            case "q1":
+                jsonParser.nextToken();
+                context.q1 = jsonParser.getValueAsDouble();
+                return true;
+            case "i1":
+                jsonParser.nextToken();
+                context.i1 = jsonParser.getValueAsDouble();
+                return true;
+            case "p2":
+                jsonParser.nextToken();
+                context.p2 = jsonParser.getValueAsDouble();
+                return true;
+            case "q2":
+                jsonParser.nextToken();
+                context.q2 = jsonParser.getValueAsDouble();
+                return true;
+            case "i2":
+                jsonParser.nextToken();
+                context.i2 = jsonParser.getValueAsDouble();
+                return true;
+            case "flowTransfer":
+                jsonParser.nextToken();
+                context.flowTransfer = jsonParser.getValueAsDouble();
+                return true;
+            case "extensions":
+                jsonParser.nextToken();
+                context.extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, SUPPLIER.get());
+                break;
+            default:
+                return false;
+        }
+        return false;
     }
 }

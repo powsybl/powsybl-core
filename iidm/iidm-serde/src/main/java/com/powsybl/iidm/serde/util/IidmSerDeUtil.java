@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.*;
 import org.slf4j.Logger;
@@ -123,6 +124,15 @@ public final class IidmSerDeUtil {
         if (context.getVersion().compareTo(minVersion) < 0) {
             throw createException(rootElementName, elementName, type, minVersion, context.getVersion(), MINIMUM_REASON);
         }
+    }
+
+    /**
+     * Assert that the reader context's IIDM version between two given IIDM versions (which are included).
+     * If not, throw an exception with a given type of error message.
+     */
+    public static void assertInBetweenTwoVersions(String rootElementName, String elementName, ErrorMessage type, IidmVersion minVersion, IidmVersion maxVersion, NetworkDeserializerContext context) {
+        assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
+        assertMaximumVersion(rootElementName, elementName, type, maxVersion, context);
     }
 
     /**
@@ -272,6 +282,54 @@ public final class IidmSerDeUtil {
     /**
      * Run a given runnable if the context's IIDM version equals or is more recent than a given minimum IIDM version.
      */
+    /**
+     * Writes a double attribute that was formerly mandatory and is now optional (since a given version).
+     * Before that version, it is written as a mandatory attribute.
+     * From that version, it is written with a default value of 0.0.
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @param optionalSince the version from which the attribute became optional
+     * @param context the serialization context
+     */
+    public static void writeFormerlyMandatoryDoubleAttribute(String name, double value, IidmVersion optionalSince, NetworkSerializerContext context) {
+        if (context.getVersion().compareTo(optionalSince) < 0) {
+            context.getWriter().writeDoubleAttribute(name, value);
+        } else {
+            context.getWriter().writeDoubleAttribute(name, value, 0.0);
+        }
+    }
+
+    /**
+     * Write a double attribute from a given minimum version, knowing it is mandatory until another given verions
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @param minVersion the version from which the attribute exists
+     * @param optionalSince the version from which the attribute became optional
+     * @param context the serialization context
+     */
+    public static void writeFormerlyMandatoryDoubleAttribute(String name, double value, IidmVersion minVersion, IidmVersion optionalSince, NetworkSerializerContext context) {
+        if (context.getVersion().compareTo(minVersion) >= 0) {
+            writeFormerlyMandatoryDoubleAttribute(name, value, optionalSince, context);
+        }
+    }
+
+    /**
+     * Reads a double attribute that was formerly mandatory and is now optional (since a given version).
+     * Before that version, it is read as a mandatory attribute.
+     * From that version, it is read with a default value of 0.0.
+     * @param name the name of the attribute
+     * @param optionalSince the version from which the attribute became optional
+     * @param context the deserialization context
+     * @return the value of the attribute
+     */
+    public static double readFormerlyMandatoryDoubleAttribute(String name, IidmVersion optionalSince, NetworkDeserializerContext context) {
+        if (context.getVersion().compareTo(optionalSince) < 0) {
+            return context.getReader().readDoubleAttribute(name);
+        } else {
+            return context.getReader().readDoubleAttribute(name, 0.0);
+        }
+    }
+
     public static void runFromMinimumVersion(IidmVersion minVersion, IidmVersion contextVersion, Runnable runnable) {
         if (contextVersion.compareTo(minVersion) >= 0) {
             runnable.run();
@@ -289,6 +347,15 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Run a given runnable if the context's IIDM version equals or is older than a given maximum IIDM version.
+     */
+    public static void runUntilMaximumVersion(IidmVersion maxVersion, IidmVersion contextVersion, Runnable runnable) {
+        if (contextVersion.compareTo(maxVersion) <= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
      * Run a given runnable if the context's IIDM versions is equals or is more recent that the minimum version given,
      * and is equal or older than a given maximum IIDM version
      * @param minVersion the minimum version from which to run the runnable (included)
@@ -297,7 +364,19 @@ public final class IidmSerDeUtil {
      * @param runnable what we want to execute
      */
     public static <C extends AbstractNetworkSerDeContext> void runInBetweenTwoVersions(IidmVersion minVersion, IidmVersion maxVersion, C context, Runnable runnable) {
-        if (context.getVersion().compareTo(maxVersion) <= 0 && context.getVersion().compareTo(minVersion) >= 0) {
+        runInBetweenTwoVersions(minVersion, maxVersion, context.getVersion(), runnable);
+    }
+
+    /**
+     * Run a given runnable if the context's IIDM versions is equal or more recent than the minimum version given,
+     * and is equal or older than a given maximum IIDM version
+     * @param minVersion the minimum version from which to run the runnable (included)
+     * @param maxVersion the maximum version until which to run the runnable (included)
+     * @param contextVersion the version of the context of the call
+     * @param runnable what we want to execute
+     */
+    public static void runInBetweenTwoVersions(IidmVersion minVersion, IidmVersion maxVersion, IidmVersion contextVersion, Runnable runnable) {
+        if (contextVersion.compareTo(maxVersion) <= 0 && contextVersion.compareTo(minVersion) >= 0) {
             runnable.run();
         }
     }
@@ -367,24 +446,47 @@ public final class IidmSerDeUtil {
     }
 
     /**
-     * Sort identifiables by their ids.
+     * Sort identifiables by their ids if given export option is activated,
+     * otherwise, by their creation order if the network defines one.
+     * In all other cases, do not change the identifiables order.
      */
-    public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
+    public static <T extends Identifiable<?>> Iterable<T> sorted(Network network, Iterable<T> identifiables, ExportOptions exportOptions) {
         Objects.requireNonNull(identifiables);
         Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
-                .sorted(Comparator.comparing(Identifiable::getId))
-                .collect(Collectors.toList())
-                : identifiables;
+
+        Comparator<Identifiable<?>> comparator;
+        if (exportOptions.isSorted()) {
+            comparator = Comparator.comparing(Identifiable::getId);
+        } else if (exportOptions.isConnectableCreationOrder() && network.getIdentifiableCreationOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableCreationOrderComparator().get();
+        } else {
+            return identifiables;
+        }
+
+        return StreamSupport.stream(identifiables.spliterator(), false)
+                .sorted(comparator)
+                .collect(Collectors.toList());
     }
 
     /**
-     * Sort identifiables by their ids.
+     * Sort identifiables by their ids if given export option is activated,
+     * otherwise, by their creation order if the network defines one.
+     * In all other cases, do not change the identifiables order.
      */
-    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions) {
+    public static <T extends Identifiable<T>> Stream<T> sorted(Network network, Stream<T> stream, ExportOptions exportOptions) {
         Objects.requireNonNull(stream);
         Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? stream.sorted(Comparator.comparing(Identifiable::getId)) : stream;
+
+        Comparator<Identifiable<?>> comparator;
+        if (exportOptions.isSorted()) {
+            comparator = Comparator.comparing(Identifiable::getId);
+        } else if (exportOptions.isConnectableCreationOrder() && network.getIdentifiableCreationOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableCreationOrderComparator().get();
+        } else {
+            return stream;
+        }
+
+        return stream.sorted(comparator);
     }
 
     /**
@@ -414,7 +516,8 @@ public final class IidmSerDeUtil {
     /**
      * Sort internal connections first by their side one node value then by their side 2 node value.
      */
-    public static Iterable<VoltageLevel.NodeBreakerView.InternalConnection> sortedInternalConnections(Iterable<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections, ExportOptions exportOptions) {
+    public static Iterable<VoltageLevel.NodeBreakerView.InternalConnection> sortedInternalConnections(Iterable<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections,
+                                                                                                      ExportOptions exportOptions) {
         Objects.requireNonNull(internalConnections);
         Objects.requireNonNull(exportOptions);
         return exportOptions.isSorted() ? StreamSupport.stream(internalConnections.spliterator(), false)

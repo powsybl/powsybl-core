@@ -13,5 +13,6 @@ package com.powsybl.iidm.network;
  */
 public enum ReactiveLimitsKind {
     MIN_MAX,
-    CURVE
+    CURVE,
+    SHAPE
 }

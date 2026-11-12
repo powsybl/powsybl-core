@@ -82,7 +82,8 @@ public class HvdcLineModification extends AbstractNetworkModification {
             if (hvdcAngleDroopActivePowerControl != null) {
                 hvdcAngleDroopActivePowerControl.setEnabled(acEmulationEnabled);
             } else {
-                LOG.warn("AV emulation enable is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", acEmulationEnabled, hvdcId);
+                LOG.warn("AV emulation enable is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension",
+                    acEmulationEnabled, hvdcId);
             }
         }
         if (p0 != null) {

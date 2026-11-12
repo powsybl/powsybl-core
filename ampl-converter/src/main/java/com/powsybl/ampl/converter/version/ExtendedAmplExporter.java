@@ -17,6 +17,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -226,7 +227,8 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
         for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
             PhaseTapChangerStep step = ptc.getStep(position);
             ImpedanceAndAdmittance stepCharacteristics = new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB());
-            writeTapChanger(formatter, new TapChangerParametersForWriter(num, position, ptc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), Math.toRadians(step.getAlpha())));
+            writeTapChanger(formatter, new TapChangerParametersForWriter(num, position, ptc.getLowTapPosition(), zb2,
+                transformerZandY, stepCharacteristics, step.getRho(), Math.toRadians(step.getAlpha())));
         }
     }
 
@@ -253,7 +255,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
 
     @Override
     public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
-        int regulatingBusNum = gen.isVoltageRegulatorOn() && gen.getRegulatingTerminal().isConnected() ?
+        int regulatingBusNum = gen.isRegulatingWithMode(RegulationMode.VOLTAGE) && gen.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, gen.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
         formatterHelper.addCell(regulatingBusNum, GENERATOR_V_REGUL_BUS_COLUMN_INDEX);
     }
@@ -261,7 +263,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     @Override
     public void addAdditionalCellsStaticVarCompensator(TableFormatterHelper formatterHelper,
                                                        StaticVarCompensator svc) {
-        boolean voltageRegulation = svc.isRegulating() && svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE);
+        boolean voltageRegulation = svc.isRegulatingWithMode(RegulationMode.VOLTAGE);
         int regulatingBusNum = voltageRegulation && svc.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, svc.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 

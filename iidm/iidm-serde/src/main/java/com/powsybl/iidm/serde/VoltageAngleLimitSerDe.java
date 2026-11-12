@@ -51,33 +51,34 @@ public final class VoltageAngleLimitSerDe {
     }
 
     public static void read(Network network, NetworkDeserializerContext context) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> readFromVersion11(network, context));
+    }
 
-            String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
-            OptionalDouble lowLimit = context.getReader().readOptionalDoubleAttribute(LOW_LIMIT);
-            OptionalDouble highLimit = context.getReader().readOptionalDoubleAttribute(HIGH_LIMIT);
+    private static void readFromVersion11(Network network, NetworkDeserializerContext context) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
+        OptionalDouble lowLimit = context.getReader().readOptionalDoubleAttribute(LOW_LIMIT);
+        OptionalDouble highLimit = context.getReader().readOptionalDoubleAttribute(HIGH_LIMIT);
 
-            VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
-            adder.setId(id);
-            lowLimit.ifPresent(adder::setLowLimit);
-            highLimit.ifPresent(adder::setHighLimit);
-            context.getReader().readChildNodes(elementName -> {
-                switch (elementName) {
-                    case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(adder, context);
-                    case FROM -> {
-                        Terminal terminal = TerminalRefSerDe.readTerminal(context, network);
-                        adder.from(terminal);
-                    }
-                    case TO -> {
-                        Terminal terminal = TerminalRefSerDe.readTerminal(context, network);
-                        adder.to(terminal);
-                    }
-                    default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'voltageAngleLimit'");
+        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
+        adder.setId(id);
+        lowLimit.ifPresent(adder::setLowLimit);
+        highLimit.ifPresent(adder::setHighLimit);
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(adder, context);
+                case FROM -> {
+                    Terminal terminal = TerminalRefSerDe.readTerminal(context, network);
+                    adder.from(terminal);
                 }
-            });
-
-            adder.add();
+                case TO -> {
+                    Terminal terminal = TerminalRefSerDe.readTerminal(context, network);
+                    adder.to(terminal);
+                }
+                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'voltageAngleLimit'");
+            }
         });
+
+        adder.add();
     }
 
     private VoltageAngleLimitSerDe() {

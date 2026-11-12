@@ -1,0 +1,27 @@
+* 2 DC terminals 11 and 12 connected by a disconnector
+* and 2 AC terminals 13 and 14 connected by a disconnector.
+* This checks that DC disconnectors are properly ignored in the AC
+* network and vice-versa.
+
+$$General;ID(a:40);Descr(a:40);Val(a:255)
+1;Version;5.0
+
+$$ElmNet;ID(a:40);loc_name(a:80);for_name(a:100);fold_id(p);frnom(r);pDiagram(p)
+4;Grid;;;50;15
+
+$$ElmTerm;ID(a:40);loc_name(a:80);fold_id(p);systype(i);uknom(r);unknom(r);iUsage(i)
+11;DC terminal 11;4;1;500;500.0;0
+12;DC terminal 12;4;1;500;500.0;0
+13;AC terminal 13;4;0;165;95.26;0
+14;AC terminal 14;4;0;165;95.26;0
+
+$$ElmCoup;ID(a:40);loc_name(a:80);fold_id(p)
+21;DC Disconnector;4
+22;AC Disconnector;4
+
+$$StaCubic;ID(a:40);loc_name(a:80);fold_id(p);obj_bus(i);obj_id(p)
+31;switch cubicle 31;11;0;21
+32;switch cubicle 32;13;0;22
+41;switch cubicle 41;12;1;21
+42;switch cubicle 42;14;1;22
+

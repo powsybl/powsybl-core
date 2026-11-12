@@ -137,7 +137,7 @@ public interface TripleStore {
      */
     Set<String> contextNames();
 
-      /**
+    /**
      * Perform a SPARQL update on the Triplestore.
      *
      * @param queryText the text of the query, written in SPARQL Update language

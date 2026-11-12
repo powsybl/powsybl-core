@@ -79,17 +79,17 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId(), getNetwork());
+        return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), getNetwork());
+        return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), getNetwork());
+        return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
@@ -133,9 +133,9 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
         return validable;
     }
 
-    public void notifyPermanentLimitUpdate(LimitType limitType, double oldValue, double newValue) {
-        PermanentLimitInfo oldPermanentLimitInfo = new PermanentLimitInfo(oldValue, id, isSelected.test(id));
-        PermanentLimitInfo newPermanentLimitInfo = new PermanentLimitInfo(newValue, id, isSelected.test(id));
+    public void notifyPermanentLimitUpdate(LimitType limitType, String oldName, String newName, double oldValue, double newValue) {
+        PermanentLimitInfo oldPermanentLimitInfo = new PermanentLimitInfo(oldName, oldValue, id, isSelected.test(id));
+        PermanentLimitInfo newPermanentLimitInfo = new PermanentLimitInfo(newName, newValue, id, isSelected.test(id));
         doNotify(attributeName + "_" + limitType + ".permanentLimit", oldPermanentLimitInfo, newPermanentLimitInfo);
     }
 
@@ -167,7 +167,7 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
         return currentLimits == null && apparentPowerLimits == null && activePowerLimits == null;
     }
 
-    public record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {
+    public record PermanentLimitInfo(String name, double value, String groupId, boolean inSelectedGroup) {
     }
 
     public record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {

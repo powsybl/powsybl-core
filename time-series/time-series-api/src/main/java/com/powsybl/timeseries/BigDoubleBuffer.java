@@ -10,8 +10,8 @@ package com.powsybl.timeseries;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.Objects;
-import java.util.function.IntFunction;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}
@@ -27,7 +27,7 @@ public class BigDoubleBuffer {
 
     //To remove if we ever get it from somewhere else
     //package private for tests
-    @FunctionalInterface interface IntIntBiConsumer { public void accept(int a, int b); }
+    @FunctionalInterface interface IntIntBiConsumer { void accept(int a, int b); }
 
     //using a lambda to test independently from java.nio.ByteBuffer
     //package private for tests
@@ -65,7 +65,7 @@ public class BigDoubleBuffer {
 
     //To remove if we ever get it from somewhere else
     //package private for tests
-    @FunctionalInterface interface IntIntToDoubleBiFunction { public double applyAsDouble(int a, int b); }
+    @FunctionalInterface interface IntIntToDoubleBiFunction { double applyAsDouble(int a, int b); }
 
     //using a lambda to test independently from java.nio.ByteBuffer
     //package private for tests

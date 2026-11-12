@@ -71,7 +71,7 @@ For _detailed_ network import, the following additional attributes are also requ
 
 Ground elements (`ElmGndswt`) are not exported by default by PowerFactory. Their export to the DGS file must be declared specifically if grounds are to be re-imported by PowSyBl. No additional attribute is mandatory for ground elements (`ElmGndswt`). If `on_off` is present and has value zero, the ground element is considered disconnected and it is not added to the network. `ciEarthed` is disregarded by the importer. The switch itself is not imported to PowSyBl. The ground resistance is assumed to be zero.
 
-`ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes. 
+`ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes.
 
 ### Control mode (_detailed_)
 
@@ -86,10 +86,25 @@ The following type of control mode is setup for VSCs, depending on the value of 
 
 Values 0, 1, 2, 7 and 8 are not supported and will raise a PowerFactoryException during the import.
 
+### Switches and breakers
+ElmCoup are imported as DcSwitch if they are connected to 2 DC terminals. They are assumed to be initially closed
+unless `on_off` is present and set to 0. Their _kinds_ are `DISCONNECTOR` by default, which may be overridden
+to `BREAKER` if `aUsage` is set to `cbk`. Kind may be explicitly set to `DISCONNECTOR` by specifying
+`aUsage = dct`. Other `aUsage` values are not supported.
+
+When a `TypSwitch` is provided with `typ_id`, the resistance value `R_on` is taken into account. Other
+properties of the switch are disregarded for the DC network.
+
 ### Limitations (_detailed_)
 - The only supported AC-DC converters are VSCs in `ElmVsc`.
 - For now PCC control is not taken into account and the VSC is connected to a single terminal.
 - Attribute `ciEarthed` of `ElmTerm` is ignored by the importer.
+
+## Importing GPS coordinates
+
+If the import `powerfactory.import.geodata` option is set to `true`, the importer will include geodata for both substations and lines.
+
+GPS coordinates for substations are stored in a `SubstationPosition` extension attached to the corresponding substation. Similarly, line coordinates are stored in a `LinePosition` extension attached to the corresponding line, represented as a list of coordinates points.
 
 ## Import PowerFactory internal format
 

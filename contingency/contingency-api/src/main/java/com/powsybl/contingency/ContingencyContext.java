@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * A contingency context has several usages in security analysis and in sensitivity analysis.
  * For a security analysis, it is a way to describe for which contingency we want some network results
- * or for which contingency we want limit reductions to be applied. For a sensitivity analysis, it is a way
+ * or for which contingency we want limit scalings to be applied. For a sensitivity analysis, it is a way
  * to describe for which contingency we want to compute sensitivity factors.
  * See {@link ContingencyContextType} for the type of context to use. In case of a SPECIFIC contingency context,
  * the id of the contingency must be provided.

@@ -51,7 +51,7 @@ public class BatteryModification extends AbstractNetworkModification {
             battery.setTargetP(targetP);
         }
         if (targetQ != null) {
-            battery.setTargetQ(targetQ);
+            battery.setLocalTargetQ(targetQ);
         }
     }
 
@@ -63,7 +63,7 @@ public class BatteryModification extends AbstractNetworkModification {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else {
             if ((targetP == null || Math.abs(targetP - battery.getTargetP()) < EPSILON)
-                && (targetQ == null || Math.abs(targetQ - battery.getTargetQ()) < EPSILON)) {
+                && (targetQ == null || Math.abs(targetQ - battery.getLocalTargetQ()) < EPSILON)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }

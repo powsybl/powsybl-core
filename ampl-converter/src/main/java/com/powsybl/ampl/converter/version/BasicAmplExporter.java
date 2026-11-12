@@ -13,6 +13,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
@@ -523,7 +524,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Double.NaN;
 
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-        double vlSet = vscStation.getVoltageSetpoint();
+        double vlSet = vscStation.getRegulatingTargetV();
         double vb = t.getVoltageLevel().getNominalV();
         double minP = -maxP;
 
@@ -541,9 +542,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
             .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
             .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
-            .writeCell(vscStation.isVoltageRegulatorOn())
+            .writeCell(vscStation.isRegulatingWithMode(RegulationMode.VOLTAGE))
             .writeCell(vlSet / vb)
-            .writeCell(vscStation.getReactivePowerSetpoint())
+            .writeCell(vscStation.getRegulatingTargetQ())
             .writeCell(vscStation.getLossFactor())
             .writeCell(faultNum)
             .writeCell(actionNum)
@@ -619,7 +620,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                 .writeCell(tcsNum)
                 .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
             if (config.isExportRatioTapChangerVoltageTarget()) {
-                formatter.writeCell(rtc.getTargetV());
+                formatter.writeCell(rtc.getRegulatingTargetV());
             }
             formatter.writeCell(faultNum)
                 .writeCell(actionNum)
@@ -1331,10 +1332,10 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(gen.getReactiveLimits().getMaxQ(maxP))
             .addCell(gen.getReactiveLimits().getMaxQ(0))
             .addCell(gen.getReactiveLimits().getMaxQ(minP))
-            .addCell(gen.isVoltageRegulatorOn())
-            .addCell(gen.getTargetV() / vb)
+            .addCell(gen.isRegulatingWithMode(RegulationMode.VOLTAGE))
+            .addCell(gen.getRegulatingTargetV() / vb)
             .addCell(gen.getTargetP())
-            .addCell(gen.getTargetQ())
+            .addCell(gen.getRegulatingTargetQ())
             .addCell(faultNum)
             .addCell(actionNum)
             .addCell(id)
@@ -1364,27 +1365,38 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double minP = battery.getMinP();
         double maxP = battery.getMaxP();
 
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-            .writeCell(vlNum)
-            .writeCell(battery.getTargetP())
-            .writeCell(battery.getTargetQ())
-            .writeCell(minP)
-            .writeCell(maxP)
-            .writeCell(battery.getReactiveLimits().getMinQ(maxP))
-            .writeCell(battery.getReactiveLimits().getMinQ(0))
-            .writeCell(battery.getReactiveLimits().getMinQ(minP))
-            .writeCell(battery.getReactiveLimits().getMaxQ(maxP))
-            .writeCell(battery.getReactiveLimits().getMaxQ(0))
-            .writeCell(battery.getReactiveLimits().getMaxQ(minP))
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(id)
-            .writeCell(battery.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell(busNum)
+            .addCell(conBusNum != -1 ? conBusNum : busNum)
+            .addCell(vlNum)
+            .addCell(battery.getTargetP())
+            .addCell(battery.getRegulatingTargetQ())
+            .addCell(minP)
+            .addCell(maxP)
+            .addCell(battery.getReactiveLimits().getMinQ(maxP))
+            .addCell(battery.getReactiveLimits().getMinQ(0))
+            .addCell(battery.getReactiveLimits().getMinQ(minP))
+            .addCell(battery.getReactiveLimits().getMaxQ(maxP))
+            .addCell(battery.getReactiveLimits().getMaxQ(0))
+            .addCell(battery.getReactiveLimits().getMaxQ(minP))
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(id)
+            .addCell(battery.getNameOrId())
+            .addCell(t.getP())
+            .addCell(t.getQ());
+
+        // Add cells if necessary
+        addAdditionalCellsBattery(formatterHelper, battery);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsBattery(TableFormatterHelper formatterHelper, Battery battery) {
+        // Nothing to do here
     }
 
     @Override
@@ -1399,7 +1411,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
 
-        double vlSet = svc.getVoltageSetpoint();
+        double vlSet = svc.getRegulatingTargetV();
         double vb = t.getVoltageLevel().getNominalV();
         double zb = vb * vb / AmplConstants.SB; // Base impedance
 
@@ -1413,9 +1425,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(vlNum)
             .addCell(svc.getBmin() * zb)
             .addCell(svc.getBmax() * zb)
-            .addCell(svc.isRegulating() && svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
+            .addCell(svc.isRegulatingWithMode(RegulationMode.VOLTAGE))
             .addCell(vlSet / vb)
-            .addCell(svc.getReactivePowerSetpoint())
+            .addCell(svc.getRegulatingTargetQ())
             .addCell(faultNum)
             .addCell(actionNum)
             .addCell(id)

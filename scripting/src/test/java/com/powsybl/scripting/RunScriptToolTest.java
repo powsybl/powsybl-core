@@ -7,8 +7,8 @@
  */
 package com.powsybl.scripting;
 
-import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

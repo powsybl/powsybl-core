@@ -40,7 +40,8 @@ public class GeoJsonDataAdder {
             parseSubstations(reader, (id, coordinates) ->
                 fillSubstationGeoData(network, id, coordinates, forceGeoDataComputation, substationsWithNewData, substationsWithUpdatedData, unknownSubstations));
         }
-        LOGGER.info("{} substations with data added - {} substations with data updated - {} unknown substations", substationsWithNewData.get(), substationsWithUpdatedData.get(), unknownSubstations.get());
+        LOGGER.info("{} substations with data added - {} substations with data updated - {} unknown substations",
+            substationsWithNewData.get(), substationsWithUpdatedData.get(), unknownSubstations.get());
     }
 
     public static void fillNetworkLinesGeoDataFromFile(Network network, Path path, boolean forceGeoDataComputation) throws IOException {

@@ -146,9 +146,12 @@ class LineUpdateTest {
     private static void assertFlows(Network network, double aCLineSegmentP1, double aCLineSegmentQ1, double aCLineSegmentP2, double aCLineSegmentQ2,
                                     double equivalentBranchP1, double equivalentBranchQ1, double equivalentBranchP2, double equivalentBranchQ2,
                                     double seriesCompensatorP1, double seriesCompensatorQ1, double seriesCompensatorP2, double seriesCompensatorQ2) {
-        assertFlows(network.getLine("ACLineSegment").getTerminal1(), aCLineSegmentP1, aCLineSegmentQ1, network.getLine("ACLineSegment").getTerminal2(), aCLineSegmentP2, aCLineSegmentQ2);
-        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), equivalentBranchP1, equivalentBranchQ1, network.getLine("EquivalentBranch").getTerminal2(), equivalentBranchP2, equivalentBranchQ2);
-        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), seriesCompensatorP1, seriesCompensatorQ1, network.getLine("SeriesCompensator").getTerminal2(), seriesCompensatorP2, seriesCompensatorQ2);
+        assertFlows(network.getLine("ACLineSegment").getTerminal1(), aCLineSegmentP1, aCLineSegmentQ1,
+            network.getLine("ACLineSegment").getTerminal2(), aCLineSegmentP2, aCLineSegmentQ2);
+        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), equivalentBranchP1, equivalentBranchQ1,
+            network.getLine("EquivalentBranch").getTerminal2(), equivalentBranchP2, equivalentBranchQ2);
+        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), seriesCompensatorP1, seriesCompensatorQ1,
+            network.getLine("SeriesCompensator").getTerminal2(), seriesCompensatorP2, seriesCompensatorQ2);
     }
 
     private static void assertEq(Line line) {

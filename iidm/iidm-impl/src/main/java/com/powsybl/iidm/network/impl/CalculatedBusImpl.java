@@ -26,6 +26,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private boolean valid = true;
 
     private final List<NodeTerminal> terminals;
+    private List<TerminalExt> connectableTerminals = null;
     private final int[] nodes;
     private final List<Switch> switchesToTerminalRef;
     private final List<Switch> openSwitches;
@@ -43,18 +44,29 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     /**
      * Find a terminal to retrieve voltage, angle or connected and synchronous component numbers.
-     * If the terminals list contains at least one element, we use the first terminal as reference.
-     * Otherwise this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
+     * If the terminals list contains at least one element, we use the first terminal with a defined voltage or angle value as reference.
+     * Otherwise, this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
      * and therefore can be used as reference.
      *
      * @param nodes The nodes which belong to this bus
-     * @return The first terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
+     * @param terminals The terminals belong to this bus
+     * @return The first terminal with defined voltage or angle if exists, otherwise the first
+     * terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
     private NodeTerminal findTerminal(TIntArrayList nodes) {
         if (!terminals.isEmpty()) {
+            for (NodeTerminal terminal : terminals) {
+                if (hasDefinedVoltageOrAngle(terminal)) {
+                    return terminal;
+                }
+            }
             return terminals.getFirst();
         }
         return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0), switchesToTerminalRef, openSwitches);
+    }
+
+    private static boolean hasDefinedVoltageOrAngle(NodeTerminal t) {
+        return !Double.isNaN(t.getV()) || !Double.isNaN(t.getAngle());
     }
 
     private void checkValidity() {
@@ -94,6 +106,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         voltageLevel = null;
         terminals.clear();
         terminalRef = null;
+        connectableTerminals = null;
     }
 
     @Override
@@ -110,7 +123,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Collection<TerminalExt> getConnectedTerminals() {
-        return getTerminals();
+        checkValidity();
+        return Collections.unmodifiableCollection(terminals);
     }
 
     @Override
@@ -122,7 +136,10 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Collection<TerminalExt> getTerminals() {
         checkValidity();
-        return Collections.unmodifiableCollection(terminals);
+        if (connectableTerminals == null) {
+            connectableTerminals = buildConnectableTerminalsCache();
+        }
+        return Collections.unmodifiableCollection(connectableTerminals);
     }
 
     @Override
@@ -376,5 +393,30 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     public void visitConnectedOrConnectableEquipments(TopologyVisitor visitor) {
         checkValidity();
         super.visitConnectedOrConnectableEquipments(visitor);
+    }
+
+    private List<TerminalExt> buildConnectableTerminalsCache() {
+        List<TerminalExt> connectableTerminalsList = new ArrayList<>(terminals);
+        int[] vlNodes = voltageLevel.getNodeBreakerView().getNodes();
+        for (int n : vlNodes) {
+            Terminal t = voltageLevel.getNodeBreakerView().getTerminal(n);
+            if (t instanceof TerminalExt te) {
+                try {
+                    Bus connectableBus = te.getBusView().getConnectableBus();
+                    if (this.equals(connectableBus) && !connectableTerminalsList.contains(te)) {
+                        connectableTerminalsList.add(te);
+                    }
+                } catch (PowsyblException e) {
+                    // ignore removed equipments or inaccessible buses
+                }
+            }
+        }
+        return connectableTerminalsList;
+    }
+
+    @Override
+    public CalculatedBus setId(String id) {
+        // Calculated bus id should not be updated
+        throw new PowsyblException("Updating the id of a calculated bus is not supported.");
     }
 }
