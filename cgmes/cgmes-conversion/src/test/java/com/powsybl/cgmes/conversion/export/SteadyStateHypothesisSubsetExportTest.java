@@ -9,17 +9,26 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,12 +56,88 @@ class SteadyStateHypothesisSubsetExportTest {
         assertEquals(ids(full), ids(partial));
         assertEquals(partial.size(), new HashSet<>(ids(partial)).size());
         Map<String, SshObject> partialById = byId(partial);
-        full.forEach(object -> {
-            // The combined view of a regulating control depends on the order of its users
-            if (!object.className().equals("RegulatingControl") && !object.className().equals("TapChangerControl")) {
-                assertEquals(object, partialById.get(object.id()));
+        full.forEach(object -> assertEquals(object, partialById.get(object.id())));
+    }
+
+    @Test
+    void sharedControlIsWrittenWithTheViewsOfAllItsHolders(@TempDir Path tmpDir) throws IOException, XMLStreamException {
+        // The EQ is changed so that a shunt also refers to the regulating control of a generator
+        Network base = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        Generator generator = regulatingHolders(base.getGeneratorStream()).get(0);
+        ShuntCompensator shunt = regulatingHolders(base.getShuntCompensatorStream()).get(0);
+        String sharedControl = generator.getProperty(PROPERTY_REGULATING_CONTROL);
+        Network network = withSharedControl(tmpDir, shunt.getId(), sharedControl);
+
+        SshObject control = byId(sshObjects(exportPartial(network, List.of(network.getShuntCompensator(shunt.getId()))))).get(sharedControl);
+
+        assertNotNull(control);
+        assertEquals(byId(sshObjects(exportFull(network))).get(sharedControl), control);
+    }
+
+    @Test
+    void sharedControlWithDifferentTargetValuesIsNotExported(@TempDir Path tmpDir) throws IOException {
+        Network base = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        Generator baseGenerator = regulatingHolders(base.getGeneratorStream()).get(0);
+        ShuntCompensator baseShunt = regulatingHolders(base.getShuntCompensatorStream()).get(0);
+        String sharedControl = baseGenerator.getProperty(PROPERTY_REGULATING_CONTROL);
+        Network network = withSharedControl(tmpDir, baseShunt.getId(), sharedControl);
+
+        // The user changes the target value of only one of the holders
+        Generator generator = network.getGenerator(baseGenerator.getId());
+        generator.setTargetV(generator.getRegulatingTargetV() + 1.0);
+        List<Identifiable<?>> shunt = List.of(network.getShuntCompensator(baseShunt.getId()));
+
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, shunt));
+        assertTrue(e.getMessage().contains(sharedControl));
+    }
+
+    @Test
+    void sharedControlWithDifferentDeadbandsIsNotExported(@TempDir Path tmpDir) throws IOException, XMLStreamException {
+        // The EQ is changed so that a second shunt also refers to the regulating control of a first shunt
+        Network base = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        List<ShuntCompensator> shunts = regulatingHolders(base.getShuntCompensatorStream());
+        String sharedControl = shunts.get(0).getProperty(PROPERTY_REGULATING_CONTROL);
+        Network network = withSharedControl(tmpDir, shunts.get(1).getId(), sharedControl);
+        ShuntCompensator shunt2 = network.getShuntCompensator(shunts.get(1).getId());
+        assertNotNull(byId(sshObjects(exportPartial(network, List.of(shunt2)))).get(sharedControl));
+
+        // The user changes the deadband of only one of the shunts
+        shunt2.getVoltageRegulation().setTargetDeadband(shunt2.getVoltageRegulation().getTargetDeadband() + 1.0);
+
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, List.of(shunt2)));
+        assertTrue(e.getMessage().contains(sharedControl));
+    }
+
+    private static <T extends Identifiable<T> & VoltageRegulationHolder<T>> List<T> regulatingHolders(Stream<T> holders) {
+        return holders.filter(h -> h.hasProperty(PROPERTY_REGULATING_CONTROL) && h.getVoltageRegulation() != null).toList();
+    }
+
+    /**
+     * A copy of SmallGrid NodeBreaker where the given holder refers to the given regulating control in the EQ.
+     */
+    private static Network withSharedControl(Path tmpDir, String holderId, String regulatingControlId) throws IOException {
+        ReadOnlyDataSource source = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
+        Pattern holder = Pattern.compile("(<cim:(\\w+) rdf:ID=\"_?" + Pattern.quote(holderId)
+            + "\">.*?<cim:RegulatingCondEq.RegulatingControl rdf:resource=\"#_?)[^\"]+(\".*?</cim:\\2>)", Pattern.DOTALL);
+        boolean changed = false;
+        for (String name : source.listNames(".*")) {
+            String content;
+            try (InputStream is = source.newInputStream(name)) {
+                content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
-        });
+            if (name.contains("_EQ") && !name.contains("_BD")) {
+                Matcher m = holder.matcher(content);
+                if (m.find()) {
+                    content = m.replaceFirst(Matcher.quoteReplacement(m.group(1) + regulatingControlId + m.group(3)));
+                    changed = true;
+                }
+            }
+            Files.writeString(tmpDir.resolve(name.replaceAll("^.*/", "")), content);
+        }
+        assertTrue(changed);
+        Network network = Network.read(tmpDir);
+        assertEquals(regulatingControlId, network.getIdentifiable(holderId).getProperty(PROPERTY_REGULATING_CONTROL));
+        return network;
     }
 
     @Test
