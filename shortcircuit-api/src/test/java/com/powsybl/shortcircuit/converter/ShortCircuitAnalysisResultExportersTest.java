@@ -18,10 +18,10 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisResultDeserializer;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DatabindException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -183,12 +183,12 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     void checkLimitReductionScalingNamingWithVersion() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/shortcircuit-results-version15_wrong_scaling_name.json")) {
             //should throw, since limitScaling is valid only starting from version 1.6 included
-            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> ShortCircuitAnalysisResultDeserializer.read(inputStream));
+            DatabindException e = assertThrows(DatabindException.class, () -> ShortCircuitAnalysisResultDeserializer.read(inputStream));
             assertTrue(e.getMessage().contains("limit-violation. limitScaling is not valid for this version"));
         }
         try (InputStream inputStream = getClass().getResourceAsStream("/shortcircuit-results-with-feeder-result_wrong_reduction_naming.json")) {
             //should throw, since limitReduction is valid only until version 1.5 included
-            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> ShortCircuitAnalysisResultDeserializer.read(inputStream));
+            DatabindException e = assertThrows(DatabindException.class, () -> ShortCircuitAnalysisResultDeserializer.read(inputStream));
             assertTrue(e.getMessage().contains("limit-violation. limitReduction is not valid for this version"));
         }
     }

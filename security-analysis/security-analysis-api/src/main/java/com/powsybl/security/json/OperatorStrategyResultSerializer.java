@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.results.OperatorStrategyResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -24,10 +23,10 @@ public class OperatorStrategyResultSerializer extends StdSerializer<OperatorStra
     }
 
     @Override
-    public void serialize(OperatorStrategyResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(OperatorStrategyResult result, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        serializerProvider.defaultSerializeField("operatorStrategy", result.getOperatorStrategy(), jsonGenerator);
-        serializerProvider.defaultSerializeField("conditionalActionsResults", result.getConditionalActionsResults(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("operatorStrategy", result.getOperatorStrategy(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("conditionalActionsResults", result.getConditionalActionsResults(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

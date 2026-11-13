@@ -7,12 +7,12 @@
  */
 package com.powsybl.contingency.strategy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.json.ContingencyJsonModule;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,14 +52,11 @@ public class OperatorStrategyList {
     public static OperatorStrategyList read(InputStream is) {
         Objects.requireNonNull(is);
 
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new ContingencyJsonModule())
-                .registerModule(new ActionJsonModule());
-        try {
-            return objectMapper.readValue(is, OperatorStrategyList.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper objectMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new ContingencyJsonModule())
+            .addModule(new ActionJsonModule())
+            .build();
+        return objectMapper.readValue(is, OperatorStrategyList.class);
     }
 
     /**
@@ -78,18 +75,15 @@ public class OperatorStrategyList {
      * Writes action list as JSON to an output stream.
      */
     public void write(OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, this);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createObjectMapper();
+        ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, this);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new ContingencyJsonModule())
-                .registerModule(new ActionJsonModule());
+    private static JsonMapper createObjectMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new ContingencyJsonModule())
+            .addModule(new ActionJsonModule())
+            .build();
     }
 }

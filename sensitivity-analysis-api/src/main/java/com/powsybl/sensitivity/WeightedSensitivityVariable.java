@@ -7,11 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -75,31 +73,27 @@ public class WeightedSensitivityVariable {
     public static List<WeightedSensitivityVariable> parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
         List<WeightedSensitivityVariable> variables = new ArrayList<>();
-        try {
-            ParsingContext context = new ParsingContext();
-            JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.currentName();
-                    switch (fieldName) {
-                        case "id" -> context.id = parser.nextTextValue();
-                        case "weight" -> {
-                            parser.nextToken();
-                            context.weight = parser.getDoubleValue();
-                        }
-                        default -> {
-                            // Do nothing
-                        }
+        ParsingContext context = new ParsingContext();
+        JsonToken token;
+        while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.PROPERTY_NAME) {
+                String fieldName = parser.currentName();
+                switch (fieldName) {
+                    case "id" -> context.id = parser.nextStringValue();
+                    case "weight" -> {
+                        parser.nextToken();
+                        context.weight = parser.getDoubleValue();
                     }
-                } else if (token == JsonToken.END_ARRAY) {
-                    break;
-                } else if (token == JsonToken.END_OBJECT) {
-                    variables.add(new WeightedSensitivityVariable(context.id, context.weight));
-                    context.reset();
+                    default -> {
+                        // Do nothing
+                    }
                 }
+            } else if (token == JsonToken.END_ARRAY) {
+                break;
+            } else if (token == JsonToken.END_OBJECT) {
+                variables.add(new WeightedSensitivityVariable(context.id, context.weight));
+                context.reset();
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
         return variables;
     }

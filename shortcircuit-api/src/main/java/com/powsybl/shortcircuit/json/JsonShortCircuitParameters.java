@@ -7,8 +7,6 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProvider;
@@ -16,6 +14,8 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisProvider;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,16 +60,12 @@ public final class JsonShortCircuitParameters {
     }
 
     public static ShortCircuitParameters update(ShortCircuitParameters parameters, InputStream is) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerForUpdating(parameters).readValue(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        return jsonMapper.readerForUpdating(parameters).readValue(is);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder().addModule(new ShortCircuitAnalysisJsonModule()).build();
     }
 
     public static void write(ShortCircuitParameters parameters, Path jsonFile) {
@@ -83,13 +79,9 @@ public final class JsonShortCircuitParameters {
     }
 
     public static void write(ShortCircuitParameters parameters, OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, parameters);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonmapper = createJsonMapper();
+        ObjectWriter writer = jsonmapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, parameters);
     }
 
     public static ShortCircuitParameters read(Path jsonFile) {

@@ -7,10 +7,10 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -22,7 +22,7 @@ public class SensitivityStateStatusJsonSerializer extends StdSerializer<Sensitiv
     }
 
     @Override
-    public void serialize(SensitivityAnalysisResult.SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+    public void serialize(SensitivityAnalysisResult.SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
         SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, value);
     }
 }

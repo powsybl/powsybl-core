@@ -7,14 +7,14 @@
  */
 package com.powsybl.timeseries.dsl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.timeseries.*;
 import com.powsybl.timeseries.ast.NodeCalc;
 import com.powsybl.timeseries.ast.NodeCalcVisitors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.util.List;
@@ -75,7 +75,7 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
     }
 
     @Test
-    void jsonTests() throws JsonProcessingException {
+    void jsonTests() throws JacksonException {
         String json = TimeSeries.toJson(List.of(tsCalc));
         String jsonRef = """
             [ {
@@ -189,7 +189,7 @@ class CalculatedCachedTimeSeriesGroovyDslTest {
               }
             } ]""";
         // Serialisation
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = new JsonMapper();
         assertEquals(mapper.readTree(jsonRef), mapper.readTree(json));
     }
 }

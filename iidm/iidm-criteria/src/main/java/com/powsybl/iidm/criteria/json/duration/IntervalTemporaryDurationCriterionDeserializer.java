@@ -7,15 +7,14 @@
  */
 package com.powsybl.iidm.criteria.json.duration;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType;
 import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion.LimitDurationType;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static com.powsybl.iidm.criteria.json.duration.LimitDurationCriterionSerDeUtil.readAndCheckType;
 import static com.powsybl.iidm.criteria.json.util.DeserializerUtils.checkBoundData;
@@ -40,7 +39,7 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
     }
 
     @Override
-    public IntervalTemporaryDurationCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public IntervalTemporaryDurationCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> parseIntervalTemporaryDurationCriterion(parser, context, name));
         IntervalTemporaryDurationCriterion.Builder builder = IntervalTemporaryDurationCriterion.builder();
@@ -53,14 +52,14 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
         return builder.build();
     }
 
-    private boolean parseIntervalTemporaryDurationCriterion(JsonParser parser, ParsingContext context, String name) throws IOException {
+    private boolean parseIntervalTemporaryDurationCriterion(JsonParser parser, ParsingContext context, String name) throws JacksonException {
         switch (name) {
             case "type" -> {
                 readAndCheckType(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.INTERVAL, parser);
                 return true;
             }
             case "version" -> {
-                parser.nextTextValue();
+                parser.nextStringValue();
                 return true;
             }
             case "lowBound" -> {

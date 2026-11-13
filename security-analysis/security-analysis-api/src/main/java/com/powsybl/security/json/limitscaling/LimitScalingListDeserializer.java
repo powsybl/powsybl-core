@@ -7,17 +7,17 @@
  */
 package com.powsybl.security.json.limitscaling;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.limitscaling.LimitScaling;
 import com.powsybl.security.limitscaling.LimitScalingList;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -37,12 +37,12 @@ public class LimitScalingListDeserializer extends StdDeserializer<LimitScalingLi
     }
 
     @Override
-    public LimitScalingList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitScalingList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
-                    context.version = parser.nextTextValue();
+                    context.version = parser.nextStringValue();
                     break;
                 case "limitScalings":
                     if (context.version != null && JsonUtil.compareVersions(context.version, "1.2") <= 0) {
@@ -64,7 +64,7 @@ public class LimitScalingListDeserializer extends StdDeserializer<LimitScalingLi
             }
         }
         if (context.version == null) {
-            throw new JsonMappingException(parser, "version is missing");
+            throw DatabindException.from(parser, "version is missing");
         }
         return new LimitScalingList(context.limitScalings);
     }

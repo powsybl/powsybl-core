@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -28,7 +28,7 @@ class BusRefTest {
     private final Bus bbvBus = mock(Bus.class);
 
     @Test
-    void testIdBasedBusRef() throws JsonProcessingException {
+    void testIdBasedBusRef() throws JacksonException {
         Network network = mock(Network.class);
         Network.BusView bv = mock(Network.BusView.class);
 
@@ -54,10 +54,10 @@ class BusRefTest {
 
         assertFalse(new IdBasedBusRef("another").resolve(network, TopologyLevel.BUS_BRANCH).isPresent());
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        final String json = objectMapper.writeValueAsString(busRef);
+        JsonMapper jsonMapper = new JsonMapper();
+        final String json = jsonMapper.writeValueAsString(busRef);
         assertEquals("{\"@c\":\".IdBasedBusRef\",\"id\":\"busId\"}", json);
-        final BusRef deserialized = objectMapper.readValue(json, BusRef.class);
+        final BusRef deserialized = jsonMapper.readValue(json, BusRef.class);
         assertEquals(busRef, deserialized);
 
         Identifiable busbarSection = mock(BusbarSection.class);
@@ -94,7 +94,7 @@ class BusRefTest {
     }
 
     @Test
-    void testBranch() throws JsonProcessingException {
+    void testBranch() throws JacksonException {
         Network network = mock(Network.class);
         Branch branch = mock(Branch.class);
         when(network.getIdentifiable("branchId")).thenReturn(branch);
@@ -114,10 +114,10 @@ class BusRefTest {
         final BusRef busRef2 = new IdBasedBusRef("branchId", TwoSides.TWO);
         assertEquals(bus2, busRef2.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(IllegalStateException::new));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        final String json = objectMapper.writeValueAsString(busRef);
+        JsonMapper jsonMapper = new JsonMapper();
+        final String json = jsonMapper.writeValueAsString(busRef);
         assertEquals("{\"@c\":\".IdBasedBusRef\",\"id\":\"branchId\",\"side\":\"ONE\"}", json);
-        final BusRef deserialized = objectMapper.readValue(json, BusRef.class);
+        final BusRef deserialized = jsonMapper.readValue(json, BusRef.class);
         assertEquals(busRef, deserialized);
 
         assertEquals(busRef, new IdBasedBusRef("branchId", TwoSides.ONE));

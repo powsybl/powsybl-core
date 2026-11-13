@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import tools.jackson.databind.DatabindException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -232,12 +233,12 @@ class ExporterTest extends AbstractSerDeTest {
     void testReductionScalingNamingVersion() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.9_wrong_scaling_naming.json")) {
             //should throw, since limitScaling is valid only starting from version 1.10 included
-            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
+            DatabindException e = assertThrows(DatabindException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
             assertTrue(e.getMessage().contains("limit-violation. limitScaling is not valid for this version"));
         }
         try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.10_wrong_reduction_naming.json")) {
             //should throw, since limitScaling is valid only until version 1.9 included
-            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
+            DatabindException e = assertThrows(DatabindException.class, () -> SecurityAnalysisResultDeserializer.read(inputStream));
             assertTrue(e.getMessage().contains("limit-violation. limitReduction is not valid for this version"));
         }
     }

@@ -7,11 +7,12 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.shortcircuit.FortescueValue;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -30,13 +31,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class JsonFortescueValueTest extends AbstractSerDeTest {
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder().addModule(new ShortCircuitAnalysisJsonModule()).build();
     }
 
     private static void write(List<FortescueValue> values, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
-            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, values);
+            createJsonMapper().writerWithDefaultPrettyPrinter().writeValue(out, values);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -44,7 +45,7 @@ class JsonFortescueValueTest extends AbstractSerDeTest {
 
     private static List<FortescueValue> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return createObjectMapper().readerForListOf(FortescueValue.class).readValue(is);
+            return createJsonMapper().readerForListOf(FortescueValue.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -62,7 +63,9 @@ class JsonFortescueValueTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/FortescueValueInvalid.json"), fileSystem.getPath("/FortescueValueInvalid.json"));
 
         Path path = fileSystem.getPath("/FortescueValueInvalid.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        DatabindException e = assertThrows(DatabindException.class, () -> read(path));
+        assertThat(e.getMessage())
+            .contains("Unexpected field: unexpected")
+            .contains("(through reference chain: java.util.ArrayList[0])");
     }
 }

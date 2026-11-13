@@ -7,18 +7,18 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.ChangedPhaseTapChanger;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PreContingencyResult;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
@@ -30,10 +30,17 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ChangedPhaseTapChangerSerializerUtilTest {
 
+    JsonMapper jsonMapper;
+
+    @BeforeEach
+    void setUp() {
+        jsonMapper = JsonUtil.createJsonMapper();
+    }
+
     @Test
-    void testWriteSortedByTransformerId() throws IOException {
+    void testWriteSortedByTransformerId() {
         StringWriter writer = new StringWriter();
-        JsonGenerator generator = new JsonFactory().createGenerator(writer);
+        JsonGenerator generator = jsonMapper.createGenerator(writer);
         generator.writeStartObject();
         ChangedPhaseTapChangerSerializerUtil.write(List.of(
             new ChangedPhaseTapChanger("B", ThreeSides.TWO, 1, 2),
@@ -47,9 +54,9 @@ class ChangedPhaseTapChangerSerializerUtilTest {
     }
 
     @Test
-    void testWriteEmptyMap() throws IOException {
+    void testWriteEmptyMap() {
         StringWriter writer = new StringWriter();
-        JsonGenerator generator = new JsonFactory().createGenerator(writer);
+        JsonGenerator generator = jsonMapper.createGenerator(writer);
         generator.writeStartObject();
         ChangedPhaseTapChangerSerializerUtil.write(List.of(), generator);
         generator.writeEndObject();
@@ -65,9 +72,9 @@ class ChangedPhaseTapChangerSerializerUtilTest {
     }
 
     @Test
-    void testWriteSingleEntry() throws IOException {
+    void testWriteSingleEntry() {
         StringWriter writer = new StringWriter();
-        JsonGenerator generator = new JsonFactory().createGenerator(writer);
+        JsonGenerator generator = jsonMapper.createGenerator(writer);
         generator.writeStartObject();
         ChangedPhaseTapChangerSerializerUtil.write(
                 List.of(new ChangedPhaseTapChanger("T1", ThreeSides.THREE, 0, 2)), generator);
@@ -82,20 +89,20 @@ class ChangedPhaseTapChangerSerializerUtilTest {
     }
 
     @Test
-    void testNullSideSerializationAndDeserialization() throws IOException {
+    void testNullSideSerializationAndDeserialization() {
         StringWriter writer = new StringWriter();
-        JsonGenerator generator = new JsonFactory().createGenerator(writer);
+        JsonGenerator generator = jsonMapper.createGenerator(writer);
         generator.writeStartObject();
         ChangedPhaseTapChangerSerializerUtil.write(
                 List.of(new ChangedPhaseTapChanger("T1", null, 0, 2)), generator);
         generator.writeEndObject();
         generator.close();
 
-        JsonNode json = JsonUtil.createObjectMapper().readTree(writer.toString());
+        JsonNode json = jsonMapper.readTree(writer.toString());
         JsonNode changedPhaseTapChanger = json.path("changedPhaseTapChangers").get(0);
         assertFalse(changedPhaseTapChanger.has("side"));
 
-        ChangedPhaseTapChanger deserialized = JsonUtil.createObjectMapper()
+        ChangedPhaseTapChanger deserialized = JsonUtil.createJsonMapperBuilder().build()
                 .readValue(changedPhaseTapChanger.toString(), ChangedPhaseTapChanger.class);
         assertEquals(new ChangedPhaseTapChanger("T1", null, 0, 2), deserialized);
     }

@@ -7,14 +7,14 @@
  */
 package com.powsybl.iidm.criteria.json.duration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.criteria.duration.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
 
-    private static final ObjectMapper MAPPER = JsonUtil.createObjectMapper().registerModule(new LimitDurationCriterionModule());
+    private static final JsonMapper MAPPER = JsonUtil.createJsonMapperBuilder()
+        .addModule(new LimitDurationCriterionModule())
+        .build();
     private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     @Test
@@ -154,11 +156,7 @@ class LimitDurationCriterionModuleTest extends AbstractSerDeTest {
     }
 
     private static <T extends LimitDurationCriterion> T readCriterion(String jsonString, Class<T> clazz) {
-        try {
-            return MAPPER.readValue(jsonString, clazz);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return MAPPER.readValue(jsonString, clazz);
     }
 
     private static void writeCriteria(List<LimitDurationCriterion> criteria, Path path) {

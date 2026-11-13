@@ -7,8 +7,6 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -21,6 +19,8 @@ import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.InjectableValues;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,9 +97,10 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void jsonDeserializeNoSpecifiedDictionary() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ReportNodeJsonModule());
-        ReportNode rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
+        JsonMapper.Builder builder = JsonMapper.builder()
+            .addModule(new ReportNodeJsonModule());
+        JsonMapper jsonMapper = builder.build();
+        ReportNode rm = jsonMapper.readValue(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
         assertEquals(2, rm.getChildren().size());
 
         ReportNode node1 = rm.getChildren().get(0);
@@ -107,8 +108,9 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         ReportNode node2 = rm.getChildren().get(1);
         assertEquals("Reading UCTE network file", node2.getMessage());
 
-        mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
-        rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
+        builder.injectableValues(new InjectableValues.Std().addValue("foo", "bar"));
+        jsonMapper = builder.build();
+        rm = jsonMapper.readValue(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
         assertEquals(2, rm.getChildren().size());
 
         node1 = rm.getChildren().get(0);

@@ -7,14 +7,13 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.ieeecdf.model.elements.IeeeCdfTieLine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class IeeeCdfReaderWriterTest {
 
-    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final JsonMapper mapper = JsonMapper.builder().build();
 
     private FileSystem fileSystem;
 
