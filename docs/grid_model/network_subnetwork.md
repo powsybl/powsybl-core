@@ -1160,10 +1160,11 @@ DC equipment connectivity may be modified in two ways:
 - By changing the `open` attribute of a `DcSwitch`.
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
-- A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
+- A DC Bus is formed when there is at least one DC Terminal connected to a DC Node, or when a DC Node is an end of a closed DC switch with non-zero resistance.
 - DC Nodes linked by a closed DC switch are considered part of the same DC Bus when the resistance of the DcSwitch is zero, otherwise they are in distinct buses.
 - A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
-- DC Nodes without any connected DC Terminal do not form a DC Bus. A DC Bus is guaranteed to contain at least one connected DC Terminal.
+- DC Nodes at the ends of a closed DC switch with non-zero resistance always form DC Buses, even without any connected DC Terminal: such a switch carries current like a DC Line, so a voltage is needed at both ends.
+- Other DC Nodes without any connected DC Terminal do not form a DC Bus.
 
 DC Buses linked together via DC Lines, AC/DC Converters and/or closed DC switches are part of the same *DC Component* (also called *DC Island*).
 *Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a
