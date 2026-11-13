@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
@@ -89,11 +90,15 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private boolean setRegulatingControlVoltage(String controlId, RegulatingControl control, double qPercent, Generator gen) {
+        Optional<Terminal> regulatingTerminalOpt = RegulatingTerminalMapper
+                .mapForVoltageControl(control.cgmesTerminal, context);
 
-        // Take default terminal if it has not been defined in CGMES file (it is never null)
-        Terminal regulatingTerminal = RegulatingTerminalMapper
-                .mapForVoltageControl(control.cgmesTerminal, context)
-                .orElse(gen.getTerminal());
+        if (regulatingTerminalOpt.isEmpty()) {
+            context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
+            return false;
+        }
+
+        Terminal regulatingTerminal = regulatingTerminalOpt.get();
 
         if (regulatingTerminal.getConnectable().getId().equals(gen.getId())) {
             regulatingTerminal = null;

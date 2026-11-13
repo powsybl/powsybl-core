@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
@@ -102,7 +103,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
-        boolean okSet = false;
+        boolean okSet;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRegulatingControlVoltage(rc, control, svc);
         } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
@@ -112,19 +113,29 @@ public class RegulatingControlMappingForStaticVarCompensators {
             okSet = setRegulatingControlVoltage(rc, control, svc);
         }
 
-        // Always save the original RC id, even if we cannot complete setting all the regulation data
-        svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
+        if (okSet) {
+            svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
+        }
         control.setCorrectlySet(okSet);
     }
 
     private boolean setRegulatingControlVoltage(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
-        setDefaultRegulatingControlData(rc, svc);
-        Terminal regulatingTerminal = RegulatingTerminalMapper
-            .mapForVoltageControl(control.cgmesTerminal, context)
-            .orElse(svc.getTerminal());
+        Optional<Terminal> regulatingTerminalOpt = RegulatingTerminalMapper
+                .mapForVoltageControl(control.cgmesTerminal, context);
+        if (regulatingTerminalOpt.isEmpty()) {
+            context.ignored(rc.regulatingControlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
+            context.fixed("SVCRegulatingControl",
+                    () -> String.format("Regulation terminal %s for static var compensator %s is not mapped. Falling back to default local regulation.",
+                            control.cgmesTerminal, svc.getId()));
+            setDefaultRegulatingControl(rc, svc);
+            return false;
+        }
+        Terminal regulatingTerminal = regulatingTerminalOpt.get();
         if (regulatingTerminal.getConnectable().getId().equals(svc.getId())) {
             regulatingTerminal = null;
         }
+
+        setDefaultRegulatingControlData(rc, svc);
         svc.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(regulatingTerminal)
