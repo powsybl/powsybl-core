@@ -125,6 +125,21 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Deep copies an object through a JSON round trip. Fields or extensions that the mapper cannot serialize are lost.
+     */
+    public static <T> T copyThroughJson(T object, Supplier<T> emptyObjectSupplier, ObjectMapper objectMapper) {
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(emptyObjectSupplier);
+        Objects.requireNonNull(objectMapper);
+        try {
+            byte[] bytes = objectMapper.writeValueAsBytes(object);
+            return objectMapper.readerForUpdating(emptyObjectSupplier.get()).readValue(bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static JsonFactory createJsonFactory() {
         return new JsonFactoryBuilder()
             .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)

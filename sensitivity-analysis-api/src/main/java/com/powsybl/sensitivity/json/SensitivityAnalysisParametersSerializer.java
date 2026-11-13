@@ -13,8 +13,11 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Json serializer for sensitivity analysis parameters
@@ -22,6 +25,8 @@ import java.io.IOException;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class SensitivityAnalysisParametersSerializer extends StdSerializer<SensitivityAnalysisParameters> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisParametersSerializer.class);
 
     SensitivityAnalysisParametersSerializer() {
         super(SensitivityAnalysisParameters.class);
@@ -44,7 +49,10 @@ public class SensitivityAnalysisParametersSerializer extends StdSerializer<Sensi
         jsonGenerator.writeStringField("operator-strategies-calculation-mode", parameters.getOperatorStrategiesCalculationMode().name());
         JsonUtil.writeOptionalStringField(jsonGenerator, "debug-dir", parameters.getDebugDir());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
+        Set<String> notSerialized = JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
+        if (!notSerialized.isEmpty()) {
+            LOGGER.warn("No JSON serializer found for sensitivity analysis parameters extensions {}, they are not written", notSerialized);
+        }
 
         jsonGenerator.writeEndObject();
     }

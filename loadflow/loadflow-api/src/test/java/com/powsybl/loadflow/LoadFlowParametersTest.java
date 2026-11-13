@@ -11,6 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
@@ -315,8 +316,9 @@ class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
+        parameters.addExtension(NotSerializableExtension.class, new NotSerializableExtension());
         LoadFlowParameters copy = parameters.copy();
-        assertEquals(1, copy.getExtensions().size());
+        assertEquals(1, copy.getExtensions().size()); // NotSerializableExtension is dropped
         Extension<LoadFlowParameters> copiedExt = copy.getExtensionByName("dummy-extension");
         assertSame(parameters, dummyExtension.getExtendable());
         assertSame(copy, copiedExt.getExtendable());
@@ -457,5 +459,12 @@ class LoadFlowParametersTest {
                     "componentMode=MAIN_CONNECTED, hvdcAcEmulation=true, dcPowerFactor=1.0, debugDir=null}",
                 parameters.toString()
         );
+    }
+
+    static class NotSerializableExtension extends AbstractExtension<LoadFlowParameters> {
+        @Override
+        public String getName() {
+            return "not-serializable-extension";
+        }
     }
 }

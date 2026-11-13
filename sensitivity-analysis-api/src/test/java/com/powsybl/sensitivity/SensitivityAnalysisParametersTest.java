@@ -344,6 +344,11 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         assertNotSame(parameters.getLoadFlowParameters(), copy.getLoadFlowParameters());
         assertTrue(copy.getLoadFlowParameters().isDc());
         assertTrue(copy.getExtensions().isEmpty());
+
+        copy.setFlowFlowSensitivityValueThreshold(0.5);
+        copy.getLoadFlowParameters().setDc(false);
+        assertEquals(0.1, parameters.getFlowFlowSensitivityValueThreshold(), EPS);
+        assertTrue(parameters.getLoadFlowParameters().isDc());
     }
 
     @Test
@@ -352,9 +357,10 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         DummyExtension dummyExtension = new DummyExtension();
         dummyExtension.setParameterString("test");
         parameters.addExtension(DummyExtension.class, dummyExtension);
+        parameters.addExtension(NotSerializableExtension.class, new NotSerializableExtension());
 
         SensitivityAnalysisParameters copy = parameters.copy();
-        assertEquals(1, copy.getExtensions().size());
+        assertEquals(1, copy.getExtensions().size()); // NotSerializableExtension is dropped
         Extension<SensitivityAnalysisParameters> copiedExt = copy.getExtensionByName(DUMMY_EXTENSION_NAME);
         assertNotSame(dummyExtension, copiedExt);
         assertSame(parameters, dummyExtension.getExtendable());
@@ -410,6 +416,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     void writeNullPath() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         assertThrows(NullPointerException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, (Path) null));
+        assertThrows(NullPointerException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, (OutputStream) null));
     }
 
     @Test
@@ -417,5 +424,12 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
                         .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")),
                 "SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
+    }
+
+    static class NotSerializableExtension extends AbstractExtension<SensitivityAnalysisParameters> {
+        @Override
+        public String getName() {
+            return "not-serializable-extension";
+        }
     }
 }
