@@ -667,6 +667,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = Cgmes3Catalog.miniGrid().dataSource();
         Properties properties = new Properties();
         properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
+        // The reimport does not read the SSH: do not detach the out-of-service equipment with fictitious switches
+        properties.setProperty("iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode", "NEVER");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
         Network actual = exportImportNodeBreaker(expected, dataSource);
 

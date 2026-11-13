@@ -1,0 +1,34 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:8f6d2a5e-4c1b-4f0e-9a3d-2b7c1e5f9a02">
+        <md:Model.created>2024-02-21T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-02-21T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Out-of-service equipment exported to UCTE-DEF</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/EquipmentBoundary-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_RegionBD">
+        <cim:IdentifiedObject.name>BD</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:Line rdf:ID="_BoundaryContainer">
+        <cim:IdentifiedObject.name>BoundaryContainer</cim:IdentifiedObject.name>
+        <cim:Line.Region rdf:resource="#_RegionBD"/>
+    </cim:Line>
+    <cim:ConnectivityNode rdf:ID="_XNode1">
+        <cim:IdentifiedObject.name>XNODE111</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_BoundaryContainer"/>
+    </cim:ConnectivityNode>
+    <eu:BoundaryPoint rdf:ID="_BoundaryPoint1">
+        <cim:IdentifiedObject.name>BoundaryPoint1</cim:IdentifiedObject.name>
+        <eu:BoundaryPoint.ConnectivityNode rdf:resource="#_XNode1"/>
+    </eu:BoundaryPoint>
+    <cim:ConnectivityNode rdf:ID="_XNode2">
+        <cim:IdentifiedObject.name>XNODE211</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_BoundaryContainer"/>
+    </cim:ConnectivityNode>
+    <eu:BoundaryPoint rdf:ID="_BoundaryPoint2">
+        <cim:IdentifiedObject.name>BoundaryPoint2</cim:IdentifiedObject.name>
+        <eu:BoundaryPoint.ConnectivityNode rdf:resource="#_XNode2"/>
+    </eu:BoundaryPoint>
+</rdf:RDF>
