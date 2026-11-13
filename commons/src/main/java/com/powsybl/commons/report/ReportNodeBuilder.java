@@ -9,7 +9,6 @@ package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.ServiceLoader;
 
 /**
  * A builder to create a {@link ReportNode} object.
@@ -39,14 +38,11 @@ public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBu
      * Sets the {@link MessageTemplateProvider} for the whole tree, unless overridden, to the {@link MultiBundleMessageTemplateProvider}
      * corresponding to all the bundle base names gathered by the {@link java.util.ServiceLoader} of {@link ReportResourceBundle}
      * implementations.
+     * The classpath is scanned only once, on first call; the result is then reused for the lifetime of the JVM.
      * @return a reference to this object
      */
     default ReportNodeBuilder withAllResourceBundlesFromClasspath() {
-        String[] bundleBaseNames = ServiceLoader.load(ReportResourceBundle.class).stream()
-                .map(ServiceLoader.Provider::get)
-                .map(ReportResourceBundle::getBaseName)
-                .toArray(String[]::new);
-        return withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(bundleBaseNames));
+        return withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(ClasspathResourceBundlesCache.getBaseNames()));
     }
 
     /**
