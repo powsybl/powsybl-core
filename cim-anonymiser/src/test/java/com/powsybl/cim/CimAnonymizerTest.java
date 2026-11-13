@@ -94,6 +94,37 @@ class CimAnonymizerTest {
     }
 
     @Test
+    void anonymizeTextReportedInSeveralEvents() throws Exception {
+        String cim = cimFile("<cim:IdentifiedObject.name>PUBLIC &amp; CONFIDENTIAL</cim:IdentifiedObject.name>\n"
+                + "    <cim:IdentifiedObject.description>DESC <![CDATA[CONFIDENTIAL CDATA]]> TAIL</cim:IdentifiedObject.description>");
+
+        Anonymized anonymized = anonymize(cim);
+
+        assertFalse(anonymized.xml().contains("CONFIDENTIAL"));
+        assertTrue(anonymized.dictionary().contains("PUBLIC & CONFIDENTIAL;"));
+        assertTrue(anonymized.dictionary().contains("DESC CONFIDENTIAL CDATA TAIL;"));
+    }
+
+    @Test
+    void anonymizeTextLongerThanParserBuffer() throws Exception {
+        String name = "A".repeat(40000) + "CONFIDENTIAL";
+        Anonymized anonymized = anonymize(cimFile("<cim:IdentifiedObject.name>" + name + "</cim:IdentifiedObject.name>"));
+
+        assertFalse(anonymized.xml().contains("CONFIDENTIAL"));
+        assertTrue(anonymized.dictionary().contains(name + ";"));
+    }
+
+    @Test
+    void anonymizeEmptyName() throws Exception {
+        Anonymized anonymized = anonymize(cimFile(
+                "<cim:IdentifiedObject.name></cim:IdentifiedObject.name><cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>"));
+
+        // an empty name has nothing to anonymize and must not consume the text of the next element
+        assertTrue(anonymized.xml().contains("<cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>"));
+        assertFalse(anonymized.dictionary().contains("0.1;"));
+    }
+
+    @Test
     void secureDeserializationTest() throws IOException {
         // Prepare sample temp files and paths
         Path workDir = fileSystem.getPath("work");
@@ -146,5 +177,42 @@ class CimAnonymizerTest {
                 + "  </cim:ACLineSegment>\n"
                 + "</rdf:RDF>\n";
         Files.writeString(xmlPath, exploitXml, StandardCharsets.UTF_8);
+    }
+
+    private record Anonymized(String xml, String dictionary) {
+    }
+
+    private static String cimFile(String identifiedObjectElements) {
+        return """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#">
+                  <cim:ACLineSegment rdf:ID="L1">
+                    %s
+                  </cim:ACLineSegment>
+                </rdf:RDF>
+                """.formatted(identifiedObjectElements);
+    }
+
+    private Anonymized anonymize(String cim) throws IOException {
+        Path workDir = fileSystem.getPath("work");
+        Path anonymizedCimFileDir = workDir.resolve("result");
+        Files.createDirectories(anonymizedCimFileDir);
+        Path dictionaryFile = workDir.resolve("dic.csv");
+        Path cimZipFile = workDir.resolve("sample.zip");
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cimZipFile))) {
+            zos.putNextEntry(new ZipEntry("sample_EQ.xml"));
+            zos.write(cim.getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+
+        new CimAnonymizer().anonymizeZip(cimZipFile, anonymizedCimFileDir, dictionaryFile, new CimAnonymizer.DefaultLogger(), false);
+
+        try (ZipFile zipFile = ZipFile.builder()
+                .setSeekableByteChannel(Files.newByteChannel(anonymizedCimFileDir.resolve("sample.zip")))
+                .get();
+             InputStream is = zipFile.getInputStream(zipFile.getEntry("sample_EQ.xml"))) {
+            return new Anonymized(new String(is.readAllBytes(), StandardCharsets.UTF_8),
+                    Files.readString(dictionaryFile, StandardCharsets.UTF_8));
+        }
     }
 }
