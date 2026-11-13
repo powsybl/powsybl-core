@@ -7,7 +7,12 @@
  */
 package com.powsybl.commons.report;
 
+import com.google.common.base.Suppliers;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Locale;
+import java.util.ServiceLoader;
+import java.util.function.Supplier;
 
 /**
  * A builder to create a root {@link ReportNode} object.
@@ -16,6 +21,7 @@ import java.util.Locale;
  */
 public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
+    private static final Supplier<String[]> BUNDLE_BASE_NAMES_SUPPLIER = Suppliers.memoize(ReportNodeRootBuilderImpl::loadBundleBaseNames);
     private String defaultTimestampPattern;
     private Locale locale;
 
@@ -46,4 +52,15 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
         return this;
     }
 
+    @Override
+    public String @NonNull [] getBundleBaseNames() {
+        return BUNDLE_BASE_NAMES_SUPPLIER.get();
+    }
+
+    private static String @NonNull [] loadBundleBaseNames() {
+        return ServiceLoader.load(ReportResourceBundle.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .map(ReportResourceBundle::getBaseName)
+                .toArray(String[]::new);
+    }
 }
