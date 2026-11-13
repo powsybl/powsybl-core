@@ -18,18 +18,17 @@ import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -94,6 +93,26 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         }
     }
 
+    private void writeNetworkUnsupportedIidmVersion(String fileName) throws IOException {
+        writeNetwork(fileName, unsupportedIidmVersionNamespaceURI(), false);
+    }
+
+    private void writeNetworkValidIidmVersion(String fileName) throws IOException {
+        writeNetwork(fileName, CURRENT_IIDM_VERSION.getNamespaceURI(), false);
+    }
+
+    private static String unsupportedIidmVersion() {
+        String[] currentIidmVersionSplit = CURRENT_IIDM_VERSION.toString().split("_");
+        int unsupportedIidmVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
+        int unsupportedIidmVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]) + 1;
+        return String.format("%d.%d", unsupportedIidmVersionMajor, unsupportedIidmVersionMinor);
+    }
+
+    private String unsupportedIidmVersionNamespaceURI() {
+        String currentIidmNamespaceURI = CURRENT_IIDM_VERSION.getNamespaceURI();
+        return currentIidmNamespaceURI.substring(0, currentIidmNamespaceURI.lastIndexOf("/") + 1) + unsupportedIidmVersion();
+    }
+
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -120,6 +139,8 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         }
         writeNetworkWithComment("/test7.xiidm");
         writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_VERSION.getNamespaceURI());
+        writeNetworkUnsupportedIidmVersion("/test9.xiidm");
+        writeNetworkValidIidmVersion("/test10.xiidm");
 
         importer = new XMLImporter();
     }
@@ -159,6 +180,31 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void testExistUnsupportedIidmVersion() {
+        Path dir = fileSystem.getPath("/");
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test9");
+        assertDoesNotThrow(() -> importer.exists(dataSource));
+        assertFalse(importer.exists(dataSource));
+    }
+
+    @Test
+    void testExistValidIidmVersion() {
+        Path dir = fileSystem.getPath("/");
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test10");
+        assertDoesNotThrow(() -> importer.exists(dataSource));
+        assertTrue(importer.exists(dataSource));
+    }
+
+    @Test
+    void testImportDataUnsupportedIidmVersion() {
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test9");
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        String expectedError = String.format("IIDM Version %s is not supported. Max supported version: %s", unsupportedIidmVersion(), CURRENT_IIDM_VERSION.toString("."));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> importer.importData(dataSource, networkFactory, null));
+        assertEquals(expectedError, exception.getMessage());
+    }
+
+    @Test
     void copy() throws Exception {
         importer.copy(new DirectoryDataSource(fileSystem.getPath("/"), "test0"), new DirectoryDataSource(fileSystem.getPath("/"), "test0_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test0_copy.xiidm")));
@@ -184,7 +230,9 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
         // should fail because file that does not exist
         DirectoryDataSource dataSource4 = new DirectoryDataSource(fileSystem.getPath("/"), "test4");
-        assertThrows(PowsyblException.class, () -> importer.importData(dataSource4, networkFactory, null));
+        assertThatCode(() -> importer.importData(dataSource4, networkFactory, null))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage("File test4.xiidm|iidm|xml not found");
 
         // extension plugin will be not found but default option just warn
         assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), networkFactory, null));
@@ -194,13 +242,17 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         DirectoryDataSource dataSource5 = new DirectoryDataSource(fileSystem.getPath("/"), "test5");
-        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params));
+        assertThatCode(() -> importer.importData(dataSource5, networkFactory, params))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage("Extensions [foo] not found!");
 
         // extension plugin will be not found but option is set to throw an exception
         // (parameter name following same naming convention of XmlExporter)
         Properties params2 = new Properties();
         params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
-        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params2));
+        assertThatCode(() -> importer.importData(dataSource5, networkFactory, params2))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage("Extensions [foo] not found!");
 
         // read file with id mapping
         Network network = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), networkFactory, params);
