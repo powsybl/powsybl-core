@@ -187,7 +187,7 @@ public class CgmesExportContext {
         } else {
             CgmesTopologyKind topologyKindForExport = detectNetworkTopologyKind(network);
             if (topologyKindForExport == CgmesTopologyKind.MIXED_TOPOLOGY) {
-                if (getCimVersion() < 100) {
+                if (getCimVersion() == 16) {
                     topologyKindForExport = CgmesTopologyKind.BUS_BRANCH;
                 } else {
                     topologyKindForExport = CgmesTopologyKind.NODE_BREAKER;
