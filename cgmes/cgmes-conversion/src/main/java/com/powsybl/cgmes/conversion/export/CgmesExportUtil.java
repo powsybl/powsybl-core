@@ -160,7 +160,7 @@ public final class CgmesExportUtil {
         for (String supersedes : modelDescription.getSupersedes()) {
             writeResource(MD_NAMESPACE, CgmesNames.SUPERSEDES, supersedes, writer);
         }
-        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER && context.getCimVersion() < 100) {
+        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER && context.getCimVersion() == 16) {
             // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
             modelDescription.addProfiles(List.of(context.getCim().getProfileUri("EQ_OP")));
         }

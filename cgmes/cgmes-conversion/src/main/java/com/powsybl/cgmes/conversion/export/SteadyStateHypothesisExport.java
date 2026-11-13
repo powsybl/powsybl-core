@@ -66,10 +66,7 @@ public final class SteadyStateHypothesisExport {
 
         try {
             CgmesExportUtil.writeRdfRoot(context, writer);
-
-            if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, writer, model, context);
-            }
+            CgmesExportUtil.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, writer, model, context);
 
             writeLoads(network, cimNamespace, writer, context);
             writeFictitiousInjections(network, cimNamespace, writer, context);

@@ -224,11 +224,9 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
 
     private static void writeHeader(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeRdfRoot(context, writer);
-        if (context.getCimVersion() >= 16) {
-            CgmesMetadataModel eqModel = CgmesExport.initializeModelForExport(
-                    network, CgmesSubset.EQUIPMENT, context, true, false);
-            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, eqModel, context);
-        }
+        CgmesMetadataModel eqModel = CgmesExport.initializeModelForExport(
+                network, CgmesSubset.EQUIPMENT, context, true, false);
+        CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, eqModel, context);
     }
 
     private Path getFixesFolder() {

@@ -52,10 +52,7 @@ public final class TopologyExport {
         try {
             String cimNamespace = context.getCim().getNamespace();
             CgmesExportUtil.writeRdfRoot(context, writer);
-
-            if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.TOPOLOGY, writer, model, context);
-            }
+            CgmesExportUtil.writeModelDescription(network, CgmesSubset.TOPOLOGY, writer, model, context);
 
             writeTopologicalNodes(network, cimNamespace, writer, context);
             writeTerminals(network, cimNamespace, writer, context);
