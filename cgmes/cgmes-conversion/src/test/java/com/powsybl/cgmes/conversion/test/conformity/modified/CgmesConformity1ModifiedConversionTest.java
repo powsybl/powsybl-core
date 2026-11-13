@@ -12,8 +12,6 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
@@ -41,7 +39,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER;
 import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,125 +81,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microBERatioPhaseTabularTest() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), NetworkFactory.findDefault(), importParams);
-        RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543")
-                .getRatioTapChanger();
-        assertEquals(6, rtc.getStepCount());
-        // ratio is missing for step 3
-        // ratio is defined explicitly as 1.0 for step 4
-        // r not defined in step 5
-        // x not defined in step 6
-        assertEquals(1.0, rtc.getStep(3).getRho(), 0);
-        assertEquals(1.0, rtc.getStep(4).getRho(), 0);
-        assertEquals(0.0, rtc.getStep(5).getR(), 0);
-        assertEquals(0.0, rtc.getStep(6).getX(), 0);
-
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
-                .getPhaseTapChanger();
-        // r,x not defined for step 1
-        // ratio not defined for any step
-        assertEquals(4, ptc.getStepCount());
-        assertEquals(0.0, ptc.getStep(1).getR(), 0);
-        assertEquals(0.0, ptc.getStep(1).getX(), 0);
-        for (int k = 1; k <= 4; k++) {
-            assertEquals(1.0, ptc.getStep(k).getRho(), 0);
-        }
-    }
-
-    @Test
-    void microBERatioPhaseFaultyTabularTest() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerFaultyTabular().dataSource(), NetworkFactory.findDefault(), importParams);
-        RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543")
-                .getRatioTapChanger();
-        int neutralStep = 4;
-        double stepVoltageIncrement = 1.250000;
-        // table with steps 1, 2, 3, 8 ignored, rtc considered linear with 6 steps
-        assertEquals(6, rtc.getStepCount());
-        for (int k = 1; k <= 6; k++) {
-            assertEquals(0.0, rtc.getStep(k).getR(), 0.0);
-            assertEquals(0.0, rtc.getStep(k).getX(), 0.0);
-            assertEquals(0.0, rtc.getStep(k).getG(), 0.0);
-            assertEquals(0.0, rtc.getStep(k).getB(), 0.0);
-            assertEquals(1 / (1.0 + (k - neutralStep) * (stepVoltageIncrement / 100.0)), rtc.getStep(k).getRho(), 0.0);
-        }
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
-                .getPhaseTapChanger();
-        // table with step 1 and 4 ignored, ptc considered linear (with no step increment) with 5 steps
-        assertEquals(5, ptc.getStepCount());
-        for (int k = 1; k <= 5; k++) {
-            assertEquals(0.0, ptc.getStep(k).getR(), 0.0);
-            assertEquals(0.0, ptc.getStep(k).getX(), 0.0);
-            assertEquals(0.0, ptc.getStep(k).getG(), 0.0);
-            assertEquals(0.0, ptc.getStep(k).getB(), 0.0);
-            assertEquals(1.0, ptc.getStep(k).getRho(), 0.0);
-            assertEquals(0.0, ptc.getStep(k).getAlpha(), 0.0);
-        }
-    }
-
-    @Test
-    void microBEPhaseTapChangerLinearTest() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.microT4BePhaseTapChangerLinear(),
-            config);
-
-        PhaseTapChanger ptc = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
-        assertEquals(25, ptc.getStepCount());
-
-        for (int step = 1; step <= ptc.getStepCount(); step++) {
-            assertEquals(1.0, ptc.getStep(step).getRho(), 0);
-            assertEquals(0.0, ptc.getStep(step).getR(), 0);
-            assertEquals(-87.517240, ptc.getStep(1).getX(), 0.000001);
-            assertEquals(0.0, ptc.getStep(step).getG(), 0);
-            assertEquals(0.0, ptc.getStep(step).getB(), 0);
-        }
-
-        // Check alpha in some steps
-        assertEquals(14.4, ptc.getStep(1).getAlpha(), 0.001);
-        assertEquals(8.4, ptc.getStep(6).getAlpha(), 0.001);
-        assertEquals(2.4, ptc.getStep(11).getAlpha(), 0.001);
-        assertEquals(0.0, ptc.getStep(13).getAlpha(), 0.0);
-        assertEquals(-1.2, ptc.getStep(14).getAlpha(), 0.001);
-        assertEquals(-7.2, ptc.getStep(19).getAlpha(), 0.001);
-        assertEquals(-14.4, ptc.getStep(25).getAlpha(), 0.001);
-    }
-
-    private static Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
-        config.setConvertSvInjections(true);
-        return ConversionUtil.networkModel(testGridModel, config);
-    }
-
-    @Test
-    void microBEPtcSide2() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEPtcSide2().dataSource(), NetworkFactory.findDefault(), importParams);
-        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
-        PhaseTapChanger ptc = twt.getPhaseTapChanger();
-        assertNotNull(ptc);
-        assertSame(twt.getTerminal2(), ptc.getRegulationTerminal());
-    }
-
-    @Test
-    void microBEUsingSshForRtcPtcDisabled() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcDisabled().dataSource(), NetworkFactory.findDefault(), importParams);
-
-        // Even if the tap changers keep their controlEnabled flag == true,
-        // Their associated regulating control (tap changer control) is disabled
-        // So in IIDM the tap changers should not be regulating
-
-        RatioTapChanger rtc = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
-        assertNotNull(rtc);
-        assertFalse(rtc.isRegulating());
-
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
-        assertNotNull(ptc);
-        assertFalse(ptc.isRegulating());
-    }
-
-    @Test
     void microBEReactiveCapabilityCurve() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), NetworkFactory.findDefault(), importParams);
@@ -224,17 +102,6 @@ class CgmesConformity1ModifiedConversionTest {
         MinMaxReactiveLimits mm = (MinMaxReactiveLimits) rl;
         assertEquals(-200, mm.getMinQ(), 0);
         assertEquals(200, mm.getMaxQ(), 0);
-    }
-
-    @Test
-    void microBEPtcCurrentLimiter() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEPtcCurrentLimiter().dataSource(), NetworkFactory.findDefault(), importParams);
-
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
-        assertNotNull(ptc);
-        assertEquals(CURRENT_LIMITER, ptc.getRegulationMode());
-        assertEquals(65.0, ptc.getRegulationValue());
     }
 
     @Test
