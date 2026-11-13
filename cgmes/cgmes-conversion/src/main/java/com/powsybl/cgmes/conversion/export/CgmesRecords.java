@@ -7,6 +7,9 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 /**
  * <p>The definitions of the CGMES objects for serialization.</p>
  *
@@ -72,7 +75,11 @@ public final class CgmesRecords {
         double q,
         boolean controlEnabled,
         String asynchronousMachineType
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeAsynchronousMachine(this, writer, context);
+        }
     }
 
     /**
@@ -123,7 +130,11 @@ public final class CgmesRecords {
         String rdfId,
         double netInterchange,
         Double pTolerance
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeControlArea(this, writer, context);
+        }
     }
 
     /**
@@ -140,7 +151,11 @@ public final class CgmesRecords {
         double targetIdc,
         String operatingMode,
         String pPccControl
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeCsConverter(this, writer, context);
+        }
     }
 
     /**
@@ -236,7 +251,11 @@ public final class CgmesRecords {
         String className,
         String rdfId,
         boolean connected
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeDCTerminal(this, writer, context);
+        }
     }
 
     /**
@@ -260,7 +279,11 @@ public final class CgmesRecords {
         String rdfId,
         double p,
         double q
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeEnergyConsumer(this, writer, context);
+        }
     }
 
     /**
@@ -280,7 +303,11 @@ public final class CgmesRecords {
         String rdfId,
         double activePower,
         double reactivePower
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeEnergySource(this, writer, context);
+        }
     }
 
     /**
@@ -320,7 +347,11 @@ public final class CgmesRecords {
         double q,
         boolean regulationStatus,
         double regulationTarget
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeEquivalentInjection(this, writer, context);
+        }
     }
 
     /**
@@ -360,7 +391,11 @@ public final class CgmesRecords {
         double p,
         double q,
         int referencePriority
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeExternalNetworkInjection(this, writer, context);
+        }
     }
 
     /**
@@ -397,7 +432,11 @@ public final class CgmesRecords {
         String className,
         String rdfId,
         double normalPF
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeGeneratingUnit(this, writer, context);
+        }
     }
 
     /**
@@ -642,7 +681,11 @@ public final class CgmesRecords {
         double targetDeadband,
         double targetValue,
         String targetValueUnitMultiplier
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeRegulatingControl(this, writer, context);
+        }
     }
 
     /**
@@ -685,7 +728,11 @@ public final class CgmesRecords {
         String rdfId,
         int sections,
         boolean controlEnabled
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeShuntCompensator(this, writer, context);
+        }
     }
 
     /**
@@ -711,7 +758,11 @@ public final class CgmesRecords {
         String rdfId,
         boolean controlEnabled,
         double q
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeStaticVarCompensator(this, writer, context);
+        }
     }
 
     /**
@@ -764,7 +815,11 @@ public final class CgmesRecords {
         String className,
         String rdfId,
         boolean open
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeSwitch(this, writer, context);
+        }
     }
 
     /**
@@ -794,7 +849,11 @@ public final class CgmesRecords {
         double q,
         int referencePriority,
         String operatingMode
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeSynchronousMachine(this, writer, context);
+        }
     }
 
     /**
@@ -805,7 +864,11 @@ public final class CgmesRecords {
         String rdfId,
         boolean controlEnabled,
         int step
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeTapChanger(this, writer, context);
+        }
     }
 
     /**
@@ -836,7 +899,11 @@ public final class CgmesRecords {
     public record TerminalSsh(
         String rdfId,
         boolean connected
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeTerminal(this, writer, context);
+        }
     }
 
     /**
@@ -878,6 +945,10 @@ public final class CgmesRecords {
         double targetUpcc,
         String pPccControl,
         String qPccControl
-    ) {
+    ) implements SshStatement {
+        @Override
+        public void writeSsh(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+            SteadyStateHypothesisWriter.writeVsConverter(this, writer, context);
+        }
     }
 }
