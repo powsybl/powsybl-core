@@ -16,19 +16,19 @@ import static org.apache.commons.math3.util.Precision.EPSILON;
 /**
  * Represents a plane (or half-space) defining one boundary of the convex polyhedron.
  * <pre>
- * The inequality is of the form: delta * Q + alpha * U + beta * P  {≤, ≥}  gamma.
+ * The inequality is of the form: coeffQ * Q + coeffU * U + coeffP * P  {≤, ≥}  rhs.
  * P = Active Power (MW)
  * Q = Reactive Power (MVAr)
  * U = Voltage (KV)
  * </pre>
  *
- * <p>The affine expression ({@code alpha}, {@code beta}, {@code delta}) is fixed at construction time
- * through {@link #build}, while the inequality direction and the {@code gamma} right-hand side are set
+ * <p>The affine expression ({@code coeffU}, {@code coeffP}, {@code coeffQ}) is fixed at construction time
+ * through {@link #build}, while the inequality direction and the {@code rhs} right-hand side are set
  * afterwards through {@link #lessOrEqual(double)} / {@link #greaterOrEqual(double)}. This split keeps the
  * geometric coefficients of the plane independent from its relational orientation, which mirrors the way
  * the half-space is later assembled into a {@code LinearConstraint}. Users of the public API never deal
  * with this two-step construction: {@code ReactiveCapabilityShapeAdder.addPlane(...)} takes the
- * coefficients, the inequality direction and {@code gamma} in a single call.</p>
+ * coefficients, the inequality direction and {@code rhs} in a single call.</p>
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
@@ -37,26 +37,26 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
     /**
      * Coefficient for U (Voltage)
      */
-    private final double alpha;
+    private final double coeffU;
     /**
      * Coefficient for P (Active Power)
       */
-    private final double beta;
+    private final double coeffP;
     /**
      * Coefficient for Q (Reactive Power)
      */
-    private final double delta;
+    private final double coeffQ;
     /**
      *The constant limit on the right side
       */
-    private double gamma;
+    private double rhs;
 
     /**
      * ≤ or ≥ inequality types
      */
     public enum InequalityType {
-       LESS_OR_EQUAL,       // ≤ gamma
-       GREATER_OR_EQUAL     // ≥ gamma
+       LESS_OR_EQUAL,       // ≤ rhs
+       GREATER_OR_EQUAL     // ≥ rhs
     }
 
     /**
@@ -67,57 +67,57 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
     /**
      * private constructor for a ReactiveCapabilityShapePlane.
      *
-     * @param alphaU    The coefficient for U.
-     * @param betaP     The coefficient for P.
-     * @param deltaQ    The coefficient for Q.
+     * @param coeffU    The coefficient for U.
+     * @param coeffP    The coefficient for P.
+     * @param coeffQ    The coefficient for Q.
      */
-    private ReactiveCapabilityShapePlaneImpl(double alphaU, double betaP, double deltaQ) {
-        this.alpha = alphaU;
-        this.beta = betaP;
-        this.delta = deltaQ;
+    private ReactiveCapabilityShapePlaneImpl(double coeffU, double coeffP, double coeffQ) {
+        this.coeffU = coeffU;
+        this.coeffP = coeffP;
+        this.coeffQ = coeffQ;
     }
 
     /**
      * Builder for a ReactiveCapabilityShapePlane.
      *
-     * @param alphaU    The coefficient for U.
-     * @param betaP     The coefficient for P.
+     * @param coeffU    The coefficient for U.
+     * @param coeffP    The coefficient for P.
      */
-    public static ReactiveCapabilityShapePlane build(double alphaU, double betaP) {
-        return new ReactiveCapabilityShapePlaneImpl(alphaU, betaP, 1.0);
+    public static ReactiveCapabilityShapePlane build(double coeffU, double coeffP) {
+        return new ReactiveCapabilityShapePlaneImpl(coeffU, coeffP, 1.0);
     }
 
     /**
      * Builder for a ReactiveCapabilityShapePlane.
      *
-     * @param alphaU    The coefficient for U.
-     * @param betaP     The coefficient for P.
-     * @param deltaQ    The coefficient for Q.
+     * @param coeffU    The coefficient for U.
+     * @param coeffP    The coefficient for P.
+     * @param coeffQ    The coefficient for Q.
      */
-    public static ReactiveCapabilityShapePlane build(double alphaU, double betaP, double deltaQ) {
-        return new ReactiveCapabilityShapePlaneImpl(alphaU, betaP, deltaQ);
+    public static ReactiveCapabilityShapePlane build(double coeffU, double coeffP, double coeffQ) {
+        return new ReactiveCapabilityShapePlaneImpl(coeffU, coeffP, coeffQ);
     }
 
     /**
-     * Set the hyperplane constraint to a less or equal ≤ inequality with gamma right hand side
-     * @param gamma the gamma right hand side
+     * Set the hyperplane constraint to a less or equal ≤ inequality with the given right hand side
+     * @param rhs the right hand side
      * @return this
      */
     @Override
-    public ReactiveCapabilityShapePlane lessOrEqual(double gamma) {
-        this.gamma = gamma;
+    public ReactiveCapabilityShapePlane lessOrEqual(double rhs) {
+        this.rhs = rhs;
         this.inequalityType = InequalityType.LESS_OR_EQUAL;
         return this;
     }
 
     /**
-     * Set the hyperplane constraint to a greater or equal ≥ inequality with gamma right hand side
-     * @param gamma the gamma right hand side
+     * Set the hyperplane constraint to a greater or equal ≥ inequality with the given right hand side
+     * @param rhs the right hand side
      * @return this
      */
     @Override
-    public ReactiveCapabilityShapePlane greaterOrEqual(double gamma) {
-        this.gamma = gamma;
+    public ReactiveCapabilityShapePlane greaterOrEqual(double rhs) {
+        this.rhs = rhs;
         this.inequalityType = InequalityType.GREATER_OR_EQUAL;
         return this;
     }
@@ -126,21 +126,21 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        if (delta == 1.0) {
+        if (coeffQ == 1.0) {
             sb.append("Q");
         } else {
-            appendIfNonZero(delta, sb, "Q");
+            appendIfNonZero(coeffQ, sb, "Q");
         }
 
-        // Append U term (alpha * U)
-        appendIfNonZero(alpha, sb, "U");
+        // Append U term (coeffU * U)
+        appendIfNonZero(coeffU, sb, "U");
 
-        // Append P term (beta * P)
-        appendIfNonZero(beta, sb, "P");
+        // Append P term (coeffP * P)
+        appendIfNonZero(coeffP, sb, "P");
 
-        // Append relation and gamma
+        // Append relation and rhs
         sb.append(" ").append(inequalityType.equals(InequalityType.LESS_OR_EQUAL) ? '≤' : '≥').append(" ");
-        sb.append(String.format("%.3f", gamma));
+        sb.append(String.format("%.3f", rhs));
 
         return sb.toString();
     }
@@ -166,22 +166,22 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
     }
 
     @Override
-    public double getAlpha() {
-        return alpha;
+    public double getCoeffU() {
+        return coeffU;
     }
 
     @Override
-    public double getBeta() {
-        return beta;
+    public double getCoeffP() {
+        return coeffP;
     }
 
     @Override
-    public double getDelta() {
-        return delta;
+    public double getCoeffQ() {
+        return coeffQ;
     }
 
     @Override
-    public double getGamma() {
-        return gamma;
+    public double getRhs() {
+        return rhs;
     }
 }
