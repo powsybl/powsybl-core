@@ -198,10 +198,10 @@ public final class Update {
     // we have decided to create fictitious switches to precisely
     // map this situation to IIDM.
     // This behavior can be disabled through configuration.
-    static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
+    static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, Context context) {
         if (createFictitiousSwitches(context)) {
             context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
-            cgmes.terminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
+            context.updateTerminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
             context.popReportNode();
         }
     }
