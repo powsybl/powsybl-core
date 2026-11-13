@@ -20,6 +20,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
+import com.powsybl.cgmes.conversion.export.EquipmentWriter;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
@@ -1655,7 +1656,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
             CgmesExportContext context = new CgmesExportContext(network)
                     .setExportEquipment(true)
                     .setExportTransformersWithHighestVoltageAtEnd1(transformersWithHighestVoltageAtEnd1);
-            new EquipmentExport(network, writer, context).write();
+            EquipmentWriter eqWriter = new EquipmentWriter(writer, context);
+            new EquipmentExport(network, eqWriter, context).write();
         }
         return exportedEq;
     }

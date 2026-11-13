@@ -52,7 +52,7 @@ public final class EquipmentExport {
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     private final Network network;
-    private final XMLStreamWriter writer;
+    private final EquipmentWriter writer;
     private final CgmesExportContext context;
     private final Map<String, String> mapNodeKey2NodeId;
     private final Set<String> regulatingControlsWritten;
@@ -69,7 +69,7 @@ public final class EquipmentExport {
      * @param writer The {@link XMLStreamWriter} to serialize the CGMES Equipment profile.
      * @param context The {@link CgmesExportContext} containing the export context.
      */
-    public EquipmentExport(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+    public EquipmentExport(Network network, EquipmentWriter writer, CgmesExportContext context) {
         this.network = network;
         this.writer = writer;
         this.context = context;
@@ -98,8 +98,8 @@ public final class EquipmentExport {
      */
     public void write(CgmesMetadataModel model) {
         try {
-            CgmesExportUtil.writeRdfRoot(context, writer);
-            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, model, context);
+            writer.writeRdfRoot();
+            writer.writeModelDescription(network, model);
 
             // Write connectivity
             writeConnectivityNodes();
@@ -177,7 +177,7 @@ public final class EquipmentExport {
             String nodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.getFirst()), CONNECTIVITY_NODE);
             String nodeName = CgmesExportUtil.format(nodes.getFirst());
             CgmesRecords.ConnectivityNodeEq node = new CgmesRecords.ConnectivityNodeEq(nodeId, nodeName, cgmesVlId);
-            EquipmentWriter.writeConnectivityNode(node, writer, context);
+            writer.writeConnectivityNode(node);
             for (Integer nodeNumber : nodes) {
                 mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), nodeId);
             }
@@ -190,7 +190,7 @@ public final class EquipmentExport {
             String nodeId = context.getNamingStrategy().getCgmesId(refTyped(bus), Part.CONNECTIVITY_NODE);
             String nodeName = bus.getNameOrId();
             CgmesRecords.ConnectivityNodeEq node = new CgmesRecords.ConnectivityNodeEq(nodeId, nodeName, cgmesVlId);
-            EquipmentWriter.writeConnectivityNode(node, writer, context);
+            writer.writeConnectivityNode(node);
             mapNodeKey2NodeId.put(buildNodeKey(bus), nodeId);
         }
     }
@@ -218,7 +218,7 @@ public final class EquipmentExport {
                             0.0,
                             baseVoltageId
                         );
-                        EquipmentWriter.writeACLineSegment(line, writer, context);
+                        writer.writeACLineSegment(line);
                     }
                     case "EquivalentBranch" -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
@@ -229,7 +229,7 @@ public final class EquipmentExport {
                             0.0,
                             baseVoltageId
                         );
-                        EquipmentWriter.writeEquivalentBranch(branch, writer, context);
+                        writer.writeEquivalentBranch(branch);
                     }
                     case "SeriesCompensator" -> {
                         String baseVoltageId = context.getBaseVoltageIdFromNominalV(vl.getNominalV());
@@ -243,7 +243,7 @@ public final class EquipmentExport {
                             0.0,
                             baseVoltageId
                         );
-                        EquipmentWriter.writeSeriesCompensator(sc, writer, context);
+                        writer.writeSeriesCompensator(sc);
                     }
                     case null, default -> {
                         String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(sw.getKind());
@@ -257,7 +257,7 @@ public final class EquipmentExport {
                             exportAsRetained,
                             cgmesVlId
                         );
-                        EquipmentWriter.writeSwitch(switchEq, writer, context);
+                        writer.writeSwitch(switchEq);
                     }
                 }
             }
@@ -269,13 +269,13 @@ public final class EquipmentExport {
             .sorted(Comparator.comparing(CgmesRecords.GeographicalRegionEq::rdfId))
             .toList();
         for (CgmesRecords.GeographicalRegionEq region : regions) {
-            EquipmentWriter.writeGeographicalRegion(region, writer, context);
+            writer.writeGeographicalRegion(region);
         }
     }
 
     private void writeSubGeographicalRegions() throws XMLStreamException {
         for (CgmesRecords.SubGeographicalRegionEq subRegion : context.getSubRegions()) {
-            EquipmentWriter.writeSubGeographicalRegion(subRegion, writer, context);
+            writer.writeSubGeographicalRegion(subRegion);
         }
     }
 
@@ -286,7 +286,7 @@ public final class EquipmentExport {
                 substation.getNameOrId(),
                 context.getSubstationSubRegion(substation.getId())
             );
-            EquipmentWriter.writeSubstation(substationEq, writer, context);
+            writer.writeSubstation(substationEq);
         }
     }
 
@@ -297,7 +297,7 @@ public final class EquipmentExport {
             .toList();
         for (CgmesExportContext.BaseVoltageSource bv : igmBaseVoltageSources) {
             CgmesRecords.BaseVoltageEq baseVoltage = new CgmesRecords.BaseVoltageEq(bv.id(), bv.nominalV());
-            EquipmentWriter.writeBaseVoltage(baseVoltage, writer, context);
+            writer.writeBaseVoltage(baseVoltage);
         }
     }
 
@@ -319,7 +319,7 @@ public final class EquipmentExport {
                 substationId.orElse(fictSubstationId),
                 baseVoltageId
             );
-            EquipmentWriter.writeVoltageLevel(voltageLevelEq, writer, context);
+            writer.writeVoltageLevel(voltageLevelEq);
         }
     }
 
@@ -331,7 +331,7 @@ public final class EquipmentExport {
                 context.getNamingStrategy().getCgmesId(bbs.getTerminal().getVoltageLevel()),
                 context.getBaseVoltageIdFromNominalV(bbs.getTerminal().getVoltageLevel().getNominalV())
             );
-            EquipmentWriter.writeBusbarSection(busbarSection, writer, context);
+            writer.writeBusbarSection(busbarSection);
         }
     }
 
@@ -342,10 +342,10 @@ public final class EquipmentExport {
         if (!context.isCim16BusBranchExport()) {
             String baseName = network.getNameOrId();
             CgmesRecords.LoadAreaEq loadArea = new CgmesRecords.LoadAreaEq(loadAreaId, baseName);
-            EquipmentWriter.writeLoadArea(loadArea, writer, context);
+            writer.writeLoadArea(loadArea);
 
             CgmesRecords.SubLoadAreaEq subLoadArea = new CgmesRecords.SubLoadAreaEq(subLoadAreaId, baseName, loadAreaId);
-            EquipmentWriter.writeSubLoadArea(subLoadArea, writer, context);
+            writer.writeSubLoadArea(subLoadArea);
         }
     }
 
@@ -394,7 +394,7 @@ public final class EquipmentExport {
         String equipmentContainerId = context.getNamingStrategy().getCgmesId(vl);
         if (p <= 0) {
             CgmesRecords.EnergySourceEq energySource = new CgmesRecords.EnergySourceEq(loadId, loadName, equipmentContainerId);
-            EquipmentWriter.writeEnergySource(energySource, writer, context);
+            writer.writeEnergySource(energySource);
         } else {
             String loadGroup = getLoadGroup(CgmesNames.NONCONFORM_LOAD);
             CgmesRecords.EnergyConsumerEq energyConsumer = new CgmesRecords.EnergyConsumerEq(
@@ -405,11 +405,11 @@ public final class EquipmentExport {
                 equipmentContainerId,
                 null
             );
-            EquipmentWriter.writeEnergyConsumer(energyConsumer, writer, context);
+            writer.writeEnergyConsumer(energyConsumer);
         }
 
         CgmesRecords.TerminalEq terminal = new CgmesRecords.TerminalEq(terminalId, 1, loadId, cnId);
-        EquipmentWriter.writeTerminal(terminal, writer, context);
+        writer.writeTerminal(terminal);
     }
 
     private void writeLoads() throws XMLStreamException {
@@ -419,8 +419,8 @@ public final class EquipmentExport {
                 String loadId = context.getNamingStrategy().getCgmesId(load);
                 switch (className) {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
-                        EquipmentWriter.writeAsynchronousMachine(
-                            new CgmesRecords.AsynchronousMachineEq(loadId, load.getNameOrId()), writer, context
+                        writer.writeAsynchronousMachine(
+                            new CgmesRecords.AsynchronousMachineEq(loadId, load.getNameOrId())
                         );
                     case CgmesNames.ENERGY_SOURCE -> {
                         CgmesRecords.EnergySourceEq energySource = new CgmesRecords.EnergySourceEq(
@@ -428,7 +428,7 @@ public final class EquipmentExport {
                             load.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel())
                         );
-                        EquipmentWriter.writeEnergySource(energySource, writer, context);
+                        writer.writeEnergySource(energySource);
                     }
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = getLoadGroup(className);
@@ -441,7 +441,7 @@ public final class EquipmentExport {
                             context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
                             loadResponseCharacteristicId
                         );
-                        EquipmentWriter.writeEnergyConsumer(energyConsumer, writer, context);
+                        writer.writeEnergyConsumer(energyConsumer);
                     }
                     default -> throw new PowsyblException("Unexpected class name: " + className);
                 }
@@ -474,7 +474,7 @@ public final class EquipmentExport {
             groupName,
             subLoadAreaId
         );
-        EquipmentWriter.writeLoadGroup(loadGroupEq, writer, context);
+        writer.writeLoadGroup(loadGroupEq);
         loadGroupsByLoadClass.put(loadClassName, groupId);
     }
 
@@ -502,7 +502,7 @@ public final class EquipmentExport {
                 0.0,
                 0.0
             );
-            EquipmentWriter.writeLoadResponseCharacteristic(loadResponseCharacteristic, writer, context);
+            writer.writeLoadResponseCharacteristic(loadResponseCharacteristic);
             return loadResponseId;
         } else if (optionalLoadModel.get().getType() == LoadModelType.ZIP) {
             ZipLoadModel zipLoadModel = (ZipLoadModel) optionalLoadModel.get();
@@ -519,7 +519,7 @@ public final class EquipmentExport {
                 zipLoadModel.getC2p(),
                 zipLoadModel.getC2q()
             );
-            EquipmentWriter.writeLoadResponseCharacteristic(loadResponseCharacteristic, writer, context);
+            writer.writeLoadResponseCharacteristic(loadResponseCharacteristic);
             return loadResponseId;
         } else {
             return null;
@@ -549,7 +549,7 @@ public final class EquipmentExport {
                         reactiveCapabilityCurveId,
                         baseVoltageId
                     );
-                    EquipmentWriter.writeEquivalentInjection(equivalentInjection, writer, context);
+                    writer.writeEquivalentInjection(equivalentInjection);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     regulatingControlId = writeRegulatingControl(generator);
@@ -564,7 +564,7 @@ public final class EquipmentExport {
                         getMinQ(generator),
                         regulatingControlId
                     );
-                    EquipmentWriter.writeExternalNetworkInjection(externalNetworkInjection, writer, context);
+                    writer.writeExternalNetworkInjection(externalNetworkInjection);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     regulatingControlId = writeRegulatingControl(generator);
@@ -595,7 +595,7 @@ public final class EquipmentExport {
                     regulatingTerminalId,
                     mode
                 );
-                EquipmentWriter.writeRegulatingControl(regulatingControl, writer, context);
+                writer.writeRegulatingControl(regulatingControl);
                 regulatingControlsWritten.add(regulatingControlId);
             }
         }
@@ -642,7 +642,7 @@ public final class EquipmentExport {
             regulatingControlId,
             context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel())
         );
-        EquipmentWriter.writeSynchronousMachine(synchronousMachine, writer, context);
+        writer.writeSynchronousMachine(synchronousMachine);
 
         if (generatingUnitId != null && !generatingUnitsWritten.contains(generatingUnitId)) {
 
@@ -663,7 +663,7 @@ public final class EquipmentExport {
                 i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null),
                 hydroPowerPlantId
             );
-            EquipmentWriter.writeGeneratingUnit(generatingUnit, writer, context);
+            writer.writeGeneratingUnit(generatingUnit);
             generatingUnitsWritten.add(generatingUnitId);
         }
     }
@@ -684,7 +684,7 @@ public final class EquipmentExport {
                         point.getMaxQ(),
                         reactiveLimitsId
                     );
-                    EquipmentWriter.writeCurveData(curveData, writer, context);
+                    writer.writeCurveData(curveData);
                     pointIndex++;
                 }
                 String reactiveCapabilityCurveName = "RCC_" + i.getNameOrId();
@@ -693,7 +693,7 @@ public final class EquipmentExport {
                     reactiveLimitsId,
                     reactiveCapabilityCurveName
                 );
-                EquipmentWriter.writeCurve(reactiveCapabilityCurve, writer, context);
+                writer.writeCurve(reactiveCapabilityCurve);
             }
         }
         return reactiveLimitsId;
@@ -772,7 +772,7 @@ public final class EquipmentExport {
                 hydroPowerPlantName,
                 "HydroPlantStorageKind." + hydroPlantStorageType
             );
-            EquipmentWriter.writeHydroPowerPlant(hydroPlant, writer, context);
+            writer.writeHydroPowerPlant(hydroPlant);
         }
 
         String fossilFuelType = i.getProperty(PROPERTY_FOSSIL_FUEL_TYPE);
@@ -787,7 +787,7 @@ public final class EquipmentExport {
                     "FuelType." + fossilFuelTypeArray[j],
                     generatingUnit
                 );
-                EquipmentWriter.writeFossilFuel(fossilFuelEq, writer, context);
+                writer.writeFossilFuel(fossilFuelEq);
             }
         }
 
@@ -827,7 +827,7 @@ public final class EquipmentExport {
                     s.getG(s.getMaximumSectionCount()),
                     context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel())
                 );
-                EquipmentWriter.writeEquivalentShunt(equivalentShunt, writer, context);
+                writer.writeEquivalentShunt(equivalentShunt);
             } else {
                 // Shunt can only regulate voltage
                 double bPerSection = 0.0;
@@ -849,7 +849,7 @@ public final class EquipmentExport {
                     regulatingControlId,
                     context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel())
                 );
-                EquipmentWriter.writeShuntCompensator(shuntCompensator, writer, context);
+                writer.writeShuntCompensator(shuntCompensator);
                 if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
                     double b = 0.0;
                     double g = 0.0;
@@ -862,7 +862,7 @@ public final class EquipmentExport {
                             section,
                             context.getNamingStrategy().getCgmesId(s)
                         );
-                        EquipmentWriter.writeNonLinearShuntCompensatorPoint(point, writer, context);
+                        writer.writeNonLinearShuntCompensatorPoint(point);
                         b = s.getB(section);
                         g = s.getG(section);
                     }
@@ -889,7 +889,7 @@ public final class EquipmentExport {
                 regulatingControlId,
                 context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel())
             );
-            EquipmentWriter.writeStaticVarCompensator(staticVarCompensator, writer, context);
+            writer.writeStaticVarCompensator(staticVarCompensator);
         }
     }
 
@@ -905,7 +905,7 @@ public final class EquipmentExport {
                 line.getB1() + line.getB2(),
                 context.getBaseVoltageIdFromNominalV(baseVoltage)
             );
-            EquipmentWriter.writeACLineSegment(lineEq, writer, context);
+            writer.writeACLineSegment(lineEq);
             writeBranchLimits(line, getTerminalId(line.getTerminal1(), context), getTerminalId(line.getTerminal2(), context));
         }
     }
@@ -917,7 +917,7 @@ public final class EquipmentExport {
                 twt.getNameOrId(),
                 twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null)
             );
-            EquipmentWriter.writePowerTransformer(powerTransformer, writer, context);
+            writer.writePowerTransformer(powerTransformer);
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END1);
 
             // High voltage could be assigned to endNumber = 1 if parameterized.
@@ -939,7 +939,7 @@ public final class EquipmentExport {
                 baseVoltage1Id,
                 getTerminalId(twt.getTerminal1(), context)
             );
-            EquipmentWriter.writePowerTransformerEnd(end1, writer, context);
+            writer.writePowerTransformerEnd(end1);
             String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END2);
             String baseVoltage2Id = context.getBaseVoltageIdFromNominalV(twt.getTerminal2().getVoltageLevel().getNominalV());
             CgmesRecords.PowerTransformerEndEq end2 = new CgmesRecords.PowerTransformerEndEq(
@@ -956,7 +956,7 @@ public final class EquipmentExport {
                 baseVoltage2Id,
                 getTerminalId(twt.getTerminal2(), context)
             );
-            EquipmentWriter.writePowerTransformerEnd(end2, writer, context);
+            writer.writePowerTransformerEnd(end2);
 
             // Export tap changers:
             // We are exporting the tap changer as it is modeled in IIDM, always at end 1
@@ -974,7 +974,7 @@ public final class EquipmentExport {
                 twt.getNameOrId(),
                 twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null)
             );
-            EquipmentWriter.writePowerTransformer(powerTransformer, writer, context);
+            writer.writePowerTransformer(powerTransformer);
 
             EndNumberAssignerForThreeWindingsTransformer endNumberAssigner = new EndNumberAssignerForThreeWindingsTransformer(twt, context.exportTransformersWithHighestVoltageAtEnd1());
 
@@ -1134,7 +1134,7 @@ public final class EquipmentExport {
             baseVoltageId,
             terminalId
         );
-        EquipmentWriter.writePowerTransformerEnd(end, writer, context);
+        writer.writePowerTransformerEnd(end);
         writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU());
         writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, legNumber, endId, leg.getRatedU());
         writeFlowsLimits(leg, terminalId);
@@ -1197,7 +1197,7 @@ public final class EquipmentExport {
                         mode,
                         terminalId
                     );
-                    EquipmentWriter.writeTapChangerControl(tapChangerControl, writer, context);
+                    writer.writeTapChangerControl(tapChangerControl);
                     regulatingControlsWritten.add(tapChangerControlId);
                 }
             }
@@ -1215,12 +1215,12 @@ public final class EquipmentExport {
                 endId,
                 tapChangerControlId
             );
-            EquipmentWriter.writePhaseTapChanger(phaseTapChanger, writer, context);
+            writer.writePhaseTapChanger(phaseTapChanger);
             CgmesRecords.PhaseTapChangerTableEq phaseTapChangerTable = new CgmesRecords.PhaseTapChangerTableEq(
                 phaseTapChangerTableId,
                 twtName + "_TABLE"
             );
-            EquipmentWriter.writePhaseTapChangerTable(phaseTapChangerTable, writer, context);
+            writer.writePhaseTapChangerTable(phaseTapChangerTable);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), PHASE_TAP_CHANGER_STEP);
                 CgmesRecords.PhaseTapChangerTablePointEq point = new CgmesRecords.PhaseTapChangerTablePointEq(
@@ -1234,7 +1234,7 @@ public final class EquipmentExport {
                     1 / step.getValue().getRho(),
                     -step.getValue().getAlpha()
                 );
-                EquipmentWriter.writePhaseTapChangerTablePoint(point, writer, context);
+                writer.writePhaseTapChangerTablePoint(point);
             }
         }
     }
@@ -1251,7 +1251,7 @@ public final class EquipmentExport {
             operationalLimitSetName,
             terminalId
         );
-        EquipmentWriter.writeOperationalLimitSet(operationalLimitSet, writer, context);
+        writer.writeOperationalLimitSet(operationalLimitSet);
 
         // Add a CurrentLimit within the OperationalLimitSet with the current limiter regulation value
         String className = "CurrentLimit";
@@ -1265,7 +1265,7 @@ public final class EquipmentExport {
             operationalLimitTypeId,
             operationalLimitSetId
         );
-        EquipmentWriter.writeOperationalLimit(opearationalLimit, writer, context);
+        writer.writeOperationalLimit(opearationalLimit);
 
         // Create the corresponding OperationalLimitType if it hasn't been created already
         if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
@@ -1276,7 +1276,7 @@ public final class EquipmentExport {
                 true,
                 "patl"
             );
-            EquipmentWriter.writeOperationalLimitType(operationalLimitType, writer, context);
+            writer.writeOperationalLimitType(operationalLimitType);
             exportedLimitTypes.add(operationalLimitTypeId);
         }
     }
@@ -1317,7 +1317,7 @@ public final class EquipmentExport {
                         tccMode,
                         terminalId
                     );
-                    EquipmentWriter.writeTapChangerControl(tapChangerControl, writer, context);
+                    writer.writeTapChangerControl(tapChangerControl);
                     regulatingControlsWritten.add(tapChangerControlId);
                 }
             }
@@ -1347,12 +1347,12 @@ public final class EquipmentExport {
                 endId,
                 tapChangerControlId
             );
-            EquipmentWriter.writeRatioTapChanger(ratioTapChanger, writer, context);
+            writer.writeRatioTapChanger(ratioTapChanger);
             CgmesRecords.RatioTapChangerTableEq ratioTapChangerTable = new CgmesRecords.RatioTapChangerTableEq(
                 ratioTapChangerTableId,
                 twtName + "_TABLE"
             );
-            EquipmentWriter.writeRatioTapChangerTable(ratioTapChangerTable, writer, context);
+            writer.writeRatioTapChangerTable(ratioTapChangerTable);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), RATIO_TAP_CHANGER_STEP);
                 CgmesRecords.RatioTapChangerTablePointEq point = new CgmesRecords.RatioTapChangerTablePointEq(
@@ -1365,7 +1365,7 @@ public final class EquipmentExport {
                     step.getValue().getB(),
                     1 / step.getValue().getRho()
                 );
-                EquipmentWriter.writeRatioTapChangerTablePoint(point, writer, context);
+                writer.writeRatioTapChangerTablePoint(point);
             }
 
         }
@@ -1410,7 +1410,7 @@ public final class EquipmentExport {
                 boundaryLine.getB(),
                 context.getBaseVoltageIdFromNominalV(boundaryLine.getTerminal().getVoltageLevel().getNominalV())
             );
-            EquipmentWriter.writeACLineSegment(line, writer, context);
+            writer.writeACLineSegment(line);
             writeFlowsLimits(boundaryLine, getTerminalId(boundaryLine.getTerminal(), context));
         }
     }
@@ -1445,14 +1445,14 @@ public final class EquipmentExport {
                 null,
                 baseVoltageId
             );
-            EquipmentWriter.writeEquivalentInjection(equivalentInjection, writer, context);
+            writer.writeEquivalentInjection(equivalentInjection);
             exported.add(equivalentInjectionId);
         }
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(boundaryLine, PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
         // check if the equivalent injection terminal has already been written (if several boundary lines linked to same X-node)
         if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) {
             CgmesRecords.TerminalEq terminal = new CgmesRecords.TerminalEq(equivalentInjectionTerminalId, 1, equivalentInjectionId, connectivityNodeId);
-            EquipmentWriter.writeTerminal(terminal, writer, context);
+            writer.writeTerminal(terminal);
             exported.add(equivalentInjectionTerminalId);
         }
     }
@@ -1469,7 +1469,7 @@ public final class EquipmentExport {
             String terminalId = CgmesExportUtil.getBoundaryLineBoundaryTerminalId(boundaryLine, context);
             String boundaryLineId = context.getNamingStrategy().getCgmesId(boundaryLine);
             CgmesRecords.TerminalEq terminal = new CgmesRecords.TerminalEq(terminalId, 2, boundaryLineId, connectivityNodeId);
-            EquipmentWriter.writeTerminal(terminal, writer, context);
+            writer.writeTerminal(terminal);
         }
         return connectivityNodeId;
     }
@@ -1527,7 +1527,7 @@ public final class EquipmentExport {
             boundaryLine.getNameOrId() + "_NODE",
             connectivityNodeContainerId
         );
-        EquipmentWriter.writeConnectivityNode(node, writer, context);
+        writer.writeConnectivityNode(node);
 
         return connectivityNodeId;
     }
@@ -1586,17 +1586,17 @@ public final class EquipmentExport {
         String baseName = identifiable.getNameOrId();
         String geographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, GEOGRAPHICAL_REGION);
         CgmesRecords.GeographicalRegionEq region = new CgmesRecords.GeographicalRegionEq(geographicalRegionId, "fictGR_" + baseName);
-        EquipmentWriter.writeGeographicalRegion(region, writer, context);
+        writer.writeGeographicalRegion(region);
         String subGeographicalRegionId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUB_GEOGRAPHICAL_REGION);
         CgmesRecords.SubGeographicalRegionEq subRegion = new CgmesRecords.SubGeographicalRegionEq(
             subGeographicalRegionId,
             "fictSGR_" + baseName,
             geographicalRegionId
         );
-        EquipmentWriter.writeSubGeographicalRegion(subRegion, writer, context);
+        writer.writeSubGeographicalRegion(subRegion);
         String substationId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, SUBSTATION);
         CgmesRecords.SubstationEq substationEq = new CgmesRecords.SubstationEq(substationId, "fictS_" + baseName, subGeographicalRegionId);
-        EquipmentWriter.writeSubstation(substationEq, writer, context);
+        writer.writeSubstation(substationEq);
         return substationId;
     }
 
@@ -1605,7 +1605,7 @@ public final class EquipmentExport {
         String voltageLevelId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), FICTITIOUS, VOLTAGE_LEVEL);
         String voltageLevelName = identifiable.getNameOrId() + "_VL";
         CgmesRecords.VoltageLevelEq voltageLevel = new CgmesRecords.VoltageLevelEq(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId);
-        EquipmentWriter.writeVoltageLevel(voltageLevel, writer, context);
+        writer.writeVoltageLevel(voltageLevel);
         return voltageLevelId;
     }
 
@@ -1667,7 +1667,7 @@ public final class EquipmentExport {
             operationalLimitSetName,
             terminalId
         );
-        EquipmentWriter.writeOperationalLimitSet(operationalLimitSet, writer, context);
+        writer.writeOperationalLimitSet(operationalLimitSet);
 
         // Write the OperationalLimit objects
         Optional<ActivePowerLimits> activePowerLimits = limitsGroup.getActivePowerLimits();
@@ -1699,7 +1699,7 @@ public final class EquipmentExport {
                 0,
                 true,
                 "patl");
-            EquipmentWriter.writeOperationalLimitType(operationalLimitType, writer, context);
+            writer.writeOperationalLimitType(operationalLimitType);
             exportedLimitTypes.add(operationalLimitTypeId);
         }
 
@@ -1714,7 +1714,7 @@ public final class EquipmentExport {
             operationalLimitTypeId,
             operationalLimitSetId
         );
-        EquipmentWriter.writeOperationalLimit(operationalLimit, writer, context);
+        writer.writeOperationalLimit(operationalLimit);
 
         if (!limits.getTemporaryLimits().isEmpty()) {
             for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
@@ -1729,7 +1729,7 @@ public final class EquipmentExport {
                         temporaryLimit.getAcceptableDuration(),
                         false,
                         "tatl");
-                    EquipmentWriter.writeOperationalLimitType(operationalLimitType, writer, context);
+                    writer.writeOperationalLimitType(operationalLimitType);
                     exportedLimitTypes.add(operationalLimitTypeId);
                 }
 
@@ -1746,7 +1746,7 @@ public final class EquipmentExport {
                     operationalLimitTypeId,
                     operationalLimitSetId
                 );
-                EquipmentWriter.writeOperationalLimit(temporaryOperationalLimit, writer, context);
+                writer.writeOperationalLimit(temporaryOperationalLimit);
             }
         }
     }
@@ -1810,7 +1810,7 @@ public final class EquipmentExport {
             writeDcTerminal(CgmesNames.ACDC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3);
 
             CgmesRecords.DCLineSegmentEq dcLineSegment = new CgmesRecords.DCLineSegmentEq(lineId, line.getNameOrId(), line.getR());
-            EquipmentWriter.writeDCLineSegment(dcLineSegment, writer, context);
+            writer.writeDCLineSegment(dcLineSegment);
             writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, capabilityCurveId1);
             writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, capabilityCurveId2);
         }
@@ -1838,7 +1838,7 @@ public final class EquipmentExport {
                         point.getMaxQ(),
                         reactiveLimitsId
                     );
-                    EquipmentWriter.writeCurveData(curveData, writer, context);
+                    writer.writeCurveData(curveData);
                     pointIndex++;
                 }
                 String reactiveCapabilityCurveName = "RCC_" + identifiable.getNameOrId();
@@ -1847,7 +1847,7 @@ public final class EquipmentExport {
                     reactiveLimitsId,
                     reactiveCapabilityCurveName
                 );
-                EquipmentWriter.writeCurve(reactiveCapabilityCurve, writer, context);
+                writer.writeCurve(reactiveCapabilityCurve);
             }
             case MIN_MAX ->
                 //Do not have to export anything
@@ -1860,7 +1860,7 @@ public final class EquipmentExport {
 
     private void writeDCConverterUnit(String id, String dcConverterUnitName, String operationMode, String substationId) throws XMLStreamException {
         CgmesRecords.DCConverterUnitEq dcConverterUnit = new CgmesRecords.DCConverterUnitEq(id, dcConverterUnitName, operationMode, substationId);
-        EquipmentWriter.writeDCConverterUnit(dcConverterUnit, writer, context);
+        writer.writeDCConverterUnit(dcConverterUnit);
     }
 
     private void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId,
@@ -1879,7 +1879,7 @@ public final class EquipmentExport {
             pccTerminal,
             dcEquipmentContainerId
         );
-        EquipmentWriter.writeAcDcConverter(acDcConverter, writer, context);
+        writer.writeAcDcConverter(acDcConverter);
     }
 
     private String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation) {
@@ -1891,12 +1891,12 @@ public final class EquipmentExport {
 
     private void writeDCNode(String id, String dcNodeName, String dcEquipmentContainerId) throws XMLStreamException {
         CgmesRecords.DCNodeEq dcNode = new CgmesRecords.DCNodeEq(id, dcNodeName, dcEquipmentContainerId);
-        EquipmentWriter.writeDCNode(dcNode, writer, context);
+        writer.writeDCNode(dcNode);
     }
 
     private void writeDCGround(String id, String dcGroundName) throws XMLStreamException {
         CgmesRecords.DCGroundEq dcGround = new CgmesRecords.DCGroundEq(id, dcGroundName, 0.0);
-        EquipmentWriter.writeDCGround(dcGround, writer, context);
+        writer.writeDCGround(dcGround);
     }
 
     private void writeDcTerminal(DcTerminal dcTerminal) throws XMLStreamException {
@@ -1930,7 +1930,7 @@ public final class EquipmentExport {
             conductingEquipmentId,
             dcNodeId
         );
-        EquipmentWriter.writeDCTerminal(dcTerminal, writer, context);
+        writer.writeDCTerminal(dcTerminal);
     }
 
     private void writeDcConverterUnits() throws XMLStreamException {
@@ -2009,7 +2009,7 @@ public final class EquipmentExport {
                 String className = dcSwitch.getKind() == DcSwitchKind.BREAKER ? "DCBreaker" : "DCDisconnector";
                 String dcSwitchId = context.getNamingStrategy().getCgmesId(dcSwitch);
                 CgmesRecords.DCSwitchEq dcSwitchEq = new CgmesRecords.DCSwitchEq(className, dcSwitchId, dcSwitch.getNameOrId());
-                EquipmentWriter.writeDCSwitch(dcSwitchEq, writer, context);
+                writer.writeDCSwitch(dcSwitchEq);
 
                 writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1);
                 writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2);
@@ -2021,7 +2021,7 @@ public final class EquipmentExport {
         for (DcGround dcGround : network.getDcGrounds()) {
             String dcGroundId = context.getNamingStrategy().getCgmesId(dcGround);
             CgmesRecords.DCGroundEq dcGroundEq = new CgmesRecords.DCGroundEq(dcGroundId, dcGround.getNameOrId(), dcGround.getR());
-            EquipmentWriter.writeDCGround(dcGroundEq, writer, context);
+            writer.writeDCGround(dcGroundEq);
 
             writeDcTerminal(dcGround.getDcTerminal());
         }
@@ -2031,7 +2031,7 @@ public final class EquipmentExport {
         for (DcLine dcLine : network.getDcLines()) {
             String dcLineId = context.getNamingStrategy().getCgmesId(dcLine);
             CgmesRecords.DCLineSegmentEq dcLineSegment = new CgmesRecords.DCLineSegmentEq(dcLineId, dcLine.getNameOrId(), dcLine.getR());
-            EquipmentWriter.writeDCLineSegment(dcLineSegment, writer, context);
+            writer.writeDCLineSegment(dcLineSegment);
 
             writeDcTerminal(dcLine.getDcTerminal1());
             writeDcTerminal(dcLine.getDcTerminal2());
@@ -2060,7 +2060,7 @@ public final class EquipmentExport {
                 pccTerminalId,
                 dcConverterUnitId
             );
-            EquipmentWriter.writeAcDcConverter(acDcConverter, writer, context);
+            writer.writeAcDcConverter(acDcConverter);
 
             writeDcTerminal(converter.getDcTerminal1());
             writeDcTerminal(converter.getDcTerminal2());
@@ -2089,12 +2089,12 @@ public final class EquipmentExport {
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
         String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse(null);
         CgmesRecords.ControlAreaEq controlAreaEq = new CgmesRecords.ControlAreaEq(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId);
-        EquipmentWriter.writeControlArea(controlAreaEq, writer, context);
+        writer.writeControlArea(controlAreaEq);
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
             Optional<TieFlow> tieFlow = TieFlow.from(areaBoundary, context);
             if (tieFlow.isPresent()) {
                 CgmesRecords.TieFlowEq tieFlowEq = new CgmesRecords.TieFlowEq(tieFlow.get().id(), controlAreaCgmesId, tieFlow.get().terminalId());
-                EquipmentWriter.writeTieFlow(tieFlowEq, writer, context);
+                writer.writeTieFlow(tieFlowEq);
             }
         }
     }
@@ -2146,7 +2146,7 @@ public final class EquipmentExport {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
         String nodeId = getConnectivityNodeId(t);
         CgmesRecords.TerminalEq terminal = new CgmesRecords.TerminalEq(terminalId, sequenceNumber, equipmentId, nodeId);
-        EquipmentWriter.writeTerminal(terminal, writer, context);
+        writer.writeTerminal(terminal);
     }
 
     private void writeSwitchTerminal(Switch sw, int end) throws XMLStreamException {
@@ -2154,7 +2154,7 @@ public final class EquipmentExport {
         String switchId = context.getNamingStrategy().getCgmesId(sw);
         String nodeId = getConnectivityNodeId(sw, end);
         CgmesRecords.TerminalEq terminal = new CgmesRecords.TerminalEq(terminalId, end, switchId, nodeId);
-        EquipmentWriter.writeTerminal(terminal, writer, context);
+        writer.writeTerminal(terminal);
     }
 
     private String getConnectivityNodeId(Terminal terminal) {
