@@ -466,7 +466,7 @@ public class CgmesExport implements Exporter {
         // QoCDC, rule CgmSvSshVersionMismatch: SSHs and SV must have same scenario time
         ZonedDateTime scenarioTime = network.getCaseDate();
         for (Network subnetwork : network.getSubnetworks()) {
-            if (!subnetwork.getCaseDate().equals(scenarioTime)) {
+            if (!subnetwork.getCaseDate().isEqual(scenarioTime)) {
                 LOG.error("Parent network doesn't have the same scenarioTime as subnetwork: {}.", subnetwork.getId());
             }
         }
