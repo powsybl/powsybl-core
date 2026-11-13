@@ -148,11 +148,11 @@ public final class EquipmentWriter {
     private static final String SUBSTATION_REGION = SUBSTATION + ".Region";
     private static final String SWITCH_NORMAL_OPEN = SWITCH + "." + NORMAL_OPEN;
     private static final String SWITCH_RETAINED = SWITCH + ".retained";
-    private static final String ROTATING_MACHINE_GENERATING_UNIT = "RotatingMachine." + GENERATING_UNIT;
+    private static final String ROTATING_MACHINE_GENERATING_UNIT = ROTATING_MACHINE + "." + GENERATING_UNIT;
     private static final String SYNCHRONOUS_MACHINE_INITIAL_REACTIVE_CAPABILITY_CURVE = SYNCHRONOUS_MACHINE + ".InitialReactiveCapabilityCurve";
     private static final String SYNCHRONOUS_MACHINE_MIN_Q = SYNCHRONOUS_MACHINE + "." + MIN_Q;
     private static final String SYNCHRONOUS_MACHINE_MAX_Q = SYNCHRONOUS_MACHINE + "." + MAX_Q;
-    private static final String ROTATING_MACHINE_RATED_S = "RotatingMachine." + RATEDS;
+    private static final String ROTATING_MACHINE_RATED_S = ROTATING_MACHINE + "." + RATEDS;
     private static final String SYNCHRONOUS_MACHINE_TYPE = SYNCHRONOUS_MACHINE + ".type";
     private static final String SYNCHRONOUS_MACHINE_KIND = "SynchronousMachineKind.";
     private static final String PHASE_TAP_CHANGER_TRANSFORMER_END = PHASE_TAP_CHANGER + "." + TRANSFORMER_END;

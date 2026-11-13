@@ -160,6 +160,7 @@ public final class CgmesNames {
     public static final String STATION_SUPPLY = "StationSupply";
     public static final String ASYNCHRONOUS_MACHINE = "AsynchronousMachine";
     public static final String SYNCHRONOUS_MACHINE = "SynchronousMachine";
+    public static final String ROTATING_MACHINE = "RotatingMachine";
     public static final String ENERGY_SOURCE = "EnergySource";
     public static final String SV_INJECTION = "SvInjection";
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
@@ -231,6 +232,7 @@ public final class CgmesNames {
     public static final String CONDUCTING_EQUIPMENT_BASE_VOLTAGE = CgmesNames.CONDUCTING_EQUIPMENT + "." + CgmesNames.BASE_VOLTAGE;
     public static final String EQUIPMENT_EQUIPMENT_CONTAINER = "Equipment.EquipmentContainer";
     public static final String REGULATING_COND_EQ_REGULATING_CONTROL = "RegulatingCondEq." + REGULATING_CONTROL;
+    public static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq." + CONTROL_ENABLED;
     public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
     public static final String REGULATING_CONTROL_REACTIVE_POWER = "RegulatingControlModeKind.reactivePower";
     public static final String REGULATING_CONTROL_ACTIVE_POWER = "RegulatingControlModeKind.activePower";

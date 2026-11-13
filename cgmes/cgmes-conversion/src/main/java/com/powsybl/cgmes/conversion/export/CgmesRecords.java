@@ -64,6 +64,18 @@ public final class CgmesRecords {
     }
 
     /**
+     * An AsynchronousMachine from the SSH profile.
+     */
+    public record AsynchronousMachineSsh(
+        String rdfId,
+        double p,
+        double q,
+        boolean controlEnabled,
+        String asynchronousMachineType
+    ) {
+    }
+
+    /**
      * A BaseVoltage from the EQ profile.
      */
     public record BaseVoltageEq(
@@ -101,6 +113,33 @@ public final class CgmesRecords {
         String name,
         String energyIdentCodeEic,
         String energyArea
+    ) {
+    }
+
+    /**
+     * A ControlArea from the SSH profile.
+     */
+    public record ControlAreaSsh(
+        String rdfId,
+        double netInterchange,
+        Double pTolerance
+    ) {
+    }
+
+    /**
+     * A CsConverter from the SSH profile.
+     */
+    public record CsConverterSsh(
+        String rdfId,
+        double targetPpcc,
+        double targetUdc,
+        double p,
+        double q,
+        double targetAlpha,
+        double targetGamma,
+        double targetIdc,
+        String operatingMode,
+        String pPccControl
     ) {
     }
 
@@ -191,6 +230,16 @@ public final class CgmesRecords {
     }
 
     /**
+     * A DCTerminal from the SSH profile.
+     */
+    public record DCTerminalSsh(
+        String className,
+        String rdfId,
+        boolean connected
+    ) {
+    }
+
+    /**
      * An EnergyConsumer from the EQ profile.
      */
     public record EnergyConsumerEq(
@@ -204,12 +253,33 @@ public final class CgmesRecords {
     }
 
     /**
+     * An EnergyConsumer from the SSH profile.
+     */
+    public record EnergyConsumerSsh(
+        String className,
+        String rdfId,
+        double p,
+        double q
+    ) {
+    }
+
+    /**
      * An EnergySource from the EQ profile.
      */
     public record EnergySourceEq(
         String rdfId,
         String name,
         String equipmentContainer
+    ) {
+    }
+
+    /**
+     * An EnergySource from the SSH profile.
+     */
+    public record EnergySourceSsh(
+        String rdfId,
+        double activePower,
+        double reactivePower
     ) {
     }
 
@@ -242,6 +312,18 @@ public final class CgmesRecords {
     }
 
     /**
+     * An EquivalentInjection from the SSH profile.
+     */
+    public record EquivalentInjectionSsh(
+        String rdfId,
+        double p,
+        double q,
+        boolean regulationStatus,
+        double regulationTarget
+    ) {
+    }
+
+    /**
      * An EquivalentShunt from the EQ profile.
      */
     public record EquivalentShuntEq(
@@ -270,6 +352,18 @@ public final class CgmesRecords {
     }
 
     /**
+     * An ExternalNetworkInjection from the SSH profile.
+     */
+    public record ExternalNetworkInjectionSsh(
+        String rdfId,
+        boolean controlEnabled,
+        double p,
+        double q,
+        int referencePriority
+    ) {
+    }
+
+    /**
      * A FossilFuel from the EQ profile.
      */
     public record FossilFuelEq(
@@ -293,6 +387,16 @@ public final class CgmesRecords {
         String windGenUnitType,
         String equipmentContainer,
         String hydroPowerPlant
+    ) {
+    }
+
+    /**
+     * A GeneratingUnit from the SSH profile.
+     */
+    public record GeneratingUnitSsh(
+        String className,
+        String rdfId,
+        double normalPF
     ) {
     }
 
@@ -528,6 +632,20 @@ public final class CgmesRecords {
     }
 
     /**
+     * A RegulatingControl from the SSH profile.
+     */
+    public record RegulatingControlSsh(
+        String className,
+        String rdfId,
+        boolean discrete,
+        boolean enabled,
+        double targetDeadband,
+        double targetValue,
+        String targetValueUnitMultiplier
+    ) {
+    }
+
+    /**
      * A SeriesCompensator from the EQ profile.
      */
     public record SeriesCompensatorEq(
@@ -560,6 +678,17 @@ public final class CgmesRecords {
     }
 
     /**
+     * A ShuntCompensator from the SSH profile.
+     */
+    public record ShuntCompensatorSsh(
+        String className,
+        String rdfId,
+        int sections,
+        boolean controlEnabled
+    ) {
+    }
+
+    /**
      * A StaticVarCompensator from the EQ profile.
      */
     public record StaticVarCompensatorEq(
@@ -572,6 +701,16 @@ public final class CgmesRecords {
         double voltageSetPoint,
         String regulatingControl,
         String equipmentContainer
+    ) {
+    }
+
+    /**
+     * A StaticVarCompensator from the SSH profile.
+     */
+    public record StaticVarCompensatorSsh(
+        String rdfId,
+        boolean controlEnabled,
+        double q
     ) {
     }
 
@@ -619,6 +758,16 @@ public final class CgmesRecords {
     }
 
     /**
+     * A Switch from the SSH profile.
+     */
+    public record SwitchSsh(
+        String className,
+        String rdfId,
+        boolean open
+    ) {
+    }
+
+    /**
      * A SynchronousMachine from the EQ profile.
      */
     public record SynchronousMachineEq(
@@ -632,6 +781,30 @@ public final class CgmesRecords {
         String generatingUnit,
         String regulatingControl,
         String equipmentContainer
+    ) {
+    }
+
+    /**
+     * A SynchronousMachine from the SSH profile.
+     */
+    public record SynchronousMachineSsh(
+        String rdfId,
+        boolean controlEnabled,
+        double p,
+        double q,
+        int referencePriority,
+        String operatingMode
+    ) {
+    }
+
+    /**
+     * A TapChanger from the SSH profile.
+     */
+    public record TapChangerSsh(
+        String className,
+        String rdfId,
+        boolean controlEnabled,
+        int step
     ) {
     }
 
@@ -658,6 +831,15 @@ public final class CgmesRecords {
     }
 
     /**
+     * A Terminal from the SSH profile.
+     */
+    public record TerminalSsh(
+        String rdfId,
+        boolean connected
+    ) {
+    }
+
+    /**
      * A TieFlow from the EQ profile.
      */
     public record TieFlowEq(
@@ -677,6 +859,25 @@ public final class CgmesRecords {
         double highVoltageLimit,
         String substation,
         String baseVoltage
+    ) {
+    }
+
+    /**
+     * A VsConverter from the SSH profile.
+     */
+    public record VsConverterSsh(
+        String rdfId,
+        double targetPpcc,
+        double targetUdc,
+        double p,
+        double q,
+        double droop,
+        double droopCompensation,
+        double qShare,
+        double targetQpcc,
+        double targetUpcc,
+        String pPccControl,
+        String qPccControl
     ) {
     }
 }
