@@ -23,10 +23,14 @@ public abstract class AbstractCgmesWriter {
 
     protected final XMLStreamWriter writer;
     protected final CgmesExportContext context;
+    protected final String cimNamespace;
+    protected final String euNamespace;
 
     protected AbstractCgmesWriter(XMLStreamWriter writer, CgmesExportContext context) {
         this.writer = writer;
         this.context = context;
+        cimNamespace = context.getCim().getNamespace();
+        euNamespace = context.getCim().getEuNamespace();
     }
 
     /**

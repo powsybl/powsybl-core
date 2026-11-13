@@ -38,7 +38,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given ACDCConverter to the CGMES Equipment profile.
      */
     public void writeAcDcConverter(CgmesRecords.AcDcConverterEq acDcConverter) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(acDcConverter.className(), acDcConverter.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(acDcConverter.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, ACDC_CONVERTER_RATED_UDC, CgmesExportUtil.format(acDcConverter.ratedUdc()), writer);
@@ -59,7 +58,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given ACLineSegment to the CGMES Equipment profile.
      */
     public void writeACLineSegment(CgmesRecords.ACLineSegmentEq line) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(AC_LINE_SEGMENT, line.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(line.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, AC_LINE_SEGMENT_R, CgmesExportUtil.format(line.r()), writer);
@@ -78,7 +76,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given AsynchronousMachine to the CGMES Equipment profile.
      */
     public void writeAsynchronousMachine(CgmesRecords.AsynchronousMachineEq asynchronousMachine) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(ASYNCHRONOUS_MACHINE, asynchronousMachine.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(asynchronousMachine.name()), writer);
         CgmesExportUtil.writeEnd(writer);
@@ -88,7 +85,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given BaseVoltage to the CGMES Equipment profile.
      */
     public void writeBaseVoltage(CgmesRecords.BaseVoltageEq baseVoltage) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         String nominalVoltage = CgmesExportUtil.format(baseVoltage.nominalVoltage());
         CgmesExportUtil.writeStartId(BASE_VOLTAGE, baseVoltage.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(nominalVoltage), writer);
@@ -100,7 +96,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given BusbarSection to the CGMES Equipment profile.
      */
     public void writeBusbarSection(CgmesRecords.BusbarSectionEq busbarSection) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(BUSBAR_SECTION, busbarSection.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(busbarSection.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, EQUIPMENT_EQUIPMENT_CONTAINER, CgmesExportUtil.toRdfAbout(busbarSection.equipmentContainer(), context), writer);
@@ -112,7 +107,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given ConnectivityNode to the CGMES Equipment profile.
      */
     public void writeConnectivityNode(CgmesRecords.ConnectivityNodeEq node) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(CONNECTIVITY_NODE, node.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(node.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, CONNECTIVITY_NODE_CONNECTIVITY_NODE_CONTAINER, CgmesExportUtil.toRdfAbout(node.connectivityNodeContainer(), context), writer);
@@ -123,8 +117,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given ControlArea to the CGMES Equipment profile.
      */
     public void writeControlArea(CgmesRecords.ControlAreaEq controlArea) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
-        String euNamespace = context.getCim().getEuNamespace();
         CgmesExportUtil.writeStartId(CONTROL_AREA, controlArea.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(controlArea.name()), writer);
         if (controlArea.energyIdentCodeEic() != null) {
@@ -141,7 +133,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given Curve to the CGMES Equipment profile.
      */
     public void writeCurve(CgmesRecords.CurveEq curve) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(curve.className(), curve.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(curve.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, CURVE_CURVE_STYLE, cimNamespace + CURVE_STYLE_STRAIGHT_LINE_Y_VALUES, writer);
@@ -155,7 +146,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given CurveData to the CGMES Equipment profile.
      */
     public void writeCurveData(CgmesRecords.CurveDataEq curveData) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(CURVE_DATA, curveData.rdfId(), false, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, CURVE_DATA_XVALUE, CgmesExportUtil.format(curveData.xvalue()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, CURVE_DATA_Y1VALUE, CgmesExportUtil.format(curveData.y1value()), writer);
@@ -168,7 +158,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given DCConverterUnit to the CGMES Equipment profile.
      */
     public void writeDCConverterUnit(CgmesRecords.DCConverterUnitEq dcConverterUnit) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_CONVERTER_UNIT, dcConverterUnit.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcConverterUnit.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, DC_CONVERTER_UNIT_OPERATION_MODE,
@@ -181,7 +170,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given DCGround to the CGMES Equipment profile.
      */
     public void writeDCGround(CgmesRecords.DCGroundEq dcGround) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_GROUND, dcGround.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcGround.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, DC_GROUND_R, CgmesExportUtil.format(dcGround.r()), writer);
@@ -192,7 +180,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given DCLineSegment to the CGMES Equipment profile.
      */
     public void writeDCLineSegment(CgmesRecords.DCLineSegmentEq dcLineSegment) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_LINE_SEGMENT, dcLineSegment.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcLineSegment.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, DC_LINE_SEGMENT_RESISTANCE, CgmesExportUtil.format(dcLineSegment.resistance()), writer);
@@ -203,7 +190,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given DCNode to the CGMES Equipment profile.
      */
     public void writeDCNode(CgmesRecords.DCNodeEq dcNode) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(DC_NODE, dcNode.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcNode.name()), writer);
         if (dcNode.equipmentContainer() != null) {
@@ -216,7 +202,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given DCSwitch to the CGMES Equipment profile.
      */
     public void writeDCSwitch(CgmesRecords.DCSwitchEq dcSwitch) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(dcSwitch.className(), dcSwitch.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcSwitch.name()), writer);
         CgmesExportUtil.writeEnd(writer);
@@ -226,7 +211,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given DCTerminal to the CGMES Equipment profile.
      */
     public void writeDCTerminal(CgmesRecords.DCTerminalEq dcTerminal) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(dcTerminal.className(), dcTerminal.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(dcTerminal.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, dcTerminal.className() + "." + DC_CONDUCTING_EQUIPMENT, CgmesExportUtil.toRdfAbout(dcTerminal.dcConductingEquipment(), context), writer);
@@ -241,7 +225,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given EnergyConsumer to the CGMES Equipment profile.
      */
     public void writeEnergyConsumer(CgmesRecords.EnergyConsumerEq energyConsumer) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(energyConsumer.className(), energyConsumer.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(energyConsumer.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, EQUIPMENT_EQUIPMENT_CONTAINER, CgmesExportUtil.toRdfAbout(energyConsumer.equipmentContainer(), context), writer);
@@ -258,7 +241,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given EnergySource to the CGMES Equipment profile.
      */
     public void writeEnergySource(CgmesRecords.EnergySourceEq energySource) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(ENERGY_SOURCE, energySource.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(energySource.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, EQUIPMENT_EQUIPMENT_CONTAINER, CgmesExportUtil.toRdfAbout(energySource.equipmentContainer(), context), writer);
@@ -269,7 +251,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given EquivalentBranch to the CGMES Equipment profile.
      */
     public void writeEquivalentBranch(CgmesRecords.EquivalentBranchEq branch) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EQUIVALENT_BRANCH, branch.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(branch.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, EQUIVALENT_BRANCH_R, CgmesExportUtil.format(branch.r()), writer);
@@ -284,7 +265,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given EquivalentInjection to the CGMES Equipment profile.
      */
     public void writeEquivalentInjection(CgmesRecords.EquivalentInjectionEq equivalentInjection) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EQUIVALENT_INJECTION, equivalentInjection.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(equivalentInjection.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, EQUIVALENT_INJECTION_REGULATION_CAPABILITY, CgmesExportUtil.format(equivalentInjection.regulationCapability()), writer);
@@ -312,7 +292,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given EquivalentShunt to the CGMES Equipment profile.
      */
     public void writeEquivalentShunt(CgmesRecords.EquivalentShuntEq equivalentShunt) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EQUIVALENT_SHUNT, equivalentShunt.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(equivalentShunt.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, EQUIVALENT_SHUNT_B, CgmesExportUtil.format(equivalentShunt.b()), writer);
@@ -325,7 +304,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given ExternalNetworkInjection to the CGMES Equipment profile.
      */
     public void writeExternalNetworkInjection(CgmesRecords.ExternalNetworkInjectionEq externalNetworkInjection) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(EXTERNAL_NETWORK_INJECTION, externalNetworkInjection.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(externalNetworkInjection.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, EQUIPMENT_EQUIPMENT_CONTAINER, CgmesExportUtil.toRdfAbout(externalNetworkInjection.equipmentContainer(), context), writer);
@@ -344,7 +322,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given FossilFuel to the CGMES Equipment profile.
      */
     public void writeFossilFuel(CgmesRecords.FossilFuelEq fossilFuel) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(FOSSIL_FUEL, fossilFuel.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(fossilFuel.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, FOSSIL_FUEL_FOSSIL_FUEL_TYPE,
@@ -357,7 +334,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given GeneratingUnit to the CGMES Equipment profile.
      */
     public void writeGeneratingUnit(CgmesRecords.GeneratingUnitEq generatingUnit) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(generatingUnit.className(), generatingUnit.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(generatingUnit.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, GENERATING_UNIT_MIN_OPERATING_P, CgmesExportUtil.format(generatingUnit.minOperatingP()), writer);
@@ -382,7 +358,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given GeographicalRegion to the CGMES Equipment profile.
      */
     public void writeGeographicalRegion(CgmesRecords.GeographicalRegionEq region) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(GEOGRAPHICAL_REGION, region.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(region.name()), writer);
         CgmesExportUtil.writeEnd(writer);
@@ -392,7 +367,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given HydroPowerPlant to the CGMES Equipment profile.
      */
     public void writeHydroPowerPlant(CgmesRecords.HydroPowerPlantEq plant) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(HYDRO_POWER_PLANT, plant.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(plant.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, HYDRO_POWER_PLANT_HYDRO_PLANT_STORAGE_TYPE,
@@ -404,7 +378,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given LoadArea to the CGMES Equipment profile.
      */
     public void writeLoadArea(CgmesRecords.LoadAreaEq loadArea) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(LOAD_AREA, loadArea.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadArea.name() + " Load Area"), writer);
         CgmesExportUtil.writeEnd(writer);
@@ -414,7 +387,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given LoadGroup to the CGMES Equipment profile.
      */
     public void writeLoadGroup(CgmesRecords.LoadGroupEq loadGroup) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(loadGroup.className(), loadGroup.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadGroup.name()), writer);
         if (!context.isCim16BusBranchExport()) {
@@ -427,7 +399,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given LoadResponseCharacteristic to the CGMES Equipment profile.
      */
     public void writeLoadResponseCharacteristic(CgmesRecords.LoadResponseCharacteristicEq loadResponseCharacteristic) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(LOAD_RESPONSE_CHARACTERISTIC, loadResponseCharacteristic.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadResponseCharacteristic.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, LOAD_RESPONSE_CHARACTERISTIC_EXPONENT_MODEL, CgmesExportUtil.format(loadResponseCharacteristic.exponentModel()), writer);
@@ -453,7 +424,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given NonlinearShuntCompensatorPoint to the CGMES Equipment profile.
      */
     public void writeNonLinearShuntCompensatorPoint(CgmesRecords.NonlinearShuntCompensatorPointEq point) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(NONLINEAR_SHUNT_COMPENSATOR_POINT, point.rdfId(), false, writer, context);
         CgmesExportUtil.writeResource(cimNamespace, NONLINEAR_SHUNT_COMPENSATOR_POINT_NONLINEAR_SHUNT_COMPENSATOR, CgmesExportUtil.toRdfAbout(point.nonlinearShuntCompensator(), context), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, NONLINEAR_SHUNT_COMPENSATOR_POINT_SECTION_NUMBER, CgmesExportUtil.format(point.sectionNumber()), writer);
@@ -466,7 +436,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given OperationalLimit to the CGMES Equipment profile.
      */
     public void writeOperationalLimit(CgmesRecords.OperationalLimitEq loadingLimit) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(loadingLimit.className(), loadingLimit.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(loadingLimit.name()), writer);
         String limitValueAttributeName = context.getCimVersion() == 16 ? VALUE : NORMAL_VALUE;
@@ -480,7 +449,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given OperationalLimitSet to the CGMES Equipment profile.
      */
     public void writeOperationalLimitSet(CgmesRecords.OperationalLimitSetEq operationalLimitSet) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(OPERATIONAL_LIMIT_SET, operationalLimitSet.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(operationalLimitSet.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, OPERATIONAL_LIMIT_SET_TERMINAL, CgmesExportUtil.toRdfAbout(operationalLimitSet.terminal(), context), writer);
@@ -491,8 +459,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given OperationalLimitType to the CGMES Equipment profile.
      */
     public void writeOperationalLimitType(CgmesRecords.OperationalLimitTypeEq limitType) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
-        String euNamespace = context.getCim().getEuNamespace();
         CgmesExportUtil.writeStartId(OPERATIONAL_LIMIT_TYPE, limitType.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(limitType.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, OPERATIONAL_LIMIT_TYPE_DIRECTION, cimNamespace + OPERATIONAL_LIMIT_DIRECTION_KIND_ABSOLUTE_VALUE, writer);
@@ -512,7 +478,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given PhaseTapChanger to the CGMES Equipment profile.
      */
     public void writePhaseTapChanger(CgmesRecords.PhaseTapChangerEq phaseTapChanger) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(PHASE_TAP_CHANGER_TABULAR, phaseTapChanger.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(phaseTapChanger.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, PHASE_TAP_CHANGER_TRANSFORMER_END, CgmesExportUtil.toRdfAbout(phaseTapChanger.transformerEnd(), context), writer);
@@ -533,7 +498,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given PhaseTapChangerTable to the CGMES Equipment profile.
      */
     public void writePhaseTapChangerTable(CgmesRecords.PhaseTapChangerTableEq phaseTapChangerTable) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(PHASE_TAP_CHANGER_TABLE, phaseTapChangerTable.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(phaseTapChangerTable.name()), writer);
         CgmesExportUtil.writeEnd(writer);
@@ -543,7 +507,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given PhaseTapChangerTablePoint to the CGMES Equipment profile.
      */
     public void writePhaseTapChangerTablePoint(CgmesRecords.PhaseTapChangerTablePointEq point) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(PHASE_TAP_CHANGER_TABLE_POINT, point.rdfId(), false, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, TAP_CHANGER_TABLE_POINT_R, CgmesExportUtil.format(point.r()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, TAP_CHANGER_TABLE_POINT_X, CgmesExportUtil.format(point.x()), writer);
@@ -560,7 +523,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given PowerTransformer to the CGMES Equipment profile.
      */
     public void writePowerTransformer(CgmesRecords.PowerTransformerEq powerTransformer) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(POWER_TRANSFORMER, powerTransformer.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(powerTransformer.name()), writer);
         if (powerTransformer.equipmentContainer() != null) {
@@ -573,7 +535,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given PowerTransformerEnd to the CGMES Equipment profile.
      */
     public void writePowerTransformerEnd(CgmesRecords.PowerTransformerEndEq powerTransformerEnd) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(POWER_TRANSFORMER_END, powerTransformerEnd.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(powerTransformerEnd.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, TRANSFORMER_END_END_NUMBER, CgmesExportUtil.format(powerTransformerEnd.endNumber()), writer);
@@ -594,7 +555,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given RatioTapChanger to the CGMES Equipment profile.
      */
     public void writeRatioTapChanger(CgmesRecords.RatioTapChangerEq ratioTapChanger) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(RATIO_TAP_CHANGER, ratioTapChanger.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(ratioTapChanger.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, RATIO_TAP_CHANGER_TRANSFORMER_END, CgmesExportUtil.toRdfAbout(ratioTapChanger.transformerEnd(), context), writer);
@@ -620,7 +580,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given RatioTapChangerTable to the CGMES Equipment profile.
      */
     public void writeRatioTapChangerTable(CgmesRecords.RatioTapChangerTableEq ratioTapChangerTable) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(RATIO_TAP_CHANGER_TABLE, ratioTapChangerTable.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(ratioTapChangerTable.name()), writer);
         CgmesExportUtil.writeEnd(writer);
@@ -630,7 +589,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given RatioTapChangerTablePoint to the CGMES Equipment profile.
      */
     public void writeRatioTapChangerTablePoint(CgmesRecords.RatioTapChangerTablePointEq point) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(RATIO_TAP_CHANGER_TABLE_POINT, point.rdfId(), false, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, TAP_CHANGER_TABLE_POINT_R, CgmesExportUtil.format(point.r()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, TAP_CHANGER_TABLE_POINT_X, CgmesExportUtil.format(point.x()), writer);
@@ -646,7 +604,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given RegulatingControl to the CGMES Equipment profile.
      */
     public void writeRegulatingControl(CgmesRecords.RegulatingControlEq regulatingControl) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(REGULATING_CONTROL, regulatingControl.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(regulatingControl.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, REGULATING_CONTROL_TERMINAL, CgmesExportUtil.toRdfAbout(regulatingControl.terminal(), context), writer);
@@ -659,7 +616,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given SeriesCompensator to the CGMES Equipment profile.
      */
     public void writeSeriesCompensator(CgmesRecords.SeriesCompensatorEq sc) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SERIES_COMPENSATOR, sc.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(sc.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, SERIES_COMPENSATOR_R, CgmesExportUtil.format(sc.r()), writer);
@@ -677,7 +633,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given ShuntCompensator to the CGMES Equipment profile.
      */
     public void writeShuntCompensator(CgmesRecords.ShuntCompensatorEq shuntCompensator) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(shuntCompensator.className(), shuntCompensator.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(shuntCompensator.name()), writer);
         CgmesExportUtil.writeAttribute(cimNamespace, SHUNT_COMPENSATOR_NORMAL_SECTIONS, CgmesExportUtil.format(shuntCompensator.normalSections()), writer);
@@ -702,7 +657,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given StaticVarCompensator to the CGMES Equipment profile.
      */
     public void writeStaticVarCompensator(CgmesRecords.StaticVarCompensatorEq staticVarCompensator) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(STATIC_VAR_COMPENSATOR, staticVarCompensator.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(staticVarCompensator.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, EQUIPMENT_EQUIPMENT_CONTAINER, CgmesExportUtil.toRdfAbout(staticVarCompensator.equipmentContainer(), context), writer);
@@ -722,7 +676,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given SubGeographicalRegion to the CGMES Equipment profile.
      */
     public void writeSubGeographicalRegion(CgmesRecords.SubGeographicalRegionEq subRegion) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SUB_GEOGRAPHICAL_REGION, subRegion.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(subRegion.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, SUB_GEOGRAPHICAL_REGION_REGION, CgmesExportUtil.toRdfAbout(subRegion.region(), context), writer);
@@ -733,7 +686,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given SubLoadArea to the CGMES Equipment profile.
      */
     public void writeSubLoadArea(CgmesRecords.SubLoadAreaEq subLoadArea) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SUB_LOAD_AREA, subLoadArea.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(subLoadArea.name() + " SubLoad Area"), writer);
         CgmesExportUtil.writeResource(cimNamespace, SUB_LOAD_AREA_LOAD_AREA, CgmesExportUtil.toRdfAbout(subLoadArea.loadArea(), context), writer);
@@ -744,7 +696,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given Substation to the CGMES Equipment profile.
      */
     public void writeSubstation(CgmesRecords.SubstationEq substation) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SUBSTATION, substation.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(substation.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, SUBSTATION_REGION, CgmesExportUtil.toRdfAbout(substation.region(), context), writer);
@@ -755,7 +706,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given Switch to the CGMES Equipment profile.
      */
     public void writeSwitch(CgmesRecords.SwitchEq switchEq) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(switchEq.className(), switchEq.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(switchEq.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, EQUIPMENT_EQUIPMENT_CONTAINER, CgmesExportUtil.toRdfAbout(switchEq.equipmentContainer(), context), writer);
@@ -768,7 +718,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given SynchronousMachine to the CGMES Equipment profile.
      */
     public void writeSynchronousMachine(CgmesRecords.SynchronousMachineEq synchronousMachine) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(SYNCHRONOUS_MACHINE, synchronousMachine.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(synchronousMachine.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, EQUIPMENT_EQUIPMENT_CONTAINER, CgmesExportUtil.toRdfAbout(synchronousMachine.equipmentContainer(), context), writer);
@@ -799,7 +748,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given TapChangerControl to the CGMES Equipment profile.
      */
     public void writeTapChangerControl(CgmesRecords.TapChangerControlEq tapChangerControl) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(TAP_CHANGER_CONTROL, tapChangerControl.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(tapChangerControl.name()), writer);
         CgmesExportUtil.writeResource(cimNamespace, REGULATING_CONTROL_MODE,
@@ -812,7 +760,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given Terminal to the CGMES Equipment profile.
      */
     public void writeTerminal(CgmesRecords.TerminalEq terminal) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(TERMINAL, terminal.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(terminal.conductingEquipment()), writer);
         CgmesExportUtil.writeResource(cimNamespace, TERMINAL_CONDUCTING_EQUIPMENT, CgmesExportUtil.toRdfAbout(terminal.conductingEquipment(), context), writer);
@@ -827,7 +774,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given TieFlow to the CGMES Equipment profile.
      */
     public void writeTieFlow(CgmesRecords.TieFlowEq tieFlow) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(TIE_FLOW, tieFlow.rdfId(), false, writer, context);
         CgmesExportUtil.writeResource(cimNamespace, TIE_FLOW_CONTROL_AREA, CgmesExportUtil.toRdfAbout(tieFlow.controlArea(), context), writer);
         CgmesExportUtil.writeResource(cimNamespace, TIE_FLOW_TERMINAL, CgmesExportUtil.toRdfAbout(tieFlow.terminal(), context), writer);
@@ -839,7 +785,6 @@ public final class EquipmentWriter extends AbstractCgmesWriter {
      * Write the given VoltageLevel to the CGMES Equipment profile.
      */
     public void writeVoltageLevel(CgmesRecords.VoltageLevelEq voltageLevel) throws XMLStreamException {
-        String cimNamespace = context.getCim().getNamespace();
         CgmesExportUtil.writeStartId(VOLTAGE_LEVEL, voltageLevel.rdfId(), true, writer, context);
         CgmesExportUtil.writeAttribute(cimNamespace, IDENTIFIED_OBJECT_NAME, CgmesExportUtil.getValidName(voltageLevel.name()), writer);
         if (!Double.isNaN(voltageLevel.lowVoltageLimit())) {
