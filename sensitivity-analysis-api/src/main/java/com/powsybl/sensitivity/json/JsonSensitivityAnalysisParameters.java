@@ -8,6 +8,7 @@
 package com.powsybl.sensitivity.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.json.JsonUtil;
@@ -17,6 +18,7 @@ import com.powsybl.sensitivity.SensitivityAnalysisProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,6 +73,32 @@ public final class JsonSensitivityAnalysisParameters {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Writes parameters as JSON to a file.
+     */
+    public static void write(SensitivityAnalysisParameters parameters, Path jsonFile) {
+        Objects.requireNonNull(jsonFile);
+
+        try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
+            write(parameters, outputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Writes parameters as JSON to an output stream.
+     */
+    public static void write(SensitivityAnalysisParameters parameters, OutputStream outputStream) {
+        try {
+            ObjectMapper objectMapper = createObjectMapper();
+            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+            writer.writeValue(outputStream, parameters);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
