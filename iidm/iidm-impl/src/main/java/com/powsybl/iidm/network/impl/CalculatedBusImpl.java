@@ -28,6 +28,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private final List<NodeTerminal> terminals;
     private List<TerminalExt> connectableTerminals = null;
     private final int[] nodes;
+    private final List<Switch> switchesToTerminalRef;
+    private final List<Switch> openSwitches;
 
     private NodeTerminal terminalRef;
 
@@ -35,7 +37,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
         this.nodes = Objects.requireNonNull(nodes).toArray();
-        this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
+        this.switchesToTerminalRef = new ArrayList<>();
+        this.openSwitches = new ArrayList<>();
+        this.terminalRef = findTerminal(nodes);
     }
 
     /**
@@ -44,13 +48,11 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
      * Otherwise, this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
      * and therefore can be used as reference.
      *
-     * @param voltageLevel The {@literal VoltageLevel} instance to traverse
      * @param nodes The nodes which belong to this bus
-     * @param terminals The terminals belong to this bus
      * @return The first terminal with defined voltage or angle if exists, otherwise the first
      * terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
-    private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+    private NodeTerminal findTerminal(TIntArrayList nodes) {
         if (!terminals.isEmpty()) {
             for (NodeTerminal terminal : terminals) {
                 if (hasDefinedVoltageOrAngle(terminal)) {
@@ -59,7 +61,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
             }
             return terminals.getFirst();
         }
-        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
+        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0), switchesToTerminalRef, openSwitches);
     }
 
     private static boolean hasDefinedVoltageOrAngle(NodeTerminal t) {
@@ -69,6 +71,27 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private void checkValidity() {
         if (!valid) {
             throw new PowsyblException("Bus has been invalidated");
+        }
+    }
+
+    private void checkValidityAndUpdateTerminalRefOnSwitchModification() {
+        checkValidity();
+        if (terminalRef != null) {
+            // Check if a switch has been opened
+            for (Switch sw : switchesToTerminalRef) {
+                if (sw.isOpen()) {
+                    this.terminalRef = findTerminal(new TIntArrayList(nodes));
+                    return;
+                }
+            }
+        } else {
+            // Check if a switch has been closed
+            for (Switch sw : openSwitches) {
+                if (!sw.isOpen()) {
+                    this.terminalRef = findTerminal(new TIntArrayList(nodes));
+                    return;
+                }
+            }
         }
     }
 
@@ -129,7 +152,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public double getV() {
-        checkValidity();
+        checkValidityAndUpdateTerminalRefOnSwitchModification();
         return terminalRef == null ? Double.NaN : terminalRef.getV();
     }
 
@@ -144,7 +167,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public double getAngle() {
-        checkValidity();
+        checkValidityAndUpdateTerminalRefOnSwitchModification();
         return terminalRef == null ? Double.NaN : terminalRef.getAngle();
     }
 
@@ -217,7 +240,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Component getConnectedComponent() {
-        checkValidity();
+        checkValidityAndUpdateTerminalRefOnSwitchModification();
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
         return terminalRef == null ? null : ccm.getComponent(terminalRef.getConnectedComponentNumber());
@@ -233,7 +256,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Component getSynchronousComponent() {
-        checkValidity();
+        checkValidityAndUpdateTerminalRefOnSwitchModification();
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
         return terminalRef == null ? null : scm.getComponent(terminalRef.getSynchronousComponentNumber());
