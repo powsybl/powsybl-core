@@ -22,19 +22,19 @@ In between the defined points of the curve, the reactive power limits are comput
 ### Reactive capability shape
 
 ```{note}
-The reactive capability shape is a **beta feature**. It is not yet serialized and is not supported across
-the downstream projects. Exporting a network that contains such limits raises an error unless the
-beta-feature export is explicitly forced (see below).
+The reactive capability shape is a **beta feature**. It is serialized from IIDM version 1.19 onwards
+and is not supported across the downstream projects. Exporting a network that contains such limits to
+an earlier IIDM version raises an error unless the beta-feature export is explicitly forced (see below).
 ```
 
 With the reactive capability shape limits, the reactive power limitation depends on a 3D (P, Q, U) convex volume.
 The volume is defined by a list of planes provided by the user.
-Each plane is described by an inequality `delta * Q + alpha * U + beta * P ≤ gamma` or `delta * Q + alpha * U + beta * P ≥ gamma`,
+Each plane is described by an inequality `coeffQ * Q + coeffU * U + coeffP * P ≤ rhs` or `coeffQ * Q + coeffU * U + coeffP * P ≥ rhs`,
 where:
-- `alpha` is the coefficient for the voltage U,
-- `beta` is the coefficient for the active power P,
-- `delta` is the coefficient for the reactive power Q,
-- `gamma` is the right-hand-side constant.
+- `coeffU` is the coefficient for the voltage U,
+- `coeffP` is the coefficient for the active power P,
+- `coeffQ` is the coefficient for the reactive power Q,
+- `rhs` is the right-hand-side constant.
 
 Additionally, some upper and lower bounds can be defined for each of the P, Q and U variables.
 
@@ -86,15 +86,15 @@ generator.newReactiveCapabilityCurve()
 ```
 
 This example shows how to create a new `ReactiveCapabilityShape` object. Each plane is added with
-`addPlane(alpha, beta, delta, isGreaterOrEqual, gamma)`, where `alpha`, `beta` and `delta` are the
+`addPlane(coeffU, coeffP, coeffQ, isGreaterOrEqual, rhs)`, where `coeffU`, `coeffP` and `coeffQ` are the
 coefficients of U, P and Q, `isGreaterOrEqual` selects the `≥` (`true`) or `≤` (`false`) inequality,
-and `gamma` is the right-hand side. The coefficients, inequality direction and right-hand side are all
+and `rhs` is the right-hand side. The coefficients, inequality direction and right-hand side are all
 passed in the same call, so a plane is fully defined by a single `addPlane(...)` invocation.
 ```java
 Generator generator = network.getGenerator("G");
 // Define a convex PQU region with six bounding planes.
 generator.newReactiveCapabilityShape()
-        // delta*Q + alpha*U + beta*P  {≤,≥}  gamma
+        // coeffQ*Q + coeffU*U + coeffP*P  {≤,≥}  rhs
         .addPlane(0.0, 0.0, 1.0, false, 80.0)   // Q ≤ 80
         .addPlane(0.0, 0.0, 1.0, true, -60.0)   // Q ≥ -60
         .addPlane(0.0, 1.0, 1.0, false, 120.0)  // Q + P ≤ 120

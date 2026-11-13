@@ -36,7 +36,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     /**
      * Variable indexes in the linear program decision vector.
      * The vector is ordered (Q, U, P) to match the plane coefficient arrays
-     * {@code {delta (Q), alpha (U), beta (P)}} used everywhere in this class.
+     * {@code {coeffQ (Q), coeffU (U), coeffP (P)}} used everywhere in this class.
      */
     private static final int IDX_Q = 0;
     private static final int IDX_U = 1;
@@ -137,20 +137,20 @@ public final class ReactiveCapabilityShapePolyhedron {
             // Iterate through all bounding planes
             for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
 
-                // Calculate the left-hand side (LHS) expression: delta * Q + alpha * U + beta * P
+                // Calculate the left-hand side (LHS) expression: coeffQ * Q + coeffU * U + coeffP * P
                 // (Note: Using 'u' for the voltage variable from the method signature)
-                double expression = plane.getDelta() * q + plane.getAlpha() * u + plane.getBeta() * p;
+                double expression = plane.getCoeffQ() * q + plane.getCoeffU() * u + plane.getCoeffP() * p;
 
-                // Check the constraint for '<' relation (LHS must be strictly less than gamma)
-                // The condition for OUTSIDE is: LHS > gamma
-                if (plane.isLessOrEqual() && expression > plane.getGamma()) {
+                // Check the constraint for '<' relation (LHS must be strictly less than rhs)
+                // The condition for OUTSIDE is: LHS > rhs
+                if (plane.isLessOrEqual() && expression > plane.getRhs()) {
                     // Point fails the '<' constraint
                     return false;
                 }
 
-                // Check the constraint for '>' relation (LHS must be strictly greater than gamma)
-                // The condition for OUTSIDE is: LHS < gamma
-                if (!plane.isLessOrEqual() && expression < plane.getGamma()) {
+                // Check the constraint for '>' relation (LHS must be strictly greater than rhs)
+                // The condition for OUTSIDE is: LHS < rhs
+                if (!plane.isLessOrEqual() && expression < plane.getRhs()) {
                     // Point fails the '>' constraint
                     return false;
                 }
@@ -217,9 +217,9 @@ public final class ReactiveCapabilityShapePolyhedron {
             for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
                 constraints.add(
                         new LinearConstraint(
-                                new double[]{plane.getDelta(), plane.getAlpha(), plane.getBeta()},
+                                new double[]{plane.getCoeffQ(), plane.getCoeffU(), plane.getCoeffP()},
                                 plane.isLessOrEqual() ? Relationship.LEQ : Relationship.GEQ,
-                                plane.getGamma()
+                                plane.getRhs()
                         )
                 );
             }
