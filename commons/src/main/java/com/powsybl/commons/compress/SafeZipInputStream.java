@@ -43,14 +43,30 @@ public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
     }
 
     @Override
+    public int read(byte[] b) throws IOException {
+        return read(b, 0, b.length);
+    }
+
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int byteRead = super.read(b, off, len);
         if (byteRead != -1) {
-            this.bytesRead += byteRead;
-            if (this.bytesRead > this.maxBytesToRead) {
-                throw new IOException("Max bytes to read exceeded");
-            }
+            addBytesRead(byteRead);
         }
         return byteRead;
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        long bytesSkipped = super.skip(n);
+        addBytesRead(bytesSkipped);
+        return bytesSkipped;
+    }
+
+    private void addBytesRead(long count) throws IOException {
+        this.bytesRead += count;
+        if (this.bytesRead > this.maxBytesToRead) {
+            throw new IOException("Max bytes to read exceeded");
+        }
     }
 }
