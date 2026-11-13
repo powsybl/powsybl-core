@@ -344,6 +344,11 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         assertNotSame(parameters.getLoadFlowParameters(), copy.getLoadFlowParameters());
         assertTrue(copy.getLoadFlowParameters().isDc());
         assertTrue(copy.getExtensions().isEmpty());
+
+        copy.setFlowFlowSensitivityValueThreshold(0.5);
+        copy.getLoadFlowParameters().setDc(false);
+        assertEquals(0.1, parameters.getFlowFlowSensitivityValueThreshold(), EPS);
+        assertTrue(parameters.getLoadFlowParameters().isDc());
     }
 
     @Test
@@ -410,6 +415,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     void writeNullPath() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         assertThrows(NullPointerException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, (Path) null));
+        assertThrows(NullPointerException.class, () -> JsonSensitivityAnalysisParameters.write(parameters, (OutputStream) null));
     }
 
     @Test

@@ -185,6 +185,15 @@ class SecurityAnalysisParametersTest {
         assertEquals(0.4, copy.getModifiedMonitoredElementsParameters().getVoltageModificationProportionalThreshold(), EPS);
         assertEquals(6.0, copy.getModifiedMonitoredElementsParameters().getVoltageModificationAbsoluteThreshold(), EPS);
         assertTrue(copy.getExtensions().isEmpty());
+
+        copy.setDebugDir("/tmp/other");
+        copy.getLoadFlowParameters().setDc(false);
+        copy.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.9);
+        copy.getModifiedMonitoredElementsParameters().setPowerModificationThreshold(0.9);
+        assertEquals("/tmp/debugDir", parameters.getDebugDir());
+        assertTrue(parameters.getLoadFlowParameters().isDc());
+        assertEquals(0.01, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.3, parameters.getModifiedMonitoredElementsParameters().getPowerModificationThreshold(), EPS);
     }
 
     @Test
