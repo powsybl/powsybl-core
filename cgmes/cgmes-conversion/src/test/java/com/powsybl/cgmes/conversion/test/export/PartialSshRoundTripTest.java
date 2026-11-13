@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -17,6 +18,8 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -56,6 +59,7 @@ class PartialSshRoundTripTest {
         GridModelReference smallGrid = CgmesConformity1Catalog.smallNodeBreaker();
         GridModelReference miniGrid = CgmesConformity1Catalog.miniNodeBreaker();
         GridModelReference smallGridHvdc = CgmesConformity1Catalog.smallNodeBreakerHvdc();
+        GridModelReference cgmes3SmallGrid = Cgmes3Catalog.smallGrid();
         return Stream.of(
             Arguments.of("load p0 and q0", smallGrid, (Consumer<Network>) n -> {
                 Load load = n.getLoads().iterator().next();
@@ -93,8 +97,25 @@ class PartialSshRoundTripTest {
             Arguments.of("HVDC active power setpoint", smallGridHvdc, (Consumer<Network>) n -> {
                 HvdcLine hvdcLine = n.getHvdcLines().iterator().next();
                 hvdcLine.setActivePowerSetpoint(hvdcLine.getActivePowerSetpoint() + 10.0);
+            }),
+            Arguments.of("shared regulating control, all holders changed", cgmes3SmallGrid, (Consumer<Network>) n -> {
+                // A synchronous machine and a shunt compensator share this regulating control
+                Generator generator = n.getGenerator("04633e31-c766-11e1-8775-005056c00008");
+                ShuntCompensator shunt = n.getShuntCompensator("045b00d9-c766-11e1-8775-005056c00008");
+                double target = generator.getRegulatingTargetV() + 1.0;
+                setTargetV(generator, target);
+                setTargetV(shunt, target);
             })
         );
+    }
+
+    private static void setTargetV(VoltageRegulationHolder<?> holder, double targetV) {
+        VoltageRegulation regulation = holder.getVoltageRegulation();
+        if (regulation.getTerminal() != null) {
+            regulation.setTargetValue(targetV);
+        } else {
+            holder.setLocalTargetV(targetV);
+        }
     }
 
     @ParameterizedTest(name = "{0}")
@@ -113,8 +134,9 @@ class PartialSshRoundTripTest {
         Path dir = Files.createDirectories(tmpDir.resolve("partial"));
         exportPartialSsh(network, changed, dir.resolve("partial_SSH.xml"));
 
-        // The copy of the original network: apply the partial SSH
+        // The copy of the original network: the change must be visible in the SSH, then apply the partial SSH
         Network copy = Network.read(source);
+        assertFalse(differences(network, copy).isEmpty(), "The change gives no difference in the SSH");
         Properties properties = new Properties();
         properties.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
         copy.update(new GenericReadOnlyDataSource(dir, "partial"), properties);
