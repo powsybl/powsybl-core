@@ -14,6 +14,7 @@ import com.powsybl.dynamicsimulation.groovy.EventModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -76,9 +77,10 @@ public class ListDynamicSimulationModelsTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
-        boolean noOption = !line.hasOption(DYNAMIC_MODELS) && !line.hasOption(EVENT_MODELS);
-        boolean dynamicList = line.hasOption(DYNAMIC_MODELS) || noOption;
-        boolean eventList = line.hasOption(EVENT_MODELS) || noOption;
+        ToolOptions options = new ToolOptions(line, context);
+        boolean noOption = !options.hasOption(DYNAMIC_MODELS) && !options.hasOption(EVENT_MODELS);
+        boolean dynamicList = options.hasOption(DYNAMIC_MODELS) || noOption;
+        boolean eventList = options.hasOption(EVENT_MODELS) || noOption;
 
         try (Writer writer = new OutputStreamWriter(context.getOutputStream())) {
             if (dynamicList) {
