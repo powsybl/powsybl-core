@@ -113,5 +113,9 @@ class SparseMatrixTest extends AbstractMatrixTest {
         assertEquals("columnStart array length has to be columnCount + 1", e.getMessage());
         e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1, 1}, new int[]{0, 1, 1}, new double[]{0.5, 0.3}));
         assertEquals("rowIndices and values arrays must have the same length", e.getMessage());
+        // Consistent lengths, but the last columnStart entry points past the values actually present: the
+        // native layer iterates up to that entry, so this used to crash in times / klu_analyze.
+        e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1, 100_000}, new int[]{0}, new double[]{1d}));
+        assertEquals("columnStart value 100000 out of range [-1, 1]", e.getMessage());
     }
 }
