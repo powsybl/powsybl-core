@@ -41,13 +41,13 @@ class UcteImportPostProcessorTest {
         Assertions.assertEquals("Italia A3", network.getBusBreakerView().getBus("IA____21").getProperty("ucteName"));
         checkReportNode("""
                 + Test importing UCTE network
-                    + Reading UCTE network file
-                        Fix UCTE nodes
-                        Fix UCTE lines
-                        Fix UCTE transformers
-                        Fix UCTE regulations
-                    + Post-processor test-import
-                        Geographical name of IA____21 is Italia A3
+                   + Reading UCTE network file
+                      Fix UCTE nodes
+                      Fix UCTE lines
+                      Fix UCTE transformers
+                      Fix UCTE regulations
+                   + Post-processor test-import
+                      Geographical name of IA____21 is Italia A3
                 """, reportNode);
     }
 
