@@ -378,6 +378,7 @@ SELECT *
             cim:VsConverter.qPccControl ?qPccControl .
             OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
             OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+            OPTIONAL { ?ACDCConverter cim:VsConverter.droop ?droop }
     }
 }
 
