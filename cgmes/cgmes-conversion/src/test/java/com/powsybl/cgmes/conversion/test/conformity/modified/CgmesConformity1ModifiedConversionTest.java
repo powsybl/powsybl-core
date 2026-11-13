@@ -21,7 +21,6 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
-import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -291,28 +290,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microBESvInjection() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithSvInjection().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        Load load = network.getLoad("SvInjection1");
-        assertNotNull(load);
-        assertEquals(-0.2, load.getP0(), 0.0);
-        assertEquals(-13.8, load.getQ0(), 0.0);
-
-        Load load2 = network.getLoad("SvInjection2");
-        assertNotNull(load2);
-        assertEquals(-0.2, load2.getP0(), 0.0);
-        assertEquals(0.0, load2.getQ0(), 0.0);
-
-        Load load3 = network.getLoad("SvInjection3");
-        assertNotNull(load3);
-        assertEquals(-0.2, load3.getP0(), 0.0);
-        assertEquals(-13.8, load3.getQ0(), 0.0);
-    }
-
-    @Test
     void microBETieFlow() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
             NetworkFactory.findDefault(), importParams);
@@ -326,16 +303,6 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals("10BE------1", area.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).get());
         assertEquals(-205.90011555672567, area.getInterchangeTarget().getAsDouble(), 0.0);
         assertEquals(5, area.getAreaBoundaryStream().count());
-    }
-
-    @Test
-    void microBEInvalidSvInjection() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidSvInjection().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        Load load = network.getLoad("SvInjection1");
-        assertNull(load);
     }
 
     @Test
@@ -374,26 +341,6 @@ class CgmesConformity1ModifiedConversionTest {
         assertNotNull(boundaryLineNotRegulating);
         assertEquals(-27.365225, boundaryLineNotRegulating.getP0(), 0.0);
         assertEquals(0.425626, boundaryLineNotRegulating.getQ0(), 0.0);
-    }
-
-    @Test
-    void microBEConformNonConformLoads() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource(),
-                NetworkFactory.findDefault(), importParams);
-        Load conformLoad = network.getLoad("cb459405-cc14-4215-a45c-416789205904");
-        Load nonConformLoad = network.getLoad("1c6beed6-1acf-42e7-ba55-0cc9f04bddd8");
-        LoadDetail conformDetails = conformLoad.getExtension(LoadDetail.class);
-        assertNotNull(conformDetails);
-        assertEquals(0.0, conformDetails.getFixedActivePower(), 0.0);
-        assertEquals(0.0, conformDetails.getFixedReactivePower(), 0.0);
-        assertEquals(200.0, conformDetails.getVariableActivePower(), 0.0);
-        assertEquals(90.0, conformDetails.getVariableReactivePower(), 0.0);
-        LoadDetail nonConformDetails = nonConformLoad.getExtension(LoadDetail.class);
-        assertNotNull(nonConformDetails);
-        assertEquals(200.0, nonConformDetails.getFixedActivePower(), 0.0);
-        assertEquals(50.0, nonConformDetails.getFixedReactivePower(), 0.0);
-        assertEquals(0.0, nonConformDetails.getVariableActivePower(), 0.0);
-        assertEquals(0.0, nonConformDetails.getVariableReactivePower(), 0.0);
     }
 
     @Test
@@ -711,18 +658,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerSvInjection() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSvInjection().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        Load load = network.getLoad("SvInjection");
-        assertNotNull(load);
-        assertEquals(-0.2, load.getP0(), 0.0);
-        assertEquals(-13.8, load.getQ0(), 0.0);
-    }
-
-    @Test
     void miniNodeBreakerMissingSubstationRegion() {
         // Check that we fail with a powsybl exception instead of a NPE
         CgmesImport importer = new CgmesImport();
@@ -790,16 +725,6 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(networkSeq.getLineCount(), networkNoSeq.getLineCount());
         assertEquals(networkSeq.getSwitchCount(), networkNoSeq.getSwitchCount());
         assertEquals(networkSeq.getHvdcLineCount(), networkNoSeq.getHvdcLineCount());
-    }
-
-    @Test
-    void microGridBaseBEStationSupply() {
-        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBEStationSupply().dataSource(), importParams);
-        Load l = network.getLoad("b1480a00-b427-4001-a26c-51954d2bb7e9_station_supply");
-        assertNotNull(l);
-        assertEquals(6.5, l.getP0(), 1e-3);
-        assertEquals(0.001, l.getQ0(), 1e-3);
-        assertEquals(LoadType.AUXILIARY, l.getLoadType());
     }
 
     @Test

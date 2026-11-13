@@ -553,7 +553,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     @Test
     void testLoadGroups() throws XMLStreamException, IOException {
-        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();
+        ReadOnlyDataSource dataSource = new ResourceDataSource("Load types test resources",
+                new ResourceSet("/issues/loads/", "load_types_EQ.xml", "load_types_SSH.xml"));
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranch(expected, dataSource);
         assertTrue(compareNetworksEQdata(expected, actual));
