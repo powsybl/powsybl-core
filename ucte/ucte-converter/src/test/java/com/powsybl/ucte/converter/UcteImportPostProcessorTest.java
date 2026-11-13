@@ -32,16 +32,17 @@ class UcteImportPostProcessorTest {
         final ReportNode reportNode = ReportNode.newRootReportNode()
                          .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME,
                                  PowsyblCoreReportResourceBundle.BASE_NAME)
-                         .withMessageTemplate("testExportReportNode")
+                         .withMessageTemplate("testImportReportNode")
                          .build();
         final Properties properties = new Properties();
         properties.put(UcteImporter.POST_PROCESSORS, "test-import");
         final ReadOnlyDataSource dataSource = new ResourceDataSource("importPostProcessor", new ResourceSet("/", "importPostProcessor.uct"));
-        final Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), properties);
+        final Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), properties, reportNode);
         Assertions.assertEquals("Italia A3", network.getBusBreakerView().getBus("IA____21").getProperty("ucteName"));
         checkReportNode("""
-                 + Post-processor test-import
-                                   Geographical name of IA____21 is Italia A3
+                 + Test importing UCTE network
+                    + Post-processor test-import
+                        Geographical name of IA____21 is Italia A3
                 """, reportNode);
     }
 

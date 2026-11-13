@@ -32,7 +32,7 @@ public class ElementNameTestPostProcessor implements UcteImportPostProcessor {
                                     .findFirst()
                                     .map(UcteNode::getGeographicalName)
                                     .orElse(""));
-                            reportNode.newReportNode().withMessageTemplate("testImportReportNode")
+                            reportNode.newReportNode().withMessageTemplate("geoTestImportReportNode")
                                     .withUntypedValue("bus", bus.getId())
                                     .withUntypedValue("name", bus.getProperty("ucteName")).add();
                         }
