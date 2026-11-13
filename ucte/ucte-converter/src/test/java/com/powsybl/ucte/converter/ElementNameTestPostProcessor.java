@@ -10,7 +10,8 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.ucte.network.*;
+import com.powsybl.ucte.network.UcteNetwork;
+import com.powsybl.ucte.network.UcteNode;
 
 /**
  * @author Antoine Limouzin {@literal <antoine.limouzin at rte.com>}
@@ -25,18 +26,16 @@ public class ElementNameTestPostProcessor implements UcteImportPostProcessor {
 
     @Override
     public void process(Network network, UcteNetwork ucteNetwork, ReportNode reportNode) {
-        network.getBusBreakerView().getBusStream()
-                .forEach(bus-> {
-                            bus.setProperty("ucteName", ucteNetwork.getNodes().stream()
-                                    .filter(ucteNode -> ucteNode.getCode().toString().equals(bus.getId()))
-                                    .findFirst()
-                                    .map(UcteNode::getGeographicalName)
-                                    .orElse(""));
-                            reportNode.newReportNode().withMessageTemplate("geoTestImportReportNode")
-                                    .withUntypedValue("bus", bus.getId())
-                                    .withUntypedValue("name", bus.getProperty("ucteName")).add();
-                        }
-                );
+        network.getBusBreakerView().getBusStream().forEach(bus -> {
+            bus.setProperty("ucteName", ucteNetwork.getNodes().stream()
+                    .filter(ucteNode -> ucteNode.getCode().toString().equals(bus.getId()))
+                    .findFirst()
+                    .map(UcteNode::getGeographicalName)
+                    .orElse(""));
+            reportNode.newReportNode().withMessageTemplate("geoTestImportReportNode")
+                    .withUntypedValue("bus", bus.getId())
+                    .withUntypedValue("name", bus.getProperty("ucteName")).add();
+        });
     }
 
 }
