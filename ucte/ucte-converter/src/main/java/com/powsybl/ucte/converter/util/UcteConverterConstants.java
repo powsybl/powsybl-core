@@ -16,6 +16,10 @@ public final class UcteConverterConstants {
         throw new IllegalStateException("Should not be constructed");
     }
 
+    public static final String UCTE_FORMAT = "UCTE";
+    public static final String UCT_LOWERCASE = "uct";
+    public static final String UCT_UPPERCASE = "UCT";
+
     public static final String CURRENT_LIMIT_PROPERTY_KEY = "currentLimit";
     public static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
     public static final String GEOGRAPHICAL_NAME_PROPERTY_KEY = "geographicalName";
@@ -24,6 +28,7 @@ public final class UcteConverterConstants {
      * property name has a typo and should have been {@code "nominalPower"}. This typo must be kept as-is: it may remain
      * present with this exact wording in IIDM networks that were created with an UCTE-DEF import before the deprecation.
      * To enforce retro-compatibility, do not try to fix the typo.
+     *
      * @deprecated use the new field {@code ratedS} instead.
      */
     @Deprecated(since = "7.5.0")
