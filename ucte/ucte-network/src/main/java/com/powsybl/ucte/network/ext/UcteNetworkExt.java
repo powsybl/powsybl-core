@@ -55,6 +55,11 @@ public class UcteNetworkExt implements UcteNetwork {
     }
 
     @Override
+    public List<String> getComments(UcteBlock block) {
+        return network.getComments(block);
+    }
+
+    @Override
     public void addNode(UcteNode node) {
         invalidateSubstations();
         network.addNode(node);
