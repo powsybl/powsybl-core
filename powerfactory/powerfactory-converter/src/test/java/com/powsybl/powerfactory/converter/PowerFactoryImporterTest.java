@@ -261,6 +261,11 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void capabilityCurveWithInvalidPoint() {
+        assertTrue(importAndCompareXiidm("CapabilityCurveWithInvalidPoint"));
+    }
+
+    @Test
     void transformersWithPhaseAngleClock() {
         assertTrue(importAndCompareXiidm("TransformersWithPhaseAngleClock"));
     }

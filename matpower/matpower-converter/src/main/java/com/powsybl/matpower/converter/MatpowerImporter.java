@@ -214,16 +214,31 @@ public class MatpowerImporter implements Importer {
                     .add();
 
             if (mGen.getPc1() != 0 || mGen.getPc2() != 0) {
+                double qc1Min = mGen.getQc1Min();
+                double qc1Max = mGen.getQc1Max();
+                if (qc1Max < qc1Min) {
+                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swapping values", genId, qc1Min, qc1Max);
+                    qc1Min = mGen.getQc1Max();
+                    qc1Max = mGen.getQc1Min();
+                }
+                double qc2Min = mGen.getQc2Min();
+                double qc2Max = mGen.getQc2Max();
+                if (qc2Max < qc2Min) {
+                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swapping values", genId, qc2Min, qc2Max);
+                    qc2Min = mGen.getQc2Max();
+                    qc2Max = mGen.getQc2Min();
+                }
+
                 generator.newReactiveCapabilityCurve()
                         .beginPoint()
                         .setP(mGen.getPc1())
-                        .setMaxQ(mGen.getQc1Max())
-                        .setMinQ(mGen.getQc1Min())
+                        .setMaxQ(qc1Max)
+                        .setMinQ(qc1Min)
                         .endPoint()
                         .beginPoint()
                         .setP(mGen.getPc2())
-                        .setMaxQ(mGen.getQc2Max())
-                        .setMinQ(mGen.getQc2Min())
+                        .setMaxQ(qc2Max)
+                        .setMinQ(qc2Min)
                         .endPoint()
                         .add();
             } else {
