@@ -29,3 +29,4 @@ jobs:
         with:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           sonar_projectKey: 'com.powsybl:powsybl-core'
+          distribution_module: 'distribution-core'
