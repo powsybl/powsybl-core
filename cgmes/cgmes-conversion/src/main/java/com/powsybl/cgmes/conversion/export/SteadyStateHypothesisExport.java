@@ -106,6 +106,81 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
+    /**
+     * Export the SSH data of a subset of the identifiables of the network.
+     * Each identifiable exports all its SSH objects: the equipment itself, its terminals, its generating unit,
+     * its tap changers and its regulating control.
+     * The identifiables without SSH data are ignored.
+     * The regulating control only combines the views of the identifiables of the subset.
+     */
+    static void exportIdentifiables(Collection<? extends Identifiable<?>> identifiables, SshSink sink, CgmesExportContext context) throws XMLStreamException {
+        final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
+        for (Identifiable<?> identifiable : identifiables) {
+            exportIdentifiable(identifiable, regulatingControlViews, sink, context);
+        }
+        exportRegulatingControls(regulatingControlViews, sink, context);
+    }
+
+    private static void exportIdentifiable(Identifiable<?> identifiable, Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                           SshSink sink, CgmesExportContext context) throws XMLStreamException {
+        switch (identifiable) {
+            case Load load -> exportLoad(load, sink, context);
+            case Generator generator -> {
+                exportGenerator(generator, regulatingControlViews, sink, context);
+                exportGeneratingUnit(generator, sink, context);
+            }
+            case Battery battery -> {
+                exportBattery(battery, sink, context);
+                exportGeneratingUnit(battery, sink, context);
+            }
+            case ShuntCompensator shuntCompensator -> exportShuntCompensator(shuntCompensator, regulatingControlViews, sink, context);
+            case StaticVarCompensator staticVarCompensator -> exportStaticVarCompensator(staticVarCompensator, regulatingControlViews, sink, context);
+            case TwoWindingsTransformer twt -> exportTapChangers(twt, regulatingControlViews, sink, context);
+            case ThreeWindingsTransformer twt -> exportTapChangers(twt, regulatingControlViews, sink, context);
+            case BoundaryLine boundaryLine -> {
+                exportEquivalentInjection(boundaryLine, sink, context);
+                exportTerminalForBoundaryLine(boundaryLine, sink, context);
+            }
+            case TieLine tieLine -> {
+                exportIdentifiable(tieLine.getBoundaryLine1(), regulatingControlViews, sink, context);
+                exportIdentifiable(tieLine.getBoundaryLine2(), regulatingControlViews, sink, context);
+            }
+            case HvdcConverterStation<?> converterStation -> exportConverterStation(converterStation, sink, context);
+            case HvdcLine hvdcLine -> {
+                exportConverterStation(hvdcLine.getConverterStation1(), sink, context);
+                exportConverterStation(hvdcLine.getConverterStation2(), sink, context);
+                exportHvdcLineDCTerminals(hvdcLine, sink, context);
+            }
+            case AcDcConverter<?> converter -> {
+                exportAcDcConverter(converter, sink, context);
+                exportDCTerminals(converter, sink, context);
+            }
+            case DcConnectable<?> dcConnectable -> exportDCTerminals(dcConnectable, sink, context);
+            case DcSwitch dcSwitch -> exportDCTerminals(dcSwitch, sink, context);
+            case Switch sw -> {
+                exportSwitch(sw, sink, context);
+                exportTerminalForSwitch(sw, sink, context);
+            }
+            case Area area -> exportControlArea(area, sink, context);
+            case Bus bus -> {
+                VoltageLevel vl = bus.getVoltageLevel();
+                if (vl.getTopologyKind() != TopologyKind.NODE_BREAKER || context.isBusBranchExport()) {
+                    exportFictitiousInjection(bus, sink, context);
+                }
+                // Recorded busbar section terminals are only written in an updated export, as in the full export
+                if (!context.isExportEquipment()) {
+                    exportTerminalForBus(bus, sink, context);
+                }
+            }
+            default -> {
+                // No SSH data of its own: a connectable exports its terminals below, the others are ignored
+            }
+        }
+        if (identifiable instanceof Connectable<?> connectable) {
+            exportTerminals(connectable, sink, context);
+        }
+    }
+
     private static void exportSwitches(Network network, SshSink sink, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
             exportSwitch(sw, sink, context);
@@ -236,13 +311,17 @@ public final class SteadyStateHypothesisExport {
 
     private static void exportBusBranchFictitiousInjections(VoltageLevel vl, SshSink sink, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : vl.getBusBreakerView().getBuses()) {
-            double p = b.getFictitiousP0();
-            double q = b.getFictitiousQ0();
-            if (p != 0.0 || q != 0.0) {
-                String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
-                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
-                exportFictitiousInjection(loadId, terminalId, p, q, sink, context);
-            }
+            exportFictitiousInjection(b, sink, context);
+        }
+    }
+
+    private static void exportFictitiousInjection(Bus b, SshSink sink, CgmesExportContext context) throws XMLStreamException {
+        double p = b.getFictitiousP0();
+        double q = b.getFictitiousQ0();
+        if (p != 0.0 || q != 0.0) {
+            String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
+            String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
+            exportFictitiousInjection(loadId, terminalId, p, q, sink, context);
         }
     }
 
@@ -864,6 +943,13 @@ public final class SteadyStateHypothesisExport {
             }
         }
         for (GeneratingUnitSsh gu : generatingUnits.values()) {
+            sink.accept(gu);
+        }
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> void exportGeneratingUnit(I i, SshSink sink, CgmesExportContext context) throws XMLStreamException {
+        GeneratingUnitSsh gu = generatingUnitForGeneratorAndBatteries(i, context);
+        if (gu != null) {
             sink.accept(gu);
         }
     }
