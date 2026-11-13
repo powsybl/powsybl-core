@@ -12,6 +12,7 @@ import com.google.common.base.Enums;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -1024,7 +1025,7 @@ public class UcteImporter implements Importer {
                     createAreas(network, areaDcXnodes);
                 }
 
-                postProcessors.forEach(postProcessor -> postProcessor.process(network, ucteNetwork));
+                postProcessors.forEach(postProcessor -> postProcessor.process(network, ucteNetwork, postProcessorReportNode(reportNode, postProcessor.getName())));
 
                 stopwatch.stop();
 
@@ -1065,8 +1066,17 @@ public class UcteImporter implements Importer {
 
     private static List<UcteImportPostProcessor> findPostProcessors(List<String> names, List<UcteImportPostProcessor> postProcessors) {
         return names.stream()
-                .flatMap(name -> postProcessors.stream().filter(pp -> names.contains(pp.getName())))
+                .map(name -> postProcessors.stream()
+                        .filter(pp -> pp.getName().equals(name))
+                        .findFirst()
+                        .orElseThrow(() -> new PowsyblException("UCTE import post-processor '" + name + "' not found")))
                 .toList();
     }
 
+    public static ReportNode postProcessorReportNode(ReportNode reportNode, String postProcessorName) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.import.postProcessor")
+                .withUntypedValue("postProcessorName", postProcessorName)
+                .add();
+    }
 }

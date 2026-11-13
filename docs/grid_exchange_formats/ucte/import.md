@@ -102,7 +102,7 @@ Notations:
 
 **ucte.import.post-processors**<br>
 The `ucte.import.post-processors` property is an optional property that defines the list of post-processors to apply,
-in the given order, after the import of the UCTE network and before the conversion to a Network object.
+in the given order, after the import of the UCTE network and its conversion to a Network object.
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/ucte/converter/UcteImportPostProcessor.html)
 Post-processors are implementations of `UcteImportPostProcessor`.
 

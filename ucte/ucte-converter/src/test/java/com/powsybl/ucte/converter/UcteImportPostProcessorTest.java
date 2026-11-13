@@ -10,39 +10,39 @@ package com.powsybl.ucte.converter;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.powsybl.ucte.converter.UcteExporterReportTest.checkReportNode;
 
 /**
  * @author Antoine Limouzin {@literal <antoine.limouzin at rte.com>}
  */
 class UcteImportPostProcessorTest {
 
-    private Network getNetwork(final String fileName) {
-        final Properties properties = new Properties();
-        properties.put(UcteImporter.POST_PROCESSORS, "test-ita-bz");
-        final ReadOnlyDataSource dataSource = new ResourceDataSource(fileName, new ResourceSet("/importPostProcessors/", fileName + ".uct"));
-        return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), properties);
-    }
-
     @Test
-    void shouldHandleCorrectlyFormattedComment() {
-        final Network network = getNetwork("ok");
-        Assertions.assertEquals("FICTIVE_A", network.getBusBreakerView().getBus("IA____12").getProperty("italianBiddingZone"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"ko_count", "ko_wrong_first", "ko_wrong_last"})
-    void shouldFailIfWrongData(final String fileName) {
-        assertThrows(UcteException.class, () -> getNetwork(fileName));
+    void shouldAddNodeGeoNameInBus() {
+        final ReportNode reportNode = ReportNode.newRootReportNode()
+                         .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME,
+                                 PowsyblCoreReportResourceBundle.BASE_NAME)
+                         .withMessageTemplate("testExportReportNode")
+                         .build();
+        final Properties properties = new Properties();
+        properties.put(UcteImporter.POST_PROCESSORS, "test-import");
+        final ReadOnlyDataSource dataSource = new ResourceDataSource("importPostProcessor", new ResourceSet("/", "importPostProcessor.uct"));
+        final Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Assertions.assertEquals("Italia A3", network.getBusBreakerView().getBus("IA____21").getProperty("ucteName"));
+        checkReportNode("""
+                 + Post-processor test-import
+                                   Geographical name of IA____21 is Italia A3
+                """, reportNode);
     }
 
 }

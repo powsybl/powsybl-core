@@ -47,7 +47,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          .build();
     }
 
-    private static boolean checkReportNode(String expected, ReportNode reportNode) {
+     static boolean checkReportNode(String expected, ReportNode reportNode) {
         StringWriter sw = new StringWriter();
         try {
             reportNode.print(sw);

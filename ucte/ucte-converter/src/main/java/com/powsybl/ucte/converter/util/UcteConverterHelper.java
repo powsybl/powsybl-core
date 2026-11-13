@@ -130,7 +130,7 @@ public final class UcteConverterHelper {
      * @param value a Double that can be null or NaN
      * @return 0 if null or NaN, else same value as input
      */
-    public static double getOrZero(final Double value) {
+    public static double getOrZero(final double value) {
         return Double.isNaN(value) ? 0 : value;
     }
 

@@ -7,6 +7,7 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.ucte.network.UcteNetwork;
 
@@ -24,7 +25,8 @@ public interface UcteImportPostProcessor {
      * Processes the Network to be imported, with additional information from the UCTE file
      * @param network the imported network, as a PowSyBl network
      * @param ucteNetwork a representation of the UCTE file's network
+     * @param reportNode the report node dedicated to this post-processor
      */
-    default void process(Network network, UcteNetwork ucteNetwork) {
+    default void process(Network network, UcteNetwork ucteNetwork, ReportNode reportNode) {
     }
 }
