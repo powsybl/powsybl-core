@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * @author Matthieu Saur {@literal <matthieu.saur at rte-france.com>}
+ * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public final class VoltageRegulationSerDe {
     // GLOBAL
@@ -70,6 +70,44 @@ public final class VoltageRegulationSerDe {
         readSubElements(context, network, terminal -> voltageRegulationBuilder.withTerminal(terminal)
             .withTargetValue(attributes.targetValue())
             .build());
+    }
+
+    /**
+     * Writes the voltage regulation of a local-only holder (boundary line generation).
+     * Neither the terminal nor the target value is written: the local setpoints are stored in the holder itself.
+     */
+    public static void writeLocalVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () -> {
+            if (voltageRegulation != null && voltageRegulation.getMode() != null) {
+                TreeDataWriter writer = context.getWriter();
+                writer.writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEMENT_NAME);
+                writer.writeDoubleAttribute(TARGET_DEADBAND, voltageRegulation.getTargetDeadband());
+                writer.writeDoubleAttribute(SLOPE, voltageRegulation.getSlope());
+                writer.writeEnumAttribute(MODE, voltageRegulation.getMode());
+                writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
+                writer.writeEndNode();
+            }
+        });
+    }
+
+    /**
+     * Values of a local-only voltage regulation (boundary line generation), as written by {@link #writeLocalVoltageRegulation}.
+     */
+    public record LocalVoltageRegulation(double targetDeadband, double slope, RegulationMode mode, boolean regulating) {
+    }
+
+    /**
+     * Reads the attributes of a local-only voltage regulation element, written by {@link #writeLocalVoltageRegulation}.
+     */
+    public static LocalVoltageRegulation readLocalVoltageRegulation(NetworkDeserializerContext context) {
+        double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
+        double slope = context.getReader().readDoubleAttribute(SLOPE);
+        RegulationMode mode = context.getReader().readEnumAttribute(MODE, RegulationMode.class);
+        boolean regulating = context.getReader().readBooleanAttribute(REGULATING);
+        context.getReader().readChildNodes(elementName -> {
+            throw new PowsyblException("Unknown sub element name '" + elementName + "' in 'voltageRegulation'");
+        });
+        return new LocalVoltageRegulation(targetDeadband, slope, mode, regulating);
     }
 
     public static <T extends VoltageRegulationHolder<?> & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(

@@ -8,6 +8,7 @@
 package com.powsybl.psse.converter;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.BoundaryLineData;
 import com.powsybl.psse.model.pf.*;
 import org.apache.commons.math3.complex.Complex;
@@ -141,7 +142,7 @@ class BoundaryLineConverter extends AbstractConverter {
         psseGenerator.setI(busJ);
         psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(boundaryLine.getId(), PSSE_GENERATOR.getTextCode(), busJ));
         psseGenerator.setPg(generation.getTargetP());
-        psseGenerator.setQg(generation.getTargetQ());
+        psseGenerator.setQg(generation.getLocalTargetQ());
         psseGenerator.setQt(Math.max(getMaxQ(generation), getMinQ(generation)));
         psseGenerator.setQb(getMinQ(generation));
         psseGenerator.setVs(getTargetV(boundaryLine, generation));
@@ -159,7 +160,7 @@ class BoundaryLineConverter extends AbstractConverter {
     }
 
     private static boolean isVoltageRegulationOn(BoundaryLine boundaryLine) {
-        return boundaryLine.getGeneration() != null && boundaryLine.getGeneration().isVoltageRegulationOn();
+        return boundaryLine.getGeneration() != null && boundaryLine.getGeneration().isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
     private static double getMaxP(BoundaryLine.Generation generation) {
@@ -179,10 +180,10 @@ class BoundaryLineConverter extends AbstractConverter {
     }
 
     private static double getTargetV(BoundaryLine boundaryLine, BoundaryLine.Generation generation) {
-        if (Double.isNaN(generation.getTargetV()) || generation.getTargetV() <= 0.0) {
+        if (Double.isNaN(generation.getLocalTargetV()) || generation.getLocalTargetV() <= 0.0) {
             return 1.0;
         } else {
-            return generation.getTargetV() / boundaryLine.getTerminal().getVoltageLevel().getNominalV();
+            return generation.getLocalTargetV() / boundaryLine.getTerminal().getVoltageLevel().getNominalV();
         }
     }
 }

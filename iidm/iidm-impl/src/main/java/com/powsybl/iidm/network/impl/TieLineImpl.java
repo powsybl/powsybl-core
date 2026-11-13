@@ -498,7 +498,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             boundaryLine.setQ0(-boundaryLine.getBoundary().getQ());
             if (boundaryLine.getGeneration() != null) {
                 // If q values are available a complete ac load flow has been computed, we reset regulation
-                boundaryLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+                BoundaryLine.Generation generation = boundaryLine.getGeneration();
+                // Q must be set before removing the regulation, otherwise validation fails on the NaN localTargetQ
+                generation.setLocalTargetQ(0.0);
+                if (generation.isRegulating()) {
+                    generation.getVoltageRegulation().setRegulating(false);
+                }
+                generation.setLocalTargetV(Double.NaN);
             }
         }
     }

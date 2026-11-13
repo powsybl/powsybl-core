@@ -59,8 +59,8 @@ public final class BoundaryLineNetworkFactory {
                 .setTargetP(440)
                 .setMaxP(900)
                 .setMinP(0)
-                .setTargetV(101)
-                .setVoltageRegulationOn(true)
+                .setLocalTargetV(101)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add()
                 .add();
         boundaryLine.getGeneration().newReactiveCapabilityCurve()

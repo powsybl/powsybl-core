@@ -67,12 +67,11 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .newGeneration()
-                        .setVoltageRegulationOn(false)
                         .setMinP(-Double.MAX_VALUE)
                         .setMaxP(Double.MAX_VALUE)
                         .setTargetP(Double.NaN)
-                        .setTargetQ(Double.NaN)
-                        .setTargetV(Double.NaN)
+                        .setLocalTargetQ(Double.NaN)
+                        .setLocalTargetV(Double.NaN)
                     .add()
                     .add();
         } else {
@@ -200,8 +199,8 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             double targetV = cgmesEquivalentInjection.map(propertyBag -> findTargetV(propertyBag, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
 
             boundaryLine.getGeneration().setTargetP(0.0);
-            boundaryLine.getGeneration().setTargetQ(0.0);
-            setRegulation(boundaryLine.getGeneration(), targetV, false);
+            boundaryLine.getGeneration().setLocalTargetQ(0.0);
+            setGenerationRegulation(boundaryLine.getGeneration(), targetV, false);
         }
         boundaryLine.setP0(0.0);
         boundaryLine.setQ0(0.0);
@@ -221,20 +220,32 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             boundaryLine.setP0(0.0);
             boundaryLine.setQ0(0.0);
             boundaryLine.getGeneration().setTargetP(getTargetP(updatedPowerFlow, boundaryLine.getGeneration(), context));
-            boundaryLine.getGeneration().setTargetQ(getTargetQ(updatedPowerFlow, boundaryLine.getGeneration(), context));
-            setRegulation(boundaryLine.getGeneration(), targetV, regulatingOn && isValidTargetV(targetV));
+            boundaryLine.getGeneration().setLocalTargetQ(getTargetQ(updatedPowerFlow, boundaryLine.getGeneration(), context));
+            setGenerationRegulation(boundaryLine.getGeneration(), targetV, regulatingOn && isValidTargetV(targetV));
         } else {
             boundaryLine.setP0(getTargetP(updatedPowerFlow, boundaryLine, context));
             boundaryLine.setQ0(getTargetQ(updatedPowerFlow, boundaryLine, context));
         }
     }
 
-    private static void setRegulation(BoundaryLine.Generation generation, double targetV, boolean regulatingOn) {
+    private static void setGenerationRegulation(BoundaryLine.Generation generation, double targetV, boolean regulatingOn) {
         Objects.requireNonNull(generation);
+        VoltageRegulation voltageRegulation = generation.getVoltageRegulation();
         if (regulatingOn) {
-            generation.setTargetV(targetV).setVoltageRegulationOn(true);
+            generation.setLocalTargetV(targetV);
+            if (voltageRegulation == null) {
+                generation.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .build();
+            } else {
+                voltageRegulation.setRegulating(true);
+            }
         } else {
-            generation.setVoltageRegulationOn(false).setTargetV(targetV);
+            if (voltageRegulation != null) {
+                voltageRegulation.setRegulating(false);
+            }
+            generation.setLocalTargetV(targetV);
         }
     }
 
@@ -272,14 +283,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static double getDefaultTargetQ(BoundaryLine.Generation generation, Context context) {
-        return getDefaultValue(null, generation.getTargetQ(), 0.0, 0.0, context);
+        return getDefaultValue(null, generation.getLocalTargetQ(), 0.0, 0.0, context);
     }
 
     private static double getDefaultTargetV(BoundaryLine.Generation generation, Context context) {
-        return getDefaultValue(null, generation.getTargetV(), Double.NaN, Double.NaN, context);
+        return getDefaultValue(null, generation.getLocalTargetV(), Double.NaN, Double.NaN, context);
     }
 
     private static boolean getDefaultRegulatingOn(BoundaryLine.Generation generation, Context context) {
-        return getDefaultValue(false, generation.isVoltageRegulationOn(), false, false, context);
+        return getDefaultValue(false, generation.isRegulating(), false, false, context);
     }
 }
