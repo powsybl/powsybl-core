@@ -20,6 +20,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.math.graph.TraverseResult;
@@ -1736,6 +1737,35 @@ public final class EquipmentExport {
             Optional<TieFlow> tieFlow = TieFlow.from(areaBoundary, context);
             if (tieFlow.isPresent()) {
                 TieFlowEq.write(tieFlow.get().id(), controlAreaCgmesId, tieFlow.get().terminalId(), cimNamespace, writer, context);
+            }
+        }
+        for (VoltageLevel vl : controlArea.getVoltageLevels()) {
+            Set<String> generatingUnitsWritten = new HashSet<>();
+            for (Generator generator : vl.getGenerators()) {
+                writeControlAreaGeneratingUnit(generator, controlAreaCgmesId, cimNamespace, writer, context, generatingUnitsWritten);
+            }
+        }
+    }
+
+    private static void writeControlAreaGeneratingUnit(Generator generator, String controlAreaCgmesId,
+                                                       String cimNamespace, XMLStreamWriter writer,
+                                                       CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
+        if (!context.isExportedEquipment(generator)) {
+            return;
+        }
+        String cgmesOriginalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
+        if (!CgmesNames.EQUIVALENT_INJECTION.equals(cgmesOriginalClass) && !CgmesNames.EXTERNAL_NETWORK_INJECTION.equals(cgmesOriginalClass)) {
+            String kind = obtainSynchronousMachineKind(generator);
+            if (!"condenser".equals(kind) && (generator.getExtension(ActivePowerControl.class) != null || generator.hasProperty(PROPERTY_NORMAL_PF))) {
+                double normalPF = CgmesExportUtil.getParticipationFactor(generator);
+                if (normalPF > 0) {
+                    String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(generator, PROPERTY_GENERATING_UNIT);
+                    String id = context.getNamingStrategy().getCgmesId(refTyped(generator), CONTROL_AREA_GENERATING_UNIT);
+                    if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
+                        ControlAreaGeneratingUnitEq.write(id, generator.getNameOrId(), controlAreaCgmesId, generatingUnit, cimNamespace, writer, context);
+                        generatingUnitsWritten.add(generatingUnit);
+                    }
+                }
             }
         }
     }
