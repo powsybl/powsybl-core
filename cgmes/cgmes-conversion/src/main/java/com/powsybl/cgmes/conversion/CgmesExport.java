@@ -82,8 +82,7 @@ public class CgmesExport implements Exporter {
 
         // Export the network
         if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
-            String exportTP = context.getCgmExportWithTp();
-            exportCGM(network, dataSource, context, exportTP);
+            exportCGM(network, dataSource, context);
         } else {
             exportIGM(network, dataSource, context);
         }
@@ -206,7 +205,8 @@ public class CgmesExport implements Exporter {
      * @param dataSource The dataSource used by the export.
      * @param context The context that stores relevant data for the export.
      */
-    private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context, String exportTP) {
+    private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context) {
+        String exportTP = context.getCgmExportWithTp();
         checkCgmConsistency(network, context);
 
         Map<Network, IgmModelsForCgm> igmModels = initializeIgmModels(network, context);
