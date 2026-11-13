@@ -81,7 +81,7 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
      * Builder for a ReactiveCapabilityShapePlane.
      *
      * @param coeffU    The coefficient for U.
-     * @param coeffP     The coefficient for P.
+     * @param coeffP    The coefficient for P.
      */
     public static ReactiveCapabilityShapePlane build(double coeffU, double coeffP) {
         return new ReactiveCapabilityShapePlaneImpl(coeffU, coeffP, 1.0);
