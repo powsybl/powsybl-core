@@ -646,7 +646,7 @@ Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter
 - `SwitchingLoss` is copied from EQ `switchingLoss`.
 - `ResistiveLoss` is copied from EQ `resistiveLoss`.
 - `PccTerminal` is copied from EQ `PccTerminal`.
-- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), else it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC).
+- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC) and it is `DC_DROOP` if `pPccControl` is `pPccAndUdcDroop` (VSC only).
 - `TargetP` is copied from SSH `targetPpcc`.
 - `TargetVdc` is copied from SSH `targetUdc`.
 
@@ -659,6 +659,8 @@ Specific `VsConverter` attributes are mapped as follows:
 - `VoltageRegulatorOn` is set to `true` if SSH `qPccControl` is set to `voltagePcc`, else it is `false`.
 - `VoltageSetpoint` is copied from SSH `targetUpcc`.
 - `ReactivePowerSetpoint` is copied from SSH `targetQpcc`.
+- A single segment `DroopCurve` is created, with `k` derived from the SSH `droop` attribute. `droop` is converted from per-unit to kV/MW by using the `ratedUdc` and `baseS` attributes from the EQ profile.
+The voltage bound of the droop curve segment is [-`ratedUdc`, `ratedUdc`]. If any of these three attributes is missing, the `DroopCurve` is not created. 
 
 ## Extensions
 
