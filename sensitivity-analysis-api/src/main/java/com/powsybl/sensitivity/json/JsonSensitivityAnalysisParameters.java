@@ -95,6 +95,8 @@ public final class JsonSensitivityAnalysisParameters {
      * Writes parameters as JSON to an output stream.
      */
     public static void write(SensitivityAnalysisParameters parameters, OutputStream outputStream) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(outputStream);
         try {
             ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
@@ -102,6 +104,10 @@ public final class JsonSensitivityAnalysisParameters {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static SensitivityAnalysisParameters copy(SensitivityAnalysisParameters parameters) {
+        return JsonUtil.copyThroughJson(parameters, SensitivityAnalysisParameters::new, createObjectMapper());
     }
 
     public static ObjectMapper createObjectMapper() {

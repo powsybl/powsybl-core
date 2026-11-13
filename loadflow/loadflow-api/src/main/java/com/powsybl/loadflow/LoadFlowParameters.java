@@ -8,7 +8,6 @@
 package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -20,9 +19,6 @@ import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -480,25 +476,13 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     /**
-     * This copy methods uses json serializer mechanism to rebuild all extensions in the this parameters.
-     * If an extension's serializer not found via {@code @AutoService}, the extension would be lost in copied.
+     * Deep copies these parameters through a JSON round trip. An extension whose JSON serializer is not
+     * provided by any provider found via {@code ServiceLoader} is not copied (a warning is logged).
      *
-     * @return a new copied instance and with original's extensions found based-on json serializer.
+     * @return a new instance, independent from this one.
      */
     public LoadFlowParameters copy() {
-        byte[] bytes = writeInMemory();
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
-            return JsonLoadFlowParameters.read(bais);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private byte[] writeInMemory() {
-        try (ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder()) {
-            JsonLoadFlowParameters.write(this, byteArrayBuilder);
-            return byteArrayBuilder.toByteArray();
-        }
+        return JsonLoadFlowParameters.copy(this);
     }
 
     @Override

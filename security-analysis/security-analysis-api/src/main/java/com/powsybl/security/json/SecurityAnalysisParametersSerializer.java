@@ -13,13 +13,18 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.security.SecurityAnalysisParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class SecurityAnalysisParametersSerializer extends StdSerializer<SecurityAnalysisParameters> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisParametersSerializer.class);
 
     SecurityAnalysisParametersSerializer() {
         super(SecurityAnalysisParameters.class);
@@ -35,7 +40,10 @@ public class SecurityAnalysisParametersSerializer extends StdSerializer<Security
         JsonUtil.writeOptionalStringField(jsonGenerator, "debug-dir", parameters.getDebugDir());
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSecurityAnalysisParameters.getExtensionSerializers()::get);
+        Set<String> notSerialized = JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSecurityAnalysisParameters.getExtensionSerializers()::get);
+        if (!notSerialized.isEmpty()) {
+            LOGGER.warn("No JSON serializer found for security analysis parameters extensions {}, they are not written", notSerialized);
+        }
         jsonGenerator.writeEndObject();
     }
 }

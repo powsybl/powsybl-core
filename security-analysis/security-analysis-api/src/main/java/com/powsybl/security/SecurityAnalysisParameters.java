@@ -8,7 +8,6 @@
 package com.powsybl.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -16,7 +15,6 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 
-import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -338,19 +336,12 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     }
 
     /**
-     * This copy method uses json serializer mechanism to rebuild all extensions in the this parameters.
-     * If an extension's serializer not found via {@code @AutoService}, the extension would be lost in copied.
+     * Deep copies these parameters through a JSON round trip. An extension whose JSON serializer is not
+     * provided by any provider found via {@code ServiceLoader} is not copied (a warning is logged).
      *
-     * @return a new copied instance and with original's extensions found based-on json serializer.
+     * @return a new instance, independent from this one.
      */
     public SecurityAnalysisParameters copy() {
-        return JsonSecurityAnalysisParameters.read(new ByteArrayInputStream(writeInMemory()));
-    }
-
-    private byte[] writeInMemory() {
-        try (ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder()) {
-            JsonSecurityAnalysisParameters.write(this, byteArrayBuilder);
-            return byteArrayBuilder.toByteArray();
-        }
+        return JsonSecurityAnalysisParameters.copy(this);
     }
 }
