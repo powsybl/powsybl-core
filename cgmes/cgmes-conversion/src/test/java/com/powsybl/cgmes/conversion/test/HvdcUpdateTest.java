@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
@@ -178,6 +179,37 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         assertEquals(30.0, vsc.getLocalTargetQ(), 1e-7);
         assertEquals(30.0, vsc.getVoltageRegulation().getTargetValue(), 1e-7);
         assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+    }
+
+    @Test
+    void exportGroundDcTerminalsToSshTest() throws IOException {
+        Properties importParameters = new Properties();
+        Network network = readCgmesResources(importParameters, DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+
+        String baseName = "dcTerminales-roundtrip";
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+
+        HvdcLine lccHvdcLine = network.getHvdcLine("DCLineSegment-Lcc");
+        assertNotNull(lccHvdcLine);
+        HvdcLine vscHvdcLine = network.getHvdcLine("DCLineSegment-Vsc");
+        assertNotNull(vscHvdcLine);
+
+        String lccConverter1GroundDcTerminal = lccHvdcLine.getConverterStation1().getAliasFromType(ALIAS_DC_TERMINAL2).orElseThrow();
+        String lccConverter2GroundDcTerminal = lccHvdcLine.getConverterStation2().getAliasFromType(ALIAS_DC_TERMINAL2).orElseThrow();
+
+        String vscConverter1GroundDcTerminal = vscHvdcLine.getConverterStation1().getAliasFromType(ALIAS_DC_TERMINAL2).orElseThrow();
+        String vscConverter2GroundDcTerminal = vscHvdcLine.getConverterStation2().getAliasFromType(ALIAS_DC_TERMINAL2).orElseThrow();
+
+        String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+
+        assertNotNull(getElement(sshXml, "ACDCConverterDCTerminal", lccConverter1GroundDcTerminal));
+        assertNotNull(getElement(sshXml, "ACDCConverterDCTerminal", lccConverter2GroundDcTerminal));
+
+        assertNotNull(getElement(sshXml, "ACDCConverterDCTerminal", vscConverter1GroundDcTerminal));
+        assertNotNull(getElement(sshXml, "ACDCConverterDCTerminal", vscConverter2GroundDcTerminal));
     }
 
     @Test
