@@ -375,18 +375,7 @@ public class UcteExporter implements Exporter {
             double maxP = generation.getMaxP();
             double minQ = generation.getReactiveLimits().getMinQ(generation.getTargetP());
             double maxQ = generation.getReactiveLimits().getMaxQ(generation.getTargetP());
-            if (minP != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
-            }
-            if (maxP != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
-            }
-            if (minQ != -DEFAULT_POWER_LIMIT) {
-                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
-            }
-            if (maxQ != DEFAULT_POWER_LIMIT) {
-                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
-            }
+            setNodePowerGenerationLimits(ucteNode, minP, maxP, minQ, maxQ);
         }
     }
 
