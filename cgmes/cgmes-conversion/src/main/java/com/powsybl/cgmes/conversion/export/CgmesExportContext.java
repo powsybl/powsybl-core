@@ -84,6 +84,8 @@ public class CgmesExportContext {
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
     private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
+    private boolean partialSshExport = false;
+    private Collection<? extends Identifiable<?>> sshExportedIdentifiables = List.of();
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
     private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
     private final Map<String, GeographicalRegionEq> regionsById = new HashMap<>();
@@ -349,6 +351,31 @@ public class CgmesExportContext {
 
     public CgmesExportContext setExportEquipment(boolean exportEquipment) {
         this.exportEquipment = exportEquipment;
+        return this;
+    }
+
+    /**
+     * If true, the SSH export only writes the SSH data of the exported identifiables.
+     * If false (the default), it writes the SSH data of all the network.
+     */
+    public boolean isPartialSshExport() {
+        return partialSshExport;
+    }
+
+    public CgmesExportContext setPartialSshExport(boolean partialSshExport) {
+        this.partialSshExport = partialSshExport;
+        return this;
+    }
+
+    /**
+     * The identifiables whose SSH data is exported in a partial SSH export.
+     */
+    public Collection<? extends Identifiable<?>> getSshExportedIdentifiables() {
+        return sshExportedIdentifiables;
+    }
+
+    public CgmesExportContext setSshExportedIdentifiables(Collection<? extends Identifiable<?>> sshExportedIdentifiables) {
+        this.sshExportedIdentifiables = Objects.requireNonNull(sshExportedIdentifiables);
         return this;
     }
 
