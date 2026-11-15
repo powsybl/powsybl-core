@@ -173,7 +173,7 @@ public final class EquipmentExport {
         // Note that multiple adjacent IIDM nodes are exported to the same CGMES ConnectivityNode.
         for (List<Integer> nodes : getVoltageLevelAdjacencies(vl.getNodeBreakerView())) {
             String nodeId = context.getNamingStrategy().getCgmesId(refTyped(vl), ref(nodes.getFirst()), CONNECTIVITY_NODE);
-            String nodeName = CgmesExportUtil.format(nodes.getFirst());
+            String nodeName = String.valueOf(nodes.getFirst());
             CgmesRecords.ConnectivityNodeEq node = new CgmesRecords.ConnectivityNodeEq(nodeId, nodeName, cgmesVlId);
             writer.writeConnectivityNode(node);
             for (Integer nodeNumber : nodes) {
@@ -634,7 +634,7 @@ public final class EquipmentExport {
             getNullableMaxQ(i),
             getNullableMinQ(i),
             kind,
-            format(ratedS, defaultRatedS),
+            Double.isNaN(ratedS) ? defaultRatedS : ratedS,
             reactiveLimitsId,
             generatingUnitId,
             regulatingControlId,
@@ -931,7 +931,7 @@ public final class EquipmentExport {
                 p.getEnd1X(),
                 p.getEnd1G(),
                 p.getEnd1B(),
-                twt.getRatedS(),
+                getValidRatedS(twt),
                 twt.getRatedU1(),
                 context.getNamingStrategy().getCgmesId(twt),
                 baseVoltage1Id,
@@ -948,7 +948,7 @@ public final class EquipmentExport {
                 p.getEnd2X(),
                 p.getEnd2G(),
                 p.getEnd2B(),
-                twt.getRatedS(),
+                getValidRatedS(twt),
                 twt.getRatedU2(),
                 context.getNamingStrategy().getCgmesId(twt),
                 baseVoltage2Id,
@@ -980,6 +980,17 @@ public final class EquipmentExport {
             writeThreeWindingsTransformerEnd(twt.getLeg2(), endNumberAssigner.getEndNumberForLeg2());
             writeThreeWindingsTransformerEnd(twt.getLeg3(), endNumberAssigner.getEndNumberForLeg3());
         }
+    }
+
+    private double getValidRatedS(RatioTapChangerHolder transformer) {
+        return switch (transformer) {
+            case TwoWindingsTransformer tw2 ->
+                Double.isNaN(tw2.getRatedS()) ? CgmesExportContext.POWER_TRANSFORMER_END_RATED_S_DEFAULT_VALUE : tw2.getRatedS();
+            case ThreeWindingsTransformer.Leg leg ->
+                Double.isNaN(leg.getRatedS()) ? CgmesExportContext.POWER_TRANSFORMER_END_RATED_S_DEFAULT_VALUE : leg.getRatedS();
+            default ->
+                throw new IllegalArgumentException("Unexpected connectable type: " + transformer.getClass().getName());
+        };
     }
 
     private static class EndNumberAssigner {
@@ -1126,7 +1137,7 @@ public final class EquipmentExport {
             x,
             g,
             b,
-            leg.getRatedS(),
+            getValidRatedS(leg),
             leg.getRatedU(),
             twtId,
             baseVoltageId,

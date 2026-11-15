@@ -85,19 +85,11 @@ public final class CgmesExportUtil {
         return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
 
-    public static String scientificFormat(double value) {
-        return scientificFormat(value, 0.0); // disconnected equipment in general, a bit dangerous.
-    }
-
-    private static String scientificFormat(double value, double defaultValue) {
+    public static String scientificFormat(double value, double defaultValue) {
         return SCIENTIFIC_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String format(int value) {
-        return String.valueOf(value);
-    }
-
-    public static String format(boolean value) {
         return String.valueOf(value);
     }
 
@@ -587,10 +579,6 @@ public final class CgmesExportUtil {
             case REACTIVE_POWER -> REGULATING_CONTROL_REACTIVE_POWER;
             case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
         };
-    }
-
-    public static boolean isMinusOrMaxValue(double value) {
-        return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
 
     static String getEffectivePairingKey(BoundaryLine bl) {

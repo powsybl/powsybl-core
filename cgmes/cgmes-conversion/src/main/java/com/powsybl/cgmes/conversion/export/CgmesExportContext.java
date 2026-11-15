@@ -68,7 +68,6 @@ public class CgmesExportContext {
     public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final double POWER_TRANSFORMER_END_RATED_S_DEFAULT_VALUE = 100.0;
-    public static final double B_PER_SECTION_FORMAT_THRESHOLD = 1E-10;
     public static final boolean EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE = true;
     public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
