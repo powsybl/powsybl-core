@@ -1940,6 +1940,9 @@
             </iidm:generator>
             <iidm:load id="LOAD-9002" loadType="UNDEFINED" p0="4.2" q0="0.0" bus="BUS-9002" connectableBus="BUS-9002"/>
             <iidm:load id="LOAD-9024" loadType="UNDEFINED" p0="1.35" q0="0.47" bus="BUS-9024" connectableBus="BUS-9024"/>
+            <iidm:shuntCompensator id="SHUNT-9024" sectionCount="1" bus="BUS-9024" connectableBus="BUS-9024">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.07" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-9002-9024" r="0.005074800000000001" x="0.032202" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9002" bus1="BUS-9002" connectableBus1="BUS-9002" voltageLevelId2="VL-9002" bus2="BUS-9024" connectableBus2="BUS-9024"/>
     </iidm:substation>
@@ -1968,8 +1971,26 @@
             <iidm:shuntCompensator id="SHUNT-9003" sectionCount="1" bus="BUS-9003" connectableBus="BUS-9003">
                 <iidm:shuntLinearModel bPerSection="2.4" gPerSection="0.14" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9031" sectionCount="1" bus="BUS-9031" connectableBus="BUS-9031">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.1" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9032" sectionCount="1" bus="BUS-9032" connectableBus="BUS-9032">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.07" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9033" sectionCount="1" bus="BUS-9033" connectableBus="BUS-9033">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.1" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
             <iidm:shuntCompensator id="SHUNT-9034" sectionCount="1" bus="BUS-9034" connectableBus="BUS-9034">
                 <iidm:shuntLinearModel bPerSection="1.72" gPerSection="0.08" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9035" sectionCount="1" bus="BUS-9035" connectableBus="BUS-9035">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.09" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9037" sectionCount="1" bus="BUS-9037" connectableBus="BUS-9037">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.1" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9038" sectionCount="1" bus="BUS-9038" connectableBus="BUS-9038">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.14" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-9003-9031" r="0.007363300000000001" x="0.046723999999999995" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9003" bus1="BUS-9003" connectableBus1="BUS-9003" voltageLevelId2="VL-9003" bus2="BUS-9031" connectableBus2="BUS-9031"/>
@@ -1993,6 +2014,12 @@
             <iidm:load id="LOAD-9041" loadType="UNDEFINED" p0="1.01" q0="0.35" bus="BUS-9041" connectableBus="BUS-9041"/>
             <iidm:load id="LOAD-9042" loadType="UNDEFINED" p0="0.81" q0="0.28" bus="BUS-9042" connectableBus="BUS-9042"/>
             <iidm:load id="LOAD-9043" loadType="UNDEFINED" p0="1.6" q0="0.52" bus="BUS-9043" connectableBus="BUS-9043"/>
+            <iidm:shuntCompensator id="SHUNT-9041" sectionCount="1" bus="BUS-9041" connectableBus="BUS-9041">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.05" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9042" sectionCount="1" bus="BUS-9042" connectableBus="BUS-9042">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.04" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-9004-9041" r="0.0036614000000000004" x="0.02456" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9004" bus1="BUS-9004" connectableBus1="BUS-9004" voltageLevelId2="VL-9004" bus2="BUS-9041" connectableBus2="BUS-9041"/>
         <iidm:twoWindingsTransformer id="TWT-9004-9042" r="0.010593" x="0.054536" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9004" bus1="BUS-9004" connectableBus1="BUS-9004" voltageLevelId2="VL-9004" bus2="BUS-9042" connectableBus2="BUS-9042"/>
@@ -2029,6 +2056,9 @@
             <iidm:load id="LOAD-9052" loadType="UNDEFINED" p0="30.0" q0="23.0" bus="BUS-9052" connectableBus="BUS-9052"/>
             <iidm:load id="LOAD-9053" loadType="UNDEFINED" p0="26.48" q0="0.0" bus="BUS-9053" connectableBus="BUS-9053"/>
             <iidm:load id="LOAD-9533" loadType="UNDEFINED" p0="1.19" q0="0.41" bus="BUS-9533" connectableBus="BUS-9533"/>
+            <iidm:shuntCompensator id="SHUNT-9533" sectionCount="1" bus="BUS-9533" connectableBus="BUS-9533">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.1" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-9005-9051" r="1.578E-4" x="0.0037486000000000004" ratedU1="1.0435" ratedU2="1.0" voltageLevelId1="VL-9005" bus1="BUS-9005" connectableBus1="BUS-9005" voltageLevelId2="VL-9005" bus2="BUS-9051" connectableBus2="BUS-9051"/>
         <iidm:twoWindingsTransformer id="TWT-9005-9052" r="1.578E-4" x="0.0037486000000000004" ratedU1="0.9391" ratedU2="1.0" voltageLevelId1="VL-9005" bus1="BUS-9005" connectableBus1="BUS-9005" voltageLevelId2="VL-9005" bus2="BUS-9052" connectableBus2="BUS-9052"/>
@@ -2046,6 +2076,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-9071" loadType="UNDEFINED" p0="1.02" q0="0.35" bus="BUS-9071" connectableBus="BUS-9071"/>
             <iidm:load id="LOAD-9072" loadType="UNDEFINED" p0="1.02" q0="0.35" bus="BUS-9072" connectableBus="BUS-9072"/>
+            <iidm:shuntCompensator id="SHUNT-9071" sectionCount="1" bus="BUS-9071" connectableBus="BUS-9071">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.05" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9072" sectionCount="1" bus="BUS-9072" connectableBus="BUS-9072">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.05" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-9007-9071" r="0.004412" x="0.029668" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9007" bus1="BUS-9007" connectableBus1="BUS-9007" voltageLevelId2="VL-9007" bus2="BUS-9071" connectableBus2="BUS-9071"/>
         <iidm:twoWindingsTransformer id="TWT-9007-9072" r="0.0030792000000000003" x="0.02057" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9007" bus1="BUS-9007" connectableBus1="BUS-9007" voltageLevelId2="VL-9007" bus2="BUS-9072" connectableBus2="BUS-9072"/>
@@ -2058,6 +2094,9 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-9021" loadType="UNDEFINED" p0="4.75" q0="1.56" bus="BUS-9021" connectableBus="BUS-9021"/>
             <iidm:load id="LOAD-9022" loadType="UNDEFINED" p0="1.53" q0="0.53" bus="BUS-9022" connectableBus="BUS-9022"/>
+            <iidm:shuntCompensator id="SHUNT-9022" sectionCount="1" bus="BUS-9022" connectableBus="BUS-9022">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.08" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-9021-9022" r="0.0044364" x="0.028152" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9021" bus1="BUS-9021" connectableBus1="BUS-9021" voltageLevelId2="VL-9021" bus2="BUS-9022" connectableBus2="BUS-9022"/>
     </iidm:substation>
@@ -2070,6 +2109,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-9025" loadType="UNDEFINED" p0="0.45" q0="0.16" bus="BUS-9025" connectableBus="BUS-9025"/>
             <iidm:load id="LOAD-9026" loadType="UNDEFINED" p0="0.45" q0="0.16" bus="BUS-9026" connectableBus="BUS-9026"/>
+            <iidm:shuntCompensator id="SHUNT-9025" sectionCount="1" bus="BUS-9025" connectableBus="BUS-9025">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.02" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
+            <iidm:shuntCompensator id="SHUNT-9026" sectionCount="1" bus="BUS-9026" connectableBus="BUS-9026">
+                <iidm:shuntLinearModel bPerSection="0.0" gPerSection="0.02" maximumSectionCount="1"/>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-9023-9025" r="0.006668800000000001" x="0.03944" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9023" bus1="BUS-9023" connectableBus1="BUS-9023" voltageLevelId2="VL-9023" bus2="BUS-9025" connectableBus2="BUS-9025"/>
         <iidm:twoWindingsTransformer id="TWT-9023-9026" r="0.0061129999999999995" x="0.036152000000000004" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-9023" bus1="BUS-9023" connectableBus1="BUS-9023" voltageLevelId2="VL-9023" bus2="BUS-9026" connectableBus2="BUS-9026"/>
