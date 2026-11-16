@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -78,17 +77,13 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public NetworkImpl getNetwork() {
-        if (removed) {
-            throw new PowsyblException("Cannot access network of removed hvdc line " + id);
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(id, removed);
         return networkRef.get();
     }
 
     @Override
     public Network getParentNetwork() {
-        if (removed) {
-            throw new PowsyblException("Cannot access parent network of removed hvdc line " + id);
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(id, removed);
         // the parent network is the network that contains both terminals of converter stations.
         Network subnetwork1 = converterStation1.getParentNetwork();
         Network subnetwork2 = converterStation2.getParentNetwork();
@@ -184,17 +179,13 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public AbstractHvdcConverterStation<?> getConverterStation1() {
-        if (removed) {
-            throw new PowsyblException("Cannot access converter station of removed hvdc line " + id);
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(id, removed);
         return converterStation1;
     }
 
     @Override
     public AbstractHvdcConverterStation<?> getConverterStation2() {
-        if (removed) {
-            throw new PowsyblException("Cannot access converter station of removed hvdc line " + id);
-        }
+        ValidationUtil.checkAccessOfRemovedEquipment(id, removed);
         return converterStation2;
     }
 

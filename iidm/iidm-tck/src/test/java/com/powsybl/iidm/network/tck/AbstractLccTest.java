@@ -93,16 +93,16 @@ public abstract class AbstractLccTest {
         assertNull(cs2.getHvdcLine());
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> hvdcLine.getConverterStation1());
-        assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
+        assertEquals("Cannot access removed equipment " + hvdcLine.getId(), exception.getMessage());
 
         exception = assertThrows(PowsyblException.class, () -> hvdcLine.getConverterStation2());
-        assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
+        assertEquals("Cannot access removed equipment " + hvdcLine.getId(), exception.getMessage());
 
         exception = assertThrows(PowsyblException.class, () -> hvdcLine.getNetwork());
-        assertEquals("Cannot access network of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
+        assertEquals("Cannot access removed equipment " + hvdcLine.getId(), exception.getMessage());
 
         exception = assertThrows(PowsyblException.class, () -> hvdcLine.getParentNetwork());
-        assertEquals("Cannot access parent network of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
+        assertEquals("Cannot access removed equipment " + hvdcLine.getId(), exception.getMessage());
 
         // remove
         int count = network.getLccConverterStationCount();
