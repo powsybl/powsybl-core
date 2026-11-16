@@ -20,6 +20,8 @@ import org.apache.commons.math3.complex.ComplexUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static java.lang.Double.isNaN;
+
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
  */
@@ -131,7 +133,7 @@ public final class UcteConverterHelper {
      * @return 0 if NaN, else same value as input
      */
     public static double getOrZero(final double value) {
-        return Double.isNaN(value) ? 0 : value;
+        return isNaN(value) || value == 0 ? 0 : value;
     }
 
     /**
