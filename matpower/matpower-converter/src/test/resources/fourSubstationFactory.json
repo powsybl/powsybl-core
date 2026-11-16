@@ -34,7 +34,7 @@
     "minimumVoltageMagnitude" : 0.975
   }, {
     "number" : 3,
-    "type" : "PQ",
+    "type" : "PV",
     "name" : "S4VL1_0",
     "realPowerDemand" : 240.0,
     "reactivePowerDemand" : 10.0,
@@ -59,6 +59,28 @@
     "status" : 1,
     "maximumRealPowerOutput" : 100.0,
     "minimumRealPowerOutput" : 0.0,
+    "pc1" : 0.0,
+    "pc2" : 0.0,
+    "qc1Min" : 0.0,
+    "qc1Max" : 0.0,
+    "qc2Min" : 0.0,
+    "qc2Max" : 0.0,
+    "rampAgc" : 0.0,
+    "rampTenMinutes" : 0.0,
+    "rampThirtyMinutes" : 0.0,
+    "rampQ" : 0.0,
+    "apf" : 0.0
+  }, {
+    "number" : 1,
+    "realPowerOutput" : 9.780605394241391,
+    "reactivePowerOutput" : 120.0,
+    "maximumReactivePowerOutput" : 500.0,
+    "minimumReactivePowerOutput" : -400.0,
+    "voltageMagnitudeSetpoint" : 0.0,
+    "totalMbase" : 0.0,
+    "status" : 1,
+    "maximumRealPowerOutput" : 300.0,
+    "minimumRealPowerOutput" : -300.0,
     "pc1" : 0.0,
     "pc2" : 0.0,
     "qc1Min" : 0.0,
@@ -114,28 +136,6 @@
     "rampThirtyMinutes" : 0.0,
     "rampQ" : 0.0,
     "apf" : 0.0
-  }, {
-    "number" : 1,
-    "realPowerOutput" : 9.780605394241391,
-    "reactivePowerOutput" : 120.0,
-    "maximumReactivePowerOutput" : 500.0,
-    "minimumReactivePowerOutput" : -400.0,
-    "voltageMagnitudeSetpoint" : 0.0,
-    "totalMbase" : 0.0,
-    "status" : 1,
-    "maximumRealPowerOutput" : 300.0,
-    "minimumRealPowerOutput" : -300.0,
-    "pc1" : 0.0,
-    "pc2" : 0.0,
-    "qc1Min" : 0.0,
-    "qc1Max" : 0.0,
-    "qc2Min" : 0.0,
-    "qc2Max" : 0.0,
-    "rampAgc" : 0.0,
-    "rampTenMinutes" : 0.0,
-    "rampThirtyMinutes" : 0.0,
-    "rampQ" : 0.0,
-    "apf" : 0.0
   } ],
   "branches" : [ {
     "from" : 1,
@@ -148,7 +148,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -162,8 +162,9 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
-  } ]
+  } ],
+  "dcLines" : [ ]
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -13,6 +14,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -24,33 +26,44 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private boolean valid = true;
 
     private final List<NodeTerminal> terminals;
-    private final Function<Terminal, Bus> getBusFromTerminal;
+    private List<TerminalExt> connectableTerminals = null;
+    private final int[] nodes;
 
     private NodeTerminal terminalRef;
 
-    CalculatedBusImpl(String id, String name, boolean fictitious, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals, Function<Terminal, Bus> getBusFromTerminal) {
+    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
-        this.getBusFromTerminal = Objects.requireNonNull(getBusFromTerminal);
+        this.nodes = Objects.requireNonNull(nodes).toArray();
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 
     /**
      * Find a terminal to retrieve voltage, angle or connected and synchronous component numbers.
-     * If the terminals list contains at least one element, we use the first terminal as reference.
-     * Otherwise this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
+     * If the terminals list contains at least one element, we use the first terminal with a defined voltage or angle value as reference.
+     * Otherwise, this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
      * and therefore can be used as reference.
      *
      * @param voltageLevel The {@literal VoltageLevel} instance to traverse
      * @param nodes The nodes which belong to this bus
      * @param terminals The terminals belong to this bus
-     * @return The first terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
+     * @return The first terminal with defined voltage or angle if exists, otherwise the first
+     * terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
-    private static NodeTerminal findTerminal(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+    private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         if (!terminals.isEmpty()) {
-            return terminals.get(0);
+            for (NodeTerminal terminal : terminals) {
+                if (hasDefinedVoltageOrAngle(terminal)) {
+                    return terminal;
+                }
+            }
+            return terminals.getFirst();
         }
         return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
+    }
+
+    private static boolean hasDefinedVoltageOrAngle(NodeTerminal t) {
+        return !Double.isNaN(t.getV()) || !Double.isNaN(t.getAngle());
     }
 
     private void checkValidity() {
@@ -69,6 +82,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         voltageLevel = null;
         terminals.clear();
         terminalRef = null;
+        connectableTerminals = null;
     }
 
     @Override
@@ -85,7 +99,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public Collection<TerminalExt> getConnectedTerminals() {
-        return getTerminals();
+        checkValidity();
+        return Collections.unmodifiableCollection(terminals);
     }
 
     @Override
@@ -97,7 +112,10 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Collection<TerminalExt> getTerminals() {
         checkValidity();
-        return Collections.unmodifiableCollection(terminals);
+        if (connectableTerminals == null) {
+            connectableTerminals = buildConnectableTerminalsCache();
+        }
+        return Collections.unmodifiableCollection(connectableTerminals);
     }
 
     @Override
@@ -142,10 +160,17 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         return super.getQ();
     }
 
+    private IntStream getCalculatedBusNodes() {
+        return IntStream.of(nodes);
+    }
+
     @Override
     public double getFictitiousP0() {
         checkValidity();
-        return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+        if (!voltageLevel.getNodeBreakerView().hasFictitiousP0()) {
+            return 0.0;
+        }
+        return getCalculatedBusNodes()
                 .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousP0(n))
                 .reduce(0.0, Double::sum);
     }
@@ -153,8 +178,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Bus setFictitiousP0(double p0) {
         checkValidity();
-        Networks.getNodes(id, voltageLevel, getBusFromTerminal).forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousP0(n, 0.0));
-        voltageLevel.getNodeBreakerView().setFictitiousP0(Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+        getCalculatedBusNodes().forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousP0(n, 0.0));
+        voltageLevel.getNodeBreakerView().setFictitiousP0(getCalculatedBusNodes()
                 .findFirst()
                 .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
                 p0);
@@ -164,7 +189,10 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getFictitiousQ0() {
         checkValidity();
-        return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+        if (!voltageLevel.getNodeBreakerView().hasFictitiousQ0()) {
+            return 0.0;
+        }
+        return getCalculatedBusNodes()
                 .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousQ0(n))
                 .reduce(0.0, Double::sum);
     }
@@ -172,8 +200,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Bus setFictitiousQ0(double q0) {
         checkValidity();
-        Networks.getNodes(id, voltageLevel, getBusFromTerminal).forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousQ0(n, 0.0));
-        voltageLevel.getNodeBreakerView().setFictitiousQ0(Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+        getCalculatedBusNodes().forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousQ0(n, 0.0));
+        voltageLevel.getNodeBreakerView().setFictitiousQ0(getCalculatedBusNodes()
                 .findFirst()
                 .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")), q0);
         return this;
@@ -284,15 +312,15 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
         checkValidity();
-        return super.getDanglingLines(danglingLineFilter);
+        return super.getBoundaryLines(boundaryLineFilter);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
         checkValidity();
-        return super.getDanglingLineStream(danglingLineFilter);
+        return super.getBoundaryLineStream(boundaryLineFilter);
     }
 
     @Override
@@ -341,5 +369,30 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     public void visitConnectedOrConnectableEquipments(TopologyVisitor visitor) {
         checkValidity();
         super.visitConnectedOrConnectableEquipments(visitor);
+    }
+
+    private List<TerminalExt> buildConnectableTerminalsCache() {
+        List<TerminalExt> connectableTerminalsList = new ArrayList<>(terminals);
+        int[] vlNodes = voltageLevel.getNodeBreakerView().getNodes();
+        for (int n : vlNodes) {
+            Terminal t = voltageLevel.getNodeBreakerView().getTerminal(n);
+            if (t instanceof TerminalExt te) {
+                try {
+                    Bus connectableBus = te.getBusView().getConnectableBus();
+                    if (this.equals(connectableBus) && !connectableTerminalsList.contains(te)) {
+                        connectableTerminalsList.add(te);
+                    }
+                } catch (PowsyblException e) {
+                    // ignore removed equipments or inaccessible buses
+                }
+            }
+        }
+        return connectableTerminalsList;
+    }
+
+    @Override
+    public CalculatedBus setId(String id) {
+        // Calculated bus id should not be updated
+        throw new PowsyblException("Updating the id of a calculated bus is not supported.");
     }
 }

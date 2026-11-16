@@ -113,6 +113,17 @@ final class CgmesCatalogsConstants {
     static final String CGMES_3_MICRO_GRID_NL_SSH = "20210209T1930Z_1D_NL_SSH_9.xml";
     static final String CGMES_3_MICRO_GRID_EQ_BD = "20171002T0930Z_ENTSO-E_EQ_BD_2.xml";
 
+    static final String RELI_CAP_GRID_BASE = "/relicap-grid/Grid";
+    static final String RELI_CAP_GRID_COMMON = RELI_CAP_GRID_BASE + "/CommonAndBoundaryData/";
+    static final String RELI_CAP_GRID_BELGOVIA = RELI_CAP_GRID_BASE + "/IGM_Belgovia/";
+    static final String RELI_CAP_GRID_BRITHEIM = RELI_CAP_GRID_BASE + "/IGM_Britheim/";
+    static final String RELI_CAP_GRID_ESPHEIM = RELI_CAP_GRID_BASE + "/IGM_Espheim/";
+    static final String RELI_CAP_GRID_GALIA = RELI_CAP_GRID_BASE + "/IGM_Galia/";
+    static final String RELI_CAP_GRID_NORDHEIM = RELI_CAP_GRID_BASE + "/IGM_Nordheim/";
+    static final String RELI_CAP_GRID_SVEDALA = RELI_CAP_GRID_BASE + "/IGM_Svedala/";
+    static final String RELI_CAP_GRID_HVDC_ESPHEIM_SVEDALA = RELI_CAP_GRID_BASE + "/IGM_HVDC_Espheim-Svedala/";
+    static final String RELI_CAP_GRID_HVDC_NORDHEIM_GALIA = RELI_CAP_GRID_BASE + "/IGM_HVDC_Nordheim-Galia/";
+
     private CgmesCatalogsConstants() {
     }
 }

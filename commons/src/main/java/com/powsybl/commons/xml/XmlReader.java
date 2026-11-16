@@ -3,35 +3,47 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.xml;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.AbstractTreeDataReader;
+import org.apache.commons.csv.CSVParser;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
+
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class XmlReader extends AbstractTreeDataReader {
 
-    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
-
     private final XMLStreamReader reader;
     private final Map<String, String> namespaceVersionsMap;
     private final Collection<ExtensionSerDe> extensionProviders;
 
     public XmlReader(InputStream is, Map<String, String> namespaceVersionMap, Collection<ExtensionSerDe> extensionProviders) throws XMLStreamException {
-        this.reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(Objects.requireNonNull(is));
+        this.reader = getXMLInputFactory().createXMLStreamReader(Objects.requireNonNull(is));
         int state = reader.next();
         while (state == XMLStreamConstants.COMMENT) {
             state = reader.next();
@@ -46,13 +58,13 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Map<String, String> readVersions() {
+    public Map<String, String> readExtensionVersions() {
+        int namespaceCount = reader.getNamespaceCount();
+        List<String> namespaceUris = IntStream.range(0, namespaceCount).boxed().map(reader::getNamespaceURI).toList();
         Map<String, String> versions = new HashMap<>();
         for (ExtensionSerDe<?, ?> e : extensionProviders) {
-            String namespaceUri = reader.getNamespaceURI(e.getNamespacePrefix());
-            if (namespaceUri != null) {
-                versions.put(e.getExtensionName(), e.getVersion(namespaceUri));
-            }
+            e.getNamespaceUriStream().filter(namespaceUris::contains).findFirst()
+                    .ifPresent(uri -> versions.put(e.getExtensionName(), e.getVersion(uri)));
         }
         return versions;
     }
@@ -60,6 +72,11 @@ public class XmlReader extends AbstractTreeDataReader {
     @Override
     public double readDoubleAttribute(String name, double defaultValue) {
         return XmlUtil.readDoubleAttribute(reader, name, defaultValue);
+    }
+
+    @Override
+    public OptionalDouble readOptionalDoubleAttribute(String name) {
+        return XmlUtil.readOptionalDoubleAttribute(reader, name);
     }
 
     @Override
@@ -73,8 +90,22 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Integer readIntAttribute(String name) {
-        return XmlUtil.readIntegerAttribute(reader, name);
+    public String readStringAttribute(String name, String defaultValue) {
+        return XmlUtil.readStringAttribute(reader, name, defaultValue);
+    }
+
+    @Override
+    public int readIntAttribute(String name) {
+        Integer value = XmlUtil.readIntegerAttribute(reader, name);
+        if (value == null) {
+            throw new PowsyblException("XML parsing: cannot find required attribute '" + name + "'");
+        }
+        return value;
+    }
+
+    @Override
+    public OptionalInt readOptionalIntAttribute(String name) {
+        return XmlUtil.readOptionalIntegerAttribute(reader, name);
     }
 
     @Override
@@ -83,13 +114,22 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Boolean readBooleanAttribute(String name) {
-        return XmlUtil.readBooleanAttribute(reader, name);
+    public boolean readBooleanAttribute(String name) {
+        Boolean value = XmlUtil.readBooleanAttribute(reader, name);
+        if (value == null) {
+            throw new PowsyblException("XML parsing: cannot find required attribute '" + name + "'");
+        }
+        return value;
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
         return XmlUtil.readBooleanAttribute(reader, name, defaultValue);
+    }
+
+    @Override
+    public Optional<Boolean> readOptionalBooleanAttribute(String name) {
+        return Optional.ofNullable(XmlUtil.readBooleanAttribute(reader, name));
     }
 
     @Override
@@ -118,12 +158,23 @@ public class XmlReader extends AbstractTreeDataReader {
         if (arrayString == null) {
             return new String[0];
         }
-        return arrayString.split(",");
+        try (CSVParser parser = XmlUtil.getCsvFormat().parse(new StringReader(arrayString))) {
+            // Get a single CSV value, since our values are serialized as a single string
+            return parser.iterator().next().values();
+        } catch (IOException e) {
+            // Should not happen as StringReader doesn't throw
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
         XmlUtil.readSubElements(reader, childNodeReader);
+    }
+
+    @Override
+    public void skipNode() {
+        readChildNodes(elementName -> skipNode());
     }
 
     @Override
@@ -139,7 +190,7 @@ public class XmlReader extends AbstractTreeDataReader {
     public void close() {
         try {
             reader.close();
-            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+            XmlUtil.gcXmlInputFactory(getXMLInputFactory());
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

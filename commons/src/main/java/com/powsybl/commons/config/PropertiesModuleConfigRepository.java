@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
@@ -12,7 +13,11 @@ import org.slf4j.LoggerFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -20,6 +25,8 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+
+import static com.powsybl.commons.xml.XmlUtil.getXMLOutputFactory;
 
 /**
  *
@@ -58,7 +65,7 @@ public class PropertiesModuleConfigRepository implements ModuleConfigRepository 
     }
 
     public static void writeXml(Path configDir, Path xmlFile) throws IOException, XMLStreamException {
-        XMLOutputFactory output = XMLOutputFactory.newInstance();
+        XMLOutputFactory output = getXMLOutputFactory();
         try (Writer writer = Files.newBufferedWriter(xmlFile, StandardCharsets.UTF_8)) {
             XMLStreamWriter xmlWriter = output.createXMLStreamWriter(writer);
             try {

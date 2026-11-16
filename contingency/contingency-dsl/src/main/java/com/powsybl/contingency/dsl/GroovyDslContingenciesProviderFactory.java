@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.dsl;
 
@@ -23,7 +24,8 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
     @Override
     public GroovyDslContingenciesProvider create() {
         Path dslFile = PlatformConfig.defaultConfig().getOptionalModuleConfig("groovy-dsl-contingencies")
-                .map(config -> config.getOptionalPathProperty("dsl-file").orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: property dsl-file not found in module groovy-dsl-contingencies")))
+                .map(config -> config.getOptionalPathProperty("dsl-file")
+                    .orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: property dsl-file not found in module groovy-dsl-contingencies")))
                 .orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: Module groovy-dsl-contingencies not found"));
         return new GroovyDslContingenciesProvider(dslFile);
     }

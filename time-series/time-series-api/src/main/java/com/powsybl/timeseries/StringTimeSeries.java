@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -51,4 +52,24 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
         return buffer.toArray();
     }
+
+    public String[] toCompactArray() {
+        if (chunks.isEmpty()) {
+            return new String[0];
+        }
+        int minOffset = getMinOffset();
+        int compactLength = getMaxChunkEnd() - minOffset;
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, compactLength);
+        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
+        return buffer.toArray();
+    }
+
+    public String get(int index) {
+        return getStringTimeSeriesValues().get(index);
+    }
+
+    public StringTimeSeriesValues getStringTimeSeriesValues() {
+        return new StringTimeSeriesValues(toCompactArray(), getMinOffset());
+    }
+
 }

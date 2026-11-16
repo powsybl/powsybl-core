@@ -3,13 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -17,6 +21,7 @@ import gnu.trove.list.array.TIntArrayList;
  */
 class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
+    public static final String R_ATTRIBUTE = "r";
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
     private double r;
@@ -94,7 +99,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
+        ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
         this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
@@ -111,7 +116,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setR(double r) {
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
         double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
@@ -155,7 +160,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint,
-                n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -194,6 +199,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
 
+        convertersMode.remove(convertersMode.size() - number, number);
+
         activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
     }
 
@@ -228,6 +235,31 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
+    }
+
+    @Override
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isTypeSwitchToOperate,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isSwitchOpenable,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    private List<Terminal> getTerminalsOfConverterStations(TwoSides side) {
+        return side == null ? List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) : switch (side) {
+            case ONE -> List.of(getConverterStation1().getTerminal());
+            case TWO -> List.of(getConverterStation2().getTerminal());
+        };
     }
 
     @Override

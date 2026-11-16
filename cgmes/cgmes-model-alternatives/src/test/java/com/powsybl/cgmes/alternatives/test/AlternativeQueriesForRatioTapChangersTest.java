@@ -3,25 +3,25 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.alternatives.test;
 
-import java.io.IOException;
-import java.util.function.Consumer;
-
+import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
+import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.QueryCatalog;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
-import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.cgmes.model.GridModelReferenceResources;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.QueryCatalog;
-import com.powsybl.triplestore.api.TripleStoreFactory;
+import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

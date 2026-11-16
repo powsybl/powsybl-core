@@ -1,10 +1,15 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
  * Static VAR compensator model.
@@ -20,7 +25,7 @@ package com.powsybl.iidm.network;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -94,13 +99,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
-
-    enum RegulationMode {
-        VOLTAGE,
-        REACTIVE_POWER,
-        OFF
-    }
+public interface StaticVarCompensator extends Injection<StaticVarCompensator>, VoltageRegulationHolder<StaticVarCompensator> {
 
     /**
      * Get the minimum susceptance in S.
@@ -133,7 +132,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working variant.</p>
      * @return the voltage setpoint
+     * @deprecated use {@link #getRegulatingTargetV()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getVoltageSetpoint();
 
     /**
@@ -142,7 +143,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetV(double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
 
     /**
@@ -150,7 +153,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
      * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
+     * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getReactivePowerSetpoint();
 
     /**
@@ -159,14 +164,18 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetQ(double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
      * <p>Get the regulating mode.</p>
      * <p>Depends on the working variant.</p>
      * @return the regulating mode
+     * @deprecated use {@link VoltageRegulation#getMode()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RegulationMode getRegulationMode();
 
     /**
@@ -174,24 +183,41 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @param regulationMode the regulating mode
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setMode(RegulationMode)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);
 
     /**
-     * <p>Get the terminal used for regulation.</p>
-     * @return the terminal used for regulation
+     * Set the regulating status.
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
-    default Terminal getRegulatingTerminal() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    StaticVarCompensator setRegulating(boolean regulating);
 
     /**
      * <p>Set the terminal used for regulation.</p>
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not implemented");
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the load sign convention.</p>
+     */
+    @Override
+    double getLocalTargetQ();
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the load sign convention.</p>
+     */
+    @Override
+    StaticVarCompensator setLocalTargetQ(double targetQ);
 
     @Override
     default IdentifiableType getType() {

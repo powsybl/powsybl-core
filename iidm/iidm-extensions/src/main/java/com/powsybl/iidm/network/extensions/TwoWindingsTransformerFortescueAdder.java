@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -20,6 +21,8 @@ public interface TwoWindingsTransformerFortescueAdder extends ExtensionAdder<Two
     TwoWindingsTransformerFortescueAdder withXz(double xz);
 
     TwoWindingsTransformerFortescueAdder withFreeFluxes(boolean freeFluxes);
+
+    TwoWindingsTransformerFortescueAdder withXm(double xm);
 
     TwoWindingsTransformerFortescueAdder withConnectionType1(WindingConnectionType connectionType1);
 

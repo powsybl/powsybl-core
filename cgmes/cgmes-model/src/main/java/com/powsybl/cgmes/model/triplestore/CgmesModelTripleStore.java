@@ -3,13 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model.triplestore;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
@@ -30,8 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.CGMES_EQ_3_OR_GREATER_PREFIX;
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
@@ -41,7 +42,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
  */
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
-    public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore) {
+    public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore, String queryCatalogName) {
         super();
         this.cimNamespace = cimNamespace;
         this.cimVersion = cimVersionFromCimNamespace(cimNamespace);
@@ -49,12 +50,23 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         tripleStore.defineQueryPrefix("cim", cimNamespace);
         tripleStore.defineQueryPrefix("entsoe", CgmesNamespace.ENTSOE_NAMESPACE);
         tripleStore.defineQueryPrefix("eu", CgmesNamespace.EU_NAMESPACE);
-        queryCatalog = queryCatalogFor(cimVersion);
+        queryCatalog = queryCatalogFor(cimVersion, queryCatalogName);
         Objects.requireNonNull(queryCatalog);
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
+    public void close() {
+        this.tripleStore.close();
+    }
+
+    @Override
+    public void setQueryCatalog(String queryCatalogName) {
+        this.invalidateCaches();
+        this.queryCatalog = queryCatalogFor(this.cimVersion, queryCatalogName);
+    }
+
+    @Override
+    public void read(InputStream is, String baseName, String contextName, ReportNode reportNode) {
         // Reset cached nodeBreaker value everytime we read new data
         nodeBreaker = null;
         tripleStore.read(is, baseName, contextName);
@@ -74,8 +86,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public void write(DataSource ds) {
         try {
             tripleStore.write(ds);
-        } catch (TripleStoreException x) {
-            throw new CgmesModelException(String.format("Writing. Triple store problem %s", ds), x);
+        } catch (TripleStoreException e) {
+            throw new CgmesModelException(String.format("Writing. Triple store problem %s", ds), e);
         }
     }
 
@@ -100,30 +112,22 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean hasEquipmentCore() {
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
-            }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                if (p != null && isEquipmentCore(p)) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Model contains Equipment Core data profile in model {}",
-                                m.get(CgmesNames.FULL_MODEL));
-                    }
-                    return true;
-                }
-            }
-
-            // We have a query for model profiles
-            // but none of the FullModel objects contains EquipmentCore profile
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
             return false;
         }
-        // If we do not have a query for model profiles we assume equipment core is
-        // available
-        // (This covers the case for CIM14 files)
-        return true;
+        for (PropertyBag m : r) {
+            String p = m.get(PROFILE);
+            if (p != null && isEquipmentCore(p)) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Model contains Equipment Core data profile in model {}",
+                            m.get(CgmesNames.FULL_MODEL));
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -133,26 +137,23 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // and models that have TopologyBoundary profile
         boolean hasEquipmentBoundary = false;
         boolean hasTopologyBoundary = false;
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
+            return false;
+        }
+        for (PropertyBag m : r) {
+            String p = m.get(PROFILE);
+            String mid = m.get(CgmesNames.FULL_MODEL);
+            if (p != null && p.contains("/EquipmentBoundary/")) {
+                LOG.info("Model contains EquipmentBoundary data in model {}", mid);
+                hasEquipmentBoundary = true;
             }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                String mid = m.get(CgmesNames.FULL_MODEL);
-                if (p != null && p.contains("/EquipmentBoundary/")) {
-                    LOG.info("Model contains EquipmentBoundary data in model {}", mid);
-                    hasEquipmentBoundary = true;
-                }
-                if (p != null && p.contains("/TopologyBoundary/")) {
-                    LOG.info("Model contains TopologyBoundary data in model {}", mid);
-                    hasTopologyBoundary = true;
-                }
+            if (p != null && p.contains("/TopologyBoundary/")) {
+                LOG.info("Model contains TopologyBoundary data in model {}", mid);
+                hasTopologyBoundary = true;
             }
         }
         // If we do not have a query for model profiles we assume no boundary exist
-        // (Maybe for CIM14 data sources we should rely on file names ?)
         return hasEquipmentBoundary && hasTopologyBoundary;
     }
 
@@ -167,14 +168,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private boolean computeIsNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
-        if (!queryCatalog.containsKey(MODEL_PROFILES)) {
-            return false;
-        }
         PropertyBags r = namedQuery(MODEL_PROFILES);
         if (r == null) {
             return false;
         }
-        if (allEqCgmes3OrGreater(r)) {
+        if (allEqCgmes3OrGreater(r) && !connectivityNodes().isEmpty()) {
             return true;
         }
         // Only consider is node breaker if all models that have profile
@@ -252,9 +250,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
     }
 
+    /**
+     * Query the model description (the metadata information) for all profiles (EQ, TP, ...).
+     * @return Property bags (one bag per profile) with all the model description found.
+     */
     @Override
-    public PropertyBags fullModel(String cgmesProfile) {
-        return namedQuery("fullModel", cgmesProfile);
+    public PropertyBags fullModels() {
+        return namedQuery("fullModels");
     }
 
     @Override
@@ -423,6 +425,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags generatingUnits() {
+        return namedQuery("generatingUnits");
+    }
+
+    @Override
     public PropertyBags busBarSections() {
         return namedQuery("busbarSections");
     }
@@ -463,8 +470,18 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablePoints() {
+        return namedQuery("ratioTapChangerTablePoints");
+    }
+
+    @Override
     public PropertyBags phaseTapChangers() {
         return namedQuery("phaseTapChangers");
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        return namedQuery("phaseTapChangerTablePoints");
     }
 
     @Override
@@ -493,9 +510,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
-        Objects.requireNonNull(scId);
-        return namedQuery("nonlinearShuntCompensatorPoints", scId);
+    public PropertyBags nonlinearShuntCompensatorPoints() {
+        return namedQuery("nonlinearShuntCompensatorPoints");
     }
 
     @Override
@@ -504,8 +520,18 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags synchronousMachines() {
-        return namedQuery("synchronousMachines");
+    public PropertyBags synchronousMachinesForUpdate() {
+        return namedQuery("synchronousMachinesForUpdate");
+    }
+
+    @Override
+    public PropertyBags synchronousMachinesGenerators() {
+        return namedQuery("synchronousMachinesGenerators");
+    }
+
+    @Override
+    public PropertyBags synchronousMachinesCondensers() {
+        return namedQuery("synchronousMachinesCondensers");
     }
 
     @Override
@@ -534,30 +560,18 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags ratioTapChangerTablesPoints() {
-        return namedQuery("ratioTapChangerTablesPoints");
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTablesPoints() {
-        return namedQuery("phaseTapChangerTablesPoints");
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        Objects.requireNonNull(tableId);
-        return namedQuery("ratioTapChangerTable", tableId);
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        Objects.requireNonNull(tableId);
-        return namedQuery("phaseTapChangerTable", tableId);
-    }
-
-    @Override
     public PropertyBags controlAreas() {
         return namedQuery("controlAreas");
+    }
+
+    @Override
+    public PropertyBags dcSwitches() {
+        return namedQuery("dcSwitches");
+    }
+
+    @Override
+    public PropertyBags dcGrounds() {
+        return namedQuery("dcGrounds");
     }
 
     @Override
@@ -576,6 +590,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags dcNodes() {
+        return namedQuery("dcNodes");
+    }
+
+    @Override
     public PropertyBags tieFlows() {
         return namedQuery("tieFlows");
     }
@@ -591,6 +610,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags grounds() {
+        return namedQuery("grounds");
+    }
+
+    @Override
+    public PropertyBags svVoltages() {
+        return namedQuery("svVoltages");
+    }
+
+    @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);
     }
@@ -598,7 +627,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public PropertyBags namedQuery(String name, String... params) {
         String queryText = queryCatalog.get(name);
         if (queryText == null) {
-            LOG.warn("Query [{}] not found in catalog", name);
+            // In CGMES update it is normal to not have a query, it is ok to just return empty PropertyBags
+            LOG.debug("Query [{}] not found in catalog", name);
             return new PropertyBags();
         }
         // Optimization hint: Now we do the parameter injection by ourselves,
@@ -609,6 +639,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         PropertyBags r = query(queryText);
         final long t1 = System.currentTimeMillis();
         if (LOG.isDebugEnabled()) {
+            LOG.debug("results query {}{}{}", name, System.lineSeparator(), r.tabulateLocals());
             LOG.debug("dt query {} {} ms, result set size = {}", name, t1 - t0, r.size());
         }
         return r;
@@ -670,7 +701,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     private String getBaseUri(String baseName) {
-        if (tripleStore.getImplementationName().equals("rdf4j")) {
+        if ("rdf4j".equals(tripleStore.getImplementationName())) {
             return baseName.concat("/#");
         } else {
             return baseName.concat("#");
@@ -682,7 +713,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // TODO Remove all contexts that are related to the profile of the subset
         // For example for state variables:
         // <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
-        // For CIM14 data files we do not have the profile,
         Set<String> contextNames = tripleStore.contextNames();
         for (String contextName : contextNames) {
             if (subset.isValidName(contextName)) {
@@ -696,9 +726,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String contextName = contextNameFor(subset);
         try {
             tripleStore.add(contextName, cimNamespace, type, objects);
-        } catch (TripleStoreException x) {
+        } catch (TripleStoreException e) {
             String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
-            throw new CgmesModelException(msg, x);
+            throw new CgmesModelException(msg, e);
         }
     }
 
@@ -713,9 +743,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             } else {
                 tripleStore.add(contextName, cimNamespace, type, objects);
             }
-        } catch (TripleStoreException x) {
+        } catch (TripleStoreException e) {
             String msg = String.format("Adding objects of type %s to context %s", type, context);
-            throw new CgmesModelException(msg, x);
+            throw new CgmesModelException(msg, e);
         }
     }
 
@@ -752,11 +782,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return modelId() + "_" + subset + ".xml";
     }
 
-    private QueryCatalog queryCatalogFor(int cimVersion) {
+    private QueryCatalog queryCatalogFor(int cimVersion, String queryCatalogName) {
         QueryCatalog qc = null;
         String resourceName = null;
         if (cimVersion > 0) {
-            resourceName = String.format("CIM%d.sparql", cimVersion);
+            resourceName = String.format("CIM%d%s.sparql", cimVersion, queryCatalogName);
         }
         if (resourceName != null) {
             qc = new QueryCatalog(resourceName);
@@ -781,7 +811,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final String cimNamespace;
     private final int cimVersion;
     private final TripleStore tripleStore;
-    private final QueryCatalog queryCatalog;
+    private QueryCatalog queryCatalog;
     private Boolean nodeBreaker = null;
 
     private static final String MODEL_PROFILES = "modelProfiles";

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -12,6 +13,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.IdBasedBusRef;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyLevel;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -156,7 +161,8 @@ public class SensitivityFactor {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                    boolean variableSet = Objects.requireNonNull(context.variableSet, "Parameter variableSet is missing");
+                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, variableSet,
                             new ContingencyContext(context.contingencyId, context.contingencyContextType));
                 }
             }
@@ -167,7 +173,7 @@ public class SensitivityFactor {
     }
 
     static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         switch (fieldName) {
             case "functionType":
                 context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
@@ -195,10 +201,25 @@ public class SensitivityFactor {
         }
     }
 
+    public static String resolveBusId(String functionId, SensitivityFunctionType functionType, Network network) {
+        if (functionType == SensitivityFunctionType.BUS_VOLTAGE) {
+            Bus bus = network.getBusView().getBus(functionId);
+            if (bus != null) {
+                return bus.getId();
+            } else {
+                Bus busRef = new IdBasedBusRef(functionId).resolve(network, TopologyLevel.BUS_BRANCH)
+                        .orElseThrow(() -> new PowsyblException("The bus ref for '" + functionId + "' cannot be resolved."));
+                return busRef.getId();
+            }
+        }
+        return functionId;
+    }
+
     public static List<SensitivityFactor> createMatrix(SensitivityFunctionType functionType, Collection<String> functionIds,
                                                        SensitivityVariableType variableType, Collection<String> variableIds,
                                                        boolean variableSet, ContingencyContext contingencyContext) {
-        return functionIds.stream().flatMap(functionId -> variableIds.stream().map(variableId -> new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)))
+        return functionIds.stream().flatMap(functionId -> variableIds.stream()
+                .map(variableId -> new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)))
                 .collect(Collectors.toList());
     }
 }

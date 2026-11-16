@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -10,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface BranchAdder<T extends Branch<? super T> & Connectable<? super T>, A extends BranchAdder> extends IdentifiableAdder<T, A> {
+public interface BranchAdder<T extends Branch<T> & Connectable<T>, A extends BranchAdder> extends ConnectableAdder<T, A> {
 
     A setVoltageLevel1(String voltageLevelId1);
 

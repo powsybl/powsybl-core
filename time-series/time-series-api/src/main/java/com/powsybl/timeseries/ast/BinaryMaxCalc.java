@@ -10,6 +10,7 @@ package com.powsybl.timeseries.ast;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -52,6 +53,6 @@ public class BinaryMaxCalc extends AbstractBinaryMinMax {
 
     @Override
     public int hashCode() {
-        return left.hashCode() + right.hashCode();
+        return Objects.hash(left, right, NAME);
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -10,6 +11,7 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,8 +83,10 @@ class ComponentsTest {
                 .setMinP(-500)
                 .setMaxP(500)
                 .setTargetP(150)
-                .setTargetV(405)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(405)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setBus(bus1.getId())
                 .setConnectableBus(bus1.getId())
                 .add();
@@ -104,8 +108,10 @@ class ComponentsTest {
                 .setMinP(-500)
                 .setMaxP(500)
                 .setTargetP(50)
-                .setTargetV(405.0d)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(405.0d)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setBus(bus2.getId())
                 .setConnectableBus(bus2.getId())
                 .add();

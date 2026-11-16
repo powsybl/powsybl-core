@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -12,14 +13,27 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
+
+import java.util.*;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+
+import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class ConnectableSerDeUtil {
 
+    static final String VALUE_KEY = "value";
+    static final String ACCEPTABLE_DURATION_KEY = "acceptableDuration";
+    static final String FICTITIOUS_KEY = "fictitious";
     static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME = "temporaryLimits";
     static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NAME = "temporaryLimit";
+    static final String PERMANENT_LIMIT_VALUE = "permanentLimit";
+    static final String PERMANENT_LIMIT_NAME = "permanentLimitName";
 
     private ConnectableSerDeUtil() {
     }
@@ -36,44 +50,61 @@ public final class ConnectableSerDeUtil {
     static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
     static final String ACTIVE_POWER_LIMITS_3 = "activePowerLimits3";
     static final String APPARENT_POWER_LIMITS_3 = "apparentPowerLimits3";
-
     static final String CURRENT_LIMITS = "currentLimits";
+    static final String LIMITS_GROUP = "operationalLimitsGroup";
+    static final String LIMITS_GROUP_1 = "operationalLimitsGroup1";
+    static final String LIMITS_GROUP_2 = "operationalLimitsGroup2";
+    static final String LIMITS_GROUP_3 = "operationalLimitsGroup3";
+    static final String LIMITS_GROUPS = "operationalLimitsGroups";
+    static final String LIMITS_GROUPS_1 = "operationalLimitsGroups1";
+    static final String LIMITS_GROUPS_2 = "operationalLimitsGroups2";
+    static final String LIMITS_GROUPS_3 = "operationalLimitsGroups3";
+    static final String PROPERTY = "property";
+    static final String SELECTED_GROUP_ID = "selectedOperationalLimitsGroupId";
+    static final String ALL_SELECTED_GROUP_IDS = "selectedOperationalLimitsGroupIds";
+    static final String DETECTION_KIND = "detectionKind";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
-    }
-
-    public static boolean hasValidOperationalLimits(Branch<?> branch, NetworkSerializerContext context) {
-        if (context.getVersion().compareTo(IidmVersion.V_1_5) >= 0) {
-            return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
-        }
-        return branch.getCurrentLimits1().isPresent() || branch.getCurrentLimits2().isPresent();
-    }
-
-    public static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkSerializerContext context) {
-        if (context.getVersion().compareTo(IidmVersion.V_1_5) >= 0) {
-            return !limitsHolder.getOperationalLimits().isEmpty();
-        }
-        return limitsHolder.getCurrentLimits().isPresent();
     }
 
     public static void writeNodeOrBus(Integer index, Terminal t, NetworkSerializerContext context) {
         if (index != null) {
             context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
-        TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(t.getVoltageLevel(), context);
         switch (topologyLevel) {
-            case NODE_BREAKER:
-                writeNode(index, t, context);
-                break;
-            case BUS_BREAKER:
-                writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
-                break;
-            case BUS_BRANCH:
-                writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+            case NODE_BREAKER -> writeNode(index, t, context);
+            case BUS_BREAKER -> writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
+            case BUS_BRANCH -> writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+        }
+    }
+
+    public static void writeNodeOrBus(AcDcConverter<?> converter, NetworkSerializerContext context) {
+        Terminal t1 = converter.getTerminal1();
+        Optional<Terminal> t2 = converter.getTerminal2();
+        // Note that t1 and t2 are in the same voltage level, and therefore share the same topology level.
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(t1.getVoltageLevel(), context);
+        switch (topologyLevel) {
+            case NODE_BREAKER -> {
+                context.getWriter().writeIntAttribute(NODE + "1", t1.getNodeBreakerView().getNode());
+                Integer n2 = t2.map(t -> t.getNodeBreakerView().getNode()).orElse(null);
+                context.getWriter().writeOptionalIntAttribute(NODE + "2", n2);
+            }
+            case BUS_BREAKER -> {
+                writeBus(1, t1.getBusBreakerView().getBus(), t1.getBusBreakerView().getConnectableBus(), context);
+                Bus b2 = t2.map(t -> t.getBusBreakerView().getBus()).orElse(null);
+                Bus cb2 = t2.map(t -> t.getBusBreakerView().getConnectableBus()).orElse(null);
+                writeBus(2, b2, cb2, context);
+            }
+            case BUS_BRANCH -> {
+                writeBus(1, t1.getBusView().getBus(), t1.getBusView().getConnectableBus(), context);
+                Bus b2 = t2.map(t -> t.getBusView().getBus()).orElse(null);
+                Bus cb2 = t2.map(t -> t.getBusView().getConnectableBus()).orElse(null);
+                writeBus(2, b2, cb2, context);
+            }
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
     }
 
@@ -82,79 +113,87 @@ public final class ConnectableSerDeUtil {
     }
 
     private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkSerializerContext context) {
-        if (bus != null) {
-            context.getWriter().writeStringAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
-        }
-        if (connectableBus != null) {
-            context.getWriter().writeStringAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
+        context.getWriter().writeStringAttribute(BUS + indexToString(index),
+                Optional.ofNullable(bus).map(b -> context.getAnonymizer().anonymizeString(b.getId())).orElse(null));
+        context.getWriter().writeStringAttribute(CONNECTABLE_BUS + indexToString(index),
+                Optional.ofNullable(connectableBus).map(b -> context.getAnonymizer().anonymizeString(b.getId())).orElse(null));
+    }
+
+    public static void readNodeOrBus(InjectionAdder<?, ?> adder, NetworkDeserializerContext context, TopologyKind topologyKind) {
+        readNodeOrBus(adder, "", context, topologyKind);
+    }
+
+    public static void readNodeOrBus(InjectionAdder<?, ?> adder, String suffix, NetworkDeserializerContext context, TopologyKind topologyKind) {
+        readNodeOrBus(suffix, topologyKind, adder::setNode, adder::setBus, adder::setConnectableBus, context);
+    }
+
+    private static void readNode(IntConsumer nodeAdder, String suffix, NetworkDeserializerContext context) {
+        nodeAdder.accept(context.getReader().readIntAttribute(NODE + suffix));
+    }
+
+    private static void readBus(Consumer<String> busAdder, String suffix, NetworkDeserializerContext context) {
+        busAdder.accept(context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + suffix)));
+    }
+
+    private static void readConnectableBus(Consumer<String> busAdder, String suffix, NetworkDeserializerContext context) {
+        busAdder.accept(context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + suffix)));
+    }
+
+    public static void readVoltageLevelAndNodeOrBus(BranchAdder<?, ?> adder, Network network, NetworkDeserializerContext context) {
+        readVoltageLevelAndNodeOrBus("1", adder::setVoltageLevel1, adder::setNode1, adder::setBus1, adder::setConnectableBus1, network, context);
+        readVoltageLevelAndNodeOrBus("2", adder::setVoltageLevel2, adder::setNode2, adder::setBus2, adder::setConnectableBus2, network, context);
+    }
+
+    public static void readNodeOrBus(AcDcConverterAdder<?, ?> adder, TopologyKind topologyKind, NetworkDeserializerContext context) {
+        switch (topologyKind) {
+            case NODE_BREAKER -> {
+                int node1 = context.getReader().readIntAttribute(NODE + "1");
+                adder.setNode1(node1);
+                OptionalInt node2 = context.getReader().readOptionalIntAttribute(NODE + "2");
+                node2.ifPresent(adder::setNode2);
+            }
+            case BUS_BREAKER -> {
+                readBus(adder::setBus1, "1", context);
+                readConnectableBus(adder::setConnectableBus1, "1", context);
+                readBus(adder::setBus2, "2", context);
+                readConnectableBus(adder::setConnectableBus2, "2", context);
+            }
+            default -> throw new IllegalStateException();
         }
     }
 
-    public static void readNodeOrBus(InjectionAdder<?, ?> adder, NetworkDeserializerContext context) {
-        readNodeOrBus(adder, "", context);
+    private static void readVoltageLevelAndNodeOrBus(String suffix, Consumer<String> voltageLevelSetter,
+                                                     IntConsumer nodeSetter, Consumer<String> busSetter,
+                                                     Consumer<String> connectableBusSetter, Network network,
+                                                     NetworkDeserializerContext context) {
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + suffix));
+        voltageLevelSetter.accept(voltageLevelId);
+        readNodeOrBus(suffix, getTopologKind(voltageLevelId, network), nodeSetter, busSetter, connectableBusSetter, context);
     }
 
-    public static void readNodeOrBus(InjectionAdder<?, ?> adder, String suffix, NetworkDeserializerContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + suffix));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + suffix));
-        Integer node = context.getReader().readIntAttribute(NODE + suffix);
-        if (bus != null) {
-            adder.setBus(bus);
-        }
-        if (connectableBus != null) {
-            adder.setConnectableBus(connectableBus);
-        }
-        if (node != null) {
-            adder.setNode(node);
+    private static void readNodeOrBus(String suffix, TopologyKind topologyKind, IntConsumer nodeSetter,
+                                      Consumer<String> busSetter, Consumer<String> connectableBusSetter,
+                                      NetworkDeserializerContext context) {
+        switch (topologyKind) {
+            case NODE_BREAKER -> readNode(nodeSetter, suffix, context);
+            case BUS_BREAKER -> {
+                readBus(busSetter, suffix, context);
+                readConnectableBus(connectableBusSetter, suffix, context);
+            }
+            default -> throw new IllegalStateException();
         }
     }
 
-    public static void readNodeOrBus(BranchAdder<?, ?> adder, NetworkDeserializerContext context) {
-        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId1"));
-        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus1"));
-        String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus1"));
-        Integer node1 = context.getReader().readIntAttribute("node1");
-        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId2"));
-        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus2"));
-        String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus2"));
-        Integer node2 = context.getReader().readIntAttribute("node2");
-        if (bus1 != null) {
-            adder.setBus1(bus1);
+    private static TopologyKind getTopologKind(String vlId, Network network) {
+        VoltageLevel vl = network.getVoltageLevel(vlId);
+        if (vl == null) {
+            throw new PowsyblException("Voltage level '" + vlId + "' not found");
         }
-        if (connectableBus1 != null) {
-            adder.setConnectableBus1(connectableBus1);
-        }
-        if (node1 != null) {
-            adder.setNode1(node1);
-        }
-        adder.setVoltageLevel1(voltageLevelId1);
-        if (bus2 != null) {
-            adder.setBus2(bus2);
-        }
-        if (connectableBus2 != null) {
-            adder.setConnectableBus2(connectableBus2);
-        }
-        if (node2 != null) {
-            adder.setNode2(node2);
-        }
-        adder.setVoltageLevel2(voltageLevelId2);
+        return vl.getTopologyKind();
     }
 
-    public static void readNodeOrBus(int index, LegAdder adder, NetworkDeserializerContext context) {
-        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + index));
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + index));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + index));
-        Integer node = context.getReader().readIntAttribute(NODE + index);
-        if (bus != null) {
-            adder.setBus(bus);
-        }
-        if (connectableBus != null) {
-            adder.setConnectableBus(connectableBus);
-        }
-        if (node != null) {
-            adder.setNode(node);
-        }
-        adder.setVoltageLevel(voltageLevelId);
+    public static void readNodeOrBus(int index, LegAdder adder, Network network, NetworkDeserializerContext context) {
+        readVoltageLevelAndNodeOrBus(String.valueOf(index), adder::setVoltageLevel, adder::setNode, adder::setBus, adder::setConnectableBus, network, context);
     }
 
     public static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {
@@ -162,46 +201,170 @@ public final class ConnectableSerDeUtil {
         writer.writeDoubleAttribute("q" + indexToString(index), t.getQ());
     }
 
+    public static void writeOptionalPQ(Integer index, Terminal t, TreeDataWriter writer, BooleanSupplier write) {
+        Double nullableP = write.getAsBoolean() ? t.getP() : null;
+        Double nullableQ = write.getAsBoolean() ? t.getQ() : null;
+        writer.writeOptionalDoubleAttribute("p" + indexToString(index), nullableP);
+        writer.writeOptionalDoubleAttribute("q" + indexToString(index), nullableQ);
+    }
+
     public static void readPQ(Integer index, Terminal t, TreeDataReader reader) {
         double p = reader.readDoubleAttribute("p" + indexToString(index));
         double q = reader.readDoubleAttribute("q" + indexToString(index));
         t.setP(p)
-                .setQ(q);
+            .setQ(q);
     }
 
-    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
+    public static <I extends Injection<I>> void readPQ(List<Consumer<I>> toApply, TreeDataReader reader) {
+        double p = reader.readDoubleAttribute("p");
+        double q = reader.readDoubleAttribute("q");
+        toApply.add(injection -> injection.getTerminal().setP(p).setQ(q));
     }
 
-    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
+    public static void readOptionalPQ(Integer index, Terminal t, TreeDataReader reader) {
+        reader.readOptionalDoubleAttribute("p" + indexToString(index))
+                .ifPresent(t::setP);
+        reader.readOptionalDoubleAttribute("q" + indexToString(index))
+                .ifPresent(t::setQ);
     }
 
-    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader) {
-        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, reader);
+    private static String dcTerminalNumSuffix(DcTerminal t) {
+        TerminalNumber number = t.getTerminalNumber();
+        TwoSides side = t.getSide();
+        return "" + (side != null ? side.getNum() : "") + (number != null ? number.getNum() : "");
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(String type, A adder, TreeDataReader reader) {
-        double permanentLimit = reader.readDoubleAttribute("permanentLimit");
+    public static void writePI(DcTerminal t, TreeDataWriter writer) {
+        String numSuffix = dcTerminalNumSuffix(t);
+        writer.writeDoubleAttribute("dcP" + numSuffix, t.getP());
+        writer.writeDoubleAttribute("dcI" + numSuffix, t.getI());
+    }
+
+    public static void readPI(DcTerminal t, TreeDataReader reader) {
+        String numSuffix = dcTerminalNumSuffix(t);
+        double p = reader.readDoubleAttribute("dcP" + numSuffix);
+        double i = reader.readDoubleAttribute("dcI" + numSuffix);
+        t.setP(p).setI(i);
+    }
+
+    public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, NetworkDeserializerContext context) {
+        readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, context);
+    }
+
+    public static void readApparentPowerLimits(ApparentPowerLimitsAdder apparentPowerLimitsAdder, NetworkDeserializerContext context) {
+        readLoadingLimits(APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, context);
+    }
+
+    public static void readCurrentLimits(CurrentLimitsAdder currentLimitsAdder, NetworkDeserializerContext context) {
+        readLoadingLimits(CURRENT_LIMITS, currentLimitsAdder, context);
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimits(String type, A adder, NetworkDeserializerContext context) {
+        TreeDataReader reader = context.getReader();
+        ImportOptions options = context.getOptions();
+        ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(context.getNetworkValidationLevel());
+        readLoadingLimitAttributes(type, adder, context, reader, minimalValidationLevel);
+        // Read and add the temporary limits
+        reader.readChildNodes(elementName -> readLimit(type, adder, context, reader, elementName));
+        if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS && adder.getDetectionKind() == DetectionKind.HIGH) {
+            adder.fixLimits(options.getMissingPermanentLimitPercentage());
+        }
+        adder.add();
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
+        String type, A adder, NetworkDeserializerContext context,
+        TreeDataReader reader, ValidationLevel minimalValidationLevel) {
+        String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
+        String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
+        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
+
+        DetectionKind[] kind = {DetectionKind.HIGH};
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            if (detectionKindString == null) {
+                throw new PowsyblException(DETECTION_KIND + " is absent in '" + type + "'");
+            }
+            kind[0] = DetectionKind.valueOf(detectionKindString);
+        });
+        adder.setDetectionKind(kind[0]);
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            String permanentName = kind[0] == DetectionKind.HIGH ?
+                Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME) : permanentLimitName;
+            adder.setPermanentLimitName(permanentName);
+        });
+
+        if (kind[0] == DetectionKind.HIGH) {
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                checkHighLimit(type, minimalValidationLevel, permanentLimit));
+        }
         adder.setPermanentLimit(permanentLimit);
-        reader.readChildNodes(elementName -> {
-            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NAME.equals(elementName)) {
+    }
+
+    private static void checkHighLimit(String type, ValidationLevel minimalValidationLevel, double permanentLimit) {
+        if (Double.isNaN(permanentLimit) && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
+            throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
+        }
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLimit(String type, A adder,
+                                                                                                NetworkDeserializerContext context,
+                                                                                                TreeDataReader reader,
+                                                                                                String elementName) {
+        switch (elementName) {
+            case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
                 String name = reader.readStringAttribute("name");
-                int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
-                double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
-                boolean fictitious = reader.readBooleanAttribute("fictitious", false);
-                reader.readEndNode();
-                adder.beginTemporaryLimit()
-                        .setName(name)
-                        .setAcceptableDuration(acceptableDuration)
-                        .setValue(value)
-                        .setFictitious(fictitious)
-                        .endTemporaryLimit();
-            } else {
+                int acceptableDuration = reader.readIntAttribute(ACCEPTABLE_DURATION_KEY, Integer.MAX_VALUE);
+                double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
+                boolean fictitious = reader.readBooleanAttribute(FICTITIOUS_KEY, false);
+                LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
+                readProperties(context, tempLimitAdder);
+                tempLimitAdder
+                    .setName(name)
+                    .setAcceptableDuration(acceptableDuration)
+                    .setValue(value)
+                    .setFictitious(fictitious)
+                    .endTemporaryLimit();
+            }
+            case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(adder, context);
+            case null, default ->
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
+        }
+    }
+
+    private static void readAllLoadingLimits(String groupElementName, OperationalLimitsGroup group, NetworkDeserializerContext context) {
+        context.getReader().readChildNodes(limitElementName -> {
+            switch (limitElementName) {
+                case PROPERTY -> PropertiesSerDe.read(group, context);
+                case ACTIVE_POWER_LIMITS -> readActivePowerLimits(group.newActivePowerLimits(), context);
+                case APPARENT_POWER_LIMITS -> readApparentPowerLimits(group.newApparentPowerLimits(), context);
+                case CURRENT_LIMITS -> readCurrentLimits(group.newCurrentLimits(), context);
+                default -> throw new PowsyblException("Unknown element name '" + limitElementName + "' in '" + groupElementName + "'");
             }
         });
-        adder.add();
+    }
+
+    static void readLoadingLimitsGroup(Branch<?> branch, TwoSides side, String groupElementName, NetworkDeserializerContext context) {
+        String id = context.getReader().readStringAttribute("id");
+        if (!context.getOptions().isOnlySelectedOperationalLimitsGroups() || context.getSelectedGroupIds(branch.getId(), side.toThreeSides()).contains(id)) {
+            OperationalLimitsGroup group = switch (side) {
+                case ONE -> branch.newOperationalLimitsGroup1(id);
+                case TWO -> branch.newOperationalLimitsGroup2(id);
+            };
+            readAllLoadingLimits(groupElementName, group, context);
+        } else {
+            context.getReader().skipNode();
+        }
+    }
+
+    static void readLoadingLimitsGroups(FlowsLimitsHolder h, String identifiableId, ThreeSides side, String groupElementName, NetworkDeserializerContext context) {
+        String id = context.getReader().readStringAttribute("id");
+        if (!context.getOptions().isOnlySelectedOperationalLimitsGroups() || context.getSelectedGroupIds(identifiableId, side).contains(id)) {
+            OperationalLimitsGroup group = h.newOperationalLimitsGroup(id);
+            readAllLoadingLimits(groupElementName, group, context);
+        } else {
+            context.getReader().skipNode();
+        }
     }
 
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,
@@ -215,18 +378,8 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmVersion version,
-                                          ExportOptions exportOptions) {
-        writeCurrentLimits(index, limits, writer, version, true, exportOptions);
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmVersion version,
                                           boolean valid, ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions);
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmVersion version,
-                                          ExportOptions exportOptions) {
-        writeLoadingLimits(index, limits, writer, nsUri, version, true, exportOptions, CURRENT_LIMITS);
     }
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmVersion version,
@@ -234,22 +387,325 @@ public final class ConnectableSerDeUtil {
         writeLoadingLimits(index, limits, writer, nsUri, version, valid, exportOptions, CURRENT_LIMITS);
     }
 
+    /**
+     * <p>Write a loading limit by taking into account specificities related to the version.</p>
+     * Export low limit as a high limit for versions of IIDM <= 1.17<br>
+     * When writing a low limit as a high limit, the following occurs:
+     * <pre>
+     *     Low limit                    -->    High limit
+     *                                          10' ---- Infinity 3rd temporary
+     *          10'                                 10'
+     *      10' ---- 1200 3rd temporary         20' ---- 1200 2nd temporary
+     *          20'                                 20'
+     *      20' ---- 800 2nd temporary          40' ---- 800 1st temporary
+     *          40' (duration allowed value)        40'
+     *      40' ---- 500 1st temporary              ---- 500 (permanent limit)
+     *      Indefinitely                          Indefinitely
+     * </pre>
+     * The first temporary of the low limit becomes the permanent limit. Then, the temporary limits of the high limit is created as such:
+     * <ul>
+     *     <li>1st temporary: the value of the 2nd temporary of the low, with the duration and name of the 1st temporary of the low</li>
+     *     <li>2nd temporary: the value of the 3rd temporary of the low, with the duration and name of the 2nd temporary of the low</li>
+     *     <li>continues as such for all following limits</li>
+     *     <li>last temporary: infinity value ({@link Double#MAX_VALUE}, with the duration and name of the last temporary of the low</li>
+     * </ul>
+     * This ensures that for any given value, the returned allowed duration will be the same if taken from the original low limit, or from the created high limit.
+     * @param index the index of the element for which we write the limit, related to the context of the call.
+     *              For example, if writing the limits for a connectable on side 1, index is 1, on side 2, it's 2
+     * @param limits the limits to write
+     * @param writer the writer to use to serialize the limit (binary, XML, JSON, etc...)
+     * @param nsUri the URI of the namespace, this is an http path to the schema of the serialized file (and XSD for the XML)
+     * @param version the IIDM version in which to export
+     * @param valid if true, write in SSH, otherwise in equipment mode
+     * @param exportOptions various options for the export
+     * @param type the type of the limit ({@link #CURRENT_LIMITS}, {@link #ACTIVE_POWER_LIMITS}, {@link #APPARENT_POWER_LIMITS})
+     * @param <L> something that is a {@code LoadingLimits}
+     */
     private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
-        if (limits != null && (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty())) {
-            writer.writeStartNode(nsUri, type + indexToString(index));
-            writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+        if (limits != null && canWriteLimits(limits)) {
+            FormattedLimits formattedLimits = new FormattedLimits(limits, version);
+            writeLoadingLimitAttributes(index, limits, writer, nsUri, version, type);
             writer.writeStartNodes();
-            for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
+
+            for (FormattedTemporaryLimit fl : formattedLimits.sortedTemporaryLimits(exportOptions)) {
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                writer.writeStringAttribute("name", tl.getName());
-                writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
-                writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
-                writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
+                writer.writeStringAttribute("name", fl.name);
+                writer.writeIntAttribute(ACCEPTABLE_DURATION_KEY, fl.duration, Integer.MAX_VALUE);
+                writer.writeDoubleAttribute(VALUE_KEY, fl.value, Double.MAX_VALUE);
+                writer.writeBooleanAttribute(FICTITIOUS_KEY, fl.fictitious, false);
+                if (fl.propertiesHolder != null) {
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version,
+                        () -> PropertiesSerDe.write(fl.propertiesHolder, writer, nsUri, exportOptions)
+                    );
+                }
                 writer.writeEndNode();
             }
             writer.writeEndNodes();
             writer.writeEndNode();
         }
     }
+
+    private static <L extends LoadingLimits> boolean canWriteLimits(L limits) {
+        return limits.getDetectionKind() == DetectionKind.HIGH
+            && !Double.isNaN(limits.getPermanentLimit())
+            || !limits.getTemporaryLimits().isEmpty();
+    }
+
+    private static <L extends LoadingLimits> void writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version, String type) {
+        writer.writeStartNode(nsUri, type + indexToString(index));
+        DetectionKind kind = limits.getDetectionKind();
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () ->
+            writer.writeStringAttribute(DETECTION_KIND, kind.name())
+        );
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
+            () -> {
+                if (kind == DetectionKind.HIGH) {
+                    writer.writeStringAttribute(PERMANENT_LIMIT_NAME,
+                        limits.getPermanentLimitName(),
+                        LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+                }
+            });
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, version,
+            () -> {
+                if (kind == DetectionKind.HIGH) {
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
+                } else {
+                    // Convert low limit to high limit by using first temporary as permanent
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getTemporaryLimits().iterator().next().getValue());
+                }
+            }
+        );
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, version, () -> {
+            if (kind == DetectionKind.HIGH) {
+                writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
+            }
+        });
+    }
+
+    private record FormattedTemporaryLimit(double value, int duration, String name, boolean fictitious, PropertiesHolder propertiesHolder) { }
+
+    private record FormattedLimits(List<FormattedTemporaryLimit> formattedTemporaryLimits) {
+        FormattedLimits(LoadingLimits limits, IidmVersion version) {
+            this(buildFormattedTemporaryLimits(limits, version));
+        }
+
+        private static List<FormattedTemporaryLimit> buildFormattedTemporaryLimits(LoadingLimits limits, IidmVersion version) {
+            List<LoadingLimits.TemporaryLimit> tempLimits = limits.getTemporaryLimits().stream().toList();
+            List<FormattedTemporaryLimit> formattedTemporaryLimits = new ArrayList<>();
+            boolean shiftLowToHigh = limits.getDetectionKind() == DetectionKind.LOW && version.compareTo(IidmVersion.V_1_17) <= 0;
+            // The first temp limit was used as the permanent limit of the high limit, ignore it if shifting low to high limit
+            int startingValueIndex = shiftLowToHigh ? 1 : 0;
+            int valueIndex = startingValueIndex;
+            for (int durationIndex = 0; durationIndex < tempLimits.size() - startingValueIndex; ++durationIndex) {
+                LoadingLimits.TemporaryLimit tlValue = tempLimits.get(valueIndex);
+                LoadingLimits.TemporaryLimit tlDuration = tempLimits.get(durationIndex);
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(
+                    tlValue.getValue(),
+                    tlDuration.getAcceptableDuration(),
+                    tlDuration.getName(),
+                    tlDuration.isFictitious(),
+                    tlDuration)
+                );
+                ++valueIndex;
+            }
+            if (shiftLowToHigh) {
+                // Since we skip the first temp limit when converting a low limit to a high limit (because we use the value
+                // of the first temporary of the low for the value of the permanent of the high), there is a shift of 1.
+                // The last limit of the high limit doesn't have any value it can take from the low limits (since we already used all the
+                // limit values), so it should have the max value available for its value instead
+                LoadingLimits.TemporaryLimit tlDuration = tempLimits.getLast();
+                formattedTemporaryLimits.add(new FormattedTemporaryLimit(
+                    Double.MAX_VALUE,
+                    tlDuration.getAcceptableDuration(),
+                    tlDuration.getName(),
+                    tlDuration.isFictitious(),
+                    tlDuration)
+                );
+            }
+            return formattedTemporaryLimits;
+        }
+
+        Iterable<FormattedTemporaryLimit> sortedTemporaryLimits(ExportOptions exportOptions) {
+            Objects.requireNonNull(exportOptions);
+            return exportOptions.isSorted() ? formattedTemporaryLimits.stream()
+                        .sorted(Comparator.comparing(FormattedTemporaryLimit::name))
+                        .toList()
+                    : formattedTemporaryLimits;
+        }
+    }
+
+    static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        writer.writeStringAttribute(SELECTED_GROUP_ID + suffix, defaultId);
+    }
+
+    /**
+     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>branch</code> on the <code>side</code> using the <code>writer</code> for serialization
+     *
+     * @param branch the branch on which to get the limits group
+     * @param side   the side of the branch for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
+     * @param writer to serialize the data
+     */
+    static void writeAllSelectedGroupIds(Branch<?> branch, TwoSides side, TreeDataWriter writer) {
+        writeAllSelectedGroupIds(side.getNum(), branch.getAllSelectedOperationalLimitsGroupIdsOrdered(side), writer);
+    }
+
+    /**
+     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>transformer</code> on the <code>side</code> using the <code>writer</code> for serialization
+     *
+     * @param transformer the {@link ThreeWindingsTransformer} on which to get the limits group
+     * @param side        the side of the transformer for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
+     * @param writer      to serialize the data
+     */
+    static void writeAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, TreeDataWriter writer) {
+        writeAllSelectedGroupIds(side.getNum(), transformer.getLeg(side).getAllSelectedOperationalLimitsGroupIdsOrdered(), writer);
+    }
+
+    static void writeAllSelectedGroupIds(Integer index, Collection<String> ids, TreeDataWriter writer) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, ids);
+    }
+
+    /**
+     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>boundaryLine</code> using the <code>writer</code> for serialization
+     * @param boundaryLine the {@link BoundaryLine} on which to get the limits group
+     * @param writer to serialize the data
+     */
+    static void writeAllSelectedGroupIds(BoundaryLine boundaryLine, TreeDataWriter writer) {
+        writeAllSelectedGroupIds(null, boundaryLine.getAllSelectedOperationalLimitsGroupIdsOrdered(), writer);
+    }
+
+    static void readSelectedGroupId(Integer index, Consumer<String> selectedGroupIdSetter, NetworkDeserializerContext context) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        String selectedGroupId = context.getReader().readStringAttribute(SELECTED_GROUP_ID + suffix);
+        if (selectedGroupId != null) {
+            context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> selectedGroupIdSetter.accept(selectedGroupId));
+        }
+    }
+
+    /**
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added using to the <code>side</code> of the <code>branch</code>
+     *
+     * @param branch  the branch on which to add the selected groups
+     * @param side    the side on which to add the values. Cannot be null
+     * @param context to deserialize the data
+     */
+    static void readAllSelectedGroupIds(Branch<?> branch, TwoSides side, NetworkDeserializerContext context) {
+        Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
+            side.getNum(),
+            c -> branch.addSelectedOperationalLimitsGroups(side, c.toArray(String[]::new)),
+            context
+        );
+        context.addSelectedGroupIds(
+            branch.getId(),
+            side.toThreeSides(),
+            selectedIds
+        );
+    }
+
+    /**
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added using to the <code>side</code> of the <code>transformer</code>
+     *
+     * @param transformer the {@link ThreeWindingsTransformer} on which to add the selected groups
+     * @param side        the side on which to add the values. Cannot be null
+     * @param context     to deserialize the data
+     */
+    static void readAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, NetworkDeserializerContext context) {
+        Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
+            side.getNum(),
+            c -> transformer.getLeg(side).addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
+            context
+        );
+        context.addSelectedGroupIds(
+            transformer.getId(),
+            side,
+            selectedIds
+        );
+    }
+
+    static Collection<String> readAndGetAllSelectedGroupIds(Integer index, Consumer<Collection<String>> consumer, NetworkDeserializerContext context) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        Collection<String> allSelectedGroupIds = Objects.requireNonNullElse(context.getReader().readStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix), List.of());
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> consumer.accept(allSelectedGroupIds));
+        return allSelectedGroupIds;
+    }
+
+    /**
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the boundary line
+     * @param boundaryLine the {@link BoundaryLine} on which to add the selected groups
+     * @param context to deserialize the data
+     */
+    static void readAllSelectedGroupIds(BoundaryLine boundaryLine, NetworkDeserializerContext context) {
+        Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
+            null,
+            c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
+            context
+        );
+        context.addSelectedGroupIds(
+            boundaryLine.getId(),
+            ThreeSides.ONE,
+            selectedIds
+        );
+    }
+
+    static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, OperationalLimitsGroup defaultGroup, Collection<OperationalLimitsGroup> groups) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
+            var activePowerLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getActivePowerLimits).orElse(null);
+            if (activePowerLimits != null) {
+                IidmSerDeUtil.assertMinimumVersion(rootName, ACTIVE_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
+            }
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () ->
+                    writeActivePowerLimits(index, activePowerLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+
+            var apparentPowerLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getApparentPowerLimits).orElse(null);
+            if (apparentPowerLimits != null) {
+                IidmSerDeUtil.assertMinimumVersion(rootName, APPARENT_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
+            }
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () ->
+                    writeApparentPowerLimits(index, apparentPowerLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+
+            var currentLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getCurrentLimits).orElse(null);
+            writeCurrentLimits(index, currentLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+        });
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                writeLoadingLimitsGroups(context, index, groups));
+    }
+
+    private static void writeLoadingLimitsGroups(NetworkSerializerContext context, Integer index, Collection<OperationalLimitsGroup> groups) {
+        TreeDataWriter writer = context.getWriter();
+        IidmVersion version = context.getVersion();
+        boolean valid = context.isValid();
+        ExportOptions exportOptions = context.getOptions();
+
+        String suffix = index == null ? "" : String.valueOf(index);
+        writer.writeStartNodes();
+        for (OperationalLimitsGroup g : groups) {
+            writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUP + suffix);
+            writer.writeStringAttribute("id", g.getId());
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> PropertiesSerDe.write(g, context));
+            g.getActivePowerLimits()
+                    .ifPresent(l -> writeActivePowerLimits(null, l, writer, version, valid, exportOptions));
+            g.getApparentPowerLimits()
+                    .ifPresent(l -> writeApparentPowerLimits(null, l, writer, version, valid, exportOptions));
+            g.getCurrentLimits().ifPresent(l -> writeCurrentLimits(null, l, writer, version, valid, exportOptions));
+            writer.writeEndNode();
+        }
+        writer.writeEndNodes();
+    }
+
+    public static void writeEquivalent(Connectable<?> connectable, NetworkSerializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeBooleanAttribute("equivalent", connectable.isEquivalent(), false));
+    }
+
+    public static void readEquivalent(ConnectableAdder<?, ?> connectableAdder, NetworkDeserializerContext context) {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
+            boolean equivalent = context.getReader().readBooleanAttribute("equivalent", false);
+            connectableAdder.setEquivalent(equivalent);
+        });
+    }
+
 }

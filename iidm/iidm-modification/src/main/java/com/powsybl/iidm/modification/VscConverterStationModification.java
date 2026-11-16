@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * Simple {@link NetworkModification} for a VSC converter station.
@@ -21,18 +23,32 @@ public class VscConverterStationModification extends AbstractSetpointModificatio
     }
 
     @Override
+    public String getName() {
+        return "VscConverterStationModification";
+    }
+
+    @Override
     public String getElementName() {
         return "VscConverterStation";
     }
 
     @Override
     protected void setVoltageSetpoint(VscConverterStation networkElement, Double voltageSetpoint) {
-        networkElement.setVoltageSetpoint(voltageSetpoint);
+        if (networkElement.getVoltageRegulation() != null && networkElement.isWithMode(RegulationMode.VOLTAGE) && networkElement.hasRegulatingTerminal()) {
+            networkElement.getVoltageRegulation().setTargetValue(voltageSetpoint);
+        } else {
+            networkElement.setLocalTargetV(voltageSetpoint);
+        }
     }
 
     @Override
     protected void setReactivePowerSetpoint(VscConverterStation networkElement, Double reactivePowerSetpoint) {
-        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint);
+        if (networkElement.getVoltageRegulation() != null && networkElement.isWithMode(RegulationMode.REACTIVE_POWER)) {
+            // The target value has a load sign convention, so we need to negate it to match the IIDM convention
+            networkElement.getVoltageRegulation().setTargetValue(-reactivePowerSetpoint);
+        } else {
+            networkElement.setLocalTargetQ(reactivePowerSetpoint);
+        }
     }
 
     @Override

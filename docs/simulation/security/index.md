@@ -1,0 +1,451 @@
+# Security analysis
+
+```{toctree}
+:hidden:
+configuration.md
+contingency-dsl.md
+action-dsl.md
+limit-scalings.md
+two-pass-security-analysis.md
+```
+
+The security analysis is a simulation that checks violations on a network. These checks can be done on the base case or
+after a contingency, with or without remedial actions. A security analysis can monitor network states, in
+pre-contingency state, after a contingency and after a remedial action.
+
+There is a violation if the computed value is greater than the maximum allowed value. Depending on the equipment, the
+violations can have different types:
+
+- Current, active power and apparent power: this kind of violation can be detected on a branch (line, two-winding
+  transformer, tie line) or on a three-winding transformer, if the computed value is greater than
+  its [permanent limit](../../grid_model/additional.md#loading-limits) or one of
+  its [temporary limits](../../grid_model/additional.md#loading-limits).
+- Voltage: this kind of violation can be detected on a bus or a bus bar section, if the computed voltage is out of the
+  low-high voltage limits of a [voltage level](../../grid_model/network_subnetwork.md#voltage-level).
+- Voltage angle: this kind of violation can be detected if the voltage angle difference between the buses associated to
+  two terminals is out of the low-high voltage angle limits defined in the network.
+
+## Inputs
+
+### Network
+
+The first input of the security analysis is a network. As this simulation is based on a [load flow](../loadflow/index)
+engine for a list of contingencies, this network should converge in the pre-contingency state.
+
+(security-contingencies)=
+### Contingencies
+
+The security analysis needs a list of contingencies as an input. When contingencies are provided, the violations are
+detected on the network at pre-contingency state, but also after applying each contingency. The supported elementary
+contingencies are:
+
+- Generator contingency
+- Static var compensator contingency
+- Load contingency
+- Bus contingency for bus/breaker topologies
+- Busbar section contingency for node/breaker topologies
+- Line, two-winding transformer and tie line contingencies (branch contingency)
+- Three-winding transformer contingency
+- Boundary line contingency
+- HVDC line contingency
+- Battery contingency
+- Shunt Compensator contingency
+- Switch contingency
+- DC line contingency
+- Voltage source converter contingency
+- DC ground contingency
+- DC node contingency
+
+A contingency is made of contingency elements. A contingency can trigger one element at a time (N-1) or several elements
+at a time (N-K). Bus bar and bus contingencies are special N-K contingencies as they trigger all the equipments
+connected to a given bus bar section.
+
+(security-operator-strategies)=
+### Operator strategies
+
+An operator strategy is applied in pre-contingency or after a contingency, depending on the contingency context
+provided. A contingency context can be:
+- `NONE` a pre-contingency state only
+- `SPECIFIC` a post-contingency state on a specific contingency
+- `ONLY_CONTINGENCIES` a post-contingency state on every contingency
+- `ALL` both pre-contingency and post-contingency states
+
+An operator strategy groups a condition and a list of remedial actions.
+
+(security-remedial-actions)=
+#### Remedial actions
+
+Remedial actions are actions that are applied when limit violations occur. Supported actions are:
+
+| Action                             | Description                                                                                                                                                                                   |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `LoadAction`                       | Change the relative or absolute `P0` and/or `Q0` of a load.                                                                                                                                   |
+| `BoundaryLineAction`               | Change the relative or absolute `P0` and/or `Q0` of the load part of a boundary line.                                                                                                         |
+| `SwitchAction`                     | Open or close a switch.                                                                                                                                                                       |
+| `TerminalsConnectionAction`        | Open or close a terminal.                                                                                                                                                                     |
+| `PhaseTapChangerTapPositionAction` | Change the tap of a phase tap changer.                                                                                                                                                        |
+| `RatioTapChangerTapPositionAction` | Change the tap of a ratio tap changer.                                                                                                                                                        |
+| `PercentChangeLoadAction`          | Change the active and/or reactive power of a load (by setting the values, or defining changes in value or percentage).                                                                        |
+| `ShuntCompensatorPositionAction`   | Change the section of a shunt compensator.                                                                                                                                                    |
+| `PhaseTapChangerRegulationAction`  | Change the regulation status of a phase tap changer.                                                                                                                                          |
+| `RatioTapChangerRegulationAction`  | Change the regulation status of a ratio tap changer.                                                                                                                                          |
+| `GeneratorAction`                  | Change `targetP`, `targetQ`, regulation status and `targetV` of a generator.                                                                                                                  |
+| `StaticVarCompensatorAction`       | Change the regulation mode of a static var compensator and its associated set point.                                                                                                          |
+| `HvdcAction`                       | Enabled or disabled AC emulation for HVDC line (with the possibility to change `P0` and `droop` for AC emulation and active power set point and converter mode for set point operating mode). |
+| `AreaInterchangeTargetAction`      | Change the interchange target of an area by specifying a new interchange target in MW.                                                                                                        |
+
+Remedial actions can be *preventive* or *curative*:
+
+- preventive: these actions are implemented before the violation occurs, for example if the flow of a monitored line is
+  between `90%` and `100%`. Use contingency context `NONE` for that.
+- curative: these actions are implemented after a violation occurs, for example, if the flow of the monitored line is
+  greater than `100%`.
+
+Note: you can find the current list of remedial actions implemented in the PowSyBl Open Load Flow security analysis provider in the [PowSyBl Open Load Flow documentation](inv:powsyblopenloadflow:*:*#security/inputs).
+
+(security-conditions)=
+#### Conditions
+
+Actions are applied if a condition is met. The conditions can be diversified and extended in the future:
+
+- True condition: meaning that the list of actions is applied.
+- All violations condition on a list of elements: meaning that the list of actions is applied only if all elements
+  provided are overloaded.
+- At least one violation condition: meaning that the list of actions is applied only if a violation occurs on the
+  network.
+- Any violation condition on a list of elements: meaning that the list of actions is applied if one or more elements
+  provided are overloaded.
+- Threshold condition: condition triggered when a threshold violation is detected on the network. The threshold can
+  refer to an active power, reactive power, current or target P value on a specific point of the network.
+  Four condition types are available depending on the equipment to target: branch threshold condition, three-winding
+  transformer threshold condition, injection threshold condition and AC/DC converter threshold condition.
+
+
+(security-state-monitors)=
+### State monitors
+
+A stateMonitor allows getting information about branch, bus and three-winding transformers on the network after a
+security analysis computation. Contingency context allows to specify if the information asked are about pre-contingency
+state or post-contingency state with a contingency id or both. For example:
+
+- If we want information about a branch after security analysis on contingency `c1`, the contingencyContext will contain
+  the contingencyId `c1`, contextType `SPECIFIC` and the state monitor will contain the id of the branch.
+- If we want information about a branch in pre-contingency state, the contingencyContext will contain a null
+  contingencyId, contextType `NONE` and the state monitor will contain the id of the branch.
+- If we want information about a branch in pre-contingency state and after security analysis on contingency `c1`, the
+  contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the
+  branch.
+
+(security-limit-scalings)=
+### Limit scalings
+
+Limit scalings can be specified in order to detect when a specific limit is **nearly** reached, without having to
+artificially modify the limit itself.
+For instance, with a limit scaling set to 95% for a limit of 1000 MW, the security analysis will flag a limit
+violation for any value exceeding 950 MW.
+Limit scalings can also use a scaling higher than 100%. With a limit scaling of 110% for a limit of 1000 MW, the security
+analysis will flag a limit violation for any value exceeding 1100 MW.
+
+Each limit scaling has its own criteria specifying for which limits and under what conditions it should be applied.
+These criteria can include:
+
+- the type of limit (current, active power or apparent power);
+- the use case (for monitoring only or also for applying remedial actions);
+- the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.);
+- the network elements targeted by the scaling (by ids, countries and/or nominal voltages);
+- which operational limits are affected by the scaling (permanent or temporary + acceptable duration).
+- which specified operational limit groups are affected by the scaling.
+
+You can find more details about limit scalings [here](./limit-scalings).
+
+## Outputs
+
+### Pre-contingency results
+
+The violations are detected on the network at state N, meaning before a contingency occurred. This determines a
+reference for the simulation. For each violation, we get the ID of the overloaded equipment, the limit
+type (`CURRENT`, `ACTIVE_POWER`, `APPARENT_POWER`, `LOW_VOLTAGE` or `HIGH_VOLTAGE`, `LOW_VOLTAGE_ANGLE`
+or `HIGH_VOLTAGE_ANGLE`), the acceptable value and the computed value. For branches and three-winding transformers, we
+also have the side where the violation has been detected.
+
+The pre-contingency results also contain the network results based on given state monitors. A network result groups
+branch results, bus results and three-winding transformer results. All elementary results are fully extendable.
+
+The pre-contingency results may also contain the list of the changed phase tap changers. Each changed phase tap changer result identifies a transformer whose tap position has been moved during the security analysis, giving the transformer ID, the side for the three-winding transformers, the initial tap position (before optimization) and the final tap position (after optimization).
+
+### Post-contingency results
+
+The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
+them the violations detected. To limit information to the user, only new violations or worsened violations can be
+listed.
+
+The post-contingency results also contain the network results based on given state monitors.
+
+They may also contain the list of the changed phase tap changers. Each changed phase tap changer result identifies a transformer whose tap position has been moved during the security analysis, giving the transformer ID, the side for the three-winding transformers, the initial tap position (before optimization) and the final tap position (after optimization).
+
+The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
+them the violations detected. To limit information to the user, only new violations or worsened violations can be
+listed.
+
+The post-contingency results also contain the network results based on given state monitors.
+
+### Operator strategy results
+
+The operator strategy results contain the complete list of the actions that have been simulated, and for each of
+them the violations detected in order to check if remedial actions were efficient.
+
+The operator strategy results also contain the network results based on given state monitors.
+
+### Active power distribution results
+
+Pre-contingency, post-contingency, and operator strategy results all report the volume of needed active power balancing, in MW:
+- for pre-contingency: if the input network is not properly balanced, how much slack active power was distributed to balance the base case.
+- for post-contingency: how much _additional_ slack active power was distributed compared to the pre-contingency state because of:
+  - losses changes,
+  - injections (generators, loads, ...) disconnected by the contingency, if any.
+- for operator strategy actions results, how much _additional_ slack active power was distributed compared to the post-contingency state because of:
+  - losses changes,
+  - injections (generators, loads, ...) changes by the operator strategy actions, if any, such as disconnections, reconnections, or setpoint modifications.
+
+### Changed Phase Changers
+
+The security analysis can report the tap position changes of phase tap changers that have been moved during the
+computation. A `ChangedPhaseTapChanger` record holds the transformer ID, the side (`ThreeSides`: `ONE`, `TWO` or `THREE`) of the phase tap changer on a three-winding transformer, the initial tap position before optimization
+and the new tap position after optimization. The side is required for three-winding transformers because they can have multiple phase tap changers; it allows distinguishing results that share the same transformer ID. For two-winding transformers the side is omitted (`null`). The record is validated on construction: the transformer ID must not be `null`.
+
+When serialized to JSON, the changed phase tap changers are written as a `changedPhaseTapChangers` array of objects with the
+following fields:
+
+| Field            | Type    | Description                                       |
+|------------------|---------|---------------------------------------------------|
+| `transformerId`  | String  | ID of the phase tap changer's transformer               |
+| `side`           | String  | Optional side of a three-winding transformer (`ONE`, `TWO`, `THREE`); omitted for two-winding transformers |
+| `initialTap`     | int     | Tap position before optimization                  |
+| `finalTap`         | int     | Tap position after optimization                   |
+
+The serialized entries are sorted by `transformerId` for deterministic output. When no phase tap changer has been moved,
+the `changedPhaseTapChangers` field is omitted from the JSON output.
+
+### Extensions
+
+The results of a security analysis are extendable, meaning you can have additional information attached to the network,
+the contingencies or the violations.
+
+### Example
+
+The following example is a result of a security analysis with remedial action, exported in JSON:
+
+```json
+{
+  "version" : "1.10",
+  "network" : {
+    "id" : "sim1",
+    "sourceFormat" : "test",
+    "caseDate" : "2018-01-01T11:00:00.000+01:00",
+    "forecastDistance" : 0
+  },
+  "preContingencyResult" : {
+    "status" : "CONVERGED",
+    "limitViolationsResult" : {
+      "limitViolations" : [ {
+        "subjectId" : "NHV1_NHV2_1",
+        "operationalLimitsGroupId" : "activated_1_1",
+        "limitType" : "CURRENT",
+        "limit" : 100.0,
+        "limitScaling" : 0.95,
+        "value" : 110.0,
+        "side" : "ONE",
+        "extensions" : {
+          "ActivePower" : {
+            "value" : 220.0
+          }
+        }
+      } ],
+      "actionsTaken" : [ ]
+    },
+    "networkResult" : {
+      "branchResults" : [ {
+        "branchId" : "branch1",
+        "p1" : 1.0,
+        "q1" : 2.0,
+        "i1" : 3.0,
+        "p2" : 1.1,
+        "q2" : 2.2,
+        "i2" : 3.3
+      }, {
+        "branchId" : "branch2",
+        "p1" : 0.0,
+        "q1" : 0.0,
+        "i1" : 0.0,
+        "p2" : 0.0,
+        "q2" : 0.0,
+        "i2" : 0.0,
+        "flowTransfer" : 10.0
+      } ],
+      "busResults" : [ {
+        "voltageLevelId" : "voltageLevelId",
+        "busId" : "busId",
+        "v" : 400.0,
+        "angle" : 3.14
+      } ],
+      "threeWindingsTransformerResults" : [ {
+        "threeWindingsTransformerId" : "threeWindingsTransformerId",
+        "p1" : 1.0,
+        "q1" : 2.0,
+        "i1" : 3.0,
+        "p2" : 1.1,
+        "q2" : 2.1,
+        "i2" : 3.1,
+        "p3" : 1.2,
+        "q3" : 2.2,
+        "i3" : 3.2
+      } ]
+    },
+    "distributedActivePower" : 1.23,
+    "changedPhaseTapChangers" : [ {
+      "transformerId" : "T1",
+      "initialTap" : 2,
+      "finalTap" : 4
+    } ]
+  },
+  "postContingencyResults" : [ {
+    "contingency" : {
+      "id" : "contingency",
+      "elements" : [ {
+        "id" : "NHV1_NHV2_2",
+        "type" : "BRANCH",
+        "voltageLevelId" : "VLNHV1"
+      }, {
+        "id" : "NHV1_NHV2_1",
+        "type" : "BRANCH"
+      }, {
+        "id" : "GEN",
+        "type" : "GENERATOR"
+      }, {
+        "id" : "BBS1",
+        "type" : "BUSBAR_SECTION"
+      } ]
+    },
+    "status" : "CONVERGED",
+    "limitViolationsResult" : {
+      "limitViolations" : [ {
+        "subjectId" : "NHV1_NHV2_2",
+        "operationalLimitsGroupId" : "activated_2_1",
+        "limitType" : "CURRENT",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitScaling" : 1.0,
+        "value" : 110.0,
+        "side" : "TWO",
+        "extensions" : {
+          "ActivePower" : {
+            "preContingencyValue" : 220.0,
+            "postContingencyValue" : 230.0
+          },
+          "Current" : {
+            "preContingencyValue" : 95.0
+          }
+        }
+      }, {
+        "subjectId" : "GEN",
+        "violationLocation" : {
+          "type" : "BUS_BREAKER",
+          "busIds" : [ "BUSID" ]
+        },
+        "limitType" : "HIGH_VOLTAGE",
+        "limit" : 100.0,
+        "limitScaling" : 0.9,
+        "value" : 110.0
+      }, {
+        "subjectId" : "GEN2",
+        "violationLocation" : {
+          "type" : "NODE_BREAKER",
+          "voltageLevelId" : "VL",
+          "nodes" : [ 0, 1 ]
+        },
+        "limitType" : "LOW_VOLTAGE",
+        "limit" : 100.0,
+        "limitScaling" : 0.7,
+        "value" : 115.0,
+        "extensions" : {
+          "Voltage" : {
+            "preContingencyValue" : 400.0
+          }
+        }
+      }, {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "ACTIVE_POWER",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitScaling" : 1.0,
+        "value" : 110.0,
+        "side" : "ONE"
+      }, {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "APPARENT_POWER",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitScaling" : 1.0,
+        "value" : 110.0,
+        "side" : "TWO"
+      } ],
+      "actionsTaken" : [ "action1", "action2" ]
+    },
+    "networkResult" : {
+      "branchResults" : [ ],
+      "busResults" : [ ],
+      "threeWindingsTransformerResults" : [ ]
+    },
+    "connectivityResult" : {
+      "createdSynchronousComponentCount" : 0,
+      "createdConnectedComponentCount" : 0,
+      "disconnectedLoadActivePower" : 0.0,
+      "disconnectedGenerationActivePower" : 0.0,
+      "disconnectedElements" : [ ]
+    },
+    "distributedActivePower" : 2.34
+  } ],
+  "operatorStrategyResults" : [ {
+    "operatorStrategy" : {
+      "id" : "strategyId",
+      "contingencyContextType" : "SPECIFIC",
+      "contingencyId" : "contingency1",
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "AT_LEAST_ONE_VIOLATION",
+          "violationIds" : [ "violationId1" ]
+        },
+        "actionIds" : [ "actionId1" ]
+      } ]
+    },
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],
+        "actionsTaken" : [ ]
+      },
+      "networkResult" : {
+        "branchResults" : [ ],
+        "busResults" : [ ],
+        "threeWindingsTransformerResults" : [ ]
+      },
+      "distributedActivePower" : 3.45
+    } ]
+  } ]
+}
+```
+
+## Implementations
+
+The following power flow implementations are supported:
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#security/security)
+- [Dynaflow](inv:powsybldynawo:*:*#security_analysis/index)
+
+## Going further
+
+- [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line.

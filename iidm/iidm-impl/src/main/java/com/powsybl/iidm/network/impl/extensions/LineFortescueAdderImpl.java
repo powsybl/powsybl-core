@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -18,8 +19,12 @@ import com.powsybl.iidm.network.extensions.LineFortescueAdder;
 public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFortescue> implements LineFortescueAdder {
 
     private double rz = Double.NaN;
-
     private double xz = Double.NaN;
+
+    private double b1z = Double.NaN;
+    private double b2z = Double.NaN;
+    private double g1z = Double.NaN;
+    private double g2z = Double.NaN;
 
     private boolean openPhaseA = false;
     private boolean openPhaseB = false;
@@ -36,7 +41,7 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
 
     @Override
     protected LineFortescueImpl createExtension(Line line) {
-        return new LineFortescueImpl(line, rz, xz, openPhaseA, openPhaseB, openPhaseC);
+        return new LineFortescueImpl(line, rz, xz, g1z, b1z, g2z, b2z, openPhaseA, openPhaseB, openPhaseC);
     }
 
     @Override
@@ -48,6 +53,30 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
     @Override
     public LineFortescueAdderImpl withXz(double xz) {
         this.xz = xz;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withG1z(double g1z) {
+        this.g1z = g1z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withB1z(double b1z) {
+        this.b1z = b1z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withG2z(double g2z) {
+        this.g2z = g2z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withB2z(double b2z) {
+        this.b2z = b2z;
         return this;
     }
 

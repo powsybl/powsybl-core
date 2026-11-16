@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -27,7 +28,7 @@ final class Substations {
                                        final String tso,
                                        final String... geographicalTags) {
         return StreamSupport.stream(substations.spliterator(), false).filter(substation -> {
-            if (country != null && !country.equals(substation.getCountry().map(Country::getName).orElse(""))) {
+            if (country != null && !country.equals(substation.getCountry().map(Country::getFullName).orElse(""))) {
                 return false;
             }
             if (tso != null && !tso.equals(substation.getTso())) {

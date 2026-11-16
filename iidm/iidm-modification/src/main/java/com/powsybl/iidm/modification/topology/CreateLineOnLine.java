@@ -3,16 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
+import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
 
@@ -43,6 +46,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private boolean createFictSubstation;
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
+    private final Integer positionForNewLine;
 
     /**
      * Constructor.
@@ -65,13 +69,14 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
+     * @param positionForNewLine       The order position for the new line connection if the ConnectablePosition should be created, or null.
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                      boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                      String line1Id, String line1Name, String line2Id, String line2Name,
-                     Line line, LineAdder lineAdder) {
+                     Line line, LineAdder lineAdder, Integer positionForNewLine) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
@@ -79,15 +84,18 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.fictitiousSubstationId = fictitiousSubstationId;
         this.fictitiousSubstationName = fictitiousSubstationName;
         this.lineAdder = Objects.requireNonNull(lineAdder);
+        this.positionForNewLine = positionForNewLine;
     }
 
-    private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, Reporter reporter) {
+    @Override
+    public String getName() {
+        return "CreateLineOnLine";
+    }
+
+    private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, ReportNode reportNode) {
         if (createFictSubstation && fictitiousSubstationId == null) {
-            LOG.error("Fictitious substation ID must be defined if a fictitious substation is to be created");
-            undefinedFictitiousSubstationId(reporter);
-            if (throwException) {
-                throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
-            }
+            undefinedFictitiousSubstationId(reportNode);
+            logOrThrow(throwException, "Fictitious substation ID must be defined if a fictitious substation is to be created");
             return false;
         }
         return true;
@@ -120,13 +128,13 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reporter, LOG)) {
+        if (failChecks(network, throwException, reportNode)) {
             return;
         }
 
-        if (!checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, throwException, reporter)) {
+        if (!checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, throwException, reportNode)) {
             return;
         }
 
@@ -159,17 +167,29 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-        LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
-        LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
+
+        BranchOperationalLimitsGroupsCopy groupsCopy = new BranchOperationalLimitsGroupsCopy(line);
 
         // Remove the existing line
         String originalLineId = line.getId();
+        ConnectablePosition<Line> connectablePosition = line.getExtension(ConnectablePosition.class);
+        ConnectablePositionData connectablePositionDataSide1 = null;
+        ConnectablePositionData connectablePositionDataSide2 = null;
+        if (connectablePosition != null) {
+            connectablePositionDataSide1 = new ConnectablePositionData(connectablePosition.getFeeder1());
+            connectablePositionDataSide2 = new ConnectablePositionData(connectablePosition.getFeeder2());
+        }
         line.remove();
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        addLoadingLimits(line1, limits1, TwoSides.ONE);
-        addLoadingLimits(line2, limits2, TwoSides.TWO);
+        createFeederFromConnectablePositionData(connectablePositionDataSide1, line1, TwoSides.ONE);
+        createFeederFromConnectablePositionData(connectablePositionDataSide2, line2, TwoSides.TWO);
+
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopy.applyGroupsToBranch(line1, TwoSides.values());
+        groupsCopy.applyGroupsToBranch(line2, TwoSides.values());
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()
@@ -220,7 +240,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
                 // No position extension is present so only one disconnector is needed
                 createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
-                noBusbarSectionPositionExtensionReport(reporter, bbs);
+                noBusbarSectionPositionExtensionReport(reportNode, bbs);
             } else {
                 List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
                 createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbsList, bbs);
@@ -231,16 +251,29 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         // Create the new line
         Line newLine = lineAdder.add();
+
+        // create line position for the new line on the side two which is connected to the existing voltage level
+        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, null, reportNode, throwException);
+
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reporter.report(Report.builder()
-                .withKey("newLineOnLineCreated")
-                .withDefaultMessage("New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
-                .withValue("newLineId", newLine.getId())
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
-                .withValue("originalLineId", originalLineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+        ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
+    }
+
+    private static void createFeederFromConnectablePositionData(ConnectablePositionData connectablePositionData, Line line, TwoSides twoSides) {
+        if (connectablePositionData != null) {
+            ConnectablePositionAdder<Line> positionAdder = line.newExtension(ConnectablePositionAdder.class);
+            ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
+                case ONE -> positionAdder.newFeeder1();
+                case TWO -> positionAdder.newFeeder2();
+            };
+            feederAdder.withDirection(connectablePositionData.getDirection())
+                    .withName(connectablePositionData.getName());
+            if (connectablePositionData.getOrder() != null) {
+                feederAdder.withOrder(connectablePositionData.getOrder());
+            }
+            feederAdder.add()
+                    .add();
+        }
     }
 
     public LineAdder getLineAdder() {

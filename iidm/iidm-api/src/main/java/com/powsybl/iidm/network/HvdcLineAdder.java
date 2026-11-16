@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -14,6 +15,11 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcLineAdder extends IdentifiableAdder<HvdcLine, HvdcLineAdder> {
 
+    /**
+     * Set the resistance of the HVDC line in &#937. The resistance value must be positive.
+     * @param r the resistance value of the HVDC line in &#937, must be positive
+     * @return this adder, for chaining
+     */
     HvdcLineAdder setR(double r);
 
     HvdcLineAdder setConvertersMode(HvdcLine.ConvertersMode convertersMode);

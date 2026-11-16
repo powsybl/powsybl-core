@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.gl;
 
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.network.DanglingLineFilter;
+import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -98,7 +99,6 @@ public class CgmesGLExporter {
     private void addCoordinateSystem(ExportContext context) {
         PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"), true);
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
-        coordinateSystemProperties.put(IDENTIFIED_OBJECT_NAME, CgmesGLUtils.COORDINATE_SYSTEM_NAME);
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
         context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
     }
@@ -113,8 +113,8 @@ public class CgmesGLExporter {
         LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context);
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
-        LOG.info("Exporting Dangling Lines Position");
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
+        LOG.info("Exporting Boundary Lines Position");
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
     }
 
 }

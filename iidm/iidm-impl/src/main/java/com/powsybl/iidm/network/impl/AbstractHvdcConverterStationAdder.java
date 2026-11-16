@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -13,17 +14,10 @@ import com.powsybl.iidm.network.ValidationUtil;
  */
 public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcConverterStationAdder<T>> extends AbstractInjectionAdder<T> {
 
-    private final VoltageLevelExt voltageLevel;
-
     private float lossFactor = Float.NaN;
 
     AbstractHvdcConverterStationAdder(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     protected VoltageLevelExt getVoltageLevel() {
@@ -40,6 +34,6 @@ public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcCo
     }
 
     protected void validate() {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
     }
 }

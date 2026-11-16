@@ -3,18 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
-
-import java.util.Optional;
-
-import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.math3.complex.Complex;
+
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -60,14 +60,11 @@ class ShuntConverter extends AbstractConverter {
 
         private static LinearShuntModel create(DataObject elmShnt) {
             int shtype = elmShnt.getIntAttributeValue("shtype");
-            switch (shtype) {
-                case 1:
-                    return rlShunt(elmShnt);
-                case 2:
-                    return cShunt(elmShnt);
-                default:
-                    throw new PowerFactoryException("Shunt type not supported: " + shtype);
-            }
+            return switch (shtype) {
+                case 1 -> rlShunt(elmShnt);
+                case 2 -> cShunt(elmShnt);
+                default -> throw new PowerFactoryException("Shunt type not supported: " + shtype);
+            };
         }
 
         private static LinearShuntModel rlShunt(DataObject elmShnt) {

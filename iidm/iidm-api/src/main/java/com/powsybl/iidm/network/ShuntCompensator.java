@@ -3,8 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 import java.util.OptionalInt;
 
@@ -22,7 +26,7 @@ import java.util.OptionalInt;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -84,7 +88,7 @@ import java.util.OptionalInt;
  *             <td style="border: 1px solid black">The voltage target</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">TargetDeadband</td></td>
+ *             <td style="border: 1px solid black">TargetDeadband</td>
  *             <td style="border: 1px solid black">double</td>
  *             <td style="border: 1px solid black">kV</td>
  *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
@@ -107,13 +111,14 @@ import java.util.OptionalInt;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see ShuntCompensatorAdder
  */
-public interface ShuntCompensator extends Injection<ShuntCompensator> {
+public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRegulationHolder<ShuntCompensator> {
 
     /**
      * Get the count of sections in service.
-     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
+     * This value is the input for calculations.
+     * Please note that sections can only be in service sequentially, i.e. the first sectionCount sections are in service.
      * <p>
-     * It is expected to be greater than one and lesser than or equal to the
+     * It is expected to be greater than or equal to zero, and less than or equal to the
      * maximum section count.
      * <p>
      * Depends on the working variant.
@@ -130,6 +135,28 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     default OptionalInt findSectionCount() {
         return OptionalInt.of(getSectionCount());
+    }
+
+    /**
+     * Get the solved count of sections in service. This value represents the result count after a calculation (load flow).
+     * <p>
+     * It is expected to be greater than or equal to zero and less than or equal to the maximum section count.
+     * It can be null if no calculation has been performed on the network.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Integer getSolvedSectionCount();
+
+    /**
+     * Get the solved count of sections in service if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedSectionCount() {
+        return getSolvedSectionCount() != null ? OptionalInt.of(getSolvedSectionCount()) : OptionalInt.empty();
     }
 
     /**
@@ -155,6 +182,34 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     default ShuntCompensator unsetSectionCount() {
         throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
+     * Change the solved count of sections in service.
+     * Please note sections can only be sequentially in service, i.e., the first sectionCount sections are in service.
+     * <p>
+     * Depends on the working variant.
+     *
+     * @see VariantManager
+     * @param solvedSectionCount the number of solved sections in service
+     * @return the shunt compensator to chain method calls.
+     */
+    ShuntCompensator setSolvedSectionCount(int solvedSectionCount);
+
+    /**
+     * Unset the solved count of sections in service.
+     */
+    default ShuntCompensator unsetSolvedSectionCount() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
+     * Unset all solved values of the shunt compensator.
+     */
+    @Override
+    default void unsetSolvedValues() {
+        Injection.super.unsetSolvedValues();
+        unsetSolvedSectionCount();
     }
 
     /**
@@ -208,16 +263,11 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     <M extends ShuntCompensatorModel> M getModel(Class<M> modelType);
 
     /**
-     * Get the terminal used for regulation.
-     */
-    default Terminal getRegulatingTerminal() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Set the terminal used for regulation.
      * If null is passed as regulating terminal, the regulation is considered local.
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }
@@ -227,7 +277,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #isRegulating()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -235,7 +287,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
@@ -245,7 +299,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #getRegulatingTargetV()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetV() {
         throw new UnsupportedOperationException();
     }
@@ -255,7 +311,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetV(double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
@@ -266,7 +324,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#getTargetDeadband()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetDeadband() {
         throw new UnsupportedOperationException();
     }
@@ -277,7 +337,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setTargetDeadband(double)}  instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }
@@ -285,5 +347,26 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.SHUNT_COMPENSATOR;
+    }
+
+    default void applySolvedValues() {
+        setSectionCountToSolvedSectionCount();
+    }
+
+    default void setSectionCountToSolvedSectionCount() {
+        OptionalInt solvedSectionCount = this.findSolvedSectionCount();
+        if (solvedSectionCount.isPresent()) {
+            this.setSectionCount(solvedSectionCount.getAsInt());
+        }
+    }
+
+    @Override
+    default double getLocalTargetQ() {
+        return Double.NaN;
+    }
+
+    @Override
+    default ShuntCompensator setLocalTargetQ(double localTargetQ) {
+        throw new UnsupportedOperationException();
     }
 }

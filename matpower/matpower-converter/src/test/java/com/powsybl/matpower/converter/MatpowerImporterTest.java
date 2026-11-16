@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.converter;
 
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
@@ -17,10 +18,7 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
-import com.powsybl.matpower.model.MBus;
-import com.powsybl.matpower.model.MatpowerModel;
-import com.powsybl.matpower.model.MatpowerModelFactory;
-import com.powsybl.matpower.model.MatpowerWriter;
+import com.powsybl.matpower.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,9 +30,10 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -49,6 +48,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Importer importer = new MatpowerImporter();
         assertEquals("MATPOWER", importer.getFormat());
         assertEquals("MATPOWER Format to IIDM converter", importer.getComment());
+        assertEquals(List.of("mat"), importer.getSupportedExtensions());
         assertEquals(1, importer.getParameters().size());
         assertEquals("matpower.import.ignore-base-voltage", importer.getParameters().get(0).getName());
     }
@@ -58,8 +58,8 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerModelFactory.create9();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
         MatpowerWriter.write(model, matpowerBinCase, true);
-        new MatpowerImporter().copy(new FileDataSource(tmpDir, model.getCaseName()),
-            new FileDataSource(tmpDir, "copy"));
+        new MatpowerImporter().copy(new DirectoryDataSource(tmpDir, model.getCaseName()),
+            new DirectoryDataSource(tmpDir, "copy"));
         assertTrue(Files.exists(tmpDir.resolve("copy.mat")));
     }
 
@@ -68,8 +68,8 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerModelFactory.create118();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
         MatpowerWriter.write(model, matpowerBinCase, true);
-        assertTrue(new MatpowerImporter().exists(new FileDataSource(tmpDir, model.getCaseName())));
-        assertFalse(new MatpowerImporter().exists(new FileDataSource(tmpDir, "doesnotexist")));
+        assertTrue(new MatpowerImporter().exists(new DirectoryDataSource(tmpDir, model.getCaseName())));
+        assertFalse(new MatpowerImporter().exists(new DirectoryDataSource(tmpDir, "doesnotexist")));
     }
 
     @Test
@@ -90,6 +90,11 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     @Test
     void testCase14WithPhaseShifter() throws IOException {
         testCase(MatpowerModelFactory.create14WithPhaseShifter());
+    }
+
+    @Test
+    void testCase14WithPhaseShifterZeroRatioIssue() throws IOException {
+        testCase(MatpowerModelFactory.readModelJsonFromResources("ieee14-phase-shifter-zero-ratio-issue.json"));
     }
 
     @Test
@@ -143,8 +148,33 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testCase9DcLine() throws IOException {
+        testCase(MatpowerModelFactory.create9Dcline());
+    }
+
+    @Test
+    void testReactiveCapabilityCurveWithInvalidPoints() throws IOException {
+        MatpowerModel model = MatpowerModelFactory.create9Dcline();
+
+        // Swap minQ and maxQ for both points
+        // The importer must detect that the points are invalid (minQ > maxQ) and fix them by swapping the values
+        MGen generator = model.getGenerators().get(1);
+        double qc1Min = generator.getQc1Min();
+        double qc1Max = generator.getQc1Max();
+        double qc2Min = generator.getQc2Min();
+        double qc2Max = generator.getQc2Max();
+        generator.setQc1Min(qc1Max);
+        generator.setQc1Max(qc1Min);
+        generator.setQc2Min(qc2Max);
+        generator.setQc2Max(qc2Min);
+
+        // The result must be identical to the regular "create9Dcline()"
+        testCase(model);
+    }
+
+    @Test
     void testNonexistentCase() {
-        assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(new FileDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null)));
+        assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null)));
     }
 
     private void testCase(MatpowerModel model) throws IOException {
@@ -156,7 +186,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(model, matFile, true);
 
-        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
+        Network network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
         testNetwork(network, caseId);
     }
 
@@ -169,7 +199,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path file = tmpDir.resolve(fileName);
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + fileName), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + fileName), is);
         }
     }
 
@@ -182,7 +212,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(model, matFile, true);
 
-        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+        Network network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
         testSolved(network);
     }
 

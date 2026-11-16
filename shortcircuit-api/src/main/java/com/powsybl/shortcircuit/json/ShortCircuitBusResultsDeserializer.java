@@ -3,16 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.FortescueValue;
 import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
-import com.powsybl.shortcircuit.ShortCircuitBusResults;
+import com.powsybl.shortcircuit.FortescueValue;
 import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
+import com.powsybl.shortcircuit.ShortCircuitBusResults;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ class ShortCircuitBusResultsDeserializer {
             Double voltageDropProportional = Double.NaN;
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
-                switch (parser.getCurrentName()) {
+                switch (parser.currentName()) {
                     case "voltageLevelId" -> {
                         parser.nextToken();
                         voltageLevelId = parser.readValueAs(String.class);
@@ -65,7 +66,7 @@ class ShortCircuitBusResultsDeserializer {
                         parser.nextToken();
                         voltageDropProportional = parser.readValueAs(Double.class);
                     }
-                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
                 }
             }
             if (voltage != null) {

@@ -1,0 +1,997 @@
+(grid-model-extensions)=
+# Grid model extensions
+
+The grid model contains enough data to basically describe supported components and run power flow computations, but it may not be sufficient for more complex studies.
+The extensions are a way to add additional structured data to a piece of equipment to extend its features.
+The extensions can be attached to any objects of a network or to the network itself.
+
+Some extensions are mono-variant, meaning the data are identical for all the variants of the network. However, some of them are multi-variants to allow a different value for each variant of the network. It's typically the case for the [LoadDetail](#load-detail) extension that give the distribution of the constant part and the thermosensitive part of the consumption.
+
+Note that some extensions provided by PowSyBl aren't supported in the [persistent implementation of IIDM](https://github.com/powsybl/powsybl-network-store-server).
+
+Every extension is considered as serializable unless explicitly specified as non-serializable in XML-IIDM.
+
+(active-power-control-extension)=
+## Active power control
+
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#balancetype) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+
+| Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
+|----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
+| participate          | boolean | -                      | yes      | -             | The participation status                                                              |
+| droop                | double  | None (repartition key) | no       | -             | The participation factor equals maxP / droop                                          |
+| participation factor | double  | None (repartition key) | no       | -             | Defines the participation factor explicitly                                           |
+| max targetP          | double  | MW                     | no       | -             | If defined, this limit is used for slack distribution instead of the generator's maxP |
+| min targetP          | double  | MW                     | no       | -             | if defined, this limit is used for slack distribution instead of the generator's minP |
+
+Here is how to add an active power control extension to a generator:
+```java
+generator.newExtension(ActivePowerControlAdder.class)
+    .withParticipate(true)
+    .withDroop(4)
+    .withParticipationFactor(1.5)
+    .add();
+```
+If defined, min targetP and max targetP must be in the [pMin, pMax] interval of the Generator or Battery.
+The participation status, the participation factor, the max targetP and the min targetP are multi-variants: they can vary from one variant to another.
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+##(manual-frequency-restoration-reserve)=
+## Manual frequency restoration reserve
+
+This extension models whether an injection is part of the manual frequency restoration reserve.
+
+| Attribute  | Type    | Unit | Required |Default value| Description                                                    |
+|------------|---------|------|----------|-------------|----------------------------------------------------------------|
+| participate| boolean | -    | yes      | -           | indicates if the injection participates in the manual frequency restoration reserve|
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+Here is how to add a manual frequency restoration reserve extension to an injection:
+```java
+generator.newExtension(ManualFrequencyRestorationReserve.class)
+    .withParticipate(true)
+    .add();
+
+```
+
+(branch-observability-extension)=
+## Branch observability
+
+This extension models branch flow observability on both sides, obtained after a state estimation.
+
+| Attribute  | Type                 | Unit | Required | Default value | Description                                             |
+|------------|----------------------|------|----------|---------------|---------------------------------------------------------|
+| quality P1 | ObservabilityQuality | MW   | no       | -             | The observability quality of active power on side ONE   |
+| quality P2 | ObservabilityQuality | MW   | no       | -             | The observability quality of active power on side TWO   |
+| quality Q1 | ObservabilityQuality | MVar | no       | -             | The observability quality of reactive power on side ONE |
+| quality Q2 | ObservabilityQuality | MVar | no       | -             | The observability quality of reactive power on side TWO |
+
+**Observability quality**
+
+This extension contains the sub-object `ObservabilityQuality`.
+
+| Attribute          | Type    | Unit       | Required | Default value | Description                                        |
+|--------------------|---------|------------|----------|---------------|----------------------------------------------------|
+| standard deviation | double  | MW or MVar | yes      | -             | The standard deviation                             |
+| redundant          | boolean | -          | yes      | -             | Indicates if this value is confirmed by redundancy |
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(busbar-section-position-extension)=
+## Busbar section position
+
+This extension is attached to a [bus bar section](network_subnetwork.md#busbar-section) and gives positions information about a busbar section.
+
+Note that a busbar is a set of busbar sections. Hence, the sections of the same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of the same busbar, which usually reflects their physical relative position.
+
+| Attribute             | Type | Unit | Required | Default value | Description                                                          |
+|-----------------------|------|------|----------|---------------|----------------------------------------------------------------------|
+| busbarIndex           | int  | -    | yes      | -             | The position of the bus bar section relatively to others             |
+| sectionIndex          | int  | -    | yes      | -             | The position of the bus bar section within the corresponding busbar  |
+
+Example of code to set the position and section position data for a bus bar section :
+```java
+busBarSection.newExtension(BusbarSectionPositionAdder.class)
+    .withBusbarIndex(2)
+    .withSectionIndex(1)
+    .add();
+```
+
+(connectable-position-extension)=
+## Connectable position
+
+This extension gives information about the relative position of connectables to each other in a voltage level.
+It also indicates the direction of the connectable relative to the busbar section to which it is connected. This is mainly
+used for visualization.
+
+This extension is created by connectable, this information is available for each side of branches and three-winding
+transformers.
+
+The attributes of the extension are given below:
+
+| Attribute | Type   | Unit | Required | Default value | Description                                                         |
+|-----------|--------|------|----------|---------------|---------------------------------------------------------------------|
+| feeder    | Feeder | -    | no       | -             | The information for an injection with only one side                 |
+| feeder1   | Feeder | -    | no       | -             | The information on side 1 for a Branch or three-winding transformer |
+| feeder2   | Feeder | -    | no       | -             | The information on side 2 for a Branch or three-winding transformer |
+| feeder3   | Feeder | -    | no       | -             | The information on side 3 for a three-winding transformer           |
+
+Depending on the type of connectable, the associated attribute should be filled out: only feeder for injections, feeder1
+and feeder2 for branches and feeder1, feeder2 and feeder3 for three-winding transformers.
+
+The attributes of the `Feeder` class, containing all the position information of the connectable relative to one voltage level, are:
+
+| Attribute | Type                            | Unit | Required | Default value | Description                                                                                         |
+|-----------|---------------------------------|------|----------|---------------|-----------------------------------------------------------------------------------------------------|
+| name      | String                          | -    | yes      | -             | The name associated to the feeder. It is the name that will be displayed on diagrams.               |
+| order     | Integer                         | -    | no       | -             | The position of the connectable relative to the others                                              |
+| direction | `ConnectablePosition.Direction` | -    | no       | -             | The direction of the connectable relative to its connected busbar section. Can be `TOP` or `BOTTOM` |
+(coordinated-reactive-control-extension)=
+## Coordinated reactive control
+
+Some generators can be coordinated to control reactive power in a point of the network. This extension is used to configure the percentage of reactive-coordinated control that comes from a generator. This extension is attached to a [generator](network_subnetwork.md#generator).
+
+| Attribute | Type            | Unit | Required | Default value | Description                                   |
+|-----------|-----------------|------|----------|---------------|-----------------------------------------------|
+| QPercent  | percent [0-100] | -    | yes      | -             | The reactive control percent of participation |
+
+Here is how to add a coordinated reactive control extension to a generator:
+```java
+generator.newExtension(CoordinatedReactiveControlAdder.class)
+    .withQPercent(40)
+    .add();
+```
+
+Please note that the sum of the $qPercent$ values of the generators coordinating the same point of the network must be 100.
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(discrete-measurements-extensions)=
+## Discrete measurements
+
+This extension is used to store discrete measurements (such as tap positions, switch positions, etc.) collected in substations.
+
+| Attribute            | Type                            | Unit | Required | Default value | Description                                          |
+|----------------------|---------------------------------|------|----------|---------------|------------------------------------------------------|
+| discreteMeasurements | Collection<DiscreteMeasurement> | -    | no       | -             | Contains a collection of DiscreteMeasurement objects |
+
+The DiscreteMeasurement class characteristics are the following:
+
+| Attribute  | Type                           | Unit | Required | Default value | Description                                                                                                      |
+|------------|--------------------------------|------|----------|---------------|------------------------------------------------------------------------------------------------------------------|
+| id         | String                         | -    | no       | -             | The ID of the discrete measurement if it exists                                                                  |
+| type       | DiscreteMeasurement.Type       | -    | no       | -             | The type of discrete measurement (TAP_POSITION, SWITCH_POSITION, SHUNT_COMPENSATOR_SECTION, OTHER)               |
+| tapChanger | DiscreteMeasurement.TapChanger | -    | no       | -             | The tap changer the discrete measurement is applied on (null if the measurement is not applied to a tap changer) |
+| properties | Map<String, String>            | -    | no       | -             | The properties (name and value) associated with the discrete measurement                                         |
+| valueType  | DiscreteMeasurement.ValueType  | -    | no       | -             | The discrete measurement value type (BOOLEAN, INT or STRING)                                                     |
+| value      | Object                         | -    | no       | -             | The discrete measurement value                                                                                   |
+| valid      | boolean                        | -    | no       | -             | The validity status (if true, the discrete measured value cannot be null)                                        |
+
+
+(dynamic-model-info-extension)=
+## Dynamic Model Info
+This extension is attached to an Identifiable. It is used to store the dynamic model used during a dynamic simulation.
+
+| Attribute | Type   | Unit | Required | Default value | Description                                         |
+|-----------|--------|------|----------|---------------|-----------------------------------------------------|
+| modelName | String | -    | no       | -             | The dynamic model used during a dynamic simulation  |
+
+This attribute is multi-variant: it can vary from one variant to another.
+
+(entsoe-area-extension)=
+## ENTSO-E area
+
+This extension is attached to a [substation](network_subnetwork.md#substation) and is used to store its ENTSO-E geographical code.
+
+The code identifies the area the substation belongs to (for example `FR`, `BE`, or `D1`, `D2`... for the German areas) and is associated with a country.
+
+When importing a UCTE file, this extension is created for the substations.
+
+| Attribute | Type                    | Unit  | Required | Default value | Description                                            |
+|-----------|-------------------------|-------|----------|---------------|--------------------------------------------------------|
+| code      | EntsoeGeographicalCode  | -     | yes      | -             | The ENTSO-E geographical code of the substation's area |
+
+
+Here is how to add an ENTSO-E area extension to a substation:
+```java
+Substation s = network.getSubstation("S")
+        .newExtension(EntsoeAreaAdder.class)
+        .withCode(EntsoeGeographicalCode.BE)
+        .add();
+```
+
+(hvdc-angle-droop-active-power-control-extension)=
+## HVDC angle droop active power control
+
+This is an extension dedicated to DC line in order to model AC emulation. For a VSC converter station operating in AC emulation, its active power setpoint is given by
+
+$$P = P0 + k~(ph1 - ph2)$$
+
+| Attribute | Type    | Unit         | Required | Default value | Description                          |
+|-----------|---------|--------------|----------|---------------|--------------------------------------|
+| P0        | float   | MW           | yes      | -             | P0 in the equation                   |
+| droop     | float   | MW by degree | yes      | -             | k in the equation                    |
+| enabled   | boolean | -            | yes      | -             | if the AC emulation is active or not |
+
+(hvdc-operator-active-power-range-extension)=
+## HVDC operator active power range
+
+This extension is attached to an [HVDC line](network_subnetwork.md#hvdc-line) and is used to replace the operational limits of a DC line in AC emulation. In that case, the VSC converter stations min and max active power are not used.
+
+| Attribute       | Type    | Unit         | Required | Default value | Description                                                                         |
+|-----------------|---------|--------------|----------|---------------|-------------------------------------------------------------------------------------|
+| oprFromCS1toCS2 | float   | MW           | No       | -             | Operator active power range from the converter station 1 to the converter station 2 |
+| oprFromCS2toCS1 | float   | MW           | No       | -             | Operator active power range from the converter station 2 to the converter station 1 |
+
+The attributes are multi-variants: they can vary from one variant to another.
+
+Here is how to add an operator active power range extension to an HVDC line:
+```java
+HvdcLine hvdcLine = network.getHvdcLine("L")
+        .newExtension(HvdcOperatorActivePowerRangeAdder.class)
+        .withOprFromCS1toCS2(1.0f)
+        .withOprFromCS2toCS1(2.0f)
+        .add();
+```
+
+(generator-enstoe-category-extension)=
+## Generator ENTSO-E category
+
+This extension enables to store the entso-e category code of a given generator, which represents a combination of fuel and type.
+For instance category 26 is for hydro run-of-river generating units. It is mainly used in TYNDP works.
+This extension is attached to a [generator](network_subnetwork.md#generator).
+
+| Attribute | Type | Unit | Required | Default value | Description          |
+|-----------|------|------|----------|---------------|----------------------|
+| code      | int  | -    | yes      | -             | The entso-e category |
+
+Here is how to add a generator entsoe-e category extension to a generator:
+```java
+generator.newExtension(GeneratorEntsoeCategoryAdder.class)
+    .withCode(4)
+    .add();
+```
+
+(generator-startup)=
+## Generator startup
+
+This extension contains the information related to the startup of a generator.
+
+| Attribute                  | Type   | Unit | Required | Default value | Description                                                     |
+|----------------------------|--------|------|----------|---------------|-----------------------------------------------------------------|
+| forcedOutageRate           | double | -    | no       | -             | Rate of forced unavailability                                   |
+| marginalCost               | double | -    | no       | -             | Cost to increase the production of one unit (in general one MW) |
+| plannedActivePowerSetpoint | double | MW   | no       | -             | Active power target planned by the market                       |
+| plannedOutageRate          | double | -    | no       | -             | Rate of planned unavailability                                  |
+| startupCost                | double | -    | no       | -             | Cost to start the generator                                     |
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+To add this extension to a generator, the code to be used is:
+```java
+generator.newExtension(GeneratorStartupAdder.class)
+        .withPlannedActivePowerSetpoint(600.0)
+        .withStartupCost(5.0)
+        .withMarginalCost(10.0)
+        .withPlannedOutageRate(0.8)
+        .withForcedOutageRate(0.7)
+        .add();
+```
+
+(generator-short-circuit)=
+## Generator short-circuit
+
+This extension models the generator data used for short-circuit calculations. Depending on the type of short-circuit study to be
+performed, either the transient or the sub-transient reactance should be filled. The reactance of the step-up transformer should be
+filled if the generator has a transformer that is not directly modeled in the network.
+This extension should be used in addition to the [GeneratorFortescue extension](#generator-fortescue) for asymmetrical short-circuit calculations.
+
+| Attribute              | Type   | Unit | Required | Default value | Description                                     |
+|------------------------|--------|------|----------|---------------|-------------------------------------------------|
+| directTransX (X'd)     | double | Ω    | yes      | -             | Direct transient reactance of the generator     |
+| directSubtransX (X''d) | double | Ω    | no       | -             | Direct sub-transient reactance of the generator |
+| stepUpTransformerX     | double | Ω    | no       | -             | Reactance of the step-up transformer            |
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+To add this extension to a generator, the code to be used is:
+```java
+generator.newExtension(GeneratorShortCircuitAdder.class)
+    .withDirectTransX(20)
+    .withDirectSubtransX(14)
+    .withStepUpTransformerX(10)
+    .add();
+```
+
+(battery-short-circuit)=
+## Battery short-circuit
+
+This extension models the battery data used for short-circuit calculations.
+Depending on the type of short-circuit study to be performed, either the transient or the sub-transient reactance should
+be filled. The step-up transformer reactance should be filled if the battery has a transformer that is not directly
+modeled on the network.
+
+| Attribute              | Type   | Unit | Required | Default value | Description                                   |
+|------------------------|--------|------|----------|---------------|-----------------------------------------------|
+| directTransX (X'd)     | double | Ω    | yes      | -             | Direct transient reactance of the battery     |
+| directSubtransX (X''d) | double | Ω    | no       | -             | Direct sub-transient reactance of the battery |
+| stepUpTransformerX     | double | Ω    | no       | -             | Reactance of the step-up transformer          |
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+To add this extension to a battery, the code to be used is:
+```java
+battery.newExtension(BatteryShortCircuitAdder.class)
+    .withDirectTransX(20)
+    .withDirectSubtransX(14)
+    .withStepUpTransformerX(10)
+    .add();
+```
+
+(identifiable-short-circuit-extension)=
+## Identifiable short-circuit
+
+This extension models the maximum and minimum short-circuit current admissible for any identifiable.
+
+| Attribute | Type   | Unit | Required | Default value | Description                    |
+|-----------|--------|------|----------|---------------|--------------------------------|
+| ipMin     | double | A    | no       | -             | The minimum admissible current |
+| ipMax     | double | A    | yes      | -             | The maximum admissible current |
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+To add this extension to a bus, for example, the code to be used is:
+```java
+bus.newExtension(IdentifiableShortCircuitAdder.class)
+    .withIpMin(3000)
+    .withIpMax(10000)
+    .add();
+```
+The code is similar for every identifiable.
+
+(generator-fortescue)=
+## Generator Fortescue
+
+This extension models the homopolar generator data to be used for asymmetrical short-circuit calculations.
+
+| Attribute  | Type    | Unit | Required | Default value | Description                                                                     |
+|------------|---------|------|----------|---------------|---------------------------------------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the generator                                   |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the generator                                    |
+| rn         | double  | Ω    | no       | -             | The negative-sequence resistance of the generator                               |
+| xn         | double  | Ω    | no       | -             | The negative-sequence reactance of the generator                                |
+| grounded   | boolean | -    | no       | false         | Indicates if the generator is earthed                                           |
+| groundingR | double  | Ω    | no       | 0             | If the generator is earthed, the resistance part of the impedance to the ground |
+| groundingX | double  | Ω    | no       | 0             | If the generator is earthed, the reactance part of the impedance to the ground  |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(line-fortescue)=
+## Line Fortescue
+
+This extension models the homopolar line data to be used for asymmetrical short-circuit calculations.
+Side 1 and side 2 correspond respectively to terminal1 and terminal2 of the line.
+
+| Attribute  | Type    | Unit | Required | Default value | Description                                         |
+|------------|---------|------|----------|---------------|-----------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line            |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line             |
+| g1z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 1 |
+| b1z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 1 |
+| g2z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 2 |
+| b2z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 2 |
+| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open        |
+| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open        |
+| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open        |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(line-couplings-extension)=
+## Line Couplings
+
+This extension models the mutual coupling between two lines. It is attached to the `Network` object and contains a list of mutual couplings.
+
+The attributes of a `MutualCoupling` are:
+
+| Attribute    | Type        | Unit | Required | Default value | Description                                                   |
+|--------------|-------------|------|----------|---------------|---------------------------------------------------------------|
+| line1        | Line        | -    | yes      | -             | The first coupled line                                        |
+| line2        | Line        | -    | yes      | -             | The second coupled line                                       |
+| r            | double      | Ω    | yes      | -             | The mutual coupling resistance                                |
+| x            | double      | Ω    | yes      | -             | The mutual coupling reactance                                 |
+| line1Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the first line (0 to 1)  |
+| line2Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the second line (0 to 1) |
+
+The position of the mutual coupling is expressed as a ratio between 0 and 1, through a `LineSegment` object.
+A `LineSegment` has a start and an end position, with the constraint that: 0 ≤ start ≤ end ≤ 1
+Mutual coupling is symmetric: a coupling between line1 and line2 is equivalent to a coupling between line2 and line1.
+Mutual couplings are considered symmetric. Therefore, the extension cannot contain both (line1, line2) and (line2, line1).
+
+Example of code to add a mutual coupling:
+
+```java
+Line line1 = network.getLine("L1");
+Line line2 = network.getLine("L2");
+network.newExtension(LineCouplingsAdder.class).add();
+network.getExtension(LineCouplings.class)
+    .newMutualCoupling()
+    .withLine1(line1)
+    .withLine2(line2)
+    .withR(0.1)
+    .withX(0.4)
+    .add();
+```
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(two-winding-transformer-fortescue)=
+## Two-winding Transformer Fortescue
+
+This extension models the homopolar two-winding transformer data to be used for asymmetrical short-circuit calculations.
+
+| Attribute       | Type                  | Unit | Required | Default value                    | Description                                                                                            |
+|-----------------|-----------------------|------|----------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| rz              | double                | Ω    | no       | -                                | The zero-sequence resistance of the two-winding transformer                                            |
+| xz              | double                | Ω    | no       | -                                | The zero-sequence reactance of the two-winding transformer                                             |
+| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               |
+| xm              | double                | Ω    | no       | Double.NaN                       | If the fluxes are not free, the magnetizing impedance of the two-winding transformer                   |
+| connectionType1 | WindingConnectionType | -    | no       | WindingConnectionType.DELTA      | The connection type of the winding 1                                                                   | 
+| connectionType2 | WindingConnectionType | -    | no       | WindingConnectionType.Y_GROUNDED | The connection type of the winding 2                                                                   | 
+| groundingR1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the reactance part of the impedance to the ground  | 
+| groundingR2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the reactance part of the impedance to the ground  | 
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+
+(three-winding-transformer-fortescue)=
+## Three-winding Transformer Fortescue
+
+This extension models the homopolar three-winding transformer data to be used for asymmetrical short-circuit calculations.
+The data is described by leg.
+
+The attributes of the extension are structured as follows:
+
+| Attribute     | Type         | Unit | Required | Default value | Description                                             |
+|---------------|--------------|------|----------|---------------|---------------------------------------------------------|
+| leg1 | LegFortescue | -    | no       | -             | The data on the leg 1 of the three-winding transformer  |
+| leg2 | LegFortescue | -    | no       | -             | The data on the leg 2 of the three-winding transformer  |
+| leg3 | LegFortescue | -    | no       | -             | The data on the leg 3 of the three-winding transformer  | 
+
+With LegFortescue being defined as follows:
+
+| Attribute      | Type                  | Unit | Required | Default value                                                                                                | Description                                                                              |
+|----------------|-----------------------|------|----------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| rz             | double                | Ω    | no       | -                                                                                                            | The zero-sequence resistance of the leg                                                  |
+| xz             | double                | Ω    | no       | -                                                                                                            | The zero-sequence reactance of the leg                                                   |
+| freeFluxes     | boolean               | -    | no       | true                                                                                                         | If set to true, then the magnetizing impedance is considered as infinite                 | 
+| connectionType | WindingConnectionType | -    | no       | WindingConnectionType.DELTA for the first and the third leg, WindingConnectionType.Y_GROUNDED for the second | The connection type of the leg                                                           |
+| groundingR     | double                | Ω    | no       | 0                                                                                                            | If the leg is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX     | double                | Ω    | no       | 0                                                                                                            | If the leg is connected to the earth, the reactance part of the impedance to the ground  | 
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(injection-observability-extension)=
+## Injection observability
+
+This extension models injection flow observability, obtained after a state estimation.
+
+| Attribute | Type                 | Unit | Required | Default value | Description                                 |
+|-----------|----------------------|------|----------|---------------|---------------------------------------------|
+| quality P | ObservabilityQuality | MW   | no       | -             | The observability quality of active power   |
+| quality Q | ObservabilityQuality | MVar | no       | -             | The observability quality of reactive power |
+
+**Observability quality**
+
+This extension contains the sub-object `ObservabilityQuality`.
+
+| Attribute          | Type    | Unit       | Required | Default value | Description                                       |
+|--------------------|---------|------------|----------|---------------|---------------------------------------------------|
+| standard deviation | double  | MW or MVar | yes      | -             | The standard deviation                            |
+| redundant          | boolean | -          | yes      | -             | Indicates if the value is confirmed by redundancy |
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(observability-area-extension)=
+## Observability Area
+
+This extension represents the observability status of some sub-elements in a voltage level. An observability status
+could be defined by bus, by a set of buses or by a set of nodes. It is defined after a state estimation computation.
+
+It has several getters to retrieve the observability status of the sub-elements. This status is defined by an object
+called **AreaCharacteristics**. You can access to **AreaCharacteristics** by terminal, by bus ID (in bus-breaker or bus view) or by node number (in node-breaker view).
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+### Object AreaCharacteristics
+
+| Attribute             | Type                | Unit | Required | Default value | Description                                                  |
+|-----------------------|---------------------|------|----------|---------------|--------------------------------------------------------------|
+| status                | ObservabilityStatus | -    | yes      | -             | Observability status (OBSERVABLE, NON_OBSERVABLE, BORDER)    |
+| areaNumber            | int                 | -    | yes      | -             | Associated number representing this area                     |
+| terminals             | Set<Terminal>       | -    | yes      | -             | Associated terminals in the area                             |
+| nodeBreakerData.nodes | Set<Integer>        | -    | no       | -             | Associated nodes in the area (for node-breaker view)         |
+| busBreakerData.busIds | Set<String>         | -    | no       | -             | Associated buses in the area (for bus-breaker and bus views) |
+
+### Usage warnings
+
+As it associates an observability status with a topological element (a bus or a node), it deeply relies on the topology during the state estimation computation. Therefore, any topological change could lead to either outdated results (wrong status) or hanging areas (defined on nodes that don't exist in the voltage level).
+
+To mitigate issues related to the second point, a helper method (ObservabilityArea.isConsistentWithTopology()) is defined to check if all the elements that define observability areas are still present in the network. But nothing prevents the user from using outdated observability statuses due to topological changes. So, it's their responsibility to invalidate observability areas when it is necessary.
+
+(line-position-extension)=
+## Line Position
+
+This extension is attached to a [line](network_subnetwork.md#line) and is used to store the geographical coordinates of the Line.
+The coordinates are stored using latitude and longitude.
+The extension consists of a list of coordinates that can be used to trace the line on a map.
+
+| Attribute   | Type               | Unit | Required | Default value | Description                                     |
+|-------------|--------------------|------|----------|---------------|-------------------------------------------------|
+| coordinates | `list<Coordinate>` | -    | yes      | -             | The list of points coordinates forming the line |
+
+Example of code to get the coordinates of a line :
+```java
+List<Coordinate> stationCoordinates = network.getLine("L1").getExtension(LinePosition.class)
+    .getCoordinates();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the LinePositionAdder extension should be used.
+
+Example of code to add the extension:
+
+```java
+Line line = network.getLine("L1");
+line.newExtension(LinePositionAdder.class)
+    .withCoordinates(List.of(new Coordinate(48, 2), new Coordinate(48.1, 2.1)))
+    .add();
+```
+
+(load-asymmetrical-extension)=
+## Load asymmetrical
+
+A balanced load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$.
+This extension is used to describe the power asymmetry for each ABC phase. In the three-phase representation, the complex power injected at a bus $i$ is constant for each phase and represented by three complex values:
+
+$$
+S_{Ai_{Load}}=S_{A}=P_{A}+j.Q_{A} \\
+S_{Bi_{Load}}=S_{B}=P_{B}+j.Q_{B} \\
+S_{Ci_{Load}}=S_{C}=P_{C}+j.Q_{C} \\
+$$
+
+But for a balanced load flow, the constant power load $P$ and $Q$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three-phase representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
+
+<u>Balanced load flow conditions:</u>
+
+In balanced conditions given the load at bus:
+
+$$ S_{1i_{Load}}=P_{Load}+j.Q_{Load} $$
+
+We must verify:
+
+$$ 0 = -S_{1i_{Load}} +\sum_{j=\delta(i)}^{} S_{1ij} $$
+
+<u>Unbalanced load flow conditions:</u>
+
+We must take into account that many loads are still balanced and information related to balanced loads is sufficient. The extension proposes a delta approach where unbalances are expressed in the extension. Supposing that:
+
+$$
+\Delta P_{Ai_{Load}}, \Delta Q_{Ai_{Load}},
+\Delta P_{Bi_{Load}}, \Delta Q_{Bi_{Load}},
+\Delta P_{Ci_{Load}}, \Delta Q_{Ci_{Load}}
+$$
+
+are provided in input through the extension. The three-phase power values used as inputs of an unbalanced load flow calculation are:
+
+$$
+S_{Ai_{Load}}=(P_{Load}+\Delta P_{Ai_{Load}})+j.(Q_{Load}+\Delta Q_{Ai_{Load}}) \\
+S_{Bi_{Load}}=(P_{Load}+\Delta P_{Bi_{Load}})+j.(Q_{Load}+\Delta Q_{Bi_{Load}}) \\
+S_{Ci_{Load}}=(P_{Load}+\Delta P_{Ci_{Load}})+j.(Q_{Load}+\Delta Q_{Ci_{Load}}) \\
+$$
+
+As a consequence, if no extension provided for the load, the unbalanced load flow will use in input:
+
+$$
+S_{Ai_{Load}}=P_{Load}+j.Q_{Load} \\
+S_{Bi_{Load}}=P_{Load}+j.Q_{Load} \\
+S_{Ci_{Load}}=P_{Load}+j.Q_{Load} \\
+$$
+
+| Attribute | Type   | Unit | Required | Default value | Description                                                                                                                                                                      |
+|-----------|--------|------|----------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| deltaPa   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase A (balanced parts for each phase are described by its active power setpoint $P0$ and its reactive power setpoint $Q0$) |
+| deltaQa   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase A                                                                                                                    |
+| deltaPb   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase B                                                                                                                      |
+| deltaQb   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase B                                                                                                                    |
+| deltaPc   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase C                                                                                                                      |
+| deltaQc   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase C                                                                                                                    |
+
+Here is how to add a load detail extension to a load:
+```java
+load.newExtension(LoadAsymmetricalAdder.class)
+        .withDeltaPa(-1)
+        .withDeltaQa(1)
+        .withDeltaPb(-2)
+        .withDeltaQc(2)
+        .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(load-detail-extension)=
+## Load detail
+A load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$. This extension is used to detail :
+- In the total amount of active power what is fixed and what is time-dependent (also called variable). The time-dependent part can be adjusted for production equals consumption.
+- In the total amount of reactive power what is fixed and what is time-dependent (also called variable).
+
+| Attribute             | Type   | Unit | Required | Default value | Description                                                         |
+|-----------------------|--------|------|----------|---------------|---------------------------------------------------------------------|
+| variableActivePower   | double | MW   | yes      | -             | The part of the active power setpoint that is considered variable   |
+| fixedActivePower      | double | MW   | yes      | -             | The part of the active power setpoint that is considered constant   |
+| variableReactivePower | double | MVar | yes      | -             | The part of the reactive power setpoint that is considered variable |
+| fixedReactivePower    | double | MVar | yes      | -             | The part of the reactive power setpoint that is considered constant |
+
+Here is how to add a load detail extension to a load:
+```java
+load.newExtension(LoadDetailAdder.class)
+    .withVariableActivePower(40)
+    .withFixedActivePower(20)
+    .withVariableReactivePower(5)
+    .withFixedReactivePower(2)
+    .add();
+```
+
+All of this extension's attributes are multi-variants: they can vary from one variant to another.
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(measurements-extension)=
+## Measurements
+
+This extension is used to store measurements collected in substations.
+
+| Attribute    | Type                    | Unit | Required | Default value | Description                                  |
+|--------------|-------------------------|------|----------|---------------|----------------------------------------------|
+| measurements | Collection<Measurement> | -    | no       | -             | Contains a collection of Measurement objects |
+
+The Measurement class characteristics are the following:
+
+| Attribute         | Type                | Unit | Required | Default value | Description                                                     |
+|-------------------|---------------------|------|----------|---------------|-----------------------------------------------------------------|
+| id                | String              | -    | no       | -             | The ID of the measurement if it exists                          |
+| type              | Measurement.Type    | -    | no       | -             | The type of measurement (ANGLE, ACTIVE_POWER, VOLTAGE etc.)     |
+| properties        | Map<String, String> | -    | no       | -             | The properties (name and value) associated with the measurement |
+| value             | double              | -    | no       | -             | The measurement value                                           |
+| standardDeviation | double              | -    | no       | -             | The standard deviation (NaN if not specified)                   |
+| valid             | boolean             | -    | no       | -             | The validity status (if true, the measured value cannot be NaN) |
+| side              | ThreeSides          | -    | no       | -             | The equipment side associated to the measurement                |
+
+(operating-status-extension)=
+## Operating status
+
+This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
+three-winding transformers, HVDC line and a boundary line. The status could be:
+- `IN_OPERATION`: equipment in service.
+- `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
+- `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
+
+(reference-priorities-extension)=
+## Reference Priorities
+
+This extension is attached to a [generator](network_subnetwork.md#generator), or a [busbar section](network_subnetwork.md#busbar-section) or a [load](network_subnetwork.md#load) and is used to define the angle reference bus of
+a power flow calculation, i.e. which bus will be used with a zero-voltage angle.
+Use this extension before a computation to force the reference bus selection.
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
+today supports Reference Priorities on generators only when this feature is activated.
+
+The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
+0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.
+
+| Attribute | Type       | Unit | Required | Default value | Description            |
+|-----------|------------|------|----------|---------------|------------------------|
+| Terminal  | `Terminal` | -    | yes      | -             | The reference terminal |
+| Priority  | `Integer`  | -    | yes      | 0             | The reference priority |
+
+ ```java
+ReferencePriority.set(generator, 1);
+
+int priority = ReferencePriority.get(generator); // note: returns zero if none defined
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
+(reference-terminals-extension)=
+## Reference Terminals
+
+This extension is attached to a [network](network_subnetwork.md#network) and is used to define the angle references of a Power Flow solution.
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
+today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priorities-extension).
+
+The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
+0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.
+
+| Attribute | Type            | Unit | Required | Default value | Description             |
+|-----------|-----------------|------|----------|---------------|-------------------------|
+| terminals | `Set<Terminal>` | -    | yes      | -             | The reference terminals |
+
+ ```java
+Set<Terminal> referenceTerminals = ReferenceTerminals.getTerminals(network);
+
+ReferenceTerminals.reset(network);
+
+ReferenceTerminals.add(terminal);
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
+(remote-reactive-power-control-extension)=
+## Remote reactive power control
+
+This extension is used for generators with a remote reactive control.
+
+| Attribute          | Type       | Unit | Required | Default value | Description                                        |
+|--------------------|------------|------|----------|---------------|----------------------------------------------------|
+| enabled            | boolean    | -    | yes      | -             | If the reactive remote control is activated of not |
+| targetQ            | double     | MVar | yes      | -             | The targetQ at remote regulating terminal          |
+| regulatingTerminal | `Terminal` | -    | yes      | -             | The regulating terminal                            |
+
+(secondary-voltage-control-extension)=
+## Secondary voltage control
+
+This extension models the secondary voltage control of the network. It is attached to a [network](network_subnetwork.md#network) and contains a list of control zones.
+
+The secondary voltage control is a hierarchical voltage control mechanism used in power systems, where pilot nodes are controlled to target voltages through coordinated reactive power output adjustments of participating generators (the extension control units).
+
+**Control zone**
+
+A control zone groups a pilot point with the generators that regulate its voltage.
+
+| Attribute    | Type              | Unit | Required | Default value | Description                                                                                                          |
+|--------------|-------------------|------|----------|---------------|----------------------------------------------------------------------------------------------------------------------|
+| name         | String            | -    | yes      | -             | The unique name of the control zone                                                                                  |
+| pilotPoint   | PilotPoint        | -    | yes      | -             | The pilot point whose voltage is regulated (has a target voltage and a list of regulated busbar sections or bus IDs) |
+| controlUnits | List<ControlUnit> | -    | yes      | -             | The list of control units (generators) with their active flag to indicate their participation in the zone control    |
+
+**Pilot point**
+
+| Attribute                | Type         | Unit | Required | Default value | Description                                                     |
+|--------------------------|--------------|------|----------|---------------|-----------------------------------------------------------------|
+| busbarSectionsOrBusesIds | List<String> | -    | yes      | -             | The IDs of the busbar sections or buses forming the pilot point |
+| targetV                  | double       | kV   | yes      | -             | The target voltage at the pilot point                           |
+
+**Control unit**
+
+| Attribute   | Type    | Unit | Required | Default value | Description                                               |
+|-------------|---------|------|----------|---------------|-----------------------------------------------------------|
+| id          | String  | -    | yes      | -             | The ID of the generator used as a control unit            |
+| participate | boolean | -    | no       | true          | Whether the generator participates in the voltage control |
+
+The `targetV` and `participate` attributes are multi-variants: they can vary from one variant to another.
+
+Here is how to add a secondary voltage control extension to a network:
+```java
+network.newExtension(SecondaryVoltageControlAdder.class)
+    .newControlZone()
+        .withName("z1")
+        .newPilotPoint()
+            .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+            .withTargetV(15d)
+        .add()
+        .newControlUnit()
+            .withId("GEN")
+            .withParticipate(false)
+        .add()
+        .newControlUnit()
+            .withId("GEN2")
+        .add()
+    .add()
+.add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(slack-terminal-extension)=
+## Slack terminal
+
+This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
+of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
+Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
+[`readSlackBus`](../simulation/loadflow/configuration.md#readslackbus). Use this extension after a computation to attach
+to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
+default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#writeslackbus).
+
+The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
+
+| Attribute | Type       | Unit | Required | Default value | Description        |
+|-----------|------------|------|----------|---------------|--------------------|
+| Terminal  | `Terminal` | -    | yes      | -             | The slack terminal |
+
+ ```java
+SlackTerminal.attach(bus);
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
+(standby-automaton-extension)=
+## Standby automaton
+
+This extension is attached to a [static VAR compensator](network_subnetwork.md#static-var-compensator) and is used to define the automaton status and its fixed part susceptance, high and low voltage setpoints and thresholds.
+
+When the static VAR compensator is in standby mode, it behaves as a fixed shunt of susceptance `b0`. The high and low voltage setpoints and thresholds are used by the automaton to adjust the voltage regulation when the monitored voltage leaves the `[lowVoltageThreshold, highVoltageThreshold]` range.
+
+| Attribute             | Type    | Unit | Required | Default value | Description                                                                                       |
+|-----------------------|---------|------|----------|---------------|---------------------------------------------------------------------------------------------------|
+| standby               | boolean | -    | true     | false         | The automaton status (in service or not)                                                          |
+| b0                    | double  | S    | true     | NaN           | The fix part of the susceptance (between the min and max f the static VAR compensator susceptance |
+| lowVoltageSetpoint    | double  | kV   | true     | NaN           | The voltage setpoint used when the low voltage threshold is reached                               |
+| highVoltageSetpoint   | double  | kV   | true     | NaN           | The voltage setpoint used when the high voltage threshold is reached                              |
+| lowVoltageThreshold   | double  | kV   | true     | NaN           | The voltage threshold under which the static VAR compensator controls at low voltage setpoint     |
+| highVoltageThreshold  | double  | kV   | true     | NaN           | The voltage threshold above which the static VAR compensator controls at high voltage setpoint    |
+
+The `standby`, `lowVoltageSetpoint`, `highVoltageSetpoint`, `lowVoltageThreshold` and `highVoltageThreshold` attributes are multi-variants: they can vary from one variant to another.
+
+Example of code to add the standby automaton data for a static VAR compensator :
+```java
+StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+svc.newExtension(StandbyAutomatonAdder.class)
+    .withB0(0.0001f)
+    .withStandbyStatus(true)
+    .withLowVoltageSetpoint(390f)
+    .withHighVoltageSetpoint(400f)
+    .withLowVoltageThreshold(385f)
+    .withHighVoltageThreshold(405f)
+    .add();
+```
+
+(substation-position-extension)=
+## Substation Position
+
+This extension is attached to a [substation](network_subnetwork.md#substation) and is used to store the geographical coordinates of the Substation.
+The coordinates are stored using latitude and longitude.
+
+| Attribute  | Type         | Unit | Required | Default value | Description                                  |
+|------------|--------------|------|----------|---------------|----------------------------------------------|
+| coordinate | `Coordinate` | -    | yes      | -             | The latitude and longitude of the substation |
+
+Example of code to get the coordinates of a substation :
+```java
+Coordinate stationCoordinate = network.getSubstation("P1").getExtension(SubstationPosition.class)
+    .getCoordinate();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the SubstationPositionAdder extension should be used.
+
+Example of code to add the extension:
+
+```java
+Substation station = network.getSubstation("P1");
+station.newExtension(SubstationPositionAdder.class)
+        .withCoordinate(new Coordinate(48, 2))
+        .add();
+```
+
+(three-winding-transformer-phase-angle-clock-extension)=
+## Three-winding transformer phase angle clock
+
+This extension is used to model the Vector Group of a three-winding transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three-winding transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three-winding transformer](network_subnetwork.md#three-winding-transformer).
+
+| Attribute           | Type       | Unit  | Required | Default value | Description                                   |
+|---------------------|------------|-------|----------|---------------|-----------------------------------------------|
+| PhaseAngleClockLeg2 | int [0-11] | hours | yes      | -             | The voltage phase angle displacement at leg 2 |
+| PhaseAngleClockLeg3 | int [0-11] | hours | yes      | -             | The voltage phase angle displacement at leg 3 |
+
+```java
+transformer.newExtension(ThreeWindingsTransformerPhaseAngleClock.class)
+    .withPhaseAngleClockLeg2(10)
+    .withPhaseAngleClockLeg3(1)
+    .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(three-winding-transformer-to-be-estimated-extension)=
+## Three-winding transformer to be estimated
+
+This extension is used to indicate if a three-winding transformer tap changer is to be estimated during a state estimation, i.e., if its tap position should be an output of the state estimation.
+* The three-winding transformer model offers the possibility to have up to 3 ratio tap changers and up to 3 phase tap changers. Each tap changer can be estimated or not.
+* If a tap changer is not to be estimated, it should not be changed during a state estimation (its tap position is merely an input of the state estimation).
+
+| Attribute | Type   | Unit | Required | Default value                         | Description           |
+|-----------|--------|------|----------|---------------------------------------|-----------------------|
+| NAME      | String | -    | yes      | threeWindingsTransformerToBeEstimated | Name of the extension |
+
+Example of code to get the status of the n°1 phase tap changer:
+
+```java
+3wt.getExtension(ThreeWindingsTransformerToBeEstimated.class).shouldEstimatePhaseTapChanger1();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the ThreeWindingsTransformerToBeEstimatedAdder extension should be used.
+
+Example of code to add the extension:
+
+```java
+transformer.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
+        .withRatioTapChanger1Status(true)
+        .add();
+```
+
+(two-winding-transformer-phase-angle-clock-extension)=
+## Two-winding transformer phase angle clock
+
+This extension is used to model the Vector Group of a two-winding transformer. The phase angle clock is modeled at side 2 of a two-winding transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two-winding transformer](network_subnetwork.md#two-winding-transformer).
+
+| Attribute       | Type       | Unit  | Required | Default value | Description                          |
+|-----------------|------------|-------|----------|---------------|--------------------------------------|
+| PhaseAngleClock | int [0-11] | hours | yes      | -             | The voltage phase angle displacement |
+
+```java
+transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
+    .withPhaseAngleClock(3)
+    .add();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+(two-winding-transformer-to-be-estimated-extension)=
+## Two-winding transformer to be estimated
+
+This extension is used to indicate if a two-winding transformer tap changer is to be estimated during a state estimation, i.e., if its tap position should be an output of the state estimation.
+* A two-winding transformer has a ratio tap changer and/or a phase tap changer. Each tap changer can be estimated or not.
+* If a tap changer is not to be estimated, it should not be changed during a state estimation (its tap position is merely an input of the state estimation).
+
+| Attribute | Type   | Unit | Required | Default value                       | Description           |
+|-----------|--------|------|----------|-------------------------------------|-----------------------|
+| NAME      | String | -    | yes      | twoWindingsTransformerToBeEstimated | Name of the extension |
+
+Example of code to get the status of the ratio tap changer:
+
+```java
+2wt.getExtension(TwoWindingsTransformerToBeEstimated.class).shouldEstimateRatioTapChanger();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the TwoWindingsTransformerToBeEstimatedAdder extension should be used.
+
+Example of code to add the extension:
+
+Example of code:
+
+```java
+transformer.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
+        .withPhaseTapChangerStatus(true)
+        .add();
+```
+
+(voltage-per-reactive-power-control-extension)=
+## Voltage per reactive power control
+
+This extension is used to model voltage control of static VAR compensators. This extension is attached to a [static VAR compensator](network_subnetwork.md#static-var-compensator).
+
+| Attribute | Type   | Unit        | Required | Default value | Description                                                   |
+|-----------|--------|-------------|----------|---------------|---------------------------------------------------------------|
+| Slope     | double | kV per MVar | yes      | -             | The sensibility of the voltage with respect to reactive power |
+
+When this extension is present and the slope greater than zero, the reactive output of the static VAR compensator is defined by:
+
+$$Q = \dfrac{VoltageSetpoint - V}{slope}$$
+where $V$ is the voltage at regulating terminal and $VoltageSetpoint$ the target value in voltage given as attribute in a static VAR compensator.
+
+Here is how to add a voltage per reactive power control extension to a static VAR compensator:
+```java
+svc.newExtension(VoltagePerReactivePowerControlAdder.class)
+    .withSlope(0.5)
+    .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.

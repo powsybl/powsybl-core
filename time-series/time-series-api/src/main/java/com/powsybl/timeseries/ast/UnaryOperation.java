@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -105,7 +106,7 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
     }
 
     static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         if ("op".equals(fieldName)) {
             context.operator = Operator.valueOf(parser.nextTextValue());
         } else {
@@ -139,7 +140,7 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode() + operator.hashCode();
+        return Objects.hash(child, operator, NAME);
     }
 
     @Override

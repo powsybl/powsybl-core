@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
@@ -10,10 +11,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import java.time.ZonedDateTime;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,10 +53,6 @@ public abstract class AbstractSlackTerminalTest {
             .setQ0(50)
             .add();
 
-        Substation s1 = network.newSubstation()
-            .setId("S1")
-            .setCountry(Country.FR)
-            .add();
         VoltageLevel vl1 = s.newVoltageLevel()
             .setId("VL1")
             .setNominalV(400)
@@ -69,8 +68,8 @@ public abstract class AbstractSlackTerminalTest {
             .setTargetP(100)
             .setMinP(0)
             .setMaxP(110)
-            .setTargetV(380)
-            .setVoltageRegulatorOn(true)
+            .setLocalTargetV(380)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 
         network.newLine()
@@ -209,26 +208,33 @@ public abstract class AbstractSlackTerminalTest {
         SlackTerminal stGen = vlgen.getExtension(SlackTerminal.class);
         assertNotNull(stGen);
         final Terminal tGen = stGen.getTerminal();
+        assertEquals(1, tGen.getReferrers().size());
 
         // Testing that only current variant was set
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         assertNull(stGen.getTerminal());
         stGen.setTerminal(tGen);
+        assertEquals(1, tGen.getReferrers().size());
 
         variantManager.setWorkingVariant(variant1);
         assertNull(stGen.getTerminal());
         stGen.setTerminal(tGen);
+        assertEquals(1, tGen.getReferrers().size());
 
         // Testing the empty property of the slackTerminal
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         assertFalse(stGen.setTerminal(null).isEmpty());
+        assertEquals(1, tGen.getReferrers().size());
 
         variantManager.setWorkingVariant(variant2);
         assertFalse(stGen.setTerminal(null).isEmpty());
+        assertEquals(1, tGen.getReferrers().size());
 
         variantManager.setWorkingVariant(variant1);
         assertTrue(stGen.setTerminal(null).isEmpty());
+        assertEquals(0, tGen.getReferrers().size());
         assertFalse(stGen.setTerminal(tGen).isEmpty());
+        assertEquals(1, tGen.getReferrers().size());
 
         // Testing the cleanIfEmpty boolean
         stGen.setTerminal(null, false);
@@ -244,7 +250,7 @@ public abstract class AbstractSlackTerminalTest {
         assertEquals("NLOAD", stLoad.getTerminal().getBusBreakerView().getBus().getId());
         assertFalse(stLoad.isEmpty());
 
-         // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
+        // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
         SlackTerminal.reset(vlgen, tGen);
         stGen = vlgen.getExtension(SlackTerminal.class);
         assertNotNull(stGen);
@@ -258,5 +264,77 @@ public abstract class AbstractSlackTerminalTest {
         assertNull(vlgen.getExtension(SlackTerminal.class));
         assertNull(vlhv1.getExtension(SlackTerminal.class));
 
+    }
+
+    @Test
+    public void testWithSubnetwork() {
+        Network network1 = createBusBreakerNetwork();
+        SlackTerminal.attach(network1.getBusBreakerView().getBus("B"));
+        Network network2 = EurostagTutorialExample1Factory.create();
+        SlackTerminal.attach(network2.getBusBreakerView().getBus("NHV1"));
+
+        Network merged = Network.merge(network1, network2);
+        network1 = merged.getSubnetwork("test");
+        network2 = merged.getSubnetwork("sim1");
+
+        // still there after merge
+        assertNotNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class));
+        assertNotNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class));
+
+        // we can reset everything (including subnetworks)
+        SlackTerminal.reset(merged);
+        assertNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class));
+        assertNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class));
+
+        // we can reset only a subnetwork
+        SlackTerminal.attach(network1.getBusBreakerView().getBus("B"));
+        SlackTerminal.attach(network2.getBusBreakerView().getBus("NHV1"));
+        SlackTerminal.reset(network1);
+        assertNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class)); // reset
+        assertNotNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class)); // untouched
+    }
+
+    @Test
+    public void removeTerminalConnectableTest() {
+        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
+        var vlgen = network.getVoltageLevel("VLGEN");
+        var gen2 = network.getGenerator("GEN2");
+        var slackTerminal = vlgen.newExtension(SlackTerminalAdder.class)
+                .withTerminal(gen2.getTerminal())
+                .add();
+        assertNotNull(slackTerminal.getTerminal());
+        gen2.remove();
+        assertNull(slackTerminal.getTerminal());
+    }
+
+    @Test
+    public void removeTerminalConnectableInMultiVariantContextTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        var load1 = network.getLoad("LD1");
+        var slackTerminal = network.getVoltageLevel(FourSubstationsNodeBreakerFactory.S1VL1)
+                .newExtension(SlackTerminalAdder.class)
+                .withTerminal(load1.getTerminal())
+                .add();
+
+        // Create 2 variants => the load terminal is used for all of them
+        final String variant1 = "variant1";
+        final String variant2 = "variant2";
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant2);
+        // Change the terminal in variant1
+        Terminal otherTerminal = network.getTwoWindingsTransformer("TWT").getTerminal1();
+        variantManager.setWorkingVariant(variant1);
+        slackTerminal.setTerminal(otherTerminal);
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+
+        // Remove load1. Its terminal is removed from the extension for all the variants referencing it
+        load1.remove();
+        assertNull(slackTerminal.getTerminal());
+        variantManager.setWorkingVariant(variant1);
+        assertNotNull(slackTerminal.getTerminal());
+        assertEquals(otherTerminal, slackTerminal.getTerminal());
+        variantManager.setWorkingVariant(variant2);
+        assertNull(slackTerminal.getTerminal());
     }
 }

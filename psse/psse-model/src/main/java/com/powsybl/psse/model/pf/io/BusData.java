@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
@@ -25,10 +26,10 @@ class BusData extends AbstractRecordGroup<PsseBus> {
 
     BusData() {
         super(PowerFlowRecordGroup.BUS);
-        withFieldNames(V32, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va");
-        withFieldNames(V33, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
-        withFieldNames(V35, "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
-        withQuotedFields("name");
+        withFieldNames(V32, PsseBus.getFieldNames32());
+        withFieldNames(V33, PsseBus.getFieldNames3335());
+        withFieldNames(V35, PsseBus.getFieldNames3335());
+        withQuotedFields(PsseBus.getFieldNamesString());
         withIO(LEGACY_TEXT, new BusLegacyText(this));
     }
 

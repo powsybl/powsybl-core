@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -27,6 +28,7 @@ import static com.powsybl.security.json.JsonSecurityAnalysisParameters.getExtens
 public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 
     private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
+    private static final String TAG = "Tag: ";
 
     SecurityAnalysisParametersDeserializer() {
         super(SecurityAnalysisParameters.class);
@@ -42,7 +44,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken();
                     version = parser.getValueAsString();
@@ -54,16 +56,33 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                             parser,
                             SecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
+                case "monitored-element-modification-threshold":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: monitoredElementModificationThreshold", version, "1.3");
+                    parser.nextToken();
+                    parameters.setModifiedMonitoredElementsParameters(JsonUtil.readValue(deserializationContext,
+                            parser,
+                            SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class));
+                    break;
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
+                    break;
+                case "intermediate-results-in-operator-strategy":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.2");
+                    parser.nextToken();
+                    parameters.setIntermediateResultsInOperatorStrategy(parser.getValueAsBoolean());
+                    break;
+                case "debug-dir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.3");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
                     break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

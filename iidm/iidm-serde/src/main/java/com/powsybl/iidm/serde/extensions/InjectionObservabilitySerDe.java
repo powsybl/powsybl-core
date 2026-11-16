@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -10,13 +11,15 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
+
+import java.util.Optional;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -44,13 +47,13 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
         writeOptionalQuality(QUALITY_V, injectionObservability.getQualityV(), context.getWriter());
     }
 
-    private void writeOptionalQuality(String elementName, ObservabilityQuality<T> quality, TreeDataWriter writer) {
-        if (quality != null) {
+    private void writeOptionalQuality(String elementName, Optional<ObservabilityQuality<T>> quality, TreeDataWriter writer) {
+        quality.ifPresent(q -> {
             writer.writeStartNode(getNamespaceUri(), elementName);
-            writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            quality.isRedundant().ifPresent(redundant -> writer.writeBooleanAttribute(REDUNDANT, redundant));
+            writer.writeDoubleAttribute(STANDARD_DEVIATION, q.getStandardDeviation());
+            writer.writeOptionalBooleanAttribute(REDUNDANT, q.isRedundant().orElse(null));
             writer.writeEndNode();
-        }
+        });
     }
 
     @Override
@@ -62,7 +65,7 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
 
         context.getReader().readChildNodes(elementName -> {
             var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-            var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
+            boolean redundant = context.getReader().readOptionalBooleanAttribute(REDUNDANT).orElse(false);
             context.getReader().readEndNode();
             switch (elementName) {
                 case QUALITY_P -> adder.withStandardDeviationP(standardDeviation).withRedundantP(redundant);

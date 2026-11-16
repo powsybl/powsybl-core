@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -34,10 +35,32 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void noRegulationModeTest() throws IOException {
+        // backward compatibility from 1.7 to 1.13 : regulation mode is exported as OFF if it was not set in input file
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml",
+                "staticVarCompensatorRegulationModeOFF.xml", IidmVersion.V_1_7, IidmVersion.V_1_14);
+
+        // regulation mode is exported as VOLTAGE and regulating is set to false if regulation mode was not set in input file
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("staticVarCompensatorNoRegulationMode.xml",
+                "notRegulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_14, CURRENT_IIDM_VERSION);
+    }
+
+    @Test
     void remoteRegulationRoundTripTest() throws IOException {
         Network network = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         addProperties(network);
         allFormatsRoundTripTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("regulatingStaticVarCompensatorRoundTripRef.xml", IidmVersion.V_1_1);
+    }
+
+    @Test
+    void remoteReactivePowerRegulationRoundTripTest() throws IOException {
+        Network network = SvcTestCaseFactory.createWithRemoteReactiveRegulatingTerminal();
+        addProperties(network);
+        allFormatsRoundTripTest(network, "staticVarCompensatorRemoteReactiveRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("staticVarCompensatorRemoteReactiveRoundTripRef.xml", IidmVersion.V_1_7);
     }
 
     @Test

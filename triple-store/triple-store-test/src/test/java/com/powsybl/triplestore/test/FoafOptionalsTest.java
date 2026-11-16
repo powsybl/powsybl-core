@@ -3,16 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.test;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -31,13 +31,13 @@ class FoafOptionalsTest {
     void testAllQuads() {
         Expected expected = new Expected().expect(
                 "o",
-                "Alice",
-                "Bob",
-                "SweetCaroline",
-                "Wonderland",
                 "mailto:alice@example",
+                "Alice",
+                "Wonderland",
                 "mailto:bob@example",
-                "mailto:carol@example");
+                "Bob",
+                "mailto:carol@example",
+                "SweetCaroline");
         tester.testQuery("SELECT * { GRAPH ?g { ?s ?p ?o }}", expected);
     }
 
@@ -51,7 +51,7 @@ class FoafOptionalsTest {
     void testMultipleOptionals() {
         Expected expected = new Expected()
                 .expect("name", "Alice", "Bob", null)
-                .expect("nick", "SweetCaroline", "Wonderland", null);
+                .expect("nick", "Wonderland", null, "SweetCaroline");
         tester.testQuery(queries.get("multipleOptionals"), expected);
     }
 
@@ -64,7 +64,7 @@ class FoafOptionalsTest {
     @Test
     void testOptionalWithUnion() {
         Expected expected = new Expected()
-                .expect("label", "Alice", "Bob", "SweetCaroline", "Wonderland");
+                .expect("label", "Alice", "Wonderland", "Bob", "SweetCaroline");
         tester.testQuery(queries.get("optionalWithUnion"), expected);
     }
 
@@ -72,7 +72,7 @@ class FoafOptionalsTest {
     void testNestedOptionals() {
         Expected expected = new Expected()
                 .expect("name", "Alice", null, null)
-                .expect("nick", "SweetCaroline", "Wonderland", null);
+                .expect("nick", "Wonderland", null, "SweetCaroline");
         tester.testQuery(queries.get("nestedOptionals"), expected);
     }
 
@@ -86,7 +86,7 @@ class FoafOptionalsTest {
 
     @Test
     void testOptionalNestedFilter() {
-        Expected expected = new Expected().expect("name", "Bob", null, null);
+        Expected expected = new Expected().expect("name", null, "Bob", null);
         tester.testQuery(queries.get("optionalNestedFilter"), expected);
     }
 

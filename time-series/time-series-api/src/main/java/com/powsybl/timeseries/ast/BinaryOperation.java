@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -17,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class BinaryOperation extends AbstractBinaryNodeCal {
+public class BinaryOperation extends AbstractBinaryNodeCalc {
 
     static final String NAME = "binaryOp";
 
@@ -123,7 +124,7 @@ public class BinaryOperation extends AbstractBinaryNodeCal {
     }
 
     static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         if ("op".equals(fieldName)) {
             context.operator = Operator.valueOf(parser.nextTextValue());
         } else {
@@ -160,7 +161,7 @@ public class BinaryOperation extends AbstractBinaryNodeCal {
 
     @Override
     public int hashCode() {
-        return left.hashCode() + right.hashCode() + operator.hashCode();
+        return Objects.hash(left, right, operator, NAME);
     }
 
     @Override

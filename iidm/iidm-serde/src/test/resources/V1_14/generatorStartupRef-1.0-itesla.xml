@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" xmlns:gs="http://www.itesla_project.eu/schema/iidm/ext/generator_startup/1_0" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S" country="FR">
+        <iidm:voltageLevel id="VL" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="G" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="380.0" bus="B" connectableBus="B">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="G">
+        <gs:startup predefinedActivePowerSetpoint="90.0" startUpCost="5.0" marginalCost="10.0" plannedOutageRate="0.8" forcedOutageRate="0.7"/>
+    </iidm:extension>
+</iidm:network>

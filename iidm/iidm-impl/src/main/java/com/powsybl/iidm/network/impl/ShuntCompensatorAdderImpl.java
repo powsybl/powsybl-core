@@ -3,15 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -19,27 +21,26 @@ import java.util.stream.IntStream;
  */
 class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorAdderImpl> implements ShuntCompensatorAdder {
 
-    private final VoltageLevelExt voltageLevel;
-
     private ShuntCompensatorModelBuilder modelBuilder;
 
     private Integer sectionCount;
 
+    private Integer solvedSectionCount;
+
     private double targetV = Double.NaN;
+
+    private double localTargetV = Double.NaN;
 
     private double targetDeadband = Double.NaN;
 
     private TerminalExt regulatingTerminal;
 
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
+
     private boolean voltageRegulatorOn = false;
 
     ShuntCompensatorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     @Override
@@ -55,7 +56,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     }
 
-    class ShuntCompensatorLinearModelAdderImpl implements ShuntCompensatorLinearModelAdder, ShuntCompensatorModelBuilder {
+    class ShuntCompensatorLinearModelAdderImpl extends AbstractBasePropertiesHolder implements ShuntCompensatorLinearModelAdder, ShuntCompensatorModelBuilder {
 
         private double bPerSection = Double.NaN;
 
@@ -97,15 +98,17 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         @Override
         public ShuntCompensatorModelExt build() {
-            return new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
+            ShuntCompensatorLinearModelImpl linearModel = new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
+            this.copyPropertiesTo(linearModel);
+            return linearModel;
         }
     }
 
-    class ShuntCompensatorNonLinearModelAdderImpl implements ShuntCompensatorNonLinearModelAdder, ShuntCompensatorModelBuilder {
+    class ShuntCompensatorNonLinearModelAdderImpl extends AbstractBasePropertiesHolder implements ShuntCompensatorNonLinearModelAdder, ShuntCompensatorModelBuilder {
 
         private final List<SectionAdderImpl> sectionAdders = new ArrayList<>();
 
-        class SectionAdderImpl implements SectionAdder {
+        class SectionAdderImpl extends AbstractBasePropertiesHolder implements SectionAdder {
 
             private double b = Double.NaN;
 
@@ -130,7 +133,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                     if (sectionAdders.isEmpty()) {
                         g = 0;
                     } else {
-                        g = sectionAdders.get(sectionAdders.size() - 1).g;
+                        g = sectionAdders.getLast().g;
                     }
                 }
                 sectionAdders.add(this);
@@ -157,9 +160,10 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             List<ShuntCompensatorNonLinearModelImpl.SectionImpl> sections = IntStream.range(0, sectionAdders.size()).mapToObj(s -> {
                 SectionAdderImpl adder = sectionAdders.get(s);
                 return new ShuntCompensatorNonLinearModelImpl.SectionImpl(s + 1, adder.b, adder.g);
-            }).collect(Collectors.toList());
-
-            return new ShuntCompensatorNonLinearModelImpl(sections);
+            }).toList();
+            ShuntCompensatorNonLinearModelImpl nonLinearModel = new ShuntCompensatorNonLinearModelImpl(sections);
+            this.copyPropertiesTo(nonLinearModel);
+            return nonLinearModel;
         }
 
         @Override
@@ -185,6 +189,17 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount) {
+        this.solvedSectionCount = solvedSectionCount;
+        return this;
+    }
+
+    @Override
+    public VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
+    }
+
+    @Override
     public ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         return this;
@@ -203,18 +218,19 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
-    public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
-        this.targetDeadband = targetDeadband;
+    public ShuntCompensatorAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
     }
 
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
+    @Override
+    public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
+        this.targetDeadband = targetDeadband;
+        return this;
     }
 
     @Override
@@ -226,22 +242,68 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
+        // Backward compatibility
+        if (this.voltageRegulationAttributes == null) {
+            boolean isWithTerminal = regulatingTerminal != null;
+            if (voltageRegulatorOn || !Double.isNaN(targetDeadband)) {
+                this.newVoltageRegulation().withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(isWithTerminal ? targetV : Double.NaN)
+                    .withTargetDeadband(targetDeadband)
+                    .withTerminal(regulatingTerminal)
+                    .withRegulating(voltageRegulatorOn)
+                    .add();
+                if (!isWithTerminal) {
+                    localTargetV = targetV;
+                }
+            }
+        } else {
+            // In the case of a shunt compensator with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
+            if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+                localTargetV = targetV;
+            }
+        }
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(),
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            ShuntCompensator.class,
+            localTargetV,
+            Double.NaN,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
-                id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
-                regulatingTerminal == null ? terminal : regulatingTerminal,
-                voltageRegulatorOn, targetV, targetDeadband);
+            id,
+            getName(),
+            isFictitious(),
+            isEquivalent(),
+            modelBuilder.build(),
+            sectionCount,
+            solvedSectionCount,
+            localTargetV,
+            voltageRegulationAttributes);
 
         shunt.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(shunt);
         network.getListeners().notifyCreation(shunt);
         return shunt;
     }
 
+    @Override
+    public double getLocalTargetQ() {
+        return Double.NaN;
+    }
+
+    @Override
+    public ShuntCompensatorAdderImpl setLocalTargetQ(double localTargetQ) {
+        return this;
+    }
 }

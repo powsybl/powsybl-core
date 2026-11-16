@@ -3,13 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +25,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
@@ -31,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class XMLImporterTest extends AbstractSerDeTest {
+class XMLImporterTest extends AbstractIidmSerDeTest {
 
     private XMLImporter importer;
 
@@ -42,7 +46,8 @@ class XMLImporterTest extends AbstractSerDeTest {
     private void writeNetwork(String fileName, String namespaceUri, boolean writeExt) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri +
+                "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -59,7 +64,8 @@ class XMLImporterTest extends AbstractSerDeTest {
     private void writeNetworkWithExtension(String fileName, String namespaceUri) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri +
+                "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -78,7 +84,8 @@ class XMLImporterTest extends AbstractSerDeTest {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             writer.newLine();
             writer.write("<!--sfsfs-->");
-            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_VERSION.getNamespaceURI() + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_VERSION.getNamespaceURI() +
+                "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -121,7 +128,7 @@ class XMLImporterTest extends AbstractSerDeTest {
     void backwardCompatibilityTest() throws IOException {
         // create network and datasource
         writeNetwork("/v_1_0.xiidm", IidmVersion.V_1_0, false);
-        DataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "v_1_0");
+        DataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "v_1_0");
 
         // exists
         assertTrue(importer.exists(dataSource));
@@ -132,41 +139,34 @@ class XMLImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void getFormat() {
+    void testMetaInfos() {
         assertEquals("XIIDM", importer.getFormat());
-    }
-
-    @Test
-    void getParameters() {
-        assertEquals(2, importer.getParameters().size());
+        assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
+        assertEquals(List.of("xiidm", "iidm", "xml"), importer.getSupportedExtensions());
+        assertEquals(8, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
 
     @Test
-    void getComment() {
-        assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
-    }
-
-    @Test
     void exists() {
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test0")));
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test1")));
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2")));
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test0")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test1")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test2")));
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
     }
 
     @Test
     void copy() throws Exception {
-        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test0"), new FileDataSource(fileSystem.getPath("/"), "test0_copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/"), "test0"), new DirectoryDataSource(fileSystem.getPath("/"), "test0_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test0_copy.xiidm")));
         assertEquals(Files.readAllLines(fileSystem.getPath("/test0.xiidm"), StandardCharsets.UTF_8),
                 Files.readAllLines(fileSystem.getPath("/test0_copy.xiidm"), StandardCharsets.UTF_8));
 
         // test copy with id mapping file
-        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test6"), new FileDataSource(fileSystem.getPath("/"), "test6_copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), new DirectoryDataSource(fileSystem.getPath("/"), "test6_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy.xiidm")));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy_mapping.csv")));
         assertEquals(Files.readAllLines(fileSystem.getPath("/test6.xiidm"), StandardCharsets.UTF_8),
@@ -177,91 +177,86 @@ class XMLImporterTest extends AbstractSerDeTest {
 
     @Test
     void importData() {
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+
         // should be ok
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), NetworkFactory.findDefault(), null));
+        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test0"), networkFactory, null));
 
         // should fail because file that does not exist
-        try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test4"), NetworkFactory.findDefault(), null);
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        DirectoryDataSource dataSource4 = new DirectoryDataSource(fileSystem.getPath("/"), "test4");
+        assertThrows(PowsyblException.class, () -> importer.importData(dataSource4, networkFactory, null));
 
         // extension plugin will be not found but default option just warn
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), null));
+        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), networkFactory, null));
 
         // extension plugin will be not found but option is set to throw an exception
         // (deprecated parameter name)
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
-        try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params);
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        DirectoryDataSource dataSource5 = new DirectoryDataSource(fileSystem.getPath("/"), "test5");
+        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params));
 
         // extension plugin will be not found but option is set to throw an exception
         // (parameter name following same naming convention of XmlExporter)
         Properties params2 = new Properties();
         params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
-        try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params2);
-            fail();
-        } catch (RuntimeException ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> importer.importData(dataSource5, networkFactory, params2));
 
         // read file with id mapping
-        Network network = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test6"), NetworkFactory.findDefault(), params);
+        Network network = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), networkFactory, params);
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
 
-        Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), NetworkFactory.findDefault(), null);
+        Network network2 = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test7"), networkFactory, null);
         assertNotNull(network2.getSubstation("P1"));
     }
 
     @Test
-    void importDataReporterTest() throws IOException {
-        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test8");
-        importDataAndTestReporter("/importXmlReport.txt", dataSource);
+    void importDataReportNodeTest() throws IOException {
+        DirectoryDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test8");
+        importDataAndTestReportNode("/importXmlReport.txt", dataSource);
     }
 
     @Test
-    void importDataReporterExtensionNotFoundTest() throws IOException {
-        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test5");
-        importDataAndTestReporter("/importXmlReportExtensionsNotFound.txt", dataSource);
+    void importDataReportNodeExtensionNotFoundTest() throws IOException {
+        DirectoryDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test5");
+        importDataAndTestReportNode("/importXmlReportExtensionsNotFound.txt", dataSource);
     }
 
     @Test
-    void importDataReporterMultipleExtension() throws IOException {
-        importDataAndTestReporter("multiple-extensions",
+    void importDataReportNodeMultipleExtension() throws IOException {
+        importDataAndTestReportNode("multiple-extensions",
                 "multiple-extensions.xml",
                 "/importXmlReportExtensions.txt");
     }
 
     @Test
-    void importDataReporterValidationTest() throws IOException {
-        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTap",
+    void importDataReportNodeValidationTest() throws IOException {
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTap",
                 "twoWindingsTransformerPhaseAndRatioTap.xml",
                 "/importXmlReportValidation.txt");
     }
 
     @Test
-    void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
-        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
+    void importDataReportNodeValidationAndMultipleExtensionTest() throws IOException {
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
                 "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml",
                 "/importXmlReportExtensionsAndValidations.txt");
     }
 
-    private void importDataAndTestReporter(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet("/V1_11/", dataSourceFilename));
-        importDataAndTestReporter(expectedContentFilename, dataSource);
+    private void importDataAndTestReportNode(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet(getVersionDir(CURRENT_IIDM_VERSION), dataSourceFilename));
+        importDataAndTestReportNode(expectedContentFilename, dataSource);
     }
 
-    private void importDataAndTestReporter(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
-        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
+    private void importDataAndTestReportNode(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
+        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reportNode));
 
         StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
+        reportNode.print(sw);
         InputStream ref = XMLImporterTest.class.getResourceAsStream(expectedContentFilename);
         String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
         String logExport = normalizeLineSeparator(sw.toString());

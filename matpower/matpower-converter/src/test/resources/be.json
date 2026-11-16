@@ -34,7 +34,7 @@
     "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 3,
-    "type" : "PV",
+    "type" : "REF",
     "name" : "21.0_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
@@ -79,11 +79,11 @@
     "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 6,
-    "type" : "REF",
+    "type" : "PQ",
     "name" : "380.0_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
-    "shuntConductance" : 0.0,
+    "shuntConductance" : 1.0108000000000001,
     "shuntSusceptance" : 49.9624,
     "areaNumber" : 1,
     "voltageMagnitude" : 1.0868131605263158,
@@ -101,8 +101,8 @@
     "shuntConductance" : 0.0,
     "shuntSusceptance" : 0.0,
     "areaNumber" : 1,
-    "voltageMagnitude" : 1.0022079161750066,
-    "voltageAngle" : -5.5802145734187345,
+    "voltageMagnitude" : 0.9993638246917638,
+    "voltageAngle" : -5.508577312691308,
     "baseVoltage" : 225.0,
     "lossZone" : 1,
     "maximumVoltageMagnitude" : 0.0,
@@ -116,8 +116,8 @@
     "shuntConductance" : 0.0,
     "shuntSusceptance" : 0.0,
     "areaNumber" : 1,
-    "voltageMagnitude" : 1.0819778377115963,
-    "voltageAngle" : -6.588106220321681,
+    "voltageMagnitude" : 1.0810323300546612,
+    "voltageAngle" : -6.5628934078599075,
     "baseVoltage" : 380.0,
     "lossZone" : 1,
     "maximumVoltageMagnitude" : 0.0,
@@ -131,8 +131,8 @@
     "shuntConductance" : 0.0,
     "shuntSusceptance" : 0.0,
     "areaNumber" : 1,
-    "voltageMagnitude" : 1.0812675043886917,
-    "voltageAngle" : -6.576440343113285,
+    "voltageMagnitude" : 1.0810506038881742,
+    "voltageAngle" : -6.568066330700518,
     "baseVoltage" : 380.0,
     "lossZone" : 1,
     "maximumVoltageMagnitude" : 0.0,
@@ -146,8 +146,8 @@
     "shuntConductance" : 0.0,
     "shuntSusceptance" : 0.0,
     "areaNumber" : 1,
-    "voltageMagnitude" : 0.9998493163932333,
-    "voltageAngle" : -5.638538004235438,
+    "voltageMagnitude" : 0.999160561117725,
+    "voltageAngle" : -5.520447327315214,
     "baseVoltage" : 225.0,
     "lossZone" : 1,
     "maximumVoltageMagnitude" : 0.0,
@@ -161,8 +161,8 @@
     "shuntConductance" : 0.0,
     "shuntSusceptance" : 0.0,
     "areaNumber" : 1,
-    "voltageMagnitude" : 1.0858193263940736,
-    "voltageAngle" : -6.7469452159556695,
+    "voltageMagnitude" : 1.0857971311504089,
+    "voltageAngle" : -6.744481665758925,
     "baseVoltage" : 380.0,
     "lossZone" : 1,
     "maximumVoltageMagnitude" : 0.0,
@@ -239,7 +239,7 @@
     "rateC" : 354.15,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -253,35 +253,7 @@
     "rateC" : 295.2,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
-    "angMin" : 0.0,
-    "angMax" : 0.0
-  }, {
-    "from" : 2,
-    "to" : 1,
-    "r" : 8.192122993395951E-4,
-    "x" : 0.04571631170550064,
-    "b" : -0.010613320515218202,
-    "rateA" : 143.891,
-    "rateB" : 0.0,
-    "rateC" : 154.891,
-    "ratio" : 1.0277920081967213,
-    "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
-    "angMin" : 0.0,
-    "angMax" : 0.0
-  }, {
-    "from" : 5,
-    "to" : 2,
-    "r" : 0.0018325490000000002,
-    "x" : 0.021670694575077892,
-    "b" : 0.0,
-    "rateA" : 383.805,
-    "rateB" : 0.0,
-    "rateC" : 406.305,
-    "ratio" : 0.9453778319888644,
-    "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -295,7 +267,35 @@
     "rateC" : 364.116,
     "ratio" : 1.0526315789473684,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
+    "angMin" : 0.0,
+    "angMax" : 0.0
+  }, {
+    "from" : 5,
+    "to" : 2,
+    "r" : 0.0018325490000000002,
+    "x" : 0.021670694575077892,
+    "b" : 0.0,
+    "rateA" : 383.805,
+    "rateB" : 0.0,
+    "rateC" : 406.305,
+    "ratio" : 0.9453778319888644,
+    "phaseShiftAngle" : 0.0,
+    "status" : 1,
+    "angMin" : 0.0,
+    "angMax" : 0.0
+  }, {
+    "from" : 2,
+    "to" : 1,
+    "r" : 8.192122993395951E-4,
+    "x" : 0.04571631170550064,
+    "b" : -0.010613320515218202,
+    "rateA" : 143.891,
+    "rateB" : 0.0,
+    "rateC" : 154.891,
+    "ratio" : 1.0277920081967213,
+    "phaseShiftAngle" : 0.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -309,7 +309,7 @@
     "rateC" : 354.15,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -323,7 +323,7 @@
     "rateC" : 548.34,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -337,7 +337,7 @@
     "rateC" : 712.88,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -351,7 +351,7 @@
     "rateC" : 295.2,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -365,7 +365,7 @@
     "rateC" : 493.62,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -379,7 +379,7 @@
     "rateC" : 367.916,
     "ratio" : 1.0526315789473684,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -393,7 +393,7 @@
     "rateC" : 406.305,
     "ratio" : 0.9777777777777777,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -407,8 +407,9 @@
     "rateC" : 396.27840000000003,
     "ratio" : 1.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
-  } ]
+  } ],
+  "dcLines" : [ ]
 }

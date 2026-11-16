@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="531px"
+     height="559px" viewBox="-0.5 -0.5 531 559">
+    <defs/>
+    <g>
+        <path d="M 100 30 L 100 0" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 100 310 L 100 280" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <ellipse cx="100" cy="70" rx="40" ry="40" fill="none" stroke="#000000" pointer-events="all"/>
+        <ellipse cx="100" cy="120" rx="40" ry="40" fill="none" stroke="#000000" pointer-events="all"/>
+        <path d="M 99.5 200 L 99.5 160" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <rect x="80" y="200" width="40" height="40" fill="none" stroke="#000000" pointer-events="all"/>
+        <path d="M 100 280 L 100 240" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 100 230 L 100 210" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <rect x="120" y="210" width="40" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="140" y="225" fill="#000000" font-family="Helvetica" font-size="16px" text-anchor="middle">
+                CB-1
+            </text>
+        </g>
+        <rect x="140" y="95" width="40" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="160" y="110" fill="#000000" font-family="Helvetica" font-size="16px" text-anchor="middle">T-1</text>
+        </g>
+        <path d="M 220 115 L 220 97.87" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 220 92.62 L 223.5 99.62 L 220 97.87 L 216.5 99.62 Z" fill="#000000" stroke="#000000"
+              stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 220 130 L 220 148.63" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 220 153.88 L 216.5 146.88 L 220 148.63 L 223.5 146.88 Z" fill="#000000" stroke="#000000"
+              stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="240" y="90" width="120" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="242" y="105" fill="#000000" font-family="Helvetica" font-size="16px">45.0 Mw</text>
+        </g>
+        <rect x="240" y="130" width="120" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="242" y="145" fill="#000000" font-family="Helvetica" font-size="16px">-15.0 Mvar</text>
+        </g>
+        <rect x="0" y="310" width="355" height="10" fill="#000000" stroke="#000000" pointer-events="all"/>
+        <rect x="380" y="305" width="40" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="400" y="320" fill="#000000" font-family="Helvetica" font-size="16px" text-anchor="middle">B-1
+            </text>
+        </g>
+        <ellipse cx="140" cy="510" rx="40" ry="40" fill="none" stroke="#000000" pointer-events="all"/>
+        <rect x="120" y="500" width="40" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="140" y="515" fill="#000000" font-family="Helvetica" font-size="16px" text-anchor="middle">G-1
+            </text>
+        </g>
+        <path d="M 139.5 390 L 139 320" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <rect x="120" y="390" width="40" height="40" fill="none" stroke="#000000" pointer-events="all"/>
+        <path d="M 140 470 L 140 430" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 140 420 L 140 400" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <rect x="160" y="400" width="40" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="180" y="415" fill="#000000" font-family="Helvetica" font-size="16px" text-anchor="middle">
+                CB-2
+            </text>
+        </g>
+        <rect x="245" y="490" width="270" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="247" y="505" fill="#000000" font-family="Helvetica" font-size="16px"> -45.0  Mw      </text>
+        </g>
+        <rect x="245" y="530" width="285" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="247" y="545" fill="#000000" font-family="Helvetica" font-size="16px">  15.0 Mvar  </text>
+        </g>
+        <path d="M 220 508.5 L 220 491.37" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 220 486.12 L 223.5 493.12 L 220 491.37 L 216.5 493.12 Z" fill="#000000" stroke="#000000"
+              stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="240" y="450" width="255" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="368" y="464" fill="#000000" font-family="Helvetica" font-size="16px" text-anchor="middle">
+                Terminal active/reactive power flow
+            </text>
+        </g>
+        <path d="M 220 525 L 220 543.63" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 220 548.88 L 216.5 541.88 L 220 543.63 L 223.5 541.88 Z" fill="#000000" stroke="#000000"
+              stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="240" y="370" width="190" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="242" y="385" fill="#000000" font-family="Helvetica" font-size="16px">  45.0  Mw       Target
+                P
+            </text>
+        </g>
+        <rect x="245" y="403" width="190" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="247" y="418" fill="#000000" font-family="Helvetica" font-size="16px"> -15.0 Mvar    Target Q
+            </text>
+        </g>
+        <rect x="220" y="55" width="265" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <text x="353" y="70" fill="#000000" font-family="Helvetica" font-size="16px" text-anchor="middle">
+                Terminal active/reactive power flow
+            </text>
+        </g>
+    </g>
+</svg>

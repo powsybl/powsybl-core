@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.compress;
 
@@ -87,12 +88,7 @@ class ZipPackagerTest {
         }
 
         ZipPackager zipPackager1 = new ZipPackager();
-        try {
-            zipPackager1.addString("k1", null);
-            fail();
-        } catch (NullPointerException e) {
-            // ignored
-        }
+        assertThrows(NullPointerException.class, () -> zipPackager1.addString("k1", null));
 
         // static methods
         byte[] bytes = ZipPackager.archiveFilesToZipBytes(workingDir, "f1", "f2", "f3.gz");

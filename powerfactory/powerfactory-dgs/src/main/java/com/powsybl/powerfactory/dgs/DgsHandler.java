@@ -3,14 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.dgs;
 
-import java.util.List;
-
+import com.powsybl.powerfactory.model.DataAttributeType;
+import com.powsybl.powerfactory.model.DataObjectRefKey;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import com.powsybl.powerfactory.model.DataAttributeType;
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -31,7 +32,7 @@ public interface DgsHandler {
 
     void onRealValue(String attributeName, float value);
 
-    void onObjectValue(String attributeName, long id);
+    void onObjectValue(String attributeName, DataObjectRefKey otherObjectRefKey);
 
     void onDoubleMatrixValue(String attributeName, RealMatrix value);
 
@@ -41,5 +42,5 @@ public interface DgsHandler {
 
     void onDoubleVectorValue(String attributeName, List<Double> values);
 
-    void onObjectVectorValue(String attributeName, List<Long> ids);
+    void onObjectVectorValue(String attributeName, List<DataObjectRefKey> otherObjectRefKeys);
 }

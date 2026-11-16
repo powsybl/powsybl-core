@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
@@ -22,7 +23,8 @@ public final class AcLineSegmentEq {
     private static final String EQ_ACLINESEGMENT_GCH = "ACLineSegment.gch";
     private static final String EQ_ACLINESEGMENT_BCH = "ACLineSegment.bch";
 
-    public static void write(String id, String lineSegmentName, String baseVoltage, double r, double x, double gch, double bch, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String id, String lineSegmentName, String baseVoltage, double r, double x, double gch,
+                             double bch, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("ACLineSegment", id, lineSegmentName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_R);
         writer.writeCharacters(CgmesExportUtil.format(r));

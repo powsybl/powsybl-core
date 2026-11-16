@@ -3,9 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.network.compare;
+
+import com.powsybl.cgmes.model.CgmesSubset;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -14,7 +20,9 @@ public final class ComparisonConfig {
 
     public ComparisonConfig() {
         checkNetworkId = true;
-        incremented = false;
+        versionIncremented = false;
+        isExportedSubset = Collections.emptySet();
+        ignoreMissingMetadata = false;
         differences = new DifferencesFail();
         networkMappingFactory = NetworkMapping::new;
         checkVoltageLevelLimits = true;
@@ -30,7 +38,17 @@ public final class ComparisonConfig {
     }
 
     public ComparisonConfig incrementVersions(boolean incremented) {
-        this.incremented = incremented;
+        this.versionIncremented = incremented;
+        return this;
+    }
+
+    public ComparisonConfig exportedSubset(Set<CgmesSubset> exportedSubsets) {
+        this.isExportedSubset = exportedSubsets;
+        return this;
+    }
+
+    public ComparisonConfig ignoreMissingMetadata() {
+        this.ignoreMissingMetadata = true;
         return this;
     }
 
@@ -71,8 +89,14 @@ public final class ComparisonConfig {
         return this;
     }
 
+    public boolean isExportedSubset(CgmesSubset subset) {
+        return isExportedSubset.contains(subset);
+    }
+
     boolean checkNetworkId;
-    boolean incremented;
+    boolean versionIncremented;
+    Set<CgmesSubset> isExportedSubset;
+    boolean ignoreMissingMetadata;
     Differences differences;
     NetworkMappingFactory networkMappingFactory;
     boolean checkVoltageLevelLimits;

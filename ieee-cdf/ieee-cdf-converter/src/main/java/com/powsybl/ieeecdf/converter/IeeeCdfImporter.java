@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.converter;
 
@@ -11,12 +12,17 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.ieeecdf.model.*;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBranch;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBus;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfTitle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
@@ -67,8 +73,13 @@ public class IeeeCdfImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return List.of(EXT);
+    }
+
+    @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
+        return ConfiguredParameter.load(Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override
@@ -79,7 +90,7 @@ public class IeeeCdfImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            if (dataSource.exists(null, EXT)) {
+            if (dataSource.isDataExtension(EXT) && dataSource.exists(null, EXT)) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
                     String titleLine = reader.readLine();
                     if (titleLine != null) {
@@ -167,16 +178,16 @@ public class IeeeCdfImporter implements Importer {
 
                 case HOLD_MVAR_GENERATION_WITHIN_VOLTAGE_LIMITS:
                     newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetQ(ieeeCdfBus.getReactiveGeneration())
-                            .setVoltageRegulatorOn(false)
+                            .setLocalTargetQ(ieeeCdfBus.getReactiveGeneration())
                             .add();
                     break;
 
-                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS:
-                case HOLD_VOLTAGE_AND_ANGLE:
+                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS, HOLD_VOLTAGE_AND_ANGLE:
                     Generator generator = newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
-                            .setVoltageRegulatorOn(true)
+                            .setLocalTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
+                            .newVoltageRegulation()
+                                .withMode(RegulationMode.VOLTAGE)
+                                .add()
                             .add();
                     if (ieeeCdfBus.getMinReactivePowerOrVoltageLimit() != 0 || ieeeCdfBus.getMaxReactivePowerOrVoltageLimit() != 0) {
                         generator.newMinMaxReactiveLimits()
@@ -187,7 +198,7 @@ public class IeeeCdfImporter implements Importer {
                     // Keep the given value for reactive output
                     // It is relevant if we want to load a solved case and validate it
                     // Another option would be to store given p, q values at terminal
-                    generator.setTargetQ(ieeeCdfBus.getReactiveGeneration());
+                    generator.setLocalTargetQ(ieeeCdfBus.getReactiveGeneration());
                     break;
 
                 default:
@@ -423,10 +434,13 @@ public class IeeeCdfImporter implements Importer {
         }
         RatioTapChangerAdder ratioTapChangerAdder = transformer.newRatioTapChanger()
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(regulating)
-                .setRegulationTerminal(regulatingTerminal)
-                .setTargetV(targetV)
-                .setTargetDeadband(regulating ? 0.0 : Double.NaN)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(regulatingTerminal)
+                    .withTargetValue(targetV)
+                    .withTargetDeadband(regulating ? 0.0 : Double.NaN)
+                    .withRegulating(regulating)
+                    .add()
                 .setTapPosition(0);
         for (double rho : rhos) {
             ratioTapChangerAdder.beginStep()
@@ -443,9 +457,9 @@ public class IeeeCdfImporter implements Importer {
     private static void createTransformerWithActivePowerControl(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         TwoWindingsTransformer transformer = createTransformer(ieeeCdfBranch, containerMapping, perUnitContext, network);
         // As there is no active power or current setpoint in IEEE data model there is no way to have regulating phase
-        // shifter and so on we always set it to fixed tap.
+        // shifter and so on we always set its regulating to false (with the default regulation mode as CURRENT_LIMITER).
         PhaseTapChangerAdder phaseTapChangerAdder = transformer.newPhaseTapChanger()
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulating(false)
                 .setTapPosition(0);
         List<Double> alphas = new ArrayList<>();
@@ -544,6 +558,7 @@ public class IeeeCdfImporter implements Importer {
             branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
             IeeeCdfImporter::isTransformer,
             busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
+            busNumber -> 0,
             busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
             substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
 

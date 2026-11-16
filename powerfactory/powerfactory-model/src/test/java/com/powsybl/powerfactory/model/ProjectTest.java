@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.model;
 
@@ -37,7 +38,7 @@ class ProjectTest extends AbstractPowerFactoryTest {
 
         prj = new DataObject(4L, clsIntPrj, index)
                 .setLocName("TestProject")
-                .setObjectAttributeValue("pCase", 6L);
+                .setObjectAttributeValue("pCase", DataObjectRefKey.ofId(6L));
 
         var studyCasesFolder = new DataObject(5L, clsIntPrjfolder, index)
                 .setLocName("Study Cases");

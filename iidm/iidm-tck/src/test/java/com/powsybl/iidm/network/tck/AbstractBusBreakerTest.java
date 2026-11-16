@@ -3,22 +3,23 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public abstract class AbstractBusBreakerTest {
 
-    private static Network createTestNetwork() {
+    protected static Network createTestNetwork() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S1")
@@ -50,8 +51,10 @@ public abstract class AbstractBusBreakerTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         vl1.newLoad()
                 .setId("LD1")
@@ -83,8 +86,10 @@ public abstract class AbstractBusBreakerTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
 
         network.newLine()
@@ -145,8 +150,7 @@ public abstract class AbstractBusBreakerTest {
                                                     .setName("vsc")
                                                     .setBus("bus1")
                                                     .setLossFactor(0.011f)
-                                                    .setVoltageRegulatorOn(false)
-                                                    .setReactivePowerSetpoint(1.0)
+                                                    .setLocalTargetQ(1.0)
                                                     .setConnectableBus("bus1")
                                                 .add();
         assertEquals(HvdcConverterStation.HvdcType.LCC, lccConverterStation.getHvdcType());
@@ -259,19 +263,5 @@ public abstract class AbstractBusBreakerTest {
         assertThrows(PowsyblException.class, () -> nodeBreakerView.getSwitches(1), "Not supported in a bus breaker topology");
         assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodeInternalConnectedToStream(2), "Not supported in a bus breaker topology");
         assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodesInternalConnectedTo(3), "Not supported in a bus breaker topology");
-    }
-
-    @Test
-    public void testListenerOnTerminalConnection() {
-        Network network = createTestNetwork();
-        NetworkListener connectionListener = mock(DefaultNetworkListener.class);
-        network.addListener(connectionListener);
-        Line l1 = network.getLine("L1");
-        l1.getTerminal1().disconnect();
-        l1.getTerminal1().disconnect();
-        verify(connectionListener, times(1)).onUpdate(l1, "connected", "InitialState", true, false);
-        l1.getTerminal1().connect();
-        l1.getTerminal1().connect();
-        verify(connectionListener, times(1)).onUpdate(l1, "connected", "InitialState", false, true);
     }
 }

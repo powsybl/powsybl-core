@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -27,11 +28,14 @@ public class LoadFooSerDe extends AbstractExtensionSerDe<Load, LoadFooExt> {
 
     @Override
     public void write(LoadFooExt loadFoo, SerializerContext context) {
+        // empty extension
     }
 
     @Override
     public LoadFooExt read(Load load, DeserializerContext context) {
         context.getReader().readEndNode();
-        return new LoadFooExt(load);
+        var ext = new LoadFooExt(load);
+        load.addExtension(LoadFooExt.class, ext);
+        return ext;
     }
 }

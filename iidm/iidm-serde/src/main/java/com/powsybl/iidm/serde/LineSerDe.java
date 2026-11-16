@@ -3,15 +3,19 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
-import java.util.Optional;
-
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
 /**
  *
@@ -31,48 +35,33 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
 
     @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkSerializerContext context) {
+        writeEquivalent(l, context);
         context.getWriter().writeDoubleAttribute("r", l.getR());
         context.getWriter().writeDoubleAttribute("x", l.getX());
-        context.getWriter().writeDoubleAttribute("g1", l.getG1());
-        context.getWriter().writeDoubleAttribute("b1", l.getB1());
-        context.getWriter().writeDoubleAttribute("g2", l.getG2());
-        context.getWriter().writeDoubleAttribute("b2", l.getB2());
+        writeFormerlyMandatoryDoubleAttribute("g1", l.getG1(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b1", l.getB1(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("g2", l.getG2(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b2", l.getB2(), IidmVersion.V_1_17, context);
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
-        if (context.getOptions().isWithBranchSV()) {
-            writePQ(1, l.getTerminal1(), context.getWriter());
-            writePQ(2, l.getTerminal2(), context.getWriter());
-        }
+        writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        writeOptionalPQ(2, l.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
+            writeSelectedGroupId(1, l.getSelectedOperationalLimitsGroupId1().orElse(null), context.getWriter());
+            writeSelectedGroupId(2, l.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+            writeAllSelectedGroupIds(l, TwoSides.ONE, context.getWriter());
+            writeAllSelectedGroupIds(l, TwoSides.TWO, context.getWriter());
+        });
     }
 
     @Override
     protected void writeSubElements(Line l, Network n, NetworkSerializerContext context) {
-        Optional<ActivePowerLimits> activePowerLimits1 = l.getActivePowerLimits1();
-        if (activePowerLimits1.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(1, activePowerLimits1.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits1 = l.getApparentPowerLimits1();
-        if (apparentPowerLimits1.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits1 = l.getCurrentLimits1();
-        currentLimits1.ifPresent(currentLimits -> writeCurrentLimits(1, currentLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        Optional<ActivePowerLimits> activePowerLimits2 = l.getActivePowerLimits2();
-        if (activePowerLimits2.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(2, activePowerLimits2.get(), context.getWriter(), context.getVersion(),
-                    context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits2 = l.getApparentPowerLimits2();
-        if (apparentPowerLimits2.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits2 = l.getCurrentLimits2();
-        currentLimits2.ifPresent(currentLimits -> writeCurrentLimits(2, currentLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup1().orElse(null),
+            context.getOptions().isOnlySelectedOperationalLimitsGroups() ? l.getAllSelectedOperationalLimitsGroups(TwoSides.ONE) : l.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup2().orElse(null),
+            context.getOptions().isOnlySelectedOperationalLimitsGroups() ? l.getAllSelectedOperationalLimitsGroups(TwoSides.TWO) : l.getOperationalLimitsGroups2());
     }
 
     @Override
@@ -82,49 +71,68 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double g1 = context.getReader().readDoubleAttribute("g1");
-        double b1 = context.getReader().readDoubleAttribute("b1");
-        double g2 = context.getReader().readDoubleAttribute("g2");
-        double b2 = context.getReader().readDoubleAttribute("b2");
+        double g1 = readFormerlyMandatoryDoubleAttribute("g1", IidmVersion.V_1_17, context);
+        double b1 = readFormerlyMandatoryDoubleAttribute("b1", IidmVersion.V_1_17, context);
+        double g2 = readFormerlyMandatoryDoubleAttribute("g2", IidmVersion.V_1_17, context);
+        double b2 = readFormerlyMandatoryDoubleAttribute("b2", IidmVersion.V_1_17, context);
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)
                 .setB1(b1)
                 .setG2(g2)
                 .setB2(b2);
-        readNodeOrBus(adder, context);
+        ConnectableSerDeUtil.readVoltageLevelAndNodeOrBus(adder, network, context);
         Line l = adder.add();
-        readPQ(1, l.getTerminal1(), context.getReader());
-        readPQ(2, l.getTerminal2(), context.getReader());
+        readOptionalPQ(1, l.getTerminal1(), context.getReader());
+        readOptionalPQ(2, l.getTerminal2(), context.getReader());
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
+            readSelectedGroupId(1, l::setSelectedOperationalLimitsGroup1, context);
+            readSelectedGroupId(2, l::setSelectedOperationalLimitsGroup2, context);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+            readAllSelectedGroupIds(l, TwoSides.ONE, context);
+            readAllSelectedGroupIds(l, TwoSides.TWO, context);
+        });
         return l;
     }
 
     @Override
     protected void readSubElements(Line l, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case ACTIVE_POWER_LIMITS_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(l.newActivePowerLimits1(), context.getReader()));
-                }
-                case APPARENT_POWER_LIMITS_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(l.newApparentPowerLimits1(), context.getReader()));
-                }
-                case "currentLimits1" -> readCurrentLimits(l.newCurrentLimits1(), context.getReader());
-                case ACTIVE_POWER_LIMITS_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(l.newActivePowerLimits2(), context.getReader()));
-                }
-                case APPARENT_POWER_LIMITS_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(l.newApparentPowerLimits2(), context.getReader()));
-                }
-                case "currentLimits2" -> readCurrentLimits(l.newCurrentLimits2(), context.getReader());
-                default -> super.readSubElement(elementName, l, context);
+        context.getReader().readChildNodes(elementName -> readChildNode(l, context, elementName));
+    }
+
+    private void readChildNode(Line l, NetworkDeserializerContext context, String elementName) {
+        switch (elementName) {
+            case LIMITS_GROUP_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(l, TwoSides.ONE, LIMITS_GROUP_1, context));
             }
-        });
+            case ACTIVE_POWER_LIMITS_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(l.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(l.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits(), context));
+            }
+            case "currentLimits1" -> readCurrentLimits(l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), context);
+            case LIMITS_GROUP_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUPS + "2", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(l, TwoSides.TWO, LIMITS_GROUP_2, context));
+            }
+            case ACTIVE_POWER_LIMITS_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(l.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(l.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits(), context));
+            }
+            case "currentLimits2" -> readCurrentLimits(l.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(), context);
+            default -> super.readSubElement(elementName, l, context);
+        }
     }
 }

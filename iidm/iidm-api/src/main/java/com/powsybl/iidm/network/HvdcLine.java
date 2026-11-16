@@ -3,8 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import com.powsybl.iidm.network.util.SwitchPredicates;
+
+import java.util.function.Predicate;
 
 /**
  * A HVDC line connected to two HVDC converters on DC side.
@@ -20,7 +25,7 @@ package com.powsybl.iidm.network;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -133,7 +138,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     double getR();
 
     /**
-     * Set the resistance (in &#937;) of the line.
+     * Set the resistance (in &#937;) of the line; must be positive.
      * @param r the resistance of the line
      * @return the HVDC line itself to allow method chaining
      */
@@ -202,6 +207,67 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Remove the HVDC line
      */
     void remove();
+
+    /**
+     * Connect the converter stations.<br/>
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates}
+     * such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * @return true if the stations have been connected by this operation, false otherwise (any of the two stations could not be connected, or was already connected)
+     */
+    default boolean connectConverterStations() {
+        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+    /**
+     * Connect the converter stations on both sides of the HVDC line by operating the switches that match the <code>isTypeSwitchToOperate</code> predicate.
+     * @param isTypeSwitchToOperate which switches to operate to connect the HVDC line
+     * @return true if the HVDC line was connected by this operation, false otherwise (any of the two stations could not be connected, or was already connected)
+     */
+    default boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectConverterStations(isTypeSwitchToOperate, null);
+    }
+
+    /**
+     * Connect the station on <code>side</code> by operating the switches matching the predicate. No operation shall be performed
+     * if the connection is not possible.
+     * @param isTypeSwitchToOperate which switches to operate on
+     * @param side the side to operate on. If the side is null, both sides should be operated on.
+     * @return true if the station on the <code>side</code> has been connected by this operation, false otherwise (the
+     * station on the given side could not be connected, or was already connected)
+     */
+    boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+
+    /**
+     * Disconnect the converter stations.<br/>
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates}
+     * such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if the stations disconnection by this operation succeeded, false otherwise (any of the two stations could not be
+     * disconnected, or was already disconnected)
+     */
+    default boolean disconnectConverterStations() {
+        return disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
+
+    /**
+     * Disconnect the converter stations on both sides of the HVDC line by operating the switches that match the <code>isTypeSwitchToOperate</code> predicate.
+     * @param isSwitchOpenable which switches to operate to disconnect the HVDC line
+     * @return true if the HVDC line disconnection by this operation succeeded, false otherwise (any of the two stations could not be disconnected, or was already disconnected)
+     */
+    default boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
+        return disconnectConverterStations(isSwitchOpenable, null);
+    }
+
+    /**
+     * Disconnect the station on <code>side</code> by operating the switches matching the predicate. No operation shall be performed
+     * if the disconnection is not possible.
+     * @param isSwitchOpenable which switches to operate on
+     * @param side the side to operate on. If the side is null, both sides should be operated on.
+     * @return true if the station on the <code>side</code> has been disconnected by this operation, false otherwise
+     * (the station on the given side could not be disconnected, or was already disconnected)
+     */
+    boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     @Override
     default IdentifiableType getType() {

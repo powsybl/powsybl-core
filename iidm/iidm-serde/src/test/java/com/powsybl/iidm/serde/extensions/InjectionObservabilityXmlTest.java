@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -45,22 +46,23 @@ class InjectionObservabilityXmlTest extends AbstractIidmSerDeTest {
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
-        InjectionObservability <Battery> injectionObservability2 = bat2.getExtension(InjectionObservability.class);
+        InjectionObservability<Battery> injectionObservability2 = bat2.getExtension(InjectionObservability.class);
         assertNotNull(injectionObservability2);
 
         assertEquals(injectionObservability.isObservable(), injectionObservability2.isObservable());
-        assertEquals(injectionObservability.getQualityP().getStandardDeviation(), injectionObservability2.getQualityP().getStandardDeviation(), 0.0d);
-        assertEquals(injectionObservability.getQualityQ().getStandardDeviation(), injectionObservability2.getQualityQ().getStandardDeviation(), 0.0d);
-        assertEquals(injectionObservability.getQualityP().isRedundant(), injectionObservability2.getQualityP().isRedundant());
-        assertEquals(injectionObservability.getQualityQ().isRedundant(), injectionObservability2.getQualityQ().isRedundant());
-        assertEquals(injectionObservability.getQualityV(), injectionObservability2.getQualityV());
+        assertEquals(injectionObservability.getNullableQualityP().getStandardDeviation(), injectionObservability2.getNullableQualityP().getStandardDeviation(), 0.0d);
+        assertEquals(injectionObservability.getNullableQualityQ().getStandardDeviation(), injectionObservability2.getNullableQualityQ().getStandardDeviation(), 0.0d);
+        assertEquals(injectionObservability.getNullableQualityP().isRedundant(), injectionObservability2.getNullableQualityP().isRedundant());
+        assertEquals(injectionObservability.getNullableQualityQ().isRedundant(), injectionObservability2.getNullableQualityQ().isRedundant());
+        assertEquals(injectionObservability.getNullableQualityV(), injectionObservability2.getNullableQualityV());
 
         assertEquals(injectionObservability.getName(), injectionObservability2.getName());
     }
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class,
+            () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
         assertEquals("Unknown element name 'qualityZ' in 'injectionObservability'", e.getMessage());
     }
 }

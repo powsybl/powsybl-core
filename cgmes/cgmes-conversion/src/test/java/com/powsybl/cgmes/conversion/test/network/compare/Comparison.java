@@ -3,16 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -38,9 +42,9 @@ public class Comparison {
     public void compareBuses() {
         diff.current(expected);
         compareBuses(
-            expected.getBusBreakerView().getBusStream(),
-            actual.getBusBreakerView().getBusStream(),
-            this::compareBuses);
+                expected.getBusBreakerView().getBusStream(),
+                actual.getBusBreakerView().getBusStream(),
+                this::compareBuses);
     }
 
     public void compare() {
@@ -52,11 +56,8 @@ public class Comparison {
         // Compare CIM characteristics
         compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
-        // Compare SV metadata
-        compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
-
-        // Compare Ssh metadata
-        compareCgmesSshMetadata(expected.getExtension(CgmesSshMetadata.class), actual.getExtension(CgmesSshMetadata.class));
+        // Compare metadata
+        compareCgmesMetadata(expected.getExtension(CgmesMetadataModels.class), actual.getExtension(CgmesMetadataModels.class));
 
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
@@ -104,9 +105,9 @@ public class Comparison {
                 actual.getThreeWindingsTransformerStream(),
                 this::compareThreeWindingsTransformers);
         compare(
-                expected.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
-                actual.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
-                this::compareDanglingLines);
+                expected.getBoundaryLineStream(BoundaryLineFilter.ALL).filter(bl -> !bl.isPaired()),
+                actual.getBoundaryLineStream(BoundaryLineFilter.ALL).filter(bl -> !bl.isPaired()),
+                this::compareBoundaryLines);
         diff.end();
     }
 
@@ -159,54 +160,71 @@ public class Comparison {
         }
     }
 
-    private void compareCgmesSvMetadata(CgmesSvMetadata expected, CgmesSvMetadata actual) {
+    private void compareCgmesMetadata(CgmesMetadataModels expected, CgmesMetadataModels actual) {
         if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSvMetadata_extension");
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_extension");
             return;
         }
         if (expected != null) {
             if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
+                diff.missing(expected.getExtendable().getId() + "_cgmesMetadataModels_extension");
                 return;
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("svVersion", config.incremented ? expected.getSvVersion() + 1 : expected.getSvVersion(), actual.getSvVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
+            if (config.ignoreMissingMetadata) {
+                // All actual models should be in expected models
+                // But some expected models may be missing
+                for (CgmesMetadataModel actualModel : actual.getModels()) {
+                    Optional<CgmesMetadataModel> expectedModel = expected.getModelForSubsetModelingAuthoritySet(actualModel.getSubset(), actualModel.getModelingAuthoritySet());
+                    if (expectedModel.isEmpty()) {
+                        diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_Model " + actualModel.getId());
+                    } else {
+                        compareCgmesMetadataModels(expectedModel.get(), actualModel);
+                    }
                 }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
+            } else {
+                // If we are not ignoring models, the sorted models should be comparable one by one
+                if (expected.getModels().size() != actual.getModels().size()) {
+                    diff.compare("cgmesMetadataModels_size", expected.getModels().size(), actual.getModels().size());
+                }
+                List<CgmesMetadataModel> expectedModels = expected.getSortedModels();
+                List<CgmesMetadataModel> actualModels = actual.getSortedModels();
+                for (int k = 0; k < expectedModels.size(); k++) {
+                    compareCgmesMetadataModels(expectedModels.get(k), actualModels.get(k));
                 }
             }
         }
     }
 
-    private void compareCgmesSshMetadata(CgmesSshMetadata expected, CgmesSshMetadata actual) {
-        if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSshMetadata_extension");
-            return;
+    private void compareCgmesMetadataModels(CgmesMetadataModel expected, CgmesMetadataModel actual) {
+        String prefix = "CgmesMetadataModel " + expected.getId() + "_";
+        if (config.checkNetworkId) {
+            compare(prefix + "id", expected.getId(), actual.getId());
         }
-        if (expected != null) {
-            if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSshMetadata_extension");
-                return;
+        compare(prefix + "subset", expected.getSubset(), actual.getSubset());
+        compare(prefix + "description", expected.getDescription(), actual.getDescription());
+        // If subset has not been exported, the version has not been incremented
+        CgmesSubset subset = expected.getSubset();
+        int expectedVersion = expected.getVersion();
+        if (config.versionIncremented && config.isExportedSubset(subset)) {
+            expectedVersion++;
+        }
+        compare(prefix + "version", expectedVersion, actual.getVersion());
+        compare(prefix + "modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+        compare(prefix + "profiles", expected.getProfiles(), actual.getProfiles());
+        compare(prefix + "dependentOn", expected.getDependentOn(), actual.getDependentOn());
+        compare(prefix + "supersedes", expected.getSupersedes(), actual.getSupersedes());
+    }
+
+    void compare(String context, Set<String> expecteds, Set<String> actuals) {
+        for (String expected : expecteds) {
+            if (!actuals.contains(expected)) {
+                diff.missing(context + ": " + expected);
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("sshVersion", config.incremented ? expected.getSshVersion() + 1 : expected.getSshVersion(), actual.getSshVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
-                }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
-                }
+        }
+        for (
+            String actual : actuals) {
+            if (!expecteds.contains(actual)) {
+                diff.unexpected(context + ": " + actual);
             }
         }
     }
@@ -331,14 +349,34 @@ public class Comparison {
                 expected.getSectionCount(),
                 actual.getSectionCount());
         compare("voltageRegulationOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
-        compare("targetV",
-                expected.getTargetV(),
-                actual.getTargetV());
-        compare("targetDeadband",
-                expected.getTargetDeadband(),
-                actual.getTargetDeadband());
+                expected.isRegulatingWithMode(RegulationMode.VOLTAGE),
+                actual.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        if (expected.getVoltageRegulation() != null) {
+            compare("voltageRegulation.targetValue",
+                expected.getVoltageRegulation().getTargetValue(),
+                actual.getVoltageRegulation().getTargetValue());
+            compare("voltageRegulation.targetDeadband",
+                expected.getVoltageRegulation().getTargetDeadband(),
+                actual.getVoltageRegulation().getTargetDeadband());
+            if (expected.getVoltageRegulation().getTerminal() != null) {
+                compare("voltageRegulation.terminal",
+                    expected.getVoltageRegulation().getTerminal().getConnectable().getId(),
+                    actual.getVoltageRegulation().getTerminal().getConnectable().getId());
+            } else {
+                compare("voltageRegulation.terminal", null, actual.getVoltageRegulation().getTerminal());
+            }
+            compare("voltageRegulation.isRegulating",
+                expected.getVoltageRegulation().isRegulating(),
+                actual.getVoltageRegulation().isRegulating());
+        } else {
+            compare("voltageRegulation", null, actual.getVoltageRegulation());
+        }
+        compare("localTargetV",
+            expected.getLocalTargetV(),
+            actual.getLocalTargetV());
+        compare("localTargetQ",
+            expected.getLocalTargetQ(),
+            actual.getLocalTargetQ());
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());
@@ -398,15 +436,21 @@ public class Comparison {
         compare("Bmax",
                 expected.getBmax(),
                 actual.getBmax());
+        compare("localTargetV",
+                expected.getLocalTargetV(),
+                actual.getLocalTargetV());
+        compare("localTargetQ",
+                expected.getLocalTargetQ(),
+                actual.getLocalTargetQ());
         compare("voltageSetpoint",
-                expected.getVoltageSetpoint(),
-                actual.getVoltageSetpoint());
+                expected.getRegulatingTargetV(),
+                actual.getRegulatingTargetV());
         compare("reactivePowerSetpoint",
-                expected.getReactivePowerSetpoint(),
-                actual.getReactivePowerSetpoint());
+                expected.getRegulatingTargetQ(),
+                actual.getRegulatingTargetQ());
         compare("regulationMode",
-                expected.getRegulationMode(),
-                actual.getRegulationMode());
+                expected.getVoltageRegulation().getMode(),
+                actual.getVoltageRegulation().getMode());
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());
@@ -438,11 +482,14 @@ public class Comparison {
         compare("maxP", expected.getMaxP(), actual.getMaxP());
         compareGeneratorReactiveLimits(expected.getReactiveLimits(), actual.getReactiveLimits());
         compare("targetP", expected.getTargetP(), actual.getTargetP());
-        compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
-        compare("targetV", expected.getTargetV(), actual.getTargetV());
-        compare("isVoltageRegulatorOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
+        compare("localTargetQ", expected.getLocalTargetQ(), actual.getLocalTargetQ());
+        if (expected.getVoltageRegulation() != null) {
+            compare("VoltageRegulation.mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
+            compare("VoltageRegulation.regulating", expected.getVoltageRegulation().isRegulating(), actual.getVoltageRegulation().isRegulating());
+            compare("VoltageRegulation.targetValue", expected.getVoltageRegulation().getTargetValue(), actual.getVoltageRegulation().getTargetValue());
+        } else {
+            compare("voltageRegulation", null, actual.getVoltageRegulation());
+        }
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {
@@ -508,9 +555,9 @@ public class Comparison {
         // so we sort points by active power, then compare resulting lists point by point
         Comparator<Point> comparePoints = (p0, p1) -> Double.compare(p0.getP(), p1.getP());
         List<Point> e = expected.getPoints().stream().sorted(comparePoints)
-                .collect(Collectors.toList());
+                .toList();
         List<Point> a = actual.getPoints().stream().sorted(comparePoints)
-                .collect(Collectors.toList());
+                .toList();
         compare("reactiveCapabilityCurve.size", e.size(), a.size());
         for (int k = 0; k < e.size(); k++) {
             Point pe = e.get(k);
@@ -561,7 +608,7 @@ public class Comparison {
                 actual.getCurrentLimits2().orElse(null));
     }
 
-    private void compareDanglingLines(DanglingLine expected, DanglingLine actual) {
+    private void compareBoundaryLines(BoundaryLine expected, BoundaryLine actual) {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
@@ -715,7 +762,18 @@ public class Comparison {
         compare("ratioTapChanger.hasLoadTapChangingCapabilities",
                 expected.hasLoadTapChangingCapabilities(),
                 actual.hasLoadTapChangingCapabilities());
-        compare("ratioTapChanger.targetV", expected.getTargetV(), actual.getTargetV());
+        compare("ratioTapChanger.regulatingTargetV", expected.getRegulatingTargetV(), actual.getRegulatingTargetV());
+        VoltageRegulation expectedVoltageRegulation = expected.getVoltageRegulation();
+        VoltageRegulation actualVoltageRegulation = actual.getVoltageRegulation();
+        if (expectedVoltageRegulation != null) {
+            compare("ratioTapChanger.voltageRegulation.targetValue", expectedVoltageRegulation.getTargetValue(), actualVoltageRegulation.getTargetValue());
+            compare("ratioTapChanger.voltageRegulation.mode", expectedVoltageRegulation.getMode(), actualVoltageRegulation.getMode());
+            compare("ratioTapChanger.voltageRegulation.regulating", expectedVoltageRegulation.isRegulating(), actualVoltageRegulation.isRegulating());
+            compare("ratioTapChanger.voltageRegulation.slope", expectedVoltageRegulation.getSlope(), actualVoltageRegulation.getSlope());
+            compare("ratioTapChanger.voltageRegulation.targetDeadband", expectedVoltageRegulation.getTargetDeadband(), actualVoltageRegulation.getTargetDeadband());
+        } else {
+            compare("ratioTapChanger.voltageRegulation", null, actual.getVoltageRegulation());
+        }
     }
 
     private void comparePhaseTapChanger(
@@ -725,6 +783,9 @@ public class Comparison {
         if (expected == null) {
             return;
         }
+        compare("phaseTapChanger.targetDeadband",
+            expected.getTargetDeadband(),
+            actual.getTargetDeadband());
         compare("phaseTapChanger.regulationMode",
                 expected.getRegulationMode(),
                 actual.getRegulationMode());
@@ -733,10 +794,10 @@ public class Comparison {
                 actual.getRegulationValue());
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
-            TapChanger<TC, TCS> expected,
-            TapChanger<TC, TCS> actual,
-            BiConsumer<TCS, TCS> testTapChangerStep1) {
+    private <T extends TapChanger<T, S, ?, ?>, S extends TapChangerStep<S>> void compareTapChanger(
+            TapChanger<T, S, ?, ?> expected,
+            TapChanger<T, S, ?, ?> actual,
+            BiConsumer<S, S> testTapChangerStep1) {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected("TapChanger");
@@ -756,49 +817,55 @@ public class Comparison {
             compare("tapChanger.tapPosition",
                     expected.getTapPosition(),
                     actual.getTapPosition());
-            compare("tapChanger.targetDeadband",
-                    expected.getTargetDeadband(),
-                    actual.getTargetDeadband());
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
             for (int k = expected.getLowTapPosition(); k <= expected.getHighTapPosition(); k++) {
-                TCS stepExpected = expected.getStep(k);
-                TCS stepActual = actual.getStep(k);
+                S stepExpected = expected.getStep(k);
+                S stepActual = actual.getStep(k);
                 compareTapChangerStep(stepExpected, stepActual, testTapChangerStep1);
             }
             // Check regulation
             compare("tapChanger.isRegulating", expected.isRegulating(),
                     actual.isRegulating());
-            if (expected.getRegulationTerminal() == null
-                    || actual.getRegulationTerminal() == null) {
+            if (getRegulationTerminal(expected) == null
+                    || getRegulationTerminal(actual) == null) {
                 // TODO We are not checking regulation terminals if one of them is null
             } else {
                 equivalent(
                         "tapChanger.RegulationTerminalConnectable",
-                        expected.getRegulationTerminal().getConnectable(),
-                        actual.getRegulationTerminal().getConnectable());
+                        getRegulationTerminal(expected).getConnectable(),
+                        getRegulationTerminal(actual).getConnectable());
             }
 
-            if (expected.getRegulationTerminal() != null || actual.getRegulationTerminal() != null) {
-                if (expected.getRegulationTerminal() == null) {
+            if (getRegulationTerminal(expected) != null || getRegulationTerminal(actual) != null) {
+                if (getRegulationTerminal(expected) == null) {
                     diff.unexpected("Tap changer regulating terminal");
                     return;
                 }
-                if (actual.getRegulationTerminal() == null) {
+                if (getRegulationTerminal(actual) == null) {
                     diff.missing("TapChanger regulating terminal");
                     return;
                 }
                 sameIdentifier("tapChanger.getRegulationTerminal",
-                        expected.getRegulationTerminal().getBusBreakerView().getBus(),
-                        actual.getRegulationTerminal().getBusBreakerView().getBus());
+                        getRegulationTerminal(expected).getBusBreakerView().getBus(),
+                        getRegulationTerminal(actual).getBusBreakerView().getBus());
             }
         }
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
-            TCS expected,
-            TCS actual,
-            BiConsumer<TCS, TCS> testTapChangerStep1) {
+    private Terminal getRegulationTerminal(TapChanger<?, ?, ?, ?> tapChanger) {
+        if (tapChanger instanceof RatioTapChanger rtc) {
+            return rtc.getRegulatingTerminal();
+        } else if (tapChanger instanceof PhaseTapChanger ptc) {
+            return ptc.getRegulationTerminal();
+        }
+        throw new IllegalArgumentException("Unknown tap changer type");
+    }
+
+    private <T extends TapChanger<T, S, ?, ?>, S extends TapChangerStep<S>> void compareTapChangerStep(
+            S expected,
+            S actual,
+            BiConsumer<S, S> testTapChangerStep1) {
         compare("tapChangerStep.r", expected.getR(), actual.getR());
         compare("tapChangerStep.x", expected.getX(), actual.getX());
         compare("tapChangerStep.g", expected.getG(), actual.getG());

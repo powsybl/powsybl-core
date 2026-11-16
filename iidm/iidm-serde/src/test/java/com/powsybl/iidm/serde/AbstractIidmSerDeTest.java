@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -64,6 +65,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute an all-formats round trip test on the test resource IIDM-XML file with a given
+     * file name comparing to the given reference file for the given IIDM versions.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlTest(String file, String reference, IidmVersion... versions) throws IOException {
+        for (IidmVersion version : versions) {
+            allFormatsRoundTripTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)), reference, version);
+        }
+    }
+
+    /**
      * Execute a round trip test on the test resource IIDM-JSON file with a given file name for the given IIDM versions.
      */
     protected void roundTripVersionedJsonTest(String file, IidmVersion... versions) throws IOException {
@@ -103,6 +114,37 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a round trip test reading the test resource IIDM-XML file with a given file name for all IIDM versions equals or more recent than
+     * a given minimum IIDM version <b>and</b> strictly older than a given maximum IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
+            .toArray(IidmVersion[]::new));
+    }
+
+    /**
+     * Execute a round trip test reading the test resource IIDM-XML file with a given file name comparing
+     * the output IIDM-XML file to a reference file for all IIDM versions equals or more recent than
+     * a given minimum IIDM version <b>and</b> strictly older than a given maximum IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, String reference, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, reference, Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
+                .toArray(IidmVersion[]::new));
+    }
+
+    /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
+     * equals or more recent than a given minimum IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinVersionTest(String file, IidmVersion minVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0)
+                .toArray(IidmVersion[]::new));
+    }
+
+    /**
      * Execute a round trip test on the test resource IIDM-JSON file with a given file name for all IIDM versions
      * equals or more recent than a given minimum IIDM version <b>and</b> strictly older than the current IIDM version.
      */
@@ -110,6 +152,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         roundTripVersionedJsonTest(file, Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
+    }
+
+    /**
+     * Execute a round trip test on the test resource IIDM-JSON file with a given file name for all IIDM versions
+     * equals or more recent than a given minimum IIDM version. The current version is included.
+     */
+    protected void roundTripVersionedJsonFromMinVersionTest(String file, IidmVersion minVersion) throws IOException {
+        roundTripVersionedJsonTest(file, Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0)
+            .toArray(IidmVersion[]::new));
     }
 
     /**
@@ -125,6 +177,25 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     protected void testForAllPreviousVersions(IidmVersion maxVersion, Consumer<IidmVersion> test) {
         Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(maxVersion) < 0)
+                .forEach(test);
+    }
+
+    /**
+     * Execute a given test for all IIDM versions newer or equal than a given minimum IIDM version.
+     */
+    protected void testForAllVersionsSince(IidmVersion minVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0)
+                .forEach(test);
+    }
+
+    /**
+     * Execute a given test for all IIDM versions between <code>minVersion</code> and <code>maxVersion</code> (both included)
+     */
+    protected void testForAllVersionsBetween(IidmVersion minVersion, IidmVersion maxVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0
+                        && v.compareTo(maxVersion) <= 0)
                 .forEach(test);
     }
 
@@ -150,10 +221,50 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         }
     }
 
+    /**
+     * Write the network to all the specified versions between <code>minVersion</code> and <code>maxVersion</code> (both included),
+     * and compare with the corresponding versioned file <code>filename</code>
+     */
+    protected void testWriteVersionedXmlBetweenVersions(Network network, ExportOptions exportOptions, String filename,
+                                                        IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        testWriteVersionedXml(network, exportOptions, filename, Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) <= 0)
+            .toArray(IidmVersion[]::new));
+    }
+
+    /**
+     * Get a list of all versions that are strictly inferior to the <code>maxVersionExcluded</code>
+     * @param maxVersionExcluded the maximum version (excluded)
+     * @return an array containing all versions that are less than the <code>maxVersionExcluded</code> (strictly inferior)
+     */
     private static IidmVersion[] allPreviousVersions(IidmVersion maxVersionExcluded) {
         return Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(maxVersionExcluded) < 0)
                 .toArray(IidmVersion[]::new);
+    }
+
+    /**
+     * Get all versions that are equal or more recent than the <code>minVersionIncluded</code>
+     * @param minVersionIncluded the minimum version (included)
+     * @return an array containing all versions more recent than <code>minVersionIncluded</code> (equal or more recent)
+     */
+    private static IidmVersion[] allFollowingVersions(IidmVersion minVersionIncluded) {
+        return Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersionIncluded) >= 0)
+            .toArray(IidmVersion[]::new);
+    }
+
+    /**
+     * Get all versions that are equal or more recent than the <code>minVersionIncluded</code> and strictly inferior to a given <code>maxVersionExcluded</code>
+     * @param minVersionIncluded the minimum version (included)
+     * @param maxVersionExcluded the maximum version (excluded)
+     * @return an array containing all versions more recent than <code>minVersionIncluded</code> (equal or more recent) and older than <code>maxVersionExcluded</code>
+     * (strictly older)
+     */
+    protected static IidmVersion[] allBetweenVersions(IidmVersion minVersionIncluded, IidmVersion maxVersionExcluded) {
+        return Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersionIncluded) >= 0 && v.compareTo(maxVersionExcluded) < 0)
+            .toArray(IidmVersion[]::new);
     }
 
     /**
@@ -190,10 +301,40 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * </ul>
      * @param network the network to start with
      * @param filename the filename of the reference versioned file resource
+     * @param version the version to use for exporting and for the versioned filename
      * @return the Network read just before the end of the round trip
      */
     public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version) throws IOException {
         return allFormatsRoundTripTest(network, filename, version, new ExportOptions());
+    }
+
+    /**
+     * Serialize and deserialize the given network in all serialized IIDM formats (see {@link #allFormatsRoundTripTest(Network, String)}, for all versions
+     * that are more recent than the given <code>minVersionIncluded</code> (included)
+     * @param network the network to serialize
+     * @param filename the filename of the reference versioned file resource (to compare the serialized network with)
+     * @param minVersionIncluded the minimum version (included)
+     * @throws IOException if the network file cannot be read or written (or the same for the reference file)
+     */
+    public void allFormatsRoundTripFromMinVersionTest(Network network, String filename, IidmVersion minVersionIncluded) throws IOException {
+        for (IidmVersion version : allFollowingVersions(minVersionIncluded)) {
+            allFormatsRoundTripTest(network, filename, version);
+        }
+    }
+
+    /**
+     * Serialize and deserialize the given network in all serialized IIDM formats (see {@link #allFormatsRoundTripTest(Network, String)}, for all versions
+     * that are more recent than the given <code>minVersionIncluded</code> (included) and older than the given <code>maxVersionExcluded</code> (excluded)
+     * @param network the network to serialize
+     * @param filename the filename of the reference versioned file resource (to compare the serialized network with)
+     * @param minVersionIncluded the minimum version (included)
+     * @param maxVersionExcluded the maximum version (excluded)
+     * @throws IOException if the network file cannot be read or written (or the same for the reference file)
+     */
+    public void allFormatsRoundTripFromMinToMaxVersionTest(Network network, String filename, IidmVersion minVersionIncluded, IidmVersion maxVersionExcluded) throws IOException {
+        for (IidmVersion version : allBetweenVersions(minVersionIncluded, maxVersionExcluded)) {
+            allFormatsRoundTripTest(network, filename, version);
+        }
     }
 
     /**
@@ -237,7 +378,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     public Network allFormatsRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
         return roundTripXmlTest(network,
-                (n, p) -> jsonWriteAndRead(n, exportOptions, p),
+                (n, p) -> binWriteAndRead(jsonWriteAndRead(n, exportOptions, p), exportOptions, p),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,
                 refXmlFile);
@@ -247,11 +388,22 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * Writes given network to JSON file, then reads the resulting file and returns the resulting network
      */
     private static Network jsonWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+        return writeAndRead(TreeDataFormat.JSON, networkInput, options, path);
+    }
+
+    private static Network binWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+        return writeAndRead(TreeDataFormat.BIN, networkInput, options, path);
+    }
+
+    /**
+     * Writes given network to file of given format, then reads the resulting file and returns the resulting network
+     */
+    private static Network writeAndRead(TreeDataFormat format, Network networkInput, ExportOptions options, Path path) {
         TreeDataFormat previousFormat = options.getFormat();
-        options.setFormat(TreeDataFormat.JSON);
+        options.setFormat(format);
         Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
         try (InputStream is = Files.newInputStream(path)) {
-            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
+            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(format), anonymizer);
             options.setFormat(previousFormat);
             return networkOutput;
         } catch (IOException e) {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.scripting
 
@@ -22,8 +23,7 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
     private final LoadFlowParameters parameters
 
     LoadFlowGroovyScriptExtension(LoadFlowParameters parameters) {
-        assert parameters
-        this.parameters = parameters
+        this.parameters = Objects.requireNonNull(parameters)
     }
 
     LoadFlowGroovyScriptExtension() {
@@ -31,12 +31,16 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
     }
 
     @Override
-    void load(Binding binding, ComputationManager computationManager) {
-        binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
-            LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
-        }
-        binding.loadflow = { Network network, LoadFlowParameters parameters = this.parameters ->
-            LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
+    void load(Binding binding, Map<Class<?>, Object> contextObjects) {
+        ComputationManager computationManager = contextObjects.get(ComputationManager.class) as ComputationManager
+        if (computationManager != null) {
+
+            binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
+                LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
+            }
+            binding.loadflow = { Network network, LoadFlowParameters parameters = this.parameters ->
+                LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
+            }
         }
     }
 

@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import java.time.ZonedDateTime;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -17,6 +19,9 @@ import java.util.Objects;
 public final class ShuntTestCaseFactory {
 
     private static final String SHUNT = "SHUNT";
+    public static final double LOCAL_TARGET_V = 210;
+    public static final double REMOTE_TARGET_VALUE = 200;
+    public static final double TARGET_DEADBAND = 5.0;
 
     private ShuntTestCaseFactory() {
     }
@@ -42,14 +47,16 @@ public final class ShuntTestCaseFactory {
                 .setBus("B1")
                 .setConnectableBus("B1")
                 .setSectionCount(1)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                .setTargetV(200)
-                .setTargetDeadband(5.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(REMOTE_TARGET_VALUE)
+                    .withTargetDeadband(TARGET_DEADBAND)
+                    .withTerminal(getRemoteTerminal(network))
+                    .add()
                 .newLinearModel()
-                .setMaximumSectionCount(1)
-                .setBPerSection(bPerSection)
-                .add()
+                    .setMaximumSectionCount(1)
+                    .setBPerSection(bPerSection)
+                    .add()
                 .add()
                 .addAlias("Alias");
 
@@ -80,10 +87,12 @@ public final class ShuntTestCaseFactory {
                     .setBus("B1")
                     .setConnectableBus("B1")
                     .setSectionCount(1)
-                    .setVoltageRegulatorOn(true)
-                    .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                    .setTargetV(200)
-                    .setTargetDeadband(5.0)
+                    .newVoltageRegulation()
+                        .withTargetValue(REMOTE_TARGET_VALUE)
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withTerminal(getRemoteTerminal(network))
+                        .withTargetDeadband(TARGET_DEADBAND)
+                        .add()
                     .newNonLinearModel()
                         .beginSection()
                             .setB(1e-5)
@@ -140,4 +149,105 @@ public final class ShuntTestCaseFactory {
                 .add();
         return network;
     }
+
+    public static Network createLocalLinear() {
+        return createLocalShunt(create());
+    }
+
+    public static Network createLocalShunt(Network network) {
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(SHUNT);
+        shuntCompensator.setLocalTargetV(LOCAL_TARGET_V);
+        shuntCompensator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetDeadband(TARGET_DEADBAND)
+            .withRegulating(true)
+            .build();
+        return network;
+    }
+
+    public static Network createDisabledRemoteLinear() {
+        return createDisabledRemote(create());
+    }
+
+    public static Network createDisabledLocalLinear() {
+        return createDisabledLocal(createLocalLinear());
+    }
+
+    public static Network createDisabledRemoteNonLinear() {
+        return createDisabledRemote(createNonLinear());
+    }
+
+    public static Network createDisabledLocalNonLinear() {
+        return createDisabledLocal(createLocalNonLinear());
+    }
+
+    public static Network createDisabledRemote(Network network) {
+        network.getShuntCompensator(SHUNT).newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(REMOTE_TARGET_VALUE)
+            .withTargetDeadband(TARGET_DEADBAND)
+            .withRegulating(false)
+            .build();
+        return network;
+    }
+
+    public static Network createDisabledLocal(Network network) {
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(SHUNT);
+        shuntCompensator.setLocalTargetV(LOCAL_TARGET_V);
+        shuntCompensator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetDeadband(TARGET_DEADBAND)
+            .withRegulating(false)
+            .build();
+        return network;
+    }
+
+    private static Network createLocalOffWithNoTarget(Network network) {
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(SHUNT);
+        shuntCompensator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        shuntCompensator.setLocalTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createDisabledRemoteLinearNoTarget() {
+        return createDisabledRemoteNoTarget(create());
+    }
+
+    public static Network createDisabledRemoteNoTarget(Network network) {
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(SHUNT);
+        shuntCompensator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(Double.NaN)
+            .withTargetDeadband(TARGET_DEADBAND)
+            .withRegulating(false)
+            .build();
+        shuntCompensator.setLocalTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createRemoteNonLinearNoTarget() {
+        return createDisabledRemoteNoTarget(createNonLinear());
+    }
+
+    public static Network createDisabledLocalLinearNoTarget() {
+        return createLocalOffWithNoTarget(createLocalLinear());
+    }
+
+    public static Network createLocalNonLinearNoTarget() {
+        return createLocalOffWithNoTarget(createLocalNonLinear());
+    }
+
+    public static Network createLocalNonLinear() {
+        return createLocalShunt(createNonLinear());
+    }
+
+    private static Terminal getRemoteTerminal(Network network) {
+        return network.getLoad("LOAD").getTerminal();
+    }
+
 }

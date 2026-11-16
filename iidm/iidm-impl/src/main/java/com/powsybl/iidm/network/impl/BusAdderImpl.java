@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -14,9 +15,9 @@ import com.powsybl.iidm.network.BusAdder;
  */
 class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements BusAdder {
 
-    private final BusBreakerVoltageLevel voltageLevel;
+    private final VoltageLevelExt voltageLevel;
 
-    BusAdderImpl(BusBreakerVoltageLevel voltageLevel) {
+    BusAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
 
@@ -34,7 +35,7 @@ class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements Bu
     public ConfiguredBus add() {
         String id = checkAndGetUniqueId();
         ConfiguredBusImpl bus = new ConfiguredBusImpl(id, getName(), isFictitious(), voltageLevel);
-        voltageLevel.addBus(bus);
+        ((BusBreakerTopologyModel) voltageLevel.getTopologyModel()).addBus(bus);
         getNetwork().getListeners().notifyCreation(bus);
         return bus;
     }

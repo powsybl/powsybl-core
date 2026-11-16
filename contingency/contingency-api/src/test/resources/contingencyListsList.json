@@ -1,10 +1,10 @@
 {
   "type" : "list",
-  "version" : "1.0",
+  "version" : "1.1",
   "name" : "listslist1",
   "contingencyLists" : [ {
     "type" : "lineCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list1",
     "countryCriterion" : {
       "type" : "TWO_COUNTRY",
@@ -15,8 +15,8 @@
       "type" : "TWO_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       }
     },
@@ -26,7 +26,7 @@
     }
   }, {
     "type" : "default",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "",
     "contingencies" : [ {
       "id" : "contingency1",
@@ -37,7 +37,7 @@
     } ]
   }, {
     "type" : "injectionCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list3",
     "identifiableType" : "LOAD",
     "countryCriterion" : {
@@ -48,14 +48,14 @@
       "type" : "SINGLE_NOMINAL_VOLTAGE",
       "voltageInterval" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       }
     }
   }, {
     "type" : "hvdcCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list4",
     "countryCriterion" : {
       "type" : "TWO_COUNTRY",
@@ -66,20 +66,20 @@
       "type" : "TWO_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       },
       "voltageInterval2" : {
         "nominalVoltageLowBound" : 100.0,
-        "nominalVoltageHighBound" : 120.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 120.0,
         "highClosed" : true
       }
     }
   }, {
     "type" : "twoWindingsTransformerCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list5",
     "countryCriterion" : {
       "type" : "SINGLE_COUNTRY",
@@ -89,20 +89,20 @@
       "type" : "TWO_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       },
       "voltageInterval2" : {
         "nominalVoltageLowBound" : 100.0,
-        "nominalVoltageHighBound" : 120.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 120.0,
         "highClosed" : true
       }
     }
   }, {
     "type" : "threeWindingsTransformerCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list6",
     "countryCriterion" : {
       "type" : "SINGLE_COUNTRY",
@@ -112,24 +112,24 @@
       "type" : "THREE_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       },
       "voltageInterval3" : {
         "nominalVoltageLowBound" : 380.0,
-        "nominalVoltageHighBound" : 430.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 430.0,
         "highClosed" : true
       }
     }
   }, {
     "type" : "list",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "listslist2",
     "contingencyLists" : [ {
       "type" : "default",
-      "version" : "1.0",
+      "version" : "1.1",
       "name" : "",
       "contingencies" : [ {
         "id" : "contingency2",
@@ -141,7 +141,7 @@
     } ]
   }, {
     "type" : "identifier",
-    "version" : "1.2",
+    "version" : "1.3",
     "name" : "identifierlist",
     "identifiers" : [ {
       "type" : "VOLTAGE_LEVELS_AND_ORDER",
@@ -161,5 +161,23 @@
         "identifier" : "identifier2"
       } ]
     } ]
+  }, {
+    "type" : "tieLineCriterion",
+    "version" : "1.1",
+    "name" : "tieLineContingencyList",
+    "countryCriterion" : {
+      "type" : "TWO_COUNTRY",
+      "countries1" : [ "FR" ],
+      "countries2" : [ ]
+    },
+    "nominalVoltageCriterion" : {
+      "type" : "SINGLE_NOMINAL_VOLTAGE",
+      "voltageInterval" : {
+        "nominalVoltageLowBound" : 200.0,
+        "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
+        "highClosed" : true
+      }
+    }
   } ]
 }

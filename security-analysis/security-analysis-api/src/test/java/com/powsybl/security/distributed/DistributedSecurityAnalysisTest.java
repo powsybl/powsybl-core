@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.distributed;
 
@@ -10,29 +11,17 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.computation.CommandExecution;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.ExecutionHandler;
-import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
@@ -41,9 +30,6 @@ class DistributedSecurityAnalysisTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
-    private ComputationManager cm = mock(ComputationManager.class);
-    private Network network = EurostagTutorialExample1Factory.create();
-    private ContingenciesProvider contingencies = newContingenciesProvider();
 
     @BeforeEach
     void setUp() throws IOException {
@@ -55,39 +41,6 @@ class DistributedSecurityAnalysisTest {
     @AfterEach
     void tearDown() throws IOException {
         fileSystem.close();
-    }
-
-    private static ContingenciesProvider newContingenciesProvider() {
-        return new ContingenciesProvider() {
-            @Override
-            public List<Contingency> getContingencies(Network network) {
-                return IntStream.range(1, 6)
-                        .mapToObj(i -> new Contingency("contingency-" + i))
-                        .collect(Collectors.toList());
-            }
-
-            @Override
-            public String asScript() {
-                return "";
-            }
-        };
-    }
-
-    private void checkInvocationOnExecutionHandler(Path workingDir) throws IOException {
-        //Capture the execution handler
-        ArgumentCaptor<ExecutionHandler> capt = ArgumentCaptor.forClass(ExecutionHandler.class);
-        verify(cm, times(1)).execute(any(), capt.capture());
-
-        //checks methods of the execution handler
-        List<CommandExecution> cmd = capt.getValue().before(workingDir);
-        assertEquals(1, cmd.size());
-        assertEquals(5, cmd.get(0).getExecutionCount());
-    }
-
-    private void checkWorkingDirContent() {
-        assertTrue(Files.exists(workingDir.resolve("network.xiidm")));
-        assertTrue(Files.exists(workingDir.resolve("contingencies.groovy")));
-        assertTrue(Files.exists(workingDir.resolve("parameters.json")));
     }
 
     /**

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -26,7 +27,7 @@ class RemoveSwitchTest {
             assertTrue(node1 >= 0);
             assertTrue(node2 >= 0);
             return true;
-        } catch (PowsyblException x) {
+        } catch (PowsyblException ignored) {
             return false;
         }
     }
@@ -38,7 +39,7 @@ class RemoveSwitchTest {
             assertNotNull(bus1);
             assertNotNull(bus2);
             return true;
-        } catch (PowsyblException x) {
+        } catch (PowsyblException ignored) {
             return false;
         }
     }
@@ -54,7 +55,7 @@ class RemoveSwitchTest {
         // and invoke fail() outside the listener
 
         boolean[] nodesVerified = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 nodesVerified[0] = checkNodes((Switch) identifiable);
@@ -77,7 +78,7 @@ class RemoveSwitchTest {
         Boolean[] nodesVerified = new Boolean[1];
         // Explicitly consider we have not been able to check any switch
         nodesVerified[0] = null;
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 if (identifiable instanceof Switch) {
@@ -98,7 +99,7 @@ class RemoveSwitchTest {
         Switch sw = network.getSwitch("voltageLevel1Breaker1");
         checkBuses(sw);
         boolean[] busesVerified = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 busesVerified[0] = checkBuses((Switch) identifiable);
@@ -116,7 +117,7 @@ class RemoveSwitchTest {
         Switch sw = network.getSwitch("voltageLevel1Breaker1");
         checkBuses(sw);
         Boolean[] busesVerified = new Boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 if (identifiable instanceof Switch) {

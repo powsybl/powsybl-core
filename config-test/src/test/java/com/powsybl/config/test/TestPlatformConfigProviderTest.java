@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.config.test;
 
@@ -29,11 +30,16 @@ class TestPlatformConfigProviderTest {
         assertEquals("/work/" + TestPlatformConfigProvider.CONFIG_DIR,
                 platformConfig.getConfigDir().map(Path::toString).orElse(null));
 
-        Path testPath = platformConfig.getConfigDir().map(p -> p.resolve("other.txt")).orElse(null);
+        checkFileContent(platformConfig, "other.txt", "conf");
+        checkFileContent(platformConfig, "subfolder/subfolder_file.txt", "subfile content");
+        assertEquals("baz", platformConfig.getOptionalModuleConfig("foo").flatMap(c -> c.getOptionalStringProperty("bar")).orElse(""));
+    }
+
+    private void checkFileContent(PlatformConfig platformConfig, String file, String content) throws IOException {
+        Path testPath = platformConfig.getConfigDir().map(p -> p.resolve(file)).orElse(null);
         assertNotNull(testPath);
         String testContent = Files.readAllLines(testPath, StandardCharsets.UTF_8).get(0);
-        assertEquals("conf", testContent);
-        assertEquals("baz", platformConfig.getOptionalModuleConfig("foo").flatMap(c -> c.getOptionalStringProperty("bar")).orElse(""));
+        assertEquals(content, testContent);
     }
 
     @Test

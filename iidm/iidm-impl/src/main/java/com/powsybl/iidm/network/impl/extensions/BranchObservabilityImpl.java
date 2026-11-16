@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -55,7 +56,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP1() {
+    public ObservabilityQuality<B> getNullableQualityP1() {
         return qualityP1;
     }
 
@@ -81,7 +82,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP2() {
+    public ObservabilityQuality<B> getNullableQualityP2() {
         return qualityP2;
     }
 
@@ -107,7 +108,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ1() {
+    public ObservabilityQuality<B> getNullableQualityQ1() {
         return qualityQ1;
     }
 
@@ -133,7 +134,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ2() {
+    public ObservabilityQuality<B> getNullableQualityQ2() {
         return qualityQ2;
     }
 

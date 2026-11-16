@@ -3,10 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
@@ -39,8 +41,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g2")
@@ -49,8 +50,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g3")
@@ -59,8 +59,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(1.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setLocalTargetV(1.0)
                 .add();
         vl.newLoad()
                 .setId("l1")
@@ -97,7 +99,7 @@ final class ScalableTestNetwork {
         return network;
     }
 
-    static Network createNetworkWithDanglingLine() {
+    static Network createNetworkWithBoundaryLine() {
         Network network = Network.create("network", "test");
         Substation s = network.newSubstation()
                 .setId("s")
@@ -120,8 +122,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g2")
@@ -130,8 +131,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g3")
@@ -140,8 +140,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(1.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setLocalTargetV(1.0)
                 .add();
         vl.newLoad()
                 .setId("l1")
@@ -160,7 +162,7 @@ final class ScalableTestNetwork {
         vl2.getBusBreakerView().newBus()
                 .setId("bus2")
                 .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
                 .setId("dl2")
                 .setBus("bus2")
                 .setConnectableBus("bus2")
@@ -190,7 +192,7 @@ final class ScalableTestNetwork {
         return network;
     }
 
-    static Network createNetworkwithDanglingLineAndBattery() {
+    static Network createNetworkwithBoundaryLineAndBattery() {
         Network network = Network.create("network", "test");
 
         // Substation
@@ -217,8 +219,7 @@ final class ScalableTestNetwork {
             .setMinP(0.0)
             .setMaxP(150.0)
             .setTargetP(80.0)
-            .setVoltageRegulatorOn(false)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
             .add();
         vl.newGenerator()
             .setId("g2")
@@ -227,8 +228,7 @@ final class ScalableTestNetwork {
             .setMinP(10.0)
             .setMaxP(100.0)
             .setTargetP(50.0)
-            .setVoltageRegulatorOn(false)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
             .add();
         vl.newGenerator()
             .setId("g3")
@@ -237,8 +237,10 @@ final class ScalableTestNetwork {
             .setMinP(20.0)
             .setMaxP(80.0)
             .setTargetP(30.0)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(1.0)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add()
+            .setLocalTargetV(1.0)
             .add();
         vl.newLoad()
             .setId("l1")
@@ -274,7 +276,7 @@ final class ScalableTestNetwork {
         vl2.getBusBreakerView().newBus()
             .setId("bus2")
             .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
             .setId("dl1")
             .setBus("bus2")
             .setConnectableBus("bus2")
@@ -290,7 +292,7 @@ final class ScalableTestNetwork {
             .setBus("bus2")
             .setConnectableBus("bus2")
             .setTargetP(9999.99)
-            .setTargetQ(9999.99)
+            .setLocalTargetQ(9999.99)
             .setMinP(-9999.99)
             .setMaxP(9999.99)
             .add();

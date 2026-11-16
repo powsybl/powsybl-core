@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2021, RTE (http://www.rte-france.com)
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~
+  -->
+
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00"
+              forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS"
+              xmlns:hopr="http://www.itesla_project.eu/schema/iidm/ext/hvdc_operator_active_power_range/1_0">
+    <iidm:substation id="S1" country="FR">
+        <iidm:voltageLevel id="VL1" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B1"/>
+            </iidm:busBreakerTopology>
+            <iidm:shunt id="C1_Filter1" name="Filter 1" sectionCount="1" voltageRegulatorOn="false" bus="B1" connectableBus="B1" q="25.0">
+                <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
+            </iidm:shunt>
+            <iidm:shunt id="C1_Filter2" name="Filter 2" sectionCount="0" voltageRegulatorOn="false" connectableBus="B1" q="25.0">
+                <iidm:shuntLinearModel bPerSection="2.0E-5" maximumSectionCount="1"/>
+            </iidm:shunt>
+            <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="1.1" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2" country="FR">
+        <iidm:voltageLevel id="VL2" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="BBS1" name="BusbarSection" node="0"/>
+                <iidm:switch id="DISC_BBS1_BK1" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="BK1" name="Breaker" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="DISC_BBS1_BK2" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="BK2" name="Breaker" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+                <iidm:switch id="DISC_BBS1_BK3" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="BK3" name="Breaker" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:shunt id="C2_Filter1" name="Filter 3" sectionCount="1" voltageRegulatorOn="false" node="4" q="12.5">
+                <iidm:shuntLinearModel bPerSection="3.0E-5" maximumSectionCount="1"/>
+            </iidm:shunt>
+            <iidm:shunt id="C2_Filter2" name="Filter 4" sectionCount="1" voltageRegulatorOn="false" node="6" q="12.5">
+                <iidm:shuntLinearModel bPerSection="4.0E-5" maximumSectionCount="1"/>
+            </iidm:shunt>
+            <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="1.1" powerFactor="0.6" node="2" p="75.0" q="25.0"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:hvdcLine id="L" name="HVDC" r="1.0" nominalV="400.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="280.0" maxP="300.0" converterStation1="C1" converterStation2="C2"/>
+    <iidm:extension id="L">
+        <hopr:hvdcOperatorActivePowerRange fromCS1toCS2="1.0" fromCS2toCS1="2.0" />
+    </iidm:extension>
+</iidm:network>

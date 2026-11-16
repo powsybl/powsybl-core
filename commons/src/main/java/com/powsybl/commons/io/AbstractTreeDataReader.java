@@ -7,10 +7,21 @@
  */
 package com.powsybl.commons.io;
 
+import java.util.Map;
+
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public abstract class AbstractTreeDataReader implements TreeDataReader {
+
+    @Override
+    public TreeDataHeader readHeader() {
+        return new TreeDataHeader(readRootVersion(), readExtensionVersions());
+    }
+
+    protected abstract String readRootVersion();
+
+    protected abstract Map<String, String> readExtensionVersions();
 
     @Override
     public double readDoubleAttribute(String name) {
@@ -31,10 +42,5 @@ public abstract class AbstractTreeDataReader implements TreeDataReader {
     public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
         String attributeValue = readStringAttribute(name);
         return attributeValue != null ? Enum.valueOf(clazz, attributeValue) : defaultValue;
-    }
-
-    @Override
-    public void skipChildNodes() {
-        readChildNodes(elementName -> skipChildNodes());
     }
 }

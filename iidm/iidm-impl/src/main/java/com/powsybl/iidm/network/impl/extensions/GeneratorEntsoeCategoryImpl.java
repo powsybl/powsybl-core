@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -18,7 +19,7 @@ public class GeneratorEntsoeCategoryImpl extends AbstractExtension<Generator> im
     private int code;
 
     private static int checkCode(int code, Generator generator) {
-        if (code < 1) {
+        if (code < 0) {
             throw new IllegalArgumentException(String.format("Bad generator ENTSO-E code %s for generator %s",
                 code,
                 generator.getId()));

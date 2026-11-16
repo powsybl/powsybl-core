@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
@@ -11,14 +12,14 @@ package com.powsybl.iidm.reducer;
  */
 public class ReductionOptions {
 
-    private boolean withDanglingLines = false;
+    private boolean withBoundaryLines = false;
 
-    public boolean isWithDanglingLines() {
-        return withDanglingLines;
+    public boolean isWithBoundaryLines() {
+        return withBoundaryLines;
     }
 
-    public ReductionOptions withDanglingLlines(boolean withDanglingLines) {
-        this.withDanglingLines = withDanglingLines;
+    public ReductionOptions withBoundaryLines(boolean withBoundaryLines) {
+        this.withBoundaryLines = withBoundaryLines;
         return this;
     }
 

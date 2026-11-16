@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -40,6 +41,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
      * or complete exceptionally in case of exception.
      */
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     public void run() {
         future.run();
         try {
@@ -49,7 +51,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
         } catch (InterruptedException exc) {
             Thread.currentThread().interrupt();
             completeExceptionally(exc);
-        } catch (Throwable exc) {
+        } catch (Exception exc) {
             completeExceptionally(exc);
         }
     }
@@ -99,7 +101,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
     static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
         private final CompletableFuture<?> source;
 
-        public SourceCancelingCompletableFuture(CompletableFuture<?> source) {
+        SourceCancelingCompletableFuture(CompletableFuture<?> source) {
             this.source = Objects.requireNonNull(source);
         }
 

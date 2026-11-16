@@ -11,10 +11,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.AbstractEquipmentCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
-import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
+import com.powsybl.contingency.list.AbstractEquipmentCriterionContingencyList;
+import com.powsybl.iidm.criteria.Criterion;
+import com.powsybl.iidm.criteria.PropertyCriterion;
+import com.powsybl.iidm.criteria.RegexCriterion;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -69,7 +69,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                 return true;
             }
             case "type" -> {
-                if (!parser.nextTextValue().equals(expectedType)) {
+                if (expectedType == null || !expectedType.equals(parser.nextTextValue())) {
                     throw new IllegalStateException("type should be: " + expectedType);
                 }
                 return true;

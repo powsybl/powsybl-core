@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -37,7 +37,7 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
     private static List<IidmVersion> fromMinToCurrentVersion(IidmVersion min) {
         return Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(min) >= 0)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Test
@@ -79,15 +79,15 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
             assertNotNull(line1BranchObservability2);
 
             assertEquals(line1BranchObservability.isObservable(), line1BranchObservability2.isObservable());
-            assertEquals(line1BranchObservability.getQualityP1().getStandardDeviation(), line1BranchObservability2.getQualityP1().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityP1().isRedundant(), line1BranchObservability2.getQualityP1().isRedundant());
-            assertEquals(line1BranchObservability.getQualityP2().getStandardDeviation(), line1BranchObservability2.getQualityP2().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityP2().isRedundant(), line1BranchObservability2.getQualityP2().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityP1().getStandardDeviation(), line1BranchObservability2.getNullableQualityP1().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityP1().isRedundant(), line1BranchObservability2.getNullableQualityP1().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityP2().getStandardDeviation(), line1BranchObservability2.getNullableQualityP2().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityP2().isRedundant(), line1BranchObservability2.getNullableQualityP2().isRedundant());
 
-            assertEquals(line1BranchObservability.getQualityQ1().getStandardDeviation(), line1BranchObservability2.getQualityQ1().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityQ1().isRedundant(), line1BranchObservability2.getQualityQ1().isRedundant());
-            assertEquals(line1BranchObservability.getQualityQ2().getStandardDeviation(), line1BranchObservability2.getQualityQ2().getStandardDeviation(), 0.0d);
-            assertEquals(line1BranchObservability.getQualityQ2().isRedundant(), line1BranchObservability2.getQualityQ2().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityQ1().getStandardDeviation(), line1BranchObservability2.getNullableQualityQ1().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityQ1().isRedundant(), line1BranchObservability2.getNullableQualityQ1().isRedundant());
+            assertEquals(line1BranchObservability.getNullableQualityQ2().getStandardDeviation(), line1BranchObservability2.getNullableQualityQ2().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getNullableQualityQ2().isRedundant(), line1BranchObservability2.getNullableQualityQ2().isRedundant());
 
             assertEquals(line1BranchObservability.getName(), line1BranchObservability2.getName());
 
@@ -101,16 +101,17 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
                     .getExtension(BranchObservability.class);
             assertNotNull(transfoObs);
             assertTrue(transfoObs.isObservable());
-            assertNull(transfoObs.getQualityP1());
-            assertNull(transfoObs.getQualityP2());
-            assertNull(transfoObs.getQualityQ1());
-            assertNull(transfoObs.getQualityQ2());
+            assertNull(transfoObs.getNullableQualityP1());
+            assertNull(transfoObs.getNullableQualityP2());
+            assertNull(transfoObs.getNullableQualityQ1());
+            assertNull(transfoObs.getNullableQualityQ2());
         }
     }
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class,
+            () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
         assertEquals("Unknown element name 'qualityV' in 'branchObservability'", e.getMessage());
     }
 }

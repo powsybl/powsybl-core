@@ -178,7 +178,7 @@
     <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
   </cim:PhaseTapChangerAsymmetrical>
   <cim:PhaseTapChangerSymmetrical rdf:about="#_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x">
-    <cim:TapChanger.step>3</cim:TapChanger.step>
+    <cim:TapChanger.step>9</cim:TapChanger.step>
     <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
   </cim:PhaseTapChangerSymmetrical>
   <cim:RatioTapChanger rdf:about="#_955d9cd0-4a10-4031-b008-60c0dc340a07">
@@ -186,7 +186,7 @@
     <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
   </cim:RatioTapChanger>
   <cim:RatioTapChanger rdf:about="#_955d9cd0-4a10-4031-b008-60c0dc340a07-x">
-    <cim:TapChanger.step>5</cim:TapChanger.step>
+    <cim:TapChanger.step>12</cim:TapChanger.step>
     <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
   </cim:RatioTapChanger>
   <cim:RatioTapChanger rdf:about="#_83cc66dd-8d93-4a2c-8103-f1f5a9cf7e2e">

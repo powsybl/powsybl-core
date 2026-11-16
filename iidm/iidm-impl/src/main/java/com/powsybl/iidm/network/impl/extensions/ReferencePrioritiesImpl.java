@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -23,10 +24,13 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
 
     private final ArrayList<Map<Terminal, ReferencePriority>> referencePrioritiesPerVariant;
 
-    public ReferencePrioritiesImpl(C extendable) {
+    ReferencePrioritiesImpl(C extendable) {
         super(extendable);
-        this.referencePrioritiesPerVariant = new ArrayList<>(
-                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashMap<>()));
+        int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
+        this.referencePrioritiesPerVariant = new ArrayList<>(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.referencePrioritiesPerVariant.add(new LinkedHashMap<>());
+        }
     }
 
     ReferencePrioritiesImpl<C> add(ReferencePriority referencePriority) {

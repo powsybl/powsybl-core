@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -21,13 +22,13 @@ public interface ConnectablePositionAdder<C extends Connectable<C>>
 
     interface FeederAdder<C extends Connectable<C>> {
 
-        public FeederAdder<C> withName(String name);
+        FeederAdder<C> withName(String name);
 
-        public FeederAdder<C> withOrder(int order);
+        FeederAdder<C> withOrder(int order);
 
-        public FeederAdder<C> withDirection(ConnectablePosition.Direction direction);
+        FeederAdder<C> withDirection(ConnectablePosition.Direction direction);
 
-        public ConnectablePositionAdder<C> add();
+        ConnectablePositionAdder<C> add();
 
     }
 

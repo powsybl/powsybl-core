@@ -3,17 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import java.util.Objects;
-
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.BranchData;
@@ -22,6 +18,10 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0LineChecker;
 import com.powsybl.loadflow.validation.CandidateComputation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  *
@@ -166,8 +166,9 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                 terminal.setP(-generator.getTargetP());
             }
             if (Double.isNaN(terminal.getQ())) {
-                LOGGER.debug("Generator {}, setting q = {}", generator.getId(), -generator.getTargetQ());
-                terminal.setQ(-generator.getTargetQ());
+                double q = -generator.getRegulatingTargetQ();
+                LOGGER.debug("Generator {}, setting q = {}", generator.getId(), q);
+                terminal.setQ(q);
             }
         }
     }

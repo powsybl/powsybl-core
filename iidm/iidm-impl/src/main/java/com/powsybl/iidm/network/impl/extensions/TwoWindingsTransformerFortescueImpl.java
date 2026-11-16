@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 
 import java.util.Objects;
 
@@ -22,6 +23,7 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private double rz;
     private double xz;
     private boolean freeFluxes;
+    private double xm;
     private WindingConnectionType connectionType1;
     private WindingConnectionType connectionType2;
     private double groundingR1;
@@ -29,13 +31,14 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private double groundingR2;
     private double groundingX2;
 
-    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, double rz, double xz, boolean freeFluxes,
+    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, double rz, double xz, boolean freeFluxes, double xm,
                                                WindingConnectionType connectionType1, WindingConnectionType connectionType2,
                                                double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
         super(twt);
         this.rz = rz;
         this.xz = xz;
         this.freeFluxes = freeFluxes;
+        this.xm = xm;
         this.connectionType1 = Objects.requireNonNull(connectionType1);
         this.connectionType2 = Objects.requireNonNull(connectionType2);
         this.groundingR1 = groundingR1;
@@ -67,6 +70,16 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     @Override
     public boolean isFreeFluxes() {
         return freeFluxes;
+    }
+
+    @Override
+    public double getXm() {
+        return xm;
+    }
+
+    @Override
+    public void setXm(double xm) {
+        this.xm = xm;
     }
 
     @Override

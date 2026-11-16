@@ -1,0 +1,44 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.serde.extensions;
+
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionSerDe;
+import com.powsybl.commons.extensions.ExtensionSerDe;
+import com.powsybl.commons.io.DeserializerContext;
+import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserveAdder;
+
+/**
+ * @author Jacques Borsenberger {@literal <jacques.borsenberger at rte-france.com>}
+ */
+@AutoService(ExtensionSerDe.class)
+public class ManualFrequencyRestorationReserveSerDe<I extends Injection<I>>
+        extends AbstractExtensionSerDe<I, ManualFrequencyRestorationReserve<I>> {
+
+    public ManualFrequencyRestorationReserveSerDe() {
+        super(ManualFrequencyRestorationReserve.NAME, "network", ManualFrequencyRestorationReserve.class, "manualFrequencyRestorationReserve.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/manual_frequency_restoration_reserve/1_0", "mfrr");
+    }
+
+    @Override
+    public void write(ManualFrequencyRestorationReserve<I> manualFrequencyRestorationReserve, SerializerContext context) {
+        context.getWriter().writeBooleanAttribute("participate", manualFrequencyRestorationReserve.isParticipate());
+    }
+
+    @Override
+    public ManualFrequencyRestorationReserve<I> read(I injection, DeserializerContext context) {
+        boolean participate = context.getReader().readBooleanAttribute("participate");
+        context.getReader().readEndNode();
+        ManualFrequencyRestorationReserveAdder<I> mfrr = injection.newExtension(ManualFrequencyRestorationReserveAdder.class);
+        return mfrr.withParticipate(participate)
+            .add();
+    }
+}

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -13,6 +14,7 @@ import com.powsybl.commons.io.SerializerContext;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
@@ -31,6 +33,14 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     InputStream getXsdAsStream();
 
     /**
+     * Return the XSD schema describing the extension to serialize in a given version of its XML serialization.
+     */
+    default InputStream getXsdAsStream(String extensionVersion) {
+        checkExtensionVersionSupported(extensionVersion);
+        return getXsdAsStream();
+    }
+
+    /**
      * Return the list of all XSD schemas describing the extension to serialize. <br>
      * There is a distinct XSD schema for each version of its XML serialization.
      */
@@ -44,6 +54,11 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     String getNamespaceUri();
 
     /**
+     * Return the stream of all the namespace URIs of the extension, used for its XML (de)serialization
+     */
+    Stream<String> getNamespaceUriStream();
+
+    /**
      * Return the namespace URI of the extension in a given version of its XML serialization.
      */
     default String getNamespaceUri(String extensionVersion) {
@@ -52,6 +67,8 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
 
     String getNamespacePrefix();
 
+    String getNamespacePrefix(String extensionVersion);
+
     void write(E extension, SerializerContext context);
 
     E read(T extendable, DeserializerContext context);
@@ -59,6 +76,10 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     default String getName() {
         return getExtensionName();
     }
+
+    String getSerializationName(String extensionVersion);
+
+    Set<String> getSerializationNames();
 
     /**
      * Return the latest version of the serialization of the extension.
@@ -98,10 +119,22 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     }
 
     /**
+     * Check if an extension can be serialized or not.
+     * @param extension the extension to check
+     * @param context the serialization context
+     * @return true if the extension can be serialized, false otherwise
+     */
+    default boolean isSerializable(E extension, SerializerContext context) {
+        return isSerializable(extension);
+    }
+
+    /**
      * Provides the map whose keys are the array field names and whose values are the single element field names.
      * This is used to deduce the name of an element inside and array.
      */
     default Map<String, String> getArrayNameToSingleNameMap() {
         return Collections.emptyMap();
     }
+
+    void checkReadingCompatibility(DeserializerContext context);
 }

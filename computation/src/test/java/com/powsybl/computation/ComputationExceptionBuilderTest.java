@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -45,7 +46,7 @@ class ComputationExceptionBuilderTest {
         try {
             Files.createDirectories(workingDir);
             try (BufferedWriter writer = Files.newBufferedWriter(f1, StandardCharsets.UTF_8);
-                 BufferedWriter w2 = Files.newBufferedWriter(f2, StandardCharsets.UTF_8);) {
+                 BufferedWriter w2 = Files.newBufferedWriter(f2, StandardCharsets.UTF_8)) {
                 writer.write("foo");
                 w2.write("bar");
             }

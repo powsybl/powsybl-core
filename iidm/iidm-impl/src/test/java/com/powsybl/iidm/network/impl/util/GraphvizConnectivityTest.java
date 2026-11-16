@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.util;
 
@@ -14,8 +15,8 @@ import com.powsybl.iidm.network.util.GraphvizConnectivity;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 /**
@@ -25,23 +26,25 @@ import java.util.Random;
 class GraphvizConnectivityTest extends AbstractSerDeTest {
 
     @Test
-    void test() throws IOException, NoSuchAlgorithmException {
+    void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        try (StringWriter writer = new StringWriter()) {
+        try (StringWriter writer = new StringWriter();
+             InputStream expected = getClass().getResourceAsStream("/eurostag-tutorial-example1.dot")) {
             new GraphvizConnectivity(network, new Random(0)).write(writer);
             writer.flush();
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1.dot"), writer.toString());
+            ComparisonUtils.assertTxtEquals(expected, writer.toString());
         }
     }
 
     @Test
     void testCountryCluster() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        try (StringWriter writer = new StringWriter()) {
+        try (StringWriter writer = new StringWriter();
+             InputStream expected = getClass().getResourceAsStream("/eurostag-tutorial-country-cluster.dot")) {
             new GraphvizConnectivity(network, new Random(0)).setCountryCluster(true).write(writer);
             writer.flush();
             String dot = writer.toString().replaceAll("\\s+// scope=(.*)", ""); // to remove unstable comments
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-country-cluster.dot"), dot);
+            ComparisonUtils.assertTxtEquals(expected, dot);
         }
     }
 }

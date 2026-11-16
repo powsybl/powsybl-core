@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -15,7 +16,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.DoubleFunction;
 import java.util.function.Supplier;
+
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
 
 /**
  * Dense matrix implementation based on an array of {@code rowCount} * {@code columnCount} double values.
@@ -27,6 +31,8 @@ public class DenseMatrix extends AbstractMatrix {
     private static final Logger LOGGER = LoggerFactory.getLogger(DenseMatrix.class);
 
     public static final int MAX_ELEMENT_COUNT = Integer.MAX_VALUE / Double.BYTES;
+
+    public static final DenseMatrix EMPTY = new DenseMatrix(0, 0);
 
     /**
      * Dense element implementation.
@@ -122,14 +128,6 @@ public class DenseMatrix extends AbstractMatrix {
 
     private double getUnsafe(int i, int j) {
         return buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
-    }
-
-    /**
-     * @deprecated Use {@link #get(int, int)} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    public double getValue(int i, int j) {
-        return get(i, j);
     }
 
     private void setUnsafe(int i, int j, double value) {
@@ -360,16 +358,64 @@ public class DenseMatrix extends AbstractMatrix {
         return new DenseMatrix(transposedRowCount, transposedColumnCount, () -> transposedBuffer);
     }
 
-    @Override
-    public void print(PrintStream out) {
-        print(out, null, null);
+    /**
+     * Copy all the values that are in an originalMatrix and paste it in the current DenseMatrix (without allocating new memory spaces)
+     * The dimensions of both matrices must be the same
+     */
+    public void copyValuesFrom(DenseMatrix originalMatrix) {
+        if (originalMatrix.getRowCount() == getRowCount() && originalMatrix.getColumnCount() == getColumnCount()) {
+            for (int columnIndex = 0; columnIndex < originalMatrix.getColumnCount(); columnIndex++) {
+                for (int rowIndex = 0; rowIndex < originalMatrix.getRowCount(); rowIndex++) {
+                    set(rowIndex, columnIndex, originalMatrix.get(rowIndex, columnIndex));
+                }
+            }
+        } else {
+            throw new MatrixException("Incompatible matrix dimensions when copying values. Received (" + originalMatrix.getRowCount()
+                + ", " + originalMatrix.getColumnCount() + ") but expected (" + getRowCount() + ", " + getColumnCount() + ")");
+        }
+    }
+
+    public void resetRow(int row) {
+        if (row >= 0 && row < getRowCount()) {
+            for (int j = 0; j < getColumnCount(); j++) {
+                set(row, j, 0);
+            }
+        } else {
+            throw new IllegalArgumentException("Row value out of bounds. Expected in range [0," + (getRowCount() - 1) + "] but received " + row);
+        }
+    }
+
+    public void resetColumn(int column) {
+        if (column >= 0 && column < getColumnCount()) {
+            for (int i = 0; i < getRowCount(); i++) {
+                set(i, column, 0);
+            }
+        } else {
+            throw new IllegalArgumentException("Column value out of bounds. Expected in range [0," + (getColumnCount() - 1) + "] but received " + column);
+        }
+    }
+
+    public void removeSmallValues(double epsilonValue) {
+        if (epsilonValue >= 0) {
+            for (int i = 0; i < getRowCount(); i++) {
+                for (int j = 0; j < getColumnCount(); j++) {
+                    if (Math.abs(get(i, j)) < epsilonValue) {
+                        set(i, j, 0.);
+                    }
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Argument epsilonValue should be positive but received " + epsilonValue);
+        }
     }
 
     @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
+        DoubleFunction<String> formattingFunction = getFormatter(config)
+                .map(decimalFormat -> (DoubleFunction<String>) (decimalFormat::format))
+                .orElse(Double::toString);
+        int[] width = getMaxWidthPerColumn(columnNames, formattingFunction);
         int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
-
-        int[] width = getMaxWidthForEachColumn(columnNames);
 
         if (columnNames != null) {
             if (rowNames != null) {
@@ -385,7 +431,7 @@ public class DenseMatrix extends AbstractMatrix {
                 out.print(Strings.padStart(rowNames.get(i), rowNamesWidth + 1, ' '));
             }
             for (int j = 0; j < getColumnCount(); j++) {
-                out.print(Strings.padStart(Double.toString(get(i, j)), width[j] + 1, ' '));
+                out.print(Strings.padStart(formattingFunction.apply(get(i, j)), width[j] + 1, ' '));
             }
             out.println();
         }
@@ -401,11 +447,11 @@ public class DenseMatrix extends AbstractMatrix {
         return rowNamesWidth;
     }
 
-    private int[] getMaxWidthForEachColumn(List<String> columnNames) {
+    private int[] getMaxWidthPerColumn(List<String> columnNames, DoubleFunction<String> formatter) {
         int[] width = new int[getColumnCount()];
         for (int i = 0; i < getRowCount(); i++) {
             for (int j = 0; j < getColumnCount(); j++) {
-                width[j] = Math.max(width[j], Double.toString(get(i, j)).length());
+                width[j] = Math.max(width[j], formatter.apply(get(i, j)).length());
                 if (columnNames != null) {
                     width[j] = Math.max(width[j], columnNames.get(j).length());
                 }

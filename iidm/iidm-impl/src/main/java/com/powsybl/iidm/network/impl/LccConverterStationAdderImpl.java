@@ -3,13 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -35,24 +35,15 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
     }
 
     @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return getVoltageLevel().getNetworkRef();
-    }
-
-    @Override
     public LccConverterStation add() {
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         LccConverterStationImpl converterStation
-                = new LccConverterStationImpl(getNetworkRef(), id, name, isFictitious(), getLossFactor(), powerFactor);
+                = new LccConverterStationImpl(getNetworkRef(), id, name, isFictitious(), isEquivalent(), getLossFactor(), powerFactor);
         converterStation.addTerminal(terminal);
-        getVoltageLevel().attach(terminal, false);
+        getVoltageLevel().getTopologyModel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);
         getNetwork().getListeners().notifyCreation(converterStation);
         return converterStation;

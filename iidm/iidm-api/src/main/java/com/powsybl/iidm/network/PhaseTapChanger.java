@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -11,12 +12,15 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapChangerStep> {
+public interface PhaseTapChanger extends TapChanger<
+    PhaseTapChanger,
+    PhaseTapChangerStep,
+    PhaseTapChangerStepsReplacer,
+    PhaseTapChangerStepsReplacer.StepAdder> {
 
     enum RegulationMode {
         CURRENT_LIMITER,
-        ACTIVE_POWER_CONTROL,
-        FIXED_TAP
+        ACTIVE_POWER_CONTROL
     }
 
     /**
@@ -49,5 +53,46 @@ public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapCha
      * @see VariantManager
      */
     PhaseTapChanger setRegulationValue(double regulationValue);
+
+    /**
+     * Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the tap changer is regulating.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getTargetDeadband() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the tap changer is regulating. It must be positive.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default PhaseTapChanger setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the regulating status.
+     * Tap changer must support onload tap changing capabilities to enable regulation.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    PhaseTapChanger setRegulating(boolean regulating);
+
+    /**
+     * Get the terminal used for regulation.
+     */
+    Terminal getRegulationTerminal();
+
+    /**
+     * Set the terminal used for regulation.
+     */
+    PhaseTapChanger setRegulationTerminal(Terminal regulationTerminal);
 
 }

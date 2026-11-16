@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion;
 
@@ -14,7 +15,6 @@ import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.triplestore.api.TripleStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class CgmesImportPreAndPostProcessorsTest {
         }
 
         @Override
-        public void process(Network network, TripleStore tripleStore) {
+        public void process(Network network, CgmesModel cgmesModel) {
             activatedPostProcessorNames.add(getName());
         }
     }

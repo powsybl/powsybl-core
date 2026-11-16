@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.io;
 
@@ -14,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
-    private final AbstractRecordGroup<T> recordGroup;
+    protected final AbstractRecordGroup<T> recordGroup;
 
     protected RecordGroupIOJson(AbstractRecordGroup<T> recordGroup) {
         Objects.requireNonNull(recordGroup);
@@ -37,13 +37,13 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     }
 
     @Override
-    public List<T> read(BufferedReader reader, Context context) throws IOException {
+    public List<T> read(LegacyTextReader reader, Context context) throws IOException {
         if (reader == null) {
             return readJson(context.getNetworkNode(), context);
         }
         // Use Jackson streaming API to skip contents until wanted node is found
         JsonFactory jsonFactory = new JsonFactory();
-        try (JsonParser parser = jsonFactory.createParser(reader)) {
+        try (JsonParser parser = jsonFactory.createParser(reader.getBufferedReader())) {
             JsonNode node = readJsonNode(parser);
             String[] actualFieldNames = readFieldNames(node);
             List<String> records = readRecords(node);
@@ -66,30 +66,30 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     }
 
     @Override
-    public T readHead(BufferedReader reader, Context context) throws IOException {
-        throw new PsseException("Generic record group can not be read as head record");
+    public T readHead(LegacyTextReader reader, Context context) throws IOException {
+        throw new PsseException("Generic record group cannot be read as head record");
     }
 
     @Override
     public void writeHead(T psseObject, Context context, OutputStream outputStream) {
-        throw new PsseException("Generic record group can not be written as head record");
+        throw new PsseException("Generic record group cannot be written as head record");
     }
 
-    private JsonNode readJsonNode(JsonParser parser) throws IOException {
+    protected JsonNode readJsonNode(JsonParser parser) throws IOException {
         Objects.requireNonNull(parser);
         ObjectMapper mapper = new ObjectMapper();
         parser.setCodec(mapper);
         String nodeName = recordGroup.getIdentification().getJsonNodeName();
         while (!parser.isClosed()) {
             parser.nextToken();
-            if (nodeName.equals(parser.getCurrentName())) {
+            if (nodeName.equals(parser.currentName())) {
                 return mapper.convertValue(parser.readValueAsTree().get("caseid"), JsonNode.class);
             }
         }
         throw new PsseException("Json node not found: " + nodeName);
     }
 
-    private List<T> readJson(JsonNode networkNode, Context context) {
+    protected List<T> readJson(JsonNode networkNode, Context context) {
         // Records in Json file format have arbitrary order for fields.
         // Fields present in the record group are defined explicitly in a header.
         // Order and number of field names is relevant for parsing,
@@ -106,7 +106,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         return recordGroup.parseRecords(records, actualFieldNames, context);
     }
 
-    private static String[] readFieldNames(JsonNode n) {
+    protected static String[] readFieldNames(JsonNode n) {
         JsonNode fieldsNode = n.get("fields");
         if (!fieldsNode.isArray()) {
             throw new PowsyblException("Expecting array reading fields");
@@ -137,7 +137,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         return srecord.substring(1, srecord.length() - 1);
     }
 
-    private List<String> readRecords(JsonNode n) {
+    protected List<String> readRecords(JsonNode n) {
         JsonNode dataNode = n.get("data");
         List<String> records = new ArrayList<>();
         switch (recordGroup.getIdentification().getJsonObjectType()) {
@@ -194,7 +194,8 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
                     g.writeStartArray();
                 }
                 g.writeRaw(" ");
-                g.writeRaw(s);
+                // Since it's written in a JSON table, line separators need to be removed
+                g.writeRaw(s.replace(System.lineSeparator(), ""));
                 if (recordGroup.identification.getJsonObjectType() == DATA_TABLE) {
                     g.writeEndArray();
                 }

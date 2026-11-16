@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -269,8 +270,16 @@ public enum Country {
         this.name = name;
     }
 
+    /**
+     * @deprecated This method is deprecated because not explicit enough as function name() exists.
+     * Use {@link #getFullName()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     public String getName() {
         return name;
     }
 
+    public String getFullName() {
+        return name;
+    }
 }

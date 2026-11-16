@@ -3,27 +3,40 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ApparentPowerLimits;
 import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
-import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.DetectionKind;
+import com.powsybl.iidm.network.Validable;
+
+import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPowerLimits, ApparentPowerLimitsAdder> implements ApparentPowerLimitsAdder {
+public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPowerLimits, ApparentPowerLimitsAdder> implements ApparentPowerLimitsAdder {
 
-    ApparentPowerLimitsAdderImpl(OperationalLimitsOwner owner) {
-        super(owner);
+    public ApparentPowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalGroupId, NetworkImpl network) {
+        super(groupSupplier, validable, ownerId, operationalGroupId, network);
     }
 
     @Override
-    public ApparentPowerLimits add() {
-        checkLoadingLimits();
-        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(owner, permanentLimit, temporaryLimits);
-        owner.setOperationalLimits(LimitType.APPARENT_POWER, limits);
-        return limits;
+    protected ApparentPowerLimits buildLimit(OperationalLimitsGroupImpl group) {
+        return detectionKind == DetectionKind.HIGH ?
+            new ApparentPowerLimitsImpl(group, permanentLimit, permanentLimitName, temporaryLimits)
+            : new ApparentPowerLimitsImpl(group, temporaryLimits);
+    }
+
+    @Override
+    protected void setLimitToGroup(ApparentPowerLimits limits, OperationalLimitsGroupImpl group) {
+        group.setApparentPowerLimits(limits);
+    }
+
+    @Override
+    protected String getLimitTypeName() {
+        return "ApparentPowerLimits";
     }
 }

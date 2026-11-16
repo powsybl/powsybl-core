@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network.io;
 
@@ -46,9 +47,7 @@ class UcteRecordWriter {
     private void resizeBuffer(int length) {
         int n = length - buffer.length();
         if (n > 0) {
-            for (int i = 0; i < n; i++) {
-                buffer.append(" ");
-            }
+            buffer.append(" ".repeat(n));
         }
     }
 
@@ -64,8 +63,21 @@ class UcteRecordWriter {
         if (value == null) {
             return;
         }
+        String fieldValue = sanitizeField(value, endIndex - beginIndex);
         resizeBuffer(endIndex);
-        buffer.replace(beginIndex, endIndex, value);
+        buffer.replace(beginIndex, endIndex, fieldValue);
+    }
+
+    // A UCTE record is a single fixed-width line. Neutralize control characters so a value
+    // (e.g. a network property fed to the exporter) cannot inject a line break and forge
+    // extra records, and truncate to the field width so it cannot shift the following columns.
+    private static String sanitizeField(String value, int fieldLength) {
+        StringBuilder sb = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            sb.append(c < ' ' || c == '\u007f' ? ' ' : c);
+        }
+        return sb.length() > fieldLength ? sb.substring(0, fieldLength) : sb.toString();
     }
 
     private String alignAndTruncate(String str, int strLen, Alignment alignment) {

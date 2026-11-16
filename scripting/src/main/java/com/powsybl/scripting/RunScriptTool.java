@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.scripting;
 
@@ -67,6 +68,7 @@ public class RunScriptTool implements Tool {
         return COMMAND;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
         Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));

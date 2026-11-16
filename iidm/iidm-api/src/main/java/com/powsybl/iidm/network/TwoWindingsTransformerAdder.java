@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -12,6 +13,21 @@ package com.powsybl.iidm.network;
  */
 public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformer, TwoWindingsTransformerAdder> {
 
+    static TwoWindingsTransformerAdder fillTwoWindingsTransformerAdder(TwoWindingsTransformerAdder adder, TwoWindingsTransformer twoWindingsTransformer) {
+        return adder.setR(twoWindingsTransformer.getR())
+                .setX(twoWindingsTransformer.getX())
+                .setB(twoWindingsTransformer.getB())
+                .setG(twoWindingsTransformer.getG())
+                .setRatedU1(twoWindingsTransformer.getRatedU1())
+                .setRatedU2(twoWindingsTransformer.getRatedU2());
+    }
+
+    /**
+     * Set the resistance of the transformer in &#937. Since this can be an equivalent model, calculations can lead to the value being negative.
+     * Therefore, a negative value is allowed.
+     * @param r the value of the resistance of the transformer in &#937
+     * @return this adder, for chaining
+     */
     TwoWindingsTransformerAdder setR(double r);
 
     TwoWindingsTransformerAdder setX(double x);

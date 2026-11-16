@@ -3,17 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -24,14 +25,24 @@ public class TapChanger {
     public static TapChanger ratioTapChangerFromEnd(PropertyBag end, Context context) {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
-        PropertyBag rtc = context.ratioTapChanger(end.getId(CgmesNames.RATIO_TAP_CHANGER));
+        PropertyBag rtc = context
+                .ratioTapChangers(end.getId("PowerTransformer"))
+                .stream()
+                .filter(tc -> end.getId(CgmesNames.TRANSFORMER_END).equals(tc.getId(CgmesNames.TRANSFORMER_END)))
+                .findFirst()
+                .orElse(null);
         return rtc != null ? AbstractCgmesTapChangerBuilder.newRatioTapChanger(rtc, context).build() : null;
     }
 
     public static TapChanger phaseTapChangerFromEnd(PropertyBag end, double x, Context context) {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
-        PropertyBag ptc = context.phaseTapChanger(end.getId(CgmesNames.PHASE_TAP_CHANGER));
+        PropertyBag ptc = context
+                .phaseTapChangers(end.getId("PowerTransformer"))
+                .stream()
+                .filter(tc -> end.getId(CgmesNames.TRANSFORMER_END).equals(tc.getId(CgmesNames.TRANSFORMER_END)))
+                .findFirst()
+                .orElse(null);
         return ptc != null ? AbstractCgmesTapChangerBuilder.newPhaseTapChanger(ptc, x, context).build() : null;
     }
 

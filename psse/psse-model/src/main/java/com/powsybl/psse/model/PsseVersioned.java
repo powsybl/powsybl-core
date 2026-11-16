@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model;
 
@@ -29,7 +30,7 @@ public class PsseVersioned {
 
     public void checkVersion(String fieldName) {
         // If we do not have a reference back to a model
-        // We can not obtain current version and we can not perform checks
+        // We cannot obtain current version and we cannot perform checks
         if (model == null) {
             return;
         }
@@ -58,11 +59,11 @@ public class PsseVersioned {
             PsseVersion since = fromRevision(field.getAnnotation(Revision.class).since());
             PsseVersion until = fromRevision(field.getAnnotation(Revision.class).until());
             String message = String.format(
-                "Wrong version of PSSE RAW model (%s). Field '%s' is valid since version %s%s",
-                current,
-                fieldName,
-                since,
-                until.getNumber() != MAX_VERSION.getNumber() ? " until " + until : "");
+                    "Wrong version of PSSE RAW model (%s). Field '%s' is valid since version %s%s",
+                    current,
+                    fieldName,
+                    since,
+                    until.getNumber() != MAX_VERSION.getNumber() ? " until " + until : "");
             throw new PsseException(message);
         }
     }

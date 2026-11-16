@@ -3,12 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
-import java.util.*;
-
 import com.powsybl.commons.extensions.Extendable;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * An object that is part of the network model and that is identified uniquely
@@ -16,7 +19,7 @@ import com.powsybl.commons.extensions.Extendable;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
+public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, PropertiesHolder {
 
     /**
      * Get the network associated to the object.
@@ -44,8 +47,6 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Get the alias of the object with a given alias type if it exists. Else return an empty optional.
-     *
-     * @throws {@link com.powsybl.commons.PowsyblException} if the aliasType is null or empty
      */
     default Optional<String> getAliasFromType(String aliasType) {
         return Optional.empty();
@@ -128,42 +129,14 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     }
 
     /**
-     * Check that this object has some properties.
-     */
-    boolean hasProperty();
-
-    /**
-     * Check that this object has property with specified name.
-     */
-    boolean hasProperty(String key);
-
-    /**
-     * Get property associated to specified key.
-     */
-    String getProperty(String key);
-
-    /**
-     * Get property associated to specified key, with default value.
-     */
-    String getProperty(String key, String defaultValue);
-
-    /**
-     * Set property value associated to specified key.
-     */
-    String setProperty(String key, String value);
-
-    /**
-     * Remove property with specified key.
+     * Update object unique identifier.
      *
-     * @param key the property key
-     * @return {@code true} if property exists and has been removed, {@code false} otherwise
+     * @param id new unique identifier of the object
+     * @return the object itself
      */
-    boolean removeProperty(String key);
-
-    /**
-     * Get properties key values.
-     */
-    Set<String> getPropertyNames();
+    default I setId(String id) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
     /**
      * Get the fictitious status

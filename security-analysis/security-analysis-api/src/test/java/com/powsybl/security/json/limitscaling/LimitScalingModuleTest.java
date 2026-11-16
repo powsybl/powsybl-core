@@ -1,0 +1,214 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.security.json.limitscaling;
+
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.criteria.*;
+import com.powsybl.iidm.criteria.duration.AllTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
+import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.LimitScalingList;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Set;
+
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
+/**
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
+ */
+class LimitScalingModuleTest extends AbstractSerDeTest {
+
+    @Test
+    void limitScalingReadV10() {
+        LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
+        LimitScalingList expectedScalings = new LimitScalingList(
+            List.of(
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4()
+            )
+        );
+        compareLimitScalingList(expectedScalings, limitScalingList);
+    }
+
+    @Test
+    void limitScalingReadV11() {
+        LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.1.json"));
+        LimitScalingList expectedScalings = new LimitScalingList(
+            List.of(
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4(),
+                getLimitScaling5()
+            )
+        );
+        compareLimitScalingList(expectedScalings, limitScalingList);
+    }
+
+    @Test
+    void limitScalingReadV12() {
+        LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.2.json"));
+        LimitScalingList expectedScalings = new LimitScalingList(
+            List.of(
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4(),
+                getLimitScaling5(),
+                getLimitScaling6()
+            ));
+        compareLimitScalingList(expectedScalings, limitScalingList);
+    }
+
+    @Test
+    void checkVersion() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/LimitReductionsV1.2_incorrect_naming.json")) {
+            PowsyblException e = assertThrows(PowsyblException.class, () -> LimitScalingListSerDeUtil.read(is));
+            assertEquals("limit-scaling-list. limitScalings is not valid for this version", e.getMessage());
+        }
+        try (InputStream is = getClass().getResourceAsStream("/LimitScalingsV1.3_incorrect_naming.json")) {
+            PowsyblException e = assertThrows(PowsyblException.class, () -> LimitScalingListSerDeUtil.read(is));
+            assertEquals("limit-scaling-list. limitReductions is not valid for this version", e.getMessage());
+        }
+    }
+
+    private void compareLimitScalingList(LimitScalingList expected, LimitScalingList actual) {
+        Assertions.assertThat(actual.getLimitScalings())
+            .hasSize(expected.getLimitScalings().size())
+            .usingComparatorForType((Double a, Double b) -> {
+                double tolerance = 1e-2;
+                return Math.abs(a - b) < tolerance ? 0 : Double.compare(a, b);
+            }, Double.class)
+            .extracting(
+                LimitScaling::getLimitType,
+                LimitScaling::getValue,
+                l -> l.getContingencyContext().getContingencyId(),
+                l -> l.getNetworkElementCriteria().stream().map(NetworkElementCriterion::getNetworkElementCriterionType).toList(),
+                l -> l.getDurationCriteria().stream().map(LimitDurationCriterion::getType).toList(),
+                LimitScaling::getOperationalLimitsGroupIdsSelection
+            ).containsExactlyInAnyOrderElementsOf(expected.getLimitScalings().stream()
+                .map(r -> tuple(
+                        r.getLimitType(),
+                        r.getValue(),
+                        r.getContingencyContext().getContingencyId(),
+                        r.getNetworkElementCriteria().stream().map(NetworkElementCriterion::getNetworkElementCriterionType).toList(),
+                        r.getDurationCriteria().stream().map(LimitDurationCriterion::getType).toList(),
+                        r.getOperationalLimitsGroupIdsSelection()
+                    )
+                ).toList()
+            );
+    }
+
+    @Test
+    void roundTripTest() throws IOException {
+        LimitScalingList limitScalingList = new LimitScalingList(
+            List.of(
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4(),
+                getLimitScaling5(),
+                getLimitScaling6()
+            ));
+
+        roundTripTest(limitScalingList, LimitScalingListSerDeUtil::write,
+                LimitScalingListSerDeUtil::read,
+            "/LimitScalings.json");
+    }
+
+    @Test
+    void compatibilityWithOldCriterion() {
+        LimitScalingList scalingsList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            LimitScalingListSerDeUtil.write(scalingsList, bos);
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_group.json"), new ByteArrayInputStream(bos.toByteArray()));
+        } catch (Exception e) {
+            // Should not happen
+            fail();
+        }
+    }
+
+    private LimitScaling getLimitScaling1() {
+        ContingencyContext contingencyContext1 = ContingencyContext.specificContingency("contingency1");
+        List<NetworkElementCriterion> networkElementCriteria1 =
+            List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
+                new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR)), new TwoNominalVoltageCriterion(
+                    VoltageInterval.between(350., 410., true, false),
+                    null)),
+                new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
+                new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
+                new TieLineCriterion(null, new TwoNominalVoltageCriterion(
+                    VoltageInterval.between(350., 410., true, false),
+                    null)),
+                new BoundaryLineCriterion(null, new SingleNominalVoltageCriterion(
+                    VoltageInterval.between(80., 100., true, false))));
+        List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
+        return LimitScaling.builder(LimitType.CURRENT, 0.9)
+            .withContingencyContext(contingencyContext1)
+            .withNetworkElementCriteria(networkElementCriteria1)
+            .withLimitDurationCriteria(durationCriteria1)
+            .build();
+    }
+
+    private LimitScaling getLimitScaling2() {
+        return LimitScaling.builder(LimitType.APPARENT_POWER, 0.5)
+            .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
+            .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder()
+                .setLowBound(10 * 60, true)
+                .setHighBound(20 * 60, true)
+                .build())
+            .build();
+    }
+
+    private LimitScaling getLimitScaling3() {
+        return new LimitScaling(LimitType.ACTIVE_POWER, 0.8, true);
+    }
+
+    private LimitScaling getLimitScaling4() {
+        return LimitScaling.builder(LimitType.CURRENT, 0.9)
+            .withNetworkElementCriteria(new IdentifiableCriterion(
+                new AtLeastOneCountryCriterion(List.of(Country.FR)),
+                new AtLeastOneNominalVoltageCriterion(
+                    VoltageInterval.between(380., 410., true, true)
+                )))
+            .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.between(300, 600, true, false))
+            .build();
+    }
+
+    private LimitScaling getLimitScaling5() {
+        return LimitScaling.builder(LimitType.ACTIVE_POWER, 0.88)
+            .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1", "NHV1_NHV2_2")))
+            .withOperationalLimitsGroupIdSelection("DEFAULT", "activated_1_3", "activated_2_1")
+            .build();
+    }
+
+    private LimitScaling getLimitScaling6() {
+        return LimitScaling.builder(LimitType.CURRENT, 1.13)
+            .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder().setLowBound(60, true).build())
+            .build();
+    }
+}

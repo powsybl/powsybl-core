@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -12,7 +13,6 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.ArrayList;
@@ -25,13 +25,14 @@ import java.util.Map;
  */
 public class TerminalMapping {
 
-    public TerminalMapping() {
-        boundaries = new HashMap<>();
-        terminals = new HashMap<>();
-        terminalNumbers = new HashMap<>();
-        topologicalNodesMapping = new HashMap<>();
-        cgmesTerminalsMapping = new HashMap<>();
-    }
+    private final Map<String, Terminal> terminals = new HashMap<>();
+    private final Map<String, Boundary> boundaries = new HashMap<>();
+    // This is a somewhat dirty way of storing the side for the CGMES terminal
+    // (only mapped when the terminal is connected to a branch)
+    private final Map<String, Integer> terminalNumbers = new HashMap<>();
+    private final Map<String, List<String>> topologicalNodesMapping = new HashMap<>();
+    private final Map<String, List<CgmesTerminal>> connectivityNodeTerminalsMapping = new HashMap<>();
+    private final Map<String, String> cgmesTerminalsMapping = new HashMap<>();
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
         if (terminals.containsKey(cgmesTerminal) || boundaries.containsKey(cgmesTerminal)) {
@@ -60,22 +61,28 @@ public class TerminalMapping {
         return cgmesTerminalsMapping.get(cgmesTerminalId);
     }
 
-    public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
+    public Terminal findForFlowLimits(String cgmesTerminalId) {
+        // We only considered Terminals assigned to an iidm equipment
+        // Terminals not included in the iidm model are:
+        // - boundary terminal of boundaryLines (paired an unpaired)
+        // - terminal of switches
+        // Limits associated to these terminals are discarded
+        return terminals.get(cgmesTerminalId);
+    }
+
+    public Terminal findForVoltageLimits(String cgmesTerminalId) {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
-        if (loadingLimits) {
-            return findFromTopologicalNodeForLoadingLimits(cgmesTerminalsMapping.get(cgmesTerminalId));
-        } else {
-            return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
-        }
+        return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
     }
 
     /**
-     * @deprecated Not used anymore.
+     * @deprecated Not used anymore. Use {@link #findForVoltageLimits(String)}
+     * or {@link #findForFlowLimits(String)} instead.
      */
-    @Deprecated(since = "4.8.0")
-    public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network) {
+    @Deprecated(since = "6.1.2")
+    public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
         throw new ConversionException("Deprecated. Not used anymore");
     }
 
@@ -85,7 +92,7 @@ public class TerminalMapping {
 
     public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-        if (cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
+        if (cgmesTerminal != null && cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
             String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
             if (acLineSegmentCgmesTerminalId != null) {
                 return findBoundary(acLineSegmentCgmesTerminalId);
@@ -130,6 +137,13 @@ public class TerminalMapping {
         }
     }
 
+    public void buildConnectivityNodeCgmesTerminalsMapping(CgmesTerminal t) {
+        String connectivityNode = t.connectivityNode();
+        if (connectivityNode != null) {
+            connectivityNodeTerminalsMapping.computeIfAbsent(connectivityNode, k -> new ArrayList<>(1)).add(t);
+        }
+    }
+
     public boolean areAssociated(String cgmesTerminalId, String topologicalNode) {
         return topologicalNodesMapping.get(topologicalNode).contains(cgmesTerminalId);
     }
@@ -154,22 +168,11 @@ public class TerminalMapping {
         return disconnectedTerminal;
     }
 
-    public Terminal findFromTopologicalNodeForLoadingLimits(String topologicalNode) {
-        if (topologicalNodesMapping.containsKey(topologicalNode) && topologicalNodesMapping.get(topologicalNode).size() == 1) {
-            return terminals.get(topologicalNodesMapping.get(topologicalNode).get(0));
-        }
-        return null;
-    }
-
     public String findCgmesTerminalFromTopologicalNode(String topologicalNode) {
         return topologicalNodesMapping.containsKey(topologicalNode) ? topologicalNodesMapping.get(topologicalNode).get(0) : null;
     }
 
-    private final Map<String, Terminal> terminals;
-    private final Map<String, Boundary> boundaries;
-    // This is a somewhat dirty way of storing the side for the CGMES terminal
-    // (only mapped when the terminal is connected to a branch)
-    private final Map<String, Integer> terminalNumbers;
-    private final Map<String, List<String>> topologicalNodesMapping;
-    private final Map<String, String> cgmesTerminalsMapping;
+    public List<CgmesTerminal> getConnectivityNodeTerminals(String id) {
+        return connectivityNodeTerminalsMapping.getOrDefault(id, List.of());
+    }
 }

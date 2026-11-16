@@ -1,0 +1,91 @@
+/**
+ * Copyright (c) 2025, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.serde;
+
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.AcDcConverter;
+import com.powsybl.iidm.network.DroopCurve;
+import com.powsybl.iidm.network.DroopCurveAdder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
+ */
+public class DroopCurveSerDe {
+
+    static final DroopCurveSerDe INSTANCE = new DroopCurveSerDe();
+
+    static final String ELEM_DROOP_CURVE = "droopCurve";
+    private static final String ATTR_MIN_V = "minV";
+    private static final String ATTR_MAX_V = "maxV";
+    public static final String ATTR_K = "k";
+    public static final String ARRAY_ELEMENT_NAME = "segments";
+    public static final String ROOT_ELEMENT_NAME = "segment";
+
+    public void write(AcDcConverter<?> converter, NetworkSerializerContext context) {
+        DroopCurve curve = converter.getDroopCurve();
+        // iidm-impl ensures that curve is never null, but other IIDM implementations may decide otherwise
+        if (curve == null || curve.getSegments().isEmpty()) {
+            return;
+        }
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_DROOP_CURVE);
+        context.getWriter().writeStartNodes();
+        for (DroopCurve.Segment segment : curve.getSegments()) {
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
+            context.getWriter().writeDoubleAttribute(ATTR_MIN_V, segment.getMinV());
+            context.getWriter().writeDoubleAttribute(ATTR_MAX_V, segment.getMaxV());
+            context.getWriter().writeDoubleAttribute(ATTR_K, segment.getK());
+            context.getWriter().writeEndNode();
+        }
+        context.getWriter().writeEndNodes();
+        context.getWriter().writeEndNode();
+    }
+
+    /**
+     * @deprecated use {@link #read(List, NetworkDeserializerContext)} instead
+     */
+    @Deprecated(since = "7.4.0")
+    public void read(AcDcConverter<?> converter, NetworkDeserializerContext context) {
+        read(context).accept(converter);
+    }
+
+    public <T extends AcDcConverter<?>> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+        toApply.add(read(context));
+    }
+
+    private <T extends AcDcConverter<?>> Consumer<T> read(NetworkDeserializerContext context) {
+        List<DroopCurveSegmentData> segments = new ArrayList<>();
+        // Read
+        context.getReader().readChildNodes(elementName -> {
+            if (elementName.equals(ROOT_ELEMENT_NAME)) {
+                double minV = context.getReader().readDoubleAttribute(ATTR_MIN_V);
+                double maxV = context.getReader().readDoubleAttribute(ATTR_MAX_V);
+                double k = context.getReader().readDoubleAttribute(ATTR_K);
+                segments.add(new DroopCurveSegmentData(minV, maxV, k));
+                context.getReader().readEndNode();
+            } else {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'droopCurve'");
+            }
+        });
+        // Apply
+        return acDcConverter -> {
+            DroopCurveAdder adder = acDcConverter.newDroopCurve();
+            segments.forEach(segment -> adder.beginSegment()
+                .setMinV(segment.minV)
+                .setMaxV(segment.maxV)
+                .setK(segment.k)
+                .endSegment());
+            adder.add();
+        };
+    }
+
+    private record DroopCurveSegmentData(double minV, double maxV, double k) { }
+}

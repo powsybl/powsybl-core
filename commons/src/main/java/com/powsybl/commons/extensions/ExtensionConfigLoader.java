@@ -3,20 +3,26 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  * Loads an extension from platform configuration.
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T> > extends ExtensionProvider<T, E> {
+public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
     /**
      * Creates an extension instance from the provided platform configuration.
      */
     E load(PlatformConfig platformConfig);
+
+    default E load(PlatformConfig platformConfig, ReportNode reportNode) {
+        return load(platformConfig);
+    }
 }

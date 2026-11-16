@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -32,4 +33,11 @@ public interface Extension<T> {
      * @throws com.powsybl.commons.PowsyblException if this extension is already held.
      */
     void setExtendable(T extendable);
+
+    /**
+     * Method called just before the extension is removed from its holder.
+     * Can be used for e.g. resource cleanup.
+     */
+    default void cleanup() {
+    }
 }

@@ -45,7 +45,7 @@
             <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
             <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
             <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
-            <xs:attribute name="sourceFormat" use="required" type="iidm:nonEmptyString"/>
+            <xs:attribute name="sourceFormat" use="required" type="xs:string"/>
             <xs:attribute name="minimumValidationLevel" use="required" type="iidm:nonEmptyString"/>
         </xs:complexType>
     </xs:element>
@@ -285,7 +285,7 @@
                 </xs:sequence>
                 <xs:attribute name="p0" use="optional" type="xs:double"/>
                 <xs:attribute name="q0" use="optional" type="xs:double"/>
-                <xs:attribute name="loadType" use="required" type="iidm:LoadType"/>
+                <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

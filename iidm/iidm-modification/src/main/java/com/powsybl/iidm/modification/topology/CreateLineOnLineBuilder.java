@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
@@ -32,11 +33,12 @@ public class CreateLineOnLineBuilder {
     private String line1Name = null;
     private String line2Id = null;
     private String line2Name = null;
+    private Integer positionForNewLine = null;
 
     public CreateLineOnLine build() {
         return new CreateLineOnLine(positionPercent, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
-                line1Id, line1Name, line2Id, line2Name, line, lineAdder);
+                line1Id, line1Name, line2Id, line2Name, line, lineAdder, positionForNewLine);
     }
 
     public CreateLineOnLineBuilder withPositionPercent(double positionPercent) {
@@ -113,6 +115,11 @@ public class CreateLineOnLineBuilder {
 
     public CreateLineOnLineBuilder withLineAdder(LineAdder lineAdder) {
         this.lineAdder = lineAdder;
+        return this;
+    }
+
+    public CreateLineOnLineBuilder withPositionForNewLine(Integer positionForNewLine) {
+        this.positionForNewLine = positionForNewLine;
         return this;
     }
 }

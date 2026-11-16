@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
@@ -40,6 +41,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         this(computationManager, LoadFlowBasedPhaseShifterOptimizerConfig.load());
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Every kind of exception is rethrown as a PowsyblException
     private void runLoadFlow(Network network, String workingStateId) {
         try {
             String loadFlowName = config.getLoadFlowName().orElse(null);

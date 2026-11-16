@@ -8,8 +8,6 @@
 package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -17,7 +15,6 @@ import com.powsybl.iidm.network.Importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -25,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Stream;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
@@ -34,9 +32,7 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 public class XMLImporter extends AbstractTreeDataImporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
-    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml", "iidm.xml"};
-
-    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml"};
 
     public XMLImporter() {
         super();
@@ -66,7 +62,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
             if (ext != null) {
                 try (InputStream is = dataSource.newInputStream(null, ext)) {
                     // check the first root element is network and namespace is IIDM
-                    XMLStreamReader xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+                    XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
                     try {
                         while (xmlsr.hasNext()) {
                             int eventType = xmlsr.next();
@@ -79,12 +75,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
                             }
                         }
                     } finally {
-                        try {
-                            xmlsr.close();
-                            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
-                        } catch (XMLStreamException e) {
-                            LOGGER.error(e.toString(), e);
-                        }
+                        cleanClose(xmlsr);
                     }
                 }
             }
@@ -92,6 +83,15 @@ public class XMLImporter extends AbstractTreeDataImporter {
         } catch (XMLStreamException e) {
             // not a valid xml file
             return false;
+        }
+    }
+
+    private void cleanClose(XMLStreamReader xmlStreamReader) {
+        try {
+            xmlStreamReader.close();
+            XmlUtil.gcXmlInputFactory(getXMLInputFactory());
+        } catch (XMLStreamException e) {
+            LOGGER.error(e.toString(), e);
         }
     }
 }

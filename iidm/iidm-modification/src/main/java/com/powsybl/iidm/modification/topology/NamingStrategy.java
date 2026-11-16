@@ -7,7 +7,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.List;
 
@@ -50,6 +53,8 @@ public interface NamingStrategy {
 
     String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num);
 
+    String getBusbarId(String baseId, List<SwitchKind> leftSwitchesBetweenBusbar, List<SwitchKind> rightSwitchesBetweenBusbar, int id1Num, int id2Num);
+
     String getBusId(String baseId);
 
     /**
@@ -61,4 +66,62 @@ public interface NamingStrategy {
      * Used in coupling device building
      */
     String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2);
+
+    default String getDisconnectorName(String baseId, int id1Num, int id2Num) {
+        return null;
+    }
+
+    default String getDisconnectorName(BusbarSection bbs, String baseId, int id1Num, int id2Num, int side) {
+        return null;
+    }
+
+    default String getDisconnectorBetweenChunksName(BusbarSection bbs1, String baseId, int id1Num, int id2Num) {
+        return null;
+    }
+
+    default String getBreakerName(String baseId) {
+        return null;
+    }
+
+    default String getBreakerName(String baseId, int id1Num, int id2Num) {
+        return null;
+    }
+
+    default String getSwitchName(String baseId) {
+        return null;
+    }
+
+    default String getSwitchName(String baseId, int idNum) {
+        return null;
+    }
+
+    default String getSwitchName(String baseId, int id1Num, int id2Num) {
+        return null;
+    }
+
+    default String getBusbarName(String baseId, int id1Num, int id2Num) {
+        return null;
+    }
+
+    default String getBusbarName(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num) {
+        return null;
+    }
+
+    default String getBusName(String baseId) {
+        return null;
+    }
+
+    /**
+     * Used when building a feeder bay
+     */
+    default String getSwitchBaseName(Connectable<?> connectable, int side) {
+        return null;
+    }
+
+    /**
+     * Used in coupling device building
+     */
+    default String getSwitchBaseName(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2) {
+        return null;
+    }
 }

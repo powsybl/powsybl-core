@@ -16,6 +16,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -40,7 +41,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
     public ScalingParameters deserialize(JsonParser parser, DeserializationContext context, ScalingParameters parameters) throws IOException {
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> {
                     parser.nextToken(); // do nothing
                     version = parser.getValueAsString();
@@ -48,6 +49,11 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                 case "scalingConvention" -> {
                     parser.nextToken();
                     parameters.setScalingConvention(JsonUtil.readValue(context, parser, Scalable.ScalingConvention.class));
+                }
+                case "scalingType" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: scalingType", version, "1.3");
+                    parser.nextToken();
+                    parameters.setScalingType(JsonUtil.readValue(context, parser, ScalingParameters.ScalingType.class));
                 }
                 case "constantPowerFactor" -> {
                     parser.nextToken();
@@ -67,7 +73,26 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     parser.nextToken();
                     parameters.setPriority(JsonUtil.readValue(context, parser, ScalingParameters.Priority.class));
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                case "ignoredInjectionIds" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
+                    parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
+                }
+                case "loadMinPowerFactor" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMinPowerFactor", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMinPowerFactor(parser.getDoubleValue());
+                }
+                case "loadMinQRate" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMinQRate", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMinQRate(parser.getDoubleValue());
+                }
+                case "loadMaxQRate" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMaxQRate", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMaxQRate(parser.getDoubleValue());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return parameters;

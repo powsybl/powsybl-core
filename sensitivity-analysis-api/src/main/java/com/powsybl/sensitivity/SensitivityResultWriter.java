@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -11,7 +12,7 @@ package com.powsybl.sensitivity;
  */
 public interface SensitivityResultWriter {
 
-    void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference);
+    void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference);
 
-    void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status);
+    void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status);
 }

@@ -1,2 +1,0 @@
-+ Testing reporter for coupling device creation
-   New coupling device was created on voltage level vl1. It connects bbs1 and bbs3 with closed disconnectors

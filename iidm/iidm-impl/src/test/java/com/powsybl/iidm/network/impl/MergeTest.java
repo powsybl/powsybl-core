@@ -3,12 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,24 +33,36 @@ import static org.junit.jupiter.api.Assertions.*;
 class MergeTest {
 
     @Test
+    void merge3NetworksWithDuplicates() {
+        Network network1 = NetworkTest1Factory.create();
+        Network network2 = EurostagTutorialExample1Factory.create();
+        Network network3 = SecurityAnalysisTestNetworkFactory.create();
+        PowsyblException x = assertThrows(PowsyblException.class, () -> {
+            Network.merge("full", network1, network2, network3);
+        });
+        // Assert that the message contains the identifiers of networks where duplicates are found
+        assertEquals("The following object(s) of type GeneratorImpl already exist in merged network when trying to merge network 'fictitious': [GEN]", x.getMessage());
+    }
+
+    @Test
     void mergeNodeBreakerTestNPE() throws IOException {
-        Network n1 = createNetworkWithDanglingLine("1");
-        Network n2 = createNetworkWithDanglingLine("2");
+        Network n1 = createNetworkWithBoundaryLine("1");
+        Network n2 = createNetworkWithBoundaryLine("2");
 
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
         Network merge = Network.merge(n1, n2);
         // If we try to get connected components directly on the merged network,
         // A Null Pointer Exception happens in AbstractConnectable.notifyUpdate:
-        // There is a CalculatedBus that has a terminal that refers to the removed DanglingLine
-        // DanglingLine object has VoltageLevel == null,
+        // There is a CalculatedBus that has a terminal that refers to the removed BoundaryLine
+        // BoundaryLine object has VoltageLevel == null,
         // NPE comes from trying to getNetwork() using VoltageLevel to notify a change in connected components
         checkConnectedComponents(merge);
     }
 
     @Test
     void mergeNodeBreakerTestPass1() {
-        Network n1 = createNetworkWithDanglingLine("1");
-        Network n2 = createNetworkWithDanglingLine("2");
+        Network n1 = createNetworkWithBoundaryLine("1");
+        Network n2 = createNetworkWithBoundaryLine("2");
 
         // The test passes if we do not log voltage level (exportTopology)
         Network merge = Network.merge(n1, n2);
@@ -54,8 +71,8 @@ class MergeTest {
 
     @Test
     void mergeNodeBreakerTestPass2() throws IOException {
-        Network n1 = createNetworkWithDanglingLine("1");
-        Network n2 = createNetworkWithDanglingLine("2");
+        Network n1 = createNetworkWithBoundaryLine("1");
+        Network n2 = createNetworkWithBoundaryLine("2");
 
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
         // The test also passes if we "force" the connected component calculation before merge
@@ -76,11 +93,11 @@ class MergeTest {
         n.getBusView().getBuses().forEach(b -> assertEquals(0, b.getConnectedComponent().getNum()));
     }
 
-    private static Network createNetworkWithDanglingLine(String nid) {
+    private static Network createNetworkWithBoundaryLine(String nid) {
         Network n = NetworkTest1Factory.create(nid);
         VoltageLevel vl = n.getVoltageLevel(id("voltageLevel1", nid));
-        DanglingLine dl = vl.newDanglingLine()
-                .setId(id("danglingLineb", nid))
+        BoundaryLine dl = vl.newBoundaryLine()
+                .setId(id("boundaryLineb", nid))
                 .setNode(6)
                 .setR(1.0)
                 .setX(0.1)
@@ -88,7 +105,7 @@ class MergeTest {
                 .setB(0.001)
                 .setP0(10)
                 .setQ0(1)
-                // Same pairing key for dangling lines
+                // Same pairing key for boundary lines
                 .setPairingKey("X")
                 .add();
         vl.getNodeBreakerView().newBreaker()
@@ -156,13 +173,13 @@ class MergeTest {
         network1.newVoltageAngleLimit()
                 .setId("LimitCollision")
                 .from(network1.getLine(id("Line-2-2", "1")).getTerminal1())
-                .to(network1.getDanglingLine(id("Dl-3", "1")).getTerminal())
+                .to(network1.getBoundaryLine(id("Dl-3", "1")).getTerminal())
                 .setHighLimit(0.25)
                 .add();
         network2.newVoltageAngleLimit()
                 .setId("LimitCollision")
                 .from(network2.getLine(id("Line-2-2", "2")).getTerminal1())
-                .to(network2.getDanglingLine(id("Dl-3", "2")).getTerminal())
+                .to(network2.getBoundaryLine(id("Dl-3", "2")).getTerminal())
                 .setHighLimit(0.25)
                 .add();
 
@@ -181,8 +198,20 @@ class MergeTest {
         Network network3 = createNodeBreakerWithVoltageAngleLimit("3");
         network3.setCaseDate(zonedDateTime1);
         Network networkMerged = Network.merge(network1, network2, network3);
-        assertNotEquals(zonedDateTime1, networkMerged.getCaseDate());
-        assertNotEquals(zonedDateTime2, networkMerged.getCaseDate());
+        assertFalse(zonedDateTime1.isEqual(networkMerged.getCaseDate()));
+        assertFalse(zonedDateTime2.isEqual(networkMerged.getCaseDate()));
+    }
+
+    @Test
+    void mergeNetworksWithSameCaseDateInDifferentTimeZones() {
+        ZonedDateTime utc = ZonedDateTime.of(2031, 3, 4, 5, 30, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime plusOne = ZonedDateTime.of(2031, 3, 4, 6, 30, 0, 0, ZoneOffset.ofHours(1));
+        Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
+        network1.setCaseDate(plusOne);
+        Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
+        network2.setCaseDate(utc);
+        Network networkMerged = Network.merge(network1, network2);
+        assertEquals(plusOne, networkMerged.getCaseDate());
     }
 
     @Test
@@ -196,6 +225,52 @@ class MergeTest {
         network3.setCaseDate(zonedDateTime1);
         Network networkMerged = Network.merge(network1, network2, network3);
         assertEquals(zonedDateTime1, networkMerged.getCaseDate());
+    }
+
+    @Test
+    void mergeDetachMergeTest() {
+        // two networks
+        Network net1 = NetworkFactory.findDefault().createNetwork("N1", "test");
+        Substation sub1 = net1.newSubstation().setId("S1").add();
+        assertIndependentNetwork(net1, sub1);
+        Network net2 = NetworkFactory.findDefault().createNetwork("N2", "test");
+        Substation sub2 = net2.newSubstation().setId("S2").add();
+        assertIndependentNetwork(net2, sub2);
+        // merge them
+        Network merged1 = Network.merge(net1, net2);
+        Network net1a = merged1.getSubnetwork("N1");
+        Network net2a = merged1.getSubnetwork("N2");
+        assertMergedNetworks(merged1, net1a, sub1, net2a, sub2);
+        // detach them
+        Network net1b = net1a.detach();
+        assertIndependentNetwork(net1b, sub1);
+        assertEquals(1, merged1.getSubstationCount());
+        Network net2b = net2a.detach();
+        assertIndependentNetwork(net2b, sub2);
+        assertEquals(0, merged1.getSubstationCount());
+        // merge again
+        Network merged2 = Network.merge(net1b, net2b);
+        Network net1c = merged2.getSubnetwork("N1");
+        Network net2c = merged2.getSubnetwork("N2");
+        assertMergedNetworks(merged2, net1c, sub1, net2c, sub2);
+    }
+
+    private static void assertIndependentNetwork(Network network, Substation substation) {
+        assertEquals(network, substation.getNetwork());
+        assertEquals(network, substation.getParentNetwork());
+        assertEquals(1, network.getSubstationCount());
+    }
+
+    private static void assertMergedNetworks(Network mergedNetwork,
+                                             Network subNetwork1, Substation substation1,
+                                             Network subNetwork2, Substation substation2) {
+        assertEquals(mergedNetwork, substation1.getNetwork());
+        assertEquals(subNetwork1, substation1.getParentNetwork());
+        assertEquals(mergedNetwork, substation2.getNetwork());
+        assertEquals(subNetwork2, substation2.getParentNetwork());
+        assertEquals(2, mergedNetwork.getSubstationCount());
+        assertEquals(1, subNetwork1.getSubstationCount());
+        assertEquals(1, subNetwork2.getSubstationCount());
     }
 
     private static boolean voltageAngleLimitsAreEqual(List<VoltageAngleLimit> expected, List<VoltageAngleLimit> actual) {
@@ -265,7 +340,7 @@ class MergeTest {
         createInternalConnection(s2vl1, 0, 3);
         createLoad(s2vl1, id("S2VL1-Load", nid), 45.0, 9.0, 1);
 
-        createDanglingLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "pairingKey", 3);
+        createBoundaryLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "pairingKey", 3);
 
         // Line between both substations
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
@@ -273,7 +348,7 @@ class MergeTest {
         network.newVoltageAngleLimit()
             .setId(valId)
             .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
-            .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
+            .to(network.getBoundaryLine(id("Dl-3", nid)).getTerminal())
             .setHighLimit(0.25)
             .add();
 
@@ -312,10 +387,10 @@ class MergeTest {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(-500.0)
             .setMaxP(500.0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setTargetP(p)
-            .setTargetV(targetV)
-            .setTargetQ(q)
+            .setLocalTargetV(targetV)
+            .setLocalTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()
@@ -341,8 +416,8 @@ class MergeTest {
             .add();
     }
 
-    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String pairingKey, int node) {
-        network.getVoltageLevel(vlId).newDanglingLine()
+    private static void createBoundaryLine(Network network, String vlId, String id, double p0, double q0, String pairingKey, int node) {
+        network.getVoltageLevel(vlId).newBoundaryLine()
             .setId(id)
             .setR(0.01)
             .setX(2.0)

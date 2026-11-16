@@ -3,16 +3,19 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
-import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -24,6 +27,8 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
     private final BusFilter filter;
     private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
+    private final Map<String, TopologyLevel> voltageLevelExportTopologyLevel;
+    private final Map<String, List<Extension<? extends Identifiable<?>>>> extinctExtensionsToSerializeByIdentifiable;
 
     NetworkSerializerContext(Anonymizer anonymizer, TreeDataWriter writer, ExportOptions options, BusFilter filter, IidmVersion version, boolean valid) {
         super(anonymizer, version);
@@ -32,6 +37,8 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
         this.filter = filter;
         this.valid = valid;
         this.exportedEquipments = new HashSet<>();
+        this.voltageLevelExportTopologyLevel = new HashMap<>();
+        this.extinctExtensionsToSerializeByIdentifiable = new HashMap<>();
     }
 
     @Override
@@ -52,15 +59,6 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
         return valid;
     }
 
-    /**
-     * @deprecated Should not be used anymore.
-     */
-    @Deprecated(since = "3.8.1")
-    public void setExtensionsWriter(XMLStreamWriter extensionsWriter) {
-        // does nothing
-        // only kept to prevent breaking change
-    }
-
     public Set<Identifiable> getExportedEquipments() {
         return Collections.unmodifiableSet(exportedEquipments);
     }
@@ -79,5 +77,29 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
 
     public String getNamespaceURI() {
         return getVersion().getNamespaceURI(valid);
+    }
+
+    public void addVoltageLevelExportTopologyLevel(String voltageLevelId, TopologyLevel topologyLevel) {
+        if (!voltageLevelId.isEmpty()) {
+            voltageLevelExportTopologyLevel.put(voltageLevelId, topologyLevel);
+        }
+    }
+
+    public TopologyLevel getVoltageLevelExportTopologyLevel(String voltageLevelId) {
+        return voltageLevelExportTopologyLevel.get(voltageLevelId);
+    }
+
+    public String anonymizeFromMinimumVersion(String val, IidmVersion version) {
+        return getVersion().compareTo(version) >= 0 ? getAnonymizer().anonymizeString(val) : val;
+    }
+
+    public void addExtinctExtensionsToSerialize(String identifiableId, Extension<? extends Identifiable<?>> extension) {
+        extinctExtensionsToSerializeByIdentifiable.computeIfAbsent(identifiableId, k -> new ArrayList<>()).add(extension);
+    }
+
+    public Stream<Extension<Identifiable<?>>> getExtinctExtensionsToSerialize(String identifiableId) {
+        return extinctExtensionsToSerializeByIdentifiable.containsKey(identifiableId) ?
+            extinctExtensionsToSerializeByIdentifiable.get(identifiableId).stream()
+                    .map(e -> (Extension<Identifiable<?>>) e) : Stream.empty();
     }
 }

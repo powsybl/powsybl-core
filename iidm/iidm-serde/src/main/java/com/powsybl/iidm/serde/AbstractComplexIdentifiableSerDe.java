@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  */
 abstract class AbstractComplexIdentifiableSerDe<T extends Identifiable<T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableSerDe<T, A, P> {
 
-    protected abstract void readRootElementAttributes(A adder, List<Consumer<T>> toApply, NetworkDeserializerContext context);
+    protected abstract void readRootElementAttributes(A adder, P parent, List<Consumer<T>> toApply, NetworkDeserializerContext context);
 
     protected void readSubElement(String elementName, String id, List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         switch (elementName) {
@@ -43,8 +43,31 @@ abstract class AbstractComplexIdentifiableSerDe<T extends Identifiable<T>, A ext
         List<Consumer<T>> toApply = new ArrayList<>();
         A adder = createAdder(parent);
         String id = readIdentifierAttributes(adder, context);
-        readRootElementAttributes(adder, toApply, context);
+        readRootElementAttributes(adder, parent, toApply, context);
         readSubElements(id, adder, toApply, context);
+        DeserializationEndTask.Step creationStep = getPostponedCreationStep();
+        if (creationStep != null) {
+            context.addEndTask(creationStep, () -> createElement(adder, toApply));
+        } else {
+            createElement(adder, toApply);
+        }
+    }
+
+    /**
+     * <p>Return <code>null</code> if the element should be created immediately after it is read from the serialized network.
+     * Else, return the step ({@link DeserializationEndTask.Step}) when the element should be created.</p>
+     * <p>In some specific cases, the element could not be created right after it is read, typically if it references
+     * other network elements which may have not been yet created. (It is better to create the element without the said
+     * references and to fill them in later, but it is not always possible, or at high cost.)
+     * If this method returns a non-null value, the element's creation will be defined as an "end task" and
+     * will be performed after the network is read (before the extensions creation or at the very end).</p>
+     * @return the wanted {@link DeserializationEndTask.Step} if the creation should be postponed, <code>null</code> otherwise.
+     */
+    protected DeserializationEndTask.Step getPostponedCreationStep() {
+        return null;
+    }
+
+    private static <T extends Identifiable<T>, A extends IdentifiableAdder<T, A>> void createElement(A adder, List<Consumer<T>> toApply) {
         T identifiable = adder.add();
         toApply.forEach(consumer -> consumer.accept(identifiable));
     }

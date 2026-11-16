@@ -3,9 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.ucte.converter;
+
+import com.powsybl.commons.report.ReportNode;
 
 import java.util.Objects;
 
@@ -18,9 +21,12 @@ public class UcteExporterContext {
 
     private final boolean combinePhaseAngleRegulation;
 
-    public UcteExporterContext(NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
+    private final ReportNode reportNode;
+
+    public UcteExporterContext(NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation, ReportNode reportNode) {
         this.namingStrategy = Objects.requireNonNull(namingStrategy);
         this.combinePhaseAngleRegulation = Objects.requireNonNull(combinePhaseAngleRegulation);
+        this.reportNode = Objects.requireNonNull(reportNode);
     }
 
     public NamingStrategy getNamingStrategy() {
@@ -29,5 +35,13 @@ public class UcteExporterContext {
 
     public boolean withCombinePhaseAngleRegulation() {
         return combinePhaseAngleRegulation;
+    }
+
+    public ReportNode getReportNode() {
+        return reportNode;
+    }
+
+    public UcteExporterContext withReportNode(ReportNode reportNode) {
+        return new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
     }
 }

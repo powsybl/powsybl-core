@@ -1,7 +1,0 @@
-+ Testing reporter for reverting create line on line in bus/breaker network
-   Line NHV1_NHV2_1_1 removed
-   Line NHV1_NHV2_1_2 removed
-   Line testLine removed
-   Line NHV1_NHV2_1 created
-   Voltage level NHV1_NHV2_1_VL removed
-   Voltage level NHV1_NHV2_1_VL#0 removed

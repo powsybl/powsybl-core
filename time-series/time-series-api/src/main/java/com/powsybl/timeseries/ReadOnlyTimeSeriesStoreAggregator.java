@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -28,8 +29,8 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
     @Override
     public Set<String> getTimeSeriesNames(TimeSeriesFilter filter) {
         Set<String> timeSeriesNames = new HashSet<>();
-        for (int i = 0; i < stores.size(); i++) {
-            timeSeriesNames.addAll(stores.get(i).getTimeSeriesNames(filter));
+        for (ReadOnlyTimeSeriesStore store : stores) {
+            timeSeriesNames.addAll(store.getTimeSeriesNames(filter));
         }
         return timeSeriesNames;
     }

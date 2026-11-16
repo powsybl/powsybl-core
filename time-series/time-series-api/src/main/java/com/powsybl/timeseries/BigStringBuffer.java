@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
-import java.util.function.IntFunction;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}
@@ -20,11 +21,11 @@ public class BigStringBuffer {
     private static final int BUFFER_SIZE_INTS = 1 << BUFFER_SHIFT;
     private static final int BUFFER_MASK = BUFFER_SIZE_INTS - 1;
     private CompactStringBuffer[] buffers;
-    private long size;
+    private final long size;
 
     //To remove if we ever get it from somewhere else
     //package private for tests
-    @FunctionalInterface interface IntIntBiConsumer { public void accept(int a, int b); }
+    @FunctionalInterface interface IntIntBiConsumer { void accept(int a, int b); }
 
     //using a lambda to test independently from java.nio.ByteBuffer
     //package private for tests
@@ -62,7 +63,7 @@ public class BigStringBuffer {
 
     //To remove if we ever get it from somewhere else
     //package private for tests
-    @FunctionalInterface interface IntIntBiFunction { public String apply(int a, int b); }
+    @FunctionalInterface interface IntIntBiFunction { String apply(int a, int b); }
 
     //using a lambda to test independently from java.nio.ByteBuffer
     //package private for tests

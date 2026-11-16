@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation.local;
 
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.mock;
  */
 class LocalCommandExecutorTest {
 
-    private static class FakeUnixLocalCommandExecutor extends UnixLocalCommandExecutor {
+    private static final class FakeUnixLocalCommandExecutor extends UnixLocalCommandExecutor {
         @Override
         public int execute(String program, long timeoutSecondes, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
             assertEquals(-1L, timeoutSecondes);
@@ -31,7 +32,7 @@ class LocalCommandExecutorTest {
         }
     }
 
-    private static class FakeWinLocalCommandExecutor extends WindowsLocalCommandExecutor {
+    private static final class FakeWinLocalCommandExecutor extends WindowsLocalCommandExecutor {
         @Override
         public int execute(String program, long timeoutSecondes, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
             assertEquals(-1L, timeoutSecondes);

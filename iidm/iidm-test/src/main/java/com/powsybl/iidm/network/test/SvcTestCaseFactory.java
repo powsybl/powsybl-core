@@ -1,14 +1,16 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import java.time.ZonedDateTime;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -25,6 +27,11 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class SvcTestCaseFactory {
+
+    public static final double REMOTE_TARGET_VALUE = 390;
+    public static final double REMOTE_TARGET_VALUE_Q = 10;
+    public static final double LOCAL_TARGET_V = 390;
+    public static final double LOCAL_TARGET_Q = 350;
 
     private SvcTestCaseFactory() {
     }
@@ -54,9 +61,9 @@ public final class SvcTestCaseFactory {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();
@@ -85,8 +92,10 @@ public final class SvcTestCaseFactory {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(390)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setLocalTargetV(LOCAL_TARGET_V)
                 .add();
         network.newLine()
                 .setId("L1")
@@ -119,24 +128,197 @@ public final class SvcTestCaseFactory {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(390)
-                .setReactivePowerSetpoint(350)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setLocalTargetV(LOCAL_TARGET_V)
+                .setLocalTargetQ(LOCAL_TARGET_Q)
                 .add();
 
         return network;
     }
 
     public static Network createWithRemoteRegulatingTerminal() {
-        return createWithRemoteRegulatingTerminal(NetworkFactory.findDefault());
-    }
-
-    public static Network createWithRemoteRegulatingTerminal(NetworkFactory networkFactory) {
-        Network network = create(networkFactory);
-
-        network.getStaticVarCompensator("SVC2")
-                .setRegulatingTerminal(network.getLoad("L2").getTerminal());
-
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(REMOTE_TARGET_VALUE)
+            .build();
+        svc2.setLocalTargetV(Double.NaN);
+        svc2.setLocalTargetQ(Double.NaN);
         return network;
     }
+
+    public static Network createWithRemoteReactiveRegulatingTerminal() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(true)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(REMOTE_TARGET_VALUE_Q)
+            .build();
+        svc2.setLocalTargetV(Double.NaN);
+        svc2.setLocalTargetQ(Double.NaN);
+        return network;
+    }
+
+    public static Network createLocalVoltageControl() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.setLocalTargetV(LOCAL_TARGET_V);
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .build();
+        svc2.setLocalTargetQ(Double.NaN);
+        return network;
+    }
+
+    public static Network createRemoteVoltageControl() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(LOCAL_TARGET_V)
+            .build();
+        svc2.setLocalTargetQ(Double.NaN);
+        svc2.setLocalTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createLocalReactiveControl() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.setLocalTargetQ(LOCAL_TARGET_Q);
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(true)
+            .build();
+        svc2.setLocalTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createRemoteReactiveControl() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(true)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(REMOTE_TARGET_VALUE)
+            .build();
+        svc2.setLocalTargetQ(Double.NaN);
+        svc2.setLocalTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createLocalOffReactiveTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(false)
+            .build();
+        svc2.setLocalTargetV(Double.NaN);
+        svc2.setLocalTargetQ(LOCAL_TARGET_Q);
+        return network;
+    }
+
+    public static Network createRemoteOffReactiveTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.setLocalTargetQ(LOCAL_TARGET_Q);
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(REMOTE_TARGET_VALUE)
+            .withRegulating(false)
+            .build();
+        svc2.setLocalTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createLocalOffVoltageTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withRegulating(false)
+            .withMode(RegulationMode.VOLTAGE)
+            .build();
+        svc2.setLocalTargetV(LOCAL_TARGET_V);
+        svc2.setLocalTargetQ(LOCAL_TARGET_Q);
+        return network;
+    }
+
+    public static Network createRemoteOffVoltageTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withRegulating(false)
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(REMOTE_TARGET_VALUE)
+            .build();
+        return network;
+    }
+
+    public static Network createLocalOffBothTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.setLocalTargetV(LOCAL_TARGET_V);
+        svc2.setLocalTargetQ(LOCAL_TARGET_Q);
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        return network;
+    }
+
+    public static Network createRemoteOffBothTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.setLocalTargetV(LOCAL_TARGET_V);
+        svc2.setLocalTargetQ(LOCAL_TARGET_Q);
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withTargetValue(REMOTE_TARGET_VALUE)
+            .withRegulating(false)
+            .build();
+        return network;
+    }
+
+    public static Network createLocalOffNoTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        svc2.setLocalTargetQ(Double.NaN);
+        svc2.setLocalTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createRemoteOffNoTarget() {
+        Network network = create();
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(getRemoteTerminal(network))
+            .withRegulating(false)
+            .build();
+        return network;
+    }
+
+    private static Terminal getRemoteTerminal(Network network) {
+        return network.getLoad("L2").getTerminal();
+    }
+
 }

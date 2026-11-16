@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
@@ -24,11 +25,11 @@ class TestBatteryModification {
     private Battery battery;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = BatteryNetworkFactory.create();
         assertTrue(network.getBatteryCount() > 0);
         battery = network.getBatteries().iterator().next();
-        battery.setTargetQ(0);
+        battery.setLocalTargetQ(0);
     }
 
     @Test
@@ -39,8 +40,14 @@ class TestBatteryModification {
         assertEquals(1., battery.getTargetP());
 
         BatteryModification batteryModification2 = new BatteryModification(battery.getId(), null, 2.0);
-        assertEquals(0, battery.getTargetQ());
+        assertEquals(0, battery.getLocalTargetQ());
         batteryModification2.apply(network);
-        assertEquals(2., battery.getTargetQ());
+        assertEquals(2., battery.getLocalTargetQ());
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new BatteryModification("ID", 10., 10.);
+        assertEquals("BatteryModification", networkModification.getName());
     }
 }

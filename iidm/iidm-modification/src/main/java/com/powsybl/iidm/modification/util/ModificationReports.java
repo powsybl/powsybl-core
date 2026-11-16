@@ -3,15 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.util;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
-import com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeAdder;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;
+
+import java.util.List;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -21,628 +23,915 @@ public final class ModificationReports {
     private static final String SUBSTATION_ID = "substationId";
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String LINE_ID = "lineId";
+    private static final String SIDE = "side";
     private static final String BBS_ID = "bbsId";
     private static final String CONNECTABLE_ID = "connectableId";
     private static final String IDENTIFIABLE_ID = "identifiableId";
     private static final String IDENTIFIABLE_TYPE = "identifiableType";
     private static final String HVDC_LINE_ID = "hvdcLineId";
+    private static final String TWO_WINDINGS_TRANSFORMER_ID = "twoWindingsTransformerId";
+    private static final String THREE_WINDINGS_TRANSFORMER_ID = "threeWindingsTransformerId";
+    private static final String EXTENSIONS = "extensions";
     public static final String POSITION_ORDER = "positionOrder";
+    public static final String TIE_LINE_ID = "tieLineId";
+    public static final String IDENTIFIABLE = "identifiable";
+    public static final String LINE_1_ID = "line1Id";
+    public static final String LINE_2_ID = "line2Id";
+    public static final String LINE_3_ID = "line3Id";
+    public static final String ORIGINAL_LINE_ID = "originalLineId";
+    public static final String CONNECTABLE_TYPE = "connectableType";
+    public static final String NETWORK_MODIFICATION = "networkModification";
+    public static final String NETWORK_NAME_OR_ID = "networkNameOrId";
+    public static final String BUSBAR_SECTION_ID = "busbarSectionId";
 
     // INFO
-    public static void createdConnectable(Reporter reporter, Connectable<?> connectable) {
-        reporter.report(Report.builder()
-                .withKey("connectableCreated")
-                .withDefaultMessage("New connectable ${connectableId} of type ${connectableType} created.")
-                .withValue(CONNECTABLE_ID, connectable.getId())
-                .withValue("connectableType", connectable.getType().name())
+    public static void createdConnectable(ReportNode reportNode, Connectable<?> connectable) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.connectableCreated")
+                .withUntypedValue(CONNECTABLE_ID, connectable.getId())
+                .withUntypedValue(CONNECTABLE_TYPE, connectable.getType().name())
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void createdNodeBreakerFeederBay(Reporter reporter, String voltageLevelId, String bbsId, Connectable<?> connectable, int parallelBbsNumber) {
-        reporter.report(Report.builder()
-                .withKey("newConnectableAdded")
-                .withDefaultMessage("New feeder bay associated to ${connectableId} of type ${connectableType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector " +
-                        "and on ${parallelBbsNumber} parallel busbar sections with an open disconnector.")
-                .withValue(CONNECTABLE_ID, connectable.getId())
-                .withValue("connectableType", connectable.getType().toString())
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue(BBS_ID, bbsId)
-                .withValue("parallelBbsNumber", parallelBbsNumber)
+    public static void createdNodeBreakerFeederBay(ReportNode reportNode, String voltageLevelId, String bbsId, Connectable<?> connectable, int parallelBbsNumber) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.newConnectableAdded")
+                .withUntypedValue(CONNECTABLE_ID, connectable.getId())
+                .withUntypedValue(CONNECTABLE_TYPE, connectable.getType().toString())
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withUntypedValue(BBS_ID, bbsId)
+                .withUntypedValue("parallelBbsNumber", parallelBbsNumber)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void removedLineReport(Reporter reporter, String lineId) {
-        reporter.report(Report.builder()
-                .withKey("lineRemoved")
-                .withDefaultMessage("Line ${lineId} removed")
-                .withValue(LINE_ID, lineId)
+    public static void removedLineReport(ReportNode reportNode, String lineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lineRemoved")
+                .withUntypedValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void removedTieLineAndAssociatedDanglingLines(Reporter reporter, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
-        reporter.report(Report.builder()
-                .withKey("removedTieLineAndAssociatedDanglingLines")
-                .withDefaultMessage("Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} with pairing key ${pairingKey}")
-                .withValue("tieLineId", tieLineId)
-                .withValue("danglingLineId1", danglingLineId1)
-                .withValue("danglingLineId2", danglingLineId2)
-                .withValue("pairingKey", pairingKey == null ? "" : pairingKey)
+    public static void removedTieLineReport(ReportNode reportNode, String tieLineId, String pairingKey) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removedTieLine")
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
+                .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void createdLineReport(Reporter reporter, String lineId) {
-        reporter.report(Report.builder()
-                .withKey("lineCreated")
-                .withDefaultMessage("Line ${lineId} created")
-                .withValue(LINE_ID, lineId)
+    public static void removedTieLineAndAssociatedBoundaryLines(ReportNode reportNode, String tieLineId, String boundaryLineId1, String boundaryLineId2, String pairingKey) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removedTieLineAndAssociatedBoundaryLines")
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
+                .withUntypedValue("boundaryLineId1", boundaryLineId1)
+                .withUntypedValue("boundaryLineId2", boundaryLineId2)
+                .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void voltageLevelRemovedReport(Reporter reporter, String vlId) {
-        reporter.report(Report.builder()
-                .withKey("voltageLevelRemoved")
-                .withDefaultMessage("Voltage level ${vlId} removed")
-                .withValue("vlId", vlId)
+    public static void createdLineReport(ReportNode reportNode, String lineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lineCreated")
+                .withUntypedValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void substationRemovedReport(Reporter reporter, String substationId) {
-        reporter.report(Report.builder()
-                .withKey("substationRemoved")
-                .withDefaultMessage("Substation ${substationId} removed")
-                .withValue(SUBSTATION_ID, substationId)
+    public static void createdVoltageLevelReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelCreated")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void newCouplingDeviceAddedReport(Reporter reporter, String voltageLevelId, String busOrBbsId1, String busOrBbsId2) {
-        reporter.report(Report.builder()
-                .withKey("newCouplingDeviceAdded")
-                .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects ${busOrBbsId1} and ${busOrBbsId2} with closed disconnectors")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue("busOrBbsId1", busOrBbsId1)
-                .withValue("busOrBbsId2", busOrBbsId2)
+    public static void createdTwoWindingsTransformerReport(ReportNode reportNode, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.twoWindingsTransformerCreated")
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void openDisconnectorsAddedReport(Reporter reporter, String voltageLevelId, int nbOpenDisconnectors) {
-        reporter.report(Report.builder()
-                .withKey("openDisconnectorsAdded")
-                .withDefaultMessage("${nbOpenDisconnectors} open disconnectors created on parallel busbar sections in voltage level ${voltageLevelId}")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue("nbOpenDisconnectors", nbOpenDisconnectors)
+    public static void createdThreeWindingsTransformerReport(ReportNode reportNode, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.threeWindingsTransformerCreated")
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void createdNewSymmetricalTopology(Reporter reporter, String voltageLevelId, int busbarCount, int sectionCount) {
-        reporter.report(Report.builder()
-                .withKey("SymmetricalTopologyCreated")
-                .withDefaultMessage("New symmetrical topology in voltage level ${voltageLevelId}: creation of ${busbarCount} bus(es) or busbar(s) with ${sectionCount} section(s) each.")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue("busbarCount", busbarCount)
-                .withValue("sectionCount", sectionCount)
+    public static void removedTwoWindingsTransformerReport(ReportNode reportNode, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.twoWindingsTransformerRemoved")
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void removedSwitchReport(Reporter reporter, String switchId) {
-        reporter.report(Report.builder()
-                .withKey("SwitchRemoved")
-                .withDefaultMessage("Switch ${switchId} removed")
-                .withValue("switchId", switchId)
+    public static void removedThreeWindingsTransformerReport(ReportNode reportNode, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.threeWindingsTransformerRemoved")
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void removedInternalConnectionReport(Reporter reporter, int node1, int node2) {
-        reporter.report(Report.builder()
-                .withKey("InternalConnectionRemoved")
-                .withDefaultMessage("Internal connection between ${node1} and ${node2} removed")
-                .withValue("node1", node1)
-                .withValue("node2", node2)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+    public static void lostTwoWindingsTransformerAliases(ReportNode reportNode, String aliases, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostTwoWindingsTransformerAliases")
+                .withUntypedValue("aliases", aliases)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void removedConnectableReport(Reporter reporter, String connectableId) {
-        reporter.report(Report.builder()
-                .withKey("ConnectableRemoved")
-                .withDefaultMessage("Connectable ${connectableId} removed")
-                .withValue(CONNECTABLE_ID, connectableId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+    public static void lostThreeWindingsTransformerAliases(ReportNode reportNode, String aliases, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostThreeWindingsTransformerAliases")
+                .withUntypedValue("aliases", aliases)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void removeFeederBayAborted(Reporter reporter, String connectableId, int node, String otherConnectableId) {
-        reporter.report(Report.builder()
-                .withKey("RemoveFeederBayAborted")
-                .withDefaultMessage("Remove feeder bay of ${connectableId} cannot go further node ${node}, as it is connected to ${otherConnectableId}")
-                .withValue(CONNECTABLE_ID, connectableId)
-                .withValue("node", node)
-                .withValue("otherConnectableId", otherConnectableId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+    public static void lostTwoWindingsTransformerProperties(ReportNode reportNode, String properties, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostTwoWindingsTransformerProperties")
+                .withUntypedValue("properties", properties)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void removedSubstationReport(Reporter reporter, String substationId) {
-        reporter.report(Report.builder()
-                .withKey("removeSubstation")
-                .withDefaultMessage("Substation ${substationId} and its voltage levels have been removed")
-                .withValue(SUBSTATION_ID, substationId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+    public static void lostThreeWindingsTransformerProperties(ReportNode reportNode, String properties, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostThreeWindingsTransformerProperties")
+                .withUntypedValue("properties", properties)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void removedVoltageLevelReport(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("removeVoltageLevel")
-                .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+    public static void lostTwoWindingsTransformerExtensions(ReportNode reportNode, String extensions, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostTwoWindingsTransformerExtensions")
+                .withUntypedValue(EXTENSIONS, extensions)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void removedHvdcLineReport(Reporter reporter, String hvdcLineId) {
-        reporter.report(Report.builder()
-                .withKey("removeHvdcLine")
-                .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
-                .withValue(HVDC_LINE_ID, hvdcLineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+    public static void lostThreeWindingsTransformerExtensions(ReportNode reportNode, String extensions, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostThreeWindingsTransformerExtensions")
+                .withUntypedValue(EXTENSIONS, extensions)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void removedVscConverterStationReport(Reporter reporter, String vscConverterStationId) {
-        reporter.report(Report.builder()
-                .withKey("removeVscConverterStation")
-                .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
-                .withValue("vscConverterStationId", vscConverterStationId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+    public static void lostTwoWindingsTransformerOperationalLimitsGroups(ReportNode reportNode, String limits, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostTwoWindingsTransformerOperationalLimitsGroups")
+                .withUntypedValue("limits", limits)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void removedLccConverterStationReport(Reporter reporter, String lccConverterStationId) {
-        reporter.report(Report.builder()
-                .withKey("removeLccConverterStation")
-                .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
-                .withValue("lccConverterStationId", lccConverterStationId)
+    public static void voltageLevelRemovedReport(ReportNode reportNode, String vlId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelRemoved")
+                .withUntypedValue("vlId", vlId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void removedShuntCompensatorReport(Reporter reporter, String shuntCompensatorId) {
-        reporter.report(Report.builder()
-                .withKey("removeShuntCompensator")
-                .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
-                .withValue("shuntCompensatorId", shuntCompensatorId)
+    public static void substationRemovedReport(ReportNode reportNode, String substationId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.substationRemoved")
+                .withUntypedValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
+    }
+
+    public static void newCouplingDeviceAddedReport(ReportNode reportNode, String voltageLevelId, String busOrBbsId1, String busOrBbsId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.newCouplingDeviceAdded")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withUntypedValue("busOrBbsId1", busOrBbsId1)
+                .withUntypedValue("busOrBbsId2", busOrBbsId2)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void openDisconnectorsAddedReport(ReportNode reportNode, String voltageLevelId, int nbOpenDisconnectors) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.openDisconnectorsAdded")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withUntypedValue("nbOpenDisconnectors", nbOpenDisconnectors)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void createdNewSymmetricalTopology(ReportNode reportNode, String voltageLevelId, int busbarCount, int sectionCount) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.SymmetricalTopologyCreated")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withUntypedValue("busbarCount", busbarCount)
+                .withUntypedValue("sectionCount", sectionCount)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedSwitchReport(ReportNode reportNode, String switchId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.SwitchRemoved")
+                .withUntypedValue("switchId", switchId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedInternalConnectionReport(ReportNode reportNode, int node1, int node2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.InternalConnectionRemoved")
+                .withUntypedValue("node1", node1)
+                .withUntypedValue("node2", node2)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedConnectableReport(ReportNode reportNode, String connectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.ConnectableRemoved")
+                .withUntypedValue(CONNECTABLE_ID, connectableId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removeFeederBayAborted(ReportNode reportNode, String connectableId, int node, String otherConnectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.RemoveFeederBayAborted")
+                .withUntypedValue(CONNECTABLE_ID, connectableId)
+                .withUntypedValue("node", node)
+                .withUntypedValue("otherConnectableId", otherConnectableId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedSubstationReport(ReportNode reportNode, String substationId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removeSubstation")
+                .withUntypedValue(SUBSTATION_ID, substationId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedVoltageLevelReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removeVoltageLevel")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedHvdcLineReport(ReportNode reportNode, String hvdcLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removeHvdcLine")
+                .withUntypedValue(HVDC_LINE_ID, hvdcLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedVscConverterStationReport(ReportNode reportNode, String vscConverterStationId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removeVscConverterStation")
+                .withUntypedValue("vscConverterStationId", vscConverterStationId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedLccConverterStationReport(ReportNode reportNode, String lccConverterStationId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removeLccConverterStation")
+                .withUntypedValue("lccConverterStationId", lccConverterStationId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedShuntCompensatorReport(ReportNode reportNode, String shuntCompensatorId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removeShuntCompensator")
+                .withUntypedValue("shuntCompensatorId", shuntCompensatorId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void connectedFeedersReport(ReportNode reportNode, List<Connectable<?>> connectables, List<BusbarSection> busbarSections) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.connectedFeeders")
+            .withUntypedValue("connectableList", connectables.toString())
+            .withUntypedValue("busbarSectionList", busbarSections.toString())
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
     }
 
     // WARN
-    public static void ignoredVscShunts(Reporter reporter, String shuntsIds, String converterStationId1, String converterStationId2) {
-        reporter.report(Report.builder()
-                .withKey("ignoredVscShunts")
-                .withDefaultMessage("Shunts ${shuntsIds} are ignored since converter stations ${converterStationId1} and ${converterStationId2} are VSC")
-                .withValue("shuntsIds", shuntsIds)
-                .withValue("converterStationId1", converterStationId1)
-                .withValue("converterStationId2", converterStationId2)
+    public static void ignoredVscShunts(ReportNode reportNode, String shuntsIds, String converterStationId1, String converterStationId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.ignoredVscShunts")
+                .withUntypedValue("shuntsIds", shuntsIds)
+                .withUntypedValue("converterStationId1", converterStationId1)
+                .withUntypedValue("converterStationId2", converterStationId2)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void ignoredShuntInAnotherVoltageLevel(Reporter reporter, String shuntId, String voltageLevelId1, String voltageLevelId2) {
-        reporter.report(Report.builder()
-                .withKey("ignoredShuntInAnotherVoltageLevel")
-                .withDefaultMessage("Shunt compensator ${shuntId} has been ignored because it is not in the same voltage levels as the Lcc (${voltageLevelId1} or ${voltageLevelId2})")
-                .withValue("shuntId", shuntId)
-                .withValue(VOLTAGE_LEVEL_ID + 1, voltageLevelId1)
-                .withValue(VOLTAGE_LEVEL_ID + 2, voltageLevelId2)
+    public static void ignoredShuntInAnotherVoltageLevel(ReportNode reportNode, String shuntId, String voltageLevelId1, String voltageLevelId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.ignoredShuntInAnotherVoltageLevel")
+                .withUntypedValue("shuntId", shuntId)
+                .withUntypedValue(VOLTAGE_LEVEL_ID + 1, voltageLevelId1)
+                .withUntypedValue(VOLTAGE_LEVEL_ID + 2, voltageLevelId2)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void ignoredPositionOrder(Reporter reporter, int positionOrder, VoltageLevel voltageLevel) {
-        reporter.report(Report.builder()
-                .withKey("ignoredPositionOrder")
-                .withDefaultMessage("Voltage level ${voltageLevelId} is BUS_BREAKER. Position order ${positionOrder} is ignored.")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
-                .withValue(POSITION_ORDER, positionOrder)
+    public static void ignoredPositionOrder(ReportNode reportNode, int positionOrder, VoltageLevel voltageLevel) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.ignoredPositionOrder")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+                .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void lostDanglingLineExtensions(Reporter reporter, String extensions, String danglingLineId) {
-        reporter.report(Report.builder()
-                .withKey("lostDanglingLineExtensions")
-                .withDefaultMessage("Extension [${extensions}] of dangling line ${danglingLineId} will be lost")
-                .withValue("extensions", extensions)
-                .withValue("danglingLineId", danglingLineId)
+    public static void lostBoundaryLineExtensions(ReportNode reportNode, String extensions, String boundaryLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostBoundaryLineExtensions")
+                .withUntypedValue(EXTENSIONS, extensions)
+                .withUntypedValue("boundaryLineId", boundaryLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void lostTieLineExtensions(Reporter reporter, String extensions, String tieLineId) {
-        reporter.report(Report.builder()
-                .withKey("lostTieLineExtensions")
-                .withDefaultMessage("Extension [${extensions}] of tie line ${tieLineId} will be lost")
-                .withValue("extensions", extensions)
-                .withValue("tieLineId", tieLineId)
+    public static void lostTieLineExtensions(ReportNode reportNode, String extensions, String tieLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lostTieLineExtensions")
+                .withUntypedValue(EXTENSIONS, extensions)
+                .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void noBusbarSectionPositionExtensionReport(Reporter reporter, BusbarSection bbs) {
-        reporter.report(Report.builder()
-                .withKey("noBusbarSectionPositionExtension")
-                .withDefaultMessage("No busbar section position extension found on ${bbsId}, only one disconnector is created.")
-                .withValue(BBS_ID, bbs.getId())
+    public static void noBusbarSectionPositionExtensionReport(ReportNode reportNode, BusbarSection bbs) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.noBusbarSectionPositionExtension")
+                .withUntypedValue(BBS_ID, bbs.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void positionOrderAlreadyTakenReport(Reporter reporter, int positionOrder) {
-        reporter.report(Report.builder()
-                .withKey("positionOrderAlreadyTaken")
-                .withDefaultMessage("PositionOrder ${positionOrder} already taken. No position extension created.")
-                .withValue(POSITION_ORDER, positionOrder)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+    public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder, TypedValue severity) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.positionOrderAlreadyTaken")
+                .withUntypedValue(POSITION_ORDER, positionOrder)
+                .withSeverity(severity)
+                .add();
     }
 
-    public static void positionNoSlotLeftByAdjacentBbsReport(Reporter reporter, String bbsId) {
-        reporter.report(Report.builder()
-                .withKey("positionAdjacentBbsIncoherent")
-                .withDefaultMessage("Positions of adjacent busbar sections do not leave slots for new positions on busbar section ${bbsId}")
-                .withValue(BBS_ID, bbsId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+    public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId, TypedValue severity) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.positionAdjacentBbsIncoherent")
+                .withUntypedValue(BBS_ID, bbsId)
+                .withSeverity(severity)
+                .add();
     }
 
-    public static void positionOrderTooLowReport(Reporter reporter, int minValue, int positionOrder) {
-        reporter.report(Report.builder()
-                .withKey("positionOrderTooLow")
-                .withDefaultMessage("PositionOrder ${positionOrder} too low (<${minValue}). No position extension created.")
-                .withValue(POSITION_ORDER, positionOrder)
-                .withValue("minValue", minValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+    public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder, TypedValue severity) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.positionOrderTooLow")
+                .withUntypedValue(POSITION_ORDER, positionOrder)
+                .withUntypedValue("minValue", minValue)
+                .withSeverity(severity)
+                .add();
     }
 
-    public static void positionOrderTooHighReport(Reporter reporter, int maxValue, int positionOrder) {
-        reporter.report(Report.builder()
-                .withKey("positionOrderTooHigh")
-                .withDefaultMessage("PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
-                .withValue(POSITION_ORDER, positionOrder)
-                .withValue("maxValue", maxValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+    public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder, TypedValue severity) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.positionOrderTooHigh")
+                .withUntypedValue(POSITION_ORDER, positionOrder)
+                .withUntypedValue("maxValue", maxValue)
+                .withSeverity(severity)
+                .add();
     }
 
-    public static void noConnectablePositionExtension(Reporter reporter, VoltageLevel voltageLevel) {
-        reporter.report(Report.builder()
-                .withKey("noConnectablePositionExtensions")
-                .withDefaultMessage("No extensions found on voltageLevel ${voltageLevel}. The extension on the connectable is not created.")
-                .withValue("voltageLevel", voltageLevel.getId())
+    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.noConnectablePositionExtensions")
+                .withUntypedValue("voltageLevel", voltageLevel.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void voltageLevelRemovingEquipmentsLeftReport(Reporter reporter, String vlId) {
-        reporter.report(Report.builder()
-                .withKey("voltageLevelRemovingEquipmentsLeft")
-                .withDefaultMessage("Voltage level ${vlId} still contains equipments")
-                .withValue("vlId", vlId)
+    public static void voltageLevelNotRemovedWithRemainingBranches(ReportNode reportNode, String vlId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelNotRemovedWithRemainingBranches")
+                .withUntypedValue("vlId", vlId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
+    }
+
+    public static void voltageLevelNotRemovedWithNoBranch(ReportNode reportNode, String vlId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelNotRemovedWithNoBranch")
+                .withUntypedValue("vlId", vlId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void voltageLevelForceRemovedWithNoBranch(ReportNode reportNode, String vlId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelForceRemovedWithNoBranch")
+                .withUntypedValue("vlId", vlId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
     // ERROR
-    public static void notFoundBusOrBusbarSectionReport(Reporter reporter, String identifiableId) {
-        reporter.report(Report.builder()
-                .withKey("notFoundBusOrBusbarSection")
-                .withDefaultMessage("Bus or busbar section ${identifiableId} not found")
-                .withValue(IDENTIFIABLE_ID, identifiableId)
+    public static void notFoundBusOrBusbarSectionReport(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.notFoundBusOrBusbarSection")
+                .withUntypedValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundShuntReport(Reporter reporter, String shuntId) {
-        reporter.report(Report.builder()
-                .withKey("notFoundShunt")
-                .withDefaultMessage("Shunt ${shuntId} not found")
-                .withValue("shuntId", shuntId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+    public static void notFoundBusbarSectionReport(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.notFoundBusbarSection")
+            .withUntypedValue(IDENTIFIABLE_ID, identifiableId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
-    public static void networkMismatchReport(Reporter reporter, String injectionId, IdentifiableType identifiableType) {
-        reporter.report(Report.builder()
-                .withKey("networkMismatch")
-                .withDefaultMessage("Network given in parameters and in injectionAdder are different. Injection '${injectionId}' of type {identifiableType} was added then removed")
-                .withValue("injectionId", injectionId)
-                .withValue(IDENTIFIABLE_TYPE, identifiableType.toString())
+    public static void notFoundShuntReport(ReportNode reportNode, String shuntId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.notFoundShunt")
+                .withUntypedValue("shuntId", shuntId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void connectableNotSupported(Reporter reporter, Connectable<?> connectable) {
-        reporter.report(Report.builder()
-                .withKey("connectableNotSupported")
-                .withDefaultMessage("Given connectable not supported: ${connectableClassName}.")
-                .withValue("connectableClassName", connectable.getClass().getName())
+    public static void networkMismatchReport(ReportNode reportNode, String injectionId, IdentifiableType identifiableType) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.networkMismatch")
+                .withUntypedValue("injectionId", injectionId)
+                .withUntypedValue(IDENTIFIABLE_TYPE, identifiableType.toString())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void connectableNotInVoltageLevel(Reporter reporter, Connectable<?> connectable, VoltageLevel voltageLevel) {
-        reporter.report(Report.builder()
-                .withKey("connectableNotInVoltageLevel")
-                .withDefaultMessage("Given connectable ${connectableId} not in voltageLevel ${voltageLevelId}")
-                .withValue(CONNECTABLE_ID, connectable.getId())
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+    public static void connectableNotSupported(ReportNode reportNode, Connectable<?> connectable) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.connectableNotSupported")
+                .withUntypedValue("connectableClassName", connectable.getClass().getName())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundLineReport(Reporter reporter, String lineId) {
-        reporter.report(Report.builder()
-                .withKey("lineNotFound")
-                .withDefaultMessage("Line ${lineId} is not found")
-                .withValue(LINE_ID, lineId)
+    public static void connectableNotInVoltageLevel(ReportNode reportNode, Connectable<?> connectable, VoltageLevel voltageLevel) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.connectableNotInVoltageLevel")
+                .withUntypedValue(CONNECTABLE_ID, connectable.getId())
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundConnectableReport(Reporter reporter, String connectableId) {
-        reporter.report(Report.builder()
-                .withKey("connectableNotFound")
-                .withDefaultMessage("Connectable ${connectableId} is not found")
-                .withValue(CONNECTABLE_ID, connectableId)
+    public static void notFoundLineReport(ReportNode reportNode, String lineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.lineNotFound")
+                .withUntypedValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void removeFeederBayBusbarSectionReport(Reporter reporter, String busbarSectionConnectableId) {
-        reporter.report(Report.builder()
-                .withKey("removeBayBusbarSectionConnectable")
-                .withDefaultMessage("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection")
-                .withValue(CONNECTABLE_ID, busbarSectionConnectableId)
+    public static void notFoundConnectableReport(ReportNode reportNode, String connectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.connectableNotFound")
+                .withUntypedValue(CONNECTABLE_ID, connectableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void noVoltageLevelInCommonReport(Reporter reporter, String line1Id, String line2Id) {
-        reporter.report(Report.builder()
-                .withKey("noVoltageLevelInCommon")
-                .withDefaultMessage("Lines ${line1Id} and ${line2Id} should have one and only one voltage level in common at their extremities")
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
+    public static void removeFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.removeBayBusbarSectionConnectable")
+                .withUntypedValue(CONNECTABLE_ID, busbarSectionConnectableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundVoltageLevelReport(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("voltageLevelNotFound")
-                .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+    public static void moveFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.moveBayBusbarSectionConnectable")
+                .withUntypedValue(CONNECTABLE_ID, busbarSectionConnectableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundSubstationReport(Reporter reporter, String substationId) {
-        reporter.report(Report.builder()
-                .withKey("substationNotFound")
-                .withDefaultMessage("Substation ${substationId} is not found")
-                .withValue(SUBSTATION_ID, substationId)
+    public static void noVoltageLevelInCommonReport(ReportNode reportNode, String line1Id, String line2Id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.noVoltageLevelInCommon")
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundHvdcLineReport(Reporter reporter, String hvdcLineId) {
-        reporter.report(Report.builder()
-                .withKey("HvdcNotFound")
-                .withDefaultMessage("Hvdc line ${hvdcLineId} is not found")
-                .withValue(HVDC_LINE_ID, hvdcLineId)
+    public static void notFoundVoltageLevelReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelNotFound")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundBusOrBusbarSectionVoltageLevelReport(Reporter reporter, String busOrBusbarSectionId1, String busOrBusbarSectionId2) {
-        reporter.report(Report.builder()
-                .withKey("busOrBusbarSectionVoltageLevelNotFound")
-                .withDefaultMessage("Voltage level associated to ${busOrBusbarSectionId1} or ${busOrBusbarSectionId2} not found.")
-                .withValue("busOrBusbarSectionId1", busOrBusbarSectionId1)
-                .withValue("busOrBusbarSectionId2", busOrBusbarSectionId2)
+    public static void notFoundSubstationReport(ReportNode reportNode, String substationId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.substationNotFound")
+                .withUntypedValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void noTeePointAndOrTappedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
-        reporter.report(Report.builder()
-                .withKey("noTeePointAndOrTappedVoltageLevel")
-                .withDefaultMessage("Unable to find the tee point and the tapped voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
-                .withValue("line3Id", line3Id)
+    public static void notFoundHvdcLineReport(ReportNode reportNode, String hvdcLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.HvdcNotFound")
+                .withUntypedValue(HVDC_LINE_ID, hvdcLineId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundBusInVoltageLevelReport(Reporter reporter, String busId, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("busNotFound")
-                .withDefaultMessage("Bus ${busId} is not found in voltage level ${voltageLevelId}")
-                .withValue("busId", busId)
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+    public static void notFoundBusOrBusbarSectionVoltageLevelReport(ReportNode reportNode, String busOrBusbarSectionId1, String busOrBusbarSectionId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busOrBusbarSectionVoltageLevelNotFound")
+                .withUntypedValue("busOrBusbarSectionId1", busOrBusbarSectionId1)
+                .withUntypedValue("busOrBusbarSectionId2", busOrBusbarSectionId2)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void notFoundBusbarSectionInVoltageLevelReport(Reporter reporter, String busbarSectionId, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("busbarSectionNotFound")
-                .withDefaultMessage("Busbar section ${busbarSectionId} is not found in voltage level ${voltageLevelId}")
-                .withValue("busbarSectionId", busbarSectionId)
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+    public static void noTeePointAndOrTappedVoltageLevelReport(ReportNode reportNode, String line1Id, String line2Id, String line3Id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.noTeePointAndOrTappedVoltageLevel")
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
+                .withUntypedValue(LINE_3_ID, line3Id)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void noCouplingDeviceOnSameBusOrBusbarSection(Reporter reporter, String busbarSectionId) {
-        reporter.report(Report.builder()
-                .withKey("noCouplingDeviceOnSameBusOrBusbarSection")
-                .withDefaultMessage("No coupling device can be created on a same bus or busbar section (${busOrBbsId}).")
-                .withValue("busOrBbsId", busbarSectionId)
+    public static void notFoundBusInVoltageLevelReport(ReportNode reportNode, String busId, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busNotFound")
+                .withUntypedValue("busId", busId)
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void unexpectedDifferentVoltageLevels(Reporter reporter, String busbarSectionId1, String busbarSectionId2) {
-        reporter.report(Report.builder()
-                .withKey("unexpectedDifferentVoltageLevels")
-                .withDefaultMessage("${busOrBbsId1} and ${busOrBbsId2} are in two different voltage levels.")
-                .withValue("busOrBbsId1", busbarSectionId1)
-                .withValue("busOrBbsId2", busbarSectionId2)
+    public static void notFoundBusbarSectionInVoltageLevelReport(ReportNode reportNode, String busbarSectionId, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busbarSectionNotFound")
+                .withUntypedValue(BUSBAR_SECTION_ID, busbarSectionId)
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void unsupportedVoltageLevelTopologyKind(Reporter reporter, String voltageLevelId, TopologyKind expected, TopologyKind actual) {
-        reporter.report(Report.builder()
-                .withKey("unsupportedVoltageLevelTopologyKind")
-                .withDefaultMessage("Voltage Level ${voltageLevelId} has an unsupported topology ${actualTopology}. Should be ${expectedTopology}")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue("actualTopology", actual.name())
-                .withValue("expectedTopology", expected.name())
+    public static void noCouplingDeviceOnSameBusOrBusbarSection(ReportNode reportNode, String busbarSectionId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.noCouplingDeviceOnSameBusOrBusbarSection")
+                .withUntypedValue("busOrBbsId", busbarSectionId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void unsupportedIdentifiableType(Reporter reporter, IdentifiableType type, String identifiableId) {
-        reporter.report(Report.builder()
-                .withKey("unsupportedIdentifiableType")
-                .withDefaultMessage("Unsupported type ${identifiableType} for identifiable ${identifiableId}")
-                .withValue(IDENTIFIABLE_TYPE, type.name())
-                .withValue(IDENTIFIABLE_ID, identifiableId)
+    public static void unexpectedDifferentVoltageLevels(ReportNode reportNode, String busbarSectionId1, String busbarSectionId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.unexpectedDifferentVoltageLevels")
+                .withUntypedValue("busOrBbsId1", busbarSectionId1)
+                .withUntypedValue("busOrBbsId2", busbarSectionId2)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void unexpectedNullPositionOrder(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("unexpectedNullPositionOrder")
-                .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+    public static void unsupportedIdentifiableType(ReportNode reportNode, IdentifiableType type, String identifiableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.unsupportedIdentifiableType")
+                .withUntypedValue(IDENTIFIABLE_TYPE, type.name())
+                .withUntypedValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void unexpectedNegativePositionOrder(Reporter reporter, int positionOrder, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("unexpectedNegativePositionOrder")
-                .withDefaultMessage("Position order is negative (${positionOrder}) for attachment in voltage level ${voltageLevelId}")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue(POSITION_ORDER, positionOrder)
+    public static void unexpectedNullPositionOrder(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.unexpectedNullPositionOrder")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void unexpectedIdentifiableType(Reporter reporter, Identifiable<?> identifiable) {
-        reporter.report(Report.builder()
-                .withKey("unexpectedIdentifiableType")
-                .withDefaultMessage("Unexpected type of identifiable ${identifiableId}: ${identifiableType}")
-                .withValue(IDENTIFIABLE_ID, identifiable.getId())
-                .withValue(IDENTIFIABLE_TYPE, identifiable.getType().name())
+    public static void unexpectedNegativePositionOrder(ReportNode reportNode, int positionOrder, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.unexpectedNegativePositionOrder")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void countLowerThanMin(Reporter reporter, String type, int min) {
-        reporter.report(Report.builder()
-                .withKey("countLowerThanMin")
-                .withDefaultMessage("${type} must be >= ${min}")
-                .withValue("type", type)
-                .withValue("min", min)
+    public static void unexpectedIdentifiableType(ReportNode reportNode, Identifiable<?> identifiable) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.unexpectedIdentifiableType")
+                .withUntypedValue(IDENTIFIABLE_ID, identifiable.getId())
+                .withUntypedValue(IDENTIFIABLE_TYPE, identifiable.getType().name())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void unexpectedSwitchKindsCount(Reporter reporter, int switchKindsCount, int expectedSwitchKindsCount) {
-        reporter.report(Report.builder()
-                .withKey("unexpectedSwitchKindsCount")
-                .withDefaultMessage("Unexpected switch kinds count (${switchKindsCount}). Should be ${expectedSwitchKindsCount}")
-                .withValue("switchKindsCount", switchKindsCount)
-                .withValue("expectedSwitchKindsCount", expectedSwitchKindsCount)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+    public static void createPositionExtensionForNewLine(ReportNode reportNode, Identifiable<?> identifiable, TwoSides side, String messageTemplate) {
+        reportNode.newReportNode()
+                .withMessageTemplate(messageTemplate)
+                .withUntypedValue(LINE_ID, identifiable.getId())
+                .withUntypedValue(SIDE, side.name())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
     }
 
-    public static void undefinedSwitchKind(Reporter reporter) {
-        reporter.report(Report.builder()
-                .withKey("undefinedSwitchKind")
-                .withDefaultMessage("All switch kinds must be defined")
+    public static void countLowerThanMin(ReportNode reportNode, String type, int min) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.countLowerThanMin")
+                .withUntypedValue("type", type)
+                .withUntypedValue("min", min)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void wrongSwitchKind(Reporter reporter) {
-        reporter.report(Report.builder()
-                .withKey("wrongSwitchKind")
-                .withDefaultMessage("Switch kinds must be DISCONNECTOR or BREAKER")
+    public static void unexpectedSwitchKindsCount(ReportNode reportNode, int switchKindsCount, int expectedSwitchKindsCount) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.unexpectedSwitchKindsCount")
+                .withUntypedValue("switchKindsCount", switchKindsCount)
+                .withUntypedValue("expectedSwitchKindsCount", expectedSwitchKindsCount)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void undefinedFictitiousSubstationId(Reporter reporter) {
-        reporter.report(Report.builder()
-                .withKey("undefinedFictitiousSubstationId")
-                .withDefaultMessage("Fictitious substation ID must be defined if a fictitious substation is to be created")
+    public static void undefinedSwitchKind(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.undefinedSwitchKind")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void undefinedPercent(Reporter reporter) {
-        reporter.report(Report.builder()
-                .withKey("undefinedPercent")
-                .withDefaultMessage("Percent should not be undefined")
+    public static void wrongSwitchKind(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.wrongSwitchKind")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
+    }
+
+    public static void wrongBusbarPosition(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.wrongBusbarPosition")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void undefinedFictitiousSubstationId(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.undefinedFictitiousSubstationId")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void undefinedPercent(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.undefinedPercent")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void noBusbarSectionReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.noBusbarSection")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void wrongNetworkReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.wrongNetwork")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void busbarSectionNotInTheSameVoltageLevelReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.busbarSectionNotInTheSameVoltageLevel")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void busBreakerVoltageLevelButConnectConnectables(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.busBreakerVoltageLevelButConnectConnectables")
+            .withTypedValue(VOLTAGE_LEVEL_ID, voltageLevelId, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     private ModificationReports() {
     }
 
-    public static void scalingReport(Reporter reporter, String type, DistributionMode mode, ScalingType scalingType, double asked, double done) {
-        reporter.report(Report.builder()
-            .withKey("scalingApplied")
-            .withDefaultMessage("Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
-            .withValue(IDENTIFIABLE_TYPE, type)
-            .withValue("mode", mode.name())
-            .withValue("type", scalingType.name())
-            .withValue("asked", asked)
-            .withValue("done", done)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .build());
+    public static void scalingReport(ReportNode reportNode, String type, String mode, ScalingType scalingType, double asked, double done) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.scalingApplied")
+                .withUntypedValue(IDENTIFIABLE_TYPE, type)
+                .withUntypedValue("mode", mode)
+                .withUntypedValue("type", scalingType.name())
+                .withUntypedValue("asked", asked)
+                .withUntypedValue("done", done)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
-    public static void scalingReport(Reporter reporter, String type, ScalingType scalingType, double asked, double done) {
-        reporter.report(Report.builder()
-            .withKey("scalingApplied")
-            .withDefaultMessage("Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
-            .withValue(IDENTIFIABLE_TYPE, type)
-            .withValue("type", scalingType.name())
-            .withValue("asked", asked)
-            .withValue("done", done)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .build());
+    public static void connectableConnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean connectionSuccessful, ThreeSides side) {
+        if (connectionSuccessful) {
+            if (null == side) {
+                reportNode.newReportNode()
+                        .withMessageTemplate("core.iidm.modification.connectableConnected")
+                        .withUntypedValue(IDENTIFIABLE, identifiable.getId())
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
+            } else {
+                reportNode.newReportNode()
+                        .withMessageTemplate("core.iidm.modification.connectableConnectedSide")
+                        .withUntypedValue(IDENTIFIABLE, identifiable.getId())
+                        .withUntypedValue("side", side.getNum())
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
+            }
+        } else if (null == side) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("core.iidm.modification.connectableNotConnected")
+                    .withUntypedValue(IDENTIFIABLE, identifiable.getId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        } else {
+            reportNode.newReportNode()
+                    .withMessageTemplate("core.iidm.modification.connectableNotConnectedSide")
+                    .withUntypedValue(IDENTIFIABLE, identifiable.getId())
+                    .withUntypedValue("side", side.getNum())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        }
+    }
+
+    public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
+        ReportNodeAdder adder = reportNode.newReportNode()
+                .withMessageTemplate(getKey(isPlanned, disconnectionSuccessful, side != null))
+                .withUntypedValue(IDENTIFIABLE, identifiable.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY);
+        if (side != null) {
+            adder.withUntypedValue("side", side.getNum());
+        }
+        adder.add();
+    }
+
+    private static String getKey(boolean isPlanned, boolean disconnectionSuccessful, boolean hasSide) {
+        // Transforming the 3 booleans into a 3-bits integer 0bXYZ to operate switch case on it
+        // MSB (leading bit) X corresponds to isPlanned
+        // Second bit Y corresponds to disconnectionSuccessful
+        // LSB (least significant bit) Z corresponds to hasSide
+        int index = (isPlanned ? 1 : 0) << 2
+                | (disconnectionSuccessful ? 1 : 0) << 1
+                | (hasSide ? 1 : 0);
+        return switch (index) {
+            case 0b000 -> "core.iidm.modification.unplannedIdentifiableNotDisconnected";
+            case 0b001 -> "core.iidm.modification.unplannedIdentifiableNotDisconnectedSide";
+            case 0b010 -> "core.iidm.modification.unplannedIdentifiableDisconnected";
+            case 0b011 -> "core.iidm.modification.unplannedIdentifiableDisconnectedSide";
+            case 0b100 -> "core.iidm.modification.plannedIdentifiableNotDisconnected";
+            case 0b101 -> "core.iidm.modification.plannedIdentifiableNotDisconnectedSide";
+            case 0b110 -> "core.iidm.modification.plannedIdentifiableDisconnected";
+            case 0b111 -> "core.iidm.modification.plannedIdentifiableDisconnectedSide";
+            default -> throw new IllegalStateException();
+        };
+    }
+
+    public static ReportNode replaceThreeWindingsTransformersBy3TwoWindingsTransformersReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.replaced-t3w-by-3t2w")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode replace3TwoWindingsTransformersByThreeWindingsTransformersReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.replaced-3t2w-by-t3w")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void generatorLocalRegulationReport(ReportNode reportNode, String generatorId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.generatorLocalRegulation")
+                .withUntypedValue("generatorId", generatorId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String modificationName, String networkName) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.networkModificationDryRun-failure")
+                .withUntypedValue("dryRunError", cause)
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
+                .add();
+    }
+
+    public static void dryRunReportNode(ReportNode reportNode, String modificationName, String networkName) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.networkModificationDryRun-success")
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode reportOnDryRunStart(ReportNode reportNode, String modificationName, String networkName) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.networkModificationDryRun")
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void ignoreTemporaryLimitsOnBothLineSides(ReportNode reportNode, String lineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.limitsLost")
+                .withUntypedValue(LINE_ID, lineId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void createNewLineAndReplaceOldOne(ReportNode reportNode, String newLineId, String line1Id, String line2Id, String originalLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.newLineOnLineCreated")
+                .withUntypedValue("newLineId", newLineId)
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
+                .withUntypedValue(ORIGINAL_LINE_ID, originalLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void connectVoltageLevelToLines(ReportNode reportNode, String voltageLevelId, String line1Id, String line2Id, String originalLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageConnectedOnLine")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withUntypedValue(LINE_1_ID, line1Id)
+                .withUntypedValue(LINE_2_ID, line2Id)
+                .withUntypedValue(ORIGINAL_LINE_ID, originalLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void busbarSectionsWithoutPositionReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busbarSectionsWithoutPosition")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void failToInsertBusbarSectionReport(ReportNode reportNode, String voltageLevelId, String busbarSectionId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.failToInsertBusbarSection")
+            .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+            .withUntypedValue(BUSBAR_SECTION_ID, busbarSectionId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 }

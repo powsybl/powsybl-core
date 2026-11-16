@@ -3,17 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow;
 
 import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -49,15 +52,36 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * {@code computationManager} if necessary and using loadflow execution {@code parameters}. This method is expected
      * to be stateless so that it can be call simultaneously with different arguments (a different network for instance)
      * without any concurrency issue.
+     * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      *
      * @param network            the network
      * @param computationManager a computation manager to external program execution
      * @param workingVariantId   variant id of the network
      * @param parameters         load flow execution parameters
-     * @param reporter           the reporter used for functional logs
-     * @return a {@link CompletableFuture} on {@link LoadFlowResult]
+     * @param reportNode         the reportNode used for functional logs
+     * @return a {@link CompletableFuture} on {@link LoadFlowResult}
      */
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter);
+    @Deprecated(since = "7.0.0", forRemoval = true)
+    default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
+        return run(network, workingVariantId, new LoadFlowRunParameters()
+            .setComputationManager(computationManager)
+            .setParameters(parameters)
+            .setReportNode(reportNode));
+    }
+
+    /**
+     * Run a loadflow on variant {@code workingVariantId} of {@code network} delegating external program execution to
+     * {@code computationManager} if necessary and using loadflow execution {@code parameters}, with
+     * {@code computationManager} and {@code parameters} both defined in the load flow {@code runParameters}. This
+     * method is expected to be stateless so that it can be called simultaneously with different arguments (different
+     * networks, for instance) without any concurrency issue.
+     *
+     * @param network            the network
+     * @param workingVariantId   variant id of the network
+     * @param runParameters         load flow run parameters
+     * @return a {@link CompletableFuture} on {@link LoadFlowResult}
+     */
+    CompletableFuture<LoadFlowResult> run(Network network, String workingVariantId, LoadFlowRunParameters runParameters);
 
     /**
      * Get specific parameters class.
@@ -108,9 +132,59 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> properties);
 
     /**
-     * Get the parameters of the parameters extension associated with this provider.
+     * Updates implementation-specific parameters from a PlatformConfig
+     */
+    void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config);
+
+    /**
+     * Returns the parameters of the parameters extension associated with this provider, as defined by the provider
+     * without any override.
      *
      * @return the parameters of the parameters extension associated with this provider.
      */
-    List<Parameter> getSpecificParameters();
+    List<Parameter> getRawSpecificParameters();
+
+    /**
+     * Returns the parameters of the parameters extension associated with this provider. If a LoadFlowDefaultParameterLoader
+     * is available, the parameters should reflect the default values.
+     *
+     * @return the parameters of the parameters extension associated with this provider.
+     */
+    default List<Parameter> getSpecificParameters() {
+        return LoadFlowProviderUtil.getSpecificParameters(this, PlatformConfig.defaultConfig());
+    }
+
+    /**
+     * Retrieves the parameters of the extension associated with this provider,
+     * incorporating any overrides from the PlatformConfig and from the loadFlowDefaultParameterLoader
+     * if available.
+     *
+     * @return The parameters of the associated extension with overrides applied from PlatformConfig.
+     */
+    default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
+        return ConfiguredParameter.load(
+                LoadFlowProviderUtil.getSpecificParameters(this, platformConfigConfig),
+                getModuleConfig(platformConfigConfig).orElse(null)
+        );
+    }
+
+    /**
+     * Retrieves the configuration of the specific module for this provider from the provided PlatformConfig.
+     *
+     * @param platformConfig The platform configuration containing potential module configurations.
+     * @return An Optional containing the ModuleConfig if present, otherwise an empty Optional.
+     */
+    default Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * Verifies if the LoadFlowParameters' values are supported by the provider.<br>
+     * Reports the unsupported parameters with the run parameters' report node.
+     * @param runParameters runner parameters
+     * @return <code>true</code> if the parameters are supported, <code>false</code> otherwise
+     */
+    default boolean checkParameters(LoadFlowRunParameters runParameters) {
+        return true;
+    }
 }

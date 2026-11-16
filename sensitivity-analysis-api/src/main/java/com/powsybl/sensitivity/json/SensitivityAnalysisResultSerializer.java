@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity.json;
 
@@ -18,8 +19,6 @@ import java.io.IOException;
  */
 public class SensitivityAnalysisResultSerializer extends StdSerializer<SensitivityAnalysisResult> {
 
-    private static final String VERSION = "1.0";
-
     public SensitivityAnalysisResultSerializer() {
         super(SensitivityAnalysisResult.class);
     }
@@ -27,10 +26,12 @@ public class SensitivityAnalysisResultSerializer extends StdSerializer<Sensitivi
     @Override
     public void serialize(SensitivityAnalysisResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
+        jsonGenerator.writeStringField("version", SensitivityAnalysisResult.VERSION);
         serializerProvider.defaultSerializeField("sensitivityFactors", result.getFactors(), jsonGenerator);
         serializerProvider.defaultSerializeField("sensitivityValues", result.getValues(), jsonGenerator);
-        serializerProvider.defaultSerializeField("contingencyStatus", result.getContingencyStatuses(), jsonGenerator);
+        serializerProvider.defaultSerializeField("stateStatus", result.getStateStatuses(), jsonGenerator);
+        serializerProvider.defaultSerializeField("contingencyIds", result.getContingencyIds(), jsonGenerator);
+        serializerProvider.defaultSerializeField("operatorStrategyIds", result.getOperatorStrategyIds(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

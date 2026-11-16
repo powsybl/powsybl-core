@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.iidm.network.components;
 
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DcBus;
 
 import java.util.function.Predicate;
 
@@ -23,5 +25,10 @@ public abstract class AbstractConnectedComponent extends AbstractComponent {
     @Override
     protected Predicate<Bus> getBusPredicate() {
         return bus -> bus.getConnectedComponent() == AbstractConnectedComponent.this;
+    }
+
+    @Override
+    protected Predicate<DcBus> getDcBusPredicate() {
+        return dcBus -> dcBus.getConnectedComponent() == AbstractConnectedComponent.this;
     }
 }

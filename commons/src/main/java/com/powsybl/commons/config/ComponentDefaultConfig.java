@@ -3,13 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
+import com.powsybl.commons.exceptions.UncheckedInvocationTargetException;
+import com.powsybl.commons.exceptions.UncheckedNoSuchMethodException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 /**
@@ -68,22 +72,30 @@ public interface ComponentDefaultConfig {
         @Override
         public <T> T newFactoryImpl(Class<T> factoryBaseClass) {
             try {
-                return findFactoryImplClass(factoryBaseClass).newInstance();
+                return findFactoryImplClass(factoryBaseClass).getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException e) {
                 throw new UncheckedIllegalAccessException(e);
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
+            } catch (NoSuchMethodException e) {
+                throw new UncheckedNoSuchMethodException(e);
+            } catch (InvocationTargetException e) {
+                throw new UncheckedInvocationTargetException(e);
             }
         }
 
         @Override
         public <T, U extends T> T newFactoryImpl(Class<T> factoryBaseClass, Class<U> defaultFactoryImplClass) {
             try {
-                return findFactoryImplClass(factoryBaseClass, defaultFactoryImplClass).newInstance();
+                return findFactoryImplClass(factoryBaseClass, defaultFactoryImplClass).getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException e) {
                 throw new UncheckedIllegalAccessException(e);
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
+            } catch (NoSuchMethodException e) {
+                throw new UncheckedNoSuchMethodException(e);
+            } catch (InvocationTargetException e) {
+                throw new UncheckedInvocationTargetException(e);
             }
         }
     }

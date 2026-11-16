@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -96,8 +97,7 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setMinP(0)
                 .setMaxP(1)
                 .setTargetP(1)
-                .setTargetQ(0)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(0)
                 .add();
         vl1.getBusBreakerView().newSwitch()
                 .setId("SW")
@@ -184,8 +184,7 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setMinP(0)
                 .setMaxP(1)
                 .setTargetP(1)
-                .setTargetQ(0)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(0)
                 .add();
         vl1.getNodeBreakerView().newBreaker()
                 .setId("G1-B1b")

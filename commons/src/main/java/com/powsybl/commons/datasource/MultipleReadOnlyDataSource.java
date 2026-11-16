@@ -52,6 +52,11 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
+    public boolean isDataExtension(String ext) {
+        return dataSources.stream().anyMatch(dataSource -> dataSource.isDataExtension(ext));
+    }
+
+    @Override
     public boolean exists(String fileName) throws IOException {
         return dataSources.stream().anyMatch(dataSource -> {
             try {

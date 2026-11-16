@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.triplestore.api;
 
@@ -13,6 +14,7 @@ public class TripleStoreOptions {
 
     private boolean removeInitialUnderscoreForIdentifiers = true;
     private boolean unescapeIdentifiers = true;
+    private String queryCatalog = "";
 
     public TripleStoreOptions() {
     }
@@ -38,5 +40,14 @@ public class TripleStoreOptions {
     public TripleStoreOptions decodeEscapedIdentifiers(boolean unescapeIdentifiers) {
         this.unescapeIdentifiers = unescapeIdentifiers;
         return this;
+    }
+
+    public TripleStoreOptions setQueryCatalog(String queryCatalog) {
+        this.queryCatalog = queryCatalog;
+        return this;
+    }
+
+    public String queryCatalog() {
+        return queryCatalog;
     }
 }

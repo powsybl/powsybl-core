@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
@@ -17,9 +18,10 @@ public class RevertCreateLineOnLineBuilder {
 
     private String mergedLineId = null;
     private String mergedLineName = null;
+    private boolean forceRemoveIsolatedVoltageLevel = false;
 
     public RevertCreateLineOnLine build() {
-        return new RevertCreateLineOnLine(lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId, mergedLineId, mergedLineName);
+        return new RevertCreateLineOnLine(lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId, mergedLineId, mergedLineName, forceRemoveIsolatedVoltageLevel);
     }
 
     /**
@@ -59,6 +61,14 @@ public class RevertCreateLineOnLineBuilder {
      */
     public RevertCreateLineOnLineBuilder withMergedLineName(String mergedLineName) {
         this.mergedLineName = mergedLineName;
+        return this;
+    }
+
+    /**
+     * @param forceRemoveIsolatedVoltageLevel     a parameter that forces the removal of isolated voltage level (with no branches left)
+     */
+    public RevertCreateLineOnLineBuilder withForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
+        this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
         return this;
     }
 }

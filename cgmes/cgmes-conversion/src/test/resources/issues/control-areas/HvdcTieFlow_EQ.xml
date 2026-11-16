@@ -1,0 +1,63 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID">
+    <md:Model.scenarioTime>2024-11-14T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2024-11-14T10:22:58Z</md:Model.created>
+    <md:Model.description>Test TieFlows</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:ACLineSegment rdf:ID="_ACLS">
+    <cim:ACLineSegment.b0ch>0</cim:ACLineSegment.b0ch>
+    <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+    <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+    <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+    <cim:IdentifiedObject.name>Line</cim:IdentifiedObject.name>
+    <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+    <cim:ACLineSegment.r0>0.1</cim:ACLineSegment.r0>
+    <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+    <cim:ACLineSegment.x0>0.1</cim:ACLineSegment.x0>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_Base_Voltage"/>
+</cim:ACLineSegment>
+<cim:Terminal rdf:ID="_Terminal_1">
+    <cim:IdentifiedObject.name>Terminal 1</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACLS"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_Node_Boundary"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_Terminal_2">
+    <cim:IdentifiedObject.name>Terminal 2</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACLS"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_Node_Network"/>
+</cim:Terminal>
+<cim:ConnectivityNode rdf:ID="_Node_Network">
+    <cim:IdentifiedObject.name>Node Network</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_Voltage_Level_1"/>
+</cim:ConnectivityNode>
+<cim:VoltageLevel rdf:ID="_Voltage_Level_1">
+    <cim:IdentifiedObject.name>VL1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_Base_Voltage"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_Substation_1"/>
+</cim:VoltageLevel>
+<cim:Substation rdf:ID="_Substation_1">
+    <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SubRegion_1"/>
+</cim:Substation>
+<cim:GeographicalRegion rdf:ID="_Region_1">
+    <cim:IdentifiedObject.name>France</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SubRegion_1">
+    <cim:IdentifiedObject.name>IDF</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_Region_1"/>
+</cim:SubGeographicalRegion>
+<cim:ControlArea rdf:ID="_Control_Area">
+    <cim:IdentifiedObject.name>Control Area</cim:IdentifiedObject.name>
+    <cim:ControlArea.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#ControlAreaTypeKind.Interchange" />
+</cim:ControlArea>
+<cim:TieFlow rdf:ID="_Tie_Flow_1">
+    <cim:IdentifiedObject.name>Tie Flow 1</cim:IdentifiedObject.name>
+    <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+    <cim:TieFlow.Terminal rdf:resource="#_Terminal_1" />
+    <cim:TieFlow.ControlArea rdf:resource="#_Control_Area" />
+</cim:TieFlow>
+</rdf:RDF>

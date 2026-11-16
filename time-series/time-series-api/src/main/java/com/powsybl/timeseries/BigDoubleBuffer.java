@@ -3,14 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.Objects;
-import java.util.function.IntFunction;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}
@@ -22,11 +23,11 @@ public class BigDoubleBuffer {
     private static final int BUFFER_MASK = BUFFER_SIZE_DOUBLES - 1;
     private static final int BUFFER_SIZE_BYTES = BUFFER_SIZE_DOUBLES * Double.BYTES;
     private DoubleBuffer[] buffers;
-    private long size;
+    private final long size;
 
     //To remove if we ever get it from somewhere else
     //package private for tests
-    @FunctionalInterface interface IntIntBiConsumer { public void accept(int a, int b); }
+    @FunctionalInterface interface IntIntBiConsumer { void accept(int a, int b); }
 
     //using a lambda to test independently from java.nio.ByteBuffer
     //package private for tests
@@ -64,7 +65,7 @@ public class BigDoubleBuffer {
 
     //To remove if we ever get it from somewhere else
     //package private for tests
-    @FunctionalInterface interface IntIntToDoubleBiFunction { public double applyAsDouble(int a, int b); }
+    @FunctionalInterface interface IntIntToDoubleBiFunction { double applyAsDouble(int a, int b); }
 
     //using a lambda to test independently from java.nio.ByteBuffer
     //package private for tests

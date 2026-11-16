@@ -3,25 +3,40 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.powsybl.math.matrix.PrintConfig.getFormatter;
 
 /**
- * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a></a> format.
+ * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a> format.
  * This implementation rely on a native library which is a wrapper around KLU module of
  * <a href="http://faculty.cse.tamu.edu/davis/suitesparse.html">SuiteSparse</a> project.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class SparseMatrix extends AbstractMatrix {
+public class SparseMatrix extends AbstractMatrix implements Serializable {
+    private static final long serialVersionUID = -7810324161942335828L;
+
+    // Classes allowed during deserialization
+    private static final Set<Class<?>> ALLOWED_CLASSES = Set.of(SparseMatrix.class,
+            int[].class, double[].class,
+            TIntArrayListHack.class, TDoubleArrayListHack.class,
+            TIntArrayList.class, TDoubleArrayList.class);
 
     /**
      * Sparse Element implementation.
@@ -114,21 +129,6 @@ public class SparseMatrix extends AbstractMatrix {
         currentColumn = columnCount - 1;
     }
 
-    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
-        int lastNonEmptyColumn = -1;
-        for (int column = 0; column < columnCount; column++) {
-            if (columnStart[column] != -1) {
-                if (lastNonEmptyColumn != -1) {
-                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
-                }
-                lastNonEmptyColumn = column;
-            }
-        }
-        if (lastNonEmptyColumn != -1) {
-            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
-        }
-    }
-
     /**
      * Create an empty sparse matrix.
      *
@@ -146,6 +146,21 @@ public class SparseMatrix extends AbstractMatrix {
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedValueCount);
         values = new TDoubleArrayListHack(estimatedValueCount);
+    }
+
+    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
+        int lastNonEmptyColumn = -1;
+        for (int column = 0; column < columnCount; column++) {
+            if (columnStart[column] != -1) {
+                if (lastNonEmptyColumn != -1) {
+                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
+                }
+                lastNonEmptyColumn = column;
+            }
+        }
+        if (lastNonEmptyColumn != -1) {
+            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
+        }
     }
 
     private static void checkSize(int rowCount, int columnCount) {
@@ -437,18 +452,15 @@ public class SparseMatrix extends AbstractMatrix {
     }
 
     @Override
-    public void print(PrintStream out) {
-        print(out, null, null);
-    }
-
-    @Override
-    public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
+    public void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config) {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
-        out.println("values=" + values);
+        getFormatter(config).ifPresentOrElse(
+                decimalFormat -> out.println("values=" + formatValues(decimalFormat)),
+                () -> out.println("values=" + values));
     }
 
     @Override
@@ -468,4 +480,54 @@ public class SparseMatrix extends AbstractMatrix {
         }
         return false;
     }
+
+    public void write(OutputStream outputStream) {
+        Objects.requireNonNull(outputStream);
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(this);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static SparseMatrix read(InputStream inputStream) {
+        Objects.requireNonNull(inputStream);
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            // Check that the object to deserialize is really a SparseMatrix.
+            // This check is done prior to its complete deserialization to prevent security problems (RCE).
+            // - Check that all non-null encountered classes are among the accepted ones (the one composing a SparseMatrix).
+            ObjectInputFilter allowedClassesFilter = ObjectInputFilter.allowFilter(ALLOWED_CLASSES::contains, ObjectInputFilter.Status.REJECTED);
+            objectInputStream.setObjectInputFilter(allowedClassesFilter);
+            return (SparseMatrix) objectInputStream.readObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            throw new UncheckedClassNotFoundException(e);
+        }
+    }
+
+    public void write(Path file) {
+        Objects.requireNonNull(file);
+        try (OutputStream outputStream = Files.newOutputStream(file)) {
+            write(outputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static SparseMatrix read(Path file) {
+        Objects.requireNonNull(file);
+        try (InputStream inputStream = Files.newInputStream(file)) {
+            return read(inputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public String formatValues(DecimalFormat decimalFormat) {
+        return Arrays.stream(getValues())
+                .mapToObj(decimalFormat::format)
+                .collect(Collectors.joining(", ", "{", "}"));
+    }
+
 }

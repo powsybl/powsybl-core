@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -76,7 +77,7 @@ public final class HvdcUtils {
         }
     }
 
-    private static double getHvdcLineLosses(double rectifierPDc, double nominalV, double r) {
+    public static double getHvdcLineLosses(double rectifierPDc, double nominalV, double r) {
         // This method computes the losses due to the HVDC line.
         // The active power value on rectifier DC side is known as the HVDC active power set point minus the losses related
         // to AC/DC conversion (rectifier conversion), the voltage is approximated to the nominal voltage as attribute of the HVDC line.

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -14,7 +15,7 @@ import org.mockito.Mockito;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -31,11 +32,8 @@ class CommandExecutionTest {
     @Test
     void getExecutionVariablesTest1() {
         // variables cannot be null
-        try {
-            CommandExecution.getExecutionVariables(null, new CommandExecution(command, 1, 0, null, null));
-            fail();
-        } catch (NullPointerException ignored) {
-        }
+        CommandExecution commandExecution = new CommandExecution(command, 1, 0, null, null);
+        assertThrows(NullPointerException.class, () -> CommandExecution.getExecutionVariables(null, commandExecution));
     }
 
     @Test

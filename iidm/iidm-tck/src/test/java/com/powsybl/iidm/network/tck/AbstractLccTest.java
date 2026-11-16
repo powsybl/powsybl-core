@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -48,6 +49,9 @@ public abstract class AbstractLccTest {
         assertEquals(0.6f, cs2.getPowerFactor(), 0.0f);
         cs1.setPowerFactor(0.6f);
         assertEquals(0.6f, cs1.getPowerFactor(), 0.0f);
+        assertFalse(cs1.isEquivalent()); // default value
+        cs1.setEquivalent(true);
+        assertTrue(cs1.isEquivalent());
         assertEquals(2, network.getVoltageLevel("VL1").getShuntCompensatorCount());
         assertEquals(2, network.getVoltageLevel("VL2").getShuntCompensatorCount());
         assertEquals(1e-5, network.getShuntCompensator("C1_Filter1").getB(), 0.0);

@@ -3,23 +3,33 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportConstants;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNetworkWithForkFeeder;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +47,7 @@ class RemoveFeederBayTest {
     }
 
     private void addListener(Network network) {
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable id) {
                 beforeRemovalObjects.add(id.getId());
@@ -139,11 +149,21 @@ class RemoveFeederBayTest {
     @Test
     void testRemoveBbs() {
         Network network = createNetwork2Feeders();
-        ReporterModel reporter = new ReporterModel("reportTestRemoveBbs", "Testing reporter when trying to remove a busbar section");
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestRemoveBbs")
+                .build();
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reporter));
+        assertDoesNotThrow(() -> removeBbs.apply(network, false, ReportNode.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reportNode));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
-        assertEquals("removeBayBusbarSectionConnectable", reporter.getReports().iterator().next().getReportKey());
+        assertEquals("core.iidm.modification.removeBayBusbarSectionConnectable", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection", reportNode.getChildren().get(0).getMessageTemplate());
+        Map<String, TypedValue> values = reportNode.getChildren().get(0).getValues();
+        assertEquals(2, values.size());
+        assertEquals(TypedValue.ERROR_SEVERITY, values.get(ReportConstants.SEVERITY_KEY));
+        assertEquals("BBS_TEST_1_1", values.get("connectableId").getValue());
+        assertEquals(TypedValue.UNTYPED_TYPE, values.get("connectableId").getType());
     }
 
     private Network createNetwork2Feeders() {
@@ -213,61 +233,6 @@ class RemoveFeederBayTest {
     }
 
     /**
-     *   L(1)   G(2)
-     *   |       |
-     *   B1      B2
-     *   |       |
-     *   ----3----
-     *       |
-     *       D
-     *       |
-     *       BBS(0)
-     */
-    private static Network createNetworkWithForkFeeder() {
-        Network network = Network.create("test", "test");
-        VoltageLevel vl = network.newVoltageLevel()
-                .setId("VL")
-                .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        vl.getNodeBreakerView().newBusbarSection()
-                .setId("BBS")
-                .setNode(0)
-                .add();
-        vl.newLoad()
-                .setId("LD")
-                .setNode(1)
-                .setP0(0)
-                .setQ0(0)
-                .add();
-        vl.newGenerator()
-                .setId("G")
-                .setNode(2)
-                .setTargetP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(400)
-                .setMinP(0)
-                .setMaxP(10)
-                .add();
-        vl.getNodeBreakerView().newDisconnector()
-                .setId("D")
-                .setNode1(0)
-                .setNode2(3)
-                .add();
-        vl.getNodeBreakerView().newBreaker()
-                .setId("B1")
-                .setNode1(1)
-                .setNode2(3)
-                .add();
-        vl.getNodeBreakerView().newBreaker()
-                .setId("B2")
-                .setNode1(2)
-                .setNode2(3)
-                .add();
-        return network;
-    }
-
-    /**
      *  Network with direct shunt in voltage level VL1 between line LINE1 and generator G1 :
      *
      *
@@ -306,7 +271,9 @@ class RemoveFeederBayTest {
 
         VoltageLevel vl1 = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.getNodeBreakerView().newBusbarSection().setId("VL1_BBS").setNode(0).add();
-        vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setVoltageRegulatorOn(true).setTargetV(400).setMinP(0).setMaxP(10).add();
+        vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setLocalTargetV(400).setMinP(0).setMaxP(10)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+            .add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_B1").setNode1(1).setNode2(2).add();
         vl1.getNodeBreakerView().newDisconnector().setId("VL1_D1").setNode1(0).setNode2(2).add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_B2").setNode1(3).setNode2(4).add();
@@ -336,5 +303,73 @@ class RemoveFeederBayTest {
 
         Set<String> removedIdentifiables = Set.of("VL2_B1", "VL2_D1", "LINE1", "VL1_B2", "VL1_D2", "VL1_D3");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RemoveFeederBay("LINE1");
+        assertEquals("RemoveFeederBay", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        NetworkModification modification1 = new RemoveFeederBay("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new RemoveFeederBay("S1VL1_BBS");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new RemoveFeederBay("LD1");
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+    }
+
+    /**
+     * Network where a connectable reaches the busbar section through another node on which another
+     * connectable is connected.
+     * <pre>
+     *     GEN2(8) --VL_GEN2_LOAD2-- LOAD2(3) --VL_LOAD2_PTF1-- (6) --VL_BBS1.1_PTF1-- BBS(0)
+     *                                                           |
+     *                                                     VL_GEN1_PTF1
+     *                                                           |
+     *                                                        GEN1(7)
+     * </pre>
+     */
+    private static Network createNetworkWithFeederBehindAnotherFeeder() {
+        Network network = Network.create("test", "test");
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(90.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection().setId("BBS").setNode(0).add();
+        vl.newLoad().setId("LOAD2").setNode(3).setP0(0).setQ0(0).add();
+        vl.newGenerator().setId("GEN1").setNode(7).setTargetP(0).setLocalTargetQ(0).setMinP(0).setMaxP(1)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .add();
+        vl.newGenerator().setId("GEN2").setNode(8).setTargetP(0).setLocalTargetQ(0).setMinP(0).setMaxP(1)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_BBS1.1_PTF1").setNode1(0).setNode2(6).add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_GEN1_PTF1").setNode1(7).setNode2(6).add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_LOAD2_PTF1").setNode1(3).setNode2(6).add();
+        vl.getNodeBreakerView().newBreaker().setId("VL_GEN2_LOAD2").setNode1(8).setNode2(3).add();
+        return network;
+    }
+
+    @Test
+    void testRemoveFeederBayStopsAtAnotherFeederNode() {
+        Network network = createNetworkWithFeederBehindAnotherFeeder();
+
+        new RemoveFeederBay("GEN2").apply(network);
+
+        assertNull(network.getGenerator("GEN2"));
+        // the switch of the removed bay is gone
+        assertNull(network.getSwitch("VL_GEN2_LOAD2"));
+        // but LOAD2 keeps its own connection to the busbar section
+        assertNotNull(network.getSwitch("VL_LOAD2_PTF1"));
+        assertNotNull(network.getSwitch("VL_BBS1.1_PTF1"));
+        assertNotNull(network.getLoad("LOAD2"));
     }
 }

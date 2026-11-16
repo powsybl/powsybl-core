@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.converter;
 
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -24,8 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,6 +41,7 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
         Importer importer = new IeeeCdfImporter();
         assertEquals("IEEE-CDF", importer.getFormat());
         assertEquals("IEEE Common Data Format to IIDM converter", importer.getComment());
+        assertEquals(List.of("txt"), importer.getSupportedExtensions());
         assertEquals(1, importer.getParameters().size());
         assertEquals("ignore-base-voltage", importer.getParameters().get(0).getName());
     }
@@ -46,7 +49,7 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
     @Test
     void copyTest() {
         new IeeeCdfImporter().copy(new ResourceDataSource("ieee14cdf", new ResourceSet("/", "ieee14cdf.txt")),
-            new FileDataSource(fileSystem.getPath("/work"), "copy"));
+            new DirectoryDataSource(fileSystem.getPath("/work"), "copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work").resolve("copy.txt")));
     }
 
@@ -59,7 +62,7 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 

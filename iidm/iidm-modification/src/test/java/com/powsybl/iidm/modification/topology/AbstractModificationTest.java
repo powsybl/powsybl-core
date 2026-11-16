@@ -7,8 +7,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
@@ -30,14 +29,14 @@ public abstract class AbstractModificationTest extends AbstractSerDeTest {
         writeXmlTest(network, NetworkSerDe::write, refXmlFile);
     }
 
-    protected void testReporter(ReporterModel reporter, String reporterFile) {
-        Optional<Report> report = reporter.getReports().stream().findFirst();
+    protected void testReportNode(ReportNode reportNode, String reportsFile) throws IOException {
+        Optional<ReportNode> report = reportNode.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        reportNode.print(sw);
 
-        InputStream refStream = TopologyTestUtils.class.getResourceAsStream(reporterFile);
-        ComparisonUtils.compareTxt(refStream, sw.toString());
+        InputStream refStream = TopologyTestUtils.class.getResourceAsStream(reportsFile);
+        ComparisonUtils.assertTxtEquals(refStream, sw.toString());
     }
 }

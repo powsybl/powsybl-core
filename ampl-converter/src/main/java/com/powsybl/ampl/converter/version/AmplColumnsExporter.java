@@ -12,21 +12,12 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.iidm.network.*;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
  * @author Nicolas Pierre {@literal <nicolas.pierre at artelys.com>}
  */
 public interface AmplColumnsExporter {
-
-    String VERSION_HEADER_NAME = "version";
-
-    String getExporterId();
-
-    default void writeHeaderFile(Writer headerFileWriter) throws IOException {
-        headerFileWriter.write(VERSION_HEADER_NAME + " " + getExporterId() + "\n");
-    }
 
     List<Column> getRtcColumns();
 
@@ -86,7 +77,7 @@ public interface AmplColumnsExporter {
 
     void writeLinesToFormatter(TableFormatter formatter, Line l) throws IOException;
 
-    void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, DanglingLine dl,
+    void writeBoundaryLineMiddleBusesToFormatter(TableFormatter formatter, BoundaryLine dl,
                                                  int middleCcNum) throws IOException;
 
     void writeTieLineMiddleBusesToFormatter(TableFormatter formatter, TieLine tieLine,
@@ -94,7 +85,7 @@ public interface AmplColumnsExporter {
 
     void writeTieLineToFormatter(TableFormatter formatter, TieLine tieLine) throws IOException;
 
-    void writeDanglingLineToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException;
+    void writeBoundaryLineToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException;
 
     void writeTwoWindingsTranformerToFormatter(TableFormatter formatter, TwoWindingsTransformer twt) throws IOException;
 
@@ -104,14 +95,14 @@ public interface AmplColumnsExporter {
 
     void writeTieLineVoltageLevelToFormatter(TableFormatter formatter, TieLine tieLine) throws IOException;
 
-    void writeDanglingLineVoltageLevelToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException;
+    void writeBoundaryLineVoltageLevelToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException;
 
     void writeThreeWindingsTransformerVoltageLevelToFormatter(TableFormatter formatter,
                                                               ThreeWindingsTransformer twt) throws IOException;
 
     void writeVoltageLevelToFormatter(TableFormatter formatter, VoltageLevel vl) throws IOException;
 
-    void writeDanglingLineLoadToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException;
+    void writeBoundaryLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException;
 
     void writeLoadtoFormatter(TableFormatter formatter, Load l) throws IOException;
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
@@ -51,7 +52,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
 
     private static void findNextDepthVoltageLevels(VoltageLevel vl, Set<String> traversedVoltageLevelIds, Set<VoltageLevel> nextDepth) {
         vl.getLineStream().forEach(l -> visitBranch(l, traversedVoltageLevelIds, vl, nextDepth));
-        vl.getDanglingLineStream().forEach(dl -> dl.getTieLine().ifPresent(tl -> visitBranch(tl, traversedVoltageLevelIds, vl, nextDepth)));
+        vl.getBoundaryLineStream().forEach(dl -> dl.getTieLine().ifPresent(tl -> visitBranch(tl, traversedVoltageLevelIds, vl, nextDepth)));
         vl.getTwoWindingsTransformerStream().forEach(t -> visitBranch(t, traversedVoltageLevelIds, vl, nextDepth));
         vl.getThreeWindingsTransformerStream().forEach(t -> visitConnectable(t, traversedVoltageLevelIds, vl, nextDepth));
         vl.getLccConverterStationStream().forEach(t -> visitHvdc(t, traversedVoltageLevelIds, nextDepth));

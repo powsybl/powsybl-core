@@ -3,21 +3,25 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,16 +52,33 @@ class CalculatedTimeSeriesTest {
 
     @Test
     void splitSmallChunkTest() {
-        timeSeries.synchronize(new RegularTimeSeriesIndex(0, 99, 1));
+        timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(99), Duration.ofMillis(1)));
         List<List<DoubleTimeSeries>> list = TimeSeries.split(Collections.singletonList(timeSeries), 50);
         assertEquals(2, list.size());
     }
 
     @Test
     void splitBigChunkTest() {
-        timeSeries.synchronize(new RegularTimeSeriesIndex(0, 99, 1));
+        timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(99), Duration.ofMillis(1)));
         List<List<DoubleTimeSeries>> list = TimeSeries.split(Collections.singletonList(timeSeries), 2);
         assertEquals(50, list.size());
+    }
+
+    @Test
+    void rangeSplitBigChunkTest() {
+        // GIVEN
+        List<Range<@NonNull Integer>> ranges = new ArrayList<>();
+        int startStep = 0;
+        int endStep = 99;
+        int rangeStep = 2;
+        for (int i = startStep; i < endStep; i = i + rangeStep) {
+            ranges.add(Range.closed(i, i + rangeStep - 1));
+        }
+        timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(startStep), Instant.ofEpochMilli(endStep), Duration.ofMillis(1)));
+        // WHEN
+        List<List<DoubleTimeSeries>> list = TimeSeries.splitByRanges(Collections.singletonList(timeSeries), ranges);
+        // THEN
+        assertEquals(ranges.size(), list.size());
     }
 
     @Test
@@ -159,15 +180,15 @@ class CalculatedTimeSeriesTest {
         assertEquals(jsonRef, json);
 
         List<TimeSeries> timeSeriesList = TimeSeries.parseJson(json);
-        for (TimeSeries timeSeries : timeSeriesList) {
-            timeSeries.setTimeSeriesNameResolver(resolver);
+        for (TimeSeries tss : timeSeriesList) {
+            tss.setTimeSeriesNameResolver(resolver);
         }
 
         assertEquals(4, timeSeriesList.size());
-        assertTrue(timeSeriesList.get(0) instanceof StoredDoubleTimeSeries);
-        assertTrue(timeSeriesList.get(1) instanceof CalculatedTimeSeries);
-        assertTrue(timeSeriesList.get(2) instanceof CalculatedTimeSeries);
-        assertTrue(timeSeriesList.get(3) instanceof CalculatedTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, timeSeriesList.get(0));
+        assertInstanceOf(CalculatedTimeSeries.class, timeSeriesList.get(1));
+        assertInstanceOf(CalculatedTimeSeries.class, timeSeriesList.get(2));
+        assertInstanceOf(CalculatedTimeSeries.class, timeSeriesList.get(3));
         assertArrayEquals(new double[] {1d, 2d}, ((DoubleTimeSeries) timeSeriesList.get(0)).toArray(), 0d);
         assertArrayEquals(new double[] {2d, 3d}, ((DoubleTimeSeries) timeSeriesList.get(1)).toArray(), 0d);
         assertArrayEquals(new double[] {0d, 2d}, ((DoubleTimeSeries) timeSeriesList.get(2)).toArray(), 0d);

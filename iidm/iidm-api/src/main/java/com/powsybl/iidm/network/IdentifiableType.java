@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -14,6 +15,7 @@ public enum IdentifiableType {
     NETWORK,
     SUBSTATION,
     VOLTAGE_LEVEL,
+    AREA,
     HVDC_LINE,
     BUS,
     SWITCH,
@@ -26,7 +28,16 @@ public enum IdentifiableType {
     BATTERY,
     LOAD,
     SHUNT_COMPENSATOR,
-    DANGLING_LINE,
+    BOUNDARY_LINE,
     STATIC_VAR_COMPENSATOR,
-    HVDC_CONVERTER_STATION
+    HVDC_CONVERTER_STATION,
+    OVERLOAD_MANAGEMENT_SYSTEM,
+    GROUND,
+    DC_NODE,
+    DC_SWITCH,
+    DC_GROUND,
+    DC_LINE,
+    LINE_COMMUTATED_CONVERTER,
+    VOLTAGE_SOURCE_CONVERTER,
+    DC_BUS
 }

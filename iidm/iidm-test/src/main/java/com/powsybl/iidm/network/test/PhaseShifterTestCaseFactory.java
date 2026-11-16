@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import java.time.ZonedDateTime;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -54,9 +56,9 @@ public final class PhaseShifterTestCaseFactory {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();
@@ -128,7 +130,7 @@ public final class PhaseShifterTestCaseFactory {
         ps1.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setRegulationTerminal(ps1.getTerminal2())
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(200)
                 .beginStep()
                     .setAlpha(-20.0)
@@ -179,7 +181,48 @@ public final class PhaseShifterTestCaseFactory {
         Network network = create();
         network.getTwoWindingsTransformer("PS1")
                 .getPhaseTapChanger()
-                .setTargetDeadband(10.0);
+                .setTargetDeadband(10.0)
+                .setRegulating(false);
+        return network;
+    }
+
+    public static Network createRegulatingWithoutMode() {
+        Network network = create();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setTargetDeadband(10.0)
+                .setRegulating(true);
+        return network;
+    }
+
+    public static Network createLocalActivePowerWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        return network;
+    }
+
+    public static Network createLocalCurrentLimiterWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        return network;
+    }
+
+    public static Network createRemoteActivePowerWithTargetDeadband() {
+        return createRemote(createLocalActivePowerWithTargetDeadband());
+    }
+
+    public static Network createRemoteCurrentLimiterWithTargetDeadband() {
+        return createRemote(createLocalCurrentLimiterWithTargetDeadband());
+    }
+
+    private static Network createRemote(Network network) {
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationTerminal(network.getLoad("LD2").getTerminal());
         return network;
     }
 }

@@ -3,10 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -14,6 +17,7 @@ import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +48,7 @@ class DefaultNetworkReducerTest {
         assertEquals(0, network.getLineCount());
         assertEquals(1, network.getGeneratorCount());
         assertEquals(2, network.getLoadCount());
-        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(0, network.getBoundaryLineCount());
 
         Load load1 = network.getLoad(NHV1_NHV2_1);
         assertNotNull(load1);
@@ -92,7 +96,7 @@ class DefaultNetworkReducerTest {
         assertEquals(2, network.getLineCount());
         assertEquals(0, network.getGeneratorCount());
         assertEquals(2, network.getLoadCount());
-        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(0, network.getBoundaryLineCount());
 
         Load load1 = network.getLoad("NGEN_NHV1");
         assertNotNull(load1);
@@ -123,12 +127,12 @@ class DefaultNetworkReducerTest {
     }
 
     @Test
-    void testDanglingLine() {
+    void testBoundaryLine() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducer reducer = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("P2"))
-                .withDanglingLines(true)
+                .withBoundaryLines(true)
                 .build();
 
         reducer.reduce(network);
@@ -139,9 +143,9 @@ class DefaultNetworkReducerTest {
         assertEquals(0, network.getLineCount());
         assertEquals(0, network.getGeneratorCount());
         assertEquals(1, network.getLoadCount());
-        assertEquals(2, network.getDanglingLineCount());
+        assertEquals(2, network.getBoundaryLineCount());
 
-        DanglingLine dl1 = network.getDanglingLine(NHV1_NHV2_1);
+        BoundaryLine dl1 = network.getBoundaryLine(NHV1_NHV2_1);
         assertNotNull(dl1);
         assertEquals(1.5, dl1.getR(), 0.0);
         assertEquals(16.5, dl1.getX(), 0.0);
@@ -152,7 +156,7 @@ class DefaultNetworkReducerTest {
         assertEquals(-300.43389892578125, dl1.getTerminal().getP(), 0.0);
         assertEquals(-137.18849182128906, dl1.getTerminal().getQ(), 0.0);
 
-        DanglingLine dl2 = network.getDanglingLine(NHV1_NHV2_2);
+        BoundaryLine dl2 = network.getBoundaryLine(NHV1_NHV2_2);
         assertNotNull(dl2);
         assertEquals(1.5, dl2.getR(), 0.0);
         assertEquals(16.5, dl2.getX(), 0.0);
@@ -248,23 +252,78 @@ class DefaultNetworkReducerTest {
 
     @Test
     void testHvdcReplacement() {
+        testHvdcReplacementLcc();
+        testHvdcReplacementVscWithMinMaxReactiveLimits();
+        tetHvdcReplacementVscWithReactiveCapabilityCurve();
+    }
+
+    private static void testHvdcReplacementLcc() {
         NetworkReducerObserverImpl observerLcc = new NetworkReducerObserverImpl();
         Network networkLcc = HvdcTestNetwork.createLcc();
+        //
+        Terminal remoteTerminal = networkLcc.getShuntCompensator("C1_Filter2").getTerminal();
+        addHvdcLineWithRemoteVoltageRegulation(networkLcc, remoteTerminal);
+        //
         assertEquals(0, networkLcc.getLoadCount());
-        assertEquals(2, networkLcc.getHvdcConverterStationCount());
+        assertEquals(4, networkLcc.getHvdcConverterStationCount());
         NetworkReducer reducerLcc = NetworkReducer.builder()
-                    .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
-                    .withObservers(observerLcc)
-                    .build();
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerLcc)
+                .build();
         reducerLcc.reduce(networkLcc);
         assertEquals(0, networkLcc.getHvdcLineCount());
-        assertEquals(1, observerLcc.getHvdcLineReplacedCount());
-        assertEquals(1, observerLcc.getHvdcLineRemovedCount());
+        assertEquals(2, observerLcc.getHvdcLineReplacedCount());
+        assertEquals(2, observerLcc.getHvdcLineRemovedCount());
         assertEquals(1, networkLcc.getLoadCount());
         assertEquals(0, networkLcc.getHvdcConverterStationCount());
+        //
+        Generator generator = networkLcc.getGenerator("hvdc_line_with_remote_regulation");
+        assertEquals(120, generator.getRegulatingTargetV());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(generator.hasRegulatingTerminal());
+        assertEquals(remoteTerminal, generator.getRegulatingTerminal());
+    }
 
+    private static void addHvdcLineWithRemoteVoltageRegulation(Network networkLcc, Terminal remoteTerminal) {
+        networkLcc.getVoltageLevel("VL1").newVscConverterStation()
+            .setId("station1_with_remote_regulation")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setLossFactor(1.1f)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(120)
+                .withTerminal(remoteTerminal)
+                .add()
+            .add();
+        networkLcc.getVoltageLevel("VL2").newVscConverterStation()
+            .setId("station2_with_local_regulation")
+            .setNode(3)
+            .setLossFactor(1.1f)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add()
+            .setLocalTargetV(90)
+            .add();
+        networkLcc.newHvdcLine()
+            .setId("hvdc_line_with_remote_regulation")
+            .setR(1)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+            .setNominalV(100)
+            .setActivePowerSetpoint(0)
+            .setMaxP(110)
+            .setConverterStationId1("station1_with_remote_regulation")
+            .setConverterStationId2("station2_with_local_regulation")
+            .add();
+    }
+
+    private static void testHvdcReplacementVscWithMinMaxReactiveLimits() {
         NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
         Network networkVsc = HvdcTestNetwork.createVsc();
+        VscConverterStation station = networkVsc.getVscConverterStation("C1");
+        double targetV = station.getRegulatingTargetV();
+        station.newMinMaxReactiveLimits().setMaxQ(200).setMinQ(-200).add();
+        double p = station.getTerminal().getP();
         assertEquals(0, networkVsc.getGeneratorCount());
         assertEquals(2, networkVsc.getHvdcConverterStationCount());
         NetworkReducer reducerVsc = NetworkReducer.builder()
@@ -279,20 +338,51 @@ class DefaultNetworkReducerTest {
         Generator gen = networkVsc.getGenerator("L");
         assertEquals(300, gen.getMaxP());
         assertEquals(-300, gen.getMinP());
+        assertEquals(-p, gen.getTargetP());
+        assertTrue(gen.getVoltageRegulation().isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, gen.getVoltageRegulation().getMode());
+        assertEquals(targetV, gen.getRegulatingTargetV());
+        assertEquals(200, gen.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ());
+        assertFalse(gen.getExtension(ActivePowerControl.class).isParticipate());
+    }
 
+    private static void tetHvdcReplacementVscWithReactiveCapabilityCurve() {
+        NetworkReducerObserverImpl observerVsc2 = new NetworkReducerObserverImpl();
+        Network networkVsc2 = HvdcTestNetwork.createVsc();
+        VscConverterStation station2 = networkVsc2.getVscConverterStation("C1");
+        station2.newReactiveCapabilityCurve()
+                .beginPoint().setP(0.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .beginPoint().setP(100.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .add();
+        NetworkReducer reducerVsc2 = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerVsc2)
+                .build();
+        reducerVsc2.reduce(networkVsc2);
+        Generator gen2 = networkVsc2.getGenerator("L");
+        assertEquals(2, gen2.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
+        Iterator<ReactiveCapabilityCurve.Point> pointIt = gen2.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints().iterator();
+        ReactiveCapabilityCurve.Point point = pointIt.next();
+        assertEquals(0.0, point.getP(), 0.001);
+        assertEquals(-200.0, point.getMinQ(), 0.001);
+        assertEquals(200.0, point.getMaxQ(), 0.001);
+        point = pointIt.next();
+        assertEquals(100.0, point.getP(), 0.001);
+        assertEquals(-200.0, point.getMinQ(), 0.001);
+        assertEquals(200.0, point.getMaxQ(), 0.001);
     }
 
     @Test
     void testHvdcVoltageRegulatorOffReplacement() {
         Network network = HvdcTestNetwork.createVsc();
 
-        // Set voltageRegulatorOn to false
+        // Set regulating to false
         HvdcLine hvdcLine = network.getHvdcLine("L");
-        HvdcConverterStation hvdcConverterStation = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> hvdcConverterStation = hvdcLine.getConverterStation1();
         assertEquals("VSC", hvdcConverterStation.getHvdcType().name());
         VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
-        vscConverterStation.setReactivePowerSetpoint(45.0);
-        vscConverterStation.setVoltageRegulatorOn(false);
+        vscConverterStation.setLocalTargetQ(45.0);
+        vscConverterStation.getVoltageRegulation().setRegulating(false);
 
         assertEquals(1, network.getHvdcLineCount());
         assertEquals(0, network.getLoadCount());
@@ -382,7 +472,7 @@ class DefaultNetworkReducerTest {
         assertEquals(0, network.getLineCount());
         assertEquals(0, network.getGeneratorCount());
         assertEquals(2, network.getLoadCount());
-        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(0, network.getBoundaryLineCount());
         assertEquals(4, network.getSwitchCount());
         assertEquals(1, network.getBusbarSectionCount());
     }

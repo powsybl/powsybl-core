@@ -3,14 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
-import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.ReferencePrioritiesAdder;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +72,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void test() {
+    public void test() {
         assertEquals(3, ReferencePriority.get(bbs1));
         assertEquals(8, ReferencePriority.get(bbs2));
         assertEquals(9, ReferencePriority.get(bbs3));
@@ -101,7 +102,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testThreeWindingsTransformer() {
+    public void testThreeWindingsTransformer() {
         network = ThreeWindingsTransformerNetworkFactory.create();
         ThreeWindingsTransformer t3wf = network.getThreeWindingsTransformer("3WT");
         assertEquals(0, ReferencePriority.get(t3wf, ThreeSides.ONE));
@@ -118,7 +119,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testDeleteAll() {
+    public void testDeleteAll() {
         ReferencePriorities.delete(network);
         assertEquals(0, ReferencePriorities.get(network).size());
         assertEquals(0, ReferencePriority.get(bbs1));
@@ -128,7 +129,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testVariants() {
+    public void testVariants() {
         // create variants
         String variant1 = "variant1";
         String variant2 = "variant2";
@@ -181,7 +182,26 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testNoTerminalProvided() {
+    public void testExtensionCreatedAfterVariants() {
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, Arrays.asList("variant1", "variant2"));
+
+        // lineS3S4 has no extension yet: it is created while three variants exist
+        variantManager.setWorkingVariant("variant1");
+        ReferencePriority.set(lineS3S4, TwoSides.ONE, 7);
+        assertEquals(7, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+
+        // the other variants must not see the priority set in variant1
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(0, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+        variantManager.setWorkingVariant("variant2");
+        assertEquals(0, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+        ReferencePriority.set(lineS3S4, TwoSides.ONE, 4);
+        variantManager.setWorkingVariant("variant1");
+        assertEquals(7, ReferencePriority.get(lineS3S4, TwoSides.ONE));
+    }
+
+    @Test
+    public void testNoTerminalProvided() {
         lineS3S4.newExtension(ReferencePrioritiesAdder.class).add();
         Throwable thrown = assertThrows(NullPointerException.class, () -> lineS3S4.getExtension(ReferencePriorities.class)
                 .newReferencePriority()
@@ -191,7 +211,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testBadPriority() {
+    public void testBadPriority() {
         lineS3S4.newExtension(ReferencePrioritiesAdder.class).add();
         Throwable thrown = assertThrows(PowsyblException.class, () -> lineS3S4.getExtension(ReferencePriorities.class)
                 .newReferencePriority()
@@ -202,7 +222,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testTerminalNotInConnectable() {
+    public void testTerminalNotInConnectable() {
         lineS3S4.newExtension(ReferencePrioritiesAdder.class).add();
         Throwable thrown = assertThrows(PowsyblException.class, () -> lineS3S4.getExtension(ReferencePriorities.class)
                 .newReferencePriority()

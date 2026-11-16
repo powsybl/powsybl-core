@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -15,7 +16,22 @@ import java.util.OptionalInt;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep<S>> {
+public interface TapChanger<
+    C extends TapChanger<C, S, R, A>,
+    S extends TapChangerStep<S>,
+    R extends TapChangerStepsReplacer<R, A>,
+    A extends TapChangerStepAdder<A, R>> extends PropertiesHolder {
+
+    /**
+     * Get the load tap changing capabilities status.
+     */
+    boolean hasLoadTapChangingCapabilities();
+
+    /**
+     * Set the load tap changing capabilities status.
+     * @return itself for method chaining.
+     */
+    C setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
     /**
      * Get the lowest tap position corresponding to the first step of the tap changer.
@@ -52,6 +68,26 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     }
 
     /**
+     * Get the solved tap position.
+     * Can be null if no calculation has been done on the network.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Integer getSolvedTapPosition();
+
+    /**
+     * Get an optional containing the solved tap position if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedTapPosition() {
+        return OptionalInt.of(getSolvedTapPosition());
+    }
+
+    /**
      * Set the current tap position.
      * <p>
      * It is expected to be contained between the lowest and the highest tap position.
@@ -72,6 +108,25 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     }
 
     /**
+     * Set the solved tap position.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     *
+     * @param solvedTapPosition the solved tap position
+     */
+    C setSolvedTapPosition(int solvedTapPosition);
+
+    /**
+     * Unset the solved tap position: solved tap position is now undefined.
+     */
+    default C unsetSolvedTapPosition() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
      * Get the number of steps.
      */
     int getStepCount();
@@ -85,12 +140,25 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     S getStep(int tapPosition);
 
     /**
-     * Get the current step.
+     * Return a replacer that allow to replace the whole step list.
+     */
+    R stepsReplacer();
+
+    /**
+     * Get the current step associated to the tap position.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
     S getCurrentStep();
+
+    /**
+     * Get the current step associated to the solved tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    S getSolvedCurrentStep();
 
     /**
      * Get the position of the neutral step (rho = 1, alpha = 0) if it exists.
@@ -117,46 +185,6 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     boolean isRegulating();
 
     /**
-     * Set the regulating status.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    C setRegulating(boolean regulating);
-
-    /**
-     * Get the terminal used for regulation.
-     */
-    Terminal getRegulationTerminal();
-
-    /**
-     * Set the terminal used for regulation.
-     */
-    C setRegulationTerminal(Terminal regulationTerminal);
-
-    /**
-     * Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
-     * This attribute is necessary only if the tap changer is regulating.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    default double getTargetDeadband() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Set the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
-     * This attribute is necessary only if the tap changer is regulating. It must be positive.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    default C setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Remove the tap changer.
      */
     void remove();
@@ -170,5 +198,13 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
             steps.put(i, getStep(i));
         }
         return steps;
+    }
+
+    default void applySolvedValues() {
+        setTapPositionToSolvedTapPosition();
+    }
+
+    default void setTapPositionToSolvedTapPosition() {
+        this.findSolvedTapPosition().ifPresent(this::setTapPosition);
     }
 }

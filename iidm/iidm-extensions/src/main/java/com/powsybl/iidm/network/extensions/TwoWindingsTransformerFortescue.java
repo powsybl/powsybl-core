@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -23,14 +24,14 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     }
 
     /**
-     * The zero sequence resistance of the two windings transformer.
+     * The zero-sequence resistance of the two-winding transformer.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the two windings transformer.
+     * The zero-sequence reactance of the two-winding transformer.
      */
     double getXz();
 
@@ -42,6 +43,13 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     boolean isFreeFluxes();
 
     void setFreeFluxes(boolean freeFluxes);
+
+    /**
+     * The magnetizing reactance of the two-winding transformer, if not considered as infinite.
+     */
+    double getXm();
+
+    void setXm(double xm);
 
     /**
      * Get the winding connection type of transformer side 1, see {@link WindingConnectionType}).

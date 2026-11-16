@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -17,6 +18,7 @@ import java.util.Objects;
  *   <li>a map of environment variables</li>
  *   <li>a prefix for the execution working directory</li>
  *   <li>a debug indicator</li>
+     <li>the directory where execution files will be dumped</li>
  * </ul>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -31,12 +33,28 @@ public class ExecutionEnvironment {
 
     private String workingDirPrefix;
 
+    /**
+     * If debug=true, execution files generated for and by the binary model will not be removed after the computation. There are available in the workingDir.
+     * If debug=false, the workingDir which contains execution files is removed after computation.
+     */
     private boolean debug;
 
-    public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug) {
+    /**
+     * If dumpDir is provided, in/out execution files are dumped in dumpDir.
+     * If dumpDir=null, nothing is dumped.
+     * debug and dumpDir have fully independent behaviors.
+     */
+    private String dumpDir;
+
+    public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug, String dumpDir) {
         this.variables = Objects.requireNonNull(variables);
         this.workingDirPrefix = Objects.requireNonNull(workingDirPrefix);
         this.debug = debug;
+        this.dumpDir = dumpDir;
+    }
+
+    public ExecutionEnvironment(Map<String, String> variables, String workingDirPrefix, boolean debug) {
+        this(variables, workingDirPrefix, debug, null);
     }
 
     public Map<String, String> getVariables() {
@@ -64,5 +82,9 @@ public class ExecutionEnvironment {
     public ExecutionEnvironment setDebug(boolean debug) {
         this.debug = debug;
         return this;
+    }
+
+    public String getDumpDir() {
+        return dumpDir;
     }
 }

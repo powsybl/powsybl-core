@@ -1,0 +1,101 @@
+<!--
+  ~ Copyright (c) 2024, RTE (http://www.rte-france.com)
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~ SPDX-License-Identifier: MPL-2.0
+  -->
+
+{% extends "furo/page.html" %}
+
+{% block footer %}
+<div class="related-pages">
+  {% if next -%}
+  <a class="next-page" href="{{ next.link }}">
+    <div class="page-info">
+      <div class="context">
+        <span>{{ _("Next") }}</span>
+      </div>
+      <div class="title">{{ next.title }}</div>
+    </div>
+    <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+  </a>
+  {%- endif %}
+  {% if prev -%}
+  <a class="prev-page" href="{{ prev.link }}">
+    <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+    <div class="page-info">
+      <div class="context">
+        <span>{{ _("Previous") }}</span>
+      </div>
+      {% if prev.link == pathto(master_doc) %}
+      <div class="title">{{ _("Home") }}</div>
+      {% else %}
+      <div class="title">{{ prev.title }}</div>
+      {% endif %}
+    </div>
+  </a>
+  {%- endif %}
+</div>
+<div class="bottom-of-page">
+  <div class="left-details">
+    {%- if show_copyright %}
+    <div class="copyright">
+      {%- if hasdoc('copyright_year') %}
+      {% trans path=pathto('copyright_year'), copyright_year=copyright_year|e -%}
+      <p class="text-justify">
+        <a href="{{ path }}">Copyright</a> &#169; {{ copyright_year }}Authors of <a href="{{ github_repository }}">PowSyBl documentation</a>.
+        Unless otherwise indicated, content is licensed under <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.
+      </p>
+      <p class="text-justify">
+        The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The
+        Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage">Trademark
+        Usage</a> page. Linux is a registered trademark of Linus Torvalds.
+      </p>
+      {%- endtrans %}
+      {%- else %}
+      {% trans copyright=copyright|e -%}
+      <p class="text-justify">
+        Copyright &#169; {{ copyright_year }} Authors of <a href="{{ github_repository }}">PowSyBl documentation</a>.
+        Unless otherwise indicated, content is licensed under <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.
+      </p>
+      <p class="text-justify">
+        The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The
+        Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage">Trademark
+        Usage</a> page. Linux is a registered trademark of Linus Torvalds.
+      </p>
+      {%- endtrans %}
+      {%- endif %}
+    </div>
+    {%- endif %}
+    {% trans %}Made with {% endtrans -%}
+    {%- if show_sphinx -%}
+    {% trans %}<a href="https://www.sphinx-doc.org/">Sphinx</a> and {% endtrans -%}
+    <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+    {% endif -%}
+    {% trans %}
+    <a href="https://github.com/pradyunsg/furo">Furo</a>
+    {% endtrans %}
+    {%- if last_updated -%}
+    <div class="last-updated">
+      {% trans last_updated=last_updated|e -%}
+      Last updated on {{ last_updated }}
+      {%- endtrans -%}
+    </div>
+    {%- endif %}
+  </div>
+  <div class="right-details">
+    {% if theme_footer_icons or READTHEDOCS -%}
+    <div class="icons">
+      {% if theme_footer_icons -%}
+      {% for icon_dict in theme_footer_icons -%}
+      <a class="muted-link {{ icon_dict.class }}" href="{{ icon_dict.url }}" aria-label="{{ icon_dict.name }}">
+        {{- icon_dict.html -}}
+      </a>
+      {% endfor %}
+      {%- endif %}
+    </div>
+    {%- endif %}
+  </div>
+</div>
+{% endblock footer %}

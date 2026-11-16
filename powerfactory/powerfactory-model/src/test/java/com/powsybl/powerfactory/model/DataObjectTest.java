@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.model;
 
@@ -217,5 +218,18 @@ class DataObjectTest {
         assertFalse(objFoo.findDoubleMatrixAttributeValue("mm").isPresent());
         assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleMatrixAttributeValue("mm"));
         assertEquals(new BlockRealMatrix(2, 2), objFoo.getDoubleMatrixAttributeValue("m"));
+    }
+
+    @Test
+    void testCheckValidRealMatrix() {
+        assertDoesNotThrow(() -> DataObject.checkValidRealMatrix(2, 3, 6));
+        assertTrue(DataObject.isDataSufficientForRealMatrix(2, 3, 7));
+        assertFalse(DataObject.isDataSufficientForRealMatrix(2, 3, 5));
+        assertFalse(DataObject.isDataSufficientForRealMatrix(-2, 3, 6));
+        assertFalse(DataObject.isDataSufficientForRealMatrix(Integer.MAX_VALUE, 2, 6));
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> DataObject.checkValidRealMatrix(0, 3, 6));
+        assertEquals("Matrix dimensions must be greater than zero: 0x3", e.getMessage());
+        e = assertThrows(PowerFactoryException.class, () -> DataObject.checkValidRealMatrix(2, 3, 5));
+        assertEquals("Matrix data holds 5 values, less than the declared 2x3", e.getMessage());
     }
 }

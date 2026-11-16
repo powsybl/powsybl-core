@@ -3,32 +3,74 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractConductingEquipmentConversion {
+    private static final String GENERATOR = "generator";
 
     public AbstractReactiveLimitsOwnerConversion(
         String type,
         PropertyBag p,
         Context context) {
         super(type, p, context);
+    }
+
+    protected AbstractReactiveLimitsOwnerConversion(
+            String type,
+            PropertyBag p,
+            Context context,
+            int numTerminals) {
+        super(type, p, context, numTerminals);
+    }
+
+    private void getReactiveCapabilityCurveData(PropertyBag propertyBag, Map<Double, Range<Double>> qRanges) {
+        double p = propertyBag.asDouble("xvalue");
+        double minQ = propertyBag.asDouble("y1value");
+        double maxQ = propertyBag.asDouble("y2value");
+
+        if (!checkPointValidity(p, minQ, maxQ)) {
+            return;
+        }
+
+        Range<Double> qRange = fixedMinMaxQ("ReactiveCapabilityCurve Point", minQ, maxQ);
+
+        // check if there is a previous point with same p
+        Range<Double> prev = qRanges.get(p);
+        if (prev != null) {
+            if (prev.isConnected(qRange)) {
+                fixed("reactive capability curve", () -> String.format("point merged with another one with same p (%f)", p));
+                qRanges.put(p, prev.span(qRange));
+            } else {
+                ignored("reactive capability curve point", () -> String.format("another point with same p (%f) and a disconnected reactive range", p));
+            }
+        } else {
+            qRanges.put(p, qRange);
+        }
     }
 
     protected void convertReactiveLimits(ReactiveLimitsHolder g) {
@@ -41,30 +83,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
             PropertyBags curveData = context.reactiveCapabilityCurveData(curveId);
 
             Map<Double, Range<Double>> qRanges = new HashMap<>();
-            curveData.forEach(d -> {
-                double p = d.asDouble("xvalue");
-                double minQ = d.asDouble("y1value");
-                double maxQ = d.asDouble("y2value");
-
-                if (!checkPointValidity(p, minQ, maxQ)) {
-                    return;
-                }
-
-                Range<Double> qRange = fixedMinMaxQ("ReactiveCapabilityCurve Point", minQ, maxQ);
-
-                // check if there is a previous point with same p
-                Range<Double> prev = qRanges.get(p);
-                if (prev != null) {
-                    if (prev.isConnected(qRange)) {
-                        fixed("reactive capability curve", () -> String.format("point merged with another one with same p (%f)", p));
-                        qRanges.put(p, prev.span(qRange));
-                    } else {
-                        ignored("reactive capability curve point", () -> String.format("another point with same p (%f) and a disconnected reactive range", p));
-                    }
-                } else {
-                    qRanges.put(p, qRange);
-                }
-            });
+            curveData.forEach(d -> getReactiveCapabilityCurveData(d, qRanges));
 
             if (qRanges.size() >= 2) {
                 // create curve
@@ -105,7 +124,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
                     .setMinQ(qRange.lowerEndpoint())
                     .setMaxQ(qRange.upperEndpoint())
                     .add();
-        } else {
+        } else if (!context.config().isSilenceFrequentIssuesWarnings()) {
             missing("minQ/maxQ are missing, default to unbounded reactive limits");
         }
     }
@@ -135,5 +154,89 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
             return;
         }
         adder.setMinP(minP).setMaxP(maxP);
+    }
+
+    protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
+        String mode = generator.getProperty(PROPERTY_MODE);
+        // No voltageRegulation means no regulating control mapped at EQ conversion (absent, or already reported as ignored there)
+        if (generator.getVoltageRegulation() == null) {
+            return;
+        }
+
+        if (isControlModeVoltage(mode)) {
+            updateRegulatingControlVoltage(generator, controlEnabled, context);
+        } else if (isControlModeReactivePower(mode)) {
+            updateRegulatingControlReactivePower(generator, controlEnabled, context);
+        } else {
+            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, GENERATOR) + " " + generator.getId());
+        }
+    }
+
+    private static void updateRegulatingControlVoltage(Generator generator, Boolean controlEnabled, Context context) {
+        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
+
+        double defaultTargetV = getDefaultTargetV(generator, context);
+        double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_VALID)).orElse(defaultTargetV);
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
+        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+
+        boolean validTargetV = isValidTargetV(targetV);
+        if (!validTargetV) {
+            context.invalid(generator.getId(), "Regulating control has a bad target voltage " + targetV);
+            badVoltageTargetValueRegulatingControlReport(context.getReportNode(), generator.getId(), targetV);
+        }
+
+        // Regulating control is enabled AND this equipment participates in regulating control
+        setVoltageRegulation(generator, targetV, regulatingOn && updatedControlEnabled && validTargetV);
+    }
+
+    private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
+            return;
+        }
+        // VoltageRegulation With Reactive_POWER for generator = remote ReactivePower
+        // The target value has a load sign convention
+        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
+        int terminalSign = findTerminalSign(generator);
+        double defaultTargetQ = getDefaultTargetQ(voltageRegulation.getTargetValue(), context);
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(voltageRegulation.isRegulating(), context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
+
+        double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
+        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+
+        setReactivePowerRegulation(voltageRegulation, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));
+    }
+
+    // TargetQ must be valid before the regulation is turned on,
+    // and the regulation must be turned off before assigning potentially invalid regulation values,
+    // to ensure consistency with the applied checks
+    private static void setReactivePowerRegulation(VoltageRegulation voltageRegulation, double targetQ, boolean regulatingOn) {
+        if (voltageRegulation.isWithTerminal()) {
+            voltageRegulation.setTargetValue(targetQ);
+        }
+        voltageRegulation.setRegulating(regulatingOn);
+    }
+
+    private static double getDefaultTargetV(Generator generator, Context context) {
+        double defaultTargetV = Optional.ofNullable(generator.getRegulatingTerminal())
+                .orElse(generator.getTerminal())
+                .getVoltageLevel().getNominalV();
+        double targetVGenerator = generator.getRegulatingTargetV();
+        return getDefaultValue(null, targetVGenerator, defaultTargetV, Double.NaN, context);
+    }
+
+    private static boolean getDefaultRegulatingOn(Generator generator, Context context) {
+        return getDefaultValue(false, generator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
+    }
+
+    private static double getDefaultTargetQ(double previousValue, Context context) {
+        return getDefaultValue(null, previousValue, Double.NaN, Double.NaN, context);
+    }
+
+    private static boolean getDefaultRegulatingOn(boolean previousValue, Context context) {
+        return getDefaultValue(false, previousValue, false, false, context);
     }
 }

@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.DynamicSimulationProvider;
 import groovy.lang.Binding;
 
@@ -37,9 +38,9 @@ public interface GroovyExtension<T> {
      * Load the extension into the binding object. Each time an object is created, the consumer is notified.
      * @param binding The binding where to register the extension
      * @param consumer The consumer to notify on objects creation
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
-    void load(Binding binding, Consumer<T> consumer, Reporter reporter);
+    void load(Binding binding, Consumer<T> consumer, ReportNode reportNode);
 
     /**
      * Return the list of available GroovyExtension of type clazz, compatible with the provider which the name is given

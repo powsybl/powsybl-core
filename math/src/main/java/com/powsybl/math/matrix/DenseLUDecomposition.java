@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -31,6 +32,7 @@ class DenseLUDecomposition implements LUDecomposition {
         transposedDecomposition = null;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solve(double[] b) {
         try {
@@ -44,6 +46,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solveTransposed(double[] b) {
         try {
@@ -57,6 +60,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solve(DenseMatrix b) {
         try {
@@ -70,6 +74,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solveTransposed(DenseMatrix b) {
         try {

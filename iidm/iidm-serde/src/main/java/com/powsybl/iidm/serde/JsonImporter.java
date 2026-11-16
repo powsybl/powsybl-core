@@ -28,7 +28,7 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 @AutoService(Importer.class)
 public class JsonImporter extends AbstractTreeDataImporter {
 
-    private static final String[] EXTENSIONS = {"jiidm", "json", "iidm.json"};
+    private static final String[] EXTENSIONS = {"jiidm", "json"};
 
     @Override
     protected String[] getExtensions() {

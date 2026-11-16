@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
@@ -83,8 +84,7 @@ final class ContainersMappingHelper {
         private String getSubstationId(Set<Integer> ids) {
             String substationId = getPowerFactorySubstationId(ids);
             // automatic naming
-            return Objects.requireNonNullElseGet(substationId, () -> "S" + ids.stream().sorted().findFirst()
-                .orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set")));
+            return Objects.requireNonNullElseGet(substationId, () -> buildSubstationId(ids.stream().sorted().findFirst().orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set"))));
         }
 
         // Find an ElmSite with same ElmSubstats as defined by the ids argument
@@ -92,7 +92,10 @@ final class ContainersMappingHelper {
 
             Set<DataObject> elmTerms = elmTermsAssociatedTo(ids);
             Set<DataObject> elmSubstats = elmSubstatsAssociatedTo(elmTerms);
+            Set<DataObject> elmTrfstats = elmTrfstatsAssociatedTo(elmTerms);
+
             Set<DataObject> elmSites = elmSitesAssociatedTo(elmSubstats);
+            elmSites.addAll(elmSitesAssociatedTo(elmTrfstats));
 
             if (elmSites.size() != 1) {
                 return null;
@@ -106,22 +109,38 @@ final class ContainersMappingHelper {
             return elmSubstats.equals(dataObjects) ? elmSite.getLocName() : null;
         }
 
-        // Find an ElmSubstat with same ElmTerms (Nodes) as defined by the ids argument
+        // Find an ElmSubstat or an ElmTrfstat with same ElmTerms (Nodes) as defined by the ids argument
         private String getPowerFactoryVoltageLevelId(Set<Integer> ids) {
 
             Set<DataObject> elmTerms = elmTermsAssociatedTo(ids);
             Set<DataObject> elmSubstats = elmSubstatsAssociatedTo(elmTerms);
 
-            if (elmSubstats.size() != 1) {
-                return null;
+            if (elmSubstats.size() == 1) {
+                DataObject elmSubstat = elmSubstats.iterator().next();
+
+                Set<DataObject> dataObjects = elmSubstat.getChildren().stream()
+                    .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMTERM))
+                    .collect(Collectors.toSet());
+
+                if (elmTerms.equals(dataObjects)) {
+                    return elmSubstat.getLocName();
+                }
             }
-            DataObject elmSubstat = elmSubstats.iterator().next();
 
-            Set<DataObject> dataObjects = elmSubstat.getChildren().stream()
-                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMTERM))
-                .collect(Collectors.toSet());
+            Set<DataObject> elmTrfstats = elmTrfstatsAssociatedTo(elmTerms);
+            if (elmTrfstats.size() == 1) {
+                DataObject elmTrfstat = elmTrfstats.iterator().next();
 
-            return elmTerms.equals(dataObjects) ? elmSubstat.getLocName() : null;
+                Set<DataObject> dataObjects = elmTrfstat.getChildren().stream()
+                    .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMTERM))
+                    .collect(Collectors.toSet());
+
+                if (elmTerms.equals(dataObjects)) {
+                    return elmTrfstat.getLocName();
+                }
+            }
+
+            return null;
         }
 
         private Set<DataObject> elmTermsAssociatedTo(Set<Integer> ids) {
@@ -131,12 +150,19 @@ final class ContainersMappingHelper {
                 .collect(Collectors.toSet());
         }
 
+        private Set<DataObject> elmTrfstatsAssociatedTo(Set<DataObject> elmTerms) {
+            return elmTerms.stream().map(DataObject::getParent)
+                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMTRFSTAT))
+                .collect(Collectors.toSet());
+        }
+
         private Set<DataObject> elmSubstatsAssociatedTo(Set<DataObject> elmTerms) {
             return elmTerms.stream().map(DataObject::getParent)
                 .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSUBSTAT))
                 .collect(Collectors.toSet());
         }
 
+        // valid for elmSubstats and elmTrfstats
         private Set<DataObject> elmSitesAssociatedTo(Set<DataObject> elmSubstats) {
             return elmSubstats.stream().map(DataObject::getParent)
                 .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSITE))
@@ -149,12 +175,12 @@ final class ContainersMappingHelper {
             return false;
         }
         String dataClassName = connectedObj.getDataClassName();
-        return dataClassName.equals("ElmTr2")
-                || dataClassName.equals("ElmTr3")
-                || dataClassName.equals("ElmLne")
-                || dataClassName.equals("ElmCoup")
-                || dataClassName.equals("ElmZpu")
-                || dataClassName.equals("ElmVsc");
+        return "ElmTr2".equals(dataClassName)
+                || "ElmTr3".equals(dataClassName)
+                || "ElmLne".equals(dataClassName)
+                || "ElmCoup".equals(dataClassName)
+                || "ElmZpu".equals(dataClassName)
+                || "ElmVsc".equals(dataClassName);
     }
 
     private static void createNodes(List<DataObject> elmTerms, List<DataObject> nodes,
@@ -183,17 +209,15 @@ final class ContainersMappingHelper {
                         // All transformers are considered with impedance
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
                         break;
-                    case "ElmLne":
-                        // All lines are considered with impedance, only zero impedance lines are necessary
-                        break;
-                    case "ElmZpu":
+                    case "ElmLne", "ElmZpu":
                         // All lines are considered with impedance, only zero impedance lines are necessary
                         break;
                     case "ElmCoup":
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
+                        throw new PowerFactoryException("Detected unsupported terminal count (2) for object "
+                                + connectedObj.getDataClassName() + " " + connectedObj.getId() + ".");
                 }
             } else if (elmTerms.size() == 3) {
                 if (connectedObj.getDataClassName().equals("ElmTr3")) {
@@ -203,7 +227,8 @@ final class ContainersMappingHelper {
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(2), false, true));
                 } else {
-                    throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
+                    throw new PowerFactoryException("Detected unsupported terminal count (3) for object "
+                            + connectedObj.getDataClassName() + " " + connectedObj.getId() + ".");
                 }
             }
         }
@@ -226,7 +251,12 @@ final class ContainersMappingHelper {
             Edge::isZeroImpedance,
             Edge::isTransformer,
             busesToVoltageLevelId::getNominalVoltage,
+            id -> 0,
             busesToVoltageLevelId::getVoltageLevelId,
             busesToVoltageLevelId::getSubstationId);
+    }
+
+    static String buildSubstationId(long objId) {
+        return "S" + objId;
     }
 }

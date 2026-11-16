@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.preprocessor;
 
@@ -26,8 +27,10 @@ import static java.util.Objects.requireNonNull;
  *
  * Provides instances of {@link SecurityAnalysisPreprocessor}s or factories.
  *
+ * @deprecated This class will be removed on later versions, avoid new usages of it.
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
+@Deprecated(forRemoval = true, since = "7.4.0")
 public final class SecurityAnalysisPreprocessors {
 
     private SecurityAnalysisPreprocessors() {

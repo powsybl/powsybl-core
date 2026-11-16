@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -22,24 +22,24 @@ import java.nio.charset.StandardCharsets;
 class EncodingTest {
 
     @Test
-    void testEncodingISO88591ToISO88591() throws IOException {
+    void testEncodingISO88591ToISO88591() {
         Network network = NetworkSerDe.read(getClass().getResourceAsStream("/encoding/network.xml"));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ExportOptions options = new ExportOptions();
         options.setCharset(StandardCharsets.ISO_8859_1);
         NetworkSerDe.write(network, options, baos);
         InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+        ComparisonUtils.assertXmlEquals(getClass().getResourceAsStream("/encoding/network.xml"), is);
     }
 
     @Test
-    void testEncodingISO88591ToUTF8() throws IOException {
+    void testEncodingISO88591ToUTF8() {
         Network network = NetworkSerDe.read(getClass().getResourceAsStream("/encoding/network.xml"));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ExportOptions options = new ExportOptions();
         options.setCharset(StandardCharsets.UTF_8);
         NetworkSerDe.write(network, options, baos);
         InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+        ComparisonUtils.assertXmlEquals(getClass().getResourceAsStream("/encoding/network.xml"), is);
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.preprocessor;
 
@@ -17,8 +18,10 @@ import com.google.common.io.ByteSource;
  * on the command line {@literal itools security-analysis}. For that purpose, only one factory
  * must be provided at runtime as a service.
  *
+ * @deprecated This interface will be removed on later versions, avoid new usages of it.
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
+@Deprecated(forRemoval = true, since = "7.4.0")
 public interface SecurityAnalysisPreprocessorFactory {
 
     String getName();

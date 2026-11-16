@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
+import static com.powsybl.iidm.serde.AbstractTreeDataExporter.EXTENSIONS_INCLUDED_LIST;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -107,7 +109,7 @@ class SlackTerminalXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testExtensionFiltering() {
+    void testExtensionExclusion() {
         Network network = EurostagTutorialExample1Factory.create();
 
         VoltageLevel vl = network.getVoltageLevel("VLHV2");
@@ -115,7 +117,7 @@ class SlackTerminalXmlTest extends AbstractIidmSerDeTest {
         vl.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
 
         Properties properties = new Properties();
-        properties.put("iidm.export.xml.extensions", "");
+        properties.put(EXTENSIONS_INCLUDED_LIST, "");
 
         MemDataSource ds = new MemDataSource();
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -46,7 +47,9 @@ public class NodeBreakerViewSwitchSerDe extends AbstractSwitchSerDe<VoltageLevel
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         SwitchKind kind = context.getReader().readEnumAttribute("kind", SwitchKind.class);
-        boolean retained = context.getReader().readBooleanAttribute("retained");
+        boolean[] retained = new boolean[1];
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> retained[0] = context.getReader().readBooleanAttribute("retained"));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> retained[0] = context.getReader().readBooleanAttribute("retained", false));
         boolean open = context.getReader().readBooleanAttribute("open");
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
@@ -60,7 +63,7 @@ public class NodeBreakerViewSwitchSerDe extends AbstractSwitchSerDe<VoltageLevel
             return null;
         }
         return adder.setKind(kind)
-            .setRetained(retained)
+            .setRetained(retained[0])
             .setOpen(open)
             .setNode1(node1)
             .setNode2(node2)

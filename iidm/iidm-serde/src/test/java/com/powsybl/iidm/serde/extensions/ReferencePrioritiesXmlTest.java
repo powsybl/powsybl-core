@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
 import org.junit.jupiter.api.Test;
@@ -45,11 +47,11 @@ class ReferencePrioritiesXmlTest extends AbstractIidmSerDeTest {
                 .setBus("B1")
                 .setConnectableBus("B1")
                 .setTargetP(100)
-                .setTargetQ(100)
-                .setTargetV(400)
+                .setLocalTargetQ(100)
+                .setLocalTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         var line = network.newLine()
                 .setId("L12")

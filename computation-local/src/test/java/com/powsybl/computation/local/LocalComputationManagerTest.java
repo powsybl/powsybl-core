@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation.local;
 
@@ -44,6 +45,8 @@ class LocalComputationManagerTest {
     private FileSystem fileSystem;
 
     private Path localDir;
+
+    private static final String DEBUG_DIR = "/tmp/debugDir";
 
     private LocalComputationConfig config;
 
@@ -97,7 +100,7 @@ class LocalComputationManagerTest {
             }
         };
         try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
-            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false),
+            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false, DEBUG_DIR),
                     new AbstractExecutionHandler<Object>() {
                         @Override
                         public List<CommandExecution> before(Path workingDir) throws IOException {
@@ -115,7 +118,6 @@ class LocalComputationManagerTest {
                                     .id("prog1_cmd")
                                     .program("prog1")
                                     .args("file1", "file2", "file3")
-                                    .timeout(60)
                                     .inputFiles(new InputFile("file1"),
                                                 new InputFile("file2.gz", FilePreProcessor.FILE_GUNZIP),
                                                 new InputFile("file3.zip", FilePreProcessor.ARCHIVE_UNZIP))
@@ -130,7 +132,7 @@ class LocalComputationManagerTest {
                             assertEquals("prog1_cmd", report.getErrors().get(0).getCommand().getId());
                             assertEquals(0, report.getErrors().get(0).getIndex());
                             assertEquals(1, report.getErrors().get(0).getExitCode());
-
+                            assertTrue(Files.exists(fileSystem.getPath(DEBUG_DIR).resolve(workingDir)));
                             return null;
                         }
                     }).join();
@@ -331,7 +333,12 @@ class LocalComputationManagerTest {
             }
         };
 
-        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool()) {
+            @Override
+            protected long getTimeout() {
+                return 2L;
+            }
+        }) {
 
             CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
                 @Override
@@ -356,5 +363,60 @@ class LocalComputationManagerTest {
 
         waitForInterruption.await(10, TimeUnit.SECONDS);
         assertTrue(stopped.isTrue());
+    }
+
+    @Test
+    void testNoZipSlipVulnerability() throws Exception {
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+                // Empty
+            }
+
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) {
+                return 0; // Command execution successful
+            }
+        };
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+            computationManager.execute(new ExecutionEnvironment(Map.of(), PREFIX, false, DEBUG_DIR),
+                    new AbstractExecutionHandler<>() {
+                        @Override
+                        public List<CommandExecution> before(Path workingDir) throws IOException {
+                            // Create a malicious zip file: it contains the expected network file
+                            // (same name as the archive, without the ".zip" extension),
+                            // but also a malicious file (located outside the working directory)
+                            try (ZipOutputStream os = new ZipOutputStream(Files.newOutputStream(workingDir.resolve("networkFile.zip")))) {
+                                os.putNextEntry(new ZipEntry("networkFile"));
+                                os.putNextEntry(new ZipEntry("../malicious"));
+                                os.closeEntry();
+                            }
+
+                            // Run the command "analyze" on "networkFile" (provided via the zip file).
+                            // The input files preprocessing will try to extract the zip archive content.
+                            // Without zip slip protection, the "malicious" file would be created outside the working directory,
+                            // which is a security problem.
+                            Command command = new SimpleCommandBuilder()
+                                    .id("test")
+                                    .program("analyze")
+                                    .args("networkFile")
+                                    .inputFiles(new InputFile("networkFile.zip", FilePreProcessor.ARCHIVE_UNZIP))
+                                    .build();
+                            return Collections.singletonList(new CommandExecution(command, 1));
+                        }
+
+                        @Override
+                        public Object after(Path workingDir, ExecutionReport report) throws IOException {
+                            // Check command exits correctly
+                            assertTrue(report.getErrors().isEmpty());
+
+                            assertTrue(Files.exists(workingDir));
+                            // When a zip slip tentative is detected, no file is extracted
+                            assertFalse(Files.exists(workingDir.resolve("networkFile")));
+                            assertFalse(Files.exists(workingDir.resolve("../malicious")));
+                            return null;
+                        }
+                    }).join();
+        }
     }
 }

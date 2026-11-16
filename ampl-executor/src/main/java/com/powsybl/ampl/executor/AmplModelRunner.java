@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.executor;
 
@@ -28,7 +29,7 @@ public final class AmplModelRunner {
 
     public static CompletableFuture<AmplResults> runAsync(Network network, String variantId, AmplModel model, ComputationManager manager,
                                                           AmplParameters parameters) {
-        ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", parameters.isDebug());
+        ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", parameters.isDebug(), parameters.getDebugDir());
         AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, AmplConfig.load(),
                 parameters);
         return manager.execute(env, handler);

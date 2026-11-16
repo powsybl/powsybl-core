@@ -3,16 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForStaticVarCompensators;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -20,7 +26,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
 
     public StaticVarCompensatorConversion(PropertyBag svc, Context context) {
-        super("StaticVarCompensator", svc, context);
+        super(CgmesNames.STATIC_VAR_COMPENSATOR, svc, context);
     }
 
     @Override
@@ -33,14 +39,13 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             .setBmin(getB(inductiveRating, "inductive"))
             .setBmax(getB(capacitiveRating, "capacitive"));
         identify(adder);
-        connect(adder);
-        RegulatingControlMappingForStaticVarCompensators.initialize(adder);
+        connectWithOnlyEq(adder);
 
         StaticVarCompensator svc = adder.add();
         addAliasesAndProperties(svc);
-        convertedTerminals(svc.getTerminal());
-        if (slope >= 0) {
-            svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(slope).add();
+        convertedTerminalsWithOnlyEq(svc.getTerminal());
+        if (svc.getVoltageRegulation() != null && slope >= 0) {
+            svc.getVoltageRegulation().setSlope(slope);
         }
 
         context.regulatingControlMapping().forStaticVarCompensators().add(svc.getId(), p);
@@ -49,7 +54,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     private double getB(double rating, String name) {
         if (rating == 0.0) {
             fixed(name + "Rating", "Undefined or equal to 0. Corresponding susceptance is Double.MAX_VALUE");
-            return name.equals("inductive") ? -Double.MAX_VALUE : Double.MAX_VALUE;
+            return "inductive".equals(name) ? -Double.MAX_VALUE : Double.MAX_VALUE;
         }
         return 1 / rating;
     }
@@ -62,5 +67,61 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             ignored("Slope must be positive");
         }
         return slope;
+    }
+
+    public static void update(StaticVarCompensator staticVarCompensator, PropertyBag cgmesData, Context context) {
+        updateTerminals(staticVarCompensator, context, staticVarCompensator.getTerminal());
+
+        double defaultLocalTargetQ = getDefaultValue(null, staticVarCompensator.getLocalTargetQ(), Double.NaN, Double.NaN, context);
+        double localTargetQ = cgmesData.asDouble("q");
+        localTargetQ = Double.isNaN(localTargetQ) ? defaultLocalTargetQ : localTargetQ;
+        staticVarCompensator.setLocalTargetQ(localTargetQ);
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
+        updateRegulatingControl(staticVarCompensator, controlEnabled, context);
+    }
+
+    private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, Boolean controlEnabled, Context context) {
+        if (staticVarCompensator.getVoltageRegulation() == null) {
+            return;
+        }
+
+        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(staticVarCompensator, context);
+
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator, context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
+        boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+
+        VoltageRegulation voltageRegulation = staticVarCompensator.getVoltageRegulation();
+        if (staticVarCompensator.isWithMode(RegulationMode.VOLTAGE)) {
+            double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);
+            double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
+            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetV(targetV);
+            setVoltageRegulation(staticVarCompensator, targetV, regulating);
+        } else if (staticVarCompensator.isWithMode(RegulationMode.REACTIVE_POWER)) {
+            double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, context);
+            int terminalSign = findTerminalSign(staticVarCompensator);
+            double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
+            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetQ(targetQ);
+
+            voltageRegulation.setTargetValue(targetQ);
+            voltageRegulation.setRegulating(regulating);
+        }
+    }
+
+    private static double findDefaultEquipmentTargetV(StaticVarCompensator staticVarCompensator) {
+        String defaultTargetVoltage = staticVarCompensator.getProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT);
+        return defaultTargetVoltage != null ? Double.parseDouble(defaultTargetVoltage) : Double.NaN;
+    }
+
+    private static double getDefaultTargetV(StaticVarCompensator staticVarCompensator, Context context) {
+        return getDefaultValue(findDefaultEquipmentTargetV(staticVarCompensator), staticVarCompensator.getRegulatingTargetV(), Double.NaN, Double.NaN, context);
+    }
+
+    private static double getDefaultTargetQ(StaticVarCompensator staticVarCompensator, Context context) {
+        return getDefaultValue(null, staticVarCompensator.getRegulatingTargetQ(), Double.NaN, Double.NaN, context);
+    }
+
+    private static boolean getDefaultRegulatingOn(StaticVarCompensator staticVarCompensator, Context context) {
+        return getDefaultValue(null, staticVarCompensator.getVoltageRegulation().isRegulating(), false, false, context);
     }
 }

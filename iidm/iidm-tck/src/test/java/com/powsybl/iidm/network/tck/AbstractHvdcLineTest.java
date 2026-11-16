@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +60,13 @@ public abstract class AbstractHvdcLineTest {
     }
 
     @Test
+    public void testHvdcLineInvalidSetter() {
+        HvdcLine l = network.getHvdcLine("L");
+        ValidationException e = assertThrows(ValidationException.class, () -> l.setR(-1.0));
+        assertTrue(e.getMessage().contains("r is invalid"));
+    }
+
+    @Test
     public void testAdder() {
         HvdcLine hvdcLine = network.newHvdcLine()
                                         .setId("hvdc_line")
@@ -85,9 +94,12 @@ public abstract class AbstractHvdcLineTest {
 
     @Test
     public void invalidR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        ValidationException e1 = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 440.0, 10.0, 20.0, "C1", "C2"));
-        assertTrue(e.getMessage().contains("r is invalid"));
+        assertTrue(e1.getMessage().contains("r is invalid"));
+        ValidationException e2 = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, -1.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+            440.0, 10.0, 20.0, "C1", "C2"));
+        assertTrue(e2.getMessage().contains("r is invalid"));
     }
 
     @Test
@@ -193,12 +205,7 @@ public abstract class AbstractHvdcLineTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            hvdcLine.getConvertersMode();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, hvdcLine::getConvertersMode);
     }
 
     private void createHvdcLine(String id, String name, double r, HvdcLine.ConvertersMode mode, double v,
@@ -214,5 +221,68 @@ public abstract class AbstractHvdcLineTest {
                     .setConverterStationId1(converterStationId1)
                     .setConverterStationId2(converterStationId2)
                 .add();
+    }
+
+    @Test
+    void testConnectDisconnect() {
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+
+        // Check that the HVDC line is connected
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        // Connection fails since it's already connected
+        assertFalse(hvdcLine.connectConverterStations());
+
+        // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
+        assertFalse(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+
+        // Disconnection
+        assertTrue(hvdcLine.disconnectConverterStations());
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        // Disconnection fails since it's already disconnected
+        assertFalse(hvdcLine.disconnectConverterStations());
+
+        // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
+        assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL.negate()));
+
+        // Connection
+        assertTrue(hvdcLine.connectConverterStations());
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        // Disconnect one side
+        assertTrue(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
+        assertHvdcLineConnection(hvdcLine, false, true);
+
+        // Connection on the other side fails since it's still connected
+        assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+    }
+
+    @Test
+    void testConnectDisconnectWithFictitiousBreaker() {
+        Network hvdcNetworkWithFictitiousBreaker = HvdcTestNetwork.createLcc(NetworkFactory.findDefault(), true);
+        HvdcLine hvdcLine = hvdcNetworkWithFictitiousBreaker.getHvdcLine("L");
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        //Fails since disconnect cannot operate fictitious breakers by default
+        assertFalse(hvdcLine.disconnectConverterStations());
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        //Force open
+        assertTrue(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER));
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        //Fails since connect cannot operate fictitious breakers by default
+        assertFalse(hvdcLine.connectConverterStations());
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        //Force closed
+        assertTrue(hvdcLine.connectConverterStations(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR));
+        assertHvdcLineConnection(hvdcLine, true, true);
+    }
+
+    private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, hvdcLine.getConverterStation2().getTerminal().isConnected());
     }
 }

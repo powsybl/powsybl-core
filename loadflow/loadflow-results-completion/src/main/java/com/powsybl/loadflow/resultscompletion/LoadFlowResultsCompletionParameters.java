@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,7 +41,9 @@ public class LoadFlowResultsCompletionParameters {
                     double z0ThresholdDiffVoltageAngle = config.getDoubleProperty("z0-threshold-diff-voltage-angle", LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
                     return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection, z0ThresholdDiffVoltageAngle);
                 })
-                .orElseGet(() -> new LoadFlowResultsCompletionParameters(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT, LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT, LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE));
+                .orElseGet(() -> new LoadFlowResultsCompletionParameters(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
+                    LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
+                    LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE));
     }
 
     public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection, double z0ThresholdDiffVoltageAngle) {
@@ -65,9 +69,11 @@ public class LoadFlowResultsCompletionParameters {
     }
 
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("epsilonX", epsilonX,
-                               "applyReactanceCorrection", applyReactanceCorrection,
-                               "z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("epsilonX", epsilonX);
+        map.put("applyReactanceCorrection", applyReactanceCorrection);
+        map.put("z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
+        return Collections.unmodifiableMap(map);
     }
 
     @Override

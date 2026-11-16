@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -41,7 +42,7 @@ import java.util.Objects;
  *
  * <p>The acceptIterate and acceptHandle methods are used by {@link NodeCalcVisitors}
  * during the iterative traversal of the tree. The
- * acceptIterate method push children nodes the be traversed in the
+ * acceptIterate method push children nodes to be traversed in the
  * stack.  The acceptHandle method extract the already calculated
  * children results from the stack and use them to compute and return
  * the result for this node.
@@ -106,7 +107,7 @@ public interface NodeCalc {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(token);
         if (token == JsonToken.FIELD_NAME) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             switch (fieldName) {
                 case IntegerNodeCalc.NAME -> {
                     return IntegerNodeCalc.parseJson(parser);

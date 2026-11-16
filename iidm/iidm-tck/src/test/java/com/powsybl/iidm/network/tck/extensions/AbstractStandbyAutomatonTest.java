@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
@@ -47,8 +49,6 @@ public abstract class AbstractStandbyAutomatonTest {
         assertEquals(405, standbyAutomaton.getHighVoltageThreshold(), 0.0);
         standbyAutomaton.setB0(0.0002f);
         assertEquals(0.0002f, standbyAutomaton.getB0(), 0.0);
-        standbyAutomaton.setStandby(false);
-        assertFalse(standbyAutomaton.isStandby());
         standbyAutomaton.setLowVoltageSetpoint(391f);
         assertEquals(391, standbyAutomaton.getLowVoltageSetpoint(), 0.0);
         standbyAutomaton.setHighVoltageSetpoint(401f);
@@ -57,16 +57,29 @@ public abstract class AbstractStandbyAutomatonTest {
         assertEquals(386, standbyAutomaton.getLowVoltageThreshold(), 0.0);
         standbyAutomaton.setHighVoltageThreshold(406f);
         assertEquals(406, standbyAutomaton.getHighVoltageThreshold(), 0.0);
-        try {
-            standbyAutomaton.setB0(Float.NaN);
-            fail();
-        } catch (Exception ignored) {
-        }
-        try {
-            standbyAutomaton.setHighVoltageThreshold(200f);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> standbyAutomaton.setB0(Float.NaN));
+        assertThrows(PowsyblException.class, () -> standbyAutomaton.setHighVoltageThreshold(200f));
+
+        // when standby is false do not throw error on inconsistent low and high voltage thresholds use case
+        standbyAutomaton.setStandby(false);
+        assertFalse(standbyAutomaton.isStandby());
+        standbyAutomaton.setHighVoltageThreshold(200f);
+        assertEquals(200f, standbyAutomaton.getHighVoltageThreshold(), 0.0);
+
+        // but an exception is thrown when the standby mode is latter used
+        assertThrows(ValidationException.class, () -> standbyAutomaton.setStandby(true));
+    }
+
+    @Test
+    public void testIncompleteAdderBadException() {
+        Network network = SvcTestCaseFactory.create();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertNotNull(svc);
+
+        StandbyAutomatonAdder standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class)
+                .withStandbyStatus(true);
+        var e = assertThrows(ValidationException.class, standbyAutomatonAdder::add);
+        assertEquals("Static var compensator 'SVC2': low voltage setpoint (NaN) is invalid", e.getMessage());
     }
 
     @Test

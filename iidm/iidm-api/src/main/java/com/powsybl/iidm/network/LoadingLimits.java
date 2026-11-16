@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -14,10 +15,12 @@ import java.util.Collection;
  */
 public interface LoadingLimits extends OperationalLimits {
 
+    String DEFAULT_PERMANENT_LIMIT_NAME = "permanent";
+
     /**
      * Temporary current limit.
      */
-    interface TemporaryLimit {
+    interface TemporaryLimit extends PropertiesHolder {
 
         /**
          * Get the temporary limit name
@@ -43,11 +46,24 @@ public interface LoadingLimits extends OperationalLimits {
          * @return false if it is a real limit, false otherwise
          */
         boolean isFictitious();
+
     }
 
     /**
-     * Get the permanent limit.
+     * Indicates if the duration of the violation that is acceptable at a given value should be taken from
+     * the limit above the value (HIGH) or below the value (LOW).<br>
+     * If this is {@link DetectionKind#HIGH}, {@link #getPermanentLimit()} should return a valid value.<br>
+     * If this is {@link DetectionKind#LOW}, {@link #getPermanentLimit()} will throw as there is no valid permanent limit.
+     * @return the detection kind associated to this loading limit
+     */
+    DetectionKind getDetectionKind();
+
+    /**
+     * Get the permanent limit.<br>
+     * When the detection kind is {@link DetectionKind#LOW},
+     * this method throws, as this kind of limit does not have a permanent limit.
      * @return the permanent limit.
+     * @see #getDetectionKind()
      */
     double getPermanentLimit();
 
@@ -57,6 +73,19 @@ public interface LoadingLimits extends OperationalLimits {
      * @return itself for method chaining
      */
     LoadingLimits setPermanentLimit(double permanentLimit);
+
+    /**
+     * Get the name of the permanent limit.
+     * @return the permanent limit name
+     */
+    String getPermanentLimitName();
+
+    /**
+     * Set the name of the permanent limit
+     * @param name the new name of the permanent limit
+     * @return itself for method chaining
+     */
+    LoadingLimits setPermanentLimitName(String name);
 
     /**
      * Get a list of temporary limits ordered by descending duration.
@@ -79,4 +108,14 @@ public interface LoadingLimits extends OperationalLimits {
      * @return the temporary limit value or NaN if there is no temporary limit for this acceptable duration
      */
     double getTemporaryLimitValue(int acceptableDuration);
+
+    /**
+     * Set the temporary limit value.
+     * <p>Throws an exception when no temporary limit of the given acceptable duration is found,
+     * and changes the value but logs a warning when the new value is not valid.</p>
+     * @param acceptableDuration the acceptable duration
+     * @param temporaryLimitValue the temporary limit value
+     * @return itself for method chaining
+     */
+    LoadingLimits setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue);
 }

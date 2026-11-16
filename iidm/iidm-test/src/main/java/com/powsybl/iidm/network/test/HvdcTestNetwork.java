@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import java.time.ZonedDateTime;
-
 import java.util.Objects;
 
 /**
@@ -28,6 +29,10 @@ public final class HvdcTestNetwork {
     }
 
     private static Network createBase(NetworkFactory networkFactory) {
+        return createBase(networkFactory, false);
+    }
+
+    private static Network createBase(NetworkFactory networkFactory, boolean isBreakerFictitious) {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("hvdctest", "test");
@@ -73,6 +78,7 @@ public final class HvdcTestNetwork {
                 .setNode2(2)
                 .setOpen(false)
                 .setRetained(true)
+                .setFictitious(isBreakerFictitious)
                 .add();
         return network;
     }
@@ -104,8 +110,10 @@ public final class HvdcTestNetwork {
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setLocalTargetV(405.0)
                 .add();
         cs1.getTerminal()
                 .setP(100.0)
@@ -128,9 +136,12 @@ public final class HvdcTestNetwork {
                 .setName("Converter2")
                 .setNode(2)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(123)
-                .setVoltageRegulatorOn(false)
-                .setRegulatingTerminal(cs1.getTerminal())
+                .setLocalTargetQ(123)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(cs1.getTerminal())
+                    .withRegulating(false)
+                    .add()
                 .add();
         cs2.newMinMaxReactiveLimits()
                 .setMinQ(0.0)
@@ -145,7 +156,11 @@ public final class HvdcTestNetwork {
     }
 
     public static Network createLcc(NetworkFactory networkFactory) {
-        Network network = createBase(networkFactory);
+        return createLcc(networkFactory, false);
+    }
+
+    public static Network createLcc(NetworkFactory networkFactory, boolean isFictitiousBreaker) {
+        Network network = createBase(networkFactory, isFictitiousBreaker);
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         ShuntCompensator shunt1 = vl1.newShuntCompensator()
                 .setId("C1_Filter1")
@@ -199,6 +214,7 @@ public final class HvdcTestNetwork {
                 .setNode2(4)
                 .setOpen(false)
                 .setRetained(true)
+                .setFictitious(isFictitiousBreaker)
                 .add();
         vl2.getNodeBreakerView().newDisconnector()
                 .setId("DISC_BBS1_BK3")
@@ -215,6 +231,7 @@ public final class HvdcTestNetwork {
                 .setNode2(6)
                 .setOpen(false)
                 .setRetained(true)
+                .setFictitious(isFictitiousBreaker)
                 .add();
         ShuntCompensator shunt3 = vl2.newShuntCompensator()
                 .setId("C2_Filter1")

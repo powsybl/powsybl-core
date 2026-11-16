@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Objects;
 
@@ -19,26 +21,20 @@ import java.util.Objects;
  */
 public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder {
 
-    private final VoltageLevelExt voltageLevel;
-
     private double targetP = Double.NaN;
 
-    private double targetQ = Double.NaN;
+    private double localTargetQ = Double.NaN;
+
+    private double localTargetV = Double.NaN;
 
     private double minP = Double.NaN;
 
     private double maxP = Double.NaN;
 
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
+
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     /**
@@ -58,13 +54,36 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
+    @Override
+    public BatteryAdder setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public BatteryAdderImpl setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
+    public BatteryAdderImpl setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
         return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BatteryAdderImpl setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
     /**
@@ -85,15 +104,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -102,18 +112,31 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, minP, maxP);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
 
+        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), isEquivalent(), targetP, localTargetQ, localTargetV, voltageRegulationAttributes, minP, maxP);
         battery.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);
         network.getListeners().notifyCreation(battery);
+
         return battery;
     }
+
+    @Override
+    public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(Battery.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
+    }
+
 }

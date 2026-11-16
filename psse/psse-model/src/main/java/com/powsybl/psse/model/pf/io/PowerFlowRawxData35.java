@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
@@ -71,6 +72,8 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         model.addGneDevice(new GneDeviceData().read(null, context));
         model.addInductionMachines(new InductionMachineData().read(null, context));
 
+        model.addSubstations(new SubstationData().read(null, context));
+
         return model;
     }
 
@@ -82,7 +85,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         if (context.getVersion().major() != V35) {
             throw new PsseException("Unexpected version " + context.getVersion().getMajorNumber());
         }
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "rawx", false));) {
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "rawx", false))) {
             write(model, context, outputStream);
         }
     }
@@ -118,9 +121,14 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
             new GneDeviceData().write(model.getGneDevice(), context, null);
             new InductionMachineData().write(model.getInductionMachines(), context, null);
 
+            new SubstationData().write(model.getSubstations(), context, null);
+
             generator.writeEndObject(); // network
             generator.writeEndObject(); // root
             generator.flush();
+
+            // Append a newline to comply with the POSIX standard
+            outputStream.write('\n');
         }
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -44,28 +45,28 @@ public interface GeneratorFortescue extends Extension<Generator> {
     void setGroundingX(double groundingX);
 
     /**
-     * The zero sequence resistance of the generator.
+     * The zero-sequence resistance of the generator.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the generator.
+     * The zero-sequence reactance of the generator.
      */
     double getXz();
 
     void setXz(double xz);
 
     /**
-     * The negative sequence resistance of the generator.
+     * The negative-sequence resistance of the generator.
      */
     double getRn();
 
     void setRn(double rn);
 
     /**
-     * The negative sequence reactance of the generator.
+     * The negative-sequence reactance of the generator.
      */
     double getXn();
 

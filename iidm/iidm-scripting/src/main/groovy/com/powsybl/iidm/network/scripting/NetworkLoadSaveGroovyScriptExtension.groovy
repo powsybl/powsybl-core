@@ -3,11 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.scripting
 
 import com.google.auto.service.AutoService
-import com.powsybl.computation.ComputationManager
 import com.powsybl.computation.local.LocalComputationManager
 import com.powsybl.iidm.network.ExportersLoader
 import com.powsybl.iidm.network.ExportersServiceLoader
@@ -47,7 +47,7 @@ class NetworkLoadSaveGroovyScriptExtension implements GroovyScriptExtension {
     }
 
     @Override
-    void load(Binding binding, ComputationManager computationManager) {
+    void load(Binding binding, Map<Class<?>, Object> contextObjects) {
         binding.loadNetwork = { String file, Properties parameters = null ->
             Network.read(fileSystem.getPath(file), LocalComputationManager.getDefault(),
                     importConfig, parameters, importersLoader)

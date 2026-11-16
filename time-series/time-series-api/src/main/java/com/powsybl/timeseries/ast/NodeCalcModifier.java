@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -77,6 +78,19 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(CachedNodeCalc nodeCalc, A arg, NodeCalc child) {
+        if (child != null) {
+            nodeCalc.setChild(child);
+        }
+        return null;
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
     public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, NodeCalc child) {
         if (child != null) {
             nodeCalc.setChild(child);
@@ -109,7 +123,7 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
         return visitBinaryNodeCalc(nodeCalc, left, right);
     }
 
-    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCal nodeCalc, NodeCalc left, NodeCalc right) {
+    private NodeCalc visitBinaryNodeCalc(AbstractBinaryNodeCalc nodeCalc, NodeCalc left, NodeCalc right) {
         if (left != null) {
             nodeCalc.setLeft(left);
         }
@@ -120,7 +134,7 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCal nodeCalc, A arg) {
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
         return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

@@ -3,14 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -46,8 +49,8 @@ class ConnectablePositionXmlTest extends AbstractIidmSerDeTest {
                 .setMinP(10)
                 .setMaxP(20)
                 .setTargetP(20)
-                .setTargetV(400)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId("SW")
@@ -143,6 +146,8 @@ class ConnectablePositionXmlTest extends AbstractIidmSerDeTest {
 
         // test v 1.0
         allFormatsRoundTripTest(network, "/connectablePositionRef_V1_0.xml",
-                new ExportOptions().addExtensionVersion(ConnectablePosition.NAME, "1.0"));
+                new ExportOptions()
+                        .addExtensionVersion(ConnectablePosition.NAME, "1.0")
+                        .setVersion(IidmVersion.V_1_13.toString(".")));
     }
 }

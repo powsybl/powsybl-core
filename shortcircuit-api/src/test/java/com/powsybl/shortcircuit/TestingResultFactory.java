@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -43,28 +45,62 @@ public final class TestingResultFactory {
     public static FortescueFaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
         Fault fault = new BusFault(faultId, "BusId", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
-        float limitReduction = 1;
-        LimitViolation limitViolation1 = new LimitViolation("VLGEN", limitType, limit, limitReduction, value);
+        double limitScalingValue = 1;
+        LimitViolation limitViolation1 = LimitViolation.builder().subject("VLGEN").type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolations.add(limitViolation1);
-        LimitViolation limitViolation2 = new LimitViolation("VLGEN", limitType, limit, limitReduction, value);
+        LimitViolation limitViolation2 = LimitViolation.builder().subject("VLGEN").type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolations.add(limitViolation2);
         return new FortescueFaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(value), FortescueFaultResult.Status.SUCCESS);
     }
 
-    public static ShortCircuitAnalysisResult createWithFeederResults() {
+    public static ShortCircuitAnalysisResult createWithFeederResults(ThreeSides side) {
         Fault fault = new BusFault("id", "BusId", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReduction = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolations.add(limitViolation);
         List<FaultResult> faultResults = new ArrayList<>();
-        MagnitudeFeederResult feederResult = new MagnitudeFeederResult("connectableId", 1);
+        MagnitudeFeederResult feederResult;
+        if (side != null) {
+            feederResult = new MagnitudeFeederResult("connectableId", 1, side);
+        } else {
+            feederResult = new MagnitudeFeederResult("connectableId", 1);
+        }
         MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
                 1.0, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
+        faultResults.add(faultResult);
+        return new ShortCircuitAnalysisResult(faultResults);
+    }
+
+    public static ShortCircuitAnalysisResult createWithOperationalLimitsGroupIdResults() {
+        Fault fault = new BusFault("id", "BusId", 0.0, 0.0);
+        String subjectId = "id";
+        String operationalLimitsGroupId = "activated_limits_group";
+        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
+        float limit = 2000;
+        double limitScalingValue = 1;
+        float value = 2500;
+        LimitViolation limitViolation = new LimitViolation(
+            subjectId,
+            null,
+            operationalLimitsGroupId,
+            limitType,
+            null,
+            Integer.MAX_VALUE,
+            limit,
+            limitScalingValue,
+            value,
+            ThreeSides.ONE,
+            null
+        );
+        List<LimitViolation> limitViolations = List.of(limitViolation);
+        List<FaultResult> faultResults = new ArrayList<>();
+        MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 0.1, Collections.emptyList(), limitViolations,
+            1.0, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         faultResults.add(faultResult);
         return new ShortCircuitAnalysisResult(faultResults);
     }
@@ -75,9 +111,9 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReduction = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
@@ -92,15 +128,19 @@ public final class TestingResultFactory {
     }
 
     public static ShortCircuitAnalysisResult createResultWithTwoFaultResults() {
-        Fault fault1 = new BusFault("id1", "busId", 0.0, 0.0);
-        Fault fault2 = new BusFault("id2", "busId2", 0.0, 0.0);
+        return createResultWithTwoFaultResults(Fault.FaultType.THREE_PHASE, Fault.FaultType.THREE_PHASE);
+    }
+
+    public static ShortCircuitAnalysisResult createResultWithTwoFaultResults(Fault.FaultType faultType1, Fault.FaultType faultType2) {
+        Fault fault1 = new BusFault("id1", "busId", faultType1);
+        Fault fault2 = new BusFault("id2", "busId2", faultType2);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReduction = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
@@ -119,9 +159,9 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReduction = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
@@ -144,9 +184,9 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReduction = 1;
+        double limitScalingValue = 1;
         float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        LimitViolation limitViolation = LimitViolation.builder().subject(subjectId).type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
@@ -155,7 +195,8 @@ public final class TestingResultFactory {
         FortescueFeederResult feederResult = new FortescueFeederResult("id2", new FortescueValue(1.0, 10));
         feederResults.add(feederResult);
         List<FaultResult> faultResults = new ArrayList<>();
-        FortescueFaultResult faultResult = new FortescueFaultResult(fault, 1.0, feederResults, limitViolations, new FortescueValue(1.0, 10), new FortescueValue(50, 50), busResults, Duration.ofSeconds(1), SUCCESS);
+        FortescueFaultResult faultResult = new FortescueFaultResult(fault, 1.0, feederResults, limitViolations, new FortescueValue(1.0, 10),
+            new FortescueValue(50, 50), busResults, Duration.ofSeconds(1), SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);

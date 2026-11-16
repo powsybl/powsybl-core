@@ -3,19 +3,19 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -23,20 +23,22 @@ import com.powsybl.iidm.network.Country;
 class CountryConversionTest {
     @Test
     void countryFromRegion() {
-        ImmutableMap.<String, Country> builder()
+        ImmutableMap.<String, Country>builder()
                 .put("D1", Country.DE)
                 .put("D4", Country.DE)
                 .put("D7", Country.DE)
                 .put("D8", Country.DE)
+                .put("DE-anything", Country.DE)
+                .put("DE-anythingElse", Country.DE)
                 .build()
                 .forEach((name, country) -> assertEquals(country,
-                        CountryConversion.fromRegionName(name).get()));
+                        CountryConversion.fromRegionName(name).orElseThrow()));
         assertEquals(Optional.empty(), CountryConversion.fromRegionName("XYZ"));
     }
 
     @Test
     void countryFromSubregion() {
-        ImmutableMap.<String, Country> builder()
+        ImmutableMap.<String, Country>builder()
                 .put("NO1", Country.NO)
                 .put("NO2", Country.NO)
                 .put("NO3", Country.NO)

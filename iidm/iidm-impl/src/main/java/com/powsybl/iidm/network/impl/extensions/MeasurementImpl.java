@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil;
 
 import java.util.*;
@@ -28,7 +29,8 @@ class MeasurementImpl implements Measurement {
     private double standardDeviation;
     private boolean valid;
 
-    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Map<String, String> properties, double value, double standardDeviation, boolean valid, ThreeSides side) {
+    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type,
+                    Map<String, String> properties, double value, double standardDeviation, boolean valid, ThreeSides side) {
         this.measurements = Objects.requireNonNull(measurements);
         this.id = id;
         this.type = type;
@@ -103,6 +105,14 @@ class MeasurementImpl implements Measurement {
     public Measurement setValid(boolean valid) {
         MeasurementValidationUtil.checkValue(value, valid);
         this.valid = valid;
+        return this;
+    }
+
+    @Override
+    public Measurement setValueAndValidity(double value, boolean valid) {
+        MeasurementValidationUtil.checkValue(value, valid);
+        this.valid = valid;
+        this.value = value;
         return this;
     }
 

@@ -3,8 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
  * A power generator.
@@ -20,7 +24,7 @@ package com.powsybl.iidm.network;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -132,7 +136,7 @@ package com.powsybl.iidm.network;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
+public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, VoltageRegulationHolder<Generator> {
 
     /**
      * Get the energy source.
@@ -166,7 +170,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -174,15 +180,15 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * Get the terminal used for regulation.
-     * @return the terminal used for regulation
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead.
      */
-    Terminal getRegulatingTerminal();
-
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
 
     /**
@@ -190,16 +196,54 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #getRegulatingTargetV()} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getTargetV();
 
     /**
-     * Set the voltage target in kV.
      * <p>
+     *     Set the voltage target in kV, for the regulated terminal which can be remote or local AND without setting
+     *     the equivalentLocalTargetV which takes the value {@link Double#NaN}
+     * </p>
+     * <p>
+     *     To avoid setting the equivalentLocalTargetV to {@link Double#NaN}, please use {@link Generator#setTargetV(double, double)}
+     * <p/>
+     * <p>Depends on the working variant.</p>
+     * @see VariantManager
+     * @deprecated use {@link #setLocalTargetV(double)} or {@link VoltageRegulation#setTargetValue(double)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    Generator setTargetV(double targetV);
+
+    /**
+     * <p>
+     *     If set, returns a local target voltage that is expected to be consistent with the remote target voltage.
+     *     When defined, this value can be used by simulators that deactivate the remote voltage algorithms,
+     *     or by dynamic simulators that use this voltage as a starting value.
+     * </p>
+     * <p>
+     *     To set the equivalentLocalTargetV use {@link Generator#setTargetV(double, double)}
+     * </p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link Generator#getLocalTargetV()} instead.
      */
-    Generator setTargetV(double targetV);
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    double getEquivalentLocalTargetV();
+
+    /**
+     * <p>
+     *     Set the voltage target in kV and set the local target in kV.
+     * </p>
+     * <p>Depends on the working variant.</p>
+     * @param targetV the voltage target in kV.
+     * @param equivalentLocalTargetV the local target in kV.
+     * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link Generator#setLocalTargetV(double)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    Generator setTargetV(double targetV, double equivalentLocalTargetV);
 
     /**
      * Get the active power target in MW.
@@ -222,7 +266,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getTargetQ();
 
     /**
@@ -230,8 +276,24 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #setLocalTargetQ(double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setTargetQ(double targetQ);
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    double getLocalTargetQ();
+
+    /**
+     * {@inheritDoc}
+     * <p>This value is defined in the generator sign convention.</p>
+     */
+    @Override
+    Generator setLocalTargetQ(double targetQ);
 
     /**
      * Get the rated nominal power (apparent power rating) in MVA.
@@ -241,8 +303,26 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
 
     Generator setRatedS(double ratedS);
 
+    /**
+     * Get whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     */
+    boolean isCondenser();
+
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.GENERATOR;
+    }
+
+    default void applySolvedValues() {
+        setTargetPToP();
+        setTargetQToQ();
+        setTargetVToV();
+    }
+
+    default void setTargetPToP() {
+        double p = this.getTerminal().getP();
+        if (!Double.isNaN(p)) {
+            this.setTargetP(-p);
+        }
     }
 }

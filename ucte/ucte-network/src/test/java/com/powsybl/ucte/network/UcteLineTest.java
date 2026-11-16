@@ -3,11 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
-import static org.junit.jupiter.api.Assertions.*;
+import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
@@ -46,11 +46,11 @@ class UcteLineTest extends AbstractUcteElementTest {
     void testFix() {
         UcteElementId id = createElementId();
         UcteLine invalidLine1 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0, 0.0, 0.0, -1, null);
-        invalidLine1.fix(Reporter.NO_OP);
+        invalidLine1.fix(ReportNode.NO_OP);
         assertEquals(0.05, invalidLine1.getReactance(), 0.0);
 
         UcteLine invalidLine2 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0, -0.01, 0.0, null, null);
-        invalidLine2.fix(Reporter.NO_OP);
+        invalidLine2.fix(ReportNode.NO_OP);
         assertEquals(-0.05, invalidLine2.getReactance(), 0.0);
     }
 }

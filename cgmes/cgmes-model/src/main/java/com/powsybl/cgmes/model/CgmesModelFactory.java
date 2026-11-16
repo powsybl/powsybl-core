@@ -3,14 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model;
 
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.*;
 
 import java.util.Objects;
@@ -24,40 +24,40 @@ public final class CgmesModelFactory {
     }
 
     public static CgmesModel create(ReadOnlyDataSource dataSource) {
-        return create(dataSource, TripleStoreFactory.DEFAULT_IMPLEMENTATION, Reporter.NO_OP);
+        return create(dataSource, TripleStoreFactory.DEFAULT_IMPLEMENTATION, ReportNode.NO_OP);
     }
 
     public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation) {
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
-        return create(dataSource, alternativeDataSourceForBoundary, implementation, Reporter.NO_OP);
+        return create(dataSource, alternativeDataSourceForBoundary, implementation, ReportNode.NO_OP);
     }
 
-    public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation, Reporter reporter) {
+    public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation, ReportNode reportNode) {
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
-        return create(dataSource, alternativeDataSourceForBoundary, implementation, reporter);
+        return create(dataSource, alternativeDataSourceForBoundary, implementation, reportNode);
     }
 
     public static CgmesModel create(
         ReadOnlyDataSource mainDataSource,
         ReadOnlyDataSource alternativeDataSourceForBoundary,
         String implementation,
-        Reporter reporter) {
-        return create(mainDataSource, alternativeDataSourceForBoundary, implementation, reporter, new TripleStoreOptions());
+        ReportNode reportNode) {
+        return create(mainDataSource, alternativeDataSourceForBoundary, implementation, reportNode, new TripleStoreOptions());
     }
 
     public static CgmesModel create(
             ReadOnlyDataSource mainDataSource,
             ReadOnlyDataSource alternativeDataSourceForBoundary,
             String implementation,
-            Reporter reporter,
+            ReportNode reportNode,
             TripleStoreOptions tripleStoreOptions) {
         Objects.requireNonNull(mainDataSource);
         Objects.requireNonNull(implementation);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
         Objects.requireNonNull(tripleStoreOptions);
 
         CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource, alternativeDataSourceForBoundary);
-        cgmes.read(mainDataSource, alternativeDataSourceForBoundary, reporter);
+        cgmes.read(mainDataSource, alternativeDataSourceForBoundary, reportNode);
         return cgmes;
     }
 
@@ -65,49 +65,21 @@ public final class CgmesModelFactory {
         // Only triple store implementations are available
         TripleStore tripleStore = TripleStoreFactory.create(implementation, tripleStoreOptions);
         String cimNamespace = obtainCimNamespace(ds, alternativeDataSourceForBoundary);
-        return new CgmesModelTripleStore(cimNamespace, tripleStore);
+        return new CgmesModelTripleStore(cimNamespace, tripleStore, tripleStoreOptions.queryCatalog());
     }
 
     private static String obtainCimNamespace(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary) {
         try {
             return new CgmesOnDataSource(ds).cimNamespace();
-        } catch (CgmesModelException x) {
+        } catch (CgmesModelException e) {
             if (dsBoundary != null) {
                 try {
                     return new CgmesOnDataSource(dsBoundary).cimNamespace();
-                } catch (CgmesModelException x2) {
-                    throw x;
+                } catch (CgmesModelException ignored) {
+                    throw e;
                 }
             } else {
-                throw x;
-            }
-        }
-    }
-
-    public static CgmesModel copy(CgmesModel cgmes) {
-        if (cgmes instanceof CgmesModelTripleStore cgmests) {
-            TripleStore tripleStore = TripleStoreFactory.copy(cgmests.tripleStore());
-            CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
-            cgmesCopy.setBasename(cgmes.getBasename());
-            buildCaches(cgmesCopy);
-            return cgmesCopy;
-        } else {
-            throw new PowsyblException("CGMES model copy not supported, soource is " + cgmes.getClass().getSimpleName());
-        }
-    }
-
-    private static void buildCaches(CgmesModel cgmes) {
-        // TODO This is rebuilding only some caches
-        boolean isNodeBreaker = cgmes.isNodeBreaker();
-        for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
-            for (PropertyBag end : tends) {
-                CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
-                cgmes.substation(t, isNodeBreaker);
-                if (isNodeBreaker) {
-                    t.connectivityNode();
-                } else {
-                    t.topologicalNode();
-                }
+                throw e;
             }
         }
     }

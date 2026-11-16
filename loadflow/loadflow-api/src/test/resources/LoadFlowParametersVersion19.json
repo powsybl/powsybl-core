@@ -14,6 +14,6 @@
   "dcUseTransformerRatio" : true,
   "countriesToBalance" : [ "FR" , "KI" ],
   "connectedComponentMode" : "MAIN",
-  "hvdcAcEmulation" : true,
+  "hvdcAcEmulation" : false,
   "dcPowerFactor": 0.8
 }

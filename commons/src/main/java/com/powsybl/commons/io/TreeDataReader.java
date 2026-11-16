@@ -3,34 +3,42 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.io;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TreeDataReader extends AutoCloseable {
 
+    @FunctionalInterface
     interface ChildNodeReader {
 
         /**
-         * The implementations must read the full node corresponding to the given name,
-         * including the corresponding end node
-         * @param nodeName field name of the started node
+         * The implementations must read the full node corresponding to the given node name
+         * (including the corresponding end node if any)
+         * @param nodeName field name of the started child node
          */
         void onStartNode(String nodeName);
     }
 
-    String readRootVersion();
-
-    Map<String, String> readVersions();
+    /**
+     * Read the file header, among which the serialization versions
+     * @return the {@link TreeDataHeader} containing the serialization versions
+     */
+    TreeDataHeader readHeader();
 
     double readDoubleAttribute(String name);
 
     double readDoubleAttribute(String name, double defaultValue);
+
+    OptionalDouble readOptionalDoubleAttribute(String name);
 
     float readFloatAttribute(String name);
 
@@ -38,13 +46,25 @@ public interface TreeDataReader extends AutoCloseable {
 
     String readStringAttribute(String name);
 
-    Integer readIntAttribute(String name);
+    /**
+     * Read the value of the field corresponding to the name, use the default value if it's absent
+     * @param name the name of the string field to read
+     * @param defaultValue the default value to return if there is no match for the given name
+     * @return the value corresponding to the <code>name</code> if it's present, the <code>defaultValue</code> otherwise
+     */
+    String readStringAttribute(String name, String defaultValue);
+
+    int readIntAttribute(String name);
+
+    OptionalInt readOptionalIntAttribute(String name);
 
     int readIntAttribute(String name, int defaultValue);
 
-    Boolean readBooleanAttribute(String name);
+    boolean readBooleanAttribute(String name);
 
     boolean readBooleanAttribute(String name, boolean defaultValue);
+
+    Optional<Boolean> readOptionalBooleanAttribute(String name);
 
     <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz);
 
@@ -56,10 +76,21 @@ public interface TreeDataReader extends AutoCloseable {
 
     List<String> readStringArrayAttribute(String name);
 
-    void skipChildNodes();
+    /**
+     * Skip everything contained in current node, from the current parser position to the end node (if any)
+     */
+    void skipNode();
 
+    /**
+     * Read the child nodes from the current parser position to the end node (if any).
+     * Throws an {@link com.powsybl.commons.PowsyblException} if encountering a scalar attribute.
+     */
     void readChildNodes(ChildNodeReader childNodeReader);
 
+    /**
+     * Read the end node at current parser position.
+     * Throws an {@link com.powsybl.commons.PowsyblException} if encountering anything else than an end node.
+     */
     void readEndNode();
 
     @Override

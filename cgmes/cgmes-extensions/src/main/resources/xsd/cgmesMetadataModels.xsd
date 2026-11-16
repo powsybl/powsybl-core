@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cmm="http://www.powsybl.org/schema/iidm/ext/cgmes_metadata_models/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_metadata_models/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Subset">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="EQUIPMENT"/>
+            <xs:enumeration value="TOPOLOGY"/>
+            <xs:enumeration value="STATE_VARIABLES"/>
+            <xs:enumeration value="STEADY_STATE_HYPOTHESIS"/>
+            <xs:enumeration value="DYNAMIC"/>
+            <xs:enumeration value="DIAGRAM_LAYOUT"/>
+            <xs:enumeration value="GEOGRAPHICAL_LOCATION"/>
+            <xs:enumeration value="EQUIPMENT_BOUNDARY"/>
+            <xs:enumeration value="TOPOLOGY_BOUNDARY"/>
+            <xs:enumeration value="UNKNOWN"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Model">
+        <xs:sequence>
+            <xs:element name="profile" type="cmm:nonEmptyString" maxOccurs="unbounded"/>
+            <xs:element name="dependentOnModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="supersedesModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="subset" type="cmm:Subset"/>
+        <xs:attribute name="modelingAuthoritySet" use="required" type="cmm:nonEmptyString"/>
+        <xs:attribute name="id" type="xs:string"/>
+        <xs:attribute name="version" use="required" type="cmm:nonEmptyString"/>
+        <xs:attribute name="description" type="xs:string"/>
+    </xs:complexType>
+    <xs:element name="cgmesMetadataModels">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="model" type="cmm:Model" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

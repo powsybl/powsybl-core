@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
@@ -26,25 +27,9 @@ public class CreateCouplingDeviceBuilder {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId1(String)} instead.
-     */
-    @Deprecated(since = "5.2.0")
-    public CreateCouplingDeviceBuilder withBusbarSectionId1(String bbsId1) {
-        return withBusOrBusbarSectionId1(bbsId1);
-    }
-
     public CreateCouplingDeviceBuilder withBusOrBusbarSectionId2(String busOrBbsId2) {
         this.busOrBbsId2 = busOrBbsId2;
         return this;
-    }
-
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId2(String)} instead.
-     */
-    @Deprecated(since = "5.2.0")
-    public CreateCouplingDeviceBuilder withBusbarSectionId2(String bbsId2) {
-        return withBusOrBusbarSectionId2(bbsId2);
     }
 
     public CreateCouplingDeviceBuilder withSwitchPrefixId(String switchPrefixId) {

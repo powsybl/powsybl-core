@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation.local;
 
@@ -53,9 +54,10 @@ public class LocalComputationConfig {
                     }
                     List<Path> checkedPaths = paths.stream().filter(Files::exists).toList();
                     if (checkedPaths.isEmpty()) {
-                        throw new ConfigurationException("None of the tmp dir path of the list exist");
+                        String errorMessage = String.format("None of the tmp dir path of the list defined at the configuration property '%s.%s' exists", CONFIG_MODULE_NAME, name);
+                        throw new ConfigurationException(errorMessage);
                     }
-                    return checkedPaths.get(0);
+                    return checkedPaths.getFirst();
                 });
     }
 
@@ -66,9 +68,8 @@ public class LocalComputationConfig {
         Path localDir = config.flatMap(c -> getTmpDir(c, "tmp-dir").or(() -> getTmpDir(c, "tmpDir")))
                 .orElse(getDefaultLocalDir(fileSystem));
         int availableCore = config.map(c -> c.getOptionalIntProperty("available-core")
-                .orElse(c.getOptionalIntProperty("availableCore").orElse(DEFAULT_AVAILABLE_CORE)))
+                        .orElse(c.getOptionalIntProperty("availableCore").orElse(DEFAULT_AVAILABLE_CORE)))
                 .orElse(DEFAULT_AVAILABLE_CORE);
-
         if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();
         }

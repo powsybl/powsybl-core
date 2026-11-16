@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.dgs;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -18,10 +20,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -75,6 +74,13 @@ class DgsDataTest extends AbstractSerDeTest {
     }
 
     @Test
+    void matrixOversizedRowsTest() {
+        // A matrix row declaring far more values than it carries must not allocate a matrix of that size.
+        StudyCase studyCase = assertDoesNotThrow(() -> loadCase("/MatrixOversizedRows.dgs"));
+        assertNotNull(studyCase);
+    }
+
+    @Test
     void v6ErrorTest() {
         assertThrows(PowerFactoryException.class, () -> loadCase("/ascii_v6.dgs"));
     }
@@ -82,6 +88,22 @@ class DgsDataTest extends AbstractSerDeTest {
     @Test
     void v7ErrorTest() {
         assertThrows(PowerFactoryException.class, () -> loadCase("/ascii_v7.dgs"));
+    }
+
+    @Test
+    void missingElementInLineTest() {
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> loadCase("/ascii_missing_element.dgs"));
+        assertEquals("Not enough fields in the line: '1;Version'", exception.getMessage());
+    }
+
+    @Test
+    void bomTest() {
+        assertDoesNotThrow(() -> loadCase("/BOMTest.dgs"));
+    }
+
+    @Test
+    void objectLinkReferencesTest() throws IOException {
+        assertTrue(test("/object_link_references.dgs", "/object_link_references.json"));
     }
 
     private boolean test(String dgs, String json) throws IOException {

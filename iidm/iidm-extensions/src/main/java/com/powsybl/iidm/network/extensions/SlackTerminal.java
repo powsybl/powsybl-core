@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -24,13 +25,16 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     String NAME = "slackTerminal";
 
     /**
-     * Set the terminal of all SlackTerminal extensions from the given network to null. If the extension is empty,
-     * meaning that for each variant the terminal is null, this method automatically remove the extension.
+     * Set the terminal of all SlackTerminal extensions from the given network and all its subnetworks to null.
+     * If the extension is empty, meaning that for each variant the terminal is null, this method automatically
+     * remove the extension.
      *
      * @param network A network to cleanup
      */
     static void reset(Network network) {
         network.getVoltageLevels().forEach(vl -> reset(vl, null));
+        // reset also all subnetworks
+        network.getSubnetworks().forEach(sn -> sn.getVoltageLevels().forEach(vl -> reset(vl, null)));
     }
 
     /**
@@ -100,7 +104,9 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     }
 
     /**
-     * Returns true if the current SlackTerminal is empty, meaning that this extension is unused
+     * <p>Returns <code>true</code> if the current SlackTerminal is empty, meaning that this extension is unused.</p>
+     * <p>Note that this method returns <code>true</code> only when the terminal is <code>null</code> <b>for all the variants</b>.
+     * Thus, when it returns <code>false</code>, the current variant's terminal may still be <code>null</code>.</p>
      */
     boolean isEmpty();
 

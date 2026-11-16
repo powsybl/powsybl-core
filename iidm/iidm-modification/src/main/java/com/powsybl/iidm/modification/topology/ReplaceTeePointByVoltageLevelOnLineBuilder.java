@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
@@ -19,10 +20,11 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
     private String newLine1Name = null;
     private String newLine2Id = null;
     private String newLine2Name = null;
+    private boolean forceRemoveIsolatedVoltageLevel = false;
 
     public ReplaceTeePointByVoltageLevelOnLine build() {
         return new ReplaceTeePointByVoltageLevelOnLine(teePointLine1, teePointLine2, teePointLineToRemove, bbsOrBusId,
-                newLine1Id, newLine1Name, newLine2Id, newLine2Name);
+                newLine1Id, newLine1Name, newLine2Id, newLine2Name, forceRemoveIsolatedVoltageLevel);
     }
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withTeePointLine1(String teePointLine1) {
@@ -68,6 +70,14 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine2Name(String newLine2Name) {
         this.newLine2Name = newLine2Name;
+        return this;
+    }
+
+    /**
+     * @param forceRemoveIsolatedVoltageLevel     a parameter that forces the removal of isolated voltage level (with no branches left)
+     */
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withForceRemoveIsolatedVoltageLevel(boolean forceRemoveIsolatedVoltageLevel) {
+        this.forceRemoveIsolatedVoltageLevel = forceRemoveIsolatedVoltageLevel;
         return this;
     }
 }

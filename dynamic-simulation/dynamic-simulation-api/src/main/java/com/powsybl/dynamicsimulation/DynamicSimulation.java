@@ -3,19 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynamicsimulation;
-
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -33,89 +34,211 @@ public final class DynamicSimulation {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
-                                                                   ComputationManager computationManager, DynamicSimulationParameters parameters, Reporter reporter) {
-            return provider.run(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters, reporter);
+        /**
+         * @deprecated use {@link #runAsync(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, String workingVariantId,
+                                                                   ComputationManager computationManager, DynamicSimulationParameters parameters, ReportNode reportNode) {
+            return provider.run(network, workingVariantId, dynamicModelsSupplier, new DynamicSimulationRunParameters()
+                    .setEventModelsSupplier(eventModelsSupplier)
+                    .setOutputVariablesSupplier(outputVariablesSupplier)
+                    .setParameters(parameters)
+                    .setComputationManager(computationManager)
+                    .setReportNode(reportNode));
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
+        /**
+         * @deprecated use {@link #runAsync(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, String workingVariantId,
                                                                    ComputationManager computationManager, DynamicSimulationParameters parameters) {
-            return provider.run(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters, Reporter.NO_OP);
+            return provider.run(network, workingVariantId, dynamicModelsSupplier, new DynamicSimulationRunParameters()
+                    .setEventModelsSupplier(eventModelsSupplier)
+                    .setOutputVariablesSupplier(outputVariablesSupplier)
+                    .setParameters(parameters)
+                    .setComputationManager(computationManager));
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
+        /**
+         * @deprecated use {@link #runAsync(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, String workingVariantId,
                                                                    DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, LocalComputationManager.getDefault(), parameters, Reporter.NO_OP);
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId,
+                LocalComputationManager.getDefault(), parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, network.getVariantManager().getWorkingVariantId(), parameters);
+        /**
+         * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier,
+                network.getVariantManager().getWorkingVariantId(), parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, CurvesSupplier.empty(), parameters);
+        /**
+         * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   EventModelsSupplier eventModelsSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, OutputVariablesSupplier.empty(), parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), curvesSupplier, parameters);
+        /**
+         * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   OutputVariablesSupplier outputVariablesSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), outputVariablesSupplier, parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, CurvesSupplier.empty(), parameters);
+        /**
+         * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, OutputVariablesSupplier.empty(), parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier) {
+        /**
+         * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   EventModelsSupplier eventModelsSupplier) {
             return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, DynamicSimulationParameters.load());
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
-            return runAsync(network, dynamicModelsSupplier, curvesSupplier, DynamicSimulationParameters.load());
+        /**
+         * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   OutputVariablesSupplier outputVariablesSupplier) {
+            return runAsync(network, dynamicModelsSupplier, outputVariablesSupplier, DynamicSimulationParameters.load());
         }
 
         public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
-            return runAsync(network, dynamicModelsSupplier, DynamicSimulationParameters.load());
+            return runAsync(network, network.getVariantManager().getWorkingVariantId(), dynamicModelsSupplier, DynamicSimulationRunParameters.getDefault());
         }
 
-        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager,
-                                           DynamicSimulationParameters parameters, Reporter reporter) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters, reporter).join();
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   DynamicSimulationRunParameters runParameters) {
+            return runAsync(network, network.getVariantManager().getWorkingVariantId(), dynamicModelsSupplier, runParameters);
         }
 
-        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager,
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, String workingVariantId,
+                                                                   DynamicModelsSupplier dynamicModelsSupplier,
+                                                                   DynamicSimulationRunParameters runParameters) {
+            return provider.run(network, workingVariantId, dynamicModelsSupplier, runParameters);
+        }
+
+        /**
+         * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
+                                           OutputVariablesSupplier outputVariablesSupplier, String workingVariantId, ComputationManager computationManager,
+                                           DynamicSimulationParameters parameters, ReportNode reportNode) {
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId,
+                computationManager, parameters, reportNode).join();
+        }
+
+        /**
+         * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
+                                           OutputVariablesSupplier outputVariablesSupplier, String workingVariantId, ComputationManager computationManager,
                                            DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters, Reporter.NO_OP).join();
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId,
+                computationManager, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, parameters).join();
+        /**
+         * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
+                                           OutputVariablesSupplier outputVariablesSupplier, String workingVariantId, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, parameters).join();
+        /**
+         * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
+                                           OutputVariablesSupplier outputVariablesSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, DynamicSimulationParameters parameters) {
+        /**
+         * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
+                                           DynamicSimulationParameters parameters) {
             return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, dynamicModelsSupplier, curvesSupplier, parameters).join();
+        /**
+         * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                           OutputVariablesSupplier outputVariablesSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, outputVariablesSupplier, parameters).join();
         }
 
+        /**
+         * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
         public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
             return runAsync(network, dynamicModelsSupplier, parameters).join();
         }
 
+        /**
+         * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
         public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier) {
             return runAsync(network, dynamicModelsSupplier, eventModelsSupplier).join();
         }
 
-        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
-            return runAsync(network, dynamicModelsSupplier, curvesSupplier).join();
+        /**
+         * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+         */
+        @Deprecated(since = "7.4.0", forRemoval = true)
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, OutputVariablesSupplier outputVariablesSupplier) {
+            return runAsync(network, dynamicModelsSupplier, outputVariablesSupplier).join();
         }
 
         public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
             return runAsync(network, dynamicModelsSupplier).join();
+        }
+
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                           DynamicSimulationRunParameters runParameters) {
+            return runAsync(network, dynamicModelsSupplier, runParameters).join();
+        }
+
+        public DynamicSimulationResult run(Network network, String workingVariantId,
+                                           DynamicModelsSupplier dynamicModelsSupplier,
+                                           DynamicSimulationRunParameters runParameters) {
+            return runAsync(network, workingVariantId, dynamicModelsSupplier, runParameters).join();
         }
 
         @Override
@@ -130,7 +253,7 @@ public final class DynamicSimulation {
     }
 
     public static Runner find(String name) {
-        return new Runner(PlatformConfigNamedProvider.Finder.findBackwardsCompatible(name,
+        return new Runner(PlatformConfigNamedProvider.Finder.find(name,
                 "dynamic-simulation", DynamicSimulationProvider.class,
                 PlatformConfig.defaultConfig()));
     }
@@ -139,81 +262,177 @@ public final class DynamicSimulation {
         return find(null);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
-                                                               String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters, Reporter reporter) {
-        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters, reporter);
+    /**
+     * @deprecated use {@link #runAsync(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier,
+                                                                      String workingVariantId, ComputationManager computationManager,
+                                                                      DynamicSimulationParameters parameters, ReportNode reportNode) {
+        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId,
+            computationManager, parameters, reportNode);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
+    /**
+     * @deprecated use {@link #runAsync(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier,
                                                                String workingVariantId, DynamicSimulationParameters parameters) {
-        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, parameters);
+        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
+    /**
+     * @deprecated use {@link #runAsync(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier,
                                                                DynamicSimulationParameters parameters) {
-        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, parameters);
+        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, DynamicSimulationParameters parameters) {
+    /**
+     * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      EventModelsSupplier eventModelsSupplier, DynamicSimulationParameters parameters) {
         return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-        return find().runAsync(network, dynamicModelsSupplier, curvesSupplier, parameters);
+    /**
+     * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      OutputVariablesSupplier outputVariablesSupplier, DynamicSimulationParameters parameters) {
+        return find().runAsync(network, dynamicModelsSupplier, outputVariablesSupplier, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
+    /**
+     * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      DynamicSimulationParameters parameters) {
         return find().runAsync(network, dynamicModelsSupplier, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier) {
+    /**
+     * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      EventModelsSupplier eventModelsSupplier) {
         return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
-        return find().runAsync(network, dynamicModelsSupplier, curvesSupplier);
+    /**
+     * @deprecated use {@link #runAsync(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                                      OutputVariablesSupplier outputVariablesSupplier) {
+        return find().runAsync(network, dynamicModelsSupplier, outputVariablesSupplier);
     }
 
     public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
         return find().runAsync(network, dynamicModelsSupplier);
     }
 
-    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
-                                       String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters, Reporter reporter) {
-        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters, reporter);
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                                               DynamicSimulationRunParameters runParameters) {
+        return find().runAsync(network, dynamicModelsSupplier, runParameters);
     }
 
-    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, String workingVariantId,
+                                                               DynamicModelsSupplier dynamicModelsSupplier,
+                                                               DynamicSimulationRunParameters runParameters) {
+        return find().runAsync(network, workingVariantId, dynamicModelsSupplier, runParameters);
+    }
+
+    /**
+     * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier,
+                                       String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters, ReportNode reportNode) {
+        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId, computationManager, parameters, reportNode);
+    }
+
+    /**
+     * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier,
                                        String workingVariantId, DynamicSimulationParameters parameters) {
-        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, workingVariantId, parameters);
+        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, workingVariantId, parameters);
     }
 
-    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
+    /**
+     * @deprecated use {@link #run(Network, String, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, OutputVariablesSupplier outputVariablesSupplier,
                                        DynamicSimulationParameters parameters) {
-        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, curvesSupplier, parameters);
+        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, outputVariablesSupplier, parameters);
     }
 
+    /**
+     * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
     public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, DynamicSimulationParameters parameters) {
         return find().run(network, dynamicModelsSupplier, eventModelsSupplier, parameters);
     }
 
-    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-        return find().run(network, dynamicModelsSupplier, curvesSupplier, parameters);
+    /**
+     * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, OutputVariablesSupplier outputVariablesSupplier, DynamicSimulationParameters parameters) {
+        return find().run(network, dynamicModelsSupplier, outputVariablesSupplier, parameters);
     }
 
+    /**
+     * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
     public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
         return find().run(network, dynamicModelsSupplier, parameters);
     }
 
+    /**
+     * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
     public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier) {
         return find().run(network, dynamicModelsSupplier, eventModelsSupplier);
     }
 
-    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
-        return find().run(network, dynamicModelsSupplier, curvesSupplier);
+    /**
+     * @deprecated use {@link #run(Network, DynamicModelsSupplier, DynamicSimulationRunParameters)} instead
+     */
+    @Deprecated(since = "7.4.0", forRemoval = true)
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, OutputVariablesSupplier outputVariablesSupplier) {
+        return find().run(network, dynamicModelsSupplier, outputVariablesSupplier);
     }
 
     public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
         return find().run(network, dynamicModelsSupplier);
+    }
+
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier,
+                                       DynamicSimulationRunParameters runParameters) {
+        return find().run(network, dynamicModelsSupplier, runParameters);
+    }
+
+    public static DynamicSimulationResult run(Network network, String workingVariantId,
+                                       DynamicModelsSupplier dynamicModelsSupplier,
+                                       DynamicSimulationRunParameters runParameters) {
+        return find().run(network, workingVariantId, dynamicModelsSupplier, runParameters);
     }
 }

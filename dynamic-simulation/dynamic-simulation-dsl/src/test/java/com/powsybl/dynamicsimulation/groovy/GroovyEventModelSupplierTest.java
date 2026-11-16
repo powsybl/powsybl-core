@@ -3,18 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.dynamicsimulation.groovy;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.util.List;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -22,8 +14,19 @@ import com.powsybl.dynamicsimulation.EventModel;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -36,7 +39,7 @@ class GroovyEventModelSupplierTest {
     void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
-        Files.copy(getClass().getResourceAsStream("/eventModels.groovy"), fileSystem.getPath("/eventModels.groovy"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/eventModels.groovy")), fileSystem.getPath("/eventModels.groovy"));
     }
 
     @AfterEach
@@ -74,12 +77,12 @@ class GroovyEventModelSupplierTest {
         List<EventModel> eventModels = supplier.get(network);
         assertEquals(2, eventModels.size());
 
-        assertTrue(eventModels.get(0) instanceof DummyEventModel);
+        assertInstanceOf(DummyEventModel.class, eventModels.get(0));
         DummyEventModel eventModel1 = (DummyEventModel) eventModels.get(0);
         assertEquals("NHV1_NHV2_1", eventModel1.getId());
         assertEquals(50, eventModel1.getStartTime(), 0);
 
-        assertTrue(eventModels.get(1) instanceof DummyEventModel);
+        assertInstanceOf(DummyEventModel.class, eventModels.get(1));
         DummyEventModel eventModel2 = (DummyEventModel) eventModels.get(1);
         assertEquals("NHV1_NHV2_2", eventModel2.getId());
         assertEquals(50, eventModel2.getStartTime(), 0);

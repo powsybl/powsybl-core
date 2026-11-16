@@ -3,30 +3,33 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.LoadZipModel;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import com.powsybl.iidm.network.test.TerminalMockExt;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -88,8 +91,8 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             try {
                 NetworkSerDe.write(network, new ExportOptions(), os);
-            } catch (PowsyblException x) {
-                assertTrue(x.getMessage().contains("Provider not found for extension"));
+            } catch (PowsyblException exception) {
+                assertTrue(exception.getMessage().contains("Provider not found for extension"));
             }
         }
     }
@@ -102,8 +105,8 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             try {
                 NetworkSerDe.write(network, new ExportOptions().setThrowExceptionIfExtensionNotFound(false), os);
-            } catch (PowsyblException x) {
-                assertTrue(x.getMessage().contains("Provider not found for extension"));
+            } catch (PowsyblException exception) {
+                assertTrue(exception.getMessage().contains("Provider not found for extension"));
             }
         }
     }
@@ -161,7 +164,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             assertNotNull(is);
             // check that loadMock has been serialized in v1.1
-            compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_1.xml", IidmVersion.V_1_1),
+            assertXmlEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_1.xml", IidmVersion.V_1_1),
                     is);
         }
     }
@@ -188,4 +191,28 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-bad-loadQuxExt.xml", IidmVersion.V_1_1)));
         assertTrue(e.getMessage().contains("IIDM version of network (1.1) is not supported by the loadQux extension's XML serializer."));
     }
+
+    @Test
+    void testAnonymizedNetworkIdWithExtension() {
+        // Given Network with extension
+        Network network = EurostagTutorialExample1Factory.create();
+        network.addExtension(NetworkSourceExtension.class, new NetworkSourceExtensionImpl("source"));
+        String originalNetworkId = network.getId();
+        // When export with anonymized data
+        Path exportedFile = tmpDir.resolve("anonymized-network-with-extension.xiidm");
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), exportedFile);
+        // When import network without anonymizer
+        Network importedNetwork = NetworkSerDe.read(exportedFile);
+        NetworkSourceExtension importedExtension = importedNetwork.getExtension(NetworkSourceExtension.class);
+        assertThat(importedNetwork.getId())
+                .isEqualTo(importedExtension.getExtendable().getId())
+                .isEqualTo(anonymizer.anonymizeString(originalNetworkId));
+        // When re-import network with anonymizer
+        Network importedNetworkDeanonymized = NetworkSerDe.read(exportedFile, new ImportOptions(), anonymizer, NetworkFactory.findDefault(), ReportNode.NO_OP);
+        NetworkSourceExtension importedExtensionDeanonymized = importedNetworkDeanonymized.getExtension(NetworkSourceExtension.class);
+        assertThat(importedNetworkDeanonymized.getId())
+                .isEqualTo(importedExtensionDeanonymized.getExtendable().getId())
+                .isEqualTo(originalNetworkId);
+    }
+
 }

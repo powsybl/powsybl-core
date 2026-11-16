@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -38,7 +39,7 @@ public interface ReferenceTerminals extends Extension<Network> {
     ReferenceTerminals addReferenceTerminal(Terminal terminal);
 
     /**
-     * Deletes all defined reference terminals in the network for the current variant
+     * Deletes all defined reference terminals in the network and all its subnetworks for the current variant
      * @param network network whose reference terminals should be deleted
      */
     static void reset(Network network) {
@@ -50,10 +51,13 @@ public interface ReferenceTerminals extends Extension<Network> {
                     .add();
         }
         ext.reset();
+        // reset also all subnetworks
+        network.getSubnetworks().forEach(ReferenceTerminals::reset);
     }
 
     /**
-     * Defines/add a terminal as reference in the network for the current variant
+     * Defines/add a terminal as reference in the network for the current variant.
+     * In case of a merged network with subnetwork, the extension is placed on the root/merged network.
      * @param terminal terminal to be added as reference terminal
      */
     static void addTerminal(Terminal terminal) {
@@ -69,7 +73,10 @@ public interface ReferenceTerminals extends Extension<Network> {
     }
 
     /**
-     * Gets the reference terminals in the network for the current variant
+     * Gets the reference terminals in the network for the current variant.
+     * <p> Note: This method returns only the terminal from the extension attached to the provided network.
+     * In case of a merged network with subnetworks, be careful whether you want the extension
+     * of the merged network or of a subnetwork.</p>
      * @param network network to get reference terminals from
      */
     static Set<Terminal> getTerminals(Network network) {

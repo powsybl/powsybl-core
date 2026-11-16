@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.tripping;
 
@@ -29,6 +30,11 @@ public class TieLineTripping extends AbstractTripping {
     }
 
     @Override
+    public String getName() {
+        return "TieLineTripping";
+    }
+
+    @Override
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
@@ -37,8 +43,8 @@ public class TieLineTripping extends AbstractTripping {
             throw new PowsyblException("Tie line '" + id + "' not found");
         }
 
-        Terminal terminal1 = tieLine.getDanglingLine1().getTerminal();
-        Terminal terminal2 = tieLine.getDanglingLine2().getTerminal();
+        Terminal terminal1 = tieLine.getBoundaryLine1().getTerminal();
+        Terminal terminal2 = tieLine.getBoundaryLine2().getTerminal();
 
         traverseDoubleSidedEquipment(voltageLevelId, terminal1, terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals, tieLine.getType().name());
     }

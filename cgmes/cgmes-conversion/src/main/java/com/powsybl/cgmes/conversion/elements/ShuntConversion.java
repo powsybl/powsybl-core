@@ -3,21 +3,24 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.Comparator;
+import java.util.Optional;
+import java.util.OptionalInt;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_SECTIONS;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -27,28 +30,15 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     private static final String SECTION_NUMBER = "sectionNumber";
 
     public ShuntConversion(PropertyBag sh, Context context) {
-        super("ShuntCompensator", sh, context);
-    }
-
-    private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
-            case SV:
-                return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
-            default:
-                throw new PowsyblException("Unexpected profile used for initial values");
-        }
+        super(CgmesNames.SHUNT_COMPENSATOR, sh, context);
     }
 
     @Override
     public void convert() {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
-        int sections = getSections(p, normalSections);
-        sections = Math.abs(sections);
-        maximumSections = Math.max(maximumSections, sections);
-        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections);
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(0);
+
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
@@ -60,7 +50,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                     .add();
         } else if ("NonlinearShuntCompensator".equals(shuntType)) {
             ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-            PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
+            PropertyBags ss = context.nonlinearShuntCompensatorPoints(id);
             ss.stream()
                     .filter(s -> s.asInt(SECTION_NUMBER) > 0)
                     .sorted(Comparator.comparing(s -> s.asInt(SECTION_NUMBER)))
@@ -76,15 +66,88 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             throw new IllegalStateException("Unexpected shunt type: " + shuntType);
         }
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         ShuntCompensator shunt = adder.add();
         addAliasesAndProperties(shunt);
 
-        PowerFlow f = powerFlowSV();
-        if (f.defined() && context.config().changeSignForShuntReactivePowerFlowInitialState()) {
-            f = new PowerFlow(-f.p(), -f.q());
-        }
-        context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
+        convertedTerminalsWithOnlyEq(shunt.getTerminal());
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
+        shunt.setProperty(PROPERTY_NORMAL_SECTIONS, String.valueOf(normalSections));
     }
+
+    public static void update(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
+        updateTerminals(shuntCompensator, context, shuntCompensator.getTerminal());
+        updateSections(shuntCompensator, cgmesData, context);
+
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
+        updateRegulatingControl(shuntCompensator, controlEnabled, context);
+    }
+
+    private static void updateSections(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
+        int defaultSections = getDefaultSections(shuntCompensator, getNormalSections(shuntCompensator), context);
+        int sections = getSections(cgmesData).orElse(defaultSections);
+        shuntCompensator.setSectionCount(Math.min(sections, shuntCompensator.getMaximumSectionCount()));
+        getSolvedSections(cgmesData).ifPresentOrElse(shuntCompensator::setSolvedSectionCount, shuntCompensator::unsetSolvedSectionCount);
+    }
+
+    private static Integer getNormalSections(ShuntCompensator shuntCompensator) {
+        String property = shuntCompensator.getProperty(PROPERTY_NORMAL_SECTIONS);
+        return property != null ? Integer.parseInt(property) : null;
+    }
+
+    private static OptionalInt getSections(PropertyBag cgmesData) {
+        double sections = cgmesData.asDouble("SSHsections");
+        return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
+    }
+
+    private static OptionalInt getSolvedSections(PropertyBag cgmesData) {
+        double sections = cgmesData.asDouble("SVsections");
+        return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
+    }
+
+    private static int getDefaultSections(ShuntCompensator shuntCompensator, Integer normalSections, Context context) {
+        return getDefaultValue(normalSections, shuntCompensator.getSectionCount(), 0, 0, context);
+    }
+
+    private static void updateRegulatingControl(ShuntCompensator shuntCompensator, Boolean controlEnabled, Context context) {
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator, context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
+
+        double defaultTargetV = getDefaultTargetV(shuntCompensator, context);
+        double defaultTargetDeadband = getDefaultTargetDeadband(shuntCompensator, context);
+
+        Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(shuntCompensator, context);
+        double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
+        double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
+        boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+        boolean regulatingOn = updatedControlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband);
+
+        setRegulation(shuntCompensator, targetV, targetDeadband, regulatingOn);
+    }
+
+    // Regulation values (targetV and targetDeadband) must be valid before enabling it,
+    // and regulation must be turned off before assigning potentially invalid values,
+    // to ensure consistency with the applied checks
+    private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
+        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            return;
+        }
+        setVoltageRegulation(shuntCompensator, targetV, targetDeadband, regulatingOn);
+    }
+
+    private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {
+        double previousTargetV = shuntCompensator.getRegulatingTargetV();
+        return getDefaultValue(null, previousTargetV, Double.NaN, Double.NaN, context);
+    }
+
+    private static double getDefaultTargetDeadband(ShuntCompensator shuntCompensator, Context context) {
+        double targetDeadband = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+        return getDefaultValue(null, targetDeadband, 0.0, 0.0, context);
+    }
+
+    private static boolean getDefaultRegulatingOn(ShuntCompensator shuntCompensator, Context context) {
+        return getDefaultValue(null, shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
+    }
+
 }

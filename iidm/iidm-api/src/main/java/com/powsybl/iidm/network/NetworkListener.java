@@ -3,36 +3,58 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import com.powsybl.commons.extensions.Extension;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface NetworkListener {
 
-    void onCreation(Identifiable identifiable);
-
-    void beforeRemoval(Identifiable identifiable);
-
-    void afterRemoval(String id);
-
-    void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue);
-
-    default void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
-            Object newValue) {
+    default void onCreation(Identifiable<?> identifiable) {
         // empty default implementation
     }
 
-    default void onElementAdded(Identifiable identifiable, String attribute, Object newValue) {
+    default void beforeRemoval(Identifiable<?> identifiable) {
         // empty default implementation
     }
 
-    default void onElementReplaced(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+    default void afterRemoval(String id) {
         // empty default implementation
     }
 
-    default void onElementRemoved(Identifiable identifiable, String attribute, Object oldValue) {
+    default void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    default void onExtensionCreation(Extension<?> extension) {
+        // empty default implementation
+    }
+
+    default void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    default void onExtensionBeforeRemoval(Extension<?> extension) {
+        // empty default implementation
+    }
+
+    default void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        // empty default implementation
+    }
+
+    default void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
+        // empty default implementation
+    }
+
+    default void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    default void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
         // empty default implementation
     }
 

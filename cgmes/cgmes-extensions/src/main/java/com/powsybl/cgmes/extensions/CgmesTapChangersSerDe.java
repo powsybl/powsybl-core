@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
@@ -10,11 +11,12 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
@@ -47,15 +49,13 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         writer.writeStartNodes();
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
             writer.writeStartNode(getNamespaceUri(), TAP_CHANGER_ROOT_ELEMENT);
-            writer.writeStringAttribute("id", tapChanger.getId());
+            writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(tapChanger.getId(), IidmVersion.V_1_16));
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
-            if (tapChanger.isHidden()) {
-                writer.writeBooleanAttribute("hidden", true);
-                writer.writeIntAttribute("step", tapChanger.getStep()
-                        .orElseThrow(() -> new PowsyblException("Step should be defined")));
-            }
-            writer.writeStringAttribute("controlId", tapChanger.getControlId());
+            writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
+            Integer step = tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
+            writer.writeOptionalIntAttribute("step", step);
+            writer.writeStringAttribute("controlId", networkContext.anonymizeFromMinimumVersion(tapChanger.getControlId(), IidmVersion.V_1_16));
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -70,15 +70,12 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         reader.readChildNodes(elementName -> {
             if (elementName.equals(TAP_CHANGER_ROOT_ELEMENT)) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
-                        .setId(reader.readStringAttribute("id"))
+                        .setId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
                         .setType(reader.readStringAttribute("type"))
-                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false))
-                        .setControlId(reader.readStringAttribute("controlId"));
-                Integer step = reader.readIntAttribute("step");
-                if (step != null) {
-                    adder.setStep(step);
-                }
+                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
+                reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
+                adder.setControlId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("controlId"), IidmVersion.V_1_16));
                 context.getReader().readEndNode();
                 adder.add();
             } else {

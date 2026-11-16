@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -28,9 +29,9 @@ abstract class AbstractSwitchSerDe<A extends IdentifiableAdder<Switch, A>> exten
     @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeEnumAttribute("kind", s.getKind());
-        context.getWriter().writeBooleanAttribute("retained", s.isRetained());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeBooleanAttribute("retained", s.isRetained()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeBooleanAttribute("retained", s.isRetained(), false));
         context.getWriter().writeBooleanAttribute("open", s.isOpen());
-
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> context.getWriter().writeBooleanAttribute("fictitious", s.isFictitious(), false));
     }
 

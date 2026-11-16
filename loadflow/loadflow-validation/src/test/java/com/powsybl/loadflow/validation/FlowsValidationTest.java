@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
 
@@ -13,7 +14,11 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -21,11 +26,13 @@ import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class FlowsValidationTest extends AbstractValidationTest {
 
@@ -63,6 +70,7 @@ class FlowsValidationTest extends AbstractValidationTest {
     private ValidationConfig strictConfigSpecificCompatibility;
 
     @BeforeEach
+    @Override
     void setUp() throws IOException {
         super.setUp();
 
@@ -134,12 +142,12 @@ class FlowsValidationTest extends AbstractValidationTest {
 
         tieLine1 = Mockito.mock(TieLine.class);
         Mockito.when(tieLine1.getId()).thenReturn("tieLine1");
-        DanglingLine dl1 = Mockito.mock(DanglingLine.class);
-        Mockito.when(tieLine1.getDanglingLine1()).thenReturn(dl1);
+        BoundaryLine dl1 = Mockito.mock(BoundaryLine.class);
+        Mockito.when(tieLine1.getBoundaryLine1()).thenReturn(dl1);
         Mockito.when(dl1.getTerminal()).thenReturn(terminal1);
 
-        DanglingLine dl2 = Mockito.mock(DanglingLine.class);
-        Mockito.when(tieLine1.getDanglingLine2()).thenReturn(dl2);
+        BoundaryLine dl2 = Mockito.mock(BoundaryLine.class);
+        Mockito.when(tieLine1.getBoundaryLine2()).thenReturn(dl2);
         Mockito.when(dl2.getTerminal()).thenReturn(terminal2);
 
         Mockito.when(tieLine1.getR()).thenReturn(r);
@@ -169,9 +177,9 @@ class FlowsValidationTest extends AbstractValidationTest {
         double q2 = -2.3003194;
 
         assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                               mainComponent1, mainComponent2, strictConfig.getEpsilonX(), strictConfig.applyReactanceCorrection()), strictConfig, NullWriter.NULL_WRITER));
+                                               mainComponent1, mainComponent2, strictConfig.getEpsilonX(), strictConfig.applyReactanceCorrection()), strictConfig, NullWriter.INSTANCE));
 
         double r = 0.04 / (rho2 * rho2);
         double x = 0.423 / (rho2 * rho2);
@@ -179,64 +187,71 @@ class FlowsValidationTest extends AbstractValidationTest {
         double rho2 = 1;
 
         assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                               mainComponent1, mainComponent2, strictConfig.getEpsilonX(), strictConfig.applyReactanceCorrection()), strictConfig, NullWriter.NULL_WRITER));
+                                               mainComponent1, mainComponent2, strictConfig.getEpsilonX(), strictConfig.applyReactanceCorrection()), strictConfig, NullWriter.INSTANCE));
 
         // check disconnected at one end
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2, Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0f, 0f, false, connected2,
-                                            mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, new PrintWriter(System.err)));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2, Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0.2f, 0f, false, connected2,
-                                               mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2,
+            Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0f, 0f, false, connected2,
+            mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, new PrintWriter(System.err)));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2,
+            Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0.2f, 0f, false, connected2,
+            mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
 
         // check disconnected at both ends
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
-                                              false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, p1, q2, Double.NaN, Double.NaN,
-                                              false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, p2, q2,
-                                              false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN,
+            Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+            false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN,
+            Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, p1, q2, Double.NaN, Double.NaN,
+            false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN,
+            Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, p2, q2,
+            false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
 
         // check with NaN values
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                               mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, Double.NaN, rho2, u1, u2,
+            theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+            mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(true);
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, Double.NaN, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
-                                              mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, Double.NaN, rho2, u1, u2,
+            theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
+            mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(false);
     }
 
     @Test
     void checkLineFlows() {
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(line1, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(line1, looseConfig, NullWriter.INSTANCE));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE));
         Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
         Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(false);
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
     void checkTransformerFlows() {
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, looseConfig, NullWriter.INSTANCE));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE));
         Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
         Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(false);
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
     void checkTieLineFlows() {
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(tieLine1, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(tieLine1, looseConfig, NullWriter.INSTANCE));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE));
         Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
         Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(false);
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
     void checkTransformerFlowsSpecificCompatibility() {
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, looseConfigSpecificCompatibility, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfigSpecificCompatibility, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, looseConfigSpecificCompatibility, NullWriter.INSTANCE));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfigSpecificCompatibility, NullWriter.INSTANCE));
     }
 
     @Test
@@ -266,8 +281,8 @@ class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer2.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer2.getRatedU2()).thenReturn(ratedU2);
 
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer2, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer2, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer2, looseConfig, NullWriter.INSTANCE));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer2, strictConfig, NullWriter.INSTANCE));
 
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
@@ -280,7 +295,91 @@ class FlowsValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.FLOWS.check(network, looseConfig, tmpDir));
         assertFalse(ValidationType.FLOWS.check(network, strictConfig, tmpDir));
 
-        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.FLOWS);
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.INSTANCE, ValidationType.FLOWS);
         assertTrue(ValidationType.FLOWS.check(network, looseConfig, validationWriter));
+    }
+
+    @DisplayName("Rule: checks disconnected terminal 1 : P and Q must be undefined or ~0")
+    @Test
+    void checkFlowsShouldSucceedRuleWhenDisconnectedTerminal1PQShouldBeUndefinedOrZero() {
+        // Given
+        // threshold: 0.01
+        BusView busViewTerminal1 = mock(BusView.class);
+        when(busViewTerminal1.getBus()).thenReturn(null); // disconnect flow: line, tieLine, TWT
+        when(terminal1.getBusView()).thenReturn(busViewTerminal1);
+        // When
+        boolean validationLineResult = FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTieLineResult = FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTransformerResult = FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(validationLineResult);
+        assertFalse(validationTieLineResult);
+        assertFalse(validationTransformerResult);
+        // p is outside tolerance
+        assertTrue(Math.abs(terminal1.getP()) > 0.01);
+        // q is outside tolerance
+        assertTrue(Math.abs(terminal1.getQ()) > 0.01);
+    }
+
+    @DisplayName("Rule: checks disconnected terminal 2 : P and Q must be undefined or ~0")
+    @Test
+    void checkFlowsShouldSucceedRuleWhenDisconnectedTerminal2PQShouldBeUndefinedOrZero() {
+        // Given
+        // threshold: 0.01
+        BusView busViewTerminal2 = mock(BusView.class);
+        when(busViewTerminal2.getBus()).thenReturn(null); // disconnect flow: line, tieLine, TWT
+        when(terminal2.getBusView()).thenReturn(busViewTerminal2);
+        // When
+        boolean validationLineResult = FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTieLineResult = FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTransformerResult = FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(validationLineResult);
+        assertFalse(validationTieLineResult);
+        assertFalse(validationTransformerResult);
+        // p is outside tolerance
+        assertTrue(Math.abs(terminal1.getP()) > 0.01);
+        // q is outside tolerance
+        assertTrue(Math.abs(terminal1.getQ()) > 0.01);
+    }
+
+    @DisplayName("Rule: checks connected terminal : P and Q should follows Pcalc and Qcalc (consistent)")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("connectedTerminalCases")
+    void checkFlowsShouldSucceedRuleWhenConnectedTerminalAndPQConsistent(String caseName, double p1, double q1, double p2, double q2, boolean expectedValid) {
+        // Given
+        when(terminal1.getP()).thenReturn(p1); // P, terminal1
+        when(terminal1.getQ()).thenReturn(q1); // Q, terminal1
+        when(terminal2.getP()).thenReturn(p2); // P, terminal2
+        when(terminal2.getQ()).thenReturn(q2); // Q, terminal2
+        // When
+        boolean validationLineResult = FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTieLineResult = FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTransformerResult = FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertEquals(expectedValid, validationLineResult);
+        assertEquals(expectedValid, validationTieLineResult);
+        assertEquals(expectedValid, validationTransformerResult);
+    }
+
+    private static Stream<Arguments> connectedTerminalCases() {
+        // threshold = 0.01
+        // connected terminal 1
+        // branch ComputedP1: 39.50497415111174
+        // branch ComputedQ1: -3.729703101282256
+        double computedP1 = 39.50497415111174;
+        double computedQ1 = -3.729703101282256;
+        // connected terminal 2
+        // branch ComputedP2: -39.50385098344379
+        // branch ComputedQ2: 3.7415805993708426
+        double computedP2 = -39.50385098344379;
+        double computedQ2 = 3.7415805993708426;
+        return Stream.of(
+                Arguments.of("Terminal 1/2: |P - Pcalc| <= ε and |Q - Qcalc| <= ε -> valid", computedP1, computedQ1, computedP2, computedQ2, true),
+                Arguments.of("Terminal 1: |P - Pcalc| > ε and |Q - Qcalc| <= ε -> invalid", computedP1 + 0.02, computedQ1, computedP2, computedQ2, false),
+                Arguments.of("Terminal 1: |P - Pcalc| <= ε and |Q - Qcalc| > ε -> invalid", computedP1, computedQ1 + 0.02, computedP2, computedQ2, false),
+                Arguments.of("Terminal 2: |P - Pcalc| > ε and |Q - Qcalc| <= ε -> invalid", computedP1, computedQ1, computedP2 + 0.02, computedQ2, false),
+                Arguments.of("Terminal 1: |P - Pcalc| <= ε and |Q - Qcalc| > ε -> invalid", computedP1, computedQ1, computedP2, computedQ2 + 0.02, false)
+        );
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation.local;
 
@@ -41,15 +42,21 @@ public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
         for (Map.Entry<String, String> entry : env2.entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue();
-            internalCmd.append(name).append("=").append(value);
+            // A variable name sits before the '=' assignment and after '$', so it cannot be
+            // single-quoted like the value. Reject anything but alphanumerics and underscores
+            // to keep a hostile name from breaking out of the command.
+            if (!name.matches("[a-zA-Z_]\\w*")) {
+                throw new IllegalArgumentException("Invalid environment variable name");
+            }
+            internalCmd.append(name).append("=").append("'").append(singleQuoteEscape(value)).append("'");
             if (name.endsWith("PATH")) {
                 internalCmd.append(File.pathSeparator).append("$").append(name);
             }
             internalCmd.append(" ");
         }
-        internalCmd.append(program);
+        internalCmd.append("'").append(singleQuoteEscape(program)).append("'");
         for (String arg : args) {
-            internalCmd.append(" \"").append(arg).append("\"");
+            internalCmd.append(" '").append(singleQuoteEscape(arg)).append("'");
         }
 
         List<String> cmdLs = ImmutableList.<String>builder()
@@ -63,5 +70,9 @@ public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
     @Override
     void nonZeroLog(List<String> cmdLs, int exitCode) {
         LOGGER.debug(NON_ZERO_LOG_PATTERN, cmdLs, exitCode);
+    }
+
+    private static String singleQuoteEscape(String value) {
+        return value.replace("'", "'\\''");
     }
 }

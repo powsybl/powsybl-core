@@ -1,0 +1,11 @@
+{
+  "version" : "1.0",
+  "dynamic-simulation-parameters" : {
+    "version" : "1.0",
+    "startTime" : 0.0,
+    "stopTime" : 20.5
+  },
+  "contingencies-parameters" : {
+    "contingencies-start-time" : 5.5
+  }
+}

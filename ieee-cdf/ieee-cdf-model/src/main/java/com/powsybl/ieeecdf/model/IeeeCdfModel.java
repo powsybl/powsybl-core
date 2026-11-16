@@ -3,8 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.model;
+
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBranch;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBus;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfInterchangeData;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfLossZone;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfTieLine;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfTitle;
 
 import java.util.ArrayList;
 import java.util.List;

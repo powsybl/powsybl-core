@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -10,17 +11,19 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public abstract class AbstractApparentPowerLimitsTest {
+public abstract class AbstractApparentPowerLimitsTest extends AbstractIdenticalLimitsTest {
 
     private static Network createNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
         Line line = network.getLine("NHV1_NHV2_2");
-        line.newApparentPowerLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits()
                 .setPermanentLimit(300)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -33,7 +36,7 @@ public abstract class AbstractApparentPowerLimitsTest {
                 .setValue(350)
                 .endTemporaryLimit()
                 .add();
-        line.newApparentPowerLimits2()
+        line.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits()
                 .setPermanentLimit(310)
                 .add();
         return network;
@@ -74,4 +77,49 @@ public abstract class AbstractApparentPowerLimitsTest {
         apparentPowerLimits2.remove();
         assertTrue(l.getActivePowerLimits2().isEmpty());
     }
+
+    @Test
+    public void testAdderByCopy() {
+        // First limit
+        Network network = createNetwork();
+        Line line = network.getLine("NHV1_NHV2_2");
+
+        ApparentPowerLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL3")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1600.0)
+                .endTemporaryLimit();
+        adder.add();
+        ApparentPowerLimits limits1 = line.getApparentPowerLimits1().get();
+
+        // Second limit
+        ApparentPowerLimitsAdder adder2 = line.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits(limits1);
+
+        adder2.add();
+
+        Optional<ApparentPowerLimits> optionalLimits2 = line.getApparentPowerLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        ApparentPowerLimits limits2 = optionalLimits2.get();
+
+        // Tests
+        assertTrue(areLimitsIdentical(limits1, limits2));
+
+        adder = line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits(limits2);
+        adder.add();
+
+        assertTrue(areLimitsIdentical(limits1, limits2));
+    }
+
 }

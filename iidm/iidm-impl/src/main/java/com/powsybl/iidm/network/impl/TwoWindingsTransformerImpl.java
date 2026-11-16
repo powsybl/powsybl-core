@@ -3,15 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
+
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -40,10 +41,10 @@ class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTr
 
     private PhaseTapChangerImpl phaseTapChanger;
 
-    TwoWindingsTransformerImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious,
+    TwoWindingsTransformerImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, boolean equivalent,
                                SubstationImpl substation,
                                double r, double x, double g, double b, double ratedU1, double ratedU2, double ratedS) {
-        super(network, id, name, fictitious);
+        super(network, id, name, fictitious, equivalent);
         this.substation = substation;
         this.r = r;
         this.x = x;
@@ -193,8 +194,8 @@ class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTr
     }
 
     @Override
-    public Set<TapChanger<?, ?>> getAllTapChangers() {
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+    public Set<TapChanger<?, ?, ?, ?>> getAllTapChangers() {
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         if (ratioTapChanger != null) {
             tapChangers.add(ratioTapChanger);
         }
@@ -283,5 +284,16 @@ class TwoWindingsTransformerImpl extends AbstractConnectableBranch<TwoWindingsTr
     @Override
     protected String getTypeDescription() {
         return "2 windings transformer";
+    }
+
+    @Override
+    public void remove() {
+        if (ratioTapChanger != null) {
+            ratioTapChanger.remove();
+        }
+        if (phaseTapChanger != null) {
+            phaseTapChanger.remove();
+        }
+        super.remove();
     }
 }

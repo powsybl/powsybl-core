@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:dc_bus_branch_EQ">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>DC bus branch</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Subgeographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_ST_1">
+    <cim:IdentifiedObject.name>Substation 1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_1">
+    <cim:IdentifiedObject.name>Voltage level 1 225</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_225"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:DCConverterUnit rdf:ID="_DCCU_1_P">
+    <cim:IdentifiedObject.name>DC converter unit 1 P</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_1"/>
+</cim:DCConverterUnit>
+<cim:CsConverter rdf:ID="_CSC_1_P">
+    <cim:IdentifiedObject.name>Current source converter 1 P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_P"/>
+    <cim:ACDCConverter.ratedUdc>250</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.1</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0003</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>0.6</cim:ACDCConverter.resistiveLoss>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_1_P">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 P</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_1_P"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_P">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 P</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_P"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_1_G">
+    <cim:IdentifiedObject.name>Terminal Current source converter 1 G</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_1_P"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCConverterUnit rdf:ID="_DCCU_1_N">
+    <cim:IdentifiedObject.name>DC converter unit 1 N</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_1"/>
+</cim:DCConverterUnit>
+<cim:VsConverter rdf:ID="_VSC_1_N">
+    <cim:IdentifiedObject.name>Voltage source converter 1 N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_1_N"/>
+    <cim:ACDCConverter.ratedUdc>500</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.2</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0006</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>1.2</cim:ACDCConverter.resistiveLoss>
+    <cim:VsConverter.CapabilityCurve rdf:resource="#_VSCC"/>
+</cim:VsConverter>
+<cim:Terminal rdf:ID="_T_VSC_1">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_VSC_1_N"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_1_G">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 1 G</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_1_N"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_1_N">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 1 N</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_1_N"/>
+</cim:ACDCConverterDCTerminal>
+<cim:VsCapabilityCurve rdf:ID="_VSCC">
+    <cim:IdentifiedObject.name>Voltage source capability curve</cim:IdentifiedObject.name>
+    <cim:Curve.curveStyle rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.straightLineYValues"/>
+    <cim:Curve.xUnit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W"/>
+    <cim:Curve.y1Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
+    <cim:Curve.y2Unit rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr"/>
+</cim:VsCapabilityCurve>
+<cim:CurveData rdf:ID="_CD_1">
+    <cim:CurveData.xvalue>-525</cim:CurveData.xvalue>
+    <cim:CurveData.y1value>-100</cim:CurveData.y1value>
+    <cim:CurveData.y2value>100</cim:CurveData.y2value>
+    <cim:CurveData.Curve rdf:resource="#_VSCC"/>
+</cim:CurveData>
+<cim:CurveData rdf:ID="_CD_2">
+    <cim:CurveData.xvalue>0</cim:CurveData.xvalue>
+    <cim:CurveData.y1value>-315</cim:CurveData.y1value>
+    <cim:CurveData.y2value>315</cim:CurveData.y2value>
+    <cim:CurveData.Curve rdf:resource="#_VSCC"/>
+</cim:CurveData>
+<cim:CurveData rdf:ID="_CD_3">
+    <cim:CurveData.xvalue>525</cim:CurveData.xvalue>
+    <cim:CurveData.y1value>-100</cim:CurveData.y1value>
+    <cim:CurveData.y2value>100</cim:CurveData.y2value>
+    <cim:CurveData.Curve rdf:resource="#_VSCC"/>
+</cim:CurveData>
+<cim:Substation rdf:ID="_ST_2">
+    <cim:IdentifiedObject.name>Substation 2</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_2">
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_225"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:DCConverterUnit rdf:ID="_DCCU_2_P">
+    <cim:IdentifiedObject.name>DC converter unit 2 P</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_2"/>
+</cim:DCConverterUnit>
+<cim:CsConverter rdf:ID="_CSC_2_P">
+    <cim:IdentifiedObject.name>Current source converter 2 P</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_P"/>
+    <cim:ACDCConverter.ratedUdc>250</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.1</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0003</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>0.6</cim:ACDCConverter.resistiveLoss>
+</cim:CsConverter>
+<cim:Terminal rdf:ID="_T_CSC_2">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 P</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_CSC_2_P"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_P">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 P</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_P"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_CSC_2_G">
+    <cim:IdentifiedObject.name>Terminal Current source converter 2 G</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_CSC_2_P"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCConverterUnit rdf:ID="_DCCU_2_N">
+    <cim:IdentifiedObject.name>DC converter unit 2 N</cim:IdentifiedObject.name>
+    <cim:DCConverterUnit.operationMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.bipolar"/>
+    <cim:DCConverterUnit.Substation rdf:resource="#_ST_2"/>
+</cim:DCConverterUnit>
+<cim:VsConverter rdf:ID="_VSC_2_N">
+    <cim:IdentifiedObject.name>Voltage source converter 2 N</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_DCCU_2_N"/>
+    <cim:ACDCConverter.ratedUdc>500</cim:ACDCConverter.ratedUdc>
+    <cim:ACDCConverter.idleLoss>0.2</cim:ACDCConverter.idleLoss>
+    <cim:ACDCConverter.switchingLoss>0.0006</cim:ACDCConverter.switchingLoss>
+    <cim:ACDCConverter.resistiveLoss>1.2</cim:ACDCConverter.resistiveLoss>
+</cim:VsConverter>
+<cim:Terminal rdf:ID="_T_VSC_2">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 2 N</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_VSC_2_N"/>
+</cim:Terminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_2_G">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 2 G</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_2_N"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_2_N">
+    <cim:IdentifiedObject.name>Terminal Voltage source converter 2 N</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_2_N"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCLineSegment rdf:ID="_DCL_P">
+    <cim:IdentifiedObject.name>DC line P</cim:IdentifiedObject.name>
+    <cim:DCLineSegment.resistance>0.5</cim:DCLineSegment.resistance>
+</cim:DCLineSegment>
+<cim:DCTerminal rdf:ID="_T_DCL_P_1">
+    <cim:IdentifiedObject.name>Terminal DC line P 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCL_P_2">
+    <cim:IdentifiedObject.name>Terminal DC line P 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_P"/>
+</cim:DCTerminal>
+<cim:DCLineSegment rdf:ID="_DCL_N">
+    <cim:IdentifiedObject.name>DC line N</cim:IdentifiedObject.name>
+    <cim:DCLineSegment.resistance>1.0</cim:DCLineSegment.resistance>
+</cim:DCLineSegment>
+<cim:DCTerminal rdf:ID="_T_DCL_N_1">
+    <cim:IdentifiedObject.name>Terminal DC line N 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:ID="_T_DCL_N_2">
+    <cim:IdentifiedObject.name>Terminal DC line N 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_N"/>
+</cim:DCTerminal>
+<cim:BaseVoltage rdf:ID="_BV_225">
+    <cim:IdentifiedObject.name>225 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>225</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+</rdf:RDF>

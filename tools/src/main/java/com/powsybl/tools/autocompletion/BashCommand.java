@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools.autocompletion;
 
@@ -20,6 +21,10 @@ public class BashCommand {
     private final String name;
 
     private final List<BashOption> options;
+
+    public BashCommand(String name) {
+        this(name, new ArrayList<>());
+    }
 
     public BashCommand(String name, BashOption... options) {
         this(name, Arrays.asList(options));
@@ -39,10 +44,6 @@ public class BashCommand {
             commands.add(new BashCommand(commandName, options));
         }
         return commands;
-    }
-
-    public BashCommand(String name) {
-        this(name, new ArrayList<>());
     }
 
     public String getName() {

@@ -3,24 +3,27 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.powsybl.psse.model.PsseVersion.Major.*;
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE;
 
@@ -31,16 +34,10 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TWO_TERMINAL_DC_
  */
 class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTerminalDcTransmissionLine> {
 
-    private static final String[] FIELD_NAMES_32_33 = {"name", "mdc", "rdc", "setvl", "vschd", "vcmod", "rcomp", "delti", "meter", "dcvmin", "cccitmx", "cccacc"};
-    private static final String[] FIELD_NAMES_CONVERTER_32_33 = {"ip", "nb", "anmx", "anmn", "rc", "xc", "ebas", "tr", "tap", "tmx", "tmn", "stp", "ic", "if", "it", "id", "xcap"};
-
     TwoTerminalDcTransmissionLineData() {
-        super(TWO_TERMINAL_DC_TRANSMISSION_LINE);
+        super(TWO_TERMINAL_DC_TRANSMISSION_LINE, PsseTwoTerminalDcTransmissionLine.getFieldNames());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
-        withFieldNames(V32, FIELD_NAMES_32_33);
-        withFieldNames(V33, FIELD_NAMES_32_33);
-        withFieldNames(V35, "name", "mdc", "rdc", "setvl", "vschd", "vcmod", "rcomp", "delti", "met", "dcvmin", "cccitmx", "cccacc");
-        withQuotedFields("name", "meter", "idr", "idi", "met");
+        withQuotedFields(PsseTwoTerminalDcTransmissionLine.getFieldNamesString());
     }
 
     @Override
@@ -55,16 +52,16 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
         }
 
         @Override
-        public List<PsseTwoTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseTwoTerminalDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
-            if (!isQRecordFound()) {
-                String line = readRecordLine(reader);
-                while (!endOfBlock(line)) {
+            if (!reader.isQRecordFound()) {
+                String line = reader.readUntilFindingARecordLineNotEmpty();
+                while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);
-                    converterRecords.add(readRecordLine(reader));
-                    converterRecords.add(readRecordLine(reader));
-                    line = readRecordLine(reader);
+                    converterRecords.add(reader.readRecordLine());
+                    converterRecords.add(reader.readRecordLine());
+                    line = reader.readUntilFindingARecordLineNotEmpty();
                 }
             }
 
@@ -87,8 +84,9 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
 
             PsseTwoTerminalDcConverterRecordData converterRecordData = new PsseTwoTerminalDcConverterRecordData();
             String[] mainHeaders = context.getFieldNames(TWO_TERMINAL_DC_TRANSMISSION_LINE);
-            String[] quotedFields = super.recordGroup.quotedFields();
+            String[] mainQuotedFields = super.recordGroup.quotedFields();
             String[] converterHeaders = context.getFieldNames(INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER);
+            String[] converterQuotedFields = converterRecordData.quotedFields();
 
             List<PsseTwoTerminalDcTransmissionLine> mainList = new ArrayList<>();
             List<PsseTwoTerminalDcConverter> converterList = new ArrayList<>();
@@ -99,8 +97,8 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
                 converterList.add(twoTerminalDc.getInverter());
             });
 
-            List<String> mainStringList = super.recordGroup.buildRecords(mainList, mainHeaders, quotedFields, context);
-            List<String> converterStringList = converterRecordData.buildRecords(converterList, converterHeaders, quotedFields, context);
+            List<String> mainStringList = super.recordGroup.buildRecords(mainList, mainHeaders, mainQuotedFields, context);
+            List<String> converterStringList = converterRecordData.buildRecords(converterList, converterHeaders, converterQuotedFields, context);
 
             writeBegin(outputStream);
             int index = 0;
@@ -117,10 +115,10 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
         private static class PsseTwoTerminalDcConverterRecordData extends AbstractRecordGroup<PsseTwoTerminalDcConverter> {
             PsseTwoTerminalDcConverterRecordData() {
                 super(INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER);
-                withFieldNames(V32, FIELD_NAMES_CONVERTER_32_33);
-                withFieldNames(V33, FIELD_NAMES_CONVERTER_32_33);
-                withFieldNames(V35, "ip", "nb", "anmx", "anmn", "rc", "xc", "ebas", "tr", "tap", "tmx", "tmn", "stp", "ic", "nd", "if", "it", "id", "xcap");
-                withQuotedFields();
+                withFieldNames(V32, PsseTwoTerminalDcConverter.getFieldNames3233());
+                withFieldNames(V33, PsseTwoTerminalDcConverter.getFieldNames3233());
+                withFieldNames(V35, PsseTwoTerminalDcConverter.getFieldNames35());
+                withQuotedFields(PsseTwoTerminalDcConverter.getFieldNamesString());
             }
 
             @Override

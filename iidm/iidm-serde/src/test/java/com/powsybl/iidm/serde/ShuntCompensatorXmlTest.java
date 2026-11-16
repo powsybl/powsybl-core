@@ -3,22 +3,27 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -79,11 +84,46 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         ShuntCompensator sc = n.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
 
-        network.getShuntCompensator("SHUNT").setVoltageRegulatorOn(false).setTargetV(Double.NaN).setTargetDeadband(Double.NaN).setRegulatingTerminal(null);
+        ShuntCompensator scFromNetwork = network.getShuntCompensator("SHUNT");
+        scFromNetwork.removeVoltageRegulation();
+        scFromNetwork.setLocalTargetV(Double.NaN);
+
         NetworkSerDe.write(network, new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")), path);
         Network n2 = NetworkSerDe.read(path);
         ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+    }
+
+    @Test
+    void solvedSectionCount() throws IOException {
+        Network network = ShuntTestCaseFactory.create();
+        network.getShuntCompensator("SHUNT").setSolvedSectionCount(1);
+
+        allFormatsRoundTripTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntWithSolvedSectionCountRoundTripRef.xml", IidmVersion.V_1_14);
+    }
+
+    @ParameterizedTest(name = "import using {1} format")
+    @CsvSource({"shuntOldTagName.xml,XML", "shuntOldTagName.jiidm,JSON"})
+    void shouldRejectShuntOldTagName(String fileName, String format) {
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            //Given (XML and JSON format)
+            InputStream inputStream = getVersionedNetworkAsStream(fileName, version);
+            //When
+            TreeDataFormat treeDataFormat = TreeDataFormat.valueOf(format);
+            ImportOptions options = new ImportOptions().setFormat(treeDataFormat);
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(inputStream, options, null));
+            //Then
+            assertThat(e.getMessage()).isEqualTo("shunt is not supported for IIDM version " + version.toString(".") + ". IIDM version should be <= 1.15");
+        });
+    }
+
+    @Test
+    void roundTripTest() throws IOException {
+        // backward compatibility
+        roundTripVersionedJsonFromMinVersionTest("shuntCompensator.jiidm", IidmVersion.V_1_16);
     }
 
     private void write(Network network, String version) {

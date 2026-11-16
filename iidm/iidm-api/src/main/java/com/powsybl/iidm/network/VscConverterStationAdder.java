@@ -3,8 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
  * VSC converter station builder and adder.
@@ -12,14 +16,33 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscConverterStation, VscConverterStationAdder> {
+public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscConverterStation, VscConverterStationAdder>,
+        VoltageRegulationHolderAdder<VscConverterStationAdder> {
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withRegulating(boolean)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
+    /**
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetV(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     VscConverterStationAdder setVoltageSetpoint(double voltageSetpoint);
 
+    /**
+     * @deprecated if the terminal is present, use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     * else use {@link #setLocalTargetQ(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} with {@link VoltageRegulationAdder#withTerminal(Terminal)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         return this;
     }

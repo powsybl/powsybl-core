@@ -3,65 +3,66 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements MultiVariantObject {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> extends AbstractPropertiesHolder implements MultiVariantObject {
 
     protected final Ref<? extends VariantManagerHolder> network;
 
     protected final H parent;
 
+    protected boolean loadTapChangingCapabilities;
+
     protected int lowTapPosition;
 
-    protected final Integer relativeNeutralPosition;
+    protected Integer relativeNeutralPosition;
 
-    protected final List<S> steps;
+    protected List<S> steps;
 
-    private final String type;
-
-    protected final RegulatingPoint regulatingPoint;
+    protected final String type;
 
     // attributes depending on the variant
 
     protected final ArrayList<Integer> tapPosition;
 
-    protected final TDoubleArrayList targetDeadband;
+    protected final ArrayList<Integer> solvedTapPosition;
 
     protected AbstractTapChanger(H parent,
-                                 int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
-                                 Integer tapPosition, boolean regulating, double targetDeadband, String type) {
+                                 int lowTapPosition, List<S> steps,
+                                 boolean loadTapChangingCapabilities,
+                                 Integer tapPosition, Integer solvedTapPosition, String type) {
         // The Ref object should be the one corresponding to the subnetwork of the tap changer holder
         // (to avoid errors when the subnetwork is detached)
         this.network = parent.getParentNetwork().getRootNetworkRef();
         this.parent = parent;
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
         steps.forEach(s -> s.setParent(this));
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        regulatingPoint = createRegulatingPoint(variantArraySize, regulating);
-        regulatingPoint.setRegulatingTerminal(regulationTerminal);
         this.tapPosition = new ArrayList<>(variantArraySize);
-        this.targetDeadband = new TDoubleArrayList(variantArraySize);
+        this.solvedTapPosition = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.tapPosition.add(tapPosition);
-            this.targetDeadband.add(targetDeadband);
+            this.solvedTapPosition.add(solvedTapPosition);
         }
         this.type = Objects.requireNonNull(type);
         relativeNeutralPosition = getRelativeNeutralPosition();
     }
-
-    protected abstract RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating);
 
     protected NetworkImpl getNetwork() {
         return parent.getNetwork();
@@ -104,6 +105,15 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return position == null ? OptionalInt.empty() : OptionalInt.of(position);
     }
 
+    public Integer getSolvedTapPosition() {
+        return solvedTapPosition.get(network.get().getVariantIndex());
+    }
+
+    public OptionalInt findSolvedTapPosition() {
+        Integer solvedPosition = solvedTapPosition.get(network.get().getVariantIndex());
+        return solvedPosition == null ? OptionalInt.empty() : OptionalInt.of(solvedPosition);
+    }
+
     public OptionalInt getNeutralPosition() {
         return relativeNeutralPosition != null ? OptionalInt.of(lowTapPosition + relativeNeutralPosition) : OptionalInt.empty();
     }
@@ -113,10 +123,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setTapPosition(int tapPosition) {
         NetworkImpl n = getNetwork();
         if (tapPosition < lowTapPosition
-                || tapPosition > getHighTapPosition()) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + getHighTapPosition() + "]");
+            || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, getHighTapPosition());
         }
         int variantIndex = n.getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
@@ -128,7 +136,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C unsetTapPosition() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel());
+        ValidationUtil.throwExceptionOrIgnore(parent, "tap position has been unset", n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -137,13 +145,55 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return (C) this;
     }
 
+    public C setSolvedTapPosition(int solvedTapPosition) {
+        NetworkImpl n = getNetwork();
+        if (solvedTapPosition < lowTapPosition
+            || solvedTapPosition > getHighTapPosition()) {
+            throwIncorrectSolvedTapPosition(solvedTapPosition, getHighTapPosition());
+        }
+        int variantIndex = n.getVariantIndex();
+        Integer oldValue = this.solvedTapPosition.set(variantIndex, solvedTapPosition);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".solvedTapPosition", variantId, oldValue, solvedTapPosition);
+        return (C) this;
+    }
+
+    public C unsetSolvedTapPosition() {
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
+        Integer oldValue = this.solvedTapPosition.set(variantIndex, null);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".solvedTapPosition", variantId, oldValue, null);
+        return (C) this;
+    }
+
     public S getStep(int tapPosition) {
         if (tapPosition < lowTapPosition || tapPosition > getHighTapPosition()) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", " + getHighTapPosition()
-                    + "]");
+            throwIncorrectTapPosition(tapPosition, getHighTapPosition());
         }
         return steps.get(tapPosition - lowTapPosition);
+    }
+
+    protected C setSteps(List<S> steps) {
+        if (steps == null || steps.isEmpty()) {
+            throw new ValidationException(parent, "a tap changer shall have at least one step");
+        }
+        steps.forEach(step -> step.validate(parent));
+
+        // We check if the tap position is still correct
+        int newHighTapPosition = lowTapPosition + steps.size() - 1;
+        if (getTapPosition() > newHighTapPosition) {
+            throwIncorrectTapPosition(getTapPosition(), newHighTapPosition);
+        }
+        // We check if the solved tap position is still correct
+        OptionalInt solvedTap = findSolvedTapPosition();
+        if (solvedTap.isPresent() && solvedTap.getAsInt() > newHighTapPosition) {
+            throwIncorrectSolvedTapPosition(solvedTap.getAsInt(), newHighTapPosition);
+        }
+
+        this.steps = steps;
+        this.relativeNeutralPosition = getRelativeNeutralPosition();
+        return (C) this;
     }
 
     public S getCurrentStep() {
@@ -154,60 +204,22 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return getStep(position);
     }
 
-    public boolean isRegulating() {
-        return regulatingPoint.isRegulating(network.get().getVariantIndex());
-    }
-
-    public C setRegulating(boolean regulating) {
-        NetworkImpl n = getNetwork();
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel());
-        boolean oldValue = regulatingPoint.setRegulating(variantIndex, regulating);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
-        return (C) this;
-    }
-
-    public TerminalExt getRegulationTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
-    }
-
-    public C setRegulationTerminal(Terminal regulationTerminal) {
-        if (regulationTerminal != null && ((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
-            throw new ValidationException(parent, "regulation terminal is not part of the network");
+    public S getSolvedCurrentStep() {
+        Integer solvedPosition = solvedTapPosition.get(network.get().getVariantIndex());
+        if (solvedPosition == null) {
+            return null;
         }
-        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
-        regulatingPoint.setRegulatingTerminal((TerminalExt) regulationTerminal);
-        getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulationTerminal", oldValue, regulationTerminal);
-        return (C) this;
-    }
-
-    public double getTargetDeadband() {
-        return targetDeadband.get(network.get().getVariantIndex());
-    }
-
-    public C setTargetDeadband(double targetDeadband) {
-        int variantIndex = network.get().getVariantIndex();
-        NetworkImpl n = getNetwork();
-        ValidationUtil.checkTargetDeadband(parent, type, regulatingPoint.isRegulating(variantIndex),
-                targetDeadband, n.getMinValidationLevel());
-        double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
-        return (C) this;
+        return getStep(solvedPosition);
     }
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        targetDeadband.ensureCapacity(targetDeadband.size() + number);
         tapPosition.ensureCapacity(tapPosition.size() + number);
+        solvedTapPosition.ensureCapacity(solvedTapPosition.size() + number);
         for (int i = 0; i < number; i++) {
             tapPosition.add(tapPosition.get(sourceIndex));
-            targetDeadband.add(targetDeadband.get(sourceIndex));
+            solvedTapPosition.add(solvedTapPosition.get(sourceIndex));
         }
-        regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
@@ -215,22 +227,36 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         List<Integer> tmpInt = new ArrayList<>(tapPosition.subList(0, tapPosition.size() - number));
         tapPosition.clear();
         tapPosition.addAll(tmpInt);
-        targetDeadband.remove(targetDeadband.size() - number, number);
-        regulatingPoint.reduceVariantArraySize(number);
+        List<Integer> tmpSolvedTapPosition = new ArrayList<>(solvedTapPosition.subList(0, solvedTapPosition.size() - number));
+        solvedTapPosition.clear();
+        solvedTapPosition.addAll(tmpSolvedTapPosition);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        regulatingPoint.deleteVariantArrayElement(index);
+        // nothing to do
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         for (int index : indexes) {
             tapPosition.set(index, tapPosition.get(sourceIndex));
-            targetDeadband.set(index, targetDeadband.get(sourceIndex));
+            solvedTapPosition.set(index, solvedTapPosition.get(sourceIndex));
         }
-        regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
+    private void throwIncorrectTapPosition(int tapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
+    }
+
+    private void throwIncorrectSolvedTapPosition(int solvedTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect solved tap position "
+            + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
+    }
+
+    public void remove() {
+    }
 }

@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.Objects;
@@ -22,6 +24,7 @@ import java.util.Optional;
  * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonTypeName(".IdBasedBusRef")
 public class IdBasedBusRef extends AbstractBusRef {
 
     private final String id;

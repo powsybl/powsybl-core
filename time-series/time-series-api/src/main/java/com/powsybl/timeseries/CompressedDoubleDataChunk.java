@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -53,7 +54,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
     }
 
     //To remove if we ever get it from somewhere else
-    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+    @FunctionalInterface private interface DoubleIntConsumer { void accept(double a, int b); }
 
     private void forEachMaterializedValueIndex(DoubleIntConsumer consumer) {
         int k = 0;
@@ -77,10 +78,51 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
         forEachMaterializedValueIndex((v, i) -> buffer.put(timeSeriesOffset + i, v));
     }
 
+    /**
+     * Get an uncompressed point iterator (i.e., there will be {@code uncompressedLength} elements in the iterator).
+     *
+     * @param index the time series index
+     * @return a point iterator
+     */
     @Override
-    public Iterator<DoublePoint> iterator(TimeSeriesIndex index) {
+    public Iterator<DoublePoint> uncompressedIterator(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
-        return new Iterator<DoublePoint>() {
+        return new Iterator<>() {
+
+            private int i = offset;
+            private int step = 0;
+            private int stepLimit = offset + stepLengths[0];
+
+            @Override
+            public boolean hasNext() {
+                return i < offset + uncompressedLength;
+            }
+
+            @Override
+            public DoublePoint next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                DoublePoint point = new DoublePoint(i, index.getInstantAt(i), stepValues[step]);
+                i++;
+                if (i >= stepLimit && step + 1 < stepLengths.length) {
+                    step++;
+                    stepLimit += stepLengths[step];
+                }
+                return point;
+            }
+        };
+    }
+
+    /**
+     * Get an RLE (Run-Length encoding) compressed point iterator.
+     * @param index the time series index
+     * @return a compressed point iterator
+     */
+    @Override
+    public Iterator<DoublePoint> compressedIterator(TimeSeriesIndex index) {
+        Objects.requireNonNull(index);
+        return new Iterator<>() {
 
             private int i = offset;
             private int step = 0;
@@ -95,7 +137,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                DoublePoint point = new DoublePoint(i, index.getTimeAt(i), stepValues[step]);
+                DoublePoint point = new DoublePoint(i, index.getInstantAt(i), stepValues[step]);
                 i += stepLengths[step];
                 step++;
                 return point;
@@ -103,10 +145,29 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
         };
     }
 
+    /**
+     * Get an uncompressed point stream (i.e., there will be {@code uncompressedLength} elements in the stream).
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
     @Override
-    public Stream<DoublePoint> stream(TimeSeriesIndex index) {
+    public Stream<DoublePoint> uncompressedStream(TimeSeriesIndex index) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-                iterator(index),
+            uncompressedIterator(index),
+            Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
+    }
+
+    /**
+     * Get an RLE (Run-Length encoding) compressed point stream.
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
+    @Override
+    public Stream<DoublePoint> compressedStream(TimeSeriesIndex index) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+                compressedIterator(index),
                 Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
     }
 
@@ -124,7 +185,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
         }
         int index = offset;
         for (int step = 0; step < stepLengths.length; step++) {
-            if (index + stepLengths[step] > splitIndex) {
+            if (index + stepLengths[step] >= splitIndex) {
                 // first chunk
                 int[] stepLengths1 = new int[step + 1];
                 double[] stepValues1 = new double[stepLengths1.length];
@@ -132,15 +193,17 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
                 System.arraycopy(stepValues, 0, stepValues1, 0, stepValues1.length);
                 stepLengths1[step] = splitIndex - index;
                 CompressedDoubleDataChunk chunk1 = new CompressedDoubleDataChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
-
                 // second chunk
-                int[] stepLengths2 = new int[stepLengths.length - step];
+                boolean splitOnBoundary = splitIndex == index + stepLengths[step];
+                int calculatedStep = splitOnBoundary ? step + 1 : step;
+                int[] stepLengths2 = new int[stepLengths.length - calculatedStep];
                 double[] stepValues2 = new double[stepLengths2.length];
-                System.arraycopy(stepLengths, step, stepLengths2, 0, stepLengths2.length);
-                System.arraycopy(stepValues, step, stepValues2, 0, stepValues2.length);
-                stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                System.arraycopy(stepLengths, calculatedStep, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, calculatedStep, stepValues2, 0, stepValues2.length);
+                if (!splitOnBoundary) {
+                    stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                }
                 CompressedDoubleDataChunk chunk2 = new CompressedDoubleDataChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
-
                 return new Split<>(chunk1, chunk2);
             }
             index += stepLengths[step];
@@ -170,7 +233,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
             //Step lengths
             newStepLengths = new int[stepLengths.length + chunk.getStepLengths().length - 1];
             System.arraycopy(stepLengths, 0, newStepLengths, 0, stepLengths.length);
-            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + newStepLengths[0];
+            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + chunk.getStepLengths()[0];
             System.arraycopy(chunk.getStepLengths(), 1, newStepLengths, stepLengths.length, chunk.getStepLengths().length - 1);
 
             //Step values

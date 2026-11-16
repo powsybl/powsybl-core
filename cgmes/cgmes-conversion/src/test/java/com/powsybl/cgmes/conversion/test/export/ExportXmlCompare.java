@@ -3,17 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -32,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,34 +44,40 @@ final class ExportXmlCompare {
     private ExportXmlCompare() {
     }
 
-    static void compareNetworks(Path expected, Path actual) throws IOException {
+    static boolean compareNetworks(Path expected, Path actual) {
         try (InputStream expectedIs = Files.newInputStream(expected);
             InputStream actualIs = Files.newInputStream(actual)) {
-            compareNetworks(expectedIs, actualIs);
+            return compareNetworks(expectedIs, actualIs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    static void compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+    static boolean compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) {
         try (InputStream expectedIs = Files.newInputStream(expected);
              InputStream actualIs = Files.newInputStream(actual)) {
-            compareNetworks(expectedIs, actualIs, knownDiffs);
+            return compareNetworks(expectedIs, actualIs, knownDiffs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    static void compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+    static boolean compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) {
         try (InputStream expectedIs = Files.newInputStream(expected);
              InputStream actualIs = Files.newInputStream(actual)) {
-            compareEQNetworks(expectedIs, actualIs, knownDiffs);
+            return compareEQNetworks(expectedIs, actualIs, knownDiffs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    static void compareNetworks(InputStream expected, InputStream actual) {
-        compareNetworks(expected, actual, DifferenceEvaluators.chain(
+    static boolean compareNetworks(InputStream expected, InputStream actual) {
+        return compareNetworks(expected, actual, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator));
     }
 
-    static void compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+    static boolean compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -88,9 +90,10 @@ final class ExportXmlCompare {
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertFalse(diff.hasDifferences());
+        return !diff.hasDifferences();
     }
 
-    static void compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+    static boolean compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -104,6 +107,7 @@ final class ExportXmlCompare {
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertFalse(diff.hasDifferences());
+        return !diff.hasDifferences();
     }
 
     static boolean isConsideredForNetwork(Attr attr) {
@@ -122,7 +126,7 @@ final class ExportXmlCompare {
         String elementName = attr.getOwnerElement().getLocalName();
         boolean ignored = false;
         if (elementName != null) {
-            if (elementName.equals("danglingLine")) {
+            if ("boundaryLine".equals(elementName)) {
                 ignored = true;
             } else if (elementName.startsWith("network")) {
                 ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
@@ -132,12 +136,14 @@ final class ExportXmlCompare {
                 ignored = attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
-                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband") || attr.getLocalName().equals("solvedTapPosition");
             } else if (elementName.startsWith("generator")) {
                 // ratedS is optional for generators,
                 // but we always export it to keep up with the quality of datasets rules.
                 // So we do not enforce this attribute to be equal in the original and exported network
-                ignored = attr.getLocalName().equals("ratedS");
+                ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus");
+            } else if (elementName.startsWith("shunt")) {
+                ignored = attr.getLocalName().equals("solvedSectionCount") || attr.getLocalName().equals("bus");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -208,9 +214,9 @@ final class ExportXmlCompare {
     private static boolean isConsideredEQNode(Node n) {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
-            return !name.startsWith("danglingLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
+            return !name.startsWith("boundaryLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
                     && !name.startsWith("property") && !name.startsWith("regulatingTerminal") && !name.startsWith("terminalRef")
-                    && !isDanglingLineConversion(n) && !isNodeBreakerProperty(n);
+                    && !isBoundaryLineConversion(n) && !isNodeBreakerProperty(n);
         }
         return false;
     }
@@ -222,7 +228,7 @@ final class ExportXmlCompare {
         return false;
     }
 
-    private static boolean isDanglingLineConversion(Node n) {
+    private static boolean isBoundaryLineConversion(Node n) {
         String name = n.getLocalName();
         return name.startsWith("substation") && SMALLGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent())
                 || name.startsWith("voltageLevel") && SMALLGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent())
@@ -233,14 +239,6 @@ final class ExportXmlCompare {
                 || name.startsWith("substation") && MICROGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent())
                 || name.startsWith("voltageLevel") && MICROGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent())
                 || name.startsWith("line") && MICROGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent());
-    }
-
-    interface DifferenceBuilder {
-        DiffBuilder build(InputStream control, InputStream test, DifferenceEvaluator de);
-    }
-
-    static DiffBuilder diffSV(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSvObjects(ignoringNonPersistentSvIds(withSelectedSvNodes(diff(expected, actual, de))));
     }
 
     static DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
@@ -259,46 +257,19 @@ final class ExportXmlCompare {
         return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de1))));
     }
 
-    static void compareSV(InputStream expected, InputStream actual) {
-        onlyNodeListSequenceDiffs(compare(diffSV(expected, actual, DifferenceEvaluators.Default).checkForIdentical()));
+    static boolean compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+        return onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
-    static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
-        onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
-    }
-
-    static void compare(ReadOnlyDataSource dsExpected, DataSource dsActual, String profile, DifferenceBuilder diff, DifferenceEvaluator knownDiffs, String originalBaseName)
-            throws IOException {
-        String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
-        String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
-        LOG.debug("Compare {} export using CGMES original model and using only Network. Files:", profile);
-        LOG.debug("   using CGMES        {}", svExpected);
-        LOG.debug("   using Network only {}", svActual);
-        assertTrue(svExpected.contains(originalBaseName));
-        assertTrue(svActual.contains(originalBaseName));
-        // Check that files are similar according to the diff function given
-        try (InputStream expected = dsExpected.newInputStream(svExpected); InputStream actual = dsActual.newInputStream(svActual)) {
-            isOk(compare(diff.build(expected, actual, knownDiffs).checkForSimilar()));
-        }
-        // Check again that only differences reported when checking for identical contents are the order of elements
-        try (InputStream expected = dsExpected.newInputStream(svExpected); InputStream actual = dsActual.newInputStream(svActual)) {
-            onlyNodeListSequenceDiffs(compare(diff.build(expected, actual, knownDiffs).checkForIdentical()));
-        }
-    }
-
-    static ComparisonResult noKnownDiffs(Comparison comparison, ComparisonResult result) {
-        // No previously known differences that should be filtered
-        return result;
-    }
-
-    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringCgmesMetadataModels(Comparison comparison, ComparisonResult result) {
+        // FIXME(Luma) Refactoring in progress. cgmes metadata models should be serialized in the same way, maybe we could check something else
         if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (comparison.getType() == ComparisonType.ATTR_VALUE
-                    && control.getNodeName().equals("id")) {
-                if (comparison.getControlDetails().getXPath().contains("cgmesSshMetadata")) {
-                    return ComparisonResult.EQUAL;
-                }
+            String xpath = comparison.getControlDetails().getXPath();
+            if (xpath == null) {
+                xpath = comparison.getControlDetails().getParentXPath();
+            }
+            if (xpath != null && xpath.contains("cgmesMetadataModels")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -347,47 +318,6 @@ final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("StaticVarCompensator.q")) {
-                Node test = comparison.getTestDetails().getTarget();
-                // Both elements must exist and have valid numeric values
-                double qcontrol = Double.parseDouble(control.getTextContent());
-                double qtest = Double.parseDouble(test.getTextContent());
-                // But they could be different
-                // When we export we save in SSH.q the value of the SVC.terminal.q
-                // It would be the result of the power flow calculation
-                // or the value originally seen in the import in SV.q
-                if (qcontrol != qtest) {
-                    LOG.warn("Different values for StaticVarCompensator.q: control {}, test {}", qcontrol, qtest);
-                }
-                return ComparisonResult.EQUAL;
-            }
-        }
-        return result;
-    }
-
-    static ComparisonResult ignoringMissingTopologicalIslandInControl(Comparison comparison, ComparisonResult result) {
-        // If control node is a terminal of a junction, ignore the difference
-        // Means that we also have to ignore length of children of RDF element
-        if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            Node test = comparison.getTestDetails().getTarget();
-            if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
-                    && control.getNodeType() == Node.ELEMENT_NODE
-                    && control.getLocalName().equals("RDF")) {
-                return ComparisonResult.EQUAL;
-            } else if (comparison.getType() == ComparisonType.CHILD_LOOKUP
-                    && control == null
-                    && test.getNodeType() == Node.ELEMENT_NODE
-                    && test.getLocalName().equals("TopologicalIsland")) {
-                return ComparisonResult.EQUAL;
-            }
-        }
-        return result;
-    }
-
     static ComparisonResult ignoringSynchronousMachinesSVCsWithTargetDeadband(Comparison comparison, ComparisonResult result) {
         // In micro grid there are two regulating controls for synchronous machines
         // that have a target deadband of 0.5
@@ -403,9 +333,9 @@ final class ExportXmlCompare {
                 && control.getParentNode().getLocalName().equals("RegulatingControl.targetDeadband")) {
                 Node rccontrol = control.getParentNode().getParentNode();
                 String about = rccontrol.getAttributes().getNamedItemNS(RDF_NAMESPACE, "about").getTextContent();
-                if (about.equals("#_84bf5be8-eb59-4555-b131-fce4d2d7775d")
-                    || about.equals("#_6ba406ce-78cf-4485-9b01-a34e584f1a8d")
-                    || about.equals("#_caf65447-3cfb-48d7-aaaa-cd9af3d34261")) {
+                if ("#_84bf5be8-eb59-4555-b131-fce4d2d7775d".equals(about)
+                    || "#_6ba406ce-78cf-4485-9b01-a34e584f1a8d".equals(about)
+                    || "#_caf65447-3cfb-48d7-aaaa-cd9af3d34261".equals(about)) {
                     return ComparisonResult.EQUAL;
                 }
             }
@@ -433,6 +363,8 @@ final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 } else if (control != null && control.getLocalName().equals("targetQ")) {
                     return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().equals("tapPosition")) {
+                    return ComparisonResult.EQUAL;
                 } else if (comparison.getControlDetails().getXPath().contains("temporaryLimit")) {
                     // If the control node is a temporary limit, the order depends on the name attribute,
                     // this attribute is generated as a unique identifier in the EQ export to avoid duplicates in CGMES
@@ -453,6 +385,21 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringOperationalLimitsGroupId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (comparison.getControlDetails().getXPath().contains("operationalLimitsGroup") && control != null
+                        && control.getLocalName().equals("id")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().contains("selectedOperationalLimitsGroupId")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringJunctionOrBusbarTerminals(Comparison comparison, ComparisonResult result) {
         // If control node is a terminal of a junction, ignore the difference
         // Means that we also have to ignore length of children of RDF element
@@ -462,22 +409,6 @@ final class ExportXmlCompare {
                 return ComparisonResult.EQUAL;
             } else if (isJunctionOrBusbarTerminal(comparison.getControlDetails().getTarget())) {
                 return ComparisonResult.EQUAL;
-            }
-        }
-        return result;
-    }
-
-    static ComparisonResult ignoringSimilarPowerFlows(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (control.getParentNode() != null
-                && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
-                && (control.getParentNode().getLocalName().equals("SvPowerFlow.p") || control.getParentNode().getLocalName().equals("SvPowerFlow.q"))) {
-                double expected = Double.parseDouble(control.getNodeValue());
-                double actual = Double.parseDouble(comparison.getTestDetails().getTarget().getNodeValue());
-                if (Math.abs(expected - actual) < 0.2d) {
-                    return ComparisonResult.EQUAL;
-                }
             }
         }
         return result;
@@ -511,45 +442,16 @@ final class ExportXmlCompare {
         return false;
     }
 
-    private static void isOk(Diff diff) {
-        assertFalse(diff.hasDifferences());
-    }
-
-    private static void onlyNodeListSequenceDiffs(Diff diff) {
+    private static boolean onlyNodeListSequenceDiffs(Diff diff) {
         for (Difference d : diff.getDifferences()) {
-            assertEquals(ComparisonType.CHILD_NODELIST_SEQUENCE, d.getComparison().getType());
-            assertEquals(ComparisonResult.SIMILAR, d.getResult());
-        }
-    }
-
-    static ComparisonResult ignoringControlAreaNetInterchange(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            if (comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
-                Node control = comparison.getControlDetails().getTarget();
-                Node test = comparison.getTestDetails().getTarget();
-                if (control.getLocalName().equals("controlArea")
-                        && control.getAttributes().getLength() - test.getAttributes().getLength() == 1
-                        && control.getAttributes().getNamedItem("netInterchange") != null && test.getAttributes().getNamedItem("netInterchange") == null) {
-                    return ComparisonResult.EQUAL;
-                }
+            if (ComparisonType.CHILD_NODELIST_SEQUENCE != d.getComparison().getType()) {
+                return false;
             }
-            if (comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
-                Comparison.Detail control = comparison.getControlDetails();
-                if (control.getValue().toString().equals("netInterchange")
-                        && control.getTarget().getLocalName().equals("controlArea")) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
-                Comparison.Detail control = comparison.getControlDetails();
-                Comparison.Detail test = comparison.getTestDetails();
-                if (control.getTarget().getLocalName().equals("netInterchange")
-                        && test.getTarget().getLocalName().equals("netInterchange")) {
-                    return ComparisonResult.EQUAL;
-                }
+            if (ComparisonResult.SIMILAR != d.getResult()) {
+                return false;
             }
         }
-        return result;
+        return true;
     }
 
     static ComparisonResult ignoringFullModelAbout(Comparison comparison, ComparisonResult result) {
@@ -568,10 +470,8 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("FullModel")) {
-                if (cxpath.contains("Model.DependentOn")) {
-                    return ComparisonResult.EQUAL;
-                }
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.DependentOn")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -646,6 +546,16 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringSshOperatingMode(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("SynchronousMachine.operatingMode")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringTextValueShuntCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
@@ -676,18 +586,33 @@ final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringRdfChildLookupStaticVarCompensator(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+    static ComparisonResult ignoringStaticVarCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("StaticVarCompensator")) {
+            if (cxpath != null && cxpath.contains("StaticVarCompensator") && cxpath.contains(".controlEnabled")) {
                 return ComparisonResult.EQUAL;
             }
         }
         return result;
     }
 
-    static ComparisonResult ignoringRdfChildLookupRegulatingControl(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+    static ComparisonResult ignoringStaticVarCompensatorQ(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("StaticVarCompensator.q")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRegulatingControl(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
+                return ComparisonResult.EQUAL;
+            }
+        } else if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
                 return ComparisonResult.EQUAL;
@@ -706,15 +631,35 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringConformLoad(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("ConformLoad")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringTextValueEquivalentInjection(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("EquivalentInjection")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringOperationalLimitIds(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Comparison.Detail control = comparison.getControlDetails();
             String cxpath = control.getXPath();
             if (comparison.getType() == ComparisonType.ATTR_VALUE) {
                 String cname = control.getTarget().getLocalName();
-                if (cxpath.contains("CurrentLimit") && (cname.equals("ID") || cname.equals("resource"))) {
+                if (cxpath.contains("CurrentLimit") && ("ID".equals(cname) || "resource".equals(cname))) {
                     return ComparisonResult.EQUAL;
-                } else if (cxpath.contains("OperationalLimit") && cname.equals("ID")) {
+                } else if (cxpath.contains("OperationalLimit") && "ID".equals(cname)) {
                     return ComparisonResult.EQUAL;
                 }
             } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
@@ -807,10 +752,10 @@ final class ExportXmlCompare {
                         if (Math.abs(control - test) < toleranceForNumericContent(n)) {
                             return ComparisonResult.EQUAL;
                         }
-                    } catch (NumberFormatException x) {
+                    } catch (NumberFormatException e) {
                         // not numeric, keep previous comparison result
                     }
-                } catch (NumberFormatException x) {
+                } catch (NumberFormatException e) {
                     // not numeric, keep previous comparison result
                 }
             }
@@ -829,15 +774,15 @@ final class ExportXmlCompare {
                     || name.endsWith("pTolerance")
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
-            // DanglingLine p, q, p0, q0 attributes in IIDM Network
+            // BoundaryLine p, q, p0, q0 attributes in IIDM Network
             // TapChanger r, x, g, b, rho, alpha attributes in IIDM Network
             // Line b1, b2, g1, g2 attributes in IIDM Network
             // Shunt bPerSection attribute in IIDM Network
             String name = n.getLocalName();
-            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
-                || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
-                || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
-                || name.equals("bPerSection") || name.equals("activePowerSetpoint")
+            return "p".equals(name) || "q".equals(name) || "p0".equals(name) || "q0".equals(name)
+                || "r".equals(name) || "x".equals(name) || "g".equals(name) || "b".equals(name) || "rho".equals(name) || "alpha".equals(name)
+                || "b1".equals(name) || "b2".equals(name) || "g1".equals(name) || "g2".equals(name)
+                || "bPerSection".equals(name) || "activePowerSetpoint".equals(name) || "maxP".equals(name)
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -851,7 +796,7 @@ final class ExportXmlCompare {
                 Node npname = p.getAttributes().getNamedItem("name");
                 if (npname != null) {
                     String pname = npname.getTextContent();
-                    return pname.equals("v") || pname.equals("angle");
+                    return "v".equals(pname) || "angle".equals(pname);
                 }
             }
         }
@@ -870,7 +815,8 @@ final class ExportXmlCompare {
                 || n.getLocalName().equals("b1") || n.getLocalName().equals("b2")
                 || n.getLocalName().equals("g1") || n.getLocalName().equals("g2")
                 || n.getLocalName().equals("alpha") || n.getLocalName().equals("rho")
-                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")) {
+                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")
+                || n.getLocalName().equals("maxP")) {
             return 1e-5;
         }
         return 1e-10;
@@ -907,7 +853,11 @@ final class ExportXmlCompare {
             int maxNodes = 5;
             for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
                 Node n1 = n.getChildNodes().item(k);
-                LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
+                if (n1.getLocalName() != null) {
+                    LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
+                } else {
+                    LOG.error("            {}", n1.getTextContent());
+                }
                 debugAttributes(n1, "                ");
             }
             if (n.getChildNodes().getLength() > maxNodes) {
@@ -930,39 +880,20 @@ final class ExportXmlCompare {
         }
     }
 
-    private static DiffBuilder withSelectedSvNodes(DiffBuilder diffBuilder) {
-        return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSvNode(n));
-    }
-
     private static DiffBuilder withSelectedSshNodes(DiffBuilder diffBuilder) {
         return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSshNode(n));
-    }
-
-    private static boolean isConsideredSvNode(Node n) {
-        if (n.getNodeType() == Node.ELEMENT_NODE) {
-            String name = n.getLocalName();
-            return name != null && (name.equals("RDF")
-                    || name.startsWith("SvVoltage")
-                    || name.startsWith("SvShuntCompensatorSections")
-                    || name.startsWith("SvTapStep")
-                    || name.startsWith("SvStatus")
-                    || name.startsWith("SvPowerFlow")
-                    || name.startsWith("TopologicalIsland") && !name.equals("TopologicalIsland.AngleRefTopologicalNode")
-                    || isConsideredModelElementName(name));
-        }
-        return false;
     }
 
     private static boolean isConsideredSshNode(Node n) {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
             // Optional attributes with default values
-            if (name.equals("EquivalentInjection.regulationStatus") && n.getTextContent().equals("false")) {
+            if ("EquivalentInjection.regulationStatus".equals(name) && n.getTextContent().equals("false")) {
                 return false;
-            } else if (name.equals("EquivalentInjection.regulationTarget") && Double.parseDouble(n.getTextContent()) == 0) {
+            } else if ("EquivalentInjection.regulationTarget".equals(name) && Double.parseDouble(n.getTextContent()) == 0) {
                 return false;
             }
-            return name.equals("RDF")
+            return "RDF".equals(name)
                     || name.startsWith("EnergyConsumer") || name.startsWith("ConformLoad") || name.startsWith("NonConformLoad")
                     || name.startsWith("Terminal")
                     || name.startsWith("EquivalentInjection")
@@ -984,30 +915,11 @@ final class ExportXmlCompare {
     }
 
     private static boolean isConsideredModelElementName(String name) {
-        return name.equals("FullModel")
+        return "FullModel".equals(name)
                 || name.startsWith("Model.")
-                && !(name.equals("Model.created")
-                        || name.equals("Model.Supersedes")
-                        || name.equals("Model.createdBy"));
-    }
-
-    private static DiffBuilder ignoringNonPersistentSvIds(DiffBuilder diffBuilder) {
-        return diffBuilder.withAttributeFilter(attr -> {
-            String elementName = attr.getOwnerElement().getLocalName();
-            boolean ignored = false;
-            if (elementName != null) {
-                // Identifiers of SV objects are not persistent,
-                // can be ignored for comparison with control
-                if (elementName.startsWith("Sv")) {
-                    ignored = attr.getLocalName().equals("ID");
-                } else if (elementName.equals("FullModel")) {
-                    ignored = attr.getLocalName().equals("about");
-                } else if (elementName.equals("TopologicalIsland")) {
-                    ignored = attr.getLocalName().equals("ID");
-                }
-            }
-            return !ignored;
-        });
+                && !("Model.created".equals(name)
+                        || "Model.Supersedes".equals(name)
+                        || "Model.createdBy".equals(name));
     }
 
     private static DiffBuilder ignoringNonPersistentSshIds(DiffBuilder diffBuilder) {
@@ -1015,38 +927,12 @@ final class ExportXmlCompare {
             String elementName = attr.getOwnerElement().getLocalName();
             boolean ignored = false;
             if (elementName != null) {
-                if (elementName.equals("FullModel")) {
+                if ("FullModel".equals(elementName)) {
                     ignored = attr.getLocalName().equals("about");
                 }
             }
             return !ignored;
         });
-    }
-
-    private static DiffBuilder selectingEquivalentSvObjects(DiffBuilder diffBuilder) {
-        Map<String, String> prefixUris = new HashMap<>(2);
-        prefixUris.put("cim", CgmesNamespace.getCim(16).getNamespace());
-        prefixUris.put("rdf", RDF_NAMESPACE);
-        QName resourceAttribute = new QName(RDF_NAMESPACE, "resource");
-        ElementSelector byResource = ElementSelectors.byNameAndAttributes(resourceAttribute);
-        ElementSelector elementSelector = ElementSelectors.conditionalBuilder()
-                .whenElementIsNamed("SvShuntCompensatorSections")
-                .thenUse(ElementSelectors.byXPath("./cim:SvShuntCompensatorSections.ShuntCompensator", prefixUris, byResource))
-                .whenElementIsNamed("SvVoltage")
-                .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris, byResource))
-                .whenElementIsNamed("SvTapStep")
-                .thenUse(ElementSelectors.byXPath("./cim:SvTapStep.TapChanger", prefixUris, byResource))
-                .whenElementIsNamed("SvStatus")
-                .thenUse(ElementSelectors.byXPath("./cim:SvStatus.ConductingEquipment", prefixUris, byResource))
-                .whenElementIsNamed("SvPowerFlow")
-                .thenUse(ElementSelectors.byXPath("./cim:SvPowerFlow.Terminal", prefixUris, byResource))
-                .whenElementIsNamed("TopologicalIsland.TopologicalNodes")
-                .thenUse(byResource)
-                .whenElementIsNamed("Model.DependentOn")
-                .thenUse(byResource)
-                .elseUse(ElementSelectors.byName)
-                .build();
-        return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
     }
 
     private static DiffBuilder selectingEquivalentSshObjects(DiffBuilder diffBuilder) {

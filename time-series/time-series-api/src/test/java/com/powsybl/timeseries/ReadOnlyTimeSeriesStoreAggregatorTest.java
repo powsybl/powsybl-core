@@ -3,12 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -22,7 +25,7 @@ class ReadOnlyTimeSeriesStoreAggregatorTest {
 
     @Test
     void test() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10001, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(10000), Instant.ofEpochMilli(10001), Duration.ofMillis(1));
         DoubleTimeSeries ts1 = TimeSeries.createDouble("ts1", index, 1d, 2d);
         DoubleTimeSeries ts2 = TimeSeries.createDouble("ts2", index, 3d, 4d);
         ReadOnlyTimeSeriesStore store1 = new ReadOnlyTimeSeriesStoreCache(ts1);

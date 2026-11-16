@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
@@ -169,7 +170,9 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges " +
+            "with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])",
+            e0.getMessage());
     }
 
     @Test
@@ -177,6 +180,8 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges " +
+            "with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])",
+            e0.getMessage());
     }
 }

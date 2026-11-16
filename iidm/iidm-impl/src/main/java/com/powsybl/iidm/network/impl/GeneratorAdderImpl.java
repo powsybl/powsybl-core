@@ -3,19 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.regulation.*;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createGeneratorVoltageRegulationBackwardCompatibility;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> implements GeneratorAdder {
-
-    private final VoltageLevelExt voltageLevel;
 
     private EnergySource energySource = EnergySource.OTHER;
 
@@ -25,23 +26,24 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
+
     private Boolean voltageRegulatorOn;
 
     private double targetP = Double.NaN;
 
-    private double targetQ = Double.NaN;
+    private double localTargetQ = Double.NaN;
 
     private double targetV = Double.NaN;
 
+    private double localTargetV = Double.NaN;
+
     private double ratedS = Double.NaN;
+
+    private boolean isCondenser = false;
 
     GeneratorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     @Override
@@ -86,15 +88,39 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdderImpl setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
+    public GeneratorAdder setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
+    }
+
+    @Override
+    public GeneratorAdderImpl setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
         return this;
     }
 
     @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
+    }
+
     public GeneratorAdderImpl setTargetV(double targetV) {
+        return this.setTargetV(targetV, Double.NaN);
+    }
+
+    @Override
+    public GeneratorAdderImpl setTargetV(double targetV, double equivalentLocalTargetV) {
         this.targetV = targetV;
+        return this.setLocalTargetV(equivalentLocalTargetV);
+    }
+
+    @Override
+    public GeneratorAdderImpl setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
     @Override
@@ -104,12 +130,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
+    public GeneratorAdder setCondenser(boolean isCondenser) {
+        this.isCondenser = isCondenser;
+        return this;
     }
 
     @Override
@@ -125,22 +148,47 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel(),
+                network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
+        // Backward compatibility
+        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
+            // If a generator with old setters is added and voltageRegulation does not exist,
+            // the new voltageRegulation will be created from the old attributes.
+            createGeneratorVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
+        } else {
+            // In the case of a generator with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
+            if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+                localTargetV = targetV;
+            }
+        }
+
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            Generator.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
+
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
-                                    id, getName(), isFictitious(), energySource,
+                                    id, getName(), isFictitious(), isEquivalent(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
-                                    targetP, targetQ, targetV,
-                                    ratedS);
+                                    voltageRegulationAttributes,
+                                    targetP, localTargetQ, localTargetV,
+                                    ratedS, isCondenser);
         generator.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(generator);
         network.getListeners().notifyCreation(generator);
         return generator;
     }
 
+    @Override
+    public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(Generator.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
+    }
 }

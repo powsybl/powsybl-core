@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -66,7 +67,6 @@ public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWi
      * Else, return false.
      */
     boolean shouldEstimatePhaseTapChanger3();
-
 
     /**
      * Return true if the phase tap changer of the leg of the given side of the extended three windings transformer is to be estimated during a state estimation.

@@ -13,7 +13,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,6 +37,7 @@ public class ReferenceDataProvider {
     private final Map<Double, String> baseVoltagesByNominalVoltage = new HashMap<>();
     private String equipmentBoundaryId = null;
     private String topologyBoundaryId = null;
+    private PropertyBags boundaryNodes = null;
 
     private boolean loaded = false;
 
@@ -56,6 +57,10 @@ public class ReferenceDataProvider {
     public String getBaseVoltage(double nominalV) {
         ensureReferenceDataIsLoaded();
         return baseVoltagesByNominalVoltage.get(nominalV);
+    }
+
+    public PropertyBags getBoundaryNodes() {
+        return boundaryNodes;
     }
 
     public PropertyBag getSourcingActor() {
@@ -89,19 +94,20 @@ public class ReferenceDataProvider {
         loadBoundaryModelIds();
         loadBaseVoltages();
         loadSourcingActor();
+        loadBoundaryNodes();
         loaded = true;
     }
 
     private void loadReferenceData() {
         // If no explicit data source is given,
-        // force the load of boundaries configured in the platform or received as parameeter using an empty data source
+        // force the load of boundaries configured in the platform or received as parameter using an empty data source
         loadReferenceData(Objects.requireNonNullElseGet(referenceDataSource, ReadOnlyMemDataSource::new));
     }
 
     private void loadReferenceData(ReadOnlyDataSource ds) {
         try {
-            referenceData = cgmesImport.readCgmes(ds, params, Reporter.NO_OP);
-        } catch (CgmesModelException x) {
+            referenceData = cgmesImport.readCgmes(ds, params, ReportNode.NO_OP);
+        } catch (CgmesModelException e) {
             // We have made an attempt to load it and discovered it is invalid
             referenceData = null;
         }
@@ -136,6 +142,13 @@ public class ReferenceDataProvider {
                 bv -> bv.asDouble("nominalVoltage"),
                 bv -> bv.getId("BaseVoltage")
         )));
+    }
+
+    private void loadBoundaryNodes() {
+        if (referenceData == null) {
+            return;
+        }
+        boundaryNodes = referenceData.boundaryNodes();
     }
 
     private void loadSourcingActor() {

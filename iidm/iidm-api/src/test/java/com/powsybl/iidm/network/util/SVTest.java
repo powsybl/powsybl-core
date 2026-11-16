@@ -3,14 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -50,19 +51,21 @@ class SVTest {
     }
 
     @Test
-    void testDanglingLine() {
-        DanglingLine dl = new DanglingLineTestData().getDanglingLine();
+    void testBoundaryLine() {
+        BoundaryLine dl = new BoundaryLineTestData().getBoundaryLine();
 
         double tol = 0.0001;
         double p1 = 126.818177;
         double q1 = -77.444122;
         double v1 = 118.13329315185547;
         double a1 = 0.19568365812301636;
+        double i1 = 726.224579;
 
         double p2 = 15.098317;
         double q2 = 64.333028;
         double v2 = 138.0;
         double a2 = 0.0;
+        double i2 = 276.462893;
 
         SV svA1 = new SV(p1, q1, v1, a1, TwoSides.ONE);
         SV svA2 = svA1.otherSide(dl);
@@ -70,6 +73,7 @@ class SVTest {
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
+        assertEquals(i2, svA2.getI(), tol);
 
         SV svB2 = new SV(p2, q2, v2, a2, TwoSides.TWO);
         SV svB1 = svB2.otherSide(dl);
@@ -77,26 +81,31 @@ class SVTest {
         assertEquals(q1, svB1.getQ(), tol);
         assertEquals(v1, svB1.getU(), tol);
         assertEquals(a1, svB1.getA(), tol);
+        assertEquals(i1, svB1.getI(), tol);
 
         assertEquals(p2, svA1.otherSideP(dl), tol);
         assertEquals(q2, svA1.otherSideQ(dl), tol);
         assertEquals(v2, svA1.otherSideU(dl), tol);
         assertEquals(a2, svA1.otherSideA(dl), tol);
+        assertEquals(i2, svA1.otherSideI(dl), tol);
 
         assertEquals(p1, svB2.otherSideP(dl), tol);
         assertEquals(q1, svB2.otherSideQ(dl), tol);
         assertEquals(v1, svB2.otherSideU(dl), tol);
         assertEquals(a1, svB2.otherSideA(dl), tol);
+        assertEquals(i1, svB2.otherSideI(dl), tol);
 
         assertEquals(p2, svA1.otherSideP(dl, false), tol);
         assertEquals(q2, svA1.otherSideQ(dl, false), tol);
         assertEquals(v2, svA1.otherSideU(dl, false), tol);
         assertEquals(a2, svA1.otherSideA(dl, false), tol);
+        assertEquals(i2, svA1.otherSideI(dl, false), tol);
 
         assertEquals(p1, svB2.otherSideP(dl, false), tol);
         assertEquals(q1, svB2.otherSideQ(dl, false), tol);
         assertEquals(v1, svB2.otherSideU(dl, false), tol);
         assertEquals(a1, svB2.otherSideA(dl, false), tol);
+        assertEquals(i1, svB2.otherSideI(dl, false), tol);
     }
 
     @Test
@@ -242,19 +251,19 @@ class SVTest {
         }
     }
 
-    private static final class DanglingLineTestData {
+    private static final class BoundaryLineTestData {
         private static double R = 10.30;
         private static double X = 40.20;
         private static double G = 0.01;
         private static double B = 0.0016;
         private static double VN = 138.0;
-        private static DanglingLine danglinLine;
+        private static BoundaryLine danglinLine;
 
         private static Terminal t;
         private static VoltageLevel vl;
 
-        private DanglingLineTestData() {
-            danglinLine = Mockito.mock(DanglingLine.class);
+        private BoundaryLineTestData() {
+            danglinLine = Mockito.mock(BoundaryLine.class);
             Mockito.when(danglinLine.getR()).thenReturn(R);
             Mockito.when(danglinLine.getX()).thenReturn(X);
             Mockito.when(danglinLine.getG()).thenReturn(G);
@@ -268,30 +277,30 @@ class SVTest {
             Mockito.when(vl.getNominalV()).thenReturn(VN);
         }
 
-        private DanglingLine getDanglingLine() {
+        private BoundaryLine getBoundaryLine() {
             return danglinLine;
         }
     }
 
     private static final class TwoWindingsTransformerTestData {
-        private static double R = 0.43;
-        private static double X = 15.90;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double RTC_RHO = 1.0;
-        private static double RTC_R = 0.0;
-        private static double RTC_X = 0.0;
-        private static double RTC_G = 0.0;
-        private static double RTC_B = 0.0;
-        private static double PTC_RHO = 0.98;
-        private static double PTC_ALPHA = -5.0;
-        private static double PTC_R = 0.0;
-        private static double PTC_X = 0.0;
-        private static double PTC_G = 0.0;
-        private static double PTC_B = 0.0;
-        private static double RATEDU1 = 230.0;
-        private static double RATEDU2 = 138.0;
-        private static double VN = 138.0;
+        private static final double R = 0.43;
+        private static final double X = 15.90;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double RTC_RHO = 1.0;
+        private static final double RTC_R = 0.0;
+        private static final double RTC_X = 0.0;
+        private static final double RTC_G = 0.0;
+        private static final double RTC_B = 0.0;
+        private static final double PTC_RHO = 0.98;
+        private static final double PTC_ALPHA = -5.0;
+        private static final double PTC_R = 0.0;
+        private static final double PTC_X = 0.0;
+        private static final double PTC_G = 0.0;
+        private static final double PTC_B = 0.0;
+        private static final double RATEDU1 = 230.0;
+        private static final double RATEDU2 = 138.0;
+        private static final double VN = 138.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
@@ -347,19 +356,19 @@ class SVTest {
     }
 
     private static final class TwoWindingsTransformerWithoutRtcTestData {
-        private static double R = 0.43;
-        private static double X = 15.90;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double PTC_RHO = 0.98;
-        private static double PTC_ALPHA = -5.0;
-        private static double PTC_R = 0.0;
-        private static double PTC_X = 0.0;
-        private static double PTC_G = 0.0;
-        private static double PTC_B = 0.0;
-        private static double RATEDU1 = 230.0;
-        private static double RATEDU2 = 138.0;
-        private static double VN = 138.0;
+        private static final double R = 0.43;
+        private static final double X = 15.90;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double PTC_RHO = 0.98;
+        private static final double PTC_ALPHA = -5.0;
+        private static final double PTC_R = 0.0;
+        private static final double PTC_X = 0.0;
+        private static final double PTC_G = 0.0;
+        private static final double PTC_B = 0.0;
+        private static final double RATEDU1 = 230.0;
+        private static final double RATEDU2 = 138.0;
+        private static final double VN = 138.0;
 
         private static PhaseTapChanger ptc;
         private static PhaseTapChangerStep ptcStep;
@@ -405,18 +414,18 @@ class SVTest {
     }
 
     private static final class TwoWindingsTransformerWithoutPtcTestData {
-        private static double R = 0.43;
-        private static double X = 15.90;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double RTC_RHO = 0.98;
-        private static double RTC_R = 0.0;
-        private static double RTC_X = 0.0;
-        private static double RTC_G = 0.0;
-        private static double RTC_B = 0.0;
-        private static double RATEDU1 = 230.0;
-        private static double RATEDU2 = 138.0;
-        private static double VN = 138.0;
+        private static final double R = 0.43;
+        private static final double X = 15.90;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double RTC_RHO = 0.98;
+        private static final double RTC_R = 0.0;
+        private static final double RTC_X = 0.0;
+        private static final double RTC_G = 0.0;
+        private static final double RTC_B = 0.0;
+        private static final double RATEDU1 = 230.0;
+        private static final double RATEDU2 = 138.0;
+        private static final double VN = 138.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
@@ -543,13 +552,13 @@ class SVTest {
     }
 
     private static final class LineDcTestData {
-        private static double R = 0.0;
-        private static double X = 5.917E-4;
-        private static double G1 = 0.01;
-        private static double B1 = 0.0020;
-        private static double G2 = 0.01;
-        private static double B2 = 0.0020;
-        private static double VN = 1.0;
+        private static final double R = 0.0;
+        private static final double X = 5.917E-4;
+        private static final double G1 = 0.01;
+        private static final double B1 = 0.0020;
+        private static final double G2 = 0.01;
+        private static final double B2 = 0.0020;
+        private static final double VN = 1.0;
         private static Line line;
         private static Terminal t1;
         private static Terminal t2;
@@ -584,14 +593,14 @@ class SVTest {
     }
 
     private static final class TwoWindingsTransformerDcTestData {
-        private static double R = 0.0043;
-        private static double X = 0.0055618;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double RTC_RHO = 1.0;
-        private static double RATEDU1 = 0.969;
-        private static double RATEDU2 = 1.0;
-        private static double VN = 1.0;
+        private static final double R = 0.0043;
+        private static final double X = 0.0055618;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double RTC_RHO = 1.0;
+        private static final double RATEDU1 = 0.969;
+        private static final double RATEDU2 = 1.0;
+        private static final double VN = 1.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
@@ -630,15 +639,15 @@ class SVTest {
     }
 
     private static final class PhaseShifterDcTestData {
-        private static double R = 0.00043;
-        private static double X = 0.0020912;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double PTC_RHO = 1.0;
-        private static double PTC_ALPHA = 10.0;
-        private static double RATEDU1 = 0.978;
-        private static double RATEDU2 = 1.0;
-        private static double VN = 1.0;
+        private static final double R = 0.00043;
+        private static final double X = 0.0020912;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double PTC_RHO = 1.0;
+        private static final double PTC_ALPHA = 10.0;
+        private static final double RATEDU1 = 0.978;
+        private static final double RATEDU2 = 1.0;
+        private static final double VN = 1.0;
 
         private static PhaseTapChanger ptc;
         private static PhaseTapChangerStep ptcStep;

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -10,18 +11,20 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
+import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -36,7 +39,7 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
     private static final String PROPERTY_ARRAY = "properties";
 
     public DiscreteMeasurementsSerDe() {
-        super("discreteMeasurements", "network", DiscreteMeasurements.class,
+        super(DISCRETE_MEASUREMENT_ARRAY, "network", DiscreteMeasurements.class,
                 "discreteMeasurements.xsd", "http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0", "dm");
     }
 
@@ -48,26 +51,19 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
 
     @Override
     public void write(DiscreteMeasurements<I> extension, SerializerContext context) {
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = context.getWriter();
         writer.writeStartNodes();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT_ROOT);
-            writer.writeStringAttribute("id", discreteMeasurement.getId());
+            writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(discreteMeasurement.getId(), IidmVersion.V_1_16));
             writer.writeEnumAttribute("type", discreteMeasurement.getType());
             writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
             writer.writeEnumAttribute("valueType", discreteMeasurement.getValueType());
             switch (discreteMeasurement.getValueType()) {
-                case BOOLEAN:
-                    writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
-                    break;
-                case INT:
-                    writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
-                    break;
-                case STRING:
-                    writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
-                    break;
-                default:
-                    throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
+                case BOOLEAN -> writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
+                case INT -> writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
+                case STRING -> writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
             }
             writer.writeBooleanAttribute("valid", discreteMeasurement.isValid());
 
@@ -87,11 +83,12 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
 
     @Override
     public DiscreteMeasurements<I> read(I extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
         DiscreteMeasurements<I> discreteMeasurements = adder.add();
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(DISCRETE_MEASUREMENT_ROOT)) {
-                readDiscreteMeasurement(discreteMeasurements, context.getReader());
+                readDiscreteMeasurement(discreteMeasurements, context.getReader(), networkContext);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'discreteMeasurements'");
             }
@@ -99,21 +96,20 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
         return discreteMeasurements;
     }
 
-    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, TreeDataReader reader) {
+    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, TreeDataReader reader, NetworkDeserializerContext context) {
         String id = reader.readStringAttribute("id");
         DiscreteMeasurement.Type type = reader.readEnumAttribute("type", DiscreteMeasurement.Type.class);
         DiscreteMeasurement.TapChanger tapChanger = reader.readEnumAttribute("tapChanger", DiscreteMeasurement.TapChanger.class);
         DiscreteMeasurement.ValueType valueType = reader.readEnumAttribute("valueType", DiscreteMeasurement.ValueType.class);
 
         DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
-                .setId(id)
+                .setId(context.deanonymizeFromMinimumVersion(id, IidmVersion.V_1_16))
                 .setType(type)
                 .setTapChanger(tapChanger);
         switch (valueType) {
-            case BOOLEAN -> Optional.ofNullable(reader.readBooleanAttribute(VALUE)).ifPresent(adder::setValue);
-            case INT -> Optional.ofNullable(reader.readIntAttribute(VALUE)).ifPresent(adder::setValue);
-            case STRING -> Optional.ofNullable(reader.readStringAttribute(VALUE)).ifPresent(adder::setValue);
-            default -> throw new PowsyblException("Unsupported value type: " + valueType);
+            case BOOLEAN -> adder.setValue(reader.readBooleanAttribute(VALUE));
+            case INT -> adder.setValue(reader.readIntAttribute(VALUE));
+            case STRING -> adder.setValue(reader.readStringAttribute(VALUE));
         }
 
         adder.setValid(reader.readBooleanAttribute("valid", true));

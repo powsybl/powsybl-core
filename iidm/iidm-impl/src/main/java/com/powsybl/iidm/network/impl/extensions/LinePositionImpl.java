@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.Coordinate;
@@ -32,8 +33,8 @@ public class LinePositionImpl<T extends Identifiable<T>> extends AbstractExtensi
         this((T) line, coordinates);
     }
 
-    public LinePositionImpl(DanglingLine danglingLine, List<Coordinate> coordinates) {
-        this((T) danglingLine, coordinates);
+    public LinePositionImpl(BoundaryLine boundaryLine, List<Coordinate> coordinates) {
+        this((T) boundaryLine, coordinates);
     }
 
     @Override

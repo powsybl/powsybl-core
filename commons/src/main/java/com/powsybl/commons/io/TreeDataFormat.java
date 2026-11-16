@@ -12,5 +12,6 @@ package com.powsybl.commons.io;
  */
 public enum TreeDataFormat {
     XML,
-    JSON
+    JSON,
+    BIN
 }

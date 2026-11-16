@@ -3,20 +3,23 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createSvcVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarCompensatorAdderImpl> implements StaticVarCompensatorAdder {
-
-    private final VoltageLevelExt vl;
 
     private double bMin = Double.NaN;
 
@@ -26,17 +29,20 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private double reactivePowerSetpoint = Double.NaN;
 
-    private StaticVarCompensator.RegulationMode regulationMode;
+    private RegulationMode regulationMode;
 
     private TerminalExt regulatingTerminal;
 
-    StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
-        this.vl = Objects.requireNonNull(vl);
-    }
+    private Double localTargetQ = Double.NaN;
 
-    @Override
-    protected NetworkImpl getNetwork() {
-        return vl.getNetwork();
+    private Double localTargetV = Double.NaN;
+
+    private Boolean regulating;
+
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
+
+    StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
+        this.voltageLevel = Objects.requireNonNull(vl);
     }
 
     @Override
@@ -57,6 +63,27 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
+    public StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
+    }
+
+    @Override
+    public StaticVarCompensatorAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
+    }
+
+    @Override
     public StaticVarCompensatorAdderImpl setVoltageSetpoint(double voltageSetpoint) {
         this.voltageSetpoint = voltageSetpoint;
         return this;
@@ -69,7 +96,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
-    public StaticVarCompensatorAdderImpl setRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {
+    public StaticVarCompensatorAdderImpl setRegulationMode(RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
     }
@@ -81,12 +108,14 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
+    public StaticVarCompensatorAdderImpl setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
     }
 
-    private Ref<NetworkImpl> getNetworkRef() {
-        return vl.getNetworkRef();
+    @Override
+    public VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
     }
 
     @Override
@@ -94,16 +123,41 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && regulating == null) {
+            regulating = false;
+        }
+
+        // Backward compatibility
+        if (voltageRegulationAttributes == null && regulating != null) {
+            // If a static var compensator with old setters is added and voltageRegulation does not exist,
+            // the new voltageRegulation will be created from the old attributes.
+            createSvcVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
+        } else {
+            // In the case of a static var compensator with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
+            if (!Double.isNaN(voltageSetpoint) && Double.isNaN(localTargetV)) {
+                localTargetV = voltageSetpoint;
+            }
+            if (!Double.isNaN(reactivePowerSetpoint) && Double.isNaN(localTargetQ)) {
+                localTargetQ = reactivePowerSetpoint;
+            }
+        }
+
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode, network.getMinValidationLevel()));
-        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
-                regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
-                getNetworkRef());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            StaticVarCompensator.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
+
+        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), isEquivalent(), bMin, bMax, voltageRegulationAttributes, getNetworkRef(), localTargetQ, localTargetV);
         svc.addTerminal(terminal);
-        vl.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(svc);
         network.getListeners().notifyCreation(svc);
         return svc;

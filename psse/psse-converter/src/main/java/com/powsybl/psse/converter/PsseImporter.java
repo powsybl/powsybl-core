@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.converter;
 
@@ -11,14 +12,11 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.extensions.PsseConversionContextExtensionAdder;
 import com.powsybl.psse.converter.extensions.PsseModelExtensionAdder;
@@ -38,6 +36,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.psse.converter.VoltageLevelConverter.updateNodeVoltage;
+
 /**
  * @author JB Heyberger {@literal <jean-baptiste.heyberger at rte-france.com>}
  */
@@ -54,6 +54,10 @@ public class PsseImporter implements Importer {
             ParameterType.BOOLEAN,
             "Ignore base voltage specified in the file",
             Boolean.FALSE);
+    private static final Parameter IGNORE_NODE_BREAKER_TOPOLOGY_PARAMETER = new Parameter("psse.import.ignore-node-breaker-topology",
+            ParameterType.BOOLEAN,
+            "Ignore the node breaker topology specified in the substation data of the file",
+            Boolean.FALSE);
 
     @Override
     public String getFormat() {
@@ -61,8 +65,16 @@ public class PsseImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(EXTENSIONS);
+    }
+
+    @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
+        List<Parameter> parameterList = List.of(
+                IGNORE_BASE_VOLTAGE_PARAMETER,
+                IGNORE_NODE_BREAKER_TOPOLOGY_PARAMETER);
+        return ConfiguredParameter.load(parameterList, getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override
@@ -82,7 +94,7 @@ public class PsseImporter implements Importer {
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
+            if (dataSource.isDataExtension(ext) && dataSource.exists(null, ext)) {
                 return ext;
             }
         }
@@ -95,9 +107,9 @@ public class PsseImporter implements Importer {
                 return PowerFlowDataFactory.create(ext).isValidFile(dataSource, ext);
             } catch (PsseException | IOException e) {
                 LOGGER.error(String.format("Invalid content in filename %s.%s: %s",
-                    dataSource.getBaseName(),
-                    ext,
-                    e.getMessage()));
+                        dataSource.getBaseName(),
+                        ext,
+                        e.getMessage()));
             }
         }
         return false;
@@ -137,7 +149,7 @@ public class PsseImporter implements Importer {
             PssePowerFlowModel pssePowerFlowModel = PowerFlowDataFactory.create(ext, version).read(dataSource, ext, context);
             pssePowerFlowModel.getCaseIdentification().validate();
 
-            new PsseFixDuplicateIds(pssePowerFlowModel, context.getVersion()).fix();
+            new PsseFixes(pssePowerFlowModel, context.getVersion()).fix();
             PsseValidation psseValidation = new PsseValidation(pssePowerFlowModel, context.getVersion());
             if (!psseValidation.isValidCase()) {
                 throw new PsseException("The PSS/E file is not a valid case");
@@ -163,151 +175,112 @@ public class PsseImporter implements Importer {
 
         boolean ignoreBaseVoltage = Parameter.readBoolean(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                 ParameterDefaultValueConfig.INSTANCE);
+        boolean ignoreNodeBreakerTopology = Parameter.readBoolean(FORMAT, parameters, IGNORE_NODE_BREAKER_TOPOLOGY_PARAMETER,
+                ParameterDefaultValueConfig.INSTANCE);
         PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
 
         // The map gives access to PsseBus object with the int bus Number
         Map<Integer, PsseBus> busNumToPsseBus = psseModel.getBuses().stream().collect(Collectors.toMap(PsseBus::getI, Function.identity()));
 
+        // Necessary data for validating nodeBreaker topology
+        NodeBreakerValidation nodeBreakerValidation = new NodeBreakerValidation(ignoreNodeBreakerTopology);
+        nodeBreakerValidation.fillAndValidate(psseModel, version);
+
         // build container to fit IIDM requirements
-        ContainersMapping containersMapping = defineContainersMapping(psseModel, busNumToPsseBus, perUnitContext);
+        ContainersMapping containersMapping = PsseNodeContainerMapping.create(psseModel, busNumToPsseBus,
+                perUnitContext, nodeBreakerValidation);
 
         // create buses
-        createBuses(psseModel, containersMapping, perUnitContext, network);
+        NodeBreakerImport nodeBreakerImport = createBuses(psseModel, containersMapping, perUnitContext, network, nodeBreakerValidation);
 
         // Create loads
         for (PsseLoad psseLoad : psseModel.getLoads()) {
-            new LoadConverter(psseLoad, containersMapping, network).create();
+            new LoadConverter(psseLoad, containersMapping, network, nodeBreakerImport).create();
         }
 
         // Create fixed shunts
         for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
-            new FixedShuntCompensatorConverter(psseShunt, containersMapping, network).create();
+            new FixedShuntCompensatorConverter(psseShunt, containersMapping, network, nodeBreakerImport).create();
+        }
+
+        for (PsseGenerator psseGen : psseModel.getGenerators()) {
+            new GeneratorConverter(psseGen, containersMapping, network, nodeBreakerImport).create();
+        }
+
+        for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
+            new LineConverter(psseLine, containersMapping, perUnitContext, network, version, busNumToPsseBus, nodeBreakerImport).create();
+        }
+
+        for (PsseTransformer psseTfo : psseModel.getTransformers()) {
+            new TransformerConverter(psseTfo, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version, nodeBreakerImport).create();
+        }
+
+        for (PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc : psseModel.getTwoTerminalDcTransmissionLines()) {
+            new TwoTerminalDcConverter(psseTwoTerminalDc, containersMapping, network, nodeBreakerImport).create();
+        }
+
+        for (PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine : psseModel.getVoltageSourceConverterDcTransmissionLines()) {
+            new VscDcTransmissionLineConverter(psseVscDcTransmissionLine, containersMapping, network, version, nodeBreakerImport).create();
+        }
+
+        for (PsseFacts psseFactsDevice : psseModel.getFacts()) {
+            new FactsDeviceConverter(psseFactsDevice, containersMapping, network, version, nodeBreakerImport).create();
         }
 
         // Create switched shunts
         for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version).create();
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).create();
         }
 
-        for (PsseGenerator psseGen : psseModel.getGenerators()) {
-            new GeneratorConverter(psseGen, containersMapping, network).create();
-        }
-
-        for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
-            new LineConverter(psseLine, containersMapping, perUnitContext, network, version).create();
-        }
-
-        for (PsseTransformer psseTfo : psseModel.getTransformers()) {
-            new TransformerConverter(psseTfo, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version).create();
-        }
-
-        for (PsseTwoTerminalDcTransmissionLine psseTwoTerminaDc : psseModel.getTwoTerminalDcTransmissionLines()) {
-            new TwoTerminalDcConverter(psseTwoTerminaDc, containersMapping, network).create();
+        // Create areas
+        for (PsseArea psseArea : psseModel.getAreas()) {
+            new AreaConverter(psseArea, psseModel.getBuses(), containersMapping, network).create();
         }
 
         // Attach a slack bus
-        new SlackConverter(psseModel.getBuses(), containersMapping, network).create();
+        new SlackConverter(psseModel.getBuses(), containersMapping, network, nodeBreakerImport).create();
 
         // Add controls
-        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version).addControl();
-        }
         for (PsseGenerator psseGen : psseModel.getGenerators()) {
-            new GeneratorConverter(psseGen, containersMapping, network).addControl(busNumToPsseBus.get(psseGen.getI()));
+            new GeneratorConverter(psseGen, containersMapping, network, nodeBreakerImport).addControl(busNumToPsseBus.get(psseGen.getI()));
         }
         for (PsseTransformer psseTransformer : psseModel.getTransformers()) {
-            new TransformerConverter(psseTransformer, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version).addControl();
+            new TransformerConverter(psseTransformer, containersMapping, perUnitContext, network, busNumToPsseBus,
+                psseModel.getCaseIdentification().getSbase(), version, nodeBreakerImport).addControl();
+        }
+        for (PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine : psseModel.getVoltageSourceConverterDcTransmissionLines()) {
+            new VscDcTransmissionLineConverter(psseVscDcTransmissionLine, containersMapping, network, version, nodeBreakerImport).addControl();
+        }
+        for (PsseFacts psseFactsDevice : psseModel.getFacts()) {
+            new FactsDeviceConverter(psseFactsDevice, containersMapping, network, version, nodeBreakerImport).addControl();
+        }
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).addControl();
+        }
+
+        // Update node voltages
+        for (PsseSubstation psseSubstation : psseModel.getSubstations()) {
+            updateNodeVoltage(psseSubstation, network, containersMapping);
         }
 
         return network;
     }
 
-    private ContainersMapping defineContainersMapping(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext) {
-        List<Edge> edges = new ArrayList<>();
-        // only zeroImpedance Lines are necessary and they are not allowed, so nothing to do
+    private static NodeBreakerImport createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,
+                                                 PerUnitContext perUnitContext, Network network,
+                                                 NodeBreakerValidation nodeBreakerValidation) {
 
-        psseModel.getTransformers().forEach(t -> {
-            if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
-                edges.add(new Edge(t.getI(), t.getJ(), true, false));
-            } else { // threeWindingsTransformers with zero impedance are not allowed
-                edges.add(new Edge(t.getI(), t.getJ(), true, false));
-                edges.add(new Edge(t.getI(), t.getK(), true, false));
-            }
-        });
+        NodeBreakerImport nodeBreakerImport = new NodeBreakerImport();
 
-        return ContainersMapping.create(psseModel.getBuses(), edges,
-            PsseBus::getI,
-            Edge::getBus1,
-            Edge::getBus2,
-            Edge::isZeroImpedance,
-            Edge::isTransformer,
-            busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
-            busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty busNums")),
-            substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty substationNums")));
-    }
-
-    private double getNominalVFromBusNumber(Map<Integer, PsseBus> busNumToPsseBus, int busNumber, PerUnitContext perUnitContext) {
-        if (!busNumToPsseBus.containsKey(busNumber)) { // never should happen
-            throw new PsseException("busId without PsseBus" + busNumber);
-        }
-        return VoltageLevelConverter.getNominalV(busNumToPsseBus.get(busNumber), perUnitContext.isIgnoreBaseVoltage());
-    }
-
-    private static void createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,
-        PerUnitContext perUnitContext, Network network) {
         for (PsseBus psseBus : psseModel.getBuses()) {
-
-            Substation substation = new SubstationConverter(psseBus, containersMapping, network).create();
-            VoltageLevel voltageLevel = new VoltageLevelConverter(psseBus, containersMapping, perUnitContext, network).create(substation);
-            new BusConverter(psseBus, containersMapping, network).create(voltageLevel);
+            Substation substation = new SubstationConverter(psseBus, containersMapping, nodeBreakerValidation, network).create();
+            VoltageLevel voltageLevel = new VoltageLevelConverter(psseBus, containersMapping, perUnitContext, network, nodeBreakerValidation, nodeBreakerImport).create(substation);
+            new BusConverter(psseBus, containersMapping, network, nodeBreakerImport).create(voltageLevel);
         }
+
+        return nodeBreakerImport;
     }
 
-    private static final class Edge {
-        private final int bus1;
-        private final int bus2;
-        private final boolean transformer;
-        private final boolean zeroImpedance;
-
-        private Edge(int bus1, int bus2, boolean transformer, boolean zeroImpedance) {
-            this.bus1 = bus1;
-            this.bus2 = bus2;
-            this.transformer = transformer;
-            this.zeroImpedance = zeroImpedance;
-        }
-
-        private int getBus1() {
-            return bus1;
-        }
-
-        private int getBus2() {
-            return bus2;
-        }
-
-        private boolean isTransformer() {
-            return transformer;
-        }
-
-        private boolean isZeroImpedance() {
-            return zeroImpedance;
-        }
-    }
-
-    static class PerUnitContext {
-        private final double sb;
-        private final boolean ignoreBaseVoltage;
-
-        PerUnitContext(double sb, boolean ignoreBaseVoltage) {
-            this.sb = sb;
-            this.ignoreBaseVoltage = ignoreBaseVoltage;
-        }
-
-        double getSb() {
-            return sb;
-        }
-
-        boolean isIgnoreBaseVoltage() {
-            return ignoreBaseVoltage;
-        }
+    record PerUnitContext(double sb, boolean ignoreBaseVoltage) {
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -44,6 +45,9 @@ public abstract class AbstractLoadTest {
         assertEquals(0.0, load.getQ0(), 0.0);
         load.setLoadType(LoadType.AUXILIARY);
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
+        assertFalse(load.isEquivalent());
+        load.setEquivalent(true);
+        assertTrue(load.isEquivalent());
     }
 
     @Test
@@ -61,7 +65,7 @@ public abstract class AbstractLoadTest {
     @Test
     public void testChangesNotification() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
 
@@ -126,11 +130,13 @@ public abstract class AbstractLoadTest {
                         .setQ0(1.0)
                         .setLoadType(LoadType.AUXILIARY)
                         .setNode(1)
+                        .setEquivalent(true)
                     .add();
         assertEquals(2.0, load.getP0(), 0.0);
         assertEquals(1.0, load.getQ0(), 0.0);
         assertEquals("testAdder", load.getId());
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
+        assertTrue(load.isEquivalent());
     }
 
     @Test
@@ -148,7 +154,7 @@ public abstract class AbstractLoadTest {
     @Test
     public void testSetterGetterInMultiVariants() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Set observer changes
         network.addListener(mockedListener);
 
@@ -186,12 +192,7 @@ public abstract class AbstractLoadTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            load.getQ0();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, load::getQ0);
 
         // Remove observer changes
         network.removeListener(mockedListener);
@@ -299,14 +300,14 @@ public abstract class AbstractLoadTest {
 
     @Test
     public void setNameTest() {
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         network.addListener(mockedListener);
         Load load = network.getLoad("CE");
         assertNotNull(load);
         assertTrue(load.getOptionalName().isEmpty());
         load.setName("FOO");
         assertEquals("FOO", load.getOptionalName().orElseThrow());
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, "FOO");
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, null, "FOO");
     }
 
     @Test

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
+class EnvironmentModuleConfigRepositoryTest extends AbstractMapModuleConfigTest {
 
     @Test
     void test() {

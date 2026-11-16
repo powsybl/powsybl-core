@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -51,7 +52,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityP() {
+    public ObservabilityQuality<T> getNullableQualityP() {
         return qualityP;
     }
 
@@ -77,7 +78,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityQ() {
+    public ObservabilityQuality<T> getNullableQualityQ() {
         return qualityQ;
     }
 
@@ -103,7 +104,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityV() {
+    public ObservabilityQuality<T> getNullableQualityV() {
         return qualityV;
     }
 

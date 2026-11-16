@@ -21,6 +21,11 @@ public class BatteryTripping extends AbstractInjectionTripping {
     }
 
     @Override
+    public String getName() {
+        return "BatteryTripping";
+    }
+
+    @Override
     protected Battery getInjection(Network network) {
         Battery injection = network.getBattery(id);
         if (injection == null) {

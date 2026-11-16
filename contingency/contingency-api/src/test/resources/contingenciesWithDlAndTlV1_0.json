@@ -1,0 +1,18 @@
+{
+  "type" : "default",
+  "version" : "1.0",
+  "name" : "list",
+  "contingencies" : [ {
+    "id" : "contingency",
+    "elements" : [ {
+      "id" : "NHV1_XNODE1",
+      "type" : "DANGLING_LINE"
+    } ]
+  }, {
+    "id" : "contingency2",
+    "elements" : [ {
+      "id" : "NHV1_NHV2_1",
+      "type" : "TIE_LINE"
+    } ]
+  } ]
+}

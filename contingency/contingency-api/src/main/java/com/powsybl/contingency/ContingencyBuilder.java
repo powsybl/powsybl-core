@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.contingency;
@@ -24,13 +25,15 @@ public class ContingencyBuilder {
 
     private final List<ContingencyElement> elements;
 
+    private String name;
+
     ContingencyBuilder(String id) {
         this.id = Objects.requireNonNull(id);
         this.elements = new ArrayList<>();
     }
 
     public Contingency build() {
-        return new Contingency(id, elements);
+        return new Contingency(id, name, elements);
     }
 
     public ContingencyBuilder addBattery(String id) {
@@ -98,8 +101,8 @@ public class ContingencyBuilder {
         return this;
     }
 
-    public ContingencyBuilder addDanglingLine(String id) {
-        elements.add(new DanglingLineContingency(id));
+    public ContingencyBuilder addBoundaryLine(String id) {
+        elements.add(new BoundaryLineContingency(id));
         return this;
     }
 
@@ -142,7 +145,37 @@ public class ContingencyBuilder {
     }
 
     public ContingencyBuilder addIdentifiable(Identifiable<?> identifiable) {
-        elements.add(ContingencyElement.of(identifiable));
+        elements.add(ContingencyElementFactory.create(identifiable));
+        return this;
+    }
+
+    public ContingencyBuilder addName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public ContingencyBuilder addVoltageSourceConverter(String id) {
+        elements.add(new VoltageSourceConverterContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id, String dcNodeId) {
+        elements.add(new DcLineContingency(id, dcNodeId));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id) {
+        elements.add(new DcLineContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcGround(String id) {
+        elements.add(new DcGroundContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcNode(String id) {
+        elements.add(new DcNodeContingency(id));
         return this;
     }
 }

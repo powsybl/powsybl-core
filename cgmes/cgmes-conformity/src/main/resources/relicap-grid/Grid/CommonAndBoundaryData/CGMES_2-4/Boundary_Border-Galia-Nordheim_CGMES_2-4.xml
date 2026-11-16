@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<!-- Exported from CIMSpy/CIMdesk on 2025-05-19T14:57:46Z. -->
+	<md:FullModel rdf:about="urn:uuid:5f8c11a8-c61c-42c9-925d-8cdbc0146c1a">
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.DependentOn rdf:resource="urn:uuid:1b65ada7-39ca-42b8-a278-39c457ed82c3"/>
+		<md:Model.created>2025-02-06T14:18:22Z</md:Model.created>
+		<md:Model.description>BD test data.</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://ninerealms.nr/boundary</md:Model.modelingAuthoritySet>
+		<md:Model.scenarioTime>2022-06-16T23:30:00Z</md:Model.scenarioTime>
+		<md:Model.version>1</md:Model.version>
+	</md:FullModel>
+	<cim:ConnectivityNode rdf:ID="_892ef502-162b-469f-b93f-266aae828227">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim7</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>NH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Oldissa1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Nordheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_e61f8ecf-8129-4702-a3a2-826bdf5ad13d"/>
+		<cim:IdentifiedObject.mRID>892ef502-162b-469f-b93f-266aae828227</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP HVDC GA-NH NH side</cim:IdentifiedObject.name>
+		<cim:ConnectivityNode.TopologicalNode>_471e0200-6a03-ea42-9507-6f4009cac4b8</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_d9574184-b375-45f6-8fcc-20ec0470bf93">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim7</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>NH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Oldissa1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Nordheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_82abfaf2-36df-44ac-b4e5-e40a535affa4"/>
+		<cim:IdentifiedObject.mRID>d9574184-b375-45f6-8fcc-20ec0470bf93</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-NH1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-NH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-SI-00001T</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<entsoe:IdentifiedObject.shortName>BP_GA-NH1</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_d6f36c11-356b-4d46-83bf-60c43cc8719d</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:Line rdf:ID="_82abfaf2-36df-44ac-b4e5-e40a535affa4">
+		<cim:IdentifiedObject.description>Line BP_GA-NH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-BO-GA-10114U</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:IdentifiedObject.mRID>82abfaf2-36df-44ac-b4e5-e40a535affa4</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-NH1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-NH1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Substation rdf:ID="_c39c3eb8-9cce-4778-9069-6952a117ba2b">
+		<cim:IdentifiedObject.mRID>c39c3eb8-9cce-4778-9069-6952a117ba2b</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>HVDV Station</cim:IdentifiedObject.name>
+		<cim:Substation.Region rdf:resource="#_77467625-a8fe-8792-7cf2-06c5dfd5fba9"/>
+	</cim:Substation>
+	<cim:TopologicalNode rdf:ID="_471e0200-6a03-ea42-9507-6f4009cac4b8">
+		<cim:IdentifiedObject.name>BP HVDC GA-NH NH side</cim:IdentifiedObject.name>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>NH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim7</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Oldissa1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Nordheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_e61f8ecf-8129-4702-a3a2-826bdf5ad13d</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_d6f36c11-356b-4d46-83bf-60c43cc8719d">
+		<cim:IdentifiedObject.name>BP_GA-NH1</cim:IdentifiedObject.name>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>NH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim7</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Oldissa1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Nordheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_82abfaf2-36df-44ac-b4e5-e40a535affa4</cim:TopologicalNode.ConnectivityNodeContainer>
+		<cim:IdentifiedObject.description>BP_GA-NH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-NH1</entsoe:IdentifiedObject.shortName>
+	</cim:TopologicalNode>
+	<cim:VoltageLevel rdf:ID="_e61f8ecf-8129-4702-a3a2-826bdf5ad13d">
+		<cim:IdentifiedObject.mRID>e61f8ecf-8129-4702-a3a2-826bdf5ad13d</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>VL 220 kV</cim:IdentifiedObject.name>
+		<cim:VoltageLevel.BaseVoltage rdf:resource="#_a7f1d8de-d658-428a-821b-3a5ae5965fd1"/>
+		<cim:VoltageLevel.Substation rdf:resource="#_c39c3eb8-9cce-4778-9069-6952a117ba2b"/>
+	</cim:VoltageLevel>
+</rdf:RDF>

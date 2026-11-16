@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.distributed;
 
@@ -11,20 +12,25 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.action.Action;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.condition.TrueCondition;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.strategy.OperatorStrategy;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -119,6 +125,7 @@ class SecurityAnalysisExecutionHandlersTest {
     void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
         OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
+        LimitScaling limitScaling = new LimitScaling(LimitType.CURRENT, 0.9);
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
@@ -127,7 +134,8 @@ class SecurityAnalysisExecutionHandlersTest {
                 .addResultExtensions(ImmutableList.of("ext1", "ext2"))
                 .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
-                .setOperatorStrategies(List.of(strategy));
+                .setOperatorStrategies(List.of(strategy))
+                .setLimitScalings(List.of(limitScaling));
         ExecutionHandler<SecurityAnalysisReport> handler = SecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         Path workingDir = fileSystem.getPath("/work");
@@ -142,6 +150,7 @@ class SecurityAnalysisExecutionHandlersTest {
                         "--contingencies-file=/work/contingencies.groovy",
                         "--actions-file=/work/actions.json",
                         "--strategies-file=/work/strategies.json",
+                        "--limit-scalings-file=/work/limit-scalings.json",
                         "--with-extensions=ext1,ext2",
                         "--limit-types=CURRENT",
                         "--task-count=12");
@@ -151,6 +160,7 @@ class SecurityAnalysisExecutionHandlersTest {
         assertThat(workingDir.resolve("contingencies.groovy")).exists();
         assertThat(workingDir.resolve("strategies.json")).exists();
         assertThat(workingDir.resolve("actions.json")).exists();
+        assertThat(workingDir.resolve("limit-scalings.json")).exists();
     }
 
     @Test
@@ -241,8 +251,9 @@ class SecurityAnalysisExecutionHandlersTest {
 
     private static SecurityAnalysisResult resultForContingency(String id) {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(new PostContingencyResult(new Contingency(id), PostContingencyComputationStatus.CONVERGED,
-                        LimitViolationsResult.empty())));
+                Collections.singletonList(new PostContingencyResult(new Contingency(id),
+                    PostContingencyComputationStatus.CONVERGED, LimitViolationsResult.empty(),
+                    NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, Collections.emptyList())));
     }
 
     @Test
@@ -302,30 +313,22 @@ class SecurityAnalysisExecutionHandlersTest {
                 "security-analysis-task_1.out",
                 "security-analysis-task_1.err");
         for (String logFileName : expectedLogs) {
-            Files.write(workingDir.resolve(logFileName), "logs".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(workingDir.resolve(logFileName), "logs");
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setWithLogs(true);
         ExecutionHandler<SecurityAnalysisReport> handler2 = SecurityAnalysisExecutionHandlers.distributed(input, 2);
-        try {
-            handler2.after(workingDir, new DefaultExecutionReport(workingDir));
-            fail();
-        } catch (ComputationException ce) {
-            assertEquals("logs", ce.getErrLogs().get("security-analysis-task_0.err"));
-            assertEquals("logs", ce.getErrLogs().get("security-analysis-task_1.err"));
-            assertEquals("logs", ce.getOutLogs().get("security-analysis-task_0.out"));
-            assertEquals("logs", ce.getOutLogs().get("security-analysis-task_1.out"));
-        }
+        ExecutionReport defaultExecutionReport = new DefaultExecutionReport(workingDir);
+        ComputationException exception = assertThrows(ComputationException.class, () -> handler2.after(workingDir, defaultExecutionReport));
+        assertEquals("logs", exception.getErrLogs().get("security-analysis-task_0.err"));
+        assertEquals("logs", exception.getErrLogs().get("security-analysis-task_1.err"));
+        assertEquals("logs", exception.getOutLogs().get("security-analysis-task_0.out"));
+        assertEquals("logs", exception.getOutLogs().get("security-analysis-task_1.out"));
 
-        try {
-            Command cmd = Mockito.mock(Command.class);
-            handler2.after(workingDir, new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42))));
-            fail();
-        } catch (Exception e) {
-            // ignored
-            assertTrue(e instanceof ComputationException);
-        }
+        Command cmd = Mockito.mock(Command.class);
+        ExecutionReport report = new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42)));
+        assertThrows(ComputationException.class, () -> handler2.after(workingDir, report));
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
             exporter.export(resultForContingency("c1"), writer);
@@ -336,8 +339,8 @@ class SecurityAnalysisExecutionHandlersTest {
         }
         ExecutionHandler<SecurityAnalysisReport> handler = SecurityAnalysisExecutionHandlers.distributed(input, 2);
 
-        SecurityAnalysisReport report = handler.after(workingDir, new DefaultExecutionReport(workingDir));
-        SecurityAnalysisResult result = report.getResult();
+        SecurityAnalysisReport securityAnalysisReport = handler.after(workingDir, new DefaultExecutionReport(workingDir));
+        SecurityAnalysisResult result = securityAnalysisReport.getResult();
 
         assertNotNull(result);
         assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
@@ -346,7 +349,7 @@ class SecurityAnalysisExecutionHandlersTest {
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
         assertEquals("c2", result.getPostContingencyResults().get(1).getContingency().getId());
 
-        byte[] logBytes = report.getLogBytes()
+        byte[] logBytes = securityAnalysisReport.getLogBytes()
                 .orElseThrow(IllegalStateException::new);
         Set<String> foundNames = getFileNamesFromZip(logBytes);
         assertEquals(expectedLogs, foundNames);
@@ -361,7 +364,7 @@ class SecurityAnalysisExecutionHandlersTest {
                 "security-analysis.err");
 
         for (String logFileName : expectedLogs) {
-            Files.write(workingDir.resolve(logFileName), "logs".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(workingDir.resolve(logFileName), "logs");
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()

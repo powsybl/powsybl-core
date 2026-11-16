@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -22,7 +23,7 @@ public interface Matrix {
     /**
      * Utility method for creating a single column matrix from a java array.
      *
-     * @param c a column array
+     * @param c             a column array
      * @param matrixFactory matrix factory to allow creating the matrix with different implementations.
      * @return the single column matrix
      */
@@ -39,7 +40,7 @@ public interface Matrix {
     /**
      * Utility method for creating a single row matrix from a java array.
      *
-     * @param r a row array
+     * @param r             a row array
      * @param matrixFactory matrix factory to allow creating the matrix with different implementations.
      * @return the single row matrix
      */
@@ -82,19 +83,11 @@ public interface Matrix {
         /**
          * This method is called for each element of the matrix.
          *
-         * @param i row index
-         * @param j column index
+         * @param i     row index
+         * @param j     column index
          * @param value the value at position ({@code i}, {@code j})
          */
         void onElement(int i, int j, double value);
-
-        /**
-         * @deprecated Use {@link #onElement(int, int, double)} instead.
-         */
-        @Deprecated(since = "2.5.0")
-        default void onValue(int i, int j, double value) {
-            onElement(i, j, value);
-        }
     }
 
     /**
@@ -105,14 +98,6 @@ public interface Matrix {
     int getRowCount();
 
     /**
-     * @deprecated Use {@link #getRowCount()} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default int getM() {
-        return getRowCount();
-    }
-
-    /**
      * Get column count.
      *
      * @return column count
@@ -120,35 +105,19 @@ public interface Matrix {
     int getColumnCount();
 
     /**
-     * @deprecated Use {@link #getColumnCount()} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default int getN() {
-        return getColumnCount();
-    }
-
-    /**
      * Set value at row {@code i} and column {@code j}.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to set at row {@code i} and column {@code j}
      */
     void set(int i, int j, double value);
 
     /**
-     * @deprecated Use {@link #set(int, int, double)} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default void setValue(int i, int j, double value) {
-        set(i, j, value);
-    }
-
-    /**
      * Add value at row {@code i} and column {@code j}.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to add at row {@code i} and column {@code j}
      */
     void add(int i, int j, double value);
@@ -156,8 +125,8 @@ public interface Matrix {
     /**
      * Add value at row {@code i} and column {@code j} and get an {@code #Element} to later update the element.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to add at row {@code i} and column {@code j}
      * @return an element at row {@code i} and column {@code j}
      */
@@ -166,8 +135,8 @@ public interface Matrix {
     /**
      * Add value at row {@code i} and column {@code j} and get an element index to later update the element.
      *
-     * @param i row index
-     * @param j column index
+     * @param i     row index
+     * @param j     column index
      * @param value the value to add at row {@code i} and column {@code j}
      * @return an element index corresponding to row {@code i} and column {@code j}
      */
@@ -206,14 +175,6 @@ public interface Matrix {
     void addQuickAtIndex(int index, double value);
 
     /**
-     * @deprecated Use {@link #add(int, int, double)} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default void addValue(int i, int j, double value) {
-        add(i, j, value);
-    }
-
-    /**
      * Fill matrix with zeros.
      */
     void reset();
@@ -229,7 +190,7 @@ public interface Matrix {
      * Multiply the matrix by another one and by a scalar (this*other*scalar). The resulting matrix has the same implementation as
      * this matrix.
      *
-     * @param other the other matrix
+     * @param other  the other matrix
      * @param scalar a scalar to multiply the result matrix
      * @return the result of the multiplication of this matrix by the other one
      */
@@ -250,7 +211,7 @@ public interface Matrix {
      *
      * @param other the other matrix
      * @param alpha a scalar to multiply this matrix
-     * @param beta a scalar to multiply other matrix
+     * @param beta  a scalar to multiply other matrix
      * @return the result of the addition of this matrix and the other one
      */
     Matrix add(Matrix other, double alpha, double beta);
@@ -276,7 +237,7 @@ public interface Matrix {
      * Iterate over non zero values of the {@code j} column of the matrix. At each non zero value {@link ElementHandler#onElement(int, int, double)}
      * is called.
      *
-     * @param j column index
+     * @param j       column index
      * @param handler the element handler
      */
     void iterateNonZeroValueOfColumn(int j, ElementHandler handler);
@@ -300,7 +261,6 @@ public interface Matrix {
      * return this.
      *
      * @param factory a matrix factory to create the copy.
-     *
      * @return a copy of the matrix
      */
     Matrix to(MatrixFactory factory);
@@ -309,7 +269,6 @@ public interface Matrix {
      * Copy this matrix using another implementation. This method is not allowed to return this.
      *
      * @param factory a matrix factory to create the copy.
-     *
      * @return a copy of the matrix
      */
     Matrix copy(MatrixFactory factory);
@@ -324,8 +283,8 @@ public interface Matrix {
     /**
      * Print the matrix to a stream. Row and column names are also printed to facilitate debugging.
      *
-     * @param out the stream
-     * @param rowNames row names
+     * @param out         the stream
+     * @param rowNames    row names
      * @param columnNames column names
      */
     void print(PrintStream out, List<String> rowNames, List<String> columnNames);
@@ -336,4 +295,23 @@ public interface Matrix {
      * @param out the stream
      */
     void print(PrintStream out);
+
+    /**
+     * Print the matrix to a stream including the row and the column, using the given print configuration
+     *
+     * @param out         the stream
+     * @param rowNames    the row names
+     * @param columnNames the column names
+     * @param config      the print configuration
+     */
+    void print(PrintStream out, List<String> rowNames, List<String> columnNames, PrintConfig config);
+
+    /**
+     * Print the matrix to a stream, using the given print configuration
+     *
+     * @param out       the stream
+     * @param config    the print configuration
+     */
+    void print(PrintStream out, PrintConfig config);
+
 }

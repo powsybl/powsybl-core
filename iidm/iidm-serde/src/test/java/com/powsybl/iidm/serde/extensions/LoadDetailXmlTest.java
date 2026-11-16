@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -21,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -96,7 +97,7 @@ class LoadDetailXmlTest extends AbstractIidmSerDeTest {
         NetworkSerDe.validate(tmp);
 
         try (InputStream is = Files.newInputStream(tmp)) {
-            compareXml(getVersionedNetworkAsStream("loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION), is);
+            assertXmlEquals(getVersionedNetworkAsStream("loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION), is);
         }
     }
 }

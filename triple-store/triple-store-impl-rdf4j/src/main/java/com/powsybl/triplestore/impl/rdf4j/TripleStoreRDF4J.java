@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.impl.rdf4j;
@@ -14,6 +15,7 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.*;
+import org.eclipse.rdf4j.query.algebra.evaluation.optimizer.ParentReferenceChecker;
 import org.eclipse.rdf4j.query.explanation.Explanation;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -50,8 +52,19 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     public TripleStoreRDF4J(TripleStoreOptions options) {
         super(options);
+
+        // This boolean is used to deactivate the ParentReferenceChecker optimizers added in testing environment.
+        // If you see serialization issues during the tests, do not hesitate to comment this line, at a cost of
+        // computation performances IN TEST ENVIRONMENT ONLY, it does not affect production environment
+        ParentReferenceChecker.skip = true;
+
         repo = new SailRepository(new MemoryStore());
         repo.init();
+    }
+
+    @Override
+    public void close() {
+        repo.shutDown();
     }
 
     @Override
@@ -84,8 +97,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             // When we write we want to keep data split by graph
             conn.add(is, baseName, guessFormatFromName(contextName), context);
             addNamespaceForBase(conn, baseName);
-        } catch (IOException x) {
-            throw new TripleStoreException(String.format("Reading %s %s", baseName, contextName), x);
+        } catch (IOException e) {
+            throw new TripleStoreException(String.format("Reading %s %s", baseName, contextName), e);
         }
     }
 
@@ -168,37 +181,46 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         PropertyBags results = new PropertyBags();
         try (RepositoryConnection conn = repo.getConnection()) {
             // Default language is SPARQL
-            TupleQuery q = conn.prepareTupleQuery(query1);
+            try {
+                TupleQuery q = conn.prepareTupleQuery(query1);
 
-            // Print the optimization plan for the query
-            // Explaining queries take some time, so we change the execution timeout
-            if (EXPLAIN_QUERIES && LOGGER.isDebugEnabled()) {
-                Explanation explanation = q.explain(Explanation.Level.Timed);
-                LOGGER.debug("Query explanation:\n{}\n{}", query, explanation);
-            }
+                // Print the optimization plan for the query
+                // Explaining queries take some time, so we change the execution timeout
+                if (EXPLAIN_QUERIES && LOGGER.isDebugEnabled()) {
+                    Explanation explanation = q.explain(Explanation.Level.Timed);
+                    LOGGER.debug("Query explanation:\n{}\n{}", query, explanation);
+                }
 
-            // Duplicated triplets are returned in queries
-            // when an object is defined in a file and referenced in another (rdf:ID and
-            // rdf:about)
-            // and data has been added to repository with contexts
-            // and we query without using explicit GRAPH clauses
-            // This means that we have to filter distinct results
-            try (TupleQueryResult r = QueryResults.distinctResults(q.evaluate())) {
-                List<String> names = r.getBindingNames();
-                while (r.hasNext()) {
-                    BindingSet s = r.next();
-                    PropertyBag result = new PropertyBag(names, getOptions().isRemoveInitialUnderscoreForIdentifiers(), getOptions().unescapeIdentifiers());
+                // Duplicated triplets are returned in queries
+                // when an object is defined in a file and referenced in another (rdf:ID and
+                // rdf:about)
+                // and data has been added to repository with contexts
+                // and we query without using explicit GRAPH clauses
+                // This means that we have to filter distinct results
+                try (TupleQueryResult r = QueryResults.distinctResults(q.evaluate())) {
+                    List<String> names = r.getBindingNames();
+                    while (r.hasNext()) {
+                        BindingSet s = r.next();
+                        PropertyBag result = new PropertyBag(names, getOptions().isRemoveInitialUnderscoreForIdentifiers(), getOptions().unescapeIdentifiers());
 
-                    names.forEach(name -> {
-                        if (s.hasBinding(name)) {
-                            String value = s.getBinding(name).getValue().stringValue();
-                            result.put(name, value);
+                        names.forEach(name -> {
+                            if (s.hasBinding(name)) {
+                                String value = s.getBinding(name).getValue().stringValue();
+                                result.put(name, value);
+                            }
+                        });
+                        if (result.size() > 0) {
+                            results.add(result);
                         }
-                    });
-                    if (result.size() > 0) {
-                        results.add(result);
                     }
                 }
+            } catch (MalformedQueryException e) {
+                int line = 1;
+                for (String s : query1.split("\n")) {
+                    LOGGER.error(String.format("%3d  %s", line, s));
+                    line++;
+                }
+                throw e;
             }
         }
         return results;
@@ -288,30 +310,33 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private static void createStatements(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement, Resource context, IRI resource) {
         List<String> names = statement.propertyNames();
-        names.forEach(name -> {
-            String property = statement.isClassProperty(name) ? name : objType + "." + name;
-            String value = statement.get(name);
-            IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
-            if (statement.isResource(name)) {
-                IRI object;
-                if (statement.isMultivaluedProperty(name)) {
-                    addMultivaluedProperty(cnx, value, resource, predicate, context);
-                } else {
-                    if (URIUtil.isValidURIReference(value)) { // the value already contains the namespace
-                        object = cnx.getValueFactory().createIRI(value);
-                    } else { // the value is an id, add the base namespace
-                        String namespace = cnx.getNamespace(statement.namespacePrefix(name));
-                        object = cnx.getValueFactory().createIRI(namespace, value);
-                    }
-                    Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
-                    cnx.add(st, context);
-                }
+        names.forEach(name -> createStatement(cnx, objNs, objType, statement, context, resource, name));
+    }
+
+    private static void createStatement(RepositoryConnection cnx, String objNs, String objType,
+                                        PropertyBag statement, Resource context, IRI resource, String name) {
+        String property = statement.isClassProperty(name) ? name : objType + "." + name;
+        String value = statement.get(name);
+        IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
+        if (statement.isResource(name)) {
+            IRI object;
+            if (statement.isMultivaluedProperty(name)) {
+                addMultivaluedProperty(cnx, value, resource, predicate, context);
             } else {
-                Literal object = cnx.getValueFactory().createLiteral(value);
+                if (URIUtil.isValidURIReference(value)) { // the value already contains the namespace
+                    object = cnx.getValueFactory().createIRI(value);
+                } else { // the value is an id, add the base namespace
+                    String namespace = cnx.getNamespace(statement.namespacePrefix(name));
+                    object = cnx.getValueFactory().createIRI(namespace, value);
+                }
                 Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
                 cnx.add(st, context);
             }
-        });
+        } else {
+            Literal object = cnx.getValueFactory().createLiteral(value);
+            Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+            cnx.add(st, context);
+        }
     }
 
     private static void addMultivaluedProperty(RepositoryConnection cnx, String value, IRI resource, IRI predicate, Resource context) {
@@ -362,14 +387,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 throw new TripleStoreException(message);
             }
             // Then all the other statements
-            for (final Statement st : model.filter(subject, null, null)) {
-                if (st.getPredicate().equals(RDF.TYPE)) {
-                    continue;
-                }
-                writer.handleStatement(st);
-            }
+            writeSubjectStatements(model, writer, subject);
         }
         writer.endRDF();
+    }
+
+    private void writeSubjectStatements(Model model, RDFWriter writer, Resource subject) {
+        for (final Statement st : model.filter(subject, null, null)) {
+            if (st.getPredicate().equals(RDF.TYPE)) {
+                continue;
+            }
+            writer.handleStatement(st);
+        }
     }
 
     private static int statementsCount(RepositoryConnection conn, Resource ctx) {

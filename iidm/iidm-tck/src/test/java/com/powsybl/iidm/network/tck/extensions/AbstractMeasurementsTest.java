@@ -3,19 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
+
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -114,5 +117,30 @@ public abstract class AbstractMeasurementsTest {
 
         twtMeasurements.cleanIfEmpty();
         assertNotNull(twt.getExtension(Measurements.class));
+    }
+
+    @Test
+    void setValueAndValidity() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
+
+        Load load = network.getLoad("LOAD");
+        load.newExtension(MeasurementsAdder.class).add();
+        Measurement measurement = load.getExtension(Measurements.class)
+                .newMeasurement()
+                .setType(Measurement.Type.OTHER)
+                .setValue(Double.NaN)
+                .setStandardDeviation(1.0)
+                .setValid(false)
+                .add();
+
+        measurement.setValueAndValidity(200.0d, true);
+        assertEquals(200.0d, measurement.getValue());
+        assertTrue(measurement.isValid());
+
+        measurement.setValueAndValidity(Double.NaN, false);
+        assertFalse(measurement.isValid());
+
+        assertThrows(PowsyblException.class, () -> measurement.setValueAndValidity(Double.NaN, true));
     }
 }

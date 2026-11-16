@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.model;
 
@@ -54,12 +55,12 @@ abstract class AbstractPowerFactoryTest extends AbstractSerDeTest {
                 .setLongAttributeValue("l", 49494L)
                 .setFloatAttributeValue("f", 3.4f)
                 .setDoubleAttributeValue("d", 3494.93939d)
-                .setObjectAttributeValue("o", 2L)
+                .setObjectAttributeValue("o", DataObjectRefKey.ofId(2L))
                 .setIntVectorAttributeValue("iv", List.of(1, 2, 3))
                 .setFloatVectorAttributeValue("fv", List.of(1.3f, 2.3f, 3.5f))
                 .setLongVectorAttributeValue("lv", List.of(4L, 5L, 6943953495493593L))
                 .setDoubleVectorAttributeValue("dv", List.of(1.3949d, 2.34d, 3.1223d))
-                .setObjectVectorAttributeValue("ov", List.of(3L))
+                .setObjectVectorAttributeValue("ov", List.of(DataObjectRefKey.ofId(3L)))
                 .setStringVectorAttributeValue("sv", List.of("AA", "BBB"))
                 .setDoubleMatrixAttributeValue("dm", new BlockRealMatrix(new double[][] {{1d, 2d, 3d}, {4d, 5d, 6d}}));
         objFoo.setParent(elmNet);

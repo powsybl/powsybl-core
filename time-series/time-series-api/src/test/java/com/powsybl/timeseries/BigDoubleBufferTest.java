@@ -3,20 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.timeseries.BigDoubleBuffer.IntIntBiConsumer;
+import com.powsybl.timeseries.BigDoubleBuffer.IntIntToDoubleBiFunction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
 import java.util.function.IntConsumer;
-import com.powsybl.timeseries.BigDoubleBuffer.IntIntBiConsumer;
-import com.powsybl.timeseries.BigDoubleBuffer.IntIntToDoubleBiFunction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}
@@ -27,6 +29,7 @@ class BigDoubleBufferTest {
 
     private int allocatorCount;
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     private ByteBuffer testDoubleAllocator(int capacity) {
         try {
             ByteBuffer bytebuffer = ByteBuffer.allocate(capacity);

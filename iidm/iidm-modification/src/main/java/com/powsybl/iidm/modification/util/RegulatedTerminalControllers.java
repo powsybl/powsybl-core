@@ -1,0 +1,236 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.modification.util;
+
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
+import java.util.*;
+
+/**
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ */
+public class RegulatedTerminalControllers {
+
+    private final Network network;
+    private final Map<TerminalRef, List<Identifiable<?>>> controllers;
+
+    public RegulatedTerminalControllers(Network network) {
+        this.network = network;
+        this.controllers = new HashMap<>();
+        findRegulatedTerminalControllers();
+    }
+
+    private void findRegulatedTerminalControllers() {
+        network.getIdentifiables().forEach(identifiable -> {
+            List<TerminalRef> regulatedTerminals = findRegulatedTerminals(identifiable);
+            regulatedTerminals.forEach(regulatedTerminal -> controllers.computeIfAbsent(regulatedTerminal, k -> new ArrayList<>()).add(identifiable));
+        });
+    }
+
+    private List<TerminalRef> findRegulatedTerminals(Identifiable<?> identifiable) {
+        List<TerminalRef> terminals = findRegulatedTerminalsInModel(identifiable);
+        terminals.addAll(findRegulatedTerminalsInExtensions(identifiable));
+        return terminals;
+    }
+
+    private List<TerminalRef> findRegulatedTerminalsInModel(Identifiable<?> identifiable) {
+        List<TerminalRef> regulatedTerminals = new ArrayList<>();
+        switch (identifiable.getType()) {
+            case BATTERY -> {
+                Battery battery = (Battery) identifiable;
+                add(regulatedTerminals, battery.getRegulatingTerminal());
+            }
+            case TWO_WINDINGS_TRANSFORMER -> {
+                TwoWindingsTransformer t2w = (TwoWindingsTransformer) identifiable;
+                t2w.getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
+                t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
+            }
+            case THREE_WINDINGS_TRANSFORMER -> {
+                ThreeWindingsTransformer t3w = (ThreeWindingsTransformer) identifiable;
+                t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
+                t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
+                t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
+                t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
+                t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulatingTerminal()));
+                t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> add(regulatedTerminals, ptc.getRegulationTerminal()));
+            }
+            case GENERATOR -> {
+                Generator generator = (Generator) identifiable;
+                add(regulatedTerminals, generator.getRegulatingTerminal());
+            }
+            case SHUNT_COMPENSATOR -> {
+                ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
+                add(regulatedTerminals, shuntCompensator.getRegulatingTerminal());
+            }
+            case STATIC_VAR_COMPENSATOR -> {
+                StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
+                add(regulatedTerminals, staticVarCompensator.getRegulatingTerminal());
+            }
+            case HVDC_CONVERTER_STATION -> {
+                HvdcConverterStation<?> hvdcConverterStation = (HvdcConverterStation<?>) identifiable;
+                if (hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
+                    VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
+                    add(regulatedTerminals, vscConverterStation.getRegulatingTerminal());
+                }
+            }
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
+                AcDcConverter<?> acDcConverter = (AcDcConverter<?>) identifiable;
+                add(regulatedTerminals, acDcConverter.getPccTerminal());
+            }
+            default -> {
+                // do nothing
+            }
+        }
+        return regulatedTerminals;
+    }
+
+    private static void add(List<TerminalRef> regulatedTerminals, Terminal regulatedTerminal) {
+        if (regulatedTerminal != null) {
+            regulatedTerminals.add(newTerminalRef(regulatedTerminal));
+        }
+    }
+
+    private List<TerminalRef> findRegulatedTerminalsInExtensions(Identifiable<?> identifiable) {
+        List<TerminalRef> regulatedTerminals = new ArrayList<>();
+        identifiable.getExtensionsStream().map(Extension::getName).forEach(extensionName ->
+                add(regulatedTerminals, findRegulatedTerminalInExtension(identifiable, extensionName)));
+        return regulatedTerminals;
+    }
+
+    private static Terminal findRegulatedTerminalInExtension(Identifiable<?> identifiable, String extensionName) {
+        if ("slackTerminal".equals(extensionName)) {
+            VoltageLevel voltageLevel = (VoltageLevel) identifiable;
+            SlackTerminal slackTerminal = voltageLevel.getExtension(SlackTerminal.class);
+            return slackTerminal.getTerminal();
+        }
+        return null;
+    }
+
+    public boolean usedAsRegulatedTerminal(Terminal regulatedTerminal) {
+        Objects.requireNonNull(regulatedTerminal);
+        return controllers.containsKey(newTerminalRef(regulatedTerminal));
+    }
+
+    public void replaceRegulatedTerminal(Terminal currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        replaceRegulatedTerminal(currentRegulatedTerminal, newRegulatedTerminal, null);
+    }
+
+    public void replaceRegulatedTerminal(Terminal currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
+        Objects.requireNonNull(currentRegulatedTerminal);
+        Objects.requireNonNull(newRegulatedTerminal);
+        TerminalRef currentRegulatedTerminalRef = newTerminalRef(currentRegulatedTerminal);
+        if (controllers.containsKey(currentRegulatedTerminalRef)) {
+            controllers.get(currentRegulatedTerminalRef).forEach(identifiable -> replaceRegulatedTerminal(identifiable, currentRegulatedTerminalRef, newRegulatedTerminal, newTargetValue));
+        }
+    }
+
+    private static void replaceRegulatedTerminal(Identifiable<?> identifiable, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
+        switch (identifiable.getType()) {
+            case TWO_WINDINGS_TRANSFORMER ->
+                replaceRegulatedTerminalTwoWindingsTransformer((TwoWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+            case THREE_WINDINGS_TRANSFORMER ->
+                replaceRegulatedTerminalThreeWindingsTransformer((ThreeWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+            case GENERATOR ->
+                replaceRegulatedTerminalForVoltageRegulationHolder((Generator) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
+            case SHUNT_COMPENSATOR ->
+                replaceRegulatedTerminalForVoltageRegulationHolder((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
+            case STATIC_VAR_COMPENSATOR ->
+                replaceRegulatedTerminalForVoltageRegulationHolder((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
+            case HVDC_CONVERTER_STATION ->
+                replaceRegulatedTerminalHvdcConverterStation((HvdcConverterStation<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
+            case BATTERY ->
+                replaceRegulatedTerminalForVoltageRegulationHolder((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
+            case VOLTAGE_LEVEL ->
+                replaceRegulatedTerminalVoltageLevel((VoltageLevel) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
+                replaceRegulatedTerminalAcDcConverter((AcDcConverter<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+            default -> throw new PowsyblException("unexpected identifiable type: " + identifiable.getType());
+        }
+    }
+
+    private static void replaceRegulatedTerminalTwoWindingsTransformer(TwoWindingsTransformer t2w, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> replace(rtc, currentRegulatedTerminal, newRegulatedTerminal));
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> replace(ptc, currentRegulatedTerminal, newRegulatedTerminal));
+    }
+
+    private static void replaceRegulatedTerminalThreeWindingsTransformer(ThreeWindingsTransformer t3w, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> replace(rtc, currentRegulatedTerminal, newRegulatedTerminal));
+        t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> replace(ptc, currentRegulatedTerminal, newRegulatedTerminal));
+        t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> replace(rtc, currentRegulatedTerminal, newRegulatedTerminal));
+        t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> replace(ptc, currentRegulatedTerminal, newRegulatedTerminal));
+        t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> replace(rtc, currentRegulatedTerminal, newRegulatedTerminal));
+        t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> replace(ptc, currentRegulatedTerminal, newRegulatedTerminal));
+    }
+
+    private static void replace(PhaseTapChanger ptc, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        if (ptc.getRegulationTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(ptc.getRegulationTerminal()))) {
+            ptc.setRegulationTerminal(newRegulatedTerminal);
+        }
+    }
+
+    private static void replace(RatioTapChanger rtc, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
+        if (voltageRegulation != null
+            && voltageRegulation.getTerminal() != null
+            && currentRegulatedTerminal.equals(newTerminalRef(voltageRegulation.getTerminal()))) {
+            voltageRegulation.setTerminal(newRegulatedTerminal, voltageRegulation.getTargetValue());
+        }
+    }
+
+    private static void replaceRegulatedTerminalHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation,
+                                                                     TerminalRef currentRegulatedTerminal,
+                                                                     Terminal newRegulatedTerminal,
+                                                                     Double newTargetValue) {
+        if (hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
+            replaceRegulatedTerminalForVoltageRegulationHolder((VscConverterStation) hvdcConverterStation, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
+        }
+    }
+
+    private static void replaceRegulatedTerminalAcDcConverter(AcDcConverter<?> acDcConverter, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        if (acDcConverter.getPccTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(acDcConverter.getPccTerminal()))) {
+            acDcConverter.setPccTerminal(newRegulatedTerminal);
+        }
+    }
+
+    private static <T extends VoltageRegulationHolder<T>> void replaceRegulatedTerminalForVoltageRegulationHolder(T voltageRegulationHolder,
+                                                                                                                  TerminalRef currentRegulatedTerminal,
+                                                                                                                  Terminal newRegulatedTerminal,
+                                                                                                                  Double newTargetValue) {
+        VoltageRegulation voltageRegulation = voltageRegulationHolder.getVoltageRegulation();
+        if (voltageRegulation != null) {
+            Terminal currentTerminal = voltageRegulation.getTerminal() != null ? voltageRegulation.getTerminal() : voltageRegulationHolder.getTerminal();
+            if (currentRegulatedTerminal.equals(newTerminalRef(currentTerminal))) {
+                // If no new target value is specified, we use the same targetValue as for the previous terminal
+                double targetValue = newTargetValue != null ? newTargetValue : voltageRegulation.getTargetValue();
+                voltageRegulation.setTerminal(newRegulatedTerminal, targetValue);
+            }
+        }
+    }
+
+    private static void replaceRegulatedTerminalVoltageLevel(VoltageLevel voltageLevel, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        SlackTerminal slackTerminal = voltageLevel.getExtension(SlackTerminal.class);
+        if (slackTerminal != null && slackTerminal.getTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(slackTerminal.getTerminal()))) {
+            slackTerminal.setTerminal(newRegulatedTerminal);
+        }
+    }
+
+    private static TerminalRef newTerminalRef(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+        return new TerminalRef(terminal.getConnectable().getId(), terminal.getSide());
+    }
+
+    // To avoid comparing regulating terminal objects, with custom IIDM implementations could be problematic.
+    private record TerminalRef(String identifiableId, ThreeSides side) {
+    }
+}

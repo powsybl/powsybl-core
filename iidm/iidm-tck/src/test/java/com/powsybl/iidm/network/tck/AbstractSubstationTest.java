@@ -3,13 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.Substation;
@@ -56,9 +56,9 @@ public abstract class AbstractSubstationTest {
         assertEquals("new tso", substation.getTso());
 
         // Create mocked network listeners
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Test without listeners registered
         substation.addGeographicalTag("no listeners");
         verifyNoMoreInteractions(mockedListener);
@@ -70,7 +70,7 @@ public abstract class AbstractSubstationTest {
         substation.addGeographicalTag("test");
         // Check notification done
         verify(mockedListener, times(1))
-               .onElementAdded(any(Substation.class), anyString(), anyString());
+               .onUpdate(any(Substation.class), anyString(), isNull(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
 

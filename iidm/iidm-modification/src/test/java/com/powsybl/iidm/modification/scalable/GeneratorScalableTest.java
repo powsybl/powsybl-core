@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
@@ -98,7 +99,7 @@ class GeneratorScalableTest {
 
         assertTrue(network.getGenerator("g3").getTerminal().isConnected());
         assertEquals(100.0, network.getGenerator("g3").getTargetP(), 0.0);
-        assertEquals(1.0, network.getGenerator("g3").getTargetV(), 0.0);
+        assertEquals(1.0, network.getGenerator("g3").getLocalTargetV(), 0.0);
     }
 
     @Test

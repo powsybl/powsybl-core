@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.model;
 
@@ -11,10 +12,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,8 +55,17 @@ class StudyCaseTest extends AbstractPowerFactoryTest {
         assertEquals(List.of(1.3f, 2.3f, 3.5f), objFoo.getFloatVectorAttributeValue("fv"));
         assertEquals(List.of(4L, 5L, 6943953495493593L), objFoo.getLongVectorAttributeValue("lv"));
         assertEquals(List.of(1.3949d, 2.34d, 3.1223d), objFoo.getDoubleVectorAttributeValue("dv"));
-        assertEquals(List.of(3L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).collect(Collectors.toList()));
+        assertEquals(List.of(3L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).toList());
         assertEquals(List.of("AA", "BBB"), objFoo.getStringVectorAttributeValue("sv"));
+    }
+
+    @Test
+    void jsonOversizedMatrixTest() throws IOException {
+        String json = new String(getClass().getResourceAsStream("/studyCase.json").readAllBytes(), StandardCharsets.UTF_8)
+                .replace("\"rowCount\" : 2", "\"rowCount\" : 2147483647");
+        StringReader reader = new StringReader(json);
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> StudyCase.parseJson(reader));
+        assertTrue(e.getMessage().contains("less than the declared"));
     }
 
     @Test

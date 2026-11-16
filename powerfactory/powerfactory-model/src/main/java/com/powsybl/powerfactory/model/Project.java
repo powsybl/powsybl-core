@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.model;
 
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalLong;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -115,7 +117,8 @@ public class Project extends AbstractPowerFactoryData {
     public StudyCase getActiveStudyCase() {
         // get active study case
         DataObject studyCaseObj = rootObject.getObjectAttributeValue("pCase").resolve().orElseThrow();
-        Instant studyTime = Instant.ofEpochSecond(studyCaseObj.getLongAttributeValue("iStudyTime"));
+        OptionalLong time = studyCaseObj.findLongAttributeValue("iStudyTime");
+        Instant studyTime = Instant.ofEpochSecond(time.orElseGet(() -> Instant.now().getEpochSecond()));
         String studyCaseName = rootObject.getLocName() + " - " + studyCaseObj.getLocName();
         DataObject netDataObj = rootObject.getChild("Network Model", "Network Data").orElseThrow();
         List<DataObject> elmNets = netDataObj.getChildrenByClass("ElmNet");

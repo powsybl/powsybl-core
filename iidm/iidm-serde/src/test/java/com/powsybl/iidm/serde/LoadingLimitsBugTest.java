@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -39,7 +40,7 @@ class LoadingLimitsBugTest extends AbstractIidmSerDeTest {
                 .setG(0.0)
                 .setB(0.0)
                 .add();
-        twt.newApparentPowerLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits()
                 .setPermanentLimit(100)
                 .add();
         // check that XIIDM 1.5 is not ill-formed

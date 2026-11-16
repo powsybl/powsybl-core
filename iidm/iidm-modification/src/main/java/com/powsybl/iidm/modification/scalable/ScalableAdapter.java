@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
@@ -15,12 +16,20 @@ import java.util.Objects;
 class ScalableAdapter extends AbstractScalable {
 
     private final String id;
+    private Double minValue = null;
+    private Double maxValue = null;
 
-    public ScalableAdapter(String id) {
+    ScalableAdapter(String id, double minValue, double maxValue) {
+        this.id = Objects.requireNonNull(id);
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
+
+    ScalableAdapter(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
-    public ScalableAdapter(Injection<?> injection) {
+    ScalableAdapter(Injection<?> injection) {
         Objects.requireNonNull(injection);
         this.id = injection.getId();
     }
@@ -28,12 +37,13 @@ class ScalableAdapter extends AbstractScalable {
     private Scalable getScalable(Network n) {
         Objects.requireNonNull(n);
         Identifiable<?> identifiable = n.getIdentifiable(id);
+        boolean withValues = minValue != null && maxValue != null;
         if (identifiable instanceof Generator) {
-            return new GeneratorScalable(id);
+            return withValues ? new GeneratorScalable(id, minValue, maxValue) : new GeneratorScalable(id);
         } else if (identifiable instanceof Load) {
-            return new LoadScalable(id);
-        } else if (identifiable instanceof DanglingLine) {
-            return new DanglingLineScalable(id);
+            return withValues ? new LoadScalable(id, minValue, maxValue) : new LoadScalable(id);
+        } else if (identifiable instanceof BoundaryLine) {
+            return withValues ? new BoundaryLineScalable(id, minValue, maxValue) : new BoundaryLineScalable(id);
         } else {
             throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
         }

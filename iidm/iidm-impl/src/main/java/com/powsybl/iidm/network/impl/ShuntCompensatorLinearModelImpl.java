@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -16,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, ShuntCompensatorLinearModel {
+class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder implements ShuntCompensatorModelExt, ShuntCompensatorLinearModel {
 
     private ShuntCompensatorImpl shuntCompensator;
 
@@ -92,7 +93,8 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.findSectionCount().isPresent() ? shuntCompensator.getSectionCount() : null, maximumSectionCount, shuntCompensator.getNetwork().getMinValidationLevel());
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.findSectionCount().isPresent() ? shuntCompensator.getSectionCount() : null, maximumSectionCount,
+                shuntCompensator.getNetwork().getMinValidationLevel(), shuntCompensator.getNetwork().getReportNodeContext().getReportNode());
         int oldValue = this.maximumSectionCount;
         this.maximumSectionCount = maximumSectionCount;
         shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
@@ -103,4 +105,5 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
     public ShuntCompensatorModelType getType() {
         return ShuntCompensatorModelType.LINEAR;
     }
+
 }

@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> imple
                 if (feederResult instanceof FortescueFeederResult fortescueFeederResult) {
                     return fortescueFeederResult.getCurrent().getPositiveMagnitude();
                 } else {
-                    return ((MagnitudeFaultResult) feederResult).getCurrent();
+                    return ((MagnitudeFeederResult) feederResult).getCurrent();
                 }
             }
         }

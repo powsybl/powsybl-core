@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -36,6 +37,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkSerializerContext context) {
+        writeEquivalent(l, context);
         context.getWriter().writeEnumAttribute("loadType", l.getLoadType());
         context.getWriter().writeDoubleAttribute("p0", l.getP0());
         context.getWriter().writeDoubleAttribute("q0", l.getQ0());
@@ -53,14 +55,15 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     private void writeModel(LoadModel model, NetworkSerializerContext context) {
         switch (model.getType()) {
-            case EXPONENTIAL:
+            case EXPONENTIAL -> {
                 ExponentialLoadModel expModel = (ExponentialLoadModel) model;
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
                 context.getWriter().writeDoubleAttribute("np", expModel.getNp());
                 context.getWriter().writeDoubleAttribute("nq", expModel.getNq());
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(expModel, context));
                 context.getWriter().writeEndNode();
-                break;
-            case ZIP:
+            }
+            case ZIP -> {
                 ZipLoadModel zipModel = (ZipLoadModel) model;
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ZIP_MODEL);
                 context.getWriter().writeDoubleAttribute("c0p", zipModel.getC0p());
@@ -69,10 +72,10 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                 context.getWriter().writeDoubleAttribute("c0q", zipModel.getC0q());
                 context.getWriter().writeDoubleAttribute("c1q", zipModel.getC1q());
                 context.getWriter().writeDoubleAttribute("c2q", zipModel.getC2q());
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(zipModel, context));
                 context.getWriter().writeEndNode();
-                break;
-            default:
-                throw new PowsyblException("Unexpected load model type: " + model.getType());
+            }
+            default -> throw new PowsyblException("Unexpected load model type: " + model.getType());
         }
     }
 
@@ -82,11 +85,12 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
     }
 
     @Override
-    protected void readRootElementAttributes(LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(LoadAdder adder, VoltageLevel parent, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
+        readEquivalent(adder, context);
         LoadType loadType = context.getReader().readEnumAttribute("loadType", LoadType.class, LoadType.UNDEFINED);
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, parent.getTopologyKind());
         adder.setLoadType(loadType)
                 .setP0(p0)
                 .setQ0(q0);
@@ -97,38 +101,40 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void readSubElements(String id, LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case EXPONENTIAL_MODEL -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
-                    double np = context.getReader().readDoubleAttribute("np");
-                    double nq = context.getReader().readDoubleAttribute("nq");
-                    context.getReader().readEndNode();
-                    adder.newExponentialModel()
-                            .setNp(np)
-                            .setNq(nq)
-                            .add();
-                }
-                case ZIP_MODEL -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
-                    double c0p = context.getReader().readDoubleAttribute("c0p");
-                    double c1p = context.getReader().readDoubleAttribute("c1p");
-                    double c2p = context.getReader().readDoubleAttribute("c2p");
-                    double c0q = context.getReader().readDoubleAttribute("c0q");
-                    double c1q = context.getReader().readDoubleAttribute("c1q");
-                    double c2q = context.getReader().readDoubleAttribute("c2q");
-                    context.getReader().readEndNode();
-                    adder.newZipModel()
-                            .setC0p(c0p)
-                            .setC1p(c1p)
-                            .setC2p(c2p)
-                            .setC0q(c0q)
-                            .setC1q(c1q)
-                            .setC2q(c2q)
-                            .add();
-                }
-                default -> readSubElement(elementName, id, toApply, context);
+        context.getReader().readChildNodes(elementName -> readChildNode(id, adder, toApply, context, elementName));
+    }
+
+    private void readChildNode(String id, LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context, String elementName) {
+        switch (elementName) {
+            case EXPONENTIAL_MODEL -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
+                double np = context.getReader().readDoubleAttribute("np");
+                double nq = context.getReader().readDoubleAttribute("nq");
+                ExponentialLoadModelAdder modelAdder = adder.newExponentialModel();
+                PropertiesSerDe.readProperties(context, modelAdder);
+                modelAdder.setNp(np)
+                    .setNq(nq)
+                    .add();
             }
-        });
+            case ZIP_MODEL -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
+                double c0p = context.getReader().readDoubleAttribute("c0p");
+                double c1p = context.getReader().readDoubleAttribute("c1p");
+                double c2p = context.getReader().readDoubleAttribute("c2p");
+                double c0q = context.getReader().readDoubleAttribute("c0q");
+                double c1q = context.getReader().readDoubleAttribute("c1q");
+                double c2q = context.getReader().readDoubleAttribute("c2q");
+                ZipLoadModelAdder modelAdder = adder.newZipModel();
+                PropertiesSerDe.readProperties(context, modelAdder);
+                modelAdder.setC0p(c0p)
+                    .setC1p(c1p)
+                    .setC2p(c2p)
+                    .setC0q(c0q)
+                    .setC1q(c1q)
+                    .setC2q(c2q)
+                    .add();
+            }
+            default -> readSubElement(elementName, id, toApply, context);
+        }
     }
 }

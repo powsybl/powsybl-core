@@ -3,39 +3,176 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
- * A ratio tap changer that is associated to a transformer to control the voltage.
+ * A ratio tap changer that is associated to a transformer to control the voltage or reactive power.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapChangerStep> {
+public interface RatioTapChanger extends TapChanger<
+    RatioTapChanger,
+    RatioTapChangerStep,
+    RatioTapChangerStepsReplacer,
+    RatioTapChangerStepsReplacer.StepAdder>,
+    VoltageRegulationHolder<RatioTapChanger> {
+
+    /**
+     * Get the regulation mode.
+     * Supported modes are {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE} and {@link com.powsybl.iidm.network.regulation.RegulationMode#REACTIVE_POWER}.
+     * @return the regulation mode.
+     * @deprecated use {@link VoltageRegulation#getMode()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RegulationMode getRegulationMode();
+
+    /**
+     * Set the regulation mode.
+     * Supported modes are {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE} and {@link com.powsybl.iidm.network.regulation.RegulationMode#REACTIVE_POWER}.
+     * @param regulationMode the regulation mode.
+     * @return itself for method chaining
+     * @deprecated use {@link VoltageRegulation#setMode(RegulationMode)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChanger setRegulationMode(RegulationMode regulationMode);
+
+    /**
+     * @deprecated use {@link VoltageRegulation#getTargetValue()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    double getRegulationValue();
+
+    /**
+     * Set the regulation value.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * @param regulationValue the regulation value.
+     * @return itself for method chaining.
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChanger setRegulationValue(double regulationValue);
 
     /**
      * Get the target voltage in kV.
      * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    double getTargetV();
-
-    /**
-     * Set the target voltage in kV.
+     * Returns NaN if the regulation mode is not {@link RegulationMode#VOLTAGE}.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #getRegulatingTargetV()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    double getTargetV();
+
+    /**
+     * Set the target voltage in kV and sets regulating mode to {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE}.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * @return itself for method chaining.
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RatioTapChanger setTargetV(double targetV);
 
-    /**
-     * Get the load tap changing capabilities status.
-     */
-    boolean hasLoadTapChangingCapabilities();
+    @Override
+    default double getLocalTargetQ() {
+        return Double.NaN;
+    }
 
     /**
-     * Set the load tap changing capabilities status.
+     * Checks if the object is regulating with the specified mode.
+     *
+     * @param mode the regulation mode to check
+     * @return true if regulating with the specified mode, false otherwise
      */
-    RatioTapChanger setLoadTapChangingCapabilities(boolean status);
+    @Override
+    default boolean isRegulatingWithMode(RegulationMode mode) {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null
+            && voltageRegulation.isRegulating()
+            && voltageRegulation.getMode() == mode;
+    }
+
+    /**
+     * Checks if the object is associated with the specified regulation mode.
+     *
+     * @param mode the regulation mode to check
+     * @return true if associated with the specified mode, false otherwise
+     */
+    @Override
+    default boolean isWithMode(RegulationMode mode) {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null
+            && voltageRegulation.getMode() == mode;
+    }
+
+    @Override
+    default RatioTapChanger setLocalTargetQ(double localTargetQ) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    default boolean isRegulating() {
+        return VoltageRegulationHolder.super.isRegulating();
+    }
+
+    /**
+     * Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the tap changer is regulating.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#getTargetDeadband()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    default double getTargetDeadband() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the tap changer is regulating. It must be positive.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setTargetDeadband(double)}  instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    default RatioTapChanger setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the regulating status.
+     * Tap changer must support onload tap changing capabilities to enable regulation.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChanger setRegulating(boolean regulating);
+
+    /**
+     * Get the terminal used for regulation.
+     * @deprecated use {@link #getRegulatingTerminal()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    Terminal getRegulationTerminal();
+
+    /**
+     * Set the terminal used for regulation.
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} ()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    RatioTapChanger setRegulationTerminal(Terminal regulationTerminal);
 }

@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation.local;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import org.junit.jupiter.api.AfterEach;
@@ -18,8 +20,10 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -103,5 +107,21 @@ class LocalComputationConfigTest {
         config = LocalComputationConfig.load(platformConfig, fileSystem);
         // now fist exist and is used in priority
         assertEquals(fileSystem.getPath("/first"), config.getLocalDir());
+    }
+
+    @Test
+    void testTmpDirNoneExist() {
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
+        moduleConfig.setStringListProperty("tmp-dir", Arrays.asList("/first", "/second"));
+        ConfigurationException e = assertThrows(ConfigurationException.class, () -> LocalComputationConfig.load(platformConfig, fileSystem));
+        assertEquals("None of the tmp dir path of the list defined at the configuration property 'computation-local.tmp-dir' exists", e.getMessage());
+    }
+
+    @Test
+    void testTmpDirEmptyList() {
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
+        moduleConfig.setStringListProperty("tmp-dir", Collections.emptyList());
+        ConfigurationException e = assertThrows(ConfigurationException.class, () -> LocalComputationConfig.load(platformConfig, fileSystem));
+        assertEquals("Empty tmp dir list", e.getMessage());
     }
 }

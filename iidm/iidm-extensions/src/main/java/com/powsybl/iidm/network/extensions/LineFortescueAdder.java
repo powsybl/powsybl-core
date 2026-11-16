@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -18,6 +19,14 @@ public interface LineFortescueAdder extends ExtensionAdder<Line, LineFortescue> 
     LineFortescueAdder withRz(double rz);
 
     LineFortescueAdder withXz(double xz);
+
+    LineFortescueAdder withG1z(double g1z);
+
+    LineFortescueAdder withB1z(double b1z);
+
+    LineFortescueAdder withG2z(double g2z);
+
+    LineFortescueAdder withB2z(double b2z);
 
     LineFortescueAdder withOpenPhaseA(boolean openPhaseA);
 

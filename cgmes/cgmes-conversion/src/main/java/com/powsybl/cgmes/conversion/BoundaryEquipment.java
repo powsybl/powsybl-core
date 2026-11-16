@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -39,22 +40,12 @@ class BoundaryEquipment {
     }
 
     EquipmentAtBoundaryConversion createConversion(Context context) {
-        EquipmentAtBoundaryConversion c = null;
-        switch (type) {
-            case AC_LINE_SEGMENT:
-                c = new ACLineSegmentConversion(propertyBags.get(0), context);
-                break;
-            case SWITCH:
-                c = new SwitchConversion(propertyBags.get(0), context);
-                break;
-            case TRANSFORMER:
-                c = new TwoWindingsTransformerConversion(propertyBags, context);
-                break;
-            case EQUIVALENT_BRANCH:
-                c = new EquivalentBranchConversion(propertyBags.get(0), context);
-                break;
-        }
-        return c;
+        return switch (type) {
+            case AC_LINE_SEGMENT -> new ACLineSegmentConversion(propertyBags.get(0), context);
+            case SWITCH -> new SwitchConversion(propertyBags.get(0), context);
+            case TRANSFORMER -> new TwoWindingsTransformerConversion(propertyBags, context);
+            case EQUIVALENT_BRANCH -> new EquivalentBranchConversion(propertyBags.get(0), context);
+        };
     }
 
     boolean isAcLineSegmentDisconnected(Context context) {

@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
@@ -18,7 +19,8 @@ public enum ContingencyElementType {
     BRANCH,
     HVDC_LINE,
     BUSBAR_SECTION,
-    DANGLING_LINE,
+    DANGLING_LINE, // Old value used for deserialization backward-compatibility
+    BOUNDARY_LINE,
     LINE,
     TWO_WINDINGS_TRANSFORMER,
     THREE_WINDINGS_TRANSFORMER,
@@ -26,5 +28,9 @@ public enum ContingencyElementType {
     SWITCH,
     BATTERY,
     BUS,
-    TIE_LINE
+    TIE_LINE,
+    VOLTAGE_SOURCE_CONVERTER,
+    DC_LINE,
+    DC_GROUND,
+    DC_NODE
 }

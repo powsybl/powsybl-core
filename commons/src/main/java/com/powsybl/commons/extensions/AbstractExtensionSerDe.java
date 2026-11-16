@@ -3,11 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
+import com.powsybl.commons.io.DeserializerContext;
+
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -42,6 +47,16 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
     }
 
     @Override
+    public final String getSerializationName(String extensionVersion) {
+        return getExtensionName();
+    }
+
+    @Override
+    public final Set<String> getSerializationNames() {
+        return Set.of(getExtensionName());
+    }
+
+    @Override
     public String getCategoryName() {
         return categoryName;
     }
@@ -62,12 +77,27 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
     }
 
     @Override
+    public Stream<String> getNamespaceUriStream() {
+        return Stream.of(namespaceUri);
+    }
+
+    @Override
     public String getNamespacePrefix() {
         return namespacePrefix;
     }
 
     @Override
+    public String getNamespacePrefix(String extensionVersion) {
+        return getNamespacePrefix();
+    }
+
+    @Override
     public String getVersion(String namespaceUri) {
         return this.namespaceUri.equals(namespaceUri) ? getVersion() : null;
+    }
+
+    @Override
+    public void checkReadingCompatibility(DeserializerContext context) {
+        // no need to check, there are no incompatibilities if not versionable
     }
 }

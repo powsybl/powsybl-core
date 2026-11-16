@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -112,7 +113,7 @@ public interface DiscreteMeasurement {
 
     /**
      * Set the discrete measured value and set the value type as STRING (see {@link ValueType}).
-     * Can not be null if the measurement is valid.
+     * Cannot be null if the measurement is valid.
      */
     DiscreteMeasurement setValue(String value);
 
@@ -128,13 +129,13 @@ public interface DiscreteMeasurement {
 
     /**
      * Get validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the discrete measured value can not be null.
+     * If it is true (i.e. the measurement is valid), the discrete measured value cannot be null.
      */
     boolean isValid();
 
     /**
      * Set validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the discrete measured value can not be null.
+     * If it is true (i.e. the measurement is valid), the discrete measured value cannot be null.
      */
     DiscreteMeasurement setValid(boolean valid);
 

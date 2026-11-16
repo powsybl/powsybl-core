@@ -3,12 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.TerminalNumber;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
+
+import java.util.Objects;
 
 /**
  *
@@ -20,15 +26,24 @@ class TerminalBuilder {
 
     private final Validable validable;
 
+    private final ThreeSides side;
+
+    private final TerminalNumber terminalNumber;
+
+    private final TopologyKind topologyKind;
+
     private Integer node;
 
     private String bus;
 
     private String connectableBus;
 
-    TerminalBuilder(Ref<? extends VariantManagerHolder> network, Validable validable) {
-        this.network = network;
-        this.validable = validable;
+    TerminalBuilder(Ref<? extends VariantManagerHolder> network, TopologyKind topologyKind, Validable validable, ThreeSides side, TerminalNumber terminalNumber) {
+        this.network = Objects.requireNonNull(network);
+        this.validable = Objects.requireNonNull(validable);
+        this.topologyKind = Objects.requireNonNull(topologyKind);
+        this.side = side;
+        this.terminalNumber = terminalNumber;
     }
 
     TerminalBuilder setBus(String bus) {
@@ -53,14 +68,16 @@ class TerminalBuilder {
                     "connection node and connection bus are exclusives");
         }
 
-        if (node == null) {
+        if (topologyKind == TopologyKind.NODE_BREAKER) {
+            if (node == null) {
+                throw new ValidationException(validable, "node is not set");
+            }
+            return new NodeTerminal(network, side, terminalNumber, node);
+        } else {
             if (connectionBus == null) {
                 throw new ValidationException(validable, "connectable bus is not set");
             }
-
-            return new BusTerminal(network, connectionBus, bus != null);
-        } else {
-            return new NodeTerminal(network, node);
+            return new BusTerminal(network, side, terminalNumber, connectionBus, bus != null);
         }
     }
 

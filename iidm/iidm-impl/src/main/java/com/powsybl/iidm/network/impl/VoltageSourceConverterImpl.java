@@ -1,0 +1,309 @@
+/**
+ * Copyright (c) 2025, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.network.impl;
+
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
+
+/**
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
+ */
+public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSourceConverter> implements VoltageSourceConverter, ReactiveLimitsOwner {
+
+    private final ReactiveLimitsHolderImpl reactiveLimits;
+
+    private final TDoubleArrayList localTargetQ;
+
+    private final TDoubleArrayList localTargetV;
+
+    private VoltageRegulationExt voltageRegulation;
+
+    VoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent,
+                               double minP, double maxP,
+                               double idleLoss, double switchingLoss, double resistiveLoss,
+                               TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
+                               double localTargetQ, double localTargetV, VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        super(ref, id, name, fictitious, equivalent, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
+                pccTerminal, controlMode, targetP, targetVdc);
+        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        this.localTargetQ = new TDoubleArrayList(variantArraySize);
+        this.localTargetV = new TDoubleArrayList(variantArraySize);
+        this.localTargetQ.fill(0, variantArraySize, localTargetQ);
+        this.localTargetV.fill(0, variantArraySize, localTargetV);
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VoltageSourceConverter.class, ref, voltageRegulationAttributes);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "AC/DC Voltage Source Converter";
+    }
+
+    @Override
+    public VoltageSourceConverter setPccTerminal(Terminal newPccTerminal) {
+        // As the pccTerminal must be the same as the voltageRegulation terminal,
+        // before setting the pccTerminal we check that the voltageRegulation terminal can be set to the newPccTerminal
+        Terminal newVoltageRegulationTerminal;
+        if (newPccTerminal.equals(getTerminal1())
+                && (isWithMode(RegulationMode.VOLTAGE) || voltageRegulation == null)) {
+            newVoltageRegulationTerminal = null;
+        } else {
+            newVoltageRegulationTerminal = newPccTerminal;
+        }
+        double targetValue = Double.NaN;
+        // Validates the new voltage regulation before updating the terminals
+        if (voltageRegulation != null) {
+            if (newVoltageRegulationTerminal != null) {
+                targetValue = voltageRegulation.getTargetValue();
+            }
+            ((VoltageRegulationImpl) voltageRegulation).checkNewTerminal(newVoltageRegulationTerminal, targetValue);
+        }
+        // Now we can set the terminals
+        super.setPccTerminal(newPccTerminal);
+        if (voltageRegulation != null) {
+            voltageRegulation.setTerminal(newVoltageRegulationTerminal, targetValue);
+        } else if (newVoltageRegulationTerminal != null) {
+            newVoltageRegulation()
+                .withTerminal(newVoltageRegulationTerminal)
+                .withRegulating(false)
+                .build();
+        }
+        return this;
+    }
+
+    void updatePccTerminalFromVoltageRegulation(Terminal newPccTerminal) {
+        if (newPccTerminal == null) {
+            super.setPccTerminal(getTerminal1());
+        } else if (getPccTerminal() != newPccTerminal) {
+            super.setPccTerminal(newPccTerminal);
+        }
+    }
+
+    @Override
+    public boolean isVoltageRegulatorOn() {
+        return isRegulatingWithMode(RegulationMode.VOLTAGE);
+    }
+
+    @Override
+    public VoltageSourceConverterImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        if (voltageRegulation != null) {
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            voltageRegulation.setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
+        }
+        return this;
+    }
+
+    @Override
+    public double getVoltageSetpoint() {
+        return this.getRegulatingTargetV();
+    }
+
+    @Override
+    public VoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+            voltageRegulation.setTargetValue(voltageSetpoint);
+        } else {
+            setLocalTargetV(voltageSetpoint);
+        }
+        return this;
+    }
+
+    @Override
+    public double getReactivePowerSetpoint() {
+        return this.getRegulatingTargetQ();
+    }
+
+    @Override
+    public VoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            voltageRegulation.setTargetValue(reactivePowerSetpoint);
+        } else {
+            setLocalTargetQ(reactivePowerSetpoint);
+        }
+        return this;
+    }
+
+    @Override
+    public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
+        return new ReactiveCapabilityCurveAdderImpl(this);
+    }
+
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
+    }
+
+    @Override
+    public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
+        return new MinMaxReactiveLimitsAdderImpl(this);
+    }
+
+    @Override
+    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+        this.reactiveLimits.setReactiveLimits(reactiveLimits);
+    }
+
+    @Override
+    public ReactiveLimits getReactiveLimits() {
+        return reactiveLimits.getReactiveLimits();
+    }
+
+    @Override
+    public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
+        return reactiveLimits.getReactiveLimits(type);
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        localTargetQ.ensureCapacity(localTargetQ.size() + number);
+        localTargetQ.fill(initVariantArraySize, initVariantArraySize + number, localTargetQ.get(sourceIndex));
+        localTargetV.ensureCapacity(localTargetV.size() + number);
+        localTargetV.fill(initVariantArraySize, initVariantArraySize + number, localTargetV.get(sourceIndex));
+        if (voltageRegulation != null) {
+            voltageRegulation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+        localTargetQ.remove(localTargetQ.size() - number, number);
+        localTargetV.remove(localTargetV.size() - number, number);
+        if (voltageRegulation != null) {
+            voltageRegulation.reduceVariantArraySize(number);
+        }
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+        for (int index : indexes) {
+            localTargetQ.set(index, localTargetQ.get(sourceIndex));
+            localTargetV.set(index, localTargetV.get(sourceIndex));
+        }
+        if (voltageRegulation != null) {
+            voltageRegulation.allocateVariantArrayElement(indexes, sourceIndex);
+        }
+    }
+
+    @Override
+    public void remove() {
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+        }
+        super.remove();
+    }
+
+    @Override
+    protected VoltageSourceConverter self() {
+        return this;
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl(VoltageSourceConverter.class, this, this, getNetwork().getRef(), this::createOrUpdateVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return this.voltageRegulation;
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        ValidationUtil.checkLocalTargetQandV(this,
+            VoltageSourceConverter.class,
+            this.getLocalTargetV(),
+            this.getLocalTargetQ(),
+            true,
+            false,
+            false,
+            null,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+            voltageRegulation = null;
+        }
+    }
+
+    @Override
+    public Terminal getTerminal() {
+        return getPccTerminal();
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return this.localTargetV.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public VoltageSourceConverter setLocalTargetV(double targetV) {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkLocalTargetQandV(this,
+            VoltageSourceConverter.class,
+            targetV,
+            this.getLocalTargetQ(),
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
+        int variantIndex = n.getVariantIndex();
+        double oldValue = this.localTargetV.set(variantIndex, targetV);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("localTargetV", variantId, oldValue, targetV);
+        return this;
+    }
+
+    @Override
+    public VoltageSourceConverter setLocalTargetQ(double targetQ) {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkLocalTargetQandV(this,
+            VoltageSourceConverter.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
+        int variantIndex = n.getVariantIndex();
+        double oldValue = this.localTargetQ.set(variantIndex, targetQ);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("localTargetQ", variantId, oldValue, targetQ);
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ.get(getNetwork().getVariantIndex());
+    }
+
+    /**
+     * <p>
+     * Creates or updates the voltage regulation corresponding to the provided attributes.
+     * </p>
+     * @param attributes The attributes to use for the VoltageRegulation object. Must not be null.
+     * @return The updated or newly created voltageRegulation.
+     */
+    private VoltageRegulationExt createOrUpdateVoltageRegulation(VoltageRegulation.@NonNull VoltageRegulationAttributes attributes) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VoltageSourceConverter.class, getNetwork().getRef(), attributes);
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(attributes);
+        }
+        return this.voltageRegulation;
+    }
+}
