@@ -27,6 +27,5 @@ public interface UcteImportPostProcessor {
      * @param ucteNetwork a representation of the UCTE file's network
      * @param reportNode the report node dedicated to this post-processor
      */
-    default void process(Network network, UcteNetwork ucteNetwork, ReportNode reportNode) {
-    }
+    void process(Network network, UcteNetwork ucteNetwork, ReportNode reportNode);
 }

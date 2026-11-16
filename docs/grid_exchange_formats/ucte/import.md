@@ -108,8 +108,7 @@ Post-processors are implementations of `UcteImportPostProcessor`.
 
 Post-processors can modify the converted network, with access to the UCTE file's comment and the order of the nodes inside each `##Z` block.
 
-Post-processors are applied in the given input order, first for all modifications.
-
+Post-processors are applied one after the other in the given order, each one seeing the modifications made by the previous ones.
 Its default value is an empty list.
 
 ## From UCTE to IIDM
