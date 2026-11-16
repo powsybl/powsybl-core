@@ -526,7 +526,7 @@ public abstract class AbstractLineTest {
         Line line = network.getLine(TO_REMOVE);
         assertNotNull(line);
         int count = network.getLineCount();
-        line.remove();    // <---- TODO HERE
+        line.remove();
         assertNotNull(line);
         Terminal t1 = line.getTerminal1();
         Terminal t2 = line.getTerminal2();
