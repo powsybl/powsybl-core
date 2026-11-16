@@ -39,7 +39,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
-    private static ReportNode newTestRootReportNode() {
+    static ReportNode newTestRootReportNode() {
         return ReportNode.newRootReportNode()
                          .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME,
                                  PowsyblCoreReportResourceBundle.BASE_NAME)

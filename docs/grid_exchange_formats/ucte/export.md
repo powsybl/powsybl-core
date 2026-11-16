@@ -46,6 +46,29 @@ into the exported angle regulation δu. This only applies to `ASYM` angle regula
 
 Its default value is `false`.
 
+**ucte.export.post-processors**<br>
+The `ucte.export.post-processors` property is an optional property that defines the list of post-processors to apply,
+in the given order, after the conversion of the network and before the writing of the UCTE-DEF file.
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/ucte/converter/UcteExportPostProcessor.html)
+Post-processors are implementations of `UcteExportPostProcessor`.
+
+Post-processors can:
+
+- Modify the converted UCTE network.
+  Comments can be added to the first comment block, or to additional comment blocks written in front of the `##N`,
+  `##L`, `##T` and `##R` blocks.
+- define the order of the nodes inside each `##Z` block.
+
+Post-processors are applied in the given input order, first for all modifications.
+Once all the post-processors have modified the UCTE network, the UCTE node comparators of the post-processors are
+requested.
+They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the
+given order, each one only breaking the ties of the previous ones.
+The default natural order is always used as a final tie-break.
+
+Its default value is an empty list.
+
 ## From IIDM to UCTE
 
 ### Node conversion
@@ -174,23 +197,31 @@ boundary line.
 The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following
 the same conventions as [node conversion](#node-conversion) above.
 
-| UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                                                             |
-|--------------------------------------------------------|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Node code                                              | Boundary line's pairing key, or id if it has none (tie line: pairing key) | Computed by the [naming strategy](#options).                                                                                                                                                                            |
-| Geographical name                                      | Boundary line's `geographicalName` property                               | Used as-is; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                                                           |
-| Node status                                            | Boundary line's `status_XNode` property                                   | `EQUIVALENT` if set to `EQUIVALENT`, `REAL` otherwise; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                |
-| Node type                                              | Unpaired boundary line's generation part voltage regulation               | `PU` if the generation part regulates voltage, `PQ` otherwise; always `PQ` for a tie line's X-node.                                                                                                                     |
-| Voltage reference (kV)                                 | Unpaired boundary line's generation part target voltage                   | Used as-is, only if the generation part regulates voltage; left undefined otherwise, and always for a tie line's X-node.                                                                                                |
-| Active load (MW)                                       | Unpaired boundary line's `P0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                                                                |
-| Reactive load (MVar)                                   | Unpaired boundary line's `Q0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                                                                |
-| Active power generation (MW)                           | Unpaired boundary line's generation part target active power              | Opposite sign; `0` if undefined, or for a tie line's X-node.                                                                                                                                                            |
-| Reactive power generation (MVar)                       | Unpaired boundary line's generation part target reactive power            | Opposite sign; `0` if undefined, or for a tie line's X-node.                                                                                                                                                            |
-| Min./max. permissible active/reactive power generation | Unpaired boundary line's generation part min/max limits                   | Same rules as for a node, see [Active and reactive power generation limits](#active-and-reactive-power-generation-limits); only set if the generation part regulates voltage; always undefined for a tie line's X-node. |
-| Static of primary control (%)                          | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                       |
-| Nominal power for primary control (MW)                 | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                       |
-| Three-phase short-circuit power (MVA)                  | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                       |
-| X/R ratio                                              | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                       |
-| Power plant type                                       | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                       |
+| UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                                                                    |
+|--------------------------------------------------------|---------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Node code                                              | Boundary line's pairing key, or id if it has none (tie line: pairing key) | Computed by the [naming strategy](#options).                                                                                                                                                                                   |
+| Geographical name                                      | Boundary line's `geographicalName` property                               | Used as-is; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                                                                  |
+| Node status                                            | Boundary line's `status_XNode` property                                   | `EQUIVALENT` if set to `EQUIVALENT`, `REAL` otherwise; for a tie line, merged from both boundary lines, see [Tie line properties](#tie-line-properties).                                                                       |
+| Node type                                              | Unpaired boundary line's generation part voltage regulation               | `PU` if the generation part regulates voltage, `PQ` otherwise; always `PQ` for a tie line's X-node or if the boundary line has no generation part (see [Boundary line without generation](#boundary-line-without-generation)). |
+| Voltage reference (kV)                                 | Unpaired boundary line's generation part target voltage                   | Used as-is, only if the generation part regulates voltage; left undefined otherwise (including with [no generation](#boundary-line-without-generation) part), and always for a tie line's X-node.                              |
+| Active load (MW)                                       | Unpaired boundary line's `P0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                                                                       |
+| Reactive load (MVar)                                   | Unpaired boundary line's `Q0`                                             | Used as-is; `0` for a tie line's X-node.                                                                                                                                                                                       |
+| Active power generation (MW)                           | Unpaired boundary line's generation part target active power              | Opposite sign; `0` if undefined, for a tie line's X-node or if the boundary line has no generation part (see [Boundary line without generation](#boundary-line-without-generation)).                                           |
+| Reactive power generation (MVar)                       | Unpaired boundary line's generation part target reactive power            | Opposite sign; `0` if undefined, for a tie line's X-node or if the boundary line has no generation part (see [Boundary line without generation](#boundary-line-without-generation)).                                           |
+| Min./max. permissible active/reactive power generation | Unpaired boundary line's generation part min/max limits                   | Same rules as for a node, see [Active and reactive power generation limits](#active-and-reactive-power-generation-limits); only set if the generation part regulates voltage; always undefined for a tie line's X-node.        |
+| Static of primary control (%)                          | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| Nominal power for primary control (MW)                 | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| Three-phase short-circuit power (MVA)                  | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| X/R ratio                                              | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+| Power plant type                                       | *(none)*                                                                  | Always undefined.                                                                                                                                                                                                              |
+
+##### Boundary line without generation
+
+If the original boundary line has no generation part, its X-node is exported as a `PQ` node without generation:
+
+- the voltage reference is left undefined
+- the permissible generation limits are left undefined
+- the active and reactive power generations are set to `0`
 
 #### Tie line properties
 

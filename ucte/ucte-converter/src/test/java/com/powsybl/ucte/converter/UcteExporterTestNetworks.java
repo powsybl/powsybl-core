@@ -112,4 +112,37 @@ final class UcteExporterTestNetworks {
                     .setMaxQ(maxQ)
                     .add();
     }
+
+    /**
+     * One French 380 kV voltage level holding one node {@code FFFFFF11}, and a boundary line from this node to an
+     * X-node {@code XXXXXX11} without generation part.
+     */
+    static Network createWithBoundaryLineWithoutGeneration() {
+        Network network = Network.create("boundaryLineWithoutGeneration", "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+        VoltageLevel voltageLevel = network.newSubstation()
+                                           .setId("SUBSTATION")
+                                           .setCountry(Country.FR)
+                                           .add()
+                                           .newVoltageLevel()
+                                           .setId("VL")
+                                           .setNominalV(380)
+                                           .setTopologyKind(TopologyKind.BUS_BREAKER)
+                                           .add();
+        voltageLevel.getBusBreakerView().newBus()
+                    .setId("FFFFFF11")
+                    .add();
+        voltageLevel.newBoundaryLine()
+                    .setId("FFFFFF11 XXXXXX11 1")
+                    .setBus("FFFFFF11")
+                    .setR(1)
+                    .setX(10)
+                    .setG(0)
+                    .setB(0)
+                    .setP0(50)
+                    .setQ0(30)
+                    .setPairingKey("XXXXXX11")
+                    .add();
+        return network;
+    }
 }
