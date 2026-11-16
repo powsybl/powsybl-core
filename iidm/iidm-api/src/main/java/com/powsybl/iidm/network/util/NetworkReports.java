@@ -491,7 +491,7 @@ public final class NetworkReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.plannedActivePowerTargetNotWithinRange")
                 .withTypedValue("id", id, TypedValue.ID)
-                .withTypedValue("plannedActivePowerSetpoint", plannedActivePowerSetpoint, TypedValue.ACTIVE_POWER)
+                .withTypedValue("plannedActivePowerTarget", plannedActivePowerSetpoint, TypedValue.ACTIVE_POWER)
                 .withTypedValue("minP", minP, TypedValue.ACTIVE_POWER)
                 .withTypedValue("maxP", maxP, TypedValue.ACTIVE_POWER)
                 .withSeverity(TypedValue.WARN_SEVERITY)

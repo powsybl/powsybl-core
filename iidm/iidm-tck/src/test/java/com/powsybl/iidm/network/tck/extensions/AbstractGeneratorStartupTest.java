@@ -115,9 +115,8 @@ public abstract class AbstractGeneratorStartupTest {
                 .withPlannedOutageRate(0.8)
                 .withForcedOutageRate(0.7)
                 .add();
-
-        reportNode1.getChildren();
         assertEquals("core.iidm.network.plannedActivePowerTargetNotWithinRange", reportNode1.getChildren().getFirst().getMessageKey());
+        assertEquals("'GEN': planned active power setpoint value 600.0 is outside authorized range [-9999.99; 60.0]", reportNode1.getChildren().getFirst().getMessage());
         assertEquals(600, startup.getPlannedActivePowerSetpoint());
 
         // test setter
@@ -129,8 +128,8 @@ public abstract class AbstractGeneratorStartupTest {
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode2);
         startup.setPlannedActivePowerSetpoint(61);
-        reportNode2.getChildren();
         assertEquals("core.iidm.network.plannedActivePowerTargetNotWithinRange", reportNode2.getChildren().getFirst().getMessageKey());
+        assertEquals("'GEN': planned active power setpoint value 61.0 is outside authorized range [-9999.99; 60.0]", reportNode2.getChildren().getFirst().getMessage());
         assertEquals(61, startup.getPlannedActivePowerSetpoint());
     }
 }

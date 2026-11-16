@@ -178,7 +178,7 @@ public final class ValidationUtil {
 
     public static void checkActivePowerTargetWithinRange(Validable validable, double targetP, double minP, double maxP, ReportNode reportNode) {
         // targetP=0 is always an acceptable state for a generator
-        if (validable instanceof Generator && targetP == 0) {
+        if ((validable instanceof Generator || validable instanceof GeneratorAdder) && targetP == 0) {
             return;
         }
         if (targetP < minP || targetP > maxP) {

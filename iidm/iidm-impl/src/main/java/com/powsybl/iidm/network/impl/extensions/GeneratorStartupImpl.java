@@ -45,7 +45,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setPlannedActivePowerSetpoint(double predefinedActivePowerSetpoint) {
-        ValidationUtil.checkPlannedActivePowerSetpoint((Validable) getExtendable(), plannedActivePowerSetpoint,
+        ValidationUtil.checkPlannedActivePowerSetpoint((Validable) getExtendable(), predefinedActivePowerSetpoint,
                 getExtendable().getMinP(), getExtendable().getMaxP(), getExtendable().getNetwork().getReportNodeContext().getReportNode());
         this.plannedActivePowerSetpoint = predefinedActivePowerSetpoint;
         return this;

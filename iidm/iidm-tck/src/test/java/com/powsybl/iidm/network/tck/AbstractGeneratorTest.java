@@ -165,8 +165,8 @@ public abstract class AbstractGeneratorTest {
         network.getReportNodeContext().pushReportNode(reportNode1);
         Generator generator = createGenerator(INVALID, EnergySource.HYDRO, 20.0, 19, 20.0,
                 30.0, 40.0, false, 20.0);
-        reportNode1.getChildren();
         assertEquals("core.iidm.network.activePowerTargetNotWithinRange", reportNode1.getChildren().getFirst().getMessageKey());
+        assertEquals("'invalid': active power setpoint value 30.0 is outside authorized range [19.0; 20.0]", reportNode1.getChildren().getFirst().getMessage());
         assertEquals(30.0, generator.getTargetP());
 
         // test setter
@@ -176,8 +176,8 @@ public abstract class AbstractGeneratorTest {
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode2);
         generator.setTargetP(32);
-        reportNode2.getChildren();
         assertEquals("core.iidm.network.activePowerTargetNotWithinRange", reportNode2.getChildren().getFirst().getMessageKey());
+        assertEquals("'invalid': active power setpoint value 32.0 is outside authorized range [19.0; 20.0]", reportNode2.getChildren().getFirst().getMessage());
         assertEquals(32.0, generator.getTargetP());
 
         // test with targetP = 0
@@ -187,7 +187,6 @@ public abstract class AbstractGeneratorTest {
                 .build();
         network.getReportNodeContext().pushReportNode(reportNode3);
         generator.setTargetP(0);
-        reportNode3.getChildren();
         assertEquals(0, reportNode3.getChildren().size());
         assertEquals(0, generator.getTargetP());
 
