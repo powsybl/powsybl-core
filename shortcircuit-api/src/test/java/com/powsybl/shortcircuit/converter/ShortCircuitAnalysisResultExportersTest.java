@@ -156,7 +156,6 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
 
         LimitViolation violation = faultResult.getLimitViolations().getFirst();
         assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
-        assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
 
         ViolationLocation location = violation.getViolationLocation().orElseThrow();
         assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
@@ -205,8 +204,6 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
         assertEquals(2.0, faultResult.getVoltage(), 0);
-        assertEquals(1.0, faultResult.getEquivalentR(), 0);
-        assertEquals(2.0, faultResult.getEquivalentX(), 0);
 
         LimitViolation violation = faultResult.getLimitViolations().getFirst();
         assertEquals("activated_limits_group", violation.getOperationalLimitsGroupId());
@@ -219,9 +216,9 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonFortescueFaultResultWithEquivalentImpedance() {
+    void readJsonFaultResultVersion17() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
-                .read(getClass().getResourceAsStream("/shortcircuit-fortescue-results-with-equivalent-impedance.json"));
+                .read(getClass().getResourceAsStream("/shortcircuit-results-version17.json"));
         assertEquals(1, result.getFaultResults().size());
 
         FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id");

@@ -83,12 +83,12 @@ public interface FaultResult extends Extendable<FaultResult> {
     double getFeederCurrent(String feederId);
 
     /**
-     * The equivalent resistance of the network seen from the fault.
+     * The positive-sequence equivalent resistance of the network seen from the fault.
      */
     double getEquivalentR();
 
     /**
-     * The equivalent reactance of the network seen from the fault.
+     * The positive-sequence equivalent reactance of the network seen from the fault.
      */
     double getEquivalentX();
 }

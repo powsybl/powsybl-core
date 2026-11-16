@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 class FaultResultDeserializer {
 
     private static final String CONTEXT_NAME = "FaultResult";
-    public static final String TAG = "Tag: ";
+    private static final String TAG = "Tag: ";
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
@@ -91,22 +91,22 @@ class FaultResultDeserializer {
                         faultResultParameters.status = FaultResult.Status.valueOf(parser.getValueAsString());
                     }
                     case "equivalentR" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.7");
                         parser.nextToken();
                         faultResultParameters.equivalentR = parser.readValueAs(Double.class);
                     }
                     case "equivalentX" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.7");
                         parser.nextToken();
                         faultResultParameters.equivalentX = parser.readValueAs(Double.class);
                     }
                     case "equivalentRZero" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.7");
                         parser.nextToken();
                         faultResultParameters.equivalentRZero = parser.readValueAs(Double.class);
                     }
                     case "equivalentXZero" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.6");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.7");
                         parser.nextToken();
                         faultResultParameters.equivalentXZero = parser.readValueAs(Double.class);
                     }
@@ -160,7 +160,7 @@ class FaultResultDeserializer {
                 } else {
                     return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
                             parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant,
-                            FaultResult.Status.SUCCESS, parameters.equivalentR, parameters.equivalentRZero, parameters.equivalentX, parameters.equivalentXZero);
+                            FaultResult.Status.SUCCESS, parameters.equivalentR, parameters.equivalentX, parameters.equivalentRZero, parameters.equivalentXZero);
                 }
             }
         } else {
@@ -173,7 +173,7 @@ class FaultResultDeserializer {
             } else {
                 return new FortescueFaultResult(parameters.fault, parameters.shortCircuitPower, parameters.feederResults,
                         parameters.limitViolations, parameters.current, parameters.voltage, parameters.shortCircuitBusResults, parameters.timeConstant,
-                        parameters.status, parameters.equivalentR, parameters.equivalentRZero, parameters.equivalentX, parameters.equivalentXZero);
+                        parameters.status, parameters.equivalentR, parameters.equivalentX, parameters.equivalentRZero, parameters.equivalentXZero);
             }
         }
     }

@@ -30,8 +30,8 @@ public final class FortescueFaultResult extends AbstractFaultResult {
 
     public FortescueFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                                 List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
-                                Duration timeConstant, Status status, double equivalentR, double equivalentRZero,
-                                double equivalentX, double equivalentXZero) {
+                                Duration timeConstant, Status status, double equivalentR, double equivalentX,
+                                double equivalentRZero, double equivalentXZero) {
         super(fault, status, shortCircuitPower, timeConstant, feederResults, limitViolations, shortCircuitBusResults, equivalentR, equivalentX);
         this.current = current;
         this.voltage = voltage;
@@ -60,9 +60,9 @@ public final class FortescueFaultResult extends AbstractFaultResult {
     }
 
     public FortescueFaultResult(Fault fault, double shortCircuitPower, FortescueValue current, FortescueValue voltage,
-                                Duration timeConstant, Status status, double equivalentR, double equivalentRZero, double equivalentX, double equivalentXZero) {
+                                Duration timeConstant, Status status, double equivalentR, double equivalentX, double equivalentRZero, double equivalentXZero) {
         this(fault, shortCircuitPower, Collections.emptyList(), Collections.emptyList(), current, voltage, Collections.emptyList(),
-                timeConstant, status, equivalentR, equivalentRZero, equivalentX, equivalentXZero);
+                timeConstant, status, equivalentR, equivalentX, equivalentRZero, equivalentXZero);
     }
 
     /**
@@ -87,7 +87,7 @@ public final class FortescueFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The zero-sequence equivalent three-phase reactance of the network seen from the fault.
+     * The zero-sequence equivalent reactance of the network seen from the fault.
      */
     public double getEquivalentXZero() {
         return equivalentXZero;

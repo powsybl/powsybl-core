@@ -18,8 +18,8 @@ Both classes contain the following attributes:
 | feederResults          | List<FeederResult>          | -    | no       | Empty list    | A list of FeederResult, should not be empty if the parameter `with-feeder-result` is set to `true`.        |
 | limitViolations        | List<LimitViolation>        | -    | no       | Empty list    | A list of LimitViolation, should be empty if the parameter `with-limit-violations` is set to `false`.      |
 | shortCircuitBusResults | List<ShortCircuitBusResult> | -    | no       | Empty list    | A list of ShortCircuitBusResult, should be empty if the parameter `with-voltage-result` is set to `false`. |
-| equivalentR            | double                      | Ohm  | no       | -             | The equivalent resistance of the network seen from the fault                                               |
-| equivalentX            | double                      | Ohm  | no       | -             | The equivalent reactance of the network seen from the fault                                                |
+| equivalentR            | double                      | Ohm  | no       | -             | The positive-sequence equivalent resistance of the network seen from the fault                                               |
+| equivalentX            | double                      | Ohm  | no       | -             | The positive-sequence equivalent reactance of the network seen from the fault                                                |
 
 However, in these classes, the short-circuit current and voltage are represented differently.
 
@@ -37,8 +37,8 @@ In `FortescueFaultResult`, they are:
 |-----------------|------------------|------|----------|---------------|---------------------------------------------------------------------------------------------------------|
 | current         | `FortescueValue` | A    | yes      | -             | The magnitude and angle of the computed short-circuit current detailed on the three phases              |
 | voltage         | `FortescueValue` | kV   | yes      | -             | The magnitude and angle of the computed short-circuit voltage detailed on the three phases              |
-| equivalentRZero | double           | Ohm  | no       | -             | The zero-sequence equivalent resistance of the network seen from the fault detailed on the three phases |
-| equivalentXZero | double           | Ohm  | no       | -             | The zero-sequence equivalent reactance of the network seen from the fault detailed on the three phases  |
+| equivalentRZero | double           | Ohm  | no       | -             | The zero-sequence equivalent resistance of the network seen from the fault|
+| equivalentXZero | double           | Ohm  | no       | -             | The zero-sequence equivalent reactance of the network seen from the fault|
 
 The negative-sequence equivalents are, as a first approach, assumed to be equal to the positive-sequence equivalents that are common for `MagnitudeFaultResult` and `FortescueFaultResult`.
 

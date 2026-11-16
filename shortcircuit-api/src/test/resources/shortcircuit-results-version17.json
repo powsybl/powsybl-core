@@ -1,5 +1,5 @@
 {
-  "version" : "1.6",
+  "version" : "1.7",
   "faultResults" : [ {
     "status" : "SUCCESS",
     "fault" : {
@@ -22,8 +22,8 @@
       "directAngle" : 50.0
     },
     "equivalentR" : 2.0,
-    "equivalentRZero" : 3.0,
     "equivalentX" : 4.0,
+    "equivalentRZero" : 3.0,
     "equivalentXZero" : 5.0
   } ]
 }
