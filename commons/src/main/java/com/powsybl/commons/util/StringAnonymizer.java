@@ -10,12 +10,14 @@ package com.powsybl.commons.util;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
-import com.univocity.parsers.csv.*;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.CsvRecord;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.LineDelimiter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.util.Arrays;
-import java.util.Map;
+import java.io.IOException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -66,21 +68,19 @@ public class StringAnonymizer {
         readCsv(reader, DEFAULT_SEPARATOR);
     }
 
-    private static void setFormat(CsvFormat format, char separator) {
-        format.setLineSeparator(System.lineSeparator());
-        format.setDelimiter(separator);
-        format.setQuoteEscape('"');
-    }
-
     public void readCsv(BufferedReader reader, char separator) {
-        CsvParserSettings settings = new CsvParserSettings();
-        setFormat(settings.getFormat(), separator);
-        CsvParser csvParser = new CsvParser(settings);
-        for (String[] nextLine : csvParser.iterate(reader)) {
-            if (nextLine.length != 2) {
-                throw new PowsyblException("Invalid line '" + Arrays.toString(nextLine) + "'");
-            }
-            mapping.put(nextLine[0], nextLine[1]);
+        try (CsvReader<CsvRecord> csvReader = CsvReader.builder()
+            .fieldSeparator(separator)
+            .quoteCharacter('"')
+            .ofCsvRecord(reader)) {
+            csvReader.forEach(csvRecord -> {
+                if (csvRecord.getFieldCount() != 2) {
+                    throw new PowsyblException("Invalid line '" + csvRecord + "'");
+                }
+                mapping.put(csvRecord.getField(0), csvRecord.getField(1));
+            });
+        } catch (IOException e) {
+            throw new PowsyblException("Failed to read the CSV", e);
         }
     }
 
@@ -89,18 +89,14 @@ public class StringAnonymizer {
     }
 
     public void writeCsv(BufferedWriter writer, char separator) {
-        CsvWriterSettings settings = new CsvWriterSettings();
-        setFormat(settings.getFormat(), separator);
-        CsvWriter csvWriter = new CsvWriter(writer, settings);
-        try {
-            String[] nextLine = new String[2];
-            for (Map.Entry<String, String> e : mapping.entrySet()) {
-                nextLine[0] = e.getKey();
-                nextLine[1] = e.getValue();
-                csvWriter.writeRow(nextLine);
-            }
-        } finally {
-            csvWriter.close();
+        try (CsvWriter csvWriter1 = CsvWriter.builder()
+            .fieldSeparator(separator)
+            .quoteCharacter('"')
+            .lineDelimiter(LineDelimiter.PLATFORM)
+            .build(writer)) {
+            mapping.forEach(csvWriter1::writeRecord);
+        } catch (IOException e) {
+            throw new PowsyblException("Failed to write the CSV", e);
         }
     }
 }

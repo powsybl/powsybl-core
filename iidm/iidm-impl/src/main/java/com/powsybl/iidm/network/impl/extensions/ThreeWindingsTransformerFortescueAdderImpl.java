@@ -10,9 +10,9 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.LegFortescue;
-import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
         private double groundingR = DEFAULT_GROUNDING_R;
         private double groundingX = DEFAULT_GROUNDING_X;
 
-        public LegFortescueAdderImpl(WindingConnectionType connectionType) {
+        LegFortescueAdderImpl(WindingConnectionType connectionType) {
             this.connectionType = Objects.requireNonNull(connectionType);
         }
 

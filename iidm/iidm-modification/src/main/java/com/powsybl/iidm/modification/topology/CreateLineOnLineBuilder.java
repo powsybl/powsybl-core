@@ -33,11 +33,12 @@ public class CreateLineOnLineBuilder {
     private String line1Name = null;
     private String line2Id = null;
     private String line2Name = null;
+    private Integer positionForNewLine = null;
 
     public CreateLineOnLine build() {
         return new CreateLineOnLine(positionPercent, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
-                line1Id, line1Name, line2Id, line2Name, line, lineAdder);
+                line1Id, line1Name, line2Id, line2Name, line, lineAdder, positionForNewLine);
     }
 
     public CreateLineOnLineBuilder withPositionPercent(double positionPercent) {
@@ -114,6 +115,11 @@ public class CreateLineOnLineBuilder {
 
     public CreateLineOnLineBuilder withLineAdder(LineAdder lineAdder) {
         this.lineAdder = lineAdder;
+        return this;
+    }
+
+    public CreateLineOnLineBuilder withPositionForNewLine(Integer positionForNewLine) {
+        this.positionForNewLine = positionForNewLine;
         return this;
     }
 }

@@ -11,10 +11,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.action.TerminalsConnectionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.action.TerminalsConnectionAction;
 
 import java.io.IOException;
 
@@ -30,31 +30,33 @@ public class TerminalsConnectionActionBuilderDeserializer extends StdDeserialize
     @Override
     public TerminalsConnectionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         TerminalsConnectionActionBuilder builder = new TerminalsConnectionActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            switch (name) {
-                case "type":
-                    if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + TerminalsConnectionAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    builder.withId(jsonParser.nextTextValue());
-                    return true;
-                case "elementId":
-                    builder.withNetworkElementId(jsonParser.nextTextValue());
-                    return true;
-                case "side":
-                    jsonParser.nextToken();
-                    builder.withSide(ThreeSides.valueOf(jsonParser.getValueAsString()));
-                    return true;
-                case "open":
-                    jsonParser.nextToken();
-                    builder.withOpen(jsonParser.getValueAsBoolean());
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> parseTerminalsConnectionAction(jsonParser, builder, name));
         return builder;
+    }
+
+    private boolean parseTerminalsConnectionAction(JsonParser jsonParser, TerminalsConnectionActionBuilder builder, String name) throws IOException {
+        switch (name) {
+            case "type":
+                if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextTextValue())) {
+                    throw JsonMappingException.from(jsonParser, "Expected type " + TerminalsConnectionAction.NAME);
+                }
+                return true;
+            case "id":
+                builder.withId(jsonParser.nextTextValue());
+                return true;
+            case "elementId":
+                builder.withNetworkElementId(jsonParser.nextTextValue());
+                return true;
+            case "side":
+                jsonParser.nextToken();
+                builder.withSide(ThreeSides.valueOf(jsonParser.getValueAsString()));
+                return true;
+            case "open":
+                jsonParser.nextToken();
+                builder.withOpen(jsonParser.getValueAsBoolean());
+                return true;
+            default:
+                return false;
+        }
     }
 }

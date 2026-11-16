@@ -7,18 +7,17 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.security.LimitViolationsResult;
+import org.apache.commons.io.output.NullWriter;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.apache.commons.io.output.NullWriter;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.contingency.violations.LimitViolationType;
-import com.powsybl.security.LimitViolationsResult;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -34,7 +33,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side1()
             .build();
@@ -42,7 +41,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side1()
             .build();
@@ -50,7 +49,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side2()
             .build();
@@ -58,7 +57,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100)
             .side2()
             .build();
@@ -66,7 +65,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1100.09)
             .side2()
             .build();
@@ -74,7 +73,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(1000.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(1101)
             .side2()
             .build();
@@ -82,7 +81,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(900.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(950)
             .side1()
             .build();
@@ -90,7 +89,7 @@ class LimitViolationsResultEquivalenceTest {
             .subject("NHV1_NHV2_2")
             .type(LimitViolationType.CURRENT)
             .limit(900.0)
-            .reduction(0.95)
+            .scaling(0.95)
             .value(950)
             .side1()
             .build();

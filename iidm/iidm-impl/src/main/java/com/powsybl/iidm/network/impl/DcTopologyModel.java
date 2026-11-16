@@ -13,10 +13,7 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.math.graph.TraversalType;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.UndirectedGraphImpl;
-import com.powsybl.math.graph.UndirectedGraphListener;
+import com.powsybl.math.graph.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -28,8 +25,10 @@ import java.util.stream.Stream;
  * DC buses are parts of the DC network with the same voltage, i.e. connected by
  * zero impedance links. The only links with zero impedance are closed DcSwitches
  * with zero resistance.
- * Only nodes with terminal create buses. In particular, disconnected nodes do
- * not create buses.
+ * A group of nodes creates a bus if at least one of its nodes has a connected
+ * terminal, or is an end of a closed DcSwitch with non-zero resistance (such a
+ * switch carries current like a DC line, so a voltage is needed at both ends).
+ * Other groups, e.g. isolated nodes, do not create buses.
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -57,7 +56,7 @@ class DcTopologyModel implements MultiVariantObject {
     // NetworkImpl is non-public and therefore RefChain<NetworkImpl> is as well.
     // If you want a DcTopologyModel object, get it through
     // Network::getDcTopologyModel
-    public DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
+    DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = Objects.requireNonNull(networkRef);
         this.subnetworkRef = Objects.requireNonNull(subnetworkRef);
         // the ref object of the variant array is the same as the current object
@@ -86,7 +85,9 @@ class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void edgeAdded(int e, DcSwitchImpl obj) {
-                invalidateCache();
+                // unlike DcConnectables, a DcSwitch has no DcTerminal
+                // whose attach would invalidate all variants.
+                invalidateAllVariantsCache();
             }
 
             @Override
@@ -96,7 +97,9 @@ class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void edgeRemoved(int e, DcSwitchImpl obj) {
-                invalidateCache();
+                // unlike DcConnectables, a DcSwitch has no DcTerminal
+                // whose detach would invalidate all variants.
+                invalidateAllVariantsCache();
             }
 
             @Override
@@ -106,7 +109,8 @@ class DcTopologyModel implements MultiVariantObject {
 
             @Override
             public void allEdgesRemoved(Collection<DcSwitchImpl> obj) {
-                invalidateCache();
+                // Handle the DcSwitch case.
+                invalidateAllVariantsCache();
             }
         });
     }
@@ -223,21 +227,23 @@ class DcTopologyModel implements MultiVariantObject {
     /**
      * DcBus topology calculated from DcNode-s and DcSwitch-es
      */
-    class CalculatedDcBusTopology {
+    private final class CalculatedDcBusTopology {
 
-        private static boolean isDcBusValid(Set<DcNodeImpl> dcNodeSet) {
-            // DcBus is valid if at least one DcConnectable connected, i.e. there is at least one connected DcTerminal
-            return dcNodeSet.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
+        private static boolean isDcBusValid(List<DcNodeImpl> dcNodes, Set<DcNodeImpl> resistiveSwitchEnds) {
+            // DcBus is valid if at least one DcTerminal is connected, or if one of its DcNodes
+            // is an end of a closed DcSwitch with non-zero resistance
+            return dcNodes.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent()
+                    || !Collections.disjoint(dcNodes, resistiveSwitchEnds);
         }
 
-        private DcBusImpl createDcBus(Set<DcNodeImpl> dcNodeSet) {
-            if (dcNodeSet == null || dcNodeSet.isEmpty()) {
+        private DcBusImpl createDcBus(List<DcNodeImpl> dcNodes) {
+            if (dcNodes == null || dcNodes.isEmpty()) {
                 throw new PowsyblException("DC Node set is null or empty");
             }
-            var node = dcNodeSet.stream().min(Comparator.comparing(DcNodeImpl::getId)).orElseThrow();
+            var node = dcNodes.stream().min(Comparator.comparing(DcNodeImpl::getId)).orElseThrow();
             String dcBusId = Identifiables.getUniqueId(node.getId() + "_dcBus", getNetwork().getIndex()::contains);
             String dcBusName = node.getOptionalName().orElse(null);
-            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodeSet);
+            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodes);
         }
 
         private DcBusCache getCache() {
@@ -246,32 +252,36 @@ class DcTopologyModel implements MultiVariantObject {
                 return variants.get().cache;
             }
 
+            // DcBus id -> DcBus
             Map<String, DcBusImpl> dcBuses = new LinkedHashMap<>();
 
             // mapping between DC nodes ID and DC buses
             Map<String, DcBusImpl> dcNodeIdToDcBus = new HashMap<>();
 
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            Arrays.fill(encountered, false);
-            for (int v : graph.getVertices()) {
-                if (!encountered[v]) {
-                    final Set<DcNodeImpl> dcNodeSet = new LinkedHashSet<>(1);
-                    dcNodeSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
-                        DcSwitchImpl dcSwitch = graph.getEdgeObject(e);
-                        if (dcSwitch.isOpen() || dcSwitch.getR() != 0.0) {
-                            return TraverseResult.TERMINATE_PATH;
-                        } else {
-                            dcNodeSet.add(graph.getVertexObject(v2));
-                            return TraverseResult.CONTINUE;
-                        }
-                    }, encountered);
-
-                    if (isDcBusValid(dcNodeSet)) {
-                        DcBusImpl dcBus = createDcBus(dcNodeSet);
-                        dcBuses.put(dcBus.getId(), dcBus);
-                        dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
+            Set<DcNodeImpl> resistiveSwitchEnds = new HashSet<>();
+            List<List<DcNodeImpl>> components = graph.computeTraversalPartitions(
+                (v1, e, v2) -> {
+                    DcSwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw.isOpen()) {
+                        return TraverseResult.TERMINATE_PATH;
                     }
+                    if (sw.getR() != 0.0) {
+                        // each edge is evaluated only once, from either end, so both ends are recorded here
+                        resistiveSwitchEnds.add(graph.getVertexObject(v1));
+                        resistiveSwitchEnds.add(graph.getVertexObject(v2));
+                        return TraverseResult.TERMINATE_PATH;
+                    }
+                    return TraverseResult.CONTINUE;
+                },
+                ArrayList::new,
+                (component, vertexIndex) -> component.add(graph.getVertexObject(vertexIndex))
+            );
+
+            for (List<DcNodeImpl> component : components) {
+                if (isDcBusValid(component, resistiveSwitchEnds)) {
+                    DcBusImpl dcBus = createDcBus(component);
+                    dcBuses.put(dcBus.getId(), dcBus);
+                    component.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
                 }
             }
 
@@ -307,7 +317,7 @@ class DcTopologyModel implements MultiVariantObject {
 
     }
 
-    final CalculatedDcBusTopology calculatedDcBusTopology
+    private final CalculatedDcBusTopology calculatedDcBusTopology
             = new CalculatedDcBusTopology();
 
     private static final class VariantImpl implements Variant {

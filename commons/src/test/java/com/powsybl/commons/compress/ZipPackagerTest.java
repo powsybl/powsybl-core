@@ -88,12 +88,7 @@ class ZipPackagerTest {
         }
 
         ZipPackager zipPackager1 = new ZipPackager();
-        try {
-            zipPackager1.addString("k1", null);
-            fail();
-        } catch (NullPointerException e) {
-            // ignored
-        }
+        assertThrows(NullPointerException.class, () -> zipPackager1.addString("k1", null));
 
         // static methods
         byte[] bytes = ZipPackager.archiveFilesToZipBytes(workingDir, "f1", "f2", "f3.gz");

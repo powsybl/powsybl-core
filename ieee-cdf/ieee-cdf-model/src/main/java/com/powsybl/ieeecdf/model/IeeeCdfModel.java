@@ -7,6 +7,13 @@
  */
 package com.powsybl.ieeecdf.model;
 
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBranch;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBus;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfInterchangeData;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfLossZone;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfTieLine;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfTitle;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

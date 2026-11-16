@@ -666,6 +666,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
         // terminal from old mode to new one, it will modify the old topology model
         record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
         }
+
         List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
         for (Terminal oldTerminal : topologyModel.getTerminals()) {
             if (oldTerminal.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
@@ -705,7 +706,7 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
             AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
 
             // create the new terminal with new type
-            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide(), oldTerminalExt.getTerminalNumber())
+            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, TopologyKind.BUS_BREAKER, this, oldTerminalExt.getSide(), oldTerminalExt.getTerminalNumber())
                     .setBus(infos.connected ? infos.connectableBusId() : null)
                     .setConnectableBus(infos.connectableBusId())
                     .build();

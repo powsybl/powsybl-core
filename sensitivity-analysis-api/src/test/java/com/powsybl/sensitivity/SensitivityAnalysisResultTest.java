@@ -25,7 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -69,21 +71,31 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues(SensitivityState.postContingency("NHV1_NHV2_2")).size());
 
-        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
-        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1), 0d);
-        assertEquals(1d, result.getBranchFlow1SensitivityValue("NHV1_NHV2_2", "g", "l", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1), 0d);
+        assertEquals(1d, result.getBranchFlow1SensitivityValue("NHV1_NHV2_2", "g", "l",
+            SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(2d, result.getBranchFlow1FunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
 
-        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l", SensitivityFunctionType.BRANCH_CURRENT_1, SensitivityVariableType.TRANSFORMER_PHASE_1), 0d);
-        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l", SensitivityFunctionType.BRANCH_CURRENT_1), 0d);
-        assertEquals(1d, result.getBranchCurrent1SensitivityValue("NHV1_NHV2_2", "g", "l", SensitivityVariableType.TRANSFORMER_PHASE_1), 0d);
+        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l",
+            SensitivityFunctionType.BRANCH_CURRENT_1, SensitivityVariableType.TRANSFORMER_PHASE_1), 0d);
+        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l",
+            SensitivityFunctionType.BRANCH_CURRENT_1), 0d);
+        assertEquals(1d, result.getBranchCurrent1SensitivityValue("NHV1_NHV2_2", "g", "l",
+            SensitivityVariableType.TRANSFORMER_PHASE_1), 0d);
         assertEquals(2d, result.getBranchCurrent1FunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
 
-        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "llll", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
-        assertThrows(PowsyblException.class, () -> result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l1", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, SensitivityVariableType.INJECTION_ACTIVE_POWER));
-        assertEquals(3d, result.getSensitivityValue(SensitivityState.PRE_CONTINGENCY, "g2", "l2", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "llll",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
+        assertThrows(PowsyblException.class, () -> result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l1",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, SensitivityVariableType.INJECTION_ACTIVE_POWER));
+        assertEquals(3d, result.getSensitivityValue(SensitivityState.PRE_CONTINGENCY, "g2", "l2",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(3d, result.getBranchFlow1SensitivityValue("g2", "l2", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
-        assertEquals(3d, result.getSensitivityValue("g2", "l2", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(3d, result.getSensitivityValue("g2", "l2", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+            SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(3d, result.getBranchCurrent1SensitivityValue("g2", "l2", SensitivityVariableType.TRANSFORMER_PHASE_2), 0d);
         assertEquals(4d, result.getBranchCurrent1SensitivityValue("g2", "l2", SensitivityVariableType.TRANSFORMER_PHASE_3), 0d);
         assertEquals(4d, result.getBranchFlow1FunctionReferenceValue("l2"), 0d);
@@ -130,19 +142,28 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues(SensitivityState.postContingency("NHV1_NHV2_2")).size());
 
-        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
-        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_2), 0d);
-        assertEquals(1d, result.getBranchFlow2SensitivityValue("NHV1_NHV2_2", "g", "l", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_2), 0d);
+        assertEquals(1d, result.getBranchFlow2SensitivityValue("NHV1_NHV2_2", "g", "l",
+            SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(2d, result.getBranchFlow2FunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
 
-        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l", SensitivityFunctionType.BRANCH_CURRENT_2, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
-        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l", SensitivityFunctionType.BRANCH_CURRENT_2), 0d);
-        assertEquals(1d, result.getBranchCurrent2SensitivityValue("NHV1_NHV2_2", "g", "l", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(1d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l",
+            SensitivityFunctionType.BRANCH_CURRENT_2, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l",
+            SensitivityFunctionType.BRANCH_CURRENT_2), 0d);
+        assertEquals(1d, result.getBranchCurrent2SensitivityValue("NHV1_NHV2_2", "g", "l",
+            SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(2d, result.getBranchCurrent2FunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
 
-        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "llll", SensitivityFunctionType.BRANCH_ACTIVE_POWER_2));
-        assertThrows(PowsyblException.class, () -> result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l1", SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, SensitivityVariableType.INJECTION_ACTIVE_POWER));
-        assertEquals(3d, result.getSensitivityValue(SensitivityState.PRE_CONTINGENCY, "g2", "l2", SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "llll",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_2));
+        assertThrows(PowsyblException.class, () -> result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l1",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, SensitivityVariableType.INJECTION_ACTIVE_POWER));
+        assertEquals(3d, result.getSensitivityValue(SensitivityState.PRE_CONTINGENCY, "g2", "l2",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(3d, result.getBranchFlow2SensitivityValue("g2", "l2", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(3d, result.getBranchCurrent2SensitivityValue("g2", "l2", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(6d, result.getBranchCurrent2SensitivityValue("g2", "l2", SensitivityVariableType.TRANSFORMER_PHASE_3), 0d);
@@ -187,20 +208,29 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues(SensitivityState.postContingency("NHV1_NHV2_2")).size());
 
-        assertEquals(2d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
-        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_3), 0d);
-        assertEquals(2d, result.getBranchFlow3SensitivityValue("NHV1_NHV2_2", "g", "l", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(2d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_3), 0d);
+        assertEquals(2d, result.getBranchFlow3SensitivityValue("NHV1_NHV2_2", "g", "l",
+            SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(2d, result.getBranchFlow3FunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
 
-        assertEquals(2d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l", SensitivityFunctionType.BRANCH_CURRENT_3, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
-        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l", SensitivityFunctionType.BRANCH_CURRENT_3), 0d);
-        assertEquals(2d, result.getBranchCurrent3SensitivityValue("NHV1_NHV2_2", "g", "l", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(2d, result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l",
+            SensitivityFunctionType.BRANCH_CURRENT_3, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertEquals(2d, result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "l",
+            SensitivityFunctionType.BRANCH_CURRENT_3), 0d);
+        assertEquals(2d, result.getBranchCurrent3SensitivityValue("NHV1_NHV2_2", "g", "l",
+            SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(2d, result.getBranchCurrent3FunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
         assertEquals(4d, result.getFunctionReferenceValue("l2", SensitivityFunctionType.BRANCH_CURRENT_3), 0d);
 
-        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "llll", SensitivityFunctionType.BRANCH_ACTIVE_POWER_3));
-        assertThrows(PowsyblException.class, () -> result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l1", SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, SensitivityVariableType.INJECTION_ACTIVE_POWER));
-        assertEquals(6d, result.getSensitivityValue(SensitivityState.PRE_CONTINGENCY, "g2", "l2", SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
+        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue(SensitivityState.postContingency("NHV1_NHV2_2"), "llll",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_3));
+        assertThrows(PowsyblException.class, () -> result.getSensitivityValue(SensitivityState.postContingency("NHV1_NHV2_2"), "g", "l1",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, SensitivityVariableType.INJECTION_ACTIVE_POWER));
+        assertEquals(6d, result.getSensitivityValue(SensitivityState.PRE_CONTINGENCY, "g2", "l2",
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(6d, result.getBranchFlow3SensitivityValue("g2", "l2", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(6d, result.getBranchCurrent3SensitivityValue("g2", "l2", SensitivityVariableType.INJECTION_ACTIVE_POWER), 0d);
         assertEquals(12d, result.getBranchCurrent3SensitivityValue("g2", "l2", SensitivityVariableType.TRANSFORMER_PHASE_1), 0d);
@@ -284,13 +314,33 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         SensitivityFactor factor4 = new SensitivityFactor(SensitivityFunctionType.BRANCH_CURRENT_1, "l2",
                 SensitivityVariableType.INJECTION_ACTIVE_POWER, "g2",
                 false, ContingencyContext.none());
-        List<SensitivityFactor> factors = List.of(factor1, factor2, factor3, factor4);
+        SensitivityFactor factor5 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
+                SensitivityVariableType.SHUNT_COMPENSATOR_SUSCEPTANCE, "shunt1",
+                false, ContingencyContext.none());
+        SensitivityFactor factor6 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
+                SensitivityVariableType.BRANCH_RESISTANCE, "l2",
+                false, ContingencyContext.none());
+        SensitivityFactor factor7 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
+                SensitivityVariableType.BRANCH_REACTANCE, "l2",
+                false, ContingencyContext.none());
+        SensitivityFactor factor8 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
+                SensitivityVariableType.BRANCH_ADMITTANCE, "l2",
+                false, ContingencyContext.none());
+        SensitivityFactor factor9 = new SensitivityFactor(SensitivityFunctionType.BUS_VOLTAGE, "bus1",
+                SensitivityVariableType.SVC_PILOT_POINT_TARGET_VOLTAGE, "svc_zone1",
+                false, ContingencyContext.none());
+        List<SensitivityFactor> factors = List.of(factor1, factor2, factor3, factor4, factor5, factor6, factor7, factor8, factor9);
 
         SensitivityValue value1 = new SensitivityValue(0, 0, -1, 1d, 2d);
         SensitivityValue value2 = new SensitivityValue(1, -1, -1, 3d, 4d);
         SensitivityValue value3 = new SensitivityValue(2, 0, -1, 1d, 2d);
         SensitivityValue value4 = new SensitivityValue(3, -1, -1, 3d, 4d);
-        List<SensitivityValue> values = List.of(value1, value2, value3, value4);
+        SensitivityValue value5 = new SensitivityValue(4, -1, -1, 5d, 6d);
+        SensitivityValue value6 = new SensitivityValue(5, -1, -1, 7d, 8d);
+        SensitivityValue value7 = new SensitivityValue(6, -1, -1, 9d, 10d);
+        SensitivityValue value8 = new SensitivityValue(7, -1, -1, 11d, 12d);
+        SensitivityValue value9 = new SensitivityValue(8, -1, -1, 13d, 14d);
+        List<SensitivityValue> values = List.of(value1, value2, value3, value4, value5, value6, value7, value8, value9);
 
         List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
         List<SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new ArrayList<>();
@@ -300,7 +350,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.1.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.2.json");
     }
 
     @Test
@@ -309,10 +359,24 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         try (InputStream is10 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.json")) {
             // check that we can still read 1.0
             SensitivityAnalysisResult result = objectMapper.readValue(is10, SensitivityAnalysisResult.class);
-            // and when we write to the 1.1 version, we get the expected result
-            String json11 = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
-            try (InputStream is11 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.1.json")) {
-                assertEquals(new String(Objects.requireNonNull(is11).readAllBytes(), StandardCharsets.UTF_8), json11);
+            // and when we write to the 1.2 version, we get the expected result
+            String json12 = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            try (InputStream isRef = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.1-upgraded.json")) {
+                assertEquals(new String(Objects.requireNonNull(isRef).readAllBytes(), StandardCharsets.UTF_8), json12);
+            }
+        }
+    }
+
+    @Test
+    void testCanReadResult11() throws IOException {
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
+        try (InputStream is11 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.1.json")) {
+            // check that we can still read 1.1
+            SensitivityAnalysisResult result = objectMapper.readValue(is11, SensitivityAnalysisResult.class);
+            // and when we write to the 1.2 version, we get the expected result
+            String json12 = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            try (InputStream isRef = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.1-upgraded.json")) {
+                assertEquals(new String(Objects.requireNonNull(isRef).readAllBytes(), StandardCharsets.UTF_8), json12);
             }
         }
     }

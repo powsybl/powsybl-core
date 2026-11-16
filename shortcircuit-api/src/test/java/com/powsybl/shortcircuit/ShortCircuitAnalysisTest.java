@@ -9,8 +9,8 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
@@ -179,5 +179,16 @@ class ShortCircuitAnalysisTest {
         assertEquals(1, feederResult.getCurrent());
         assertEquals(ThreeSides.ONE, feederResult.getSide());
         assertEquals(TwoSides.ONE, feederResult.getSideAsTwoSides());
+    }
+
+    @Test
+    void testGetFeederCurrent() {
+        ShortCircuitAnalysisResult magnitudeResult = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
+        assertEquals(1, magnitudeResult.getFaultResult("id").getFeederCurrent("connectableId"));
+        assertTrue(Double.isNaN(magnitudeResult.getFaultResult("id").getFeederCurrent("wrongConnectableId")));
+
+        ShortCircuitAnalysisResult fortescueResult = TestingResultFactory.createFortescueResult();
+        assertEquals(1, fortescueResult.getFaultResult("id").getFeederCurrent("id2"));
+        assertTrue(Double.isNaN(fortescueResult.getFaultResult("id").getFeederCurrent("wrongConnectableId")));
     }
 }

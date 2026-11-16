@@ -8,8 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Ground;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.Ground;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -17,8 +17,8 @@ import com.powsybl.commons.ref.Ref;
 class GroundImpl extends AbstractConnectable<Ground> implements Ground {
 
     GroundImpl(Ref<NetworkImpl> networkRef,
-               String id, String name) {
-        super(networkRef, id, name, false);
+               String id, String name, boolean equivalent) {
+        super(networkRef, id, name, false, equivalent);
     }
 
     @Override

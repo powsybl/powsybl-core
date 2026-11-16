@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 
 /**
  * <p>Class corresponding to the result of the {@link LimitsComputer} computation.</p>
- * <p>It contains the original and the altered limits. When no reductions apply, both fields contains the same object.
+ * <p>It contains the original and the altered limits. When no scalings apply, both fields contains the same object.
  * and {@link #isDistinct} returns <code>false</code>.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */

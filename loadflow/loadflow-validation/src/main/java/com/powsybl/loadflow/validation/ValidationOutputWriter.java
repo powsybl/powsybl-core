@@ -7,11 +7,11 @@
  */
 package com.powsybl.loadflow.validation;
 
-import java.util.Objects;
-
 import com.powsybl.loadflow.validation.io.ValidationFormatterCsvMultilineWriterFactory;
 import com.powsybl.loadflow.validation.io.ValidationFormatterCsvWriterFactory;
 import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
+
+import java.util.Objects;
 
 /**
  *

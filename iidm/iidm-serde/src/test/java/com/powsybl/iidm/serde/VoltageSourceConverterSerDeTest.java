@@ -8,17 +8,36 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
+
+    @Test
+    void testMaxPNotSupported() {
+        Network network = createNetworkWithNonDefaultMaxP();
+        Path filename = tmpDir.resolve("fail");
+        assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, filename));
+    }
+
+    @Test
+    void testMaxPWithForceExport() {
+        Network network = createNetworkWithNonDefaultMaxP();
+        Path filename = tmpDir.resolve("vsc-maxP-force-export");
+        assertDoesNotThrow(() -> NetworkSerDe.write(network, new ExportOptions().setForceExportNetworkWithBetaFeatures(true), filename));
+    }
 
     @Test
     void testNetworkVoltageSourceConverter() throws IOException {
@@ -112,8 +131,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setConnectableBus1(bus1.getId())
                 .setControlMode(AcDcConverter.ControlMode.V_DC)
                 .setTargetVdc(502.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(12.3)
+                .setLocalTargetQ(12.3)
                 .add();
         vsc1.setProperty("prop name", "prop value");
         vsc1.addAlias("someAlias");
@@ -127,16 +145,19 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setDcConnected2(true)
                 .setBus1(bus1.getId())
                 .setBus2(bus2.getId())
-                .setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP)
+                .setControlMode(AcDcConverter.ControlMode.DC_DROOP)
                 .setTargetVdc(502.)
                 .setTargetP(301.)
                 .setPccTerminal(lineBb.getTerminal1())
                 .setIdleLoss(2.0)
                 .setSwitchingLoss(0.2)
                 .setResistiveLoss(2e-6)
-                .setVoltageRegulatorOn(true)
-                .setReactivePowerSetpoint(12.3)
-                .setVoltageSetpoint(387.)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(lineBb.getTerminal1())
+                    .withTargetValue(387.)
+                    .add()
+                .setLocalTargetQ(12.3)
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-200.).setMaxQ(+210.).add();
         vsc2.getDcTerminal1().setP(-100.).setI(-200.);
@@ -166,8 +187,11 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(3.0)
                 .setSwitchingLoss(0.3)
                 .setResistiveLoss(3e-6)
-                .setVoltageRegulatorOn(true)
-                .setVoltageSetpoint(397.)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(lineNb.getTerminal2())
+                    .withTargetValue(397.)
+                    .add()
                 .add();
         vsc3.newReactiveCapabilityCurve()
                 .beginPoint().setP(-200.).setMinQ(-190.).setMaxQ(192.).endPoint()
@@ -181,6 +205,28 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
         vsc3.getTerminal1().setP(-105.); // no Q
         vsc3.getTerminal2().orElseThrow().setQ(-200.8); // no P
 
+        return network;
+    }
+
+    private static Network createNetworkWithNonDefaultMaxP() {
+        Network network = Network.create("voltageSourceConverterTest", "code");
+        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
+        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
+        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel().setId("vl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
+        vl.getBusBreakerView().newBus().setId("bus").add();
+        vl.newVoltageSourceConverter()
+                .setId("vsc")
+                .setDcNode1(dcNode1.getId()).setDcConnected1(false)
+                .setDcNode2(dcNode2.getId()).setDcConnected2(false)
+                .setConnectableBus1("bus")
+                .setControlMode(AcDcConverter.ControlMode.V_DC)
+                .setTargetVdc(500.)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .setLocalTargetQ(0.)
+                .setMaxP(500.)
+                .add();
         return network;
     }
 

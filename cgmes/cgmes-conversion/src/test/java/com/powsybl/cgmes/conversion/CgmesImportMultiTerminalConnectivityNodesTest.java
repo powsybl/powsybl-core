@@ -28,7 +28,8 @@ class CgmesImportMultiTerminalConnectivityNodesTest {
     void testNever() {
         Properties cgmesImportParameters = new Properties();
         cgmesImportParameters.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "NEVER");
-        Network network = ConversionUtil.readCgmesResources(cgmesImportParameters, "/multi-terminal-connectivity-nodes", "multiTerminalConnectivityNodes_EQ.xml", "multiTerminalConnectivityNodes_SSH.xml");
+        Network network = ConversionUtil.readCgmesResources(cgmesImportParameters, "/multi-terminal-connectivity-nodes",
+            "multiTerminalConnectivityNodes_EQ.xml", "multiTerminalConnectivityNodes_SSH.xml");
 
         // BBS1, Load1 and Disconnector connected to same ConnectivityNode: in IIDM that leads to BBS1 and Load1
         // connected with a single InternalConnection. The corresponding connectivity node is mirrored by the BBS:
@@ -67,7 +68,8 @@ class CgmesImportMultiTerminalConnectivityNodesTest {
     void testAlways() {
         Properties cgmesImportParameters = new Properties();
         cgmesImportParameters.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "ALWAYS");
-        Network network = ConversionUtil.readCgmesResources(cgmesImportParameters, "/multi-terminal-connectivity-nodes", "multiTerminalConnectivityNodes_EQ.xml", "multiTerminalConnectivityNodes_SSH.xml");
+        Network network = ConversionUtil.readCgmesResources(cgmesImportParameters, "/multi-terminal-connectivity-nodes",
+            "multiTerminalConnectivityNodes_EQ.xml", "multiTerminalConnectivityNodes_SSH.xml");
 
         // BBS1, Load1 and Disconnector connected to same ConnectivityNode
         assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load1");

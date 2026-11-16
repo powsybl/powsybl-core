@@ -50,7 +50,7 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
 
     @Override
     public String getSerializationName(String extensionVersion) {
-        return versionOf(extensionVersion).getSerializationName();
+        return versionOf(extensionVersion, true).getSerializationName();
     }
 
     @Override
@@ -181,6 +181,13 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     @Override
     public InputStream getXsdAsStream() {
         return Objects.requireNonNull(getClass().getResourceAsStream(getDefaultVersion().getXsdResourcePath()));
+    }
+
+    @Override
+    public InputStream getXsdAsStream(String extensionVersion) {
+        V version = versionOf(extensionVersion, true);
+        InputStream is = getClass().getResourceAsStream(version.getXsdResourcePath());
+        return Objects.requireNonNull(is, "xsd resource not found");
     }
 
     @Override

@@ -21,7 +21,7 @@ class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
 
     private ReactiveLimits reactiveLimits;
 
-    public ReactiveLimitsHolderImpl(AbstractConnectable<?> connectable, ReactiveLimits reactiveLimits) {
+    ReactiveLimitsHolderImpl(AbstractConnectable<?> connectable, ReactiveLimits reactiveLimits) {
         this.connectable = Objects.requireNonNull(connectable);
         this.reactiveLimits = Objects.requireNonNull(reactiveLimits);
     }

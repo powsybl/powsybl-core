@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
+import static java.lang.Double.NaN;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -121,6 +122,46 @@ class DoubleTimeSeriesTest {
         };
         assertArrayEquals(compressedPointsRef, timeSeries.compressedStream().toArray());
         assertIteratorsEquals(List.of(compressedPointsRef).iterator(), timeSeries.compressedIterator());
+    }
+
+    @Test
+    void testGetByIndex() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        List<DoubleTimeSeries> splitTimeSeries = timeSeries.split(4);
+        DoubleTimeSeries timeSeries1 = splitTimeSeries.get(0);
+        DoubleTimeSeries timeSeries2 = splitTimeSeries.get(1);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeries.toArray(), 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, timeSeries1.toArray(), 0d);
+        assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, timeSeries2.toArray(), 0d);
+        // Original time series
+        assertTimeSerie(timeSeries, 2d, 6d, 7d);
+        // First split time series
+        assertTimeSerie(timeSeries1, 2d, NaN, NaN);
+        // Second split time series
+        assertTimeSerie(timeSeries2, NaN, 6d, 7d);
+    }
+
+    @Test
+    void testDefaultGetByIndexDoubleTimeSeries() {
+        DoubleTimeSeries timeSeries = new FixedArrayDoubleTimeSeries(1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d);
+        DoubleTimeSeries timeSeries1 = new FixedArrayDoubleTimeSeries(1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN);
+        DoubleTimeSeries timeSeries2 = new FixedArrayDoubleTimeSeries(NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d);
+        // Original time series
+        assertTimeSerie(timeSeries, 2d, 6d, 7d);
+        // First split time series
+        assertTimeSerie(timeSeries1, 2d, NaN, NaN);
+        // Second split time series
+        assertTimeSerie(timeSeries2, NaN, 6d, 7d);
+    }
+
+    private static void assertTimeSerie(DoubleTimeSeries timeSeries, double expectedAtIndex1, double expectedAtIndex5, double expectedAtIndex6) {
+        assertEquals(expectedAtIndex1, timeSeries.get(1), 0d);
+        assertEquals(expectedAtIndex5, timeSeries.get(5), 0d);
+        assertEquals(expectedAtIndex6, timeSeries.get(6), 0d);
     }
 
     private static void assertDoubleMultiPointsIteratorEquals(double[][] expectedValues, Iterator<Instant> expectedInstants, Iterator<DoubleMultiPoint> it) {

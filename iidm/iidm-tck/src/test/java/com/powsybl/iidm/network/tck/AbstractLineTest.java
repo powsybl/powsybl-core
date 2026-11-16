@@ -86,6 +86,7 @@ public abstract class AbstractLineTest {
                 .setBus2("busB")
                 .setConnectableBus1("busA")
                 .setConnectableBus2("busB")
+                .setEquivalent(true)
                 .add();
         assertEquals("line", acLine.getId());
         assertEquals(LINE_NAME, acLine.getOptionalName().orElse(null));
@@ -113,6 +114,7 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal(TwoSides.TWO).getBusBreakerView().getConnectableBus());
         assertNull(acLine.getTerminal1().getTerminalNumber());
         assertNull(acLine.getTerminal2().getTerminalNumber());
+        assertTrue(acLine.isEquivalent());
 
         assertEquals(IdentifiableType.LINE, acLine.getType());
 
@@ -135,6 +137,8 @@ public abstract class AbstractLineTest {
         assertEquals(b1, acLine.getB1(), 0.0);
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
+        acLine.setEquivalent(false);
+        assertFalse(acLine.isEquivalent());
 
         CurrentLimits currentLimits1 = acLine.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100)
@@ -201,6 +205,7 @@ public abstract class AbstractLineTest {
 
         assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
         assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
+        assertFalse(acLine.isEquivalent());
     }
 
     @Test
@@ -296,12 +301,8 @@ public abstract class AbstractLineTest {
         assertEquals(0, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(vlNb, line.getTerminal1().getVoltageLevel());
         Terminal.NodeBreakerView tNbv = line.getTerminal1().getNodeBreakerView();
-        try {
-            tNbv.moveConnectable(0, "vl1");
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("Trying to move connectable line to node 0 of voltage level vl1, which is a bus breaker voltage level", e.getMessage());
-        }
+        PowsyblException e = assertThrows(PowsyblException.class, () -> tNbv.moveConnectable(0, "vl1"));
+        assertEquals("Trying to move connectable line to node 0 of voltage level vl1, which is a bus breaker voltage level", e.getMessage());
 
         line.getTerminal1().getBusBreakerView().moveConnectable(busC.getId(), true);
         assertSame(busC, line.getTerminal1().getBusBreakerView().getConnectableBus());
@@ -332,13 +333,9 @@ public abstract class AbstractLineTest {
 
         String busCcId = fictitiousSwitchNetwork.getGenerator("CC").getTerminal().getBusBreakerView().getBus().getId();
         Terminal.BusBreakerView tBbv = line.getTerminal1().getBusBreakerView();
-        try {
-            tBbv.moveConnectable(busCcId, true);
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("Trying to move connectable CJ to bus N_14 of voltage level N, which is a node breaker voltage level",
-                    e.getMessage());
-        }
+        PowsyblException e = assertThrows(PowsyblException.class, () -> tBbv.moveConnectable(busCcId, true));
+        assertEquals("Trying to move connectable CJ to bus N_14 of voltage level N, which is a node breaker voltage level",
+            e.getMessage());
 
         line.getTerminal1().getNodeBreakerView().moveConnectable(6, "C");
         assertEquals(6, line.getTerminal1().getNodeBreakerView().getNode());
@@ -366,12 +363,8 @@ public abstract class AbstractLineTest {
         assertEquals(0, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(vlNb, line.getTerminal2().getVoltageLevel());
         Terminal.NodeBreakerView tNbv = line.getTerminal2().getNodeBreakerView();
-        try {
-            tNbv.moveConnectable(0, "vl2");
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("Trying to move connectable line to node 0 of voltage level vl2, which is a bus breaker voltage level", e.getMessage());
-        }
+        PowsyblException e = assertThrows(PowsyblException.class, () -> tNbv.moveConnectable(0, "vl2"));
+        assertEquals("Trying to move connectable line to node 0 of voltage level vl2, which is a bus breaker voltage level", e.getMessage());
         line.getTerminal2().getBusBreakerView().moveConnectable(busC.getId(), true);
         assertSame(busC, line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertSame(busC, line.getTerminal2().getBusBreakerView().getBus());
@@ -399,12 +392,8 @@ public abstract class AbstractLineTest {
 
         String calculatedBusCHId = fictitiousSwitchNetwork.getLoad("CH").getTerminal().getBusBreakerView().getBus().getId();
         Terminal.BusBreakerView tBbv0 = line.getTerminal2().getBusBreakerView();
-        try {
-            tBbv0.moveConnectable(calculatedBusCHId, true);
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("Trying to move connectable CJ to bus N_22 of voltage level N, which is a node breaker voltage level", e.getMessage());
-        }
+        PowsyblException e = assertThrows(PowsyblException.class, () -> tBbv0.moveConnectable(calculatedBusCHId, true));
+        assertEquals("Trying to move connectable CJ to bus N_22 of voltage level N, which is a node breaker voltage level", e.getMessage());
         line.getTerminal2().getNodeBreakerView().moveConnectable(6, "N");
         assertEquals(6, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
@@ -414,21 +403,17 @@ public abstract class AbstractLineTest {
 
         String calculatedBusCId = fictitiousSwitchNetwork.getVoltageLevel("C").getNodeBreakerView().getTerminal(0).getBusBreakerView().getBus().getId();
         Terminal.BusBreakerView tBbv1 = line.getTerminal2().getBusBreakerView();
-        try {
-            tBbv1.moveConnectable(calculatedBusCId, true);
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("Trying to move connectable CJ to bus C_0 of voltage level C, which is a node breaker voltage level", e.getMessage());
-        }
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> tBbv1.moveConnectable(calculatedBusCId, true));
+        assertEquals("Trying to move connectable CJ to bus C_0 of voltage level C, which is a node breaker voltage level", e2.getMessage());
     }
 
     @Test
     public void testChangesNotification() {
         // Changes listener
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
 
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);

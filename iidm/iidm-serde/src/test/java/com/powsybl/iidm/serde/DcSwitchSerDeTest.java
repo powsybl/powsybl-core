@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcSwitchKind;
 import com.powsybl.iidm.network.Network;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

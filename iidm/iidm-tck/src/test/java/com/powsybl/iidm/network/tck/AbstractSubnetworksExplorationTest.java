@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,7 +65,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setMaxP(20.0)
                 .setMinP(10.0)
                 .setTargetP(15.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setNode(4)
                 .add();
         voltageLevel1.newShuntCompensator()
@@ -81,9 +82,10 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode(12)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulating(true)
-                .setVoltageSetpoint(400)
+                .setLocalTargetV(400)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         voltageLevel1.newLccConverterStation()
                 .setId(id("lcc1", networkId))
@@ -95,8 +97,10 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc1", networkId))
                 .setNode(10)
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(405.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
 
         Substation substation2 = n.newSubstation()
@@ -120,8 +124,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc2", networkId))
                 .setNode(11)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(123)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(123)
                 .add();
 
         n.newHvdcLine()
@@ -242,54 +245,57 @@ public abstract class AbstractSubnetworksExplorationTest {
                     .add()
                 .add();
 
-        DcNode dcNode1 = n.newDcNode()
-                .setId(id("dcNode1", networkId))
-                .setNominalV(500.)
-                .add();
-        DcNode dcNode2 = n.newDcNode()
-                .setId(id("dcNode2", networkId))
-                .setNominalV(500.)
-                .add();
-        n.newDcSwitch()
-                .setId(id("dcSwitch1", networkId))
-                .setKind(DcSwitchKind.DISCONNECTOR)
-                .setOpen(false)
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .add();
-        n.newDcGround()
-                .setId(id("dcGround1", networkId))
-                .setDcNode(dcNode1.getId())
-                .setR(0.01)
-                .add();
-        n.newDcLine()
-                .setId(id("dcLine1", networkId))
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .setR(1.0)
-                .add();
-        voltageLevel1.newLineCommutatedConverter()
-                .setId(id("lccDetailed1", networkId))
-                .setControlMode(AcDcConverter.ControlMode.V_DC)
-                .setNode1(16)
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .setTargetP(0.)
-                .setTargetVdc(500.)
-                .add();
-        voltageLevel1.newVoltageSourceConverter()
-                .setId(id("vscDetailed1", networkId))
-                .setControlMode(AcDcConverter.ControlMode.V_DC)
-                .setNode1(17)
-                .setDcNode1(dcNode1.getId())
-                .setDcNode2(dcNode2.getId())
-                .setTargetP(0.)
-                .setTargetVdc(500.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.)
-                .add();
+        createDcParts(n, networkId, voltageLevel1);
 
         return n;
+    }
+
+    private static void createDcParts(Network n, String networkId, VoltageLevel voltageLevel1) {
+        DcNode dcNode1 = n.newDcNode()
+            .setId(id("dcNode1", networkId))
+            .setNominalV(500.)
+            .add();
+        DcNode dcNode2 = n.newDcNode()
+            .setId(id("dcNode2", networkId))
+            .setNominalV(500.)
+            .add();
+        n.newDcSwitch()
+            .setId(id("dcSwitch1", networkId))
+            .setKind(DcSwitchKind.DISCONNECTOR)
+            .setOpen(false)
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .add();
+        n.newDcGround()
+            .setId(id("dcGround1", networkId))
+            .setDcNode(dcNode1.getId())
+            .setR(0.01)
+            .add();
+        n.newDcLine()
+            .setId(id("dcLine1", networkId))
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .setR(1.0)
+            .add();
+        voltageLevel1.newLineCommutatedConverter()
+            .setId(id("lccDetailed1", networkId))
+            .setControlMode(AcDcConverter.ControlMode.V_DC)
+            .setNode1(16)
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .setTargetP(0.)
+            .setTargetVdc(500.)
+            .add();
+        voltageLevel1.newVoltageSourceConverter()
+            .setId(id("vscDetailed1", networkId))
+            .setControlMode(AcDcConverter.ControlMode.V_DC)
+            .setNode1(17)
+            .setDcNode1(dcNode1.getId())
+            .setDcNode2(dcNode2.getId())
+            .setTargetP(0.)
+            .setTargetVdc(500.)
+            .setLocalTargetQ(0.0)
+            .add();
     }
 
     private static Set<String> getIdentifiables(Network n1) {
@@ -374,11 +380,11 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertIds(List.of(n1Substation1, n2Substation1), merged.getSubstations(Country.FR, null));
         assertIds(List.of(n1Substation1), subnetwork1.getSubstations(Country.FR, null));
         assertIds(List.of(n2Substation1), subnetwork2.getSubstations(Country.FR, null));
-        var countryName = Country.ES.getName();
+        var countryName = Country.ES.getFullName();
         assertIds(List.of(n1Substation2), merged.getSubstations(countryName, null));
         assertIds(List.of(n1Substation2), subnetwork1.getSubstations(countryName, null));
         assertFalse(subnetwork2.getSubstations(countryName, null).iterator().hasNext());
-        countryName = Country.BE.getName();
+        countryName = Country.BE.getFullName();
         assertIds(List.of(n2Substation2), merged.getSubstations(countryName, null));
         assertFalse(subnetwork1.getSubstations(countryName, null).iterator().hasNext());
         assertIds(List.of(n2Substation2), subnetwork2.getSubstations(countryName, null));

@@ -28,30 +28,32 @@ public class PercentChangeLoadActionBuilderDeserializer extends StdDeserializer<
     @Override
     public PercentChangeLoadActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         PercentChangeLoadActionBuilder builder = new PercentChangeLoadActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            switch (name) {
-                case "type":
-                    if (!PercentChangeLoadAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + PercentChangeLoadAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    builder.withId(jsonParser.nextTextValue());
-                    return true;
-                case "loadId":
-                    builder.withLoadId(jsonParser.nextTextValue());
-                    return true;
-                case "p0PercentChange":
-                    jsonParser.nextToken();
-                    builder.withP0PercentChange(jsonParser.getValueAsDouble());
-                    return true;
-                case "qModificationStrategy":
-                    builder.withQModificationStrategy(PercentChangeLoadAction.QModificationStrategy.valueOf(jsonParser.nextTextValue()));
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> parsePercentChangeLoadAction(jsonParser, builder, name));
         return builder;
+    }
+
+    private boolean parsePercentChangeLoadAction(JsonParser jsonParser, PercentChangeLoadActionBuilder builder, String name) throws IOException {
+        switch (name) {
+            case "type":
+                if (!PercentChangeLoadAction.NAME.equals(jsonParser.nextTextValue())) {
+                    throw JsonMappingException.from(jsonParser, "Expected type " + PercentChangeLoadAction.NAME);
+                }
+                return true;
+            case "id":
+                builder.withId(jsonParser.nextTextValue());
+                return true;
+            case "loadId":
+                builder.withLoadId(jsonParser.nextTextValue());
+                return true;
+            case "p0PercentChange":
+                jsonParser.nextToken();
+                builder.withP0PercentChange(jsonParser.getValueAsDouble());
+                return true;
+            case "qModificationStrategy":
+                builder.withQModificationStrategy(PercentChangeLoadAction.QModificationStrategy.valueOf(jsonParser.nextTextValue()));
+                return true;
+            default:
+                return false;
+        }
     }
 }

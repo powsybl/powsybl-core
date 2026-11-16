@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.*;
@@ -50,6 +51,9 @@ class ScalingParametersTest {
         assertEquals(ScalingParameters.DEFAULT_PRIORITY, parameters.getPriority());
         assertEquals(ScalingParameters.DEFAULT_RECONNECT, parameters.isReconnect());
         assertEquals(ScalingParameters.DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS, parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MIN_POWER_FACTOR, parameters.getLoadMinPowerFactor());
+        assertEquals(OptionalDouble.empty(), parameters.getLoadMinQRate());
+        assertEquals(OptionalDouble.empty(), parameters.getLoadMaxQRate());
     }
 
     @Test
@@ -84,13 +88,19 @@ class ScalingParametersTest {
                 .setPriority(RESPECT_OF_VOLUME_ASKED)
                 .setReconnect(true)
                 .setAllowsGeneratorOutOfActivePowerLimits(true)
-                .setScalingType(TARGET_P);
+                .setScalingType(TARGET_P)
+                .setLoadMinPowerFactor(0.07)
+                .setLoadMinQRate(-10.07)
+                .setLoadMaxQRate(10.07);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
         assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
         assertEquals(TARGET_P, parameters.getScalingType());
+        assertEquals(0.07, parameters.getLoadMinPowerFactor());
+        assertEquals(OptionalDouble.of(-10.07), parameters.getLoadMinQRate());
+        assertEquals(OptionalDouble.of(10.07), parameters.getLoadMaxQRate());
     }
 
     @Test
@@ -101,6 +111,9 @@ class ScalingParametersTest {
         assertEquals(ScalingParameters.DEFAULT_PRIORITY, parameters.getPriority());
         assertEquals(ScalingParameters.DEFAULT_RECONNECT, parameters.isReconnect());
         assertEquals(ScalingParameters.DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS, parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MIN_POWER_FACTOR, parameters.getLoadMinPowerFactor());
+        assertEquals(OptionalDouble.empty(), parameters.getLoadMinQRate());
+        assertEquals(OptionalDouble.empty(), parameters.getLoadMaxQRate());
     }
 
     @Test
@@ -112,6 +125,9 @@ class ScalingParametersTest {
         moduleConfig.setStringProperty("reconnect", "true");
         moduleConfig.setStringProperty("allowsGeneratorOutOfActivePowerLimits", "true");
         moduleConfig.setStringProperty("ignoredInjectionIds", "id1,id2");
+        moduleConfig.setStringProperty("loadMinPowerFactor", "0.07");
+        moduleConfig.setStringProperty("loadMinQRate", "-1.007");
+        moduleConfig.setStringProperty("loadMaxQRate", "1.007");
 
         ScalingParameters parameters = ScalingParameters.load(platformConfig);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
@@ -120,6 +136,18 @@ class ScalingParametersTest {
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
         assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
+        assertEquals(0.07, parameters.getLoadMinPowerFactor());
+        assertEquals(OptionalDouble.of(-1.007), parameters.getLoadMinQRate());
+        assertEquals(OptionalDouble.of(1.007), parameters.getLoadMaxQRate());
+    }
+
+    @Test
+    void invalidParametersTest() {
+        ScalingParameters parameters = new ScalingParameters();
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinPowerFactor(1.1), "loadMinPowerFactor must be in [0, 1], got: 1.1");
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinPowerFactor(-0.1), "loadMinPowerFactor must be in [0, 1], got: 0.1");
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinQRate(1.1), "loadMinQRate cannot be greater than 1");
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMaxQRate(0.9), "loadMaxQRate cannot be less than 1");
     }
 
     /**

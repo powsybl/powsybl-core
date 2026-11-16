@@ -60,5 +60,3 @@ public class NetworkElementIdListCriterionTest {
         return n;
     }
 }
-
-

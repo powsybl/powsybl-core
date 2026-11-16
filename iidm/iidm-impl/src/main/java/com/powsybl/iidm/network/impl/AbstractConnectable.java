@@ -17,8 +17,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.powsybl.iidm.network.TopologyKind.NODE_BREAKER;
-
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -28,10 +26,12 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     protected final List<TerminalExt> terminals = new ArrayList<>();
     private final Ref<NetworkImpl> networkRef;
     protected boolean removed = false;
+    private boolean equivalent = false;
 
-    AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
+    AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, boolean equivalent) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
+        this.equivalent = equivalent;
     }
 
     void addTerminal(TerminalExt terminal) {
@@ -138,7 +138,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // check bus topology
-        if (voltageLevel.getTopologyKind() != NODE_BREAKER) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             String msg = String.format(
                     "Trying to move connectable %s to node %d of voltage level %s, which is a bus breaker voltage level",
                     getId(), node, voltageLevel.getId());
@@ -146,7 +146,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the given voltage level and to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), this, oldTerminal.getSide(), oldTerminal.getTerminalNumber())
+        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), TopologyKind.NODE_BREAKER, this, oldTerminal.getSide(), oldTerminal.getTerminalNumber())
                 .setNode(node)
                 .build();
 
@@ -168,7 +168,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), this, oldTerminal.getSide(), oldTerminal.getTerminalNumber())
+        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), TopologyKind.BUS_BREAKER, this, oldTerminal.getSide(), oldTerminal.getTerminalNumber())
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();
@@ -238,5 +238,20 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         } else {
             return terminals.stream().filter(terminal -> terminal.getSide().equals(side)).toList();
         }
+    }
+
+    @Override
+    public boolean isEquivalent() {
+        return equivalent;
+    }
+
+    @Override
+    public Connectable<I> setEquivalent(boolean equivalent) {
+        if (this.equivalent != equivalent) {
+            boolean oldValue = this.equivalent;
+            this.equivalent = equivalent;
+            notifyUpdate("equivalent", oldValue, equivalent);
+        }
+        return this;
     }
 }

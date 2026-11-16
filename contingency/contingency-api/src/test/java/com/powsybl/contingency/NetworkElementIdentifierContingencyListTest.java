@@ -328,7 +328,8 @@ class NetworkElementIdentifierContingencyListTest {
         // Specified wildcard
         assertMatchingElements(network, "NHV1_NHV?_@", "@", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
         // Specified wildcard: UTF-16 supplementary character
-        assertMatchingElements(network, "NHV1_NHV?_\uD835\uDD52", "\uD835\uDD52", List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
+        String wildcard = new String(Character.toChars(0x1D552));
+        assertMatchingElements(network, "NHV1_NHV?_" + wildcard, wildcard, List.of("NHV1_NHV?_1", "NHV1_NHV?_2"));
     }
 
     private static void assertMatchingElements(Network network, String pattern, String wildcardCharacter, List<String> expectedElements) {
@@ -344,12 +345,29 @@ class NetworkElementIdentifierContingencyListTest {
 
     @Test
     void testPrintableAsciiCharacters() {
-        int size = 0x7e - 0x20 + 2; // All printable ASCII chars (from ' ' to '~') + wildcard '@'
+        int size = 0x7E - 0x20 + 2; // All printable ASCII chars (from ' ' to '~') + wildcard '@'
         char[] allowedCharacters = new char[size];
-        IntStream.range(0x20, 0x7f).forEach(i -> allowedCharacters[i - 0x20] = (char) i);
+        IntStream.range(0x20, 0x7F).forEach(i -> allowedCharacters[i - 0x20] = (char) i);
         allowedCharacters[size - 1] = '@';
         assertEquals(' ', allowedCharacters[0]);
         assertEquals('~', allowedCharacters[size - 2]);
         assertDoesNotThrow(() -> new IdWithWildcardsNetworkElementIdentifier(new String(allowedCharacters), "@"));
+    }
+
+    @Test
+    void testContingencyName() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        network.getLoad("LD1").setName("LD1 name");
+        network.getHvdcLine("HVDC1").setName("HVDC1 name");
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", List.of(
+            new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL1", Set.of(IdentifiableType.LOAD)),
+            new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL2", Set.of(IdentifiableType.LOAD)),
+            new SubstationOrVoltageLevelEquipmentsIdentifier("S1VL2", Set.of(IdentifiableType.HVDC_CONVERTER_STATION))));
+        Map<String, Contingency> contingencies = new HashMap<>();
+        contingencyList.getContingencies(network).forEach(c -> contingencies.put(c.getId(), c));
+        assertEquals("LD1 name", contingencies.get("LD1").getName().orElseThrow());
+        assertTrue(contingencies.get("LD2").getName().isEmpty());
+        // converter station contingency is named after the HVDC line it targets
+        assertEquals("HVDC1 name", contingencies.get("HVDC1").getName().orElseThrow());
     }
 }

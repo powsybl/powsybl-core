@@ -7,10 +7,10 @@
  */
 package com.powsybl.action.ial.dsl;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.tripping.GeneratorTripping;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -51,11 +51,7 @@ class ActionTest {
     }
 
     private void testInvalid(String id, List<NetworkModification> modifications) {
-        try {
-            new Action(id, modifications);
-            fail();
-        } catch (NullPointerException ignored) {
-        }
+        assertThrows(NullPointerException.class, () -> new Action(id, modifications));
     }
 
     @Test

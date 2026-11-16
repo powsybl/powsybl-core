@@ -8,14 +8,13 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -115,10 +114,10 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     private SwitchKind kind() {
         String type = p.getLocal("type");
         return switch (type) {
-            case "Disconnector", "GroundDisconnector", "Jumper" -> SwitchKind.DISCONNECTOR;
+            case "Disconnector", "GroundDisconnector", "Jumper", "Switch", "ProtectedSwitch" -> SwitchKind.DISCONNECTOR;
             case "LoadBreakSwitch" -> SwitchKind.LOAD_BREAK_SWITCH;
             case "Breaker" -> SwitchKind.BREAKER;
-            default -> SwitchKind.DISCONNECTOR;  // Switch, ProtectedSwitch
+            case null, default -> throw new ConversionException("Unknown Switch type \"" + type + "\"");
         };
     }
 

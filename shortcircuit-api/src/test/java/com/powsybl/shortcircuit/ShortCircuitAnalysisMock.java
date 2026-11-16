@@ -16,9 +16,9 @@ import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.Network;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
             .subject("VLGEN")
             .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
             .limit(0)
-            .reduction(0)
+            .scaling(0)
             .value(0)
             .build();
         FortescueFaultResult faultResult = new FortescueFaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),

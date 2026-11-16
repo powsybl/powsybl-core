@@ -13,6 +13,8 @@ import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +46,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private boolean createFictSubstation;
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
+    private final Integer positionForNewLine;
 
     /**
      * Constructor.
@@ -66,13 +69,14 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
+     * @param positionForNewLine       The order position for the new line connection if the ConnectablePosition should be created, or null.
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                      boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                      String line1Id, String line1Name, String line2Id, String line2Name,
-                     Line line, LineAdder lineAdder) {
+                     Line line, LineAdder lineAdder, Integer positionForNewLine) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
@@ -80,6 +84,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.fictitiousSubstationId = fictitiousSubstationId;
         this.fictitiousSubstationName = fictitiousSubstationName;
         this.lineAdder = Objects.requireNonNull(lineAdder);
+        this.positionForNewLine = positionForNewLine;
     }
 
     @Override
@@ -167,10 +172,20 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         // Remove the existing line
         String originalLineId = line.getId();
+        ConnectablePosition<Line> connectablePosition = line.getExtension(ConnectablePosition.class);
+        ConnectablePositionData connectablePositionDataSide1 = null;
+        ConnectablePositionData connectablePositionDataSide2 = null;
+        if (connectablePosition != null) {
+            connectablePositionDataSide1 = new ConnectablePositionData(connectablePosition.getFeeder1());
+            connectablePositionDataSide2 = new ConnectablePositionData(connectablePosition.getFeeder2());
+        }
         line.remove();
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
+        createFeederFromConnectablePositionData(connectablePositionDataSide1, line1, TwoSides.ONE);
+        createFeederFromConnectablePositionData(connectablePositionDataSide2, line2, TwoSides.TWO);
+
         //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
         //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
         groupsCopy.applyGroupsToBranch(line1, TwoSides.values());
@@ -236,8 +251,29 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         // Create the new line
         Line newLine = lineAdder.add();
+
+        // create line position for the new line on the side two which is connected to the existing voltage level
+        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, null, reportNode, throwException);
+
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
+    }
+
+    private static void createFeederFromConnectablePositionData(ConnectablePositionData connectablePositionData, Line line, TwoSides twoSides) {
+        if (connectablePositionData != null) {
+            ConnectablePositionAdder<Line> positionAdder = line.newExtension(ConnectablePositionAdder.class);
+            ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
+                case ONE -> positionAdder.newFeeder1();
+                case TWO -> positionAdder.newFeeder2();
+            };
+            feederAdder.withDirection(connectablePositionData.getDirection())
+                    .withName(connectablePositionData.getName());
+            if (connectablePositionData.getOrder() != null) {
+                feederAdder.withOrder(connectablePositionData.getOrder());
+            }
+            feederAdder.add()
+                    .add();
+        }
     }
 
     public LineAdder getLineAdder() {

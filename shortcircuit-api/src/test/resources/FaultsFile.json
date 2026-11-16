@@ -15,4 +15,21 @@
   "x" : 2.2,
   "connection" : "SERIES",
   "faultType" : "THREE_PHASE"
+}, {
+  "type" : "BUS",
+  "id" : "F3",
+  "elementId" : "busId2",
+  "r" : 0.0,
+  "x" : 0.0,
+  "connection" : "SERIES",
+  "faultType" : "LINE_TO_LINE"
+}, {
+  "type" : "BRANCH",
+  "id" : "F4",
+  "elementId" : "branchId2",
+  "r" : 0.0,
+  "x" : 0.0,
+  "connection" : "SERIES",
+  "faultType" : "LINE_TO_LINE_WITH_EARTH_CONNECTION",
+  "proportionalLocation" : 50.0
 } ]

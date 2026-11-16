@@ -21,6 +21,7 @@ import java.util.function.Predicate;
  */
 class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
+    public static final String R_ATTRIBUTE = "r";
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
     private double r;
@@ -119,7 +120,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setR(double r) {
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
         double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
@@ -203,6 +204,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
+
+        convertersMode.remove(convertersMode.size() - number, number);
 
         activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
     }

@@ -100,7 +100,7 @@ public abstract class AbstractAreaTest {
     @Test
     public void testChangesNotification() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
 
@@ -139,7 +139,7 @@ public abstract class AbstractAreaTest {
     @Test
     public void testSetterGetterInMultiVariants() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Set observer changes
         network.addListener(mockedListener);
 
@@ -170,12 +170,7 @@ public abstract class AbstractAreaTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            controlAreaA.getInterchangeTarget();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, controlAreaA::getInterchangeTarget);
 
         // Remove observer changes
         network.removeListener(mockedListener);

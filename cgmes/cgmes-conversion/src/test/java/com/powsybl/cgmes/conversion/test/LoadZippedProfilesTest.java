@@ -27,6 +27,7 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  * @author Giovanni Ferrari {@literal <giovanni.ferrari at soft.it>}
  */

@@ -8,18 +8,17 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.dsl.GroovyScripts;
+import com.powsybl.dynamicsimulation.DynamicModel;
+import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
+import com.powsybl.iidm.network.Network;
+
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import com.powsybl.commons.report.ReportNode;
-
-import com.powsybl.dsl.GroovyScripts;
-import com.powsybl.dynamicsimulation.DynamicModel;
-import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
-import com.powsybl.iidm.network.Network;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}

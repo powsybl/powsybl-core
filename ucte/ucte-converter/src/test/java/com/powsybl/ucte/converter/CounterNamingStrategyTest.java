@@ -8,11 +8,11 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.ucte.network.UcteNodeCode;
+import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.UcteElementId;
+import com.powsybl.ucte.network.UcteNodeCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

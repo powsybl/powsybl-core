@@ -17,7 +17,7 @@
         <iidm:voltageLevel id="VL2" nominalV="400.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="BBS1" name="BusbarSection" node="0"/>
-                <iidm:switch id="DISC_BBS1_BK1" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="DISC_BBS1_BK1" name="Disconnector" kind="DISCONNECTOR" open="false" node1="0" node2="1"/>
                 <iidm:switch id="BK1" name="Breaker" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
             </iidm:nodeBreakerTopology>
             <iidm:vscConverterStation id="C2" name="Converter2" lossFactor="1.1" voltageRegulatorOn="false" reactivePowerSetpoint="123.0" node="2">

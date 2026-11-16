@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -18,12 +18,15 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.iidm.modification.TestUtils.assertConnectablePositionEquals;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -247,5 +250,54 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
         writeXmlTest(network, "/fictitious-line-split-vl-with-limits.xml");
+    }
+
+    @Test
+    void creatingPositionWhenAttachingVoltageLevelOnLineTest() {
+        Network network = createNbNetworkWithBusbarSection();
+        network.getBusbarSection(BBS).newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(1).withSectionIndex(1).add();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportAttachVoltageLevelOnLineNbTest")
+                .build();
+        Line line = network.getLine("CJ");
+        line.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                .withName("feeder1")
+                .withDirection(ConnectablePosition.Direction.TOP)
+                .withOrder(1)
+                .add()
+                .newFeeder2()
+                .withName("feeder2")
+                .withDirection(ConnectablePosition.Direction.BOTTOM)
+                .withOrder(3)
+                .add()
+            .add();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withPositionForNewLine1(5)
+                .withPositionForNewLine2(10)
+                .build();
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
+        Line line1 = network.getLine("CJ_1");
+        assertNotNull(line1);
+        ConnectablePosition<Line> connectablePosition = line1.getExtension(ConnectablePosition.class);
+        assertNotNull(connectablePosition);
+        // side one identical to side one of the split line CJ
+        assertConnectablePositionEquals("feeder1", 1, ConnectablePosition.Direction.TOP, connectablePosition.getFeeder1());
+
+        // side two defined in the modification
+        assertNotNull(connectablePosition.getFeeder2());
+        assertConnectablePositionEquals("CJ_1", 5, ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder2());
+
+        Line line2 = network.getLine("CJ_2");
+        assertNotNull(line2);
+        connectablePosition = line2.getExtension(ConnectablePosition.class);
+        assertNotNull(connectablePosition);
+
+        assertConnectablePositionEquals("CJ_2", 10, ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder1());
+        assertConnectablePositionEquals("feeder2", 3, ConnectablePosition.Direction.BOTTOM, connectablePosition.getFeeder2());
     }
 }

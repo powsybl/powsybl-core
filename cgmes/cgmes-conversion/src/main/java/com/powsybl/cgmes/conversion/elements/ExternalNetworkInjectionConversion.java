@@ -9,16 +9,16 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_GOVERNOR_SCD;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_GOVERNOR_SCD;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -35,7 +35,6 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        RegulatingControlMappingForGenerators.initialize(adder);
         setMinPMaxP(adder, minP, maxP);
         adder.setEnergySource(EnergySource.OTHER);
         identify(adder);
@@ -61,14 +60,19 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
+        int referencePriority = cgmesData.asInt("referencePriority", 0);
+        if (referencePriority > 0) {
+            ReferencePriority.set(generator, referencePriority);
+        }
+
         double targetP = getDefaultValue(null, generator.getTargetP(), 0.0, 0.0, context);
-        double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        double targetQ = getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
         if (updatedPowerFlow.defined()) {
             targetP = -updatedPowerFlow.p();
             targetQ = -updatedPowerFlow.q();
         }
-        generator.setTargetP(targetP).setTargetQ(targetQ);
+        generator.setTargetP(targetP).setLocalTargetQ(targetQ);
 
         Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(generator, controlEnabled, context);

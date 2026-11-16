@@ -91,6 +91,12 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
                     parameters.setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.valueOf(parser.getValueAsString()));
                     break;
 
+                case "debug-dir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get, parameters);

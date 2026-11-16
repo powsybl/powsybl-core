@@ -8,8 +8,8 @@
 package com.powsybl.cgmes.gl;
 
 import com.powsybl.iidm.network.Substation;
-import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
+import com.powsybl.triplestore.api.TripleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -36,7 +36,11 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
 
     }
 
+    A setPermanentLimitName(String limitName);
+
     A setPermanentLimit(double limit);
+
+    A setDetectionKind(DetectionKind detectionKind);
 
     TemporaryLimitAdder<A> beginTemporaryLimit();
 
@@ -46,6 +50,13 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
      * @return the permanent limit
      */
     double getPermanentLimit();
+
+    /**
+     * <p>Get the detection kind to add.</p>
+     * <p>This method is useful to fix the detection kind before calling {@link #add()}</p>
+     * @return the kind of detection of the limit
+     */
+    DetectionKind getDetectionKind();
 
     /**
      * <p>Get the temporary limit value corresponding to the given acceptable duration.</p>
