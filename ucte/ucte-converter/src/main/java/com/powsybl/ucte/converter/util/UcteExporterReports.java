@@ -56,6 +56,13 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static ReportNode postProcessor(ReportNode reportNode, String postProcessorName) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.postProcessor")
+                .withUntypedValue("postProcessorName", postProcessorName)
+                .add();
+    }
+
     public static void fileWritten(ReportNode reportNode, String fileName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.fileWritten")
@@ -67,6 +74,15 @@ public final class UcteExporterReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.switchCurrentLimitMissing")
                 .withUntypedValue("switchId", switchId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void nominalPowerMissing(ReportNode reportNode, String transformerId, double nominalPowerNovalue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.nominalPowerMissing")
+                .withUntypedValue("transformerId", transformerId)
+                .withUntypedValue("nominalPowerNovalue", (int) nominalPowerNovalue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

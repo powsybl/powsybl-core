@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
@@ -32,6 +34,25 @@ public abstract class AbstractVoltageRegulationOnVoltageSourceConverterTest exte
     void initNetwork() {
         super.initNetwork();
         remoteTerminal = network.getLine("NHV1_NHV2_1").getTerminal1();
+    }
+
+    /**
+     * Removing a variant shrinks the per-variant arrays of the VoltageRegulation too, so that a variant cloned later
+     * reads the values of its source and not those of the removed variant that occupied its slot.
+     */
+    @Test
+    void voltageRegulationOfARemovedVariantDoesNotLeakIntoTheNextClone() {
+        VoltageSourceConverter converter = createVoltageSourceConverter(new DataVoltageRegulationHolderCreator("vsc_variants",
+            RegulationMode.VOLTAGE, false, Double.NaN, 400.0, 10.0, Double.NaN, Double.NaN, false));
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "a");
+        variantManager.setWorkingVariant("a");
+        converter.getVoltageRegulation().setRegulating(true);
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        variantManager.removeVariant("a");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "b");
+        variantManager.setWorkingVariant("b");
+        assertFalse(converter.getVoltageRegulation().isRegulating());
     }
 
     @Test
