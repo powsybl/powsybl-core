@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -304,6 +305,25 @@ public abstract class AbstractBoundaryLineTest {
         // Test if new Generation is instantiate at each add
         BoundaryLine dl2 = adder.setId(id + "_2").add();
         assertNotSame(dl.getGeneration(), dl2.getGeneration());
+    }
+
+    @Test
+    public void applySolvedValuesBoundaryLine() {
+        BoundaryLine dl = BoundaryLineNetworkFactory.createWithGeneration().getBoundaryLine("BL");
+        dl.getTerminal().setP(441).setQ(30);
+        dl.getTerminal().getBusView().getBus().setV(100);
+        assertNotEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
+        assertNotEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+
+        dl.applySolvedValues();
+        assertEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
+        assertEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+
+        dl.getGeneration().setVoltageRegulationOn(false).setTargetV(Double.NaN).setTargetQ(35);
+        assertNotEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+
+        dl.applySolvedValues();
+        assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
     }
 
     private void createBoundaryLine(String id, String name, double r, double x, double g, double b,

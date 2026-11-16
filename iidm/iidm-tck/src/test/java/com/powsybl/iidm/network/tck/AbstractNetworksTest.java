@@ -86,38 +86,6 @@ public abstract class AbstractNetworksTest {
     }
 
     @Test
-    public void applySolvedValuesBattery() {
-        Network network = BatteryNetworkFactory.create();
-        Battery battery = network.getBattery("BAT");
-        assertNotEquals(battery.getTerminal().getP(), battery.getTargetP());
-        assertNotEquals(battery.getTerminal().getQ(), battery.getLocalTargetQ());
-
-        Networks.applySolvedValues(network);
-        assertEquals(-battery.getTerminal().getP(), battery.getTargetP());
-        assertEquals(-battery.getTerminal().getQ(), battery.getLocalTargetQ());
-    }
-
-    @Test
-    public void applySolvedValuesBoundaryLine() {
-        Network network = BoundaryLineNetworkFactory.createWithGeneration();
-        BoundaryLine dl = network.getBoundaryLine("BL");
-        dl.getTerminal().setP(441).setQ(30);
-        dl.getTerminal().getBusView().getBus().setV(100);
-        assertNotEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
-        assertNotEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
-
-        Networks.applySolvedValues(network);
-        assertEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
-        assertEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
-
-        dl.getGeneration().setVoltageRegulationOn(false).setTargetV(Double.NaN).setTargetQ(35);
-        assertNotEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
-
-        Networks.applySolvedValues(network);
-        assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
-    }
-
-    @Test
     public void unsetSolvedValues() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
         Networks.unsetSolvedValues(network);

@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.util.Networks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -401,5 +402,17 @@ public abstract class AbstractBatteryTest {
         assertEquals(localTargetQ, battery.getLocalTargetQ());
         assertEquals(-remoteTargetQGeneratorSignConvention, battery.getVoltageRegulation().getTargetValue());
         assertEquals(remoteTargetQGeneratorSignConvention, battery.getRegulatingTargetQ());
+    }
+
+    @Test
+    public void applySolvedValuesBattery() {
+        Battery battery = BatteryNetworkFactory.create().getBattery("BAT");
+        assertNotEquals(battery.getTerminal().getP(), battery.getTargetP());
+        assertNotEquals(battery.getTerminal().getQ(), battery.getLocalTargetQ());
+
+        battery.applySolvedValues();
+
+        assertEquals(-battery.getTerminal().getP(), battery.getTargetP());
+        assertEquals(-battery.getTerminal().getQ(), battery.getLocalTargetQ());
     }
 }
