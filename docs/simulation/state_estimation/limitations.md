@@ -1,11 +1,10 @@
 # Limitations
 
-Six things this API leaves out. Each has a way forward that does not mean redesigning what is
-here.
+Things this API leaves out. Each has a way forward that does not mean redesigning it.
 
 ## Bad data removal
 
-`detectBadData` reports and flags. It never removes a measurement or reweights one.
+`detectBadData` reports suspects. It never removes a measurement or reweights one.
 
 Removing a suspect reading and estimating again is a loop, and choosing which reading to drop is
 the same kind of operating policy as the observability fallbacks. A caller drives it with the
@@ -97,6 +96,30 @@ Angle is half of what a state estimation computes, and the `isObservable()` bool
 extensions is documented as covering it, so the boolean answers for four quantities while the
 qualities describe three. Adding a fourth value here would put this API out of step with the
 extensions a provider publishes to, so the two should change together if they change.
+
+## Observability recovery
+
+`analyseObservability` reports which parts of the network the measurements leave undetermined, and
+`UnobservablePolicy` says what `estimate` does about it. Neither substitutes a value for the
+missing data.
+
+Which substitution is appropriate differs between operators, so it stays in the caller's code,
+next to the bad data loop above. A per voltage level IIDM extension has been proposed for
+recording which method applies where.
+
+## Observability is not written to the network
+
+`writeResultsToNetwork` puts the estimated state onto the buses and the branch terminals. Nothing
+puts an `ObservabilityResult` onto the IIDM observability extensions.
+
+The two models line up for it. `Quality` carries the same standard deviation and redundancy flag
+as `ObservabilityQuality`, `IslandStatus` has the same three values as
+`ObservabilityArea.ObservabilityStatus`, and `ObservabilityAreaAdder` takes a bus view bus id,
+which is what `ObservableIsland` holds. So a `writeObservabilityToNetwork` would be a mapping
+rather than a computation.
+
+Adding it is a default method, plus a `run` that calls `analyseObservability`, `estimate` and the
+two writes, and a dependency on `iidm-extensions`. Nothing already in the API would change.
 
 ## Also absent
 
