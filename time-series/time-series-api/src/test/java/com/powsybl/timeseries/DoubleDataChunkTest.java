@@ -200,6 +200,78 @@ class DoubleDataChunkTest {
     }
 
     @Test
+    void uncompressedSliceTest() {
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[]{1d, 2d, 3d, 4d});
+        assertSame(chunk, chunk.slice(1, 5));
+
+        DoubleDataChunk slice = chunk.slice(2, 4);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, slice);
+        assertEquals(2, slice.getOffset());
+        assertEquals(2, slice.getLength());
+        assertArrayEquals(new double[] {2d, 3d}, ((UncompressedDoubleDataChunk) slice).getValues(), 0d);
+
+        slice = chunk.slice(4, 5);
+        assertEquals(4, slice.getOffset());
+        assertArrayEquals(new double[] {4d}, ((UncompressedDoubleDataChunk) slice).getValues(), 0d);
+
+        // the original chunk is unchanged
+        assertArrayEquals(new double[] {1d, 2d, 3d, 4d}, chunk.getValues(), 0d);
+
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(0, 3));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(2, 6));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(3, 3));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(3, 2));
+    }
+
+    @Test
+    void compressedSliceTest() {
+        // index  0   1   2   3   4   5
+        // value  NaN 1   1   2   2   2
+        CompressedDoubleDataChunk chunk = new CompressedDoubleDataChunk(1, 5, new double[] {1d, 2d}, new int[] {2, 3});
+        assertSame(chunk, chunk.slice(1, 6));
+
+        // off step boundaries
+        DoubleDataChunk slice = chunk.slice(2, 5);
+        assertInstanceOf(CompressedDoubleDataChunk.class, slice);
+        assertEquals(2, slice.getOffset());
+        assertEquals(3, slice.getLength());
+        assertArrayEquals(new double[] {1d, 2d}, ((CompressedDoubleDataChunk) slice).getStepValues(), 0d);
+        assertArrayEquals(new int[] {1, 2}, ((CompressedDoubleDataChunk) slice).getStepLengths());
+
+        // on step boundaries
+        slice = chunk.slice(3, 6);
+        assertInstanceOf(CompressedDoubleDataChunk.class, slice);
+        assertEquals(3, slice.getOffset());
+        assertArrayEquals(new double[] {2d}, ((CompressedDoubleDataChunk) slice).getStepValues(), 0d);
+        assertArrayEquals(new int[] {3}, ((CompressedDoubleDataChunk) slice).getStepLengths());
+        slice = chunk.slice(1, 3);
+        assertEquals(1, slice.getOffset());
+        assertArrayEquals(new double[] {1d}, ((CompressedDoubleDataChunk) slice).getStepValues(), 0d);
+        assertArrayEquals(new int[] {2}, ((CompressedDoubleDataChunk) slice).getStepLengths());
+
+        // inside a single step
+        slice = chunk.slice(4, 5);
+        assertEquals(4, slice.getOffset());
+        assertEquals(1, slice.getLength());
+        assertArrayEquals(new double[] {2d}, ((CompressedDoubleDataChunk) slice).getStepValues(), 0d);
+        assertArrayEquals(new int[] {1}, ((CompressedDoubleDataChunk) slice).getStepLengths());
+
+        // values
+        double[] values = new double[3];
+        chunk.slice(2, 5).fillBuffer(DoubleBuffer.wrap(values), -2);
+        assertArrayEquals(new double[] {1d, 2d, 2d}, values, 0d);
+
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(0, 3));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(2, 7));
+        assertThrows(IllegalArgumentException.class, () -> chunk.slice(3, 3));
+
+        // zero-length steps are skipped
+        CompressedDoubleDataChunk chunkWithEmptyStep = new CompressedDoubleDataChunk(0, 4, new double[] {1d, 9d, 2d}, new int[] {2, 0, 2});
+        assertEquals(new CompressedDoubleDataChunk(2, 1, new double[] {2d}, new int[] {1}), chunkWithEmptyStep.slice(2, 3));
+        assertEquals(new CompressedDoubleDataChunk(1, 1, new double[] {1d}, new int[] {1}), chunkWithEmptyStep.slice(1, 2));
+    }
+
+    @Test
     void uncompressedMergeTest() {
         UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(1, new double[]{1d, 2d, 3d, 4d, 5d});
         UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{6d, 7d, 8d});

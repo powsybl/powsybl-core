@@ -125,6 +125,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return uncompressedIterator();
     }
 
+    /**
+     * <p>Split the time series into time series of at most {@code newChunkSize} points, aligned on the absolute grid
+     * {@code [j * newChunkSize, (j + 1) * newChunkSize[}.</p>
+     *
+     * <p>The resulting time series are sorted by offset.</p>
+     *
+     * @param newChunkSize the maximum number of points of each resulting time series
+     * @return the list of resulting time series, sorted by offset
+     * @throws IllegalArgumentException if {@code newChunkSize < 1}
+     * @see AbstractTimeSeries#split(int)
+     */
     List<T> split(int newChunkSize);
 
     /**
@@ -174,6 +185,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return new StringTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.STRING, index), chunks);
     }
 
+    /**
+     * Split a list of time series sharing the same index into lists of time series of at most {@code newChunkSize}
+     * points: the {@code i}-th list holds the {@code i}-th window of every time series.
+     *
+     * @throws IllegalArgumentException if {@code newChunkSize < 1} or greater than the point count, or if the time
+     * series have different indexes
+     * @throws TimeSeriesException if a time series has no data in a whole window (see {@link TimeSeries#split(int)})
+     */
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
         verifyTimeSeriesList(timeSeriesList);
         if (newChunkSize < 1) {
@@ -190,6 +209,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         List<List<T>> splitList = getSplitList(timeSeriesList, chunkCount);
         for (T timeSeries : timeSeriesList) {
             List<T> split = timeSeries.split(newChunkSize);
+            if (split.size() != chunkCount) {
+                throw new TimeSeriesException("Time series '" + timeSeries.getMetadata().getName() + "' has no data in "
+                    + (chunkCount - split.size()) + " window(s) of size " + newChunkSize + ": cannot align it with the other time series");
+            }
             for (int i = 0; i < chunkCount; i++) {
                 splitList.get(i).add(split.get(i));
             }
