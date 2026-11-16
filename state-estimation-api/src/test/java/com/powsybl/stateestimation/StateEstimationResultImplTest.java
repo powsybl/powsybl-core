@@ -102,6 +102,26 @@ class StateEstimationResultImplTest {
     }
 
     @Test
+    void anInjectionCarriesTheFlowAtItsTerminal() {
+        StateEstimationResult.InjectionResult result = new StateEstimationResultImpl.InjectionResultImpl(
+                "LOAD", 600.0, 200.0, 912.4);
+
+        assertEquals("LOAD", result.getInjectionId());
+        assertEquals(600.0, result.getP());
+        assertEquals(200.0, result.getQ());
+        assertEquals(912.4, result.getI());
+    }
+
+    @Test
+    void anInjectionWithoutACurrentLeavesItNaN() {
+        StateEstimationResult.InjectionResult result =
+                new StateEstimationResultImpl.InjectionResultImpl("LOAD", 600.0, 200.0);
+
+        assertEquals(600.0, result.getP());
+        assertEquals(Double.NaN, result.getI());
+    }
+
+    @Test
     void aMeasurementDerivesItsResidualFromTheTwoValues() {
         StateEstimationResult.MeasurementResult above = new StateEstimationResultImpl.MeasurementResultImpl(
                 "M1", 100.0, 99.5, 2.5, false);
@@ -111,12 +131,12 @@ class StateEstimationResultImplTest {
         assertEquals(99.5, above.getEstimatedValue());
         assertEquals(0.5, above.getResidual(), 1e-12);
         assertEquals(2.5, above.getNormalizedResidual());
-        assertFalse(above.isFlagged());
+        assertFalse(above.isResidualAboveThreshold());
 
         StateEstimationResult.MeasurementResult below = new StateEstimationResultImpl.MeasurementResultImpl(
                 "M2", 98.0, 100.0, -4.0, true);
 
         assertEquals(-2.0, below.getResidual(), 1e-12);
-        assertTrue(below.isFlagged(), "flagging compares the absolute value, so a low reading can be flagged too");
+        assertTrue(below.isResidualAboveThreshold(), "the threshold is compared against the absolute value, so a low reading counts too");
     }
 }

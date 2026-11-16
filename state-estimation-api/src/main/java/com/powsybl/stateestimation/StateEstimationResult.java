@@ -230,6 +230,9 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
 
         /** Reactive power, in MVar, positive when flowing from the bus into the device. */
         double getQ();
+
+        /** Current magnitude, in A. {@code NaN} when the implementation does not produce it. */
+        double getI();
     }
 
     /**
@@ -252,17 +255,16 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
 
         /**
          * The residual divided by its own standard deviation, so comparable across meters. Signed:
-         * a positive value means the meter read above the estimate. Flagging compares its absolute
-         * value against the threshold.
+         * a positive value means the meter read above the estimate, and the threshold is compared
+         * against its absolute value.
          */
         double getNormalizedResidual();
 
         /**
-         * Whether the normalized residual exceeded
-         * {@link StateEstimationParameters#getResidualFlaggingThreshold()}. Flagging reports a
-         * suspicion; it never removes or reweights the measurement.
+         * Whether the absolute normalized residual exceeded
+         * {@link StateEstimationParameters#getResidualThreshold()}.
          */
-        boolean isFlagged();
+        boolean isResidualAboveThreshold();
     }
 
 }

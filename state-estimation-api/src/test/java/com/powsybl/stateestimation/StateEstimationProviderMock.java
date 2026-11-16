@@ -171,7 +171,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
      * threshold, and reports one measurement nothing else determines as untestable.
      */
     private static BadDataResult badData(StateEstimationResult estimate, StateEstimationRunParameters runParameters) {
-        double threshold = runParameters.getStateEstimationParameters().getResidualFlaggingThreshold();
+        double threshold = runParameters.getStateEstimationParameters().getResidualThreshold();
 
         List<BadDataResult.SuspectMeasurement> suspects = estimate.getMeasurementResults().stream()
                 .filter(measurement -> Math.abs(measurement.getNormalizedResidual()) > threshold)

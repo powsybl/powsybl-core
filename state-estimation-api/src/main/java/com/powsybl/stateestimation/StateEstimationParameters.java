@@ -103,8 +103,8 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
     public static final ComponentMode DEFAULT_COMPONENT_MODE = ComponentMode.MAIN_CONNECTED;
     /** Default for {@link #getRelativeStandardDeviationFloor()}. Zero applies no floor. */
     public static final double DEFAULT_RELATIVE_STANDARD_DEVIATION_FLOOR = 0.0;
-    /** Default for {@link #getResidualFlaggingThreshold()}. */
-    public static final double DEFAULT_RESIDUAL_FLAGGING_THRESHOLD = 3.0;
+    /** Default for {@link #getResidualThreshold()}. */
+    public static final double DEFAULT_RESIDUAL_THRESHOLD = 3.0;
     /** Default for {@link #isWriteResultsToNetwork()}. */
     public static final boolean DEFAULT_WRITE_RESULTS_TO_NETWORK = false;
 
@@ -115,7 +115,7 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
     private UnobservablePolicy unobservablePolicy = DEFAULT_UNOBSERVABLE_POLICY;
     private ComponentMode componentMode = DEFAULT_COMPONENT_MODE;
     private double relativeStandardDeviationFloor = DEFAULT_RELATIVE_STANDARD_DEVIATION_FLOOR;
-    private double residualFlaggingThreshold = DEFAULT_RESIDUAL_FLAGGING_THRESHOLD;
+    private double residualThreshold = DEFAULT_RESIDUAL_THRESHOLD;
     private boolean writeResultsToNetwork = DEFAULT_WRITE_RESULTS_TO_NETWORK;
 
     /**
@@ -149,7 +149,7 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
         config.getOptionalEnumProperty("unobservablePolicy", UnobservablePolicy.class).ifPresent(this::setUnobservablePolicy);
         config.getOptionalEnumProperty("componentMode", ComponentMode.class).ifPresent(this::setComponentMode);
         config.getOptionalDoubleProperty("relativeStandardDeviationFloor").ifPresent(this::setRelativeStandardDeviationFloor);
-        config.getOptionalDoubleProperty("residualFlaggingThreshold").ifPresent(this::setResidualFlaggingThreshold);
+        config.getOptionalDoubleProperty("residualThreshold").ifPresent(this::setResidualThreshold);
         config.getOptionalBooleanProperty("writeResultsToNetwork").ifPresent(this::setWriteResultsToNetwork);
     }
 
@@ -289,26 +289,27 @@ public class StateEstimationParameters extends AbstractExtendable<StateEstimatio
     }
 
     /**
-     * A measurement is flagged once its normalized residual exceeds this multiple of its own
-     * standard deviation.
+     * The multiple of its own standard deviation beyond which a measurement's normalized residual
+     * is reported as above threshold.
      */
-    public double getResidualFlaggingThreshold() {
-        return residualFlaggingThreshold;
+    public double getResidualThreshold() {
+        return residualThreshold;
     }
 
     /**
-     * Sets the multiple of its own standard deviation beyond which a measurement is flagged.
+     * Sets the multiple of its own standard deviation beyond which a normalized residual is
+     * reported as above threshold.
      *
      * <p>Throws {@link IllegalArgumentException} if the value is not positive.</p>
      *
-     * @param residualFlaggingThreshold the multiple of the standard deviation beyond which a measurement is flagged
+     * @param residualThreshold the multiple of the standard deviation beyond which a residual is reported
      * @return this, so that calls can be chained
      */
-    public StateEstimationParameters setResidualFlaggingThreshold(double residualFlaggingThreshold) {
-        if (residualFlaggingThreshold <= 0) {
-            throw new IllegalArgumentException("Residual flagging threshold must be positive: " + residualFlaggingThreshold);
+    public StateEstimationParameters setResidualThreshold(double residualThreshold) {
+        if (residualThreshold <= 0) {
+            throw new IllegalArgumentException("Residual threshold must be positive: " + residualThreshold);
         }
-        this.residualFlaggingThreshold = residualFlaggingThreshold;
+        this.residualThreshold = residualThreshold;
         return this;
     }
 

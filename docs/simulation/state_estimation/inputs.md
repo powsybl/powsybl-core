@@ -56,7 +56,7 @@ and an implementation adds its own as an extension. See [parameters](parameters.
 ```java
 StateEstimationParameters parameters = new StateEstimationParameters()
         .setZeroInjectionMode(StateEstimationParameters.ZeroInjectionMode.EQUALITY_CONSTRAINT)
-        .setResidualFlaggingThreshold(2.5);
+        .setResidualThreshold(2.5);
 
 StateEstimationResult result = StateEstimation.estimate(network, parameters);
 ```

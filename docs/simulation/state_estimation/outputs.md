@@ -107,9 +107,10 @@ quantity positive when flowing from the bus into the device:
 
 | Attribute   | Type   | Unit | Required | Default value | Description    |
 |-------------|--------|------|----------|---------------|----------------|
-| injectionId | String | -    | yes      | -             | The device     |
-| p           | double | MW   | yes      | -             | Active power   |
-| q           | double | MVar | yes      | -             | Reactive power |
+| injectionId | String | -    | yes      | -             | The device       |
+| p           | double | MW   | yes      | -             | Active power     |
+| q           | double | MVar | yes      | -             | Reactive power   |
+| i           | double | A    | no       | `NaN`         | Current magnitude |
 
 The estimated voltages fix what a bus injects in total, not how that total divides between the
 devices on it, so an injection is reported rather than derived.
@@ -123,12 +124,11 @@ devices on it, so an injection is reported rather than derived.
 | estimatedValue     | double  | -    | yes      | -             | What a meter in this position would read in the estimated state              |
 | residual           | double  | -    | yes      | -             | Measured minus estimated                                                     |
 | normalizedResidual | double  | -    | yes      | -             | The residual divided by its own standard deviation, comparable across meters |
-| flagged            | boolean | -    | yes      | -             | Whether its absolute value exceeded the threshold                            |
+| residualAboveThreshold | boolean | - | yes   | -             | Whether its absolute value exceeded the threshold                        |
 
-A normalized residual is signed: positive means the meter read above the estimate. Flagging
-compares the absolute value against
-[residualFlaggingThreshold](#param-se-residual-flagging-threshold), so a flagged measurement can
-sit on either side.
+A normalized residual is signed: positive means the meter read above the estimate. The threshold
+is compared against the absolute value, so a measurement above
+[residualThreshold](#param-se-residual-threshold) can sit on either side.
 
 ## ObservabilityResult
 

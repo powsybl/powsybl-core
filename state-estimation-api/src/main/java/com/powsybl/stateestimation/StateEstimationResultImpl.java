@@ -323,18 +323,27 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         private final String injectionId;
         private final double p;
         private final double q;
+        private final double i;
 
         /**
-         * Powers are in MW and MVar, positive when flowing from the bus into the device.
+         * Powers are in MW and MVar, the current in A, each positive when flowing from the bus
+         * into the device. A current of {@code NaN} means the implementation does not produce one.
          *
          * @param injectionId the identifier of the injection
          * @param p the active power, in MW
          * @param q the reactive power, in MVar
+         * @param i the current magnitude, in A
          */
-        public InjectionResultImpl(String injectionId, double p, double q) {
+        public InjectionResultImpl(String injectionId, double p, double q, double i) {
             this.injectionId = Objects.requireNonNull(injectionId);
             this.p = p;
             this.q = q;
+            this.i = i;
+        }
+
+        /** The flow at the terminal, with no current magnitude. */
+        public InjectionResultImpl(String injectionId, double p, double q) {
+            this(injectionId, p, q, Double.NaN);
         }
 
         @Override
@@ -350,6 +359,11 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         @Override
         public double getQ() {
             return q;
+        }
+
+        @Override
+        public double getI() {
+            return i;
         }
     }
 
@@ -439,7 +453,7 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         private final double measuredValue;
         private final double estimatedValue;
         private final double normalizedResidual;
-        private final boolean flagged;
+        private final boolean residualAboveThreshold;
 
         /**
          * Values are in the unit the measurement was given in.
@@ -448,15 +462,15 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
          * @param measuredValue the value the meter reported
          * @param estimatedValue what a meter in this position would read in the estimated state
          * @param normalizedResidual the residual divided by its own standard deviation
-         * @param flagged whether the normalized residual exceeded the flagging threshold
+         * @param residualAboveThreshold whether the absolute normalized residual exceeded the threshold
          */
         public MeasurementResultImpl(String measurementId, double measuredValue, double estimatedValue,
-                                     double normalizedResidual, boolean flagged) {
+                                     double normalizedResidual, boolean residualAboveThreshold) {
             this.measurementId = Objects.requireNonNull(measurementId);
             this.measuredValue = measuredValue;
             this.estimatedValue = estimatedValue;
             this.normalizedResidual = normalizedResidual;
-            this.flagged = flagged;
+            this.residualAboveThreshold = residualAboveThreshold;
         }
 
         @Override
@@ -485,8 +499,8 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         }
 
         @Override
-        public boolean isFlagged() {
-            return flagged;
+        public boolean isResidualAboveThreshold() {
+            return residualAboveThreshold;
         }
     }
 

@@ -53,7 +53,7 @@ class StateEstimationParametersTest {
         assertEquals(StateEstimationParameters.DEFAULT_UNOBSERVABLE_POLICY, parameters.getUnobservablePolicy());
         assertEquals(StateEstimationParameters.DEFAULT_COMPONENT_MODE, parameters.getComponentMode());
         assertEquals(StateEstimationParameters.DEFAULT_RELATIVE_STANDARD_DEVIATION_FLOOR, parameters.getRelativeStandardDeviationFloor());
-        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_FLAGGING_THRESHOLD, parameters.getResidualFlaggingThreshold());
+        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_THRESHOLD, parameters.getResidualThreshold());
         assertEquals(StateEstimationParameters.DEFAULT_WRITE_RESULTS_TO_NETWORK, parameters.isWriteResultsToNetwork());
     }
 
@@ -71,7 +71,7 @@ class StateEstimationParametersTest {
 
         assertEquals(StateEstimationParameters.ComponentMode.ALL, parameters.getComponentMode());
         assertEquals(StateEstimationParameters.DEFAULT_VOLTAGE_INIT_MODE, parameters.getVoltageInitMode());
-        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_FLAGGING_THRESHOLD, parameters.getResidualFlaggingThreshold());
+        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_THRESHOLD, parameters.getResidualThreshold());
     }
 
     @Test
@@ -84,7 +84,7 @@ class StateEstimationParametersTest {
         moduleConfig.setStringProperty("unobservablePolicy", "SKIP_COMPONENT");
         moduleConfig.setStringProperty("componentMode", "ALL");
         moduleConfig.setStringProperty("relativeStandardDeviationFloor", "0.01");
-        moduleConfig.setStringProperty("residualFlaggingThreshold", "4.5");
+        moduleConfig.setStringProperty("residualThreshold", "4.5");
         moduleConfig.setStringProperty("writeResultsToNetwork", "true");
 
         StateEstimationParameters parameters = StateEstimationParameters.load(platformConfig);
@@ -96,7 +96,7 @@ class StateEstimationParametersTest {
         assertEquals(StateEstimationParameters.UnobservablePolicy.SKIP_COMPONENT, parameters.getUnobservablePolicy());
         assertEquals(StateEstimationParameters.ComponentMode.ALL, parameters.getComponentMode());
         assertEquals(0.01, parameters.getRelativeStandardDeviationFloor());
-        assertEquals(4.5, parameters.getResidualFlaggingThreshold());
+        assertEquals(4.5, parameters.getResidualThreshold());
         assertTrue(parameters.isWriteResultsToNetwork());
     }
 
@@ -163,12 +163,12 @@ class StateEstimationParametersTest {
         assertTrue(negativeFloor.getMessage().contains("-0.01"),
                 "the message should name the value that was rejected: " + negativeFloor.getMessage());
 
-        assertThrows(IllegalArgumentException.class, () -> parameters.setResidualFlaggingThreshold(0.0));
-        assertThrows(IllegalArgumentException.class, () -> parameters.setResidualFlaggingThreshold(-1.0));
+        assertThrows(IllegalArgumentException.class, () -> parameters.setResidualThreshold(0.0));
+        assertThrows(IllegalArgumentException.class, () -> parameters.setResidualThreshold(-1.0));
 
         assertEquals(StateEstimationParameters.DEFAULT_RELATIVE_STANDARD_DEVIATION_FLOOR,
                 parameters.getRelativeStandardDeviationFloor());
-        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_FLAGGING_THRESHOLD,
-                parameters.getResidualFlaggingThreshold());
+        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_THRESHOLD,
+                parameters.getResidualThreshold());
     }
 }

@@ -13,7 +13,7 @@ state-estimation-default-parameters:
   unobservablePolicy: ESTIMATE_OBSERVABLE_ISLANDS
   componentMode: MAIN_CONNECTED
   relativeStandardDeviationFloor: 0.0
-  residualFlaggingThreshold: 3.0
+  residualThreshold: 3.0
   writeResultsToNetwork: false
 ```
 
@@ -125,11 +125,11 @@ with an unrealistically small standard deviation is not caught.
 
 `0.0`, the default, applies no floor. Negative values are rejected.
 
-(param-se-residual-flagging-threshold)=
-### residualFlaggingThreshold
+(param-se-residual-threshold)=
+### residualThreshold
 
-A measurement is flagged once its normalized residual exceeds this multiple of its own standard
-deviation. Flagging reports a suspicion. Nothing is removed or reweighted.
+A measurement is reported as above threshold once its normalized residual exceeds this multiple
+of its own standard deviation. Nothing is removed or reweighted.
 
 The default value is `3.0`, which is the usual threshold for a normalized residual test. Values
 must be positive.

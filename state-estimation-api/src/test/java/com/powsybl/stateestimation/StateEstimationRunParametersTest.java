@@ -26,8 +26,8 @@ class StateEstimationRunParametersTest {
     void fillsInWhatItWasNotGivenOnFirstUse() {
         StateEstimationRunParameters runParameters = new StateEstimationRunParameters();
 
-        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_FLAGGING_THRESHOLD,
-                runParameters.getStateEstimationParameters().getResidualFlaggingThreshold());
+        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_THRESHOLD,
+                runParameters.getStateEstimationParameters().getResidualThreshold());
         assertSame(runParameters.getStateEstimationParameters(), runParameters.getStateEstimationParameters(),
                 "the settings are read once and kept");
         assertNotNull(runParameters.getComputationManager());

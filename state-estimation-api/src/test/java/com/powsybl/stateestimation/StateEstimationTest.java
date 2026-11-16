@@ -97,14 +97,14 @@ class StateEstimationTest {
     void passesParametersThrough() {
         StateEstimationParameters parameters = new StateEstimationParameters()
                 .setZeroInjectionMode(StateEstimationParameters.ZeroInjectionMode.EQUALITY_CONSTRAINT)
-                .setResidualFlaggingThreshold(2.5);
+                .setResidualThreshold(2.5);
 
         StateEstimation.estimate(network, parameters);
 
         StateEstimationParameters seen = StateEstimationProviderMock.getLastRunParameters().getStateEstimationParameters();
         assertSame(parameters, seen);
         assertEquals(StateEstimationParameters.ZeroInjectionMode.EQUALITY_CONSTRAINT, seen.getZeroInjectionMode());
-        assertEquals(2.5, seen.getResidualFlaggingThreshold());
+        assertEquals(2.5, seen.getResidualThreshold());
     }
 
     @Test
@@ -114,8 +114,8 @@ class StateEstimationTest {
         StateEstimationRunParameters runParameters = StateEstimationProviderMock.getLastRunParameters();
         assertEquals(StateEstimationParameters.DEFAULT_ZERO_INJECTION_MODE,
                 runParameters.getStateEstimationParameters().getZeroInjectionMode());
-        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_FLAGGING_THRESHOLD,
-                runParameters.getStateEstimationParameters().getResidualFlaggingThreshold());
+        assertEquals(StateEstimationParameters.DEFAULT_RESIDUAL_THRESHOLD,
+                runParameters.getStateEstimationParameters().getResidualThreshold());
         assertEquals(StateEstimationParameters.BusInjectionPolicy.REQUIRE_ALL_METERED,
                 runParameters.getStateEstimationParameters().getBusInjectionPolicy());
     }
@@ -261,7 +261,7 @@ class StateEstimationTest {
         StateEstimationResult estimate = StateEstimation.estimate(network);
 
         StateEstimationRunParameters strict = new StateEstimationRunParameters()
-                .setParameters(new StateEstimationParameters().setResidualFlaggingThreshold(2.0));
+                .setParameters(new StateEstimationParameters().setResidualThreshold(2.0));
         BadDataResult badData = StateEstimation.detectBadData(network, estimate, observability, strict);
 
         assertEquals(BadDataResult.Status.BAD_DATA_DETECTED, badData.getStatus());
