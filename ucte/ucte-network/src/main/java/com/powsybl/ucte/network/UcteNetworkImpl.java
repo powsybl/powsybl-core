@@ -23,6 +23,8 @@ public class UcteNetworkImpl implements UcteNetwork {
 
     private final List<String> comments = new ArrayList<>();
 
+    private final Map<UcteBlock, List<String>> blockComments = new EnumMap<>(UcteBlock.class);
+
     private final Map<UcteNodeCode, UcteNode> nodes = new LinkedHashMap<>();
 
     private final Map<UcteElementId, UcteLine> lines = new LinkedHashMap<>();
@@ -44,6 +46,11 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public List<String> getComments() {
         return comments;
+    }
+
+    @Override
+    public List<String> getComments(UcteBlock block) {
+        return blockComments.computeIfAbsent(Objects.requireNonNull(block), b -> new ArrayList<>());
     }
 
     @Override
