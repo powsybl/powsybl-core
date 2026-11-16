@@ -133,7 +133,7 @@ public final class UcteConverterHelper {
      * @return 0 if NaN, else same value as input
      */
     public static double getOrZero(final double value) {
-        return isNaN(value) || value == 0 ? 0 : value;
+        return isNaN(value) ? 0.0 : value;
     }
 
     /**
