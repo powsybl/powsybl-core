@@ -75,7 +75,7 @@ public class UcteExporter implements Exporter {
 
     @Override
     public String getFormat() {
-        return "UCTE";
+        return UCTE_FORMAT;
     }
 
     @Override
@@ -128,14 +128,14 @@ public class UcteExporter implements Exporter {
                 .orElse(Comparator.naturalOrder());
 
         // write - the node sorting within each country is performed by the writer using the UcteNode comparator
-        try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
+        try (OutputStream os = dataSource.newOutputStream(null, UCT_LOWERCASE, false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork, nodeComparator).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, "uct"));
+        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, UCT_LOWERCASE));
     }
 
     @Override
