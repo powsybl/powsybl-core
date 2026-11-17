@@ -155,7 +155,8 @@ class UcteExporterReportTest extends AbstractSerDeTest {
     /**
      * Checks the entries reported when several generators or loads are aggregated on a bus. See
      * {@link UcteExporterTestNetworks#createWithMultipleInjections()} for the cases: only the out of bounds aggregated
-     * maxP ({@code CASE6}) and the mixed power plant types ({@code CASE7}) are reported.
+     * maxP ({@code CASE6}) and the mixed power plant types ({@code CASE7}) are reported, a disconnected generator of
+     * another type ({@code CASE9}) is not.
      */
     @Test
     void testMultipleInjectionsReports() {
@@ -182,7 +183,8 @@ class UcteExporterReportTest extends AbstractSerDeTest {
      * Checks the entries reported when selecting the voltage reference of a bus. See
      * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases: conflicting targets
      * ({@code CASE1}, {@code CASE2}, {@code CASE6}) and rescaled remote targets ({@code CASE4}, {@code CASE8}) are
-     * reported, a remote target on a bus with the same nominal voltage ({@code CASEA}) is not.
+     * reported, a remote target on a bus with the same nominal voltage ({@code CASEA}) is not, and a voltage target
+     * regulating a disconnected terminal ({@code CASEB}) is reported as missing.
      * <p>
      * A regulating generator without any voltage target, only accepted at the {@link ValidationLevel#EQUIPMENT}
      * validation level, is added to {@code CASE9}: the missing voltage target is reported.
@@ -216,6 +218,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          Bus FCASE671: generators have different voltage targets, 23.0 kV from generator CASE6_GB is used
                          Bus FCASE871: generator CASE8_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
                          Bus FCASE971: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
+                         Bus FCASEB71: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
                       Boundary Lines
                       Lines
                       Tie-Lines

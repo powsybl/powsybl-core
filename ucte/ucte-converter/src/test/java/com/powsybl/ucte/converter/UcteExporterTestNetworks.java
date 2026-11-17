@@ -165,7 +165,10 @@ public final class UcteExporterTestNetworks {
      *     <li>{@code CASE5}: same as {@code CASE4}, with {@code GA}'s maxP = {@code Double.MAX_VALUE};</li>
      *     <li>{@code CASE6}: generators {@code GA} and {@code GB}, both with maxP = 6000 (sum out of bounds);</li>
      *     <li>{@code CASE7}: generators {@code GA} (hydro) and {@code GB} (thermal);</li>
-     *     <li>{@code CASE8}: generators {@code GA} and {@code GB}, both hydro.</li>
+     *     <li>{@code CASE8}: generators {@code GA} and {@code GB}, both hydro;</li>
+     *     <li>{@code CASE9}: connected load {@code LA} (10 MW, 2 MVar) and disconnected load {@code LB} (5 MW, 1 MVar),
+     *     connected hydro generator {@code GA} (P = 100, P in [0, 200]) and disconnected thermal generator {@code GB}
+     *     (P = 50, P in [0, 100]).</li>
      * </ul>
      */
     static Network createWithMultipleInjections() {
@@ -210,6 +213,13 @@ public final class UcteExporterTestNetworks {
         bus = addBus(vl21, "CASE8");
         addGenerator(vl21, "CASE8_GA", bus, 10, 0, 100).setEnergySource(EnergySource.HYDRO);
         addGenerator(vl21, "CASE8_GB", bus, 10, 0, 100).setEnergySource(EnergySource.HYDRO);
+
+        bus = addBus(vl21, "CASE9");
+        addLoad(vl21, "CASE9_LA", bus, 10, 2);
+        addLoad(vl21, "CASE9_LB", bus, 5, 1);
+        network.getLoad("CASE9_LB").getTerminal().disconnect();
+        addGenerator(vl21, "CASE9_GA", bus, 100, 0, 200).setEnergySource(EnergySource.HYDRO);
+        addGenerator(vl21, "CASE9_GB", bus, 50, 0, 100).setEnergySource(EnergySource.THERMAL).getTerminal().disconnect();
         return network;
     }
 
@@ -232,7 +242,9 @@ public final class UcteExporterTestNetworks {
      *     generator {@code GB} (P = 500, 23 kV);</li>
      *     <li>{@code CASE9}: non-regulating generator {@code GA} (P = 10) without voltage target;</li>
      *     <li>{@code CASEA}: generator {@code GA} (P = 100) regulating {@code CASE3_L}'s terminal at 22.5 kV, on another
-     *     bus with the same nominal voltage, without local target.</li>
+     *     bus with the same nominal voltage, without local target;</li>
+     *     <li>{@code CASEB}: disconnected load {@code L} and generator {@code GA} (P = 100) regulating {@code L}'s
+     *     disconnected terminal at 22.5 kV, without local target.</li>
      * </ul>
      */
     public static Network createWithMultipleVoltageTargets() {
@@ -276,6 +288,11 @@ public final class UcteExporterTestNetworks {
 
         bus = addBus(vl21, "CASEA");
         addRemoteRegulatingGenerator(vl21, "CASEA_GA", bus, 100, network.getLoad("CASE3_L").getTerminal(), 22.5);
+
+        bus = addBus(vl21, "CASEB");
+        addLoad(vl21, "CASEB_L", bus, 1, 1);
+        network.getLoad("CASEB_L").getTerminal().disconnect();
+        addRemoteRegulatingGenerator(vl21, "CASEB_GA", bus, 100, network.getLoad("CASEB_L").getTerminal(), 22.5);
         return network;
     }
 

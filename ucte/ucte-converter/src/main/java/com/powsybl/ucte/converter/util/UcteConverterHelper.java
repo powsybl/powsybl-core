@@ -232,14 +232,16 @@ public final class UcteConverterHelper {
                 local.add(new VoltageCandidate(generator, localTargetV, null, Double.NaN));
             } else if (generator.getVoltageRegulation() != null &&
                     !Double.isNaN(generator.getVoltageRegulation().getTargetValue())) {
-                Bus regulatedBus = getRegulatedBus(generator);
-                double targetValue = generator.getVoltageRegulation().getTargetValue();
-                if (regulatedBus.getId().equals(bus.getId())) {
-                    local.add(new VoltageCandidate(generator, targetValue, null, Double.NaN));
-                } else {
-                    double rescaled = targetValue * bus.getVoltageLevel().getNominalV() /
-                            regulatedBus.getVoltageLevel().getNominalV();
-                    remote.add(new VoltageCandidate(generator, rescaled, regulatedBus, targetValue));
+                Bus regulatedBus = generator.getRegulatingTerminal().getBusBreakerView().getBus();
+                if (regulatedBus != null) {
+                    double targetValue = generator.getVoltageRegulation().getTargetValue();
+                    if (regulatedBus.getId().equals(bus.getId())) {
+                        local.add(new VoltageCandidate(generator, targetValue, null, Double.NaN));
+                    } else {
+                        double rescaled = targetValue * bus.getVoltageLevel().getNominalV() /
+                                regulatedBus.getVoltageLevel().getNominalV();
+                        remote.add(new VoltageCandidate(generator, rescaled, regulatedBus, targetValue));
+                    }
                 }
             }
         }
@@ -249,23 +251,4 @@ public final class UcteConverterHelper {
                      .orElse(List.of());
     }
 
-    /**
-     * Find the {@link Bus} whose voltage is regulated by {@code generator}.
-     * Extraction is performed on the generator's regulating terminal (see {@link Generator#getRegulatingTerminal()}),
-     * in bus-breaker view:
-     * <ol>
-     *     <li>If the terminal has a {@link Bus}, return it (see {@link Terminal.BusBreakerView#getBus()})</li>
-     *     <li>Otherwise, return the terminal's {@code connectableBus} (see {@link Terminal.BusBreakerView#getConnectableBus()})</li>
-     * </ol>
-     * Note that the generator has to comply with a few rules: regulating in mode {@link RegulationMode#VOLTAGE} and an
-     * undefined ({@code NaN}) local {@code targetV} (see {@link Generator#getLocalTargetV()})
-     * @param generator a generator
-     * @return the bus whose voltage is regulated by {@code generator}
-     */
-    private static Bus getRegulatedBus(Generator generator) {
-        Terminal regulatingTerminal = generator.getRegulatingTerminal();
-        return regulatingTerminal.getBusBreakerView().getBus() != null
-                           ? regulatingTerminal.getBusBreakerView().getBus()
-                           : regulatingTerminal.getBusBreakerView().getConnectableBus();
-    }
 }

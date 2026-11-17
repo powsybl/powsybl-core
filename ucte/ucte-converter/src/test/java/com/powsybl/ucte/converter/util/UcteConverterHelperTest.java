@@ -97,7 +97,8 @@ class UcteConverterHelperTest {
 
     /**
      * The voltage candidates of a bus: only the first non-empty category among local, remote and non-regulating is
-     * returned, sorted by decreasing targetP then by generator id. See
+     * returned, sorted by decreasing targetP then by generator id. A generator whose regulated terminal is disconnected
+     * provides no candidate. See
      * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases.
      */
     @Test
@@ -117,6 +118,7 @@ class UcteConverterHelperTest {
         assertCandidates(network, "FCASE971", List.of());
         assertCandidates(network, "FCASEA71", List.of(new VoltageCandidate(network.getGenerator("CASEA_GA"), 22.5,
                 network.getBusBreakerView().getBus("FCASE371"), 22.5)));
+        assertCandidates(network, "FCASEB71", List.of());
     }
 
     /**
