@@ -44,6 +44,7 @@ class SensitivityResultJsonWriterTest {
                 sensiWriter.writeSensitivityValue(0, -1, -1, 1d, 2d);
                 sensiWriter.writeStateStatus(0, 0, 0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
                 sensiWriter.writeSensitivityValue(1, 0, 0, 3d, 4d);
+                sensiWriter.computationComplete();
             }
             writer.flush();
             String expected = new String(ByteStreams.toByteArray(Objects.requireNonNull(getClass().getResourceAsStream("/SensitivityResultJsonWriter.json"))), StandardCharsets.UTF_8);
