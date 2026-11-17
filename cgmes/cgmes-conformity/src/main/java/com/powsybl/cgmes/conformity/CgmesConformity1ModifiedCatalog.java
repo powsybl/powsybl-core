@@ -179,36 +179,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBEInvalidRegulatingControl() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_invalid_regulating_control/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-Invalid-Regulation-Control",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_SSH),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_TP),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBEMissingRegulatingControl() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_missing_regulating_control/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-Missing-Regulation-Control",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_SSH,
-                        MICRO_GRID_BE_SV,
-                        MICRO_GRID_BE_TP),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReferenceResources microGridBaseCaseBEWithSvInjection() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_with_sv_injection/";
@@ -296,20 +266,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         MICRO_GRID_BE_SV),
                 new ResourceSet(MICRO_GRID_BE_BASE,
                         MICRO_GRID_BE_TP),
-                microGridBaseCaseBoundaries());
-    }
-
-    public static GridModelReferenceResources microGridBaseCaseBEMissingShuntRegulatingControlId() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_missing_shunt_regulating_control_id/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-Missing-Shunt-Regulating-Control-ID",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_SSH),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_BE_SV),
                 microGridBaseCaseBoundaries());
     }
 
@@ -495,21 +451,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microGridBaseCaseBERegulatingTerminalsDefinedOnSwitches() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_regulatingTerminalsDefinedOnSwitches/";
-        return new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE-regulating-terminals-defined-on-switches",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_SSH,
-                        MICRO_GRID_BE_TP),
-                new ResourceSet(MICRO_GRID_BE_BASE,
-                        MICRO_GRID_BE_SV),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReferenceResources microGridBaseCaseMeasurements() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_measurements/";
@@ -639,70 +580,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReferenceResources microT4BeBbInvalidSvcMode() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_invalid_svc_mode/";
-        return new GridModelReferenceResources(
-                "MicroGrid-T4-Invalid-SVC-mode",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_T4_EQ),
-                new ResourceSet(MICRO_GRID_T4_BASE,
-                        MICRO_GRID_T4_SSH,
-                        MICRO_GRID_T4_SV,
-                        MICRO_GRID_T4_TP),
-                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
-                        MICRO_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources microT4BeBbReactivePowerSvc() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_reactive_power_svc/";
-        return new GridModelReferenceResources(
-                "MicroGrid-T4-Reactive-Power-SVC",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_T4_EQ),
-                new ResourceSet(MICRO_GRID_T4_BASE,
-                        MICRO_GRID_T4_SSH,
-                        MICRO_GRID_T4_SV,
-                        MICRO_GRID_T4_TP),
-                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
-                        MICRO_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources microT4BeBbOffSvc() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_off_svc/";
-        return new GridModelReferenceResources(
-                "MicroGrid-T4-Off-SVC",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_T4_SSH),
-                new ResourceSet(MICRO_GRID_T4_BASE,
-                        MICRO_GRID_T4_EQ,
-                        MICRO_GRID_T4_SV,
-                        MICRO_GRID_T4_TP),
-                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
-                        MICRO_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources microT4BeBbOffSvcControl() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_off_svc_control/";
-        return new GridModelReferenceResources(
-                "MicroGrid-T4-Off-SVC",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_T4_EQ,
-                        MICRO_GRID_T4_SSH),
-                new ResourceSet(MICRO_GRID_T4_BASE,
-                        MICRO_GRID_T4_SV,
-                        MICRO_GRID_T4_TP),
-                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
-                        MICRO_GRID_BD_TP));
-    }
-
     public static GridModelReferenceResources microT4BeBbOffSvcControlV() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_off_svc_control_v/";
@@ -717,68 +594,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         MICRO_GRID_T4_TP),
                 new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
                         MICRO_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources microT4BeBbSvcNoRegulatingControl() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_svc_no_regulating_control/";
-        return new GridModelReferenceResources(
-                "MicroGrid-T4-SVC_Without_Regulating_Control",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_T4_EQ),
-                new ResourceSet(MICRO_GRID_T4_BASE,
-                        MICRO_GRID_T4_SSH,
-                        MICRO_GRID_T4_SV,
-                        MICRO_GRID_T4_TP),
-                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
-                        MICRO_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources microT4BeBbMissingRegControlReactivePowerSvc() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/Type4_T4/BE_BB_Complete_v2_missing_reg_control_reactive_power_svc/";
-        return new GridModelReferenceResources(
-                "MicroGrid-T4-Reactive_Power_SVC_With_Missing_Regulating_Control",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_T4_EQ),
-                new ResourceSet(MICRO_GRID_T4_BASE,
-                        MICRO_GRID_T4_SSH,
-                        MICRO_GRID_T4_SV,
-                        MICRO_GRID_T4_TP),
-                new ResourceSet(MICRO_GRID_T4_BD_BASE, MICRO_GRID_BD_EQ,
-                        MICRO_GRID_BD_TP));
-    }
-
-    public static GridModelReferenceResources miniBusBranchRtcRemoteRegulation() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/BusBranch/BaseCase_v3_rtc_with_remote_regulation/";
-        return new GridModelReferenceResources(
-                "MiniGrid-NodeBreaker-RtcRemoteRegulation",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ,
-                        MINI_GRID_SSH,
-                        MINI_GRID_TP),
-                new ResourceSet(MINI_GRID_BUS_BRANCH_BASE,
-                        MINI_GRID_DL,
-                        MINI_GRID_SV));
-    }
-
-    public static GridModelReferenceResources miniBusBranchT3xTwoRegulatingControlsEnabled() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/BusBranch/BaseCase_v3_T3x_two_regulatingControls_enabled/";
-        return new GridModelReferenceResources(
-                "MiniGrid-BusBranch-TwoRegulatingControlsEnabled",
-                null,
-                new ResourceSet(base,
-                        MINI_GRID_EQ,
-                        MINI_GRID_SSH),
-                new ResourceSet(MINI_GRID_BUS_BRANCH_BASE,
-                        MINI_GRID_DL,
-                        MINI_GRID_SV,
-                        MINI_GRID_TP));
     }
 
     public static GridModelReferenceResources miniBusBranchPhaseAngleClockZero() {

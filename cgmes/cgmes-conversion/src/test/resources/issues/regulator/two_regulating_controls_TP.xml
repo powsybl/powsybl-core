@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:two_regulating_controls_TP">
+        <md:Model.scenarioTime>2030-01-02T09:00:00</md:Model.scenarioTime>
+        <md:Model.created>2014-10-22T09:01:25.830</md:Model.created>
+        <md:Model.description>Three-winding transformer with two regulating controls</md:Model.description>
+        <md:Model.version>4</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org</md:Model.modelingAuthoritySet>
+        <md:Model.DependentOn rdf:resource="urn:uuid:two_regulating_controls_EQ"/>
+    </md:FullModel>
+    <cim:TopologicalNode rdf:ID="_TN_1">
+        <cim:IdentifiedObject.description>Node-1</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_S1_380kV"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_380kV"/>
+    </cim:TopologicalNode>
+    <cim:TopologicalNode rdf:ID="_TN_8">
+        <cim:IdentifiedObject.description>Node-2</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>8</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_S1_30kV"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_30kV"/>
+    </cim:TopologicalNode>
+    <cim:TopologicalNode rdf:ID="_TN_2">
+        <cim:IdentifiedObject.description>Node-3</cim:IdentifiedObject.description>
+        <cim:IdentifiedObject.name>2</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_S1_110kV"/>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_110kV"/>
+    </cim:TopologicalNode>
+    <cim:Terminal rdf:about="#_T_PT_T3_1">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_PT_T3_2">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_2"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_T_PT_T3_3">
+        <cim:Terminal.TopologicalNode rdf:resource="#_TN_8"/>
+    </cim:Terminal>
+</rdf:RDF>
