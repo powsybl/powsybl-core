@@ -10,6 +10,7 @@ package com.powsybl.ucte.converter.util;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -129,6 +130,6 @@ class UcteConverterHelperTest {
     }
 
     private static void assertCandidates(Network network, String busId, List<VoltageCandidate> expected) {
-        assertEquals(expected, getVoltageCandidatesByRelevance(network.getBusBreakerView().getBus(busId)), busId);
+        assertEquals(expected, getVoltageCandidatesByRelevance(network.getBusBreakerView().getBus(busId), ReportNode.NO_OP), busId);
     }
 }

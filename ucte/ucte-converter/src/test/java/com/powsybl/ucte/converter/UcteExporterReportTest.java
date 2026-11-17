@@ -184,7 +184,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
      * {@link UcteExporterTestNetworks#createWithMultipleVoltageTargets()} for the cases: conflicting targets
      * ({@code CASE1}, {@code CASE2}, {@code CASE6}) and rescaled remote targets ({@code CASE4}, {@code CASE8}) are
      * reported, a remote target on a bus with the same nominal voltage ({@code CASEA}) is not, and a voltage target
-     * regulating a disconnected terminal ({@code CASEB}) is reported as missing.
+     * regulating a disconnected terminal ({@code CASEB}) is reported as ignored, then as missing.
      * <p>
      * A regulating generator without any voltage target, only accepted at the {@link ValidationLevel#EQUIPMENT}
      * validation level, is added to {@code CASE9}: the missing voltage target is reported.
@@ -218,6 +218,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          Bus FCASE671: generators have different voltage targets, 23.0 kV from generator CASE6_GB is used
                          Bus FCASE871: generator CASE8_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
                          Bus FCASE971: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
+                         Bus FCASEB71: generator CASEB_GA, connected to this bus, regulates the voltage of the disconnected terminal of CASEB_L; its target 22.5 kV is ignored
                          Bus FCASEB71: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
                       Boundary Lines
                       Lines

@@ -111,6 +111,18 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static void voltageTargetIgnored(ReportNode reportNode, String busId, String generatorId, String regulatedEquipmentId,
+                                            double targetV) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.voltageTargetIgnored")
+                .withUntypedValue(BUS_ID, busId)
+                .withUntypedValue("generatorId", generatorId)
+                .withUntypedValue("regulatedEquipmentId", regulatedEquipmentId)
+                .withUntypedValue("targetV", targetV)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void voltageTargetMissing(ReportNode reportNode, String busId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.voltageTargetMissing")
