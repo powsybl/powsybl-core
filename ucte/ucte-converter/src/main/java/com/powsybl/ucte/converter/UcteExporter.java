@@ -394,9 +394,8 @@ public class UcteExporter implements Exporter {
      */
     private static void applyGenerationToUcteNode(BoundaryLine.Generation generation, UcteNode ucteNode) {
         double generatorTargetP = generation.getTargetP();
-        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = generation.getTargetQ();
-        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
+        ucteNode.setActivePowerGeneration(getOrZero(-generatorTargetP));
+        ucteNode.setReactivePowerGeneration(getOrZero(-generation.getTargetQ()));
         if (generation.isVoltageRegulationOn()) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
             ucteNode.setVoltageReference(generation.getTargetV());
