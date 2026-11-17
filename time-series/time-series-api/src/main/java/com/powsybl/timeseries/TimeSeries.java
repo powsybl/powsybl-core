@@ -20,6 +20,7 @@ import com.powsybl.timeseries.ast.NodeCalc;
 import de.siegmar.fastcsv.reader.CsvParseException;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecordHandler;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -594,7 +595,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         try (CsvReader<CsvRecord> csvReader = CsvReader.builder()
             .fieldSeparator(timeSeriesCsvConfig.separator())
             .quoteCharacter('"')
-            .ofCsvRecord(reader)) {
+            .build(CsvRecordHandler.builder().maxFields(getCsvMaxFields(timeSeriesCsvConfig)).build(), reader)) {
 
             Iterator<CsvRecord> iterator = csvReader.iterator();
             CsvParsingContext context = readCsvHeader(iterator, timeSeriesCsvConfig);
@@ -609,6 +610,12 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     timing);
         TimeseriesReports.timeseriesLoadingTimeDuration(reportNode, timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(), timing);
         return timeSeriesPerVersion;
+    }
+
+    private static int getCsvMaxFields(TimeSeriesCsvConfig timeSeriesCsvConfig) {
+        // One more field than maxColumns so that a too wide header is reported by checkCsvHeader
+        int maxColumns = timeSeriesCsvConfig.getMaxColumns();
+        return maxColumns > 0 && maxColumns < Integer.MAX_VALUE ? maxColumns + 1 : Integer.MAX_VALUE;
     }
 
     void writeJson(JsonGenerator generator);
