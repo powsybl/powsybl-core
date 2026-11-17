@@ -404,7 +404,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    public void applySolvedValuesBattery() {
+    public void applySolvedValuesTest() {
         Battery battery = BatteryNetworkFactory.create().getBattery("BAT");
         assertNotEquals(battery.getTerminal().getP(), battery.getTargetP());
         assertNotEquals(battery.getTerminal().getQ(), battery.getLocalTargetQ());

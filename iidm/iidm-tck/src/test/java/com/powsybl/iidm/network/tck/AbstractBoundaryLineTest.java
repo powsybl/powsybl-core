@@ -308,22 +308,22 @@ public abstract class AbstractBoundaryLineTest {
     }
 
     @Test
-    public void applySolvedValuesBoundaryLine() {
-        BoundaryLine dl = BoundaryLineNetworkFactory.createWithGeneration().getBoundaryLine("BL");
-        dl.getTerminal().setP(441).setQ(30);
-        dl.getTerminal().getBusView().getBus().setV(100);
-        assertNotEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
-        assertNotEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+    public void applySolvedValuesTest() {
+        BoundaryLine bl = BoundaryLineNetworkFactory.createWithGeneration().getBoundaryLine("BL");
+        bl.getTerminal().setP(441).setQ(30);
+        bl.getTerminal().getBusView().getBus().setV(100);
+        assertNotEquals(-bl.getTerminal().getP(), bl.getGeneration().getTargetP());
+        assertNotEquals(bl.getTerminal().getBusView().getBus().getV(), bl.getGeneration().getTargetV());
 
-        dl.applySolvedValues();
-        assertEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());
-        assertEquals(dl.getTerminal().getBusView().getBus().getV(), dl.getGeneration().getTargetV());
+        bl.applySolvedValues();
+        assertEquals(-bl.getTerminal().getP(), bl.getGeneration().getTargetP());
+        assertEquals(bl.getTerminal().getBusView().getBus().getV(), bl.getGeneration().getTargetV());
 
-        dl.getGeneration().setVoltageRegulationOn(false).setTargetV(Double.NaN).setTargetQ(35);
-        assertNotEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+        bl.getGeneration().setVoltageRegulationOn(false).setTargetV(Double.NaN).setTargetQ(35);
+        assertNotEquals(-bl.getTerminal().getQ(), bl.getGeneration().getTargetQ());
 
-        dl.applySolvedValues();
-        assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+        bl.applySolvedValues();
+        assertEquals(-bl.getTerminal().getQ(), bl.getGeneration().getTargetQ());
     }
 
     private void createBoundaryLine(String id, String name, double r, double x, double g, double b,

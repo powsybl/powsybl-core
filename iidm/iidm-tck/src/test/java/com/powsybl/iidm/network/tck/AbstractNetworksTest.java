@@ -15,8 +15,11 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
@@ -51,38 +54,32 @@ public abstract class AbstractNetworksTest {
 
     @Test
     public void applySolvedValuesTest() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT");
-        shuntCompensator.setSolvedSectionCount(0);
-        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
-        twt.getPhaseTapChanger().setSolvedTapPosition(13);
-        twt.getRatioTapChanger().setSolvedTapPosition(2);
-        // Modify p and q of load so that it is different to P0 and Q0
-        Load load = network.getLoad("LD1");
-        load.getTerminal().setP(81).setQ(11);
-        // Modify p, q and v of generator so that it is different to the targets
-        Generator generator = network.getGenerator("GH1");
-        generator.getTerminal().setP(-86).setQ(-512);
-        generator.getTerminal().getBusView().getBus().setV(401);
-
-        assertNotEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
-        assertNotEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
-        assertNotEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
-        assertNotEquals(load.getTerminal().getP(), load.getP0());
-        assertNotEquals(load.getTerminal().getQ(), load.getQ0());
-        assertNotEquals(-generator.getTerminal().getP(), generator.getTargetP());
-        assertNotEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
-        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
+        // check that applySolvedValues call each equipment type with solved values
+        Network network = mock(Network.class);
+        Generator generator = mock(Generator.class);
+        Battery battery = mock(Battery.class);
+        Load load = mock(Load.class);
+        BoundaryLine boundaryLine = mock(BoundaryLine.class);
+        TwoWindingsTransformer twt = mock(TwoWindingsTransformer.class);
+        ThreeWindingsTransformer twt3 = mock(ThreeWindingsTransformer.class);
+        ShuntCompensator shunt = mock(ShuntCompensator.class);
+        when(network.getGeneratorStream()).thenReturn(Stream.of(generator));
+        when(network.getBatteryStream()).thenReturn(Stream.of(battery));
+        when(network.getLoadStream()).thenReturn(Stream.of(load));
+        when(network.getBoundaryLineStream()).thenReturn(Stream.of(boundaryLine));
+        when(network.getTwoWindingsTransformerStream()).thenReturn(Stream.of(twt));
+        when(network.getThreeWindingsTransformerStream()).thenReturn(Stream.of(twt3));
+        when(network.getShuntCompensatorStream()).thenReturn(Stream.of(shunt));
 
         Networks.applySolvedValues(network);
-        assertEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
-        assertEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
-        assertEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
-        assertEquals(load.getTerminal().getP(), load.getP0());
-        assertEquals(load.getTerminal().getQ(), load.getQ0());
-        assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
-        assertEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
-        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
+
+        verify(generator, times(1)).applySolvedValues();
+        verify(load, times(1)).applySolvedValues();
+        verify(battery, times(1)).applySolvedValues();
+        verify(boundaryLine, times(1)).applySolvedValues();
+        verify(twt, times(1)).applySolvedValues();
+        verify(twt3, times(1)).applySolvedValues();
+        verify(shunt, times(1)).applySolvedValues();
     }
 
     @Test
