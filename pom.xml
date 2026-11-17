@@ -74,6 +74,7 @@
         <module>loadflow</module>
         <module>math</module>
         <module>matpower</module>
+        <module>nc</module>
         <module>powerfactory</module>
         <module>psse</module>
         <module>scripting</module>

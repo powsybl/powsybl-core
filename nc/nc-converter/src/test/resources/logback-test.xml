@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2026, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+-->
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level %-50logger{1} | %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="error">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <!-- Log NC queries after the RDF context has been inserted. -->
+    <logger name="com.powsybl.nc.model.triplestore.NcQueryExecutor" level="debug"/>
+</configuration>
