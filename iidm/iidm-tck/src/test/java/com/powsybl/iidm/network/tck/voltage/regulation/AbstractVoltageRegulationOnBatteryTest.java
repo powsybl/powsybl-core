@@ -132,6 +132,7 @@ public abstract class AbstractVoltageRegulationOnBatteryTest extends AbstractVol
         Battery battery = batteryAdder.add();
         assertEquals(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER, battery.getVoltageRegulation().getMode());
         assertEquals(0.3, battery.getVoltageRegulation().getSlope());
+        assertEquals(30.0, battery.getRegulatingTargetQ());
         assertTrue(battery.isRegulating());
     }
 

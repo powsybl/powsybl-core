@@ -128,6 +128,7 @@ public abstract class AbstractVoltageRegulationOnGeneratorTest extends AbstractV
         Generator generator = generatorAdder.add();
         assertEquals(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER, generator.getVoltageRegulation().getMode());
         assertEquals(0.3, generator.getVoltageRegulation().getSlope());
+        assertEquals(30.0, generator.getRegulatingTargetQ());
         assertTrue(generator.isRegulating());
     }
 
