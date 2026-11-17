@@ -18,6 +18,7 @@ import com.powsybl.commons.report.TypedValue;
 public final class UcteExporterReports {
 
     public static final String BUS_ID = "busId";
+    public static final String GENERATOR_ID = "generatorId";
 
     private UcteExporterReports() {
     }
@@ -103,7 +104,7 @@ public final class UcteExporterReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.remoteVoltageTargetRescaled")
                 .withUntypedValue(BUS_ID, busId)
-                .withUntypedValue("generatorId", generatorId)
+                .withUntypedValue(GENERATOR_ID, generatorId)
                 .withUntypedValue("remoteBusId", remoteBusId)
                 .withUntypedValue("remoteTargetV", remoteTargetV)
                 .withUntypedValue("localTargetV", localTargetV)
@@ -116,7 +117,7 @@ public final class UcteExporterReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.voltageTargetIgnored")
                 .withUntypedValue(BUS_ID, busId)
-                .withUntypedValue("generatorId", generatorId)
+                .withUntypedValue(GENERATOR_ID, generatorId)
                 .withUntypedValue("regulatedEquipmentId", regulatedEquipmentId)
                 .withUntypedValue("targetV", targetV)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -135,7 +136,7 @@ public final class UcteExporterReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.voltageTargetConflict")
                 .withUntypedValue(BUS_ID, busId)
-                .withUntypedValue("generatorId", generatorId)
+                .withUntypedValue(GENERATOR_ID, generatorId)
                 .withUntypedValue("targetV", targetV)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
