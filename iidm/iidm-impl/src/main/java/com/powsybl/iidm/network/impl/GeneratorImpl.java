@@ -163,6 +163,8 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setTargetP(double targetP) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkActivePowerSetpoint(this, targetP, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkActivePowerTargetWithinRange(this, targetP, minP, maxP, n.getReportNodeContext().getReportNode());
+
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.targetP.set(network.get().getVariantIndex(), targetP);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
