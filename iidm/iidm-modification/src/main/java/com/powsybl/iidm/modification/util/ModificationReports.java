@@ -440,17 +440,17 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void voltageLevelNotRemovedWithRemainingBranches(ReportNode reportNode, String vlId) {
+    public static void voltageLevelStillConnectedReport(ReportNode reportNode, String vlId) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.voltageLevelNotRemovedWithRemainingBranches")
+                .withMessageTemplate("core.iidm.modification.voltageLevelStillConnected")
                 .withUntypedValue("vlId", vlId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
-    public static void voltageLevelNotRemovedWithNoBranch(ReportNode reportNode, String vlId) {
+    public static void voltageLevelIsolatedWithEquipmentsLeftReport(ReportNode reportNode, String vlId) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.voltageLevelNotRemovedWithNoBranch")
+                .withMessageTemplate("core.iidm.modification.voltageLevelIsolatedWithEquipmentsLeft")
                 .withUntypedValue("vlId", vlId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
