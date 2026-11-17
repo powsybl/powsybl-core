@@ -331,8 +331,6 @@ class ApplyActionToNetworkTest {
         assertEquals(607.0, generator.getTargetP());
         assertEquals(200.0, load.getQ0());
 
-        // The relative change is only meaningful if applied after the absolute one:
-        // 607 * 1.1 would be 667.7, while 100 * 1.1 is 110.
         MultipleActionsAction action = new MultipleActionsAction("id", List.of(
                 new GeneratorActionBuilder().withId("generatorAction")
                         .withGeneratorId("GEN")
