@@ -73,7 +73,7 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
      */
     Optional<ObservableIsland> getIsland(String busId);
 
-    /** Observability of every element the estimation reported on, in no guaranteed order. */
+    /** Observability of every element the analysis reported on, in no guaranteed order. */
     List<ElementObservability> getElementObservabilities();
 
     /**
@@ -116,7 +116,7 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
          */
         boolean isObservable();
 
-        /** One entry per quantity of this element that the estimation determined. */
+        /** One entry per quantity of this element that the analysis determined. */
         List<Quality> getQualities();
     }
 
@@ -129,12 +129,19 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
         /** The branch side, or an empty {@code Optional} for an injection. */
         Optional<ThreeSides> getSide();
 
-        /** The standard deviation of the estimated quantity, in MW, MVar or kV. */
+        /**
+         * The standard deviation of this quantity as the measurements determine it, in MW, MVar
+         * or kV. It combines every measurement bearing on the quantity, so a quantity measured
+         * twice carries a smaller value than the same quantity measured once. It follows from
+         * where the measurements are and how accurate they are, so it can be obtained without
+         * running an estimation, and it depends on the operating point the analysis linearises
+         * at. An implementation with no value to report omits the quality.
+         */
         double getStandardDeviation();
 
         /**
          * Whether more than one measurement determines this quantity, or an empty
-         * {@code Optional} if the estimation did not establish it.
+         * {@code Optional} if the analysis did not establish it.
          */
         Optional<Boolean> isRedundant();
     }

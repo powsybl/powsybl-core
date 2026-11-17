@@ -169,12 +169,12 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         private final Boolean redundant;
 
         /**
-         * {@code side} is null for an injection, and {@code redundant} is null when the estimation did
+         * {@code side} is null for an injection, and {@code redundant} is null when the analysis did
          * not establish whether the quantity is redundantly measured.
          *
          * @param quantity the measured quantity
          * @param side the branch side, or null for an injection
-         * @param standardDeviation the standard deviation of the estimated quantity, in MW, MVar or kV
+         * @param standardDeviation the standard deviation of the quantity as the measurements determine it, in MW, MVar or kV
          * @param redundant whether more than one measurement determines the quantity, or null if that was not established
          */
         public QualityImpl(Quantity quantity, ThreeSides side, double standardDeviation, Boolean redundant) {
