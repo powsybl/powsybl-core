@@ -163,6 +163,8 @@ A voltage-regulating generator provides:
 - its local target voltage (`localTargetV`), if defined (case *local*);
 - otherwise, the target value of its voltage regulation, if defined:
   - used as-is if its regulating terminal is on the exported bus (case *local*),
+  - ignored if its regulating terminal is disconnected: the generator provides no candidate, and a warning is
+    [reported](#reporting),
   - rescaled if its regulating terminal is on another bus (case *remote*):
 
 $$
@@ -388,6 +390,7 @@ following situations are reported:
 | A two-winding transformer has no usable nominal power                                                        | `WARN`   | [Nominal power](#nominal-power)                                                             |
 | A node regulates voltage but none of its generators provides a voltage target                                | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The generators of a bus have different candidate voltage targets; the kept value and its generator are given | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
-| The kept voltage target comes from a remote regulation                                                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| The kept voltage target is rescaled from a remote bus with a different nominal voltage                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| A generator regulates the voltage of a disconnected terminal; its voltage target is ignored                  | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The sum of finite generator power limits reaches or exceeds `9999` in absolute value                         | `WARN`   | [Active and reactive power generation limits](#active-and-reactive-power-generation-limits) |
 | The generators of a bus have different power plant types                                                     | `INFO`   | [Power plant type](#power-plant-type)                                                       |
