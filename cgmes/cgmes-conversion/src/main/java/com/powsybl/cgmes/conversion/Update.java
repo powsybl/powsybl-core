@@ -201,7 +201,10 @@ public final class Update {
     static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
         if (createFictitiousSwitches(context)) {
             context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
-            cgmes.terminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
+            // Sorted so that the IIDM nodes created for the fictitious switches do not depend on the CGMES elements order
+            cgmes.terminals().stream()
+                    .sorted(Comparator.comparing(cgmesTerminal -> cgmesTerminal.getId(CgmesNames.TERMINAL)))
+                    .forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
             context.popReportNode();
         }
     }
@@ -232,7 +235,10 @@ public final class Update {
     static void createFictitiousLoadsForSvInjectionsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
         if (context.config().convertSvInjections()) {
             context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.SV_INJECTION));
-            cgmes.svInjections().forEach(svInjection -> SvInjectionConversion.create(network, svInjection));
+            // Sorted so that the IIDM nodes created for the fictitious loads do not depend on the CGMES elements order
+            cgmes.svInjections().stream()
+                    .sorted(Comparator.comparing(svInjection -> svInjection.getId(CgmesNames.SV_INJECTION)))
+                    .forEach(svInjection -> SvInjectionConversion.create(network, svInjection));
             context.popReportNode();
         }
     }

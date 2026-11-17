@@ -141,9 +141,10 @@ final class ExportXmlCompare {
                 // ratedS is optional for generators,
                 // but we always export it to keep up with the quality of datasets rules.
                 // So we do not enforce this attribute to be equal in the original and exported network
-                ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus");
+                // As for other equipment, node numbers depend on the ids of the exported connectivity nodes
+                ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus") || attr.getLocalName().equals("node");
             } else if (elementName.startsWith("shunt")) {
-                ignored = attr.getLocalName().equals("solvedSectionCount") || attr.getLocalName().equals("bus");
+                ignored = attr.getLocalName().equals("solvedSectionCount") || attr.getLocalName().equals("bus") || attr.getLocalName().equals("node");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
