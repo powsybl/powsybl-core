@@ -17,10 +17,12 @@ import org.apache.commons.math3.complex.ComplexUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
@@ -135,6 +137,21 @@ public final class UcteConverterHelper {
     }
 
     /**
+     * Category of a {@link VoltageCandidate}, in decreasing priority order.
+     */
+    private enum VoltageCandidateCategory {
+        LOCAL,
+        REMOTE,
+        NON_REGULATING
+    }
+
+    /**
+     * A {@link VoltageCandidate} and its category.
+     */
+    private record CategorizedVoltageCandidate(VoltageCandidateCategory category, VoltageCandidate candidate) {
+    }
+
+    /**
      * @param generator a Generator
      * @return the generator's {@code targetP} if it is defined (not {@code NaN}), 0 otherwise.
      */
@@ -213,50 +230,66 @@ public final class UcteConverterHelper {
      * </ol>
      * Within a category, candidates are sorted by their generator's {@code targetP} (higher first), then by generator id.
      *
-     * A voltage-regulating generator without local target voltage, whose regulating terminal is disconnected, provides
-     * no candidate and is reported.
-     *
      * @param bus a Bus
      * @param reportNode report node where the generators regulating a disconnected terminal are reported
      * @return the candidates of the highest priority non-empty category, or an empty {@code List} if there is none
      */
     static List<VoltageCandidate> getVoltageCandidatesByRelevance(Bus bus, ReportNode reportNode) {
-        List<VoltageCandidate> local = new ArrayList<>();
-        List<VoltageCandidate> remote = new ArrayList<>();
-        List<VoltageCandidate> nonRegulating = new ArrayList<>();
-        List<Generator> sortedGenerators = bus.getGeneratorStream()
-                                              .sorted(Comparator.comparingDouble(UcteConverterHelper::getGenTargetP)
-                                                                .reversed().thenComparing(Generator::getId))
-                                              .toList();
-        for (Generator generator : sortedGenerators) {
-            double localTargetV = generator.getLocalTargetV();
-            if (!generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
-                if (!Double.isNaN(localTargetV)) {
-                    nonRegulating.add(new VoltageCandidate(generator, localTargetV, null, Double.NaN));
-                }
-            } else if (!Double.isNaN(localTargetV)) {
-                local.add(new VoltageCandidate(generator, localTargetV, null, Double.NaN));
-            } else if (generator.getVoltageRegulation() != null &&
-                    !Double.isNaN(generator.getVoltageRegulation().getTargetValue())) {
-                Terminal regulatingTerminal = generator.getRegulatingTerminal();
-                Bus regulatedBus = regulatingTerminal.getBusBreakerView().getBus();
-                double targetValue = generator.getVoltageRegulation().getTargetValue();
-                if (regulatedBus == null) {
-                    UcteExporterReports.voltageTargetIgnored(reportNode, bus.getId(), generator.getId(),
-                            regulatingTerminal.getConnectable().getId(), targetValue);
-                } else if (regulatedBus.getId().equals(bus.getId())) {
-                    local.add(new VoltageCandidate(generator, targetValue, null, Double.NaN));
-                } else {
-                    double rescaled = targetValue * bus.getVoltageLevel().getNominalV() /
-                            regulatedBus.getVoltageLevel().getNominalV();
-                    remote.add(new VoltageCandidate(generator, rescaled, regulatedBus, targetValue));
-                }
-            }
+        Map<VoltageCandidateCategory, List<VoltageCandidate>> candidatesByCategory = bus.getGeneratorStream()
+                .sorted(Comparator.comparingDouble(UcteConverterHelper::getGenTargetP).reversed().thenComparing(Generator::getId))
+                .map(generator -> categorize(generator, bus, reportNode))
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(CategorizedVoltageCandidate::category,
+                        () -> new EnumMap<>(VoltageCandidateCategory.class),
+                        Collectors.mapping(CategorizedVoltageCandidate::candidate, Collectors.toList())));
+        return candidatesByCategory.values().stream().findFirst().orElse(List.of());
+    }
+
+    /**
+     * Build the categorized voltage candidate of a generator, as described in
+     * {@link #getVoltageCandidatesByRelevance(Bus, ReportNode)}. A voltage-regulating generator without local target
+     * voltage, whose regulating terminal is disconnected, provides no candidate and is reported.
+     *
+     * @param generator a generator connected to {@code bus}
+     * @param bus the bus to provide a voltage reference for
+     * @param reportNode report node where a generator regulating a disconnected terminal is reported
+     * @return the categorized candidate of the generator, or {@code null} if it provides none
+     */
+    private static CategorizedVoltageCandidate categorize(Generator generator, Bus bus, ReportNode reportNode) {
+        double localTargetV = generator.getLocalTargetV();
+        if (!generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            return Double.isNaN(localTargetV) ? null
+                    : new CategorizedVoltageCandidate(VoltageCandidateCategory.NON_REGULATING, localCandidate(generator, localTargetV));
         }
-        return Stream.of(local, remote, nonRegulating)
-                     .filter(list -> !list.isEmpty())
-                     .findFirst()
-                     .orElse(List.of());
+        if (!Double.isNaN(localTargetV)) {
+            return new CategorizedVoltageCandidate(VoltageCandidateCategory.LOCAL, localCandidate(generator, localTargetV));
+        }
+        if (generator.getVoltageRegulation() == null || Double.isNaN(generator.getVoltageRegulation().getTargetValue())) {
+            return null;
+        }
+        double targetValue = generator.getVoltageRegulation().getTargetValue();
+        Terminal regulatingTerminal = generator.getRegulatingTerminal();
+        Bus regulatedBus = regulatingTerminal.getBusBreakerView().getBus();
+        if (regulatedBus == null) {
+            UcteExporterReports.voltageTargetIgnored(reportNode, bus.getId(), generator.getId(),
+                    regulatingTerminal.getConnectable().getId(), targetValue);
+            return null;
+        }
+        if (regulatedBus.getId().equals(bus.getId())) {
+            return new CategorizedVoltageCandidate(VoltageCandidateCategory.LOCAL, localCandidate(generator, targetValue));
+        }
+        double rescaled = targetValue * bus.getVoltageLevel().getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
+        return new CategorizedVoltageCandidate(VoltageCandidateCategory.REMOTE,
+                new VoltageCandidate(generator, rescaled, regulatedBus, targetValue));
+    }
+
+    /**
+     * @param generator the generator providing the candidate
+     * @param value the voltage reference, in the voltage level of the generator's bus
+     * @return a candidate without remote regulated bus
+     */
+    private static VoltageCandidate localCandidate(Generator generator, double value) {
+        return new VoltageCandidate(generator, value, null, Double.NaN);
     }
 
 }
