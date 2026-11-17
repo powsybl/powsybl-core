@@ -8,7 +8,6 @@
 
 package com.powsybl.sensitivity;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.List;
@@ -40,6 +39,6 @@ public class SensitivityStateStatus {
 
     public SensitivityStateStatus(SensitivityState state, List<ComponentStatus> statusList) {
         this.state = Objects.requireNonNull(state);
-        this.componentsLoadFlowStatusList = ImmutableList.copyOf(Objects.requireNonNull(statusList));
+        this.componentsLoadFlowStatusList = List.copyOf(Objects.requireNonNull(statusList));
     }
 }

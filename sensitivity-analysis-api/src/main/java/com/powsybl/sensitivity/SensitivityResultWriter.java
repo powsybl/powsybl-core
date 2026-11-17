@@ -11,7 +11,8 @@ import com.powsybl.loadflow.LoadFlowResult;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
- * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public interface SensitivityResultWriter {
 

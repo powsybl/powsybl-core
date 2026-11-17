@@ -20,6 +20,7 @@ import com.powsybl.sensitivity.SensitivityValue;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -108,6 +109,6 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             // they also contain some post operator strategy statuses and are not indexed by contingency
             contingencyIds = stateStatus.stream().map(s -> s.getState().contingencyId()).toList();
         }
-        return new SensitivityAnalysisResult(factors, stateStatus, contingencyIds, operatorStrategyIds, sensitivityValues, Boolean.TRUE.equals(computationComplete));
+        return new SensitivityAnalysisResult(factors, stateStatus, contingencyIds, operatorStrategyIds, sensitivityValues, Objects.requireNonNull(computationComplete));
     }
 }

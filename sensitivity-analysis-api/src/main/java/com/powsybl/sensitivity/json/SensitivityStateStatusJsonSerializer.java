@@ -10,12 +10,10 @@ package com.powsybl.sensitivity.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.sensitivity.SensitivityState;
 import com.powsybl.sensitivity.SensitivityStateStatus;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
 
 import static com.powsybl.sensitivity.json.SensitivityStateStatusJsonDeserializer.*;
 
@@ -34,22 +32,17 @@ public class SensitivityStateStatusJsonSerializer extends StdSerializer<Sensitiv
     }
 
     public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
-        writeJson(jsonGenerator, stateStatus.getState(), stateStatus.getComponentsLoadFlowStatusList());
-    }
-
-    public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state,
-                                 List<SensitivityStateStatus.ComponentStatus> componentsLoadFlowStatusList) {
         try {
             jsonGenerator.writeStartObject();
-            if (state.contingencyId() != null) {
-                jsonGenerator.writeStringField("contingencyId", state.contingencyId());
+            if (stateStatus.getState().contingencyId() != null) {
+                jsonGenerator.writeStringField("contingencyId", stateStatus.getState().contingencyId());
             }
-            if (state.operatorStrategyId() != null) {
-                jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
+            if (stateStatus.getState().operatorStrategyId() != null) {
+                jsonGenerator.writeStringField("operatorStrategyId", stateStatus.getState().operatorStrategyId());
             }
-            if (componentsLoadFlowStatusList != null && !componentsLoadFlowStatusList.isEmpty()) {
+            if (!stateStatus.getComponentsLoadFlowStatusList().isEmpty()) {
                 jsonGenerator.writeArrayFieldStart(COMPONENT_STATUSES);
-                for (SensitivityStateStatus.ComponentStatus componentStatus : componentsLoadFlowStatusList) {
+                for (SensitivityStateStatus.ComponentStatus componentStatus : stateStatus.getComponentsLoadFlowStatusList()) {
                     jsonGenerator.writeStartObject();
                     jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().toString());
                     jsonGenerator.writeStringField(LOAD_FLOW_STATUS_TEXT, componentStatus.statusText());

@@ -95,6 +95,7 @@ public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<Sens
                 context.oldStatus = parser.getValueAsString();
                 return true;
             case "status":
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.2");
                 parser.nextToken();
                 context.oldStatus = parser.getValueAsString();
@@ -122,7 +123,7 @@ public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<Sens
     }
 
     private static SensitivityStateStatus.ComponentStatus parseSingleComponentStatus(JsonParser parser) throws IOException {
-        LoadFlowResult.ComponentResult.Status status = LoadFlowResult.ComponentResult.Status.CONVERGED;
+        LoadFlowResult.ComponentResult.Status status = null;
         String descStr = "";
         Integer connectedComponentNum = null;
         Integer synchronousComponentNum = null;
