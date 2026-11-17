@@ -34,6 +34,8 @@
         <cim:Equipment.inService>true</cim:Equipment.inService>
         <cim:EquivalentInjection.p>184</cim:EquivalentInjection.p>
         <cim:EquivalentInjection.q>0</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>true</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>400.0</cim:EquivalentInjection.regulationTarget>
     </cim:EquivalentInjection>
     <cim:Terminal rdf:about="#_EquivalentInjection_T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
@@ -47,6 +49,32 @@
         <cim:ExternalNetworkInjection.referencePriority>0</cim:ExternalNetworkInjection.referencePriority>
     </cim:ExternalNetworkInjection>
     <cim:Terminal rdf:about="#_ExternalNetworkInjection_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+
+    <cim:SynchronousMachine rdf:about="#_SynchronousMachineWithoutRegulatingControl">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:RegulatingCondEq.controlEnabled>false</cim:RegulatingCondEq.controlEnabled>
+        <cim:RotatingMachine.p>-50</cim:RotatingMachine.p>
+        <cim:RotatingMachine.q>-10</cim:RotatingMachine.q>
+        <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/CIM100#SynchronousMachineOperatingMode.generator" />
+        <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
+    </cim:SynchronousMachine>
+    <cim:Terminal rdf:about="#_SynchronousMachineWithoutRegulatingControl_T">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:ThermalGeneratingUnit rdf:about="#_SynchronousMachineWithoutRegulatingControl-GeneratingUnit">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+    </cim:ThermalGeneratingUnit>
+
+    <cim:EquivalentInjection rdf:about="#_EquivalentInjectionWithRegulationCapability">
+        <cim:Equipment.inService>true</cim:Equipment.inService>
+        <cim:EquivalentInjection.p>30</cim:EquivalentInjection.p>
+        <cim:EquivalentInjection.q>10</cim:EquivalentInjection.q>
+        <cim:EquivalentInjection.regulationStatus>true</cim:EquivalentInjection.regulationStatus>
+        <cim:EquivalentInjection.regulationTarget>402.0</cim:EquivalentInjection.regulationTarget>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:about="#_EquivalentInjectionWithRegulationCapability_T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
 </rdf:RDF>

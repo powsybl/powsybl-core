@@ -559,7 +559,7 @@ Here the list of objects capable of such regulation by authorized mode:
 
 | Attribute        | Unit        | Description                                                                                                                            |
 |------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal                                                                       |
+| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal<br/>(Reactive power targets use the load sign convention)             |
 | $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                     |
 | $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode) |
 | $Terminal$       |             | The regulating Terminal which can be remote or local                                                                                   |

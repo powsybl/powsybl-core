@@ -147,4 +147,15 @@
     <cim:GeneratingUnit.normalPF>0</cim:GeneratingUnit.normalPF>
 </cim:ThermalGeneratingUnit>
 
+<cim:EquivalentInjection rdf:about="#_EI">
+    <cim:Equipment.inService>true</cim:Equipment.inService>
+    <cim:EquivalentInjection.p>10</cim:EquivalentInjection.p>
+    <cim:EquivalentInjection.q>10</cim:EquivalentInjection.q>
+    <cim:EquivalentInjection.regulationStatus>true</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationTarget>400</cim:EquivalentInjection.regulationTarget>
+</cim:EquivalentInjection>
+<cim:Terminal rdf:about="#_T_EI">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+
 </rdf:RDF>

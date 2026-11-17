@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,8 @@ import java.util.OptionalInt;
 
 class GeneratorConverter extends AbstractConverter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorConverter.class);
+
     GeneratorConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
@@ -40,8 +44,9 @@ class GeneratorConverter extends AbstractConverter {
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
         boolean voltageRegulatorOn = generatorModel.voltageRegulatorOn;
 
+        String generatorId = getId(elmSym);
         GeneratorAdder gAdder = vl.newGenerator()
-                .setId(getId(elmSym))
+                .setId(generatorId)
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setTargetP(generatorModel.targetP)
@@ -55,14 +60,23 @@ class GeneratorConverter extends AbstractConverter {
                 .add();
         }
         Generator g = gAdder.add();
-        Optional<List<CapabilityCurvePoint>> capabitlityCurve = CapabilityCurvePoint.create(elmSym);
-        if (capabitlityCurve.isPresent()) {
+        Optional<List<CapabilityCurvePoint>> capabilityCurve = CapabilityCurvePoint.create(elmSym);
+        if (capabilityCurve.isPresent()) {
             ReactiveCapabilityCurveAdder adder = g.newReactiveCapabilityCurve();
-            capabitlityCurve.get().forEach(capabitlityCurvePoint -> adder.beginPoint()
-                .setP(capabitlityCurvePoint.p)
-                .setMinQ(capabitlityCurvePoint.qMin)
-                .setMaxQ(capabitlityCurvePoint.qMax)
-                .endPoint());
+            capabilityCurve.get().forEach(capabilityCurvePoint -> {
+                double qMin = capabilityCurvePoint.qMin;
+                double qMax = capabilityCurvePoint.qMax;
+                if (qMax < qMin) {
+                    LOGGER.warn("Generator {}: reactive power limits are inverted ({}, {}), swapping values", generatorId, qMin, qMax);
+                    qMin = capabilityCurvePoint.qMax;
+                    qMax = capabilityCurvePoint.qMin;
+                }
+                adder.beginPoint()
+                        .setP(capabilityCurvePoint.p)
+                        .setMinQ(qMin)
+                        .setMaxQ(qMax)
+                        .endPoint();
+            });
             adder.add();
         } else {
             ReactiveLimits.create(elmSym).ifPresent(reactiveLimits -> g.newMinMaxReactiveLimits()

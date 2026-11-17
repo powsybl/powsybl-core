@@ -53,6 +53,54 @@ import java.util.function.Predicate;
  *             <td style="border: 1px solid black">Human-readable name of the tie line</td>
  *         </tr>
  *         <tr>
+ *             <td style="border: 1px solid black">R</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The series resistance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">X</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The series reactance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">G1</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The first side shunt conductance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">B1</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The first side shunt susceptance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">G2</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The second side shunt conductance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">B2</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The second side shunt susceptance</td>
+ *         </tr>
+ *         <tr>
  *             <td style="border: 1px solid black">BoundaryLine1</td>
  *             <td style="border: 1px solid black">BoundaryLine</td>
  *             <td style="border: 1px solid black">-</td>

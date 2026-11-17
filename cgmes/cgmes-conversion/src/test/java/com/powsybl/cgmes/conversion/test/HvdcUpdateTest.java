@@ -139,7 +139,8 @@ class HvdcUpdateTest extends AbstractSerDeTest {
         network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
 
         assertEquals(30.0, vsc.getLocalTargetQ(), 1e-7);
-        assertEquals(30.0, vsc.getVoltageRegulation().getTargetValue(), 1e-7);
+        assertEquals(30.0, vsc.getRegulatingTargetQ(), 1e-7);
+        assertEquals(-30.0, vsc.getVoltageRegulation().getTargetValue(), 1e-7);
         assertTrue(vsc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
     }
 

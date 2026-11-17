@@ -513,7 +513,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
         // inverted reactive power limits
         if (minimumPermissibleReactivePowerGeneration < maximumPermissibleReactivePowerGeneration) {
-            LOGGER.warn("Node {}: reactive power limits are inverted ({}, {}), swap values",
+            LOGGER.warn("Node {}: reactive power limits are inverted ({}, {}), swapping values",
                     code, minimumPermissibleReactivePowerGeneration, maximumPermissibleReactivePowerGeneration);
             double tmp = minimumPermissibleReactivePowerGeneration;
             minimumPermissibleReactivePowerGeneration = maximumPermissibleReactivePowerGeneration;

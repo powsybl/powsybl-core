@@ -38,7 +38,7 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
 
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
-        bat.setLocalTargetV(100.0);
+        bat.setLocalTargetV(90.0);
         bat.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .build();
@@ -49,6 +49,7 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
             .withTargetValue(100.0)
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(gen.getTerminal())
+            .withRegulating(false)
             .build();
     }
 
@@ -66,7 +67,7 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
         VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
         assertNotNull(voltageRegulation);
         assertTrue(Double.isNaN(voltageRegulation.getTargetValue()));
-        assertEquals(100.0, battery.getLocalTargetV(), 0);
+        assertEquals(90.0, battery.getLocalTargetV(), 0);
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
         assertTrue(battery.isRegulating());
         assertTrue(voltageRegulation.isRegulating());
@@ -77,6 +78,11 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
         assertNull(voltageRegulationExtensionXml2);
         VoltageRegulation voltageRegulation2 = battery2.getVoltageRegulation();
         assertNotNull(voltageRegulation2);
+        assertEquals(100.0, voltageRegulation2.getTargetValue(), 0.01);
+        assertTrue(Double.isNaN(battery2.getLocalTargetV()));
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation2.getMode());
+        assertFalse(battery2.isRegulating());
+        assertFalse(voltageRegulation2.isRegulating());
         assertSame(network2.getGenerator("GEN").getTerminal(), voltageRegulation2.getTerminal());
     }
 

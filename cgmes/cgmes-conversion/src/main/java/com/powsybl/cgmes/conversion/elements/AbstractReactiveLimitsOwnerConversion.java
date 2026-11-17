@@ -158,6 +158,10 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
 
     protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
         String mode = generator.getProperty(PROPERTY_MODE);
+        // No voltageRegulation means no regulating control mapped at EQ conversion (absent, or already reported as ignored there)
+        if (generator.getVoltageRegulation() == null) {
+            return;
+        }
 
         if (isControlModeVoltage(mode)) {
             updateRegulatingControlVoltage(generator, controlEnabled, context);
@@ -187,35 +191,20 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         setVoltageRegulation(generator, targetV, regulatingOn && updatedControlEnabled && validTargetV);
     }
 
-    // TargetV must be valid before the regulation is turned on,
-    // and the regulation must be turned off before assigning potentially invalid regulation values,
-    // to ensure consistency with the applied checks
-    private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
-        if (generator.getVoltageRegulation() == null) {
-            generator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).build();
-        }
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (generator.hasRegulatingTerminal()) {
-            voltageRegulation.setTargetValue(targetV);
-        } else {
-            generator.setLocalTargetV(targetV);
-        }
-        voltageRegulation.setRegulating(regulatingOn);
-    }
-
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
         if (voltageRegulation == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
             return;
         }
         // VoltageRegulation With Reactive_POWER for generator = remote ReactivePower
+        // The target value has a load sign convention
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
         int terminalSign = findTerminalSign(generator);
         double defaultTargetQ = getDefaultTargetQ(voltageRegulation.getTargetValue(), context);
         boolean defaultRegulatingOn = getDefaultRegulatingOn(voltageRegulation.isRegulating(), context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
 
-        double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, -terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
+        double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         setReactivePowerRegulation(voltageRegulation, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));

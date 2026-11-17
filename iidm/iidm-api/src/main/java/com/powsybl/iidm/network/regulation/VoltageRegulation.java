@@ -17,10 +17,12 @@ import org.jspecify.annotations.Nullable;
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public interface VoltageRegulation {
+    String VOLTAGE_REGULATION_PREFIX = "VoltageRegulation.";
 
     /**
      * <p>Get the TargetValue for RegulationMode set.</p>
      * <p>This value is variant-dependant.</p>
+     * <p>In case of reactive power regulation, this value is defined in the load sign convention.</p>
      * @see VariantManager
      */
     double getTargetValue();
@@ -28,6 +30,7 @@ public interface VoltageRegulation {
     /**
      * <p>Set the targetValue.</p>
      * <p>This value is variant-dependant.</p>
+     * <p>In case of reactive power regulation, this value is defined in the load sign convention.</p>
      *
      * @return the current instance for method chaining
      * @see #getTargetValue()
@@ -86,11 +89,12 @@ public interface VoltageRegulation {
     Terminal getTerminal();
 
     /**
-     * <p>Set the Terminal with the expected targetValue.</p>
+     * <p>Set the Terminal with the expected targetValue (defined in the load sign convention in case of reactive power regulation) ({@link #setTargetValue(double)}).</p>
      * <p>This value is <b>NOT</b> variant-dependent.</p>
      *
      * @return the current instance for method chaining
      * @see #getTerminal()
+     * @see #setTargetValue(double)
      */
     VoltageRegulation setTerminal(Terminal terminal, double targetValue);
 
@@ -141,8 +145,36 @@ public interface VoltageRegulation {
         );
     }
 
+    enum NotifyUpdateKey {
+        NEW_REGULATION(VOLTAGE_REGULATION_PREFIX + "created"),
+        REMOVE_REGULATION(VOLTAGE_REGULATION_PREFIX + "removed"),
+        REGULATION_MODE(VOLTAGE_REGULATION_PREFIX + "RegulationMode"),
+        REGULATING(VOLTAGE_REGULATION_PREFIX + "isRegulating"),
+        TERMINAL(VOLTAGE_REGULATION_PREFIX + "Terminal"),
+        SLOPE(VOLTAGE_REGULATION_PREFIX + "Slope"),
+        TARGET_VALUE(VOLTAGE_REGULATION_PREFIX + "TargetValue"),
+        TARGET_DEADBAND(VOLTAGE_REGULATION_PREFIX + "TargetDeadband");
+
+        private final String key;
+
+        NotifyUpdateKey(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
+        }
+    }
+
     /**
-     * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
+     * Constructs a new instance of the {@link VoltageRegulationAttributes} class.
+     *
+     * @param targetValue The target value for voltage regulation. In case of reactive power regulation, this value is defined in the load sign convention.
+     * @param targetDeadband The acceptable range around the target value where no regulation action is taken.
+     * @param slope The slope of the regulation curve, which defines the sensitivity of the regulation.
+     * @param mode The regulation mode, specifying how the regulation is applied (e.g., voltage, reactive power).
+     * @param isRegulating A boolean indicating whether the regulation is currently active.
+     * @param terminal The terminal associated with the voltage regulation.
      */
     record VoltageRegulationAttributes(
         double targetValue,
@@ -152,6 +184,16 @@ public interface VoltageRegulation {
         boolean isRegulating,
         Terminal terminal
     ) {
+
+        /**
+         * Constructs a new instance of the {@link VoltageRegulationAttributes} class.
+         *
+         * @param targetValue The target value for voltage regulation. In case of reactive power regulation, this value is defined in the load sign convention.
+         * @param targetDeadband The acceptable range around the target value where no regulation action is taken.
+         * @param slope The slope of the regulation curve, which defines the sensitivity of the regulation.
+         * @param mode The regulation mode, specifying how the regulation is applied (e.g., voltage, reactive power).
+         * @param isRegulating A boolean indicating whether the regulation is currently active.
+         */
         public VoltageRegulationAttributes(
             double targetValue,
             double targetDeadband,
@@ -169,10 +211,20 @@ public interface VoltageRegulation {
             return new VoltageRegulationAttributes(targetValue(), targetDeadband(), slope(), mode(), newRegulating, terminal());
         }
 
+        /**
+         * Creates a new instance of {@link VoltageRegulationAttributes} with the specified terminal and target value
+         * while retaining the other properties of the current instance.
+         * <p>In case of reactive power regulation, the target value is defined in the load sign convention.</p>
+         */
         public VoltageRegulationAttributes withTerminalAndTargetValue(Terminal newTerminal, double newTargetValue) {
             return new VoltageRegulationAttributes(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), newTerminal);
         }
 
+        /**
+         * Creates a new instance of {@link VoltageRegulationAttributes} with the specified target value
+         * while retaining the other properties of the current instance.
+         * <p>In case of reactive power regulation, the target value is defined in the load sign convention.</p>
+         */
         public VoltageRegulationAttributes withTargetValue(double newTargetValue) {
             return new VoltageRegulationAttributes(newTargetValue, targetDeadband(), slope(), mode(), isRegulating(), terminal());
         }

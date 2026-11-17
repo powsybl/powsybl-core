@@ -54,7 +54,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
         if (com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe.isExtensionNeededAndExportable(b, context)) {
             VoltageRegulationExtension extension = new VoltageRegulationExtension(b,
                     b.getVoltageRegulation().getTerminal(),
-                    b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
+                    b.isRegulatingWithMode(RegulationMode.VOLTAGE),
                     b.getRegulatingTargetV());
             context.addExtinctExtensionsToSerialize(b.getId(), extension);
         }
