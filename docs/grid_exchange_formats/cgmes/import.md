@@ -660,7 +660,7 @@ Specific `VsConverter` attributes are mapped as follows:
 - `VoltageSetpoint` is copied from SSH `targetUpcc`.
 - `ReactivePowerSetpoint` is copied from SSH `targetQpcc`.
 - A single segment `DroopCurve` is created, with `k` derived from the SSH `droop` attribute. `droop` is converted from per-unit to kV/MW by using the `ratedUdc` and `baseS` attributes from the EQ profile.
-The voltage bound of the droop curve segment is [-`ratedUdc`, `ratedUdc`]. If any of these three attributes is missing, the `DroopCurve` is not created. 
+The voltage bound of the droop curve segment is [-`ratedUdc`, `ratedUdc`], but any voltage outside of this segment will use the same droop coefficient since the curve will be linearly extrapolated outside the segment. If any of these three attributes is missing, the `DroopCurve` is not created. 
 
 ## Extensions
 

@@ -212,28 +212,32 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             controlMode = isDefaultControlModePpcc ? AcDcConverter.ControlMode.P_PCC : AcDcConverter.ControlMode.V_DC;
         }
 
-        if (controlMode == AcDcConverter.ControlMode.P_PCC) {
-            double validTargetPpcc = getValidTargetPpcc(converter, cgmesData, context);
+        switch (controlMode) {
+            case AcDcConverter.ControlMode.P_PCC -> {
+                double validTargetPpcc = getValidTargetPpcc(converter, cgmesData, context);
 
-            // TargetPpcc must be valid before enabling regulation
-            converter.setTargetP(validTargetPpcc)
-                    .setControlMode(AcDcConverter.ControlMode.P_PCC)
-                    .setTargetVdc(Double.NaN);
-        } else if (controlMode == AcDcConverter.ControlMode.V_DC) {
-            double validTargetVdc = getValidTargetVdc(converter, cgmesData, context);
+                // TargetPpcc must be valid before enabling regulation
+                converter.setTargetP(validTargetPpcc)
+                        .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                        .setTargetVdc(Double.NaN);
+            }
+            case AcDcConverter.ControlMode.V_DC -> {
+                double validTargetVdc = getValidTargetVdc(converter, cgmesData, context);
 
-            // TargetVdc must be valid before enabling regulation
-            converter.setTargetVdc(validTargetVdc)
-                    .setControlMode(AcDcConverter.ControlMode.V_DC)
-                    .setTargetP(Double.NaN);
-        } else {
-            double validTargetPpcc = getValidTargetPpcc(converter, cgmesData, context);
-            double validTargetVdc = getValidTargetVdc(converter, cgmesData, context);
+                // TargetVdc must be valid before enabling regulation
+                converter.setTargetVdc(validTargetVdc)
+                        .setControlMode(AcDcConverter.ControlMode.V_DC)
+                        .setTargetP(Double.NaN);
+            }
+            case AcDcConverter.ControlMode.DC_DROOP -> {
+                double validTargetPpcc = getValidTargetPpcc(converter, cgmesData, context);
+                double validTargetVdc = getValidTargetVdc(converter, cgmesData, context);
 
-            // TargetPpcc and targetVdc must be valid before enabling regulation
-            converter.setTargetP(validTargetPpcc)
-                    .setTargetVdc(validTargetVdc)
-                    .setControlMode(AcDcConverter.ControlMode.DC_DROOP);
+                // TargetPpcc and targetVdc must be valid before enabling regulation
+                converter.setTargetP(validTargetPpcc)
+                        .setTargetVdc(validTargetVdc)
+                        .setControlMode(AcDcConverter.ControlMode.DC_DROOP);
+            }
         }
     }
 
