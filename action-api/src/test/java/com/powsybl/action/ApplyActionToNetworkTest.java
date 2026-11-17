@@ -21,6 +21,8 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_PQ_RATIO;
 import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static org.junit.jupiter.api.Assertions.*;
@@ -320,4 +322,35 @@ class ApplyActionToNetworkTest {
         assertFalse(hvdcLineExt.isEnabled());
     }
 
+    @Test
+    void multipleActionsAction() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Generator generator = network.getGenerator("GEN");
+        Load load = network.getLoad("LOAD");
+
+        assertEquals(607.0, generator.getTargetP());
+        assertEquals(200.0, load.getQ0());
+
+        // The relative change is only meaningful if applied after the absolute one:
+        // 607 * 1.1 would be 667.7, while 100 * 1.1 is 110.
+        MultipleActionsAction action = new MultipleActionsAction("id", List.of(
+                new GeneratorActionBuilder().withId("generatorAction")
+                        .withGeneratorId("GEN")
+                        .withActivePowerRelativeValue(false)
+                        .withActivePowerValue(100.0)
+                        .build(),
+                new GeneratorActionBuilder().withId("generatorAction2")
+                        .withGeneratorId("GEN")
+                        .withActivePowerRelativeValue(true)
+                        .withActivePowerValue(10.0)
+                        .build(),
+                new LoadActionBuilder().withId("loadAction")
+                        .withLoadId("LOAD")
+                        .withRelativeValue(false)
+                        .withReactivePowerValue(150.0)
+                        .build()));
+        action.toModification().apply(network);
+        assertEquals(110.0, generator.getTargetP());
+        assertEquals(150.0, load.getQ0());
+    }
 }
