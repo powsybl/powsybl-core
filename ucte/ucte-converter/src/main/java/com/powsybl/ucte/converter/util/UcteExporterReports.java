@@ -56,6 +56,13 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static ReportNode postProcessor(ReportNode reportNode, String postProcessorName) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.postProcessor")
+                .withUntypedValue("postProcessorName", postProcessorName)
+                .add();
+    }
+
     public static void fileWritten(ReportNode reportNode, String fileName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.fileWritten")
