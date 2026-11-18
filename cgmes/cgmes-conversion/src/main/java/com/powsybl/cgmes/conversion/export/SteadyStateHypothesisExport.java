@@ -48,6 +48,8 @@ public final class SteadyStateHypothesisExport {
     private static final String OPERATING_MODE_GENERATOR = "generator";
     private static final String OPERATING_MODE_MOTOR = "motor";
     private static final String OPERATING_MODE_CONDENSER = "condenser";
+    private static final String SHARED_REGULATING_CONTROLS_DOC = "See the section \"Shared regulating controls\" "
+        + "of the CGMES export documentation (docs/grid_exchange_formats/cgmes/export.md).";
 
     private SteadyStateHypothesisExport() {
     }
@@ -151,15 +153,16 @@ public final class SteadyStateHypothesisExport {
         for (RegulatingControlView view : views) {
             if (Double.compare(view.targetValue, first.targetValue) != 0
                     || !Objects.equals(view.targetValueUnitMultiplier, first.targetValueUnitMultiplier)) {
-                throw new PowsyblException(String.format("Regulating control %s can not be exported: its holders have different target values (%s %s, %s %s)",
-                        regulatingControlId, first.targetValue, first.targetValueUnitMultiplier, view.targetValue, view.targetValueUnitMultiplier));
+                throw new PowsyblException(String.format("Regulating control %s can not be exported: its holders have different target values (%s %s, %s %s). %s",
+                        regulatingControlId, first.targetValue, first.targetValueUnitMultiplier, view.targetValue, view.targetValueUnitMultiplier,
+                        SHARED_REGULATING_CONTROLS_DOC));
             }
             if (view.discrete) {
                 if (firstDiscrete == null) {
                     firstDiscrete = view;
                 } else if (Double.compare(view.targetDeadband, firstDiscrete.targetDeadband) != 0) {
-                    throw new PowsyblException(String.format("Regulating control %s can not be exported: its discrete holders have different target deadbands (%s, %s)",
-                            regulatingControlId, firstDiscrete.targetDeadband, view.targetDeadband));
+                    throw new PowsyblException(String.format("Regulating control %s can not be exported: its discrete holders have different target deadbands (%s, %s). %s",
+                            regulatingControlId, firstDiscrete.targetDeadband, view.targetDeadband, SHARED_REGULATING_CONTROLS_DOC));
                 }
             }
         }

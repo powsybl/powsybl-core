@@ -104,6 +104,7 @@ class SteadyStateHypothesisSubsetExportTest {
 
         PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, shunt));
         assertTrue(e.getMessage().contains(SHARED_CONTROL));
+        assertTrue(e.getMessage().contains("See the section \"Shared regulating controls\""));
     }
 
     @Test
@@ -121,6 +122,7 @@ class SteadyStateHypothesisSubsetExportTest {
 
         PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, List.of(shunt2)));
         assertTrue(e.getMessage().contains(sharedControl));
+        assertTrue(e.getMessage().contains("See the section \"Shared regulating controls\""));
     }
 
     private static <T extends Identifiable<T> & VoltageRegulationHolder<T>> List<T> regulatingHolders(Stream<T> holders) {
