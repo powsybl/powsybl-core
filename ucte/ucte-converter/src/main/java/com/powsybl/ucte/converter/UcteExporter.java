@@ -75,7 +75,7 @@ public class UcteExporter implements Exporter {
 
     @Override
     public String getFormat() {
-        return "UCTE";
+        return UCTE_FORMAT;
     }
 
     @Override
@@ -128,14 +128,14 @@ public class UcteExporter implements Exporter {
                 .orElse(Comparator.naturalOrder());
 
         // write - the node sorting within each country is performed by the writer using the UcteNode comparator
-        try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
+        try (OutputStream os = dataSource.newOutputStream(null, UCT_LOWERCASE, false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork, nodeComparator).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, "uct"));
+        UcteExporterReports.fileWritten(reportNode, DataSourceUtil.getFileName(dataSource.getBaseName(), null, UCT_LOWERCASE));
     }
 
     @Override
@@ -394,9 +394,8 @@ public class UcteExporter implements Exporter {
      */
     private static void applyGenerationToUcteNode(BoundaryLine.Generation generation, UcteNode ucteNode) {
         double generatorTargetP = generation.getTargetP();
-        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = generation.getTargetQ();
-        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
+        ucteNode.setActivePowerGeneration(getOrZero(-generatorTargetP));
+        ucteNode.setReactivePowerGeneration(getOrZero(-generation.getTargetQ()));
         if (generation.isVoltageRegulationOn()) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
             ucteNode.setVoltageReference(generation.getTargetV());
