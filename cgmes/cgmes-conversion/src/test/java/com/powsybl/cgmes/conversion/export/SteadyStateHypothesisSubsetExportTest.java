@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -38,6 +39,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SteadyStateHypothesisSubsetExportTest {
 
+    private static final String SHARED_CONTROL = "5f711f63-f631-45d3-b26c-33821ab2ee56";
+    private static final String SHARED_CONTROL_GENERATOR = "04633e31-c766-11e1-8775-005056c00008";
+    private static final String SHARED_CONTROL_SHUNT = "045b00d9-c766-11e1-8775-005056c00008";
     private static final Pattern SSH_OBJECT = Pattern.compile("<cim:(\\w+) rdf:about=\"#_?([^\"]+)\">(.*?)</cim:\\1>", Pattern.DOTALL);
 
     @Test
@@ -60,35 +64,34 @@ class SteadyStateHypothesisSubsetExportTest {
     }
 
     @Test
-    void sharedControlIsWrittenWithTheViewsOfAllItsHolders(@TempDir Path tmpDir) throws IOException, XMLStreamException {
-        // The EQ is changed so that a shunt also refers to the regulating control of a generator
-        Network base = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
-        Generator generator = regulatingHolders(base.getGeneratorStream()).get(0);
-        ShuntCompensator shunt = regulatingHolders(base.getShuntCompensatorStream()).get(0);
-        String sharedControl = generator.getProperty(PROPERTY_REGULATING_CONTROL);
-        Network network = withSharedControl(tmpDir, shunt.getId(), sharedControl);
+    void sharedControlIsWrittenWithTheViewsOfAllItsHolders() throws XMLStreamException {
+        // In CGMES 3 SmallGrid, a synchronous machine and a shunt compensator share a regulating control
+        Network network = Network.read(Cgmes3Catalog.smallGrid().dataSource());
+        assertEquals(SHARED_CONTROL, network.getGenerator(SHARED_CONTROL_GENERATOR).getProperty(PROPERTY_REGULATING_CONTROL));
+        assertEquals(SHARED_CONTROL, network.getShuntCompensator(SHARED_CONTROL_SHUNT).getProperty(PROPERTY_REGULATING_CONTROL));
 
-        SshObject control = byId(sshObjects(exportPartial(network, List.of(network.getShuntCompensator(shunt.getId()))))).get(sharedControl);
+        SshObject control = byId(sshObjects(exportPartial(network, List.of(network.getShuntCompensator(SHARED_CONTROL_SHUNT))))).get(SHARED_CONTROL);
 
         assertNotNull(control);
-        assertEquals(byId(sshObjects(exportFull(network))).get(sharedControl), control);
+        assertEquals(byId(sshObjects(exportFull(network))).get(SHARED_CONTROL), control);
     }
 
     @Test
-    void sharedControlWithDifferentTargetValuesIsNotExported(@TempDir Path tmpDir) throws IOException {
-        Network base = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
-        Generator baseGenerator = regulatingHolders(base.getGeneratorStream()).get(0);
-        ShuntCompensator baseShunt = regulatingHolders(base.getShuntCompensatorStream()).get(0);
-        String sharedControl = baseGenerator.getProperty(PROPERTY_REGULATING_CONTROL);
-        Network network = withSharedControl(tmpDir, baseShunt.getId(), sharedControl);
+    void sharedControlWithDifferentTargetValuesIsNotExported() {
+        Network network = Network.read(Cgmes3Catalog.smallGrid().dataSource());
 
         // The user changes the target value of only one of the holders
-        Generator generator = network.getGenerator(baseGenerator.getId());
-        generator.setTargetV(generator.getRegulatingTargetV() + 1.0);
-        List<Identifiable<?>> shunt = List.of(network.getShuntCompensator(baseShunt.getId()));
+        Generator generator = network.getGenerator(SHARED_CONTROL_GENERATOR);
+        double target = generator.getRegulatingTargetV() + 1.0;
+        if (generator.getVoltageRegulation().getTerminal() != null) {
+            generator.getVoltageRegulation().setTargetValue(target);
+        } else {
+            generator.setTargetV(target);
+        }
+        List<Identifiable<?>> shunt = List.of(network.getShuntCompensator(SHARED_CONTROL_SHUNT));
 
         PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, shunt));
-        assertTrue(e.getMessage().contains(sharedControl));
+        assertTrue(e.getMessage().contains(SHARED_CONTROL));
     }
 
     @Test
