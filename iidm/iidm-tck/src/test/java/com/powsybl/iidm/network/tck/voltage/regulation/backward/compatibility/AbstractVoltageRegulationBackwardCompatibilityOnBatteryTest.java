@@ -112,7 +112,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityOnBatteryTes
     }
 
     @Test
-    void testNotifyUpdateOnSetTargetQ() {
+    public void testNotifyUpdateOnSetTargetQ() {
         // GIVEN
         Battery battery = network.getBatteryStream().toList().getFirst();
         String id = battery.getId();
