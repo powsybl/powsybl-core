@@ -69,6 +69,19 @@ public final class LimitViolationDetection {
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 
+    /**
+     * Checks whether the values on the detailed DC equipments (DC nodes, DC lines and AC/DC converters)
+     * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param network           The network on which physical values must be checked.
+     * @param currentLimitTypes The current limit type to consider.
+     * @param consumer          Will be fed with possibly created limit violations.
+     */
+    public static void checkAllDetailedDc(Network network, Set<LoadingLimitType> currentLimitTypes, Consumer<LimitViolation> consumer) {
+        // TODO: not implemented yet
+    }
+
     private static void checkCurrent(Branch<?> branch, Set<LoadingLimitType> currentLimitTypes,
                                      LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer) {
         checkCurrent(branch, TwoSides.ONE, currentLimitTypes, limitsComputer, consumer);

@@ -19,6 +19,7 @@ import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.contingency.violations.LimitViolationHelper;
 import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -34,6 +35,7 @@ import org.mockito.Mockito;
 import java.io.StringWriter;
 import java.util.*;
 
+import static com.powsybl.security.DetailedDcLimitViolationTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -368,5 +370,131 @@ class SecurityTest {
                 .toList();
 
         assertEquals(expectedVoltageLevelIds, voltages);
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // Compatibility with limit violations in detailed DC networks: the subject of a violation can be a DC node, a DC
+    // line or an AC/DC converter.
+    // ----------------------------------------------------------------------------------------------------------------
+
+    private static final String DC_CONVERTER_VOLTAGE_LEVEL = "VLDC-FR-xNodeDc1fr-150";
+
+    private static Network createDetailedDcNetwork() {
+        Network dcNetwork = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
+        dcNetwork.getSubstation("SDC-FR-xNodeDc1fr").setCountry(Country.FR);
+        return dcNetwork;
+    }
+
+    private static List<LimitViolation> createDetailedDcViolations() {
+        return List.of(
+            new LimitViolation(DcDetailedNetworkFactory.DC_NODE_FR_NEG, "FR negative pole", null, LimitViolationType.HIGH_VOLTAGE,
+                null, Integer.MAX_VALUE, 525., 1.0, -530., null, null),
+            new LimitViolation("dcLinePos", null, null, LimitViolationType.CURRENT,
+                null, Integer.MAX_VALUE, 1000., 1.0, -1200., ThreeSides.ONE, null),
+            new LimitViolation("VscFr", null, null, LimitViolationType.ACTIVE_POWER,
+                null, Integer.MAX_VALUE, 200., 1.0, 250., ThreeSides.ONE, null));
+    }
+
+    // Rows are sorted by subject id (case-sensitive String order, uppercase first): VscFr, dcLinePos, dcNodeFrNeg.
+    // - Converter: located at its AC terminal 1; abs(value-limit) on the signed value: |250 - 200| = 50
+    // - DC line: no location; abs(value-limit) on |I1|: ||-1200| - 1000| = 200; default permanent limit name
+    // - DC node: no location; abs(value-limit) on |V|: ||-530| - 525| = 5
+    private static final String DETAILED_DC_VSC_ROW = "VscFr," + DC_CONVERTER_VOLTAGE_LEVEL + ",FR,150,ACTIVE_POWER,,250.0000,200.0000,50.0000,125.00";
+    private static final String DETAILED_DC_LINE_ROW = "dcLinePos,,,,CURRENT,permanent,-1200.0000,1000.0000,200.0000,120.00";
+    private static final String DETAILED_DC_NODE_ROW = "dcNodeFrNeg,,,,HIGH_VOLTAGE,,-530.0000,525.0000,5.0000,100.95";
+
+    @Test
+    void printPreContingencyDetailedDcViolations() {
+        SecurityAnalysisResult dcResult = new SecurityAnalysisResult(new LimitViolationsResult(createDetailedDcViolations()),
+            LoadFlowResult.ComponentResult.Status.CONVERGED, List.of());
+
+        StringWriter writer = new StringWriter();
+        Security.printPreContingencyViolations(dcResult, createDetailedDcNetwork(), writer, formatterFactory, formatterConfig, null);
+
+        assertEquals(String.join(System.lineSeparator(),
+                "Pre-contingency violations",
+                "Action,Equipment (3),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
+                "," + DETAILED_DC_VSC_ROW,
+                "," + DETAILED_DC_LINE_ROW,
+                "," + DETAILED_DC_NODE_ROW),
+            writer.toString().trim());
+    }
+
+    @Test
+    void printPostContingencyDetailedDcViolations() {
+        PostContingencyResult postContingencyResult = new PostContingencyResult(new Contingency("contingency", List.of()),
+            PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(createDetailedDcViolations()),
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, List.of());
+        SecurityAnalysisResult dcResult = new SecurityAnalysisResult(LimitViolationsResult.empty(),
+            LoadFlowResult.ComponentResult.Status.CONVERGED, List.of(postContingencyResult));
+
+        StringWriter writer = new StringWriter();
+        Security.printPostContingencyViolations(dcResult, createDetailedDcNetwork(), writer, formatterFactory, formatterConfig, null, false);
+
+        assertEquals(String.join(System.lineSeparator(),
+                "Post-contingency limit violations",
+                "Contingency,Status,Action,Equipment (3),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
+                "contingency,CONVERGED,,Equipment (3),,,,,,,,,",
+                ",,," + DETAILED_DC_VSC_ROW,
+                ",,," + DETAILED_DC_LINE_ROW,
+                ",,," + DETAILED_DC_NODE_ROW),
+            writer.toString().trim());
+    }
+
+    @Test
+    void printDetailedDcConverterViolationsOnMinP() {
+        List<LimitViolation> violations = List.of(
+            // Negative minP (inverter): P = -250 MW reaches minP = -200 MW
+            new LimitViolation("VscFr", null, null, LimitViolationType.ACTIVE_POWER,
+                null, Integer.MAX_VALUE, -200., 1.0, -250., ThreeSides.ONE, null),
+            // minP = 0: the loading rate is undefined
+            new LimitViolation("VscFr", null, null, LimitViolationType.ACTIVE_POWER,
+                null, Integer.MAX_VALUE, 0., 1.0, -10., ThreeSides.ONE, null));
+        SecurityAnalysisResult dcResult = new SecurityAnalysisResult(new LimitViolationsResult(violations),
+            LoadFlowResult.ComponentResult.Status.CONVERGED, List.of());
+
+        StringWriter writer = new StringWriter();
+        Security.printPreContingencyViolations(dcResult, createDetailedDcNetwork(), writer, formatterFactory, formatterConfig, null);
+
+        assertEquals(String.join(System.lineSeparator(),
+                "Pre-contingency violations",
+                "Action,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
+                // |-250 - (-200)| = 50 and |-250| / |-200| = 125 %
+                ",VscFr," + DC_CONVERTER_VOLTAGE_LEVEL + ",FR,150,ACTIVE_POWER,,-250.0000,-200.0000,50.0000,125.00",
+                // |-10 - 0| = 10 and an empty loading rate (neither "inv" nor "Infinity")
+                ",VscFr," + DC_CONVERTER_VOLTAGE_LEVEL + ",FR,150,ACTIVE_POWER,,-10.0000,0.0000,10.0000,"),
+            writer.toString().trim());
+    }
+
+    @Test
+    void printLimitsViolationsWithDetailedDcViolations() {
+        Network dcNetwork = createDetailedDcNetwork();
+        List<LimitViolation> violations = createDetailedDcViolations();
+
+        assertEquals("""
+            +---------------+------------------------+---------+--------------+----------------+----------------+------------+-----------+------------------+----------------+
+            | Equipment (3) | End                    | Country | Base voltage | Violation type | Violation name | Value      | Limit     | abs(value-limit) | Loading rate % |
+            +---------------+------------------------+---------+--------------+----------------+----------------+------------+-----------+------------------+----------------+
+            | VscFr         | VLDC-FR-xNodeDc1fr-150 | FR      |          150 | ACTIVE_POWER   |                |   250.0000 |  200.0000 |          50.0000 |         125.00 |
+            | dcLinePos     |                        |         |              | CURRENT        | permanent      | -1200.0000 | 1000.0000 |         200.0000 |         120.00 |
+            | dcNodeFrNeg   |                        |         |              | HIGH_VOLTAGE   |                |  -530.0000 |  525.0000 |           5.0000 |         100.95 |
+            +---------------+------------------------+---------+--------------+----------------+----------------+------------+-----------+------------------+----------------+""",
+            Security.printLimitsViolations(violations, dcNetwork, new LimitViolationFilter(), formatterConfig));
+
+        // writeName = true: subject names replace ids, and DC rows still have empty location cells
+        String tableWithNames = Security.printLimitsViolations(violations, dcNetwork,
+            new Security.LimitViolationWriteConfig(null, formatterConfig, true));
+        assertTrue(tableWithNames.lines().anyMatch(l -> l.matches("\\| FR negative pole\\s+\\|\\s+\\|\\s+\\|\\s+\\| HIGH_VOLTAGE .*")), tableWithNames);
+    }
+
+    @Test
+    void checkLimitsWithDetailedDcViolations() {
+        Network dcNetwork = createDetailedDcNetwork();
+        setUpAcAndDetailedDcViolations(dcNetwork);
+
+        assertEquals(List.of(AC_SUBJECT + "/HIGH_VOLTAGE", "VscFr/ACTIVE_POWER", "dcLinePos/CURRENT", "dcNodeFrPos/HIGH_VOLTAGE"),
+            subjects(Security.checkLimits(dcNetwork)));
+        // No AC voltage violation in DC mode
+        assertEquals(DETAILED_DC_SUBJECTS, subjects(Security.checkLimitsDc(dcNetwork, 1, 0.95)));
     }
 }

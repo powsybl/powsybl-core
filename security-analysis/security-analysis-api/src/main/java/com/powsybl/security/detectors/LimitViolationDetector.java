@@ -430,6 +430,31 @@ public interface LimitViolationDetector {
     void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer);
 
     /**
+     * Checks whether the values on the detailed DC equipments (DC nodes, DC lines and AC/DC converters)
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param network       The network on which physical values must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkAllDetailedDc(Network network, Consumer<LimitViolation> consumer) {
+        // TODO: not implemented yet
+    }
+
+    /**
+     * Checks whether the values on the detailed DC equipments (DC nodes, DC lines and AC/DC converters)
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency   The contingency for which values must be checked, {@code null} for N situation.
+     * @param network       The network on which physical values must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkAllDetailedDc(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
+        // TODO: not implemented yet
+    }
+
+    /**
      * Helper function to convert a limit type to a limit violation type
      *
      * @param type The limit type to convert.

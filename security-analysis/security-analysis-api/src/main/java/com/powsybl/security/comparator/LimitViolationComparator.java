@@ -20,7 +20,8 @@ import java.util.Objects;
 public class LimitViolationComparator implements Comparator<LimitViolation> {
 
     private static final Comparator<LimitViolation> BASE_COMPARATOR = Comparator.comparing(LimitViolation::getSubjectId)
-        .thenComparing(LimitViolation::getOperationalLimitsGroupId)
+        // The operational limits group is null for violations not related to any group (e.g. in detailed DC network)
+        .thenComparing(LimitViolation::getOperationalLimitsGroupId, Comparator.nullsFirst(Comparator.naturalOrder()))
         .thenComparing(LimitViolation::getLimitType);
 
     @Override
