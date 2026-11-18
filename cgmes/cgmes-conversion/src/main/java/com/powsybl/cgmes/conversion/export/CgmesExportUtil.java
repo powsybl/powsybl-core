@@ -474,16 +474,16 @@ public final class CgmesExportUtil {
         if (i instanceof Battery battery) {
             return obtainSynchronousMachineKind(battery, battery.getMinP(), battery.getMaxP(), obtainCurve(battery), true);
         } else if (i instanceof Generator generator) {
-            return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), obtainCurve(generator), generator.isCondenser());
+            return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), obtainCurve(generator), generator.hasCondenserCapability());
         }
         throw new IllegalStateException("Unexpected machine kind: " + i.getClass().getName());
     }
 
     // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
     // calculated synchronous machine kind is based on the present limits
-    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean hasCondenserCapability) {
         String kind = i.getProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, isCondenser);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, hasCondenserCapability);
         if (kind == null) {
             return calculatedKind;
         } else if (calculatedKind.contains(kind)) {
@@ -494,12 +494,12 @@ public final class CgmesExportUtil {
         }
     }
 
-    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean hasCondenserCapability) {
         double min = curve != null ? curve.getMinP() : minP;
         double max = curve != null ? curve.getMaxP() : maxP;
 
         String kind;
-        if (!isCondenser) {
+        if (!hasCondenserCapability) {
             kind = getKindNotCondenser(min, max);
         } else {
             kind = getKindCondenser(min, max);
