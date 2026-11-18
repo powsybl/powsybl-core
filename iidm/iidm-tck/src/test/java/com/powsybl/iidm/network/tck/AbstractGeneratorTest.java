@@ -65,10 +65,12 @@ public abstract class AbstractGeneratorTest {
         double reactivePowerSetpoint = 21.0;
         double voltageSetpoint = 31.0;
         double ratedS = 41.0;
+        boolean hasCondenserCapability = true;
         generator.setTargetP(activePowerSetpoint);
         generator.setLocalTargetQ(reactivePowerSetpoint);
         generator.setLocalTargetV(voltageSetpoint);
         generator.setRatedS(ratedS);
+        generator.setCondenserCapability(hasCondenserCapability);
         assertEquals(activePowerSetpoint, generator.getTargetP(), 0.0);
         assertEquals(reactivePowerSetpoint, generator.getLocalTargetQ(), 0.0);
         assertEquals(voltageSetpoint, generator.getLocalTargetV(), 0.0);
@@ -79,7 +81,7 @@ public abstract class AbstractGeneratorTest {
         assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         generator.getVoltageRegulation().setRegulating(true);
         assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertFalse(generator.hasCondenserCapability());
+        assertEquals(hasCondenserCapability, generator.hasCondenserCapability());
         assertFalse(generator.isEquivalent());
         generator.setEquivalent(true);
         assertTrue(generator.isEquivalent());

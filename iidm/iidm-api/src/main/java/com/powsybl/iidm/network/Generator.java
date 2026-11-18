@@ -308,6 +308,13 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      */
     boolean hasCondenserCapability();
 
+    /**
+     * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     * @param hasCondenserCapability true if the generator has condenser capability, false otherwise
+     * @return this generator
+     */
+    Generator setCondenserCapability(boolean hasCondenserCapability);
+
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.GENERATOR;

@@ -43,7 +43,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList localTargetV;
 
-    private final boolean hasCondenserCapability;
+    private boolean hasCondenserCapability;
 
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, boolean equivalent, EnergySource energySource,
@@ -287,6 +287,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public boolean hasCondenserCapability() {
         return hasCondenserCapability;
+    }
+
+    @Override
+    public Generator setCondenserCapability(boolean hasCondenserCapability) {
+        this.hasCondenserCapability = hasCondenserCapability;
+        return this;
     }
 
     @Override
