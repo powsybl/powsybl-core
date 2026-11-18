@@ -99,8 +99,8 @@ IIDM source is left undefined in the exported node.
 
 #### Node type
 
-The node type is `0` (PQ node) by default. It is set to `2` (PU node) if the bus has at least one connected generator
-with voltage regulation on. It is set to `3` (global slack node) if the bus is the network's
+The node type is `0` (PQ node) by default. It is set to `2` (PU node) if the bus has at least one connected, 
+voltage-regulating  generator. It is set to `3` (global slack node) if the bus is the network's
 [slack bus](../../grid_model/extensions.md#slack-terminal), which takes precedence over the PU case. `1` (Q and θ
 constant) is never produced by the export. See the
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)
@@ -130,7 +130,7 @@ Several loads or generators can be connected to the same bus. They are exported 
 rules described in [Node conversion](#node-conversion): loads, active and reactive generation are summed, the limits are
 aggregated as described in [Active and reactive power generation limits](#active-and-reactive-power-generation-limits),
 the power plant type is `F` if the generators' types differ, and the node is a PU node if at least one generator
-regulates voltage.
+regulates voltage and a voltage reference is selected.
 
 #### Active and reactive power generation limits
 
@@ -182,7 +182,7 @@ keeps the voltage reference of a PQ node imported from a UCTE-DEF file.
 The candidates of the first non-empty case are considered, in this order: local, remote, non-regulating. Among them,
 the one of the generator with the largest target active power is kept (ties are broken by the smallest generator id). A
 warning is reported if the candidates have different values. If there is no candidate, the voltage reference is left
-undefined; if the node is a PU node, a warning is reported.
+undefined and the node is exported as a PQ node; if a generator of the bus regulates voltage, a warning is reported.
 
 ### Line conversion
 

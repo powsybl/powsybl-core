@@ -292,6 +292,7 @@ public class UcteExporter implements Exporter {
         double activePowerGeneration = -0.0;
         double reactivePowerGeneration = -0.0;
         UcteNodeTypeCode nodeType = UcteNodeTypeCode.PQ;
+        double voltageReference = selectVoltageReference(bus, reportNode);
         for (Generator generator : bus.getGenerators()) {
             if (!Double.isNaN(generator.getTargetP())) {
                 activePowerGeneration += generator.getTargetP();
@@ -299,13 +300,13 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getLocalTargetQ())) {
                 reactivePowerGeneration += generator.getLocalTargetQ();
             }
-            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageReference)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
         }
         ucteNode.setActivePowerGeneration(activePowerGeneration != 0 ? -activePowerGeneration : 0);
         ucteNode.setReactivePowerGeneration(reactivePowerGeneration != 0 ? -reactivePowerGeneration : 0);
-        ucteNode.setVoltageReference(selectVoltageReference(bus, reportNode));
+        ucteNode.setVoltageReference(voltageReference);
         ucteNode.setPowerPlantType(aggregatePowerPlantType(bus, reportNode));
         ucteNode.setTypeCode(nodeType);
         setNodePowerGenerationLimits(ucteNode,
