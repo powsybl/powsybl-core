@@ -7,7 +7,10 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import javax.xml.stream.XMLStreamException;
+import com.powsybl.cgmes.model.statement.CgmesObject;
+
+import static com.powsybl.cgmes.conversion.export.CgmesNormalizer.format;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 
 /**
  * <p>The definitions of the CGMES objects for serialization.</p>
@@ -23,6 +26,17 @@ import javax.xml.stream.XMLStreamException;
 public final class CgmesRecords {
 
     private CgmesRecords() {
+    }
+
+    /**
+     * Start the SSH object of a CsConverter or VsConverter with the attributes of ACDCConverter.
+     */
+    private static CgmesObject.Builder acDcConverter(String className, String rdfId, double targetPpcc, double targetUdc, double p, double q) {
+        return CgmesObject.builder(className, rdfId)
+            .literal(ACDC_CONVERTER_TARGET_PPCC, format(targetPpcc))
+            .literal(ACDC_CONVERTER_TARGET_UDC, format(targetUdc))
+            .literal(ACDC_CONVERTER_P, format(p))
+            .literal(ACDC_CONVERTER_Q, format(q));
     }
 
     /**
@@ -74,10 +88,15 @@ public final class CgmesRecords {
         double q,
         boolean controlEnabled,
         String asynchronousMachineType
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeAsynchronousMachine(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(ASYNCHRONOUS_MACHINE, rdfId)
+                .literal(ROTATING_MACHINE_P, format(p))
+                .literal(ROTATING_MACHINE_Q, format(q))
+                .literal(REGULATING_COND_EQ_CONTROL_ENABLED, format(controlEnabled))
+                .resource(ASYNCHRONOUS_MACHINE_TYPE, cimNamespace + ASYNCHRONOUS_MACHINE_KIND + asynchronousMachineType)
+                .build();
         }
     }
 
@@ -129,10 +148,15 @@ public final class CgmesRecords {
         String rdfId,
         double netInterchange,
         Double pTolerance
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeControlArea(this);
+        public CgmesObject normalize(String cimNamespace) {
+            CgmesObject.Builder builder = CgmesObject.builder(CONTROL_AREA, rdfId)
+                .literal(CONTROL_AREA_NET_INTERCHANGE, format(netInterchange));
+            if (pTolerance != null) {
+                builder.literal(CONTROL_AREA_P_TOLERANCE, format(pTolerance));
+            }
+            return builder.build();
         }
     }
 
@@ -150,10 +174,16 @@ public final class CgmesRecords {
         double targetIdc,
         String operatingMode,
         String pPccControl
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeCsConverter(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return acDcConverter(CS_CONVERTER, rdfId, targetPpcc, targetUdc, p, q)
+                .literal(CS_CONVERTER_TARGET_ALPHA, format(targetAlpha))
+                .literal(CS_CONVERTER_TARGET_GAMMA, format(targetGamma))
+                .literal(CS_CONVERTER_TARGET_IDC, format(targetIdc))
+                .resource(CS_CONVERTER_OPERATING_MODE, cimNamespace + CS_OPERATING_MODE_KIND + operatingMode)
+                .resource(CS_CONVERTER_P_PCC_CONTROL, cimNamespace + CS_PPCC_CONTROL_KIND + pPccControl)
+                .build();
         }
     }
 
@@ -250,10 +280,12 @@ public final class CgmesRecords {
         String className,
         String rdfId,
         boolean connected
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeDCTerminal(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(className, rdfId)
+                .literal(AC_DC_TERMINAL_CONNECTED, format(connected))
+                .build();
         }
     }
 
@@ -278,10 +310,13 @@ public final class CgmesRecords {
         String rdfId,
         double p,
         double q
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeEnergyConsumer(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(className, rdfId)
+                .literal(ENERGY_CONSUMER_P, format(p))
+                .literal(ENERGY_CONSUMER_Q, format(q))
+                .build();
         }
     }
 
@@ -302,10 +337,13 @@ public final class CgmesRecords {
         String rdfId,
         double activePower,
         double reactivePower
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeEnergySource(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(ENERGY_SOURCE, rdfId)
+                .literal(ENERGY_SOURCE_ACTIVE_POWER, format(activePower))
+                .literal(ENERGY_SOURCE_REACTIVE_POWER, format(reactivePower))
+                .build();
         }
     }
 
@@ -346,10 +384,15 @@ public final class CgmesRecords {
         double q,
         boolean regulationStatus,
         double regulationTarget
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeEquivalentInjection(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(EQUIVALENT_INJECTION, rdfId)
+                .literal(EQUIVALENT_INJECTION_P, format(p))
+                .literal(EQUIVALENT_INJECTION_Q, format(q))
+                .literal(EQUIVALENT_INJECTION_REGULATION_STATUS, format(regulationStatus))
+                .literal(EQUIVALENT_INJECTION_REGULATION_TARGET, format(regulationTarget))
+                .build();
         }
     }
 
@@ -390,10 +433,16 @@ public final class CgmesRecords {
         double p,
         double q,
         int referencePriority
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeExternalNetworkInjection(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(EXTERNAL_NETWORK_INJECTION, rdfId)
+                .literal(REGULATING_COND_EQ_CONTROL_ENABLED, format(controlEnabled))
+                .literal(EXTERNAL_NETWORK_INJECTION_P, format(p))
+                .literal(EXTERNAL_NETWORK_INJECTION_Q, format(q))
+                // reference priority is used for angle reference selection (slack)
+                .literal(EXTERNAL_NETWORK_INJECTION_REFERENCE_PRIORITY, format(referencePriority))
+                .build();
         }
     }
 
@@ -431,10 +480,12 @@ public final class CgmesRecords {
         String className,
         String rdfId,
         double normalPF
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeGeneratingUnit(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(className, rdfId)
+                .literal(GENERATING_UNIT_NORMAL_PF, format(normalPF))
+                .build();
         }
     }
 
@@ -680,10 +731,19 @@ public final class CgmesRecords {
         double targetDeadband,
         double targetValue,
         String targetValueUnitMultiplier
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeRegulatingControl(this);
+        public CgmesObject normalize(String cimNamespace) {
+            CgmesObject.Builder builder = CgmesObject.builder(className, rdfId)
+                .literal(REGULATING_CONTROL_DISCRETE, format(discrete))
+                .literal(REGULATING_CONTROL_ENABLED, format(enabled));
+            if (CgmesExportUtil.targetDeadbandIsDefined(targetDeadband)) {
+                builder.literal(REGULATING_CONTROL_TARGET_DEADBAND, format(targetDeadband));
+            }
+            return builder
+                .literal(REGULATING_CONTROL_TARGET_VALUE, format(targetValue))
+                .resource(REGULATING_CONTROL_TARGET_VALUE_UNIT_MULTIPLIER, cimNamespace + UNIT_MULTIPLIER + targetValueUnitMultiplier)
+                .build();
         }
     }
 
@@ -727,10 +787,13 @@ public final class CgmesRecords {
         String rdfId,
         int sections,
         boolean controlEnabled
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeShuntCompensator(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(className, rdfId)
+                .literal(SHUNT_COMPENSATOR_SECTIONS, format(sections))
+                .literal(REGULATING_COND_EQ_CONTROL_ENABLED, format(controlEnabled))
+                .build();
         }
     }
 
@@ -757,10 +820,13 @@ public final class CgmesRecords {
         String rdfId,
         boolean controlEnabled,
         double q
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeStaticVarCompensator(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(STATIC_VAR_COMPENSATOR, rdfId)
+                .literal(REGULATING_COND_EQ_CONTROL_ENABLED, format(controlEnabled))
+                .literal(STATIC_VAR_COMPENSATOR_Q, format(q))
+                .build();
         }
     }
 
@@ -814,10 +880,12 @@ public final class CgmesRecords {
         String className,
         String rdfId,
         boolean open
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeSwitch(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(className, rdfId)
+                .literal(SWITCH_OPEN, format(open))
+                .build();
         }
     }
 
@@ -848,10 +916,17 @@ public final class CgmesRecords {
         double q,
         int referencePriority,
         String operatingMode
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeSynchronousMachine(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(SYNCHRONOUS_MACHINE, rdfId)
+                .literal(REGULATING_COND_EQ_CONTROL_ENABLED, format(controlEnabled))
+                .literal(ROTATING_MACHINE_P, format(p))
+                .literal(ROTATING_MACHINE_Q, format(q))
+                // reference priority is used for angle reference selection (slack)
+                .literal(SYNCHRONOUS_MACHINE_REFERENCE_PRIORITY, format(referencePriority))
+                .resource(SYNCHRONOUS_MACHINE_OPERATING_MODE, cimNamespace + SYNCHRONOUS_MACHINE_OPERATING_MODE_KIND + operatingMode)
+                .build();
         }
     }
 
@@ -863,10 +938,13 @@ public final class CgmesRecords {
         String rdfId,
         boolean controlEnabled,
         int step
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeTapChanger(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(className, rdfId)
+                .literal(TAP_CHANGER_CONTROL_ENABLED_ATTRIBUTE, format(controlEnabled))
+                .literal(TAP_CHANGER_STEP, format(step))
+                .build();
         }
     }
 
@@ -898,10 +976,12 @@ public final class CgmesRecords {
     public record TerminalSsh(
         String rdfId,
         boolean connected
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeTerminal(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return CgmesObject.builder(TERMINAL, rdfId)
+                .literal(AC_DC_TERMINAL_CONNECTED, format(connected))
+                .build();
         }
     }
 
@@ -944,10 +1024,18 @@ public final class CgmesRecords {
         double targetUpcc,
         String pPccControl,
         String qPccControl
-    ) implements SshStatement {
+    ) implements SshRecord {
         @Override
-        public void write(SteadyStateHypothesisWriter writer) throws XMLStreamException {
-            writer.writeVsConverter(this);
+        public CgmesObject normalize(String cimNamespace) {
+            return acDcConverter(VS_CONVERTER, rdfId, targetPpcc, targetUdc, p, q)
+                .literal(VS_CONVERTER_DROOP, format(droop))
+                .literal(VS_CONVERTER_DROOP_COMPENSATION, format(droopCompensation))
+                .literal(VS_CONVERTER_Q_SHARE, format(qShare))
+                .literal(VS_CONVERTER_TARGET_QPCC, format(targetQpcc))
+                .literal(VS_CONVERTER_TARGET_UPCC, format(targetUpcc))
+                .resource(VS_CONVERTER_P_PCC_CONTROL, cimNamespace + VS_PPCC_CONTROL_KIND + pPccControl)
+                .resource(VS_CONVERTER_Q_PCC_CONTROL, cimNamespace + VS_QPCC_CONTROL_KIND + qPccControl)
+                .build();
         }
     }
 }
