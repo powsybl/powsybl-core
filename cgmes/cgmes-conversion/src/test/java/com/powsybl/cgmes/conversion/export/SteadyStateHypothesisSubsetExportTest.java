@@ -46,12 +46,24 @@ class SteadyStateHypothesisSubsetExportTest {
 
     @Test
     void partialExportOfAllIdentifiablesExportsTheSameObjects() throws XMLStreamException {
-        Network network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        assertPartialExportOfAllIdentifiablesExportsTheSameObjects(Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource()));
+    }
+
+    @Test
+    void partialExportOfAllIdentifiablesOfABusBreakerNetworkExportsTheSameObjects() throws XMLStreamException {
+        assertPartialExportOfAllIdentifiablesExportsTheSameObjects(Network.read(CgmesConformity1Catalog.smallBusBranch().dataSource()));
+    }
+
+    private static void assertPartialExportOfAllIdentifiablesExportsTheSameObjects(Network network) throws XMLStreamException {
         Set<Identifiable<?>> all = new LinkedHashSet<>();
         network.getConnectables().forEach(all::add);
         network.getSwitches().forEach(all::add);
         network.getHvdcLines().forEach(all::add);
         network.getAreas().forEach(all::add);
+        // The buses of the bus-breaker voltage levels have SSH data: their fictitious injections
+        network.getVoltageLevelStream()
+            .filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER)
+            .forEach(vl -> vl.getBusBreakerView().getBuses().forEach(all::add));
 
         List<SshObject> full = sshObjects(exportFull(network));
         List<SshObject> partial = sshObjects(exportPartial(network, all));
@@ -194,12 +206,27 @@ class SteadyStateHypothesisSubsetExportTest {
     }
 
     @Test
-    void partialExportOfABusBreakerNetworkIsNotSupported() {
+    void partialExportOfABusBreakerGenerator() throws XMLStreamException {
         Network network = EurostagTutorialExample1Factory.create();
-        List<Identifiable<?>> generator = List.of(network.getGenerator("GEN"));
+        Generator generator = network.getGenerator("GEN");
 
-        PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, generator));
-        assertTrue(e.getMessage().contains("node-breaker"));
+        List<SshObject> partial = sshObjects(exportPartial(network, List.of(generator)));
+
+        // The generator and its terminal
+        assertEquals(List.of("RegulatingControl", "SynchronousMachine", "Terminal"), partial.stream().map(SshObject::className).sorted().toList());
+        assertEquals("SynchronousMachine", byId(partial).get(generator.getId()).className());
+    }
+
+    @Test
+    void busExportsItsFictitiousInjection() throws XMLStreamException {
+        Network network = EurostagTutorialExample1Factory.create();
+        Bus bus = network.getBusBreakerView().getBus("NGEN");
+        bus.setFictitiousP0(10.0);
+
+        List<SshObject> partial = sshObjects(exportPartial(network, List.of(bus)));
+
+        // The fictitious load and its terminal
+        assertEquals(List.of("NonConformLoad", "Terminal"), partial.stream().map(SshObject::className).sorted().toList());
     }
 
     @Test

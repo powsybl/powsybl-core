@@ -60,9 +60,6 @@ public final class SteadyStateHypothesisExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         SteadyStateHypothesisWriter sshWriter = new SteadyStateHypothesisWriter(writer, context);
-        if (context.isPartialSshExport()) {
-            checkNodeBreaker(network);
-        }
         try {
             sshWriter.writeRdfRoot();
             sshWriter.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, model);
@@ -80,19 +77,6 @@ public final class SteadyStateHypothesisExport {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-    }
-
-    /**
-     * A partial SSH export is only supported for node-breaker networks.
-     */
-    private static void checkNodeBreaker(Network network) {
-        network.getVoltageLevelStream()
-            .filter(vl -> vl.getTopologyKind() != TopologyKind.NODE_BREAKER)
-            .findFirst()
-            .ifPresent(vl -> {
-                throw new PowsyblException("Partial SSH export is only supported for node-breaker networks: voltage level "
-                    + vl.getId() + " is " + vl.getTopologyKind());
-            });
     }
 
     private static void exportAll(Network network, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
@@ -222,6 +206,16 @@ public final class SteadyStateHypothesisExport {
                 exportTerminalForSwitch(sw, sink, context);
             }
             case Area area -> exportControlArea(area, sink, context);
+            case Bus bus -> {
+                VoltageLevel vl = bus.getVoltageLevel();
+                if (vl.getTopologyKind() != TopologyKind.NODE_BREAKER || context.isBusBranchExport()) {
+                    exportFictitiousInjection(bus, sink, context);
+                }
+                // Recorded busbar section terminals are only written in an updated export, as in the full export
+                if (!context.isExportEquipment()) {
+                    exportTerminalForBus(bus, sink, context);
+                }
+            }
             default -> {
                 // No SSH data of its own: a connectable exports its terminals below, the others are ignored
             }
