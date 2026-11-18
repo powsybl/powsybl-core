@@ -179,7 +179,8 @@ public final class UcteConverterHelper {
      * <p>
      * The candidates of the first non-empty case are considered, in this order: local, remote, non-regulating. Among
      * them, the one of the generator with the largest target active power is kept, ties being broken by the smallest
-     * generator id.
+     * generator id. If the kept candidate comes from a non-regulating generator while another generator of the bus
+     * regulates voltage, it is reported.
      *
      * @param bus the bus to scan for the voltage reference
      * @param reportNode report node where warning messages are issued in case of unexpected state in the network
@@ -196,6 +197,10 @@ public final class UcteConverterHelper {
             return Double.NaN;
         }
         VoltageCandidate kept = candidates.getFirst();
+        if (!kept.generator().isRegulatingWithMode(RegulationMode.VOLTAGE) &&
+                bus.getGeneratorStream().anyMatch(gen -> gen.isRegulatingWithMode(RegulationMode.VOLTAGE))) {
+            UcteExporterReports.voltageTargetNotFromRegulatingGenerator(reportNode, bus.getId(), kept.generator().getId(), kept.value());
+        }
         if (candidates.stream().anyMatch(candidate -> Double.compare(candidate.value(), kept.value()) != 0)) {
             UcteExporterReports.voltageTargetConflict(reportNode, bus.getId(), kept.generator().getId(), kept.value());
         }

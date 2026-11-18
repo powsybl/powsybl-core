@@ -19,6 +19,7 @@ public final class UcteExporterReports {
 
     public static final String BUS_ID = "busId";
     public static final String GENERATOR_ID = "generatorId";
+    public static final String TARGET_V = "targetV";
 
     private UcteExporterReports() {
     }
@@ -119,7 +120,7 @@ public final class UcteExporterReports {
                 .withUntypedValue(BUS_ID, busId)
                 .withUntypedValue(GENERATOR_ID, generatorId)
                 .withUntypedValue("regulatedEquipmentId", regulatedEquipmentId)
-                .withUntypedValue("targetV", targetV)
+                .withUntypedValue(TARGET_V, targetV)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -132,12 +133,22 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static void voltageTargetNotFromRegulatingGenerator(ReportNode reportNode, String busId, String generatorId, double targetV) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.voltageTargetNotFromRegulatingGenerator")
+                .withUntypedValue(BUS_ID, busId)
+                .withUntypedValue(GENERATOR_ID, generatorId)
+                .withUntypedValue(TARGET_V, targetV)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void voltageTargetConflict(ReportNode reportNode, String busId, String generatorId, double targetV) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.voltageTargetConflict")
                 .withUntypedValue(BUS_ID, busId)
                 .withUntypedValue(GENERATOR_ID, generatorId)
-                .withUntypedValue("targetV", targetV)
+                .withUntypedValue(TARGET_V, targetV)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

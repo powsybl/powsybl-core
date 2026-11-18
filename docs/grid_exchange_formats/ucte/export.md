@@ -181,7 +181,9 @@ keeps the voltage reference of a PQ node imported from a UCTE-DEF file.
 
 The candidates of the first non-empty case are considered, in this order: local, remote, non-regulating. Among them,
 the one of the generator with the largest target active power is kept (ties are broken by the smallest generator id). A
-warning is reported if the candidates have different values. If there is no candidate, the voltage reference is left
+warning is reported if the candidates have different values. A warning is also reported if the kept candidate comes
+from a non-regulating generator while another generator of the bus regulates voltage: the node is then exported as a PU
+node whose voltage reference is not a regulation target. If there is no candidate, the voltage reference is left
 undefined and the node is exported as a PQ node; if a generator of the bus regulates voltage, a warning is reported.
 
 ### Line conversion
@@ -389,6 +391,7 @@ following situations are reported:
 | A switch has no usable `currentLimit` property                                                               | `WARN`   | [Current limit](#current-limit)                                                             |
 | A two-winding transformer has no usable nominal power                                                        | `WARN`   | [Nominal power](#nominal-power)                                                             |
 | A node regulates voltage but none of its generators provides a voltage target                                | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| A node regulates voltage but its voltage target comes from a non-regulating generator                        | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The generators of a bus have different candidate voltage targets; the kept value and its generator are given | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The kept voltage target is rescaled from a remote bus with a different nominal voltage                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | A generator regulates the voltage of a disconnected terminal; its voltage target is ignored                  | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |

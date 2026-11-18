@@ -244,7 +244,10 @@ public final class UcteExporterTestNetworks {
      *     <li>{@code CASEA}: generator {@code GA} (P = 100) regulating {@code CASE3_L}'s terminal at 22.5 kV, on another
      *     bus with the same nominal voltage, without local target;</li>
      *     <li>{@code CASEB}: disconnected load {@code L} and generator {@code GA} (P = 100) regulating {@code L}'s
-     *     disconnected terminal at 22.5 kV, without local target.</li>
+     *     disconnected terminal at 22.5 kV, without local target;</li>
+     *     <li>{@code CASEC}: disconnected load {@code L}, generator {@code GA} (P = 100) regulating {@code L}'s
+     *     disconnected terminal at 22.5 kV, without local target, and non-regulating generator {@code GB} (P = 10,
+     *     23 kV).</li>
      * </ul>
      */
     public static Network createWithMultipleVoltageTargets() {
@@ -293,6 +296,12 @@ public final class UcteExporterTestNetworks {
         addLoad(vl21, "CASEB_L", bus, 1, 1);
         network.getLoad("CASEB_L").getTerminal().disconnect();
         addRemoteRegulatingGenerator(vl21, "CASEB_GA", bus, 100, network.getLoad("CASEB_L").getTerminal(), 22.5);
+
+        bus = addBus(vl21, "CASEC");
+        addLoad(vl21, "CASEC_L", bus, 1, 1);
+        network.getLoad("CASEC_L").getTerminal().disconnect();
+        addRemoteRegulatingGenerator(vl21, "CASEC_GA", bus, 100, network.getLoad("CASEC_L").getTerminal(), 22.5);
+        addGenerator(vl21, "CASEC_GB", bus, 10, 0, 100).setLocalTargetV(23.0);
         return network;
     }
 
