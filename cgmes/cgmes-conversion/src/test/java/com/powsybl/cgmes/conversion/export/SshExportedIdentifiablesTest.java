@@ -386,6 +386,18 @@ class SshExportedIdentifiablesTest {
                 bl.getGeneration().setTargetQ(0.0);
                 return new Change(bl, () -> bl.getGeneration().setVoltageRegulationOn(false));
             }),
+            supported("bus fictitiousP0", eurostag, n -> {
+                Bus bus = n.getBusBreakerView().getBus("NGEN");
+                return new Change(bus, () -> bus.setFictitiousP0(10.0));
+            }),
+            supported("bus fictitiousQ0", eurostag, n -> {
+                Bus bus = n.getBusBreakerView().getBus("NGEN");
+                return new Change(bus, () -> bus.setFictitiousQ0(10.0));
+            }),
+            supported("bus-breaker generator disconnection", eurostag, n -> {
+                Generator g = n.getGenerator("GEN");
+                return new Change(g, () -> g.getTerminal().disconnect());
+            }),
             supported("area interchangeTarget", EurostagTutorialExample1Factory::createWithTieLinesAndAreas, n -> {
                 Area area = n.getAreas().iterator().next();
                 return new Change(area, () -> area.setInterchangeTarget(10.0));

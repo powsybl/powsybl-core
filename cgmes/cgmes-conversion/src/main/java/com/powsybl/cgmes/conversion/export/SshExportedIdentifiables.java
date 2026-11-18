@@ -171,6 +171,8 @@ public final class SshExportedIdentifiables {
             // The target active and reactive power of the generation of a boundary line are not written
             case BoundaryLine ignored -> Set.of(P0, Q0, "targetV", "voltageRegulationOn").contains(attribute);
             case Area ignored -> "interchangeTarget".equals(attribute);
+            // The fictitious injection of a bus of a bus-breaker voltage level
+            case Bus ignored -> Set.of("fictitiousP0", "fictitiousQ0").contains(attribute);
             default -> false;
         };
     }

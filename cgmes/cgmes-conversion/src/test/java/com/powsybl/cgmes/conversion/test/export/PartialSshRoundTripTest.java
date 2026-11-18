@@ -57,6 +57,7 @@ class PartialSshRoundTripTest {
 
     static Stream<Arguments> changes() {
         GridModelReference smallGrid = CgmesConformity1Catalog.smallNodeBreaker();
+        GridModelReference smallGridBusBranch = CgmesConformity1Catalog.smallBusBranch();
         GridModelReference miniGrid = CgmesConformity1Catalog.miniNodeBreaker();
         GridModelReference smallGridHvdc = CgmesConformity1Catalog.smallNodeBreakerHvdc();
         GridModelReference cgmes3SmallGrid = Cgmes3Catalog.smallGrid();
@@ -90,6 +91,25 @@ class PartialSshRoundTripTest {
                 boundaryLine.setP0(boundaryLine.getP0() + 10.0);
             }),
             Arguments.of("injection disconnection", smallGrid, (Consumer<Network>) n -> assertTrue(n.getConnectableStream()
+                .filter(Injection.class::isInstance).map(c -> (Injection<?>) c).anyMatch(i -> i.getTerminal().disconnect()))),
+            Arguments.of("bus-breaker load p0 and q0", smallGridBusBranch, (Consumer<Network>) n -> {
+                Load load = n.getLoads().iterator().next();
+                load.setP0(load.getP0() + 10.0).setQ0(load.getQ0() + 5.0);
+            }),
+            Arguments.of("bus-breaker generator targetP", smallGridBusBranch, (Consumer<Network>) n -> {
+                Generator generator = n.getGenerators().iterator().next();
+                generator.setTargetP(generator.getTargetP() + 10.0);
+            }),
+            Arguments.of("bus-breaker ratio tap position", smallGridBusBranch, (Consumer<Network>) n -> {
+                RatioTapChanger rtc = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasRatioTapChanger)
+                    .findFirst().orElseThrow().getRatioTapChanger();
+                rtc.setTapPosition(rtc.getTapPosition() == rtc.getHighTapPosition() ? rtc.getTapPosition() - 1 : rtc.getTapPosition() + 1);
+            }),
+            Arguments.of("bus-breaker shunt sections", smallGridBusBranch, (Consumer<Network>) n -> {
+                ShuntCompensator shunt = n.getShuntCompensators().iterator().next();
+                shunt.setSectionCount(shunt.getSectionCount() == shunt.getMaximumSectionCount() ? shunt.getSectionCount() - 1 : shunt.getSectionCount() + 1);
+            }),
+            Arguments.of("bus-breaker injection disconnection", smallGridBusBranch, (Consumer<Network>) n -> assertTrue(n.getConnectableStream()
                 .filter(Injection.class::isInstance).map(c -> (Injection<?>) c).anyMatch(i -> i.getTerminal().disconnect()))),
             Arguments.of("breaker opening", miniGrid, (Consumer<Network>) n -> n.getSwitchStream()
                 .filter(sw -> sw.getKind() == SwitchKind.BREAKER && !sw.isOpen()).findFirst().orElseThrow().setOpen(true)),
