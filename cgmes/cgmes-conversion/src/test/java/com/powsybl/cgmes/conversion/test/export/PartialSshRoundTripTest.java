@@ -129,7 +129,7 @@ class PartialSshRoundTripTest {
         network.addListener(recorder);
         change.accept(network);
         network.removeListener(recorder);
-        Set<Identifiable<?>> changed = SshExportedIdentifiables.fromEvents(network, recorder.getEvents());
+        Set<Identifiable<?>> changed = SshExportedIdentifiables.fromEvents(network, recorder.getEvents(), SshExportedIdentifiables.UnsupportedChangeBehavior.FAIL);
         assertFalse(changed.isEmpty(), "The change gives no event");
         Path dir = Files.createDirectories(tmpDir.resolve("partial"));
         exportPartialSsh(network, changed, dir.resolve("partial_SSH.xml"));
