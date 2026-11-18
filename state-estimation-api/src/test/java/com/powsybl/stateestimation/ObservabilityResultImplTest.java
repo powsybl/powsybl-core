@@ -16,6 +16,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -40,26 +41,31 @@ class ObservabilityResultImplTest {
     }
 
     @Test
-    void aBranchQualityNamesItsSideAndAnInjectionQualityDoesNot() {
-        ObservabilityResult.Quality branchSide = new ObservabilityResultImpl.QualityImpl(
-                ObservabilityResult.Quantity.REACTIVE_POWER, ThreeSides.TWO, 1.5, true);
-        ObservabilityResult.Quality injection = new ObservabilityResultImpl.QualityImpl(
-                ObservabilityResult.Quantity.VOLTAGE, null, 0.2, null);
+    void aBranchEntryNamesItsSideAndAnInjectionEntryDoesNot() {
+        ObservabilityResult.QuantityRedundancy branchSide = new ObservabilityResultImpl.QuantityRedundancyImpl(
+                Quantity.REACTIVE_POWER, ThreeSides.TWO, true);
+        ObservabilityResult.QuantityRedundancy injection = new ObservabilityResultImpl.QuantityRedundancyImpl(
+                Quantity.VOLTAGE, null, null);
 
         assertEquals(ThreeSides.TWO, branchSide.getSide().orElseThrow());
-        assertEquals(ObservabilityResult.Quantity.REACTIVE_POWER, branchSide.getQuantity());
-        assertEquals(1.5, branchSide.getStandardDeviation());
+        assertEquals(Quantity.REACTIVE_POWER, branchSide.getQuantity());
 
         assertTrue(injection.getSide().isEmpty());
-        assertEquals(0.2, injection.getStandardDeviation());
+        assertEquals(Quantity.VOLTAGE, injection.getQuantity());
+    }
+
+    @Test
+    void aVoltageRedundancyRefusesABranchSide() {
+        assertThrows(IllegalArgumentException.class, () -> new ObservabilityResultImpl.QuantityRedundancyImpl(
+                Quantity.VOLTAGE, ThreeSides.ONE, true));
     }
 
     @Test
     void anUnsetRedundancyIsEmptyAndACriticalQuantityIsFalse() {
-        ObservabilityResult.Quality notEstablished = new ObservabilityResultImpl.QualityImpl(
-                ObservabilityResult.Quantity.ACTIVE_POWER, null, 0.5, null);
-        ObservabilityResult.Quality critical = new ObservabilityResultImpl.QualityImpl(
-                ObservabilityResult.Quantity.ACTIVE_POWER, null, 0.5, false);
+        ObservabilityResult.QuantityRedundancy notEstablished = new ObservabilityResultImpl.QuantityRedundancyImpl(
+                Quantity.ACTIVE_POWER, null, null);
+        ObservabilityResult.QuantityRedundancy critical = new ObservabilityResultImpl.QuantityRedundancyImpl(
+                Quantity.ACTIVE_POWER, null, false);
 
         assertTrue(notEstablished.isRedundant().isEmpty());
         assertFalse(critical.isRedundant().orElseThrow());

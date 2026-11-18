@@ -129,19 +129,19 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
 
         private final String elementId;
         private final boolean observable;
-        private final List<Quality> qualities;
+        private final List<QuantityRedundancy> redundancies;
 
         /**
-         * Neither {@code elementId} nor {@code qualities} may be null.
+         * Neither {@code elementId} nor {@code redundancies} may be null.
          *
          * @param elementId the identifier of the injection or branch
          * @param observable whether the measurements determine the state of the element
-         * @param qualities one entry per quantity determined for the element
+         * @param redundancies one entry per quantity determined for the element
          */
-        public ElementObservabilityImpl(String elementId, boolean observable, List<Quality> qualities) {
+        public ElementObservabilityImpl(String elementId, boolean observable, List<QuantityRedundancy> redundancies) {
             this.elementId = Objects.requireNonNull(elementId);
             this.observable = observable;
-            this.qualities = List.copyOf(Objects.requireNonNull(qualities));
+            this.redundancies = List.copyOf(Objects.requireNonNull(redundancies));
         }
 
         @Override
@@ -155,17 +155,16 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         }
 
         @Override
-        public List<Quality> getQualities() {
-            return qualities;
+        public List<QuantityRedundancy> getRedundancies() {
+            return redundancies;
         }
     }
 
-    /** Immutable {@link Quality}. */
-    public static class QualityImpl implements Quality {
+    /** Immutable {@link QuantityRedundancy}. */
+    public static class QuantityRedundancyImpl implements QuantityRedundancy {
 
         private final Quantity quantity;
         private final ThreeSides side;
-        private final double standardDeviation;
         private final Boolean redundant;
 
         /**
@@ -174,13 +173,12 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
          *
          * @param quantity the measured quantity
          * @param side the branch side, or null for an injection
-         * @param standardDeviation the standard deviation of the quantity as the measurements determine it, in MW, MVar or kV
          * @param redundant whether more than one measurement determines the quantity, or null if that was not established
+         * @throws IllegalArgumentException if a voltage is given a branch side
          */
-        public QualityImpl(Quantity quantity, ThreeSides side, double standardDeviation, Boolean redundant) {
+        public QuantityRedundancyImpl(Quantity quantity, ThreeSides side, Boolean redundant) {
             this.quantity = Objects.requireNonNull(quantity);
-            this.side = side;
-            this.standardDeviation = standardDeviation;
+            this.side = checkSide(quantity, side);
             this.redundant = redundant;
         }
 
@@ -195,13 +193,16 @@ public class ObservabilityResultImpl extends AbstractExtendable<ObservabilityRes
         }
 
         @Override
-        public double getStandardDeviation() {
-            return standardDeviation;
-        }
-
-        @Override
         public Optional<Boolean> isRedundant() {
             return Optional.ofNullable(redundant);
+        }
+
+        /** Voltage belongs to a bus, and {@code BranchObservability} carries no voltage quality. */
+        private static ThreeSides checkSide(Quantity quantity, ThreeSides side) {
+            if (quantity == Quantity.VOLTAGE && side != null) {
+                throw new IllegalArgumentException("A voltage carries no branch side, was given " + side);
+            }
+            return side;
         }
     }
 }

@@ -173,9 +173,9 @@ class StateEstimationTest {
         ObservabilityResult.ElementObservability element =
                 observability.getElementObservability(StateEstimationProviderMock.BUS_ID).orElseThrow();
         assertTrue(element.isObservable());
-        assertEquals(1, element.getQualities().size());
-        assertTrue(element.getQualities().get(0).isRedundant().orElseThrow());
-        assertTrue(element.getQualities().get(0).getSide().isEmpty());
+        assertEquals(1, element.getRedundancies().size());
+        assertTrue(element.getRedundancies().get(0).isRedundant().orElseThrow());
+        assertTrue(element.getRedundancies().get(0).getSide().isEmpty());
     }
 
     @Test

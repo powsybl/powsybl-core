@@ -130,6 +130,19 @@ A normalized residual is signed: positive means the meter read above the estimat
 is compared against the absolute value, so a measurement above
 [residualThreshold](#param-se-residual-threshold) can sit on either side.
 
+`QuantityAccuracy` says how tightly the measurements determined one quantity of one element. The
+redundancy half of the same question is on [ObservabilityResult](#observabilityresult):
+
+| Attribute         | Type                 | Unit           | Required | Default value  | Description                                   |
+|-------------------|----------------------|----------------|----------|----------------|-----------------------------------------------|
+| elementId         | String               | -              | yes      | -              | The bus, injection or branch                  |
+| quantity          | Quantity             | -              | yes      | -              | `ACTIVE_POWER`, `REACTIVE_POWER` or `VOLTAGE` |
+| side              | Optional<ThreeSides> | -              | no       | Empty optional | The branch side, always empty for a voltage   |
+| standardDeviation | double               | MW, MVar or kV | yes      | -              | The standard deviation of the estimate        |
+
+An implementation that computes no accuracies returns an empty list. A topological observability
+analysis produces none, since the standard deviation follows from the gain matrix.
+
 ## ObservabilityResult
 
 Computed from measurement placement and topology, so it is available whether or not an estimation
@@ -169,16 +182,17 @@ for a branch:
 |------------|---------------|------|----------|---------------|------------------------------------|
 | elementId  | String        | -    | yes      | -             | The element                        |
 | observable | boolean       | -    | yes      | -             | One answer covering every quantity |
-| qualities  | List<Quality> | -    | no       | Empty list    | What was determined, per quantity  |
+| redundancies | List<QuantityRedundancy> | - | no   | Empty list    | What was determined, per quantity  |
 
-`Quality` matches `ObservabilityQuality`:
+`QuantityRedundancy` carries the redundancy half of `ObservabilityQuality`. The standard
+deviation it also holds describes an estimate, so it is on
+[StateEstimationResult](#stateestimationresult) as `QuantityAccuracy`:
 
-| Attribute         | Type                 | Unit           | Required | Default value  | Description                                      |
-|-------------------|----------------------|----------------|----------|----------------|--------------------------------------------------|
-| quantity          | Quantity             | -              | yes      | -              | `ACTIVE_POWER`, `REACTIVE_POWER` or `VOLTAGE`    |
-| side              | Optional<ThreeSides> | -              | no       | Empty optional | The branch side, empty for an injection          |
-| standardDeviation | double               | MW, MVar or kV | yes      | -              | The standard deviation of the estimated quantity |
-| redundant         | Optional<Boolean>    | -              | no       | Empty optional | Whether anything else determines this quantity   |
+| Attribute | Type                 | Unit | Required | Default value  | Description                                    |
+|-----------|----------------------|------|----------|----------------|------------------------------------------------|
+| quantity  | Quantity             | -    | yes      | -              | `ACTIVE_POWER`, `REACTIVE_POWER` or `VOLTAGE`  |
+| side      | Optional<ThreeSides> | -    | no       | Empty optional | The branch side, always empty for a voltage    |
+| redundant | Optional<Boolean>    | -    | no       | Empty optional | Whether anything else determines this quantity |
 
 An empty `redundant` means the estimation did not establish it. `false` means the quantity is
 critical: losing the measurement behind it would leave a region unobservable, and an error in it
@@ -204,7 +218,7 @@ The residual is signed here too, so the list holds readings that sit above and b
 
 A measurement that nothing else determines always has a residual of zero, whatever its value, so
 it is listed under `uncheckableMeasurementIds` instead of being reported as correct. Those are the
-quantities whose `Quality` reports `redundant` as false.
+quantities whose `QuantityRedundancy` reports `redundant` as false.
 
 Nothing is removed or reweighted. See [limitations](limitations.md#bad-data-removal).
 

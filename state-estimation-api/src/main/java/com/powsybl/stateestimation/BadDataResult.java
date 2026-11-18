@@ -46,7 +46,7 @@ public interface BadDataResult extends Extendable<BadDataResult> {
 
     /**
      * The measurements that could not be tested, because no other measurement determines the same
-     * quantity. These are the ones whose {@link ObservabilityResult.Quality} reports
+     * quantity. These are the ones whose {@link ObservabilityResult.QuantityRedundancy} reports
      * {@code isRedundant()} as false.
      */
     Set<String> getUncheckableMeasurementIds();

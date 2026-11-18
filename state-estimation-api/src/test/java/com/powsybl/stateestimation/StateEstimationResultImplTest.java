@@ -7,6 +7,7 @@
  */
 package com.powsybl.stateestimation;
 
+import com.powsybl.iidm.network.ThreeSides;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -28,6 +29,36 @@ class StateEstimationResultImplTest {
     }
 
     @Test
+    void anAccuracyNamesItsElementAndQuantityAndASideOnlyOnABranch() {
+        StateEstimationResult.QuantityAccuracy branchSide = new StateEstimationResultImpl.QuantityAccuracyImpl(
+                "LINE", Quantity.ACTIVE_POWER, ThreeSides.TWO, 1.5);
+        StateEstimationResult.QuantityAccuracy bus = new StateEstimationResultImpl.QuantityAccuracyImpl(
+                "BUS", Quantity.VOLTAGE, null, 0.2);
+
+        assertEquals("LINE", branchSide.getElementId());
+        assertEquals(Quantity.ACTIVE_POWER, branchSide.getQuantity());
+        assertEquals(ThreeSides.TWO, branchSide.getSide().orElseThrow());
+        assertEquals(1.5, branchSide.getStandardDeviation());
+
+        assertTrue(bus.getSide().isEmpty());
+        assertEquals(0.2, bus.getStandardDeviation());
+    }
+
+    @Test
+    void aVoltageAccuracyRefusesABranchSide() {
+        assertThrows(IllegalArgumentException.class, () -> new StateEstimationResultImpl.QuantityAccuracyImpl(
+                "BUS", Quantity.VOLTAGE, ThreeSides.ONE, 0.2));
+    }
+
+    @Test
+    void anEstimatorThatReportsNoAccuraciesLeavesThemEmpty() {
+        StateEstimationResultImpl result = new StateEstimationResultImpl(
+                "v", List.of(component()), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertTrue(result.getQuantityAccuracies().isEmpty());
+    }
+
+    @Test
     void aFailedEstimationHoldsNothing() {
         StateEstimationResultImpl result = StateEstimationResultImpl.failed("InitialVariant");
 
@@ -43,7 +74,7 @@ class StateEstimationResultImplTest {
         List<StateEstimationResult.ComponentResult> components = new ArrayList<>(List.of(component()));
 
         StateEstimationResultImpl result = new StateEstimationResultImpl(
-                "InitialVariant", components, List.of(), List.of(), List.of(), List.of(), List.of());
+                "InitialVariant", components, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
         components.clear();
 
         assertEquals(1, result.getComponentResults().size());

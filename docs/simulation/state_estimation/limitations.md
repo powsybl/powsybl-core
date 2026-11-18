@@ -88,13 +88,13 @@ measurement type, which is a larger change than this API.
 
 ## Voltage angle is not an observability quantity
 
-`ObservabilityResult.Quantity` has `ACTIVE_POWER`, `REACTIVE_POWER` and `VOLTAGE`, copied from
+`Quantity` has `ACTIVE_POWER`, `REACTIVE_POWER` and `VOLTAGE`, copied from
 what `InjectionObservability` and `BranchObservability` already model. Voltage angle is absent
 from those extensions, and is absent here for the same reason.
 
 Angle is half of what a state estimation computes, and the `isObservable()` boolean on the same
 extensions is documented as covering it, so the boolean answers for four quantities while the
-qualities describe three. Adding a fourth value here would put this API out of step with the
+redundancy entries describe three. Adding a fourth value here would put this API out of step with the
 extensions a provider publishes to, so the two should change together if they change.
 
 ## Observability recovery
@@ -112,8 +112,8 @@ recording which method applies where.
 `writeResultsToNetwork` puts the estimated state onto the buses and the branch terminals. Nothing
 puts an `ObservabilityResult` onto the IIDM observability extensions.
 
-The two models line up for it. `Quality` carries the same standard deviation and redundancy flag
-as `ObservabilityQuality`, `IslandStatus` has the same three values as
+The two models line up for it. `QuantityRedundancy` and `QuantityAccuracy` carry between them
+what `ObservabilityQuality` holds, `IslandStatus` has the same three values as
 `ObservabilityArea.ObservabilityStatus`, and `ObservabilityAreaAdder` takes a bus view bus id,
 which is what `ObservableIsland` holds. So a `writeObservabilityToNetwork` would be a mapping
 rather than a computation.

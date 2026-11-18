@@ -154,7 +154,7 @@ class StateEstimationProviderTest {
                 List.of(new StateEstimationResultImpl.BusResultImpl("GONE_0", "GONE", 400.0, 0.0),
                         new StateEstimationResultImpl.BusResultImpl("ALSO_GONE", "VLHV1", 400.0, 0.0)),
                 List.of(new StateEstimationResultImpl.BranchResultImpl("GONE_LINE", 1.0, 2.0, 3.0, 4.0)),
-                List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of());
 
         assertDoesNotThrow(() -> bareProvider().writeResultsToNetwork(
                 network, network.getVariantManager().getWorkingVariantId(), stale));
@@ -169,7 +169,7 @@ class StateEstimationProviderTest {
                 network.getVariantManager().getWorkingVariantId(),
                 List.of(),
                 List.of(new StateEstimationResultImpl.BusResultImpl(busId, "VLGEN", 24.5, 1.5)),
-                List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of());
 
         bareProvider().writeResultsToNetwork(network,
                 network.getVariantManager().getWorkingVariantId(), result);
@@ -189,7 +189,7 @@ class StateEstimationProviderTest {
                 network.getVariantManager().getWorkingVariantId(),
                 List.of(),
                 List.of(new StateEstimationResultImpl.BusResultImpl("NGEN", "VLGEN", 24.5, 1.5)),
-                List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of());
 
         bareProvider().writeResultsToNetwork(network,
                 network.getVariantManager().getWorkingVariantId(), result);
@@ -205,7 +205,7 @@ class StateEstimationProviderTest {
                 List.of(), List.of(), List.of(),
                 List.of(new StateEstimationResultImpl.ThreeWindingsTransformerResultImpl(
                         "3WT", 1.0, 2.0, 3.0, 4.0, 5.0, 6.0)),
-                List.of(), List.of());
+                List.of(), List.of(), List.of());
 
         bareProvider().writeResultsToNetwork(network,
                 network.getVariantManager().getWorkingVariantId(), result);
@@ -224,7 +224,7 @@ class StateEstimationProviderTest {
                 network.getVariantManager().getWorkingVariantId(),
                 List.of(), List.of(), List.of(), List.of(),
                 List.of(new StateEstimationResultImpl.InjectionResultImpl("LOAD_33", 7.5, 2.5)),
-                List.of());
+                List.of(), List.of());
 
         bareProvider().writeResultsToNetwork(network,
                 network.getVariantManager().getWorkingVariantId(), result);
@@ -240,7 +240,7 @@ class StateEstimationProviderTest {
                 network.getVariantManager().getWorkingVariantId(),
                 List.of(), List.of(),
                 List.of(new StateEstimationResultImpl.BranchResultImpl("BL", 51.0, 31.0, -50.0, -30.0)),
-                List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of());
 
         bareProvider().writeResultsToNetwork(network,
                 network.getVariantManager().getWorkingVariantId(), result);
@@ -260,7 +260,7 @@ class StateEstimationProviderTest {
         StateEstimationResult result = new StateEstimationResultImpl(
                 variantId, List.of(),
                 List.of(new StateEstimationResultImpl.BusResultImpl(busId, "VLGEN", 24.5, 1.5)),
-                List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of());
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         try {

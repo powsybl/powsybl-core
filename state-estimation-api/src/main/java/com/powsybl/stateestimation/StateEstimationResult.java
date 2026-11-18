@@ -8,8 +8,10 @@
 package com.powsybl.stateestimation;
 
 import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The outcome of a state estimation.
@@ -79,6 +81,12 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
      * implementation does not report per-measurement diagnostics.
      */
     List<MeasurementResult> getMeasurementResults();
+
+    /**
+     * The accuracy of each estimated quantity the implementation reported one for, in no
+     * guaranteed order. Empty when it reports none.
+     */
+    List<QuantityAccuracy> getQuantityAccuracies();
 
     /** The outcome on one synchronous component. Components are estimated independently of each other. */
     interface ComponentResult {
@@ -265,6 +273,31 @@ public interface StateEstimationResult extends Extendable<StateEstimationResult>
          * {@link StateEstimationParameters#getResidualThreshold()}.
          */
         boolean isResidualAboveThreshold();
+    }
+
+    /**
+     * How tightly the measurements determined one quantity of one element.
+     *
+     * <p>The counterpart of {@link ObservabilityResult.QuantityRedundancy}, which says whether that same
+     * quantity is redundantly measured. Together they carry what an {@code ObservabilityQuality}
+     * holds on the IIDM observability extensions.
+     */
+    interface QuantityAccuracy {
+
+        /** The IIDM identifier of the bus, injection or branch. */
+        String getElementId();
+
+        /** The quantity this entry describes. */
+        Quantity getQuantity();
+
+        /**
+         * The branch side, or an empty {@code Optional} for a bus or an injection. Always empty for
+         * {@link Quantity#VOLTAGE}, which belongs to a bus rather than to one side of a branch.
+         */
+        Optional<ThreeSides> getSide();
+
+        /** The standard deviation of the estimate of this quantity, in MW, MVar or kV. */
+        double getStandardDeviation();
     }
 
 }

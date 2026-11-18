@@ -25,16 +25,6 @@ import java.util.Set;
  */
 public interface ObservabilityResult extends Extendable<ObservabilityResult> {
 
-    /** The quantities modeled by {@code InjectionObservability} and {@code BranchObservability}. */
-    enum Quantity {
-        /** Active power, in MW. */
-        ACTIVE_POWER,
-        /** Reactive power, in MVar. */
-        REACTIVE_POWER,
-        /** Voltage magnitude, in kV. */
-        VOLTAGE
-    }
-
     /** Mirrors {@code ObservabilityArea.ObservabilityStatus}. */
     enum IslandStatus {
         /** The measurements determine the state of every bus in the island. */
@@ -116,28 +106,28 @@ public interface ObservabilityResult extends Extendable<ObservabilityResult> {
          */
         boolean isObservable();
 
-        /** One entry per quantity of this element that the analysis determined. */
-        List<Quality> getQualities();
+        /** One entry per quantity of this element whose redundancy the analysis established. */
+        List<QuantityRedundancy> getRedundancies();
     }
 
-    /** What was determined about one quantity of one element, matching {@code ObservabilityQuality}. */
-    interface Quality {
+    /**
+     * What the analysis determined about one quantity of one element.
+     *
+     * <p>{@code ObservabilityQuality} also carries a standard deviation. That one describes an
+     * estimate rather than the measurement configuration, so it lives on
+     * {@link StateEstimationResult.QuantityAccuracy} and the two are combined when the
+     * observability extensions are written onto the network.
+     */
+    interface QuantityRedundancy {
 
         /** The quantity this entry describes. */
         Quantity getQuantity();
 
-        /** The branch side, or an empty {@code Optional} for an injection. */
-        Optional<ThreeSides> getSide();
-
         /**
-         * The standard deviation of this quantity as the measurements determine it, in MW, MVar
-         * or kV. It combines every measurement bearing on the quantity, so a quantity measured
-         * twice carries a smaller value than the same quantity measured once. It follows from
-         * where the measurements are and how accurate they are, so it can be obtained without
-         * running an estimation, and it depends on the operating point the analysis linearises
-         * at. An implementation with no value to report omits the quality.
+         * The branch side, or an empty {@code Optional} for an injection. Always empty for
+         * {@link Quantity#VOLTAGE}, which belongs to a bus rather than to one side of a branch.
          */
-        double getStandardDeviation();
+        Optional<ThreeSides> getSide();
 
         /**
          * Whether more than one measurement determines this quantity, or an empty

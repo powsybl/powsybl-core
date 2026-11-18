@@ -8,9 +8,11 @@
 package com.powsybl.stateestimation;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Immutable {@link StateEstimationResult}. Every collection passed in is copied.
@@ -28,6 +30,7 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
     private final List<ThreeWindingsTransformerResult> threeWindingsTransformerResults;
     private final List<InjectionResult> injectionResults;
     private final List<MeasurementResult> measurementResults;
+    private final List<QuantityAccuracy> quantityAccuracies;
 
     /**
      * Records the outcome of an estimation. The overall status follows from the component results.
@@ -39,13 +42,15 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
      * @param threeWindingsTransformerResults the flows, one entry per three-winding transformer
      * @param injectionResults the injections that follow from the estimated state
      * @param measurementResults one entry per measurement the estimation consumed
+     * @param quantityAccuracies one entry per quantity the estimation reported an accuracy for
      */
     public StateEstimationResultImpl(String variantId,
                                      List<ComponentResult> componentResults, List<BusResult> busResults,
                                      List<BranchResult> branchResults,
                                      List<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
                                      List<InjectionResult> injectionResults,
-                                     List<MeasurementResult> measurementResults) {
+                                     List<MeasurementResult> measurementResults,
+                                     List<QuantityAccuracy> quantityAccuracies) {
         this.variantId = Objects.requireNonNull(variantId);
         this.componentResults = List.copyOf(Objects.requireNonNull(componentResults));
         this.busResults = List.copyOf(Objects.requireNonNull(busResults));
@@ -53,6 +58,7 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
         this.threeWindingsTransformerResults = List.copyOf(Objects.requireNonNull(threeWindingsTransformerResults));
         this.injectionResults = List.copyOf(Objects.requireNonNull(injectionResults));
         this.measurementResults = List.copyOf(Objects.requireNonNull(measurementResults));
+        this.quantityAccuracies = List.copyOf(Objects.requireNonNull(quantityAccuracies));
         this.status = computeStatus(this.componentResults);
     }
 
@@ -73,7 +79,8 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
      * @return a failed estimation, holding no component, bus, branch or measurement results
      */
     public static StateEstimationResultImpl failed(String variantId) {
-        return new StateEstimationResultImpl(variantId, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+        return new StateEstimationResultImpl(variantId, List.of(), List.of(), List.of(), List.of(),
+                List.of(), List.of(), List.of());
     }
 
     @Override
@@ -114,6 +121,64 @@ public class StateEstimationResultImpl extends AbstractExtendable<StateEstimatio
     @Override
     public List<MeasurementResult> getMeasurementResults() {
         return measurementResults;
+    }
+
+    @Override
+    public List<QuantityAccuracy> getQuantityAccuracies() {
+        return quantityAccuracies;
+    }
+
+    /** Immutable {@link QuantityAccuracy}. */
+    public static class QuantityAccuracyImpl implements QuantityAccuracy {
+
+        private final String elementId;
+        private final Quantity quantity;
+        private final ThreeSides side;
+        private final double standardDeviation;
+
+        /**
+         * {@code side} is null for a bus or an injection.
+         *
+         * @param elementId the identifier of the bus, injection or branch
+         * @param quantity the estimated quantity
+         * @param side the branch side, or null for a bus or an injection
+         * @param standardDeviation the standard deviation of the estimate, in MW, MVar or kV
+         * @throws IllegalArgumentException if a voltage is given a branch side
+         */
+        public QuantityAccuracyImpl(String elementId, Quantity quantity, ThreeSides side, double standardDeviation) {
+            this.elementId = Objects.requireNonNull(elementId);
+            this.quantity = Objects.requireNonNull(quantity);
+            this.side = checkSide(quantity, side);
+            this.standardDeviation = standardDeviation;
+        }
+
+        @Override
+        public String getElementId() {
+            return elementId;
+        }
+
+        @Override
+        public Quantity getQuantity() {
+            return quantity;
+        }
+
+        @Override
+        public Optional<ThreeSides> getSide() {
+            return Optional.ofNullable(side);
+        }
+
+        @Override
+        public double getStandardDeviation() {
+            return standardDeviation;
+        }
+
+        /** Voltage belongs to a bus, and {@code BranchObservability} carries no voltage quality. */
+        private static ThreeSides checkSide(Quantity quantity, ThreeSides side) {
+            if (quantity == Quantity.VOLTAGE && side != null) {
+                throw new IllegalArgumentException("A voltage carries no branch side, was given " + side);
+            }
+            return side;
+        }
     }
 
     /** Immutable {@link ComponentResult}. */

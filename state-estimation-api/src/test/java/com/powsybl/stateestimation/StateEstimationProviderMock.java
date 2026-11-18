@@ -148,7 +148,7 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
                 MEASUREMENT_ID, MEASURED_VALUE, ESTIMATED_VALUE, NORMALIZED_RESIDUAL, false);
 
         return new StateEstimationResultImpl(variantId,
-                List.of(component), List.of(bus), List.of(branch), List.of(), List.of(), List.of(measurement));
+                List.of(component), List.of(bus), List.of(branch), List.of(), List.of(), List.of(measurement), List.of());
     }
 
     /** One observable area containing the one bus, whose active power is redundant. */
@@ -156,11 +156,11 @@ public class StateEstimationProviderMock implements StateEstimationProvider {
         ObservabilityResult.ObservableIsland area = new ObservabilityResultImpl.ObservableIslandImpl(
                 0, ObservabilityResult.IslandStatus.OBSERVABLE, Set.of(BUS_ID));
 
-        ObservabilityResult.Quality quality = new ObservabilityResultImpl.QualityImpl(
-                ObservabilityResult.Quantity.ACTIVE_POWER, null, 0.5, true);
+        ObservabilityResult.QuantityRedundancy redundancy = new ObservabilityResultImpl.QuantityRedundancyImpl(
+                Quantity.ACTIVE_POWER, null, true);
 
         ObservabilityResult.ElementObservability element =
-                new ObservabilityResultImpl.ElementObservabilityImpl(BUS_ID, true, List.of(quality));
+                new ObservabilityResultImpl.ElementObservabilityImpl(BUS_ID, true, List.of(redundancy));
 
         return new ObservabilityResultImpl(ObservabilityResult.Status.COMPLETED, "",
                 List.of(area), List.of(element));
