@@ -9,13 +9,10 @@ package com.powsybl.commons.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -263,24 +260,25 @@ class ExtensionAdderProvidersTest {
                 new SimpleExtensionAdderImpl2Provider(),
                 new GenericExtensionAdderImplProvider(),
                 new GenericExtensionAdderImpl2Provider());
-        ConcurrentMap<Pair<String, Class>, ExtensionAdderProvider> cache = new ConcurrentHashMap<>();
-        ConcurrentMap<String, List<ExtensionAdderProvider>> mapProviders = ExtensionAdderProviders.groupProvidersByName(listProviders);
+        ExtensionAdderProviders.ProviderIndex providerIndex = ExtensionAdderProviders.indexProviders(listProviders);
         ExtensionAdderProvider a = ExtensionAdderProviders.findCachedProvider("Default",
-                SimpleExtensionAdder.class, mapProviders, cache);
+                SimpleExtensionAdder.class, providerIndex);
         assertEquals("Default", a.getImplementationName());
         assertEquals(SimpleExtensionAdderImplProvider.class, a.getClass());
-        assertEquals(1, cache.size());
         ExtensionAdderProvider b = ExtensionAdderProviders.findCachedProvider("Custom",
-                SimpleExtensionAdder.class, mapProviders, cache);
+                SimpleExtensionAdder.class, providerIndex);
         assertEquals("Custom", b.getImplementationName());
         assertEquals(SimpleExtensionAdderImpl2Provider.class, b.getClass());
-        assertEquals(2, cache.size());
+        ExtensionAdderProviders.ProviderIndex providerIndexForName = ExtensionAdderProviders
+                .indexProviders(Arrays.asList(new SimpleExtensionAdderImplProvider()));
+        assertEquals(SimpleExtensionAdderImplProvider.class,
+                ExtensionAdderProviders.findCachedProvider("Default", SimpleExtension.NAME, providerIndexForName).getClass());
 
-        // Do it again, it should work from the cache
+        // Repeated lookups use the prebuilt index.
         assertEquals("Default", ExtensionAdderProviders.findCachedProvider("Default", SimpleExtensionAdder.class,
-                new ConcurrentHashMap<>(), cache).getImplementationName());
+                providerIndex).getImplementationName());
         assertEquals("Custom", ExtensionAdderProviders.findCachedProvider("Custom", SimpleExtensionAdder.class,
-                                new ConcurrentHashMap<>(), cache)
+                                providerIndex)
                         .getImplementationName());
     }
 
@@ -288,8 +286,7 @@ class ExtensionAdderProvidersTest {
     void testMissing() {
         try {
             ExtensionAdderProviders.findCachedProvider("Default",
-                    SimpleExtensionAdder.class, new ConcurrentHashMap<>(),
-                    new ConcurrentHashMap<>());
+                    SimpleExtensionAdder.class, ExtensionAdderProviders.indexProviders(List.of()));
             fail("Should throw Missing Provider exception");
         } catch (PowsyblException e) {
             assertTrue(e.getMessage().contains("not found"), "Should throw Missing Provider exception");
@@ -298,26 +295,24 @@ class ExtensionAdderProvidersTest {
 
     @Test
     void testMissingAlternate() {
-        try {
-            ConcurrentMap<String, List<ExtensionAdderProvider>> providersMap = ExtensionAdderProviders
-                    .groupProvidersByName(Arrays.asList(new SimpleExtensionAdderImplProvider()));
-            ExtensionAdderProviders.findCachedProvider("Custom",
-                    SimpleExtensionAdder.class, providersMap,
-                    new ConcurrentHashMap<>());
-            fail("Should throw Missing Provider exception");
-        } catch (PowsyblException e) {
-            assertTrue(e.getMessage().contains("not found"), "Should throw Missing Provider exception");
-        }
+        ExtensionAdderProviders.ProviderIndex providerIndex = ExtensionAdderProviders
+                .indexProviders(Arrays.asList(new SimpleExtensionAdderImplProvider()));
+        assertMissingProvider("Custom", SimpleExtensionAdder.class, providerIndex);
     }
 
     @Test
     void testMissingAlternate2() {
+        ExtensionAdderProviders.ProviderIndex providerIndex = ExtensionAdderProviders
+                .indexProviders(Arrays.asList(new GenericExtensionAdderImpl2Provider()));
+        assertMissingProvider("Custom", SimpleExtensionAdder.class, providerIndex);
+    }
+
+    @Test
+    void testMissingName() {
+        ExtensionAdderProviders.ProviderIndex providerIndex = ExtensionAdderProviders
+                .indexProviders(Arrays.asList(new SimpleExtensionAdderImplProvider()));
         try {
-            ConcurrentMap<String, List<ExtensionAdderProvider>> providersMap = ExtensionAdderProviders
-                    .groupProvidersByName(Arrays.asList(new GenericExtensionAdderImpl2Provider()));
-            ExtensionAdderProviders.findCachedProvider("Custom",
-                    SimpleExtensionAdder.class, providersMap,
-                    new ConcurrentHashMap<>());
+            ExtensionAdderProviders.findCachedProvider("Default", "MissingExtension", providerIndex);
             fail("Should throw Missing Provider exception");
         } catch (PowsyblException e) {
             assertTrue(e.getMessage().contains("not found"), "Should throw Missing Provider exception");
@@ -329,14 +324,23 @@ class ExtensionAdderProvidersTest {
         List<ExtensionAdderProvider> listProviders = Arrays.asList(
                 new SimpleExtensionAdderImplProvider(),
                 new SimpleExtensionAdderImplProvider());
-        ConcurrentMap<String, List<ExtensionAdderProvider>> mapProviders = ExtensionAdderProviders
-                .groupProvidersByName(listProviders);
+        ExtensionAdderProviders.ProviderIndex providerIndex = ExtensionAdderProviders.indexProviders(listProviders);
         try {
             ExtensionAdderProviders.findCachedProvider("Default",
-                    SimpleExtensionAdder.class, mapProviders, new ConcurrentHashMap<>());
+                    SimpleExtensionAdder.class, providerIndex);
             fail("Should throw Multiple Provider exception");
         } catch (PowsyblException e) {
             assertTrue(e.getMessage().contains("Multiple"), "Should Mutliple Missing Provider exception");
+        }
+    }
+
+    private static void assertMissingProvider(String implName, Class<SimpleExtensionAdder> type,
+                                              ExtensionAdderProviders.ProviderIndex providerIndex) {
+        try {
+            ExtensionAdderProviders.findCachedProvider(implName, type, providerIndex);
+            fail("Should throw Missing Provider exception");
+        } catch (PowsyblException e) {
+            assertTrue(e.getMessage().contains("not found"), "Should throw Missing Provider exception");
         }
     }
 
