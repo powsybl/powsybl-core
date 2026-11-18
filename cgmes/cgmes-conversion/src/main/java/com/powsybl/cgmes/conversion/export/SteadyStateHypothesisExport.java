@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.statement.CgmesObject;
 import com.powsybl.cgmes.model.statement.CgmesObjectSink;
+import com.powsybl.cgmes.model.statement.DeferredCgmesObjectSink;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -59,34 +60,59 @@ public final class SteadyStateHypothesisExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         SteadyStateHypothesisWriter sshWriter = new SteadyStateHypothesisWriter(writer, context);
-        final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
-        CgmesObjectSink sink = sshWriter::write;
-
+        if (context.isPartialSshExport()) {
+            checkNodeBreaker(network);
+        }
         try {
             sshWriter.writeRdfRoot();
             sshWriter.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, model);
 
-            exportLoads(network, sink, context);
-            exportFictitiousInjections(network, sink, context);
-            exportEquivalentInjections(network, sink, context);
-            exportTapChangers(network, regulatingControlViews, sink, context);
-            exportGenerators(network, regulatingControlViews, sink, context);
-            exportBatteries(network, sink, context);
-            exportShuntCompensators(network, regulatingControlViews, sink, context);
-            exportStaticVarCompensators(network, regulatingControlViews, sink, context);
-            exportRegulatingControls(regulatingControlViews, sink, context);
-            exportGeneratingUnitsParticitationFactors(network, sink, context);
-            exportConverters(network, sink, context);
-            exportDCTerminals(network, sink, context);
-            // FIXME open status of retained switches in bus-branch models
-            exportSwitches(network, sink, context);
-            exportTerminals(network, sink, context);
-            exportControlAreas(network, sink, context);
+            if (context.isPartialSshExport()) {
+                // A partial export collects the CGMES objects to write each one only once
+                DeferredCgmesObjectSink sink = new DeferredCgmesObjectSink();
+                exportIdentifiables(context.getSshExportedIdentifiables(), sink, context);
+                sink.sendAll(sshWriter::write);
+            } else {
+                exportAll(network, sshWriter::write, context);
+            }
 
             sshWriter.writeEndDocument();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    /**
+     * A partial SSH export is only supported for node-breaker networks.
+     */
+    private static void checkNodeBreaker(Network network) {
+        network.getVoltageLevelStream()
+            .filter(vl -> vl.getTopologyKind() != TopologyKind.NODE_BREAKER)
+            .findFirst()
+            .ifPresent(vl -> {
+                throw new PowsyblException("Partial SSH export is only supported for node-breaker networks: voltage level "
+                    + vl.getId() + " is " + vl.getTopologyKind());
+            });
+    }
+
+    private static void exportAll(Network network, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
+        exportLoads(network, sink, context);
+        exportFictitiousInjections(network, sink, context);
+        exportEquivalentInjections(network, sink, context);
+        exportTapChangers(network, regulatingControlViews, sink, context);
+        exportGenerators(network, regulatingControlViews, sink, context);
+        exportBatteries(network, sink, context);
+        exportShuntCompensators(network, regulatingControlViews, sink, context);
+        exportStaticVarCompensators(network, regulatingControlViews, sink, context);
+        exportRegulatingControls(regulatingControlViews, sink, context);
+        exportGeneratingUnitsParticitationFactors(network, sink, context);
+        exportConverters(network, sink, context);
+        exportDCTerminals(network, sink, context);
+        // FIXME open status of retained switches in bus-branch models
+        exportSwitches(network, sink, context);
+        exportTerminals(network, sink, context);
+        exportControlAreas(network, sink, context);
     }
 
     /**
@@ -96,7 +122,7 @@ public final class SteadyStateHypothesisExport {
      * The identifiables without SSH data are ignored.
      * The regulating control only combines the views of the identifiables of the subset.
      */
-    static void exportIdentifiables(Collection<? extends Identifiable<?>> identifiables, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+    private static void exportIdentifiables(Collection<? extends Identifiable<?>> identifiables, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
         for (Identifiable<?> identifiable : identifiables) {
             exportIdentifiable(identifiable, regulatingControlViews, sink, context);
@@ -145,16 +171,6 @@ public final class SteadyStateHypothesisExport {
                 exportTerminalForSwitch(sw, sink, context);
             }
             case Area area -> exportControlArea(area, sink, context);
-            case Bus bus -> {
-                VoltageLevel vl = bus.getVoltageLevel();
-                if (vl.getTopologyKind() != TopologyKind.NODE_BREAKER || context.isBusBranchExport()) {
-                    exportFictitiousInjection(bus, sink, context);
-                }
-                // Recorded busbar section terminals are only written in an updated export, as in the full export
-                if (!context.isExportEquipment()) {
-                    exportTerminalForBus(bus, sink, context);
-                }
-            }
             default -> {
                 // No SSH data of its own: a connectable exports its terminals below, the others are ignored
             }
