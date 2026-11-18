@@ -38,6 +38,12 @@ public final class UcteConverterHelper {
 
     public static final double VOLTAGE_TARGET_EPSILON = 1e-6;
 
+    /**
+     * Maximum error on a δu(%) rounded to 4 decimals by {@link #calculatePhaseDu(TwoWindingsTransformer)} and
+     * {@link #calculateAsymmAngleDuAndAngle(TwoWindingsTransformer, boolean)}.
+     */
+    private static final double DU_ROUNDING_ERROR = 0.5e-4;
+
     private UcteConverterHelper() {
         throw new UnsupportedOperationException();
     }
@@ -153,6 +159,10 @@ public final class UcteConverterHelper {
      */
     private static <S extends TapChangerStep<S>, C extends TapChanger<C, S, ?, ?>> int findNeutralPosition(
             TapChanger<C, S, ?, ?> tapChanger, ToDoubleFunction<S> f) {
+        if (tapChanger.getAllSteps().isEmpty()) {
+            throw new IllegalArgumentException("Can't compute the neutral position of an empty tap changer.");
+        }
+
         // Try to get the "perfectly" neutral position first.
         OptionalInt realNeutral = tapChanger.getNeutralPosition();
         if (realNeutral.isPresent()) {
@@ -169,7 +179,7 @@ public final class UcteConverterHelper {
         return tapChanger.getAllSteps().entrySet().stream()
                          .min(stepsComparator)
                          .map(Map.Entry::getKey)
-                         .orElse(-1);
+                         .orElseThrow();
     }
 
     /**
@@ -206,7 +216,7 @@ public final class UcteConverterHelper {
     /**
      * Computes the UCTE {@code (n, np)} pair relative to the given neutral tap position, extending the declared range
      * to the longer side when the real range isn't symmetric around the neutral tap. Callers that care about this
-     * extension are responsible for warning about it (see {@code UcteExporter#logIfTapPositionRangeExtended}).
+     * extension are responsible for warning about it.
      *
      * @param lowTapPosition the tap changer's low tap position
      * @param highTapPosition the tap changer's high tap position
@@ -271,7 +281,7 @@ public final class UcteConverterHelper {
 
     /**
      * Logs one warning if any step of {@code tapChanger} deviates from the ratio linear model by more than
-     * {@link #DEVIATION_EPSILON}.
+     * {@link #DEVIATION_EPSILON}, plus the shift caused by the rounding of {@code du} (see {@link #DU_ROUNDING_ERROR}).
      *
      * @param tapChanger the ratio tap changer to check
      * @param du the δu(%) of the ratio regulation
@@ -287,7 +297,9 @@ public final class UcteConverterHelper {
         for (int p = tapChanger.getLowTapPosition(); p <= tapChanger.getHighTapPosition(); p++) {
             double predicted = predictRatioStep(du, p - neutralPosition);
             double actual = tapChanger.getStep(p).getRho();
-            if (Math.abs(actual - predicted) > DEVIATION_EPSILON) {
+            // du is rounded: the predicted rho = 1 / (1 + du.offset/100) is shifted by up to rho².|offset|.error/100
+            double tolerance = DEVIATION_EPSILON + predicted * predicted * Math.abs(p - neutralPosition) * DU_ROUNDING_ERROR / 100;
+            if (Math.abs(actual - predicted) > tolerance) {
                 logDeviationWarning(equipmentId, "ratio tap changer", reportNode);
                 return;
             }
@@ -321,7 +333,8 @@ public final class UcteConverterHelper {
 
     /**
      * Logs one warning if any step of {@code tapChanger} deviates from the asymmetric-angle linear model by more than
-     * {@link #DEVIATION_EPSILON}, comparing points in the same complex representation used by
+     * {@link #DEVIATION_EPSILON}, plus the shift caused by the rounding of {@code absDu} (see {@link #DU_ROUNDING_ERROR}),
+     * comparing points in the same complex representation used by
      * {@link #calculateAsymmAngleDuAndAngle(TwoWindingsTransformer, boolean)}.
      *
      * @param tapChanger the phase tap changer to check
@@ -344,7 +357,9 @@ public final class UcteConverterHelper {
             double actualAlpha = Math.toRadians(-tapChanger.getStep(p).getAlpha());
             double actualRho = 1 / tapChanger.getStep(p).getRho();
             Complex actual = ComplexUtils.polar2Complex(actualRho, actualAlpha);
-            if (predicted.subtract(actual).abs() > DEVIATION_EPSILON) {
+            // absDu is rounded: the predicted point is shifted by up to (p - lowTapPosition).error/100
+            double tolerance = DEVIATION_EPSILON + (p - lowTapPosition) * DU_ROUNDING_ERROR / 100;
+            if (predicted.subtract(actual).abs() > tolerance) {
                 logDeviationWarning(equipmentId, "angle tap changer (ASYM)", reportNode);
                 return;
             }

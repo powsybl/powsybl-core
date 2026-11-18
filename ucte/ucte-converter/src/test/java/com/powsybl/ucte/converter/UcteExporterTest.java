@@ -625,6 +625,8 @@ class UcteExporterTest extends AbstractSerDeTest {
                 FADEVI12              0 0        0.00000 0.00000 0.00000 0.00000
                 FALINE11              0 0        0.00000 0.00000 0.00000 0.00000
                 FALINE12              0 0        0.00000 0.00000 0.00000 0.00000
+                FAROUN11              0 0        0.00000 0.00000 0.00000 0.00000
+                FAROUN12              0 0        0.00000 0.00000 0.00000 0.00000
                 FPCLOS11              0 0        0.00000 0.00000 0.00000 0.00000
                 FPCLOS12              0 0        0.00000 0.00000 0.00000 0.00000
                 FPTIEB11              0 0        0.00000 0.00000 0.00000 0.00000
@@ -635,6 +637,8 @@ class UcteExporterTest extends AbstractSerDeTest {
                 FRLINE12              0 0        0.00000 0.00000 0.00000 0.00000
                 FRLOWX11              0 0        0.00000 0.00000 0.00000 0.00000
                 FRLOWX12              0 0        0.00000 0.00000 0.00000 0.00000
+                FRROUN11              0 0        0.00000 0.00000 0.00000 0.00000
+                FRROUN12              0 0        0.00000 0.00000 0.00000 0.00000
                 FRSHAP11              0 0        0.00000 0.00000 0.00000 0.00000
                 FRSHAP12              0 0        0.00000 0.00000 0.00000 0.00000
                 FRTIEB11              0 0        0.00000 0.00000 0.00000 0.00000
@@ -647,11 +651,13 @@ class UcteExporterTest extends AbstractSerDeTest {
                 ##T
                 FADEVI11 FADEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FALINE11 FALINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FAROUN11 FAROUN12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FPCLOS11 FPCLOS12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FPTIEB11 FPTIEB12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FRDEVI11 FRDEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FRLINE11 FRLINE12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FRLOWX11 FRLOWX12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
+                FRROUN11 FRROUN12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FRSHAP11 FRSHAP12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FRTIEB11 FRTIEB12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
                 FSDEVI11 FSDEVI12 1 0 380.0 380.0 100.0 2.0000 100.00 0.000000 0.0000
@@ -659,11 +665,13 @@ class UcteExporterTest extends AbstractSerDeTest {
                 ##R
                 FADEVI11 FADEVI12 1                    25.00 0.000  2   0       ASYM
                 FALINE11 FALINE12 1                    25.00 0.000  1   0       ASYM
+                FAROUN11 FAROUN12 1                    1.234 0.000 10   0       ASYM
                 FPCLOS11 FPCLOS12 1                    -0.87 90.00  3  -1       SYMM
                 FPTIEB11 FPTIEB12 1                    5.050 -0.00  2   0       ASYM
                 FRDEVI11 FRDEVI12 1 2.000  2   0
                 FRLINE11 FRLINE12 1 2.000  2   0
                 FRLOWX11 FRLOWX12 1 2.000  3   0
+                FRROUN11 FRROUN12 1 1.234 10   0
                 FRSHAP11 FRSHAP12 1 -5.05  3  -1
                 FRTIEB11 FRTIEB12 1 -10.0  1   0
                 FSDEVI11 FSDEVI12 1                    146.6 90.00  1   0       SYMM

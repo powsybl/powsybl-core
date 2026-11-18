@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.time.ZonedDateTime;
+import java.util.stream.IntStream;
 
 /**
  * Test networks for the UCTE exporter tests.
@@ -410,6 +411,10 @@ public final class UcteExporterTestNetworks {
      *     <td>0</td></tr>
      *     <tr><td>{@code ADEVI}</td><td>phase (ASYM)</td><td>[-2, 2], 0</td><td>alpha 0, rho 2, 4/3, 1, 0.7, 2/3</td>
      *     <td>0, deviation (rho 0.8 expected at 1)</td></tr>
+     *     <tr><td>{@code RROUN}</td><td>ratio</td><td>[-10, 10], 0</td>
+     *     <td>linear model, δu = 1.23456 % (more than 4 decimals)</td><td>0</td></tr>
+     *     <tr><td>{@code AROUN}</td><td>phase (ASYM)</td><td>[-10, 10], 0</td>
+     *     <td>alpha 0, linear model, δu = 1.23456 % (more than 4 decimals)</td><td>0</td></tr>
      * </table>
      */
     public static Network createWithTapChangers() {
@@ -438,6 +443,9 @@ public final class UcteExporterTestNetworks {
         addPhaseTapChanger(addTransformer(substation, "SDEVI"), -1, 0, new double[] {90, 0, -50}, new double[] {1, 1, 1});
         addPhaseTapChanger(addTransformer(substation, "ALINE"), -1, 0, new double[] {0, 0, 0}, new double[] {4 / 3.0, 1, 0.8});
         addPhaseTapChanger(addTransformer(substation, "ADEVI"), -2, 0, new double[] {0, 0, 0, 0, 0}, new double[] {2, 4 / 3.0, 1, 0.7, 2 / 3.0});
+        double[] roundingRhos = IntStream.rangeClosed(-10, 10).mapToDouble(k -> 1 / (1 + 1.23456 * k / 100)).toArray();
+        addRatioTapChanger(addTransformer(substation, "RROUN"), -10, 0, roundingRhos);
+        addPhaseTapChanger(addTransformer(substation, "AROUN"), -10, 0, new double[roundingRhos.length], roundingRhos);
         return network;
     }
 

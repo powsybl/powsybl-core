@@ -970,19 +970,16 @@ public class UcteExporter implements Exporter {
         int offsetLow = lowTapPosition - neutralPosition;
         int offsetHigh = highTapPosition - neutralPosition;
         if (offsetLow != -offsetHigh) {
-            String extendedSide = Math.abs(offsetLow) > Math.abs(offsetHigh) ? "high" : "low";
             LOGGER.warn(
-                    "Two windings transformer {}: tap position range extended on the {} side to stay symmetric " +
+                    "Two windings transformer {}: tap position range extended on the shorter side to stay symmetric " +
                             "(low side spans {} positions, high side spans {})",
                     equipmentId,
-                    extendedSide,
                     Math.abs(offsetLow),
                     Math.abs(offsetHigh)
             );
             UcteExporterReports.tapPositionRangeExtended(reportNode,
                     equipmentId,
                     tapChangerType,
-                    extendedSide,
                     Math.abs(offsetLow),
                     Math.abs(offsetHigh));
         }

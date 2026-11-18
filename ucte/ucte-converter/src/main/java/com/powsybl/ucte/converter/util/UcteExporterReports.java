@@ -94,14 +94,12 @@ public final class UcteExporterReports {
     public static void tapPositionRangeExtended(ReportNode reportNode,
                                                 String equipmentId,
                                                 String tapChangerType,
-                                                String extendedSide,
                                                 int lowSpan,
                                                 int highSpan) {
         reportNode.newReportNode()
                   .withMessageTemplate("core.ucte.tapPositionRangeExtended")
                   .withUntypedValue("equipmentId", equipmentId)
                   .withUntypedValue("tapChangerType", tapChangerType)
-                  .withUntypedValue("extendedSide", extendedSide)
                   .withUntypedValue("lowSpan", lowSpan)
                   .withUntypedValue("highSpan", highSpan)
                   .withSeverity(TypedValue.WARN_SEVERITY)

@@ -172,13 +172,13 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                       Lines
                       Tie-Lines
                       + Transformers
-                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - tap position range extended on the high side to stay symmetric (low side spans 3 positions, high side spans 1)
+                         FRSHAP11 FRSHAP12 1 [ratio tap changer] - tap position range extended on the shorter side to stay symmetric (low side spans 3 positions, high side spans 1)
                          FRSHAP11 FRSHAP12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE linear model
-                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - tap position range extended on the low side to stay symmetric (low side spans 0 positions, high side spans 1)
+                         FRTIEB11 FRTIEB12 1 [ratio tap changer] - tap position range extended on the shorter side to stay symmetric (low side spans 0 positions, high side spans 1)
                          FRTIEB11 FRTIEB12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE linear model
-                         FRLOWX11 FRLOWX12 1 [ratio tap changer] - tap position range extended on the low side to stay symmetric (low side spans 1 positions, high side spans 3)
+                         FRLOWX11 FRLOWX12 1 [ratio tap changer] - tap position range extended on the shorter side to stay symmetric (low side spans 1 positions, high side spans 3)
                          FRDEVI11 FRDEVI12 1 [ratio tap changer] - differences found between original tap steps and the exported UCTE linear model
-                         FPCLOS11 FPCLOS12 1 [phase tap changer] - tap position range extended on the high side to stay symmetric (low side spans 3 positions, high side spans 1)
+                         FPCLOS11 FPCLOS12 1 [phase tap changer] - tap position range extended on the shorter side to stay symmetric (low side spans 3 positions, high side spans 1)
                          FPCLOS11 FPCLOS12 1 [angle tap changer (SYMM)] - differences found between original tap steps and the exported UCTE linear model
                          FPTIEB11 FPTIEB12 1 [angle tap changer (ASYM)] - differences found between original tap steps and the exported UCTE linear model
                          FSDEVI11 FSDEVI12 1 [angle tap changer (SYMM)] - differences found between original tap steps and the exported UCTE linear model

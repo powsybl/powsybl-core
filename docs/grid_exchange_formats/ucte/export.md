@@ -428,7 +428,8 @@ UCTE-DEF tap changer.
 
 After converting a tap changer, the export compares each IIDM tap step with the value implied by the exported
 regulation. If at least one of them differs by more than $10^{-6}$, one warning is [reported](#reporting) for this tap
-changer. The exported values are not modified. For an `ASYM` regulation with the
+changer. Since δu (%) is rounded to 4 decimals, this tolerance is increased by the effect of the rounding on each tap,
+so that the rounding alone doesn't raise a warning. The exported values are not modified. For an `ASYM` regulation with the
 [`ucte.export.combine-phase-angle-regulation`](#options) option enabled, the comparison uses the δu (%) before its
 division by the ratio tap changer's ρ.
 
