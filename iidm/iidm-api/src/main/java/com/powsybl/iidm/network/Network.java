@@ -1881,6 +1881,47 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Write the network to a given format and compression format.
+     *
+     * @param loader the exporter loader
+     * @param format the export format
+     * @param parameters some properties to configure the export
+     * @param basePath the logical output path, without a format extension
+     * @param compressionFormat the output compression format
+     * @param reportNode the reportNode used for functional logs
+     */
+    default void write(ExportersLoader loader, String format, Properties parameters, Path basePath,
+                       CompressionFormat compressionFormat, ReportNode reportNode) {
+        Objects.requireNonNull(basePath);
+        Objects.requireNonNull(compressionFormat);
+        Exporter exporter = Exporter.find(loader, format);
+        if (exporter == null) {
+            throw new PowsyblException("Export format " + format + " not supported");
+        }
+        Importer importer = Importer.find(format);
+        if (importer == null || importer.getSupportedExtensions().isEmpty()) {
+            throw new PowsyblException("No file extension available for export format " + format);
+        }
+        Path absoluteBasePath = basePath.toAbsolutePath();
+        Path fileName = absoluteBasePath.getFileName();
+        if (fileName == null) {
+            throw new PowsyblException("Invalid output path " + basePath);
+        }
+        DataSource dataSource = DataSourceUtil.createDataSource(absoluteBasePath.getParent(), fileName.toString(),
+                importer.getSupportedExtensions().get(0), compressionFormat, null);
+        write(loader, format, parameters, dataSource, reportNode);
+    }
+
+    default void write(ExportersLoader loader, String format, Properties parameters, Path basePath,
+                       CompressionFormat compressionFormat) {
+        write(loader, format, parameters, basePath, compressionFormat, ReportNode.NO_OP);
+    }
+
+    default void write(String format, Properties parameters, Path basePath, CompressionFormat compressionFormat) {
+        write(new ExportersServiceLoader(), format, parameters, basePath, compressionFormat);
+    }
+
+    /**
      * Write the network to a given format.
      *
      * @param format the export format

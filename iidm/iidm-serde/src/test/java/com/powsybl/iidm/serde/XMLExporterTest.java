@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
@@ -20,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Properties;
@@ -170,5 +172,22 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
             count++;
         }
         network.write("XIIDM", new Properties(), workingDir);
+    }
+
+    @Test
+    void writeZipWithDottedLogicalName() throws IOException {
+        Path workingDir = Files.createTempDirectory("network-export");
+        Path basePath = workingDir.resolve("europe.v1");
+        Network network = NetworkFactory.findDefault().createNetwork("europe.v1", "test");
+
+        network.write("XIIDM", new Properties(), basePath, CompressionFormat.ZIP);
+        Path xmlZip = workingDir.resolve("europe.v1.xiidm.zip");
+        assertTrue(Files.exists(xmlZip));
+        assertEquals(network.getId(), Network.read(xmlZip).getId());
+
+        network.write("JIIDM", new Properties(), basePath, CompressionFormat.ZIP);
+        Path jsonZip = workingDir.resolve("europe.v1.jiidm.zip");
+        assertTrue(Files.exists(jsonZip));
+        assertEquals(network.getId(), Network.read(jsonZip).getId());
     }
 }
