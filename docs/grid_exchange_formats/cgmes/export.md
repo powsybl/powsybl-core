@@ -318,12 +318,12 @@ with the `enabled` activated and the generator attribute `voltageRegulatorOn` se
 
 The `SynchronousMachine.type` is exported in the EQ profile depending on the [reactive limits](../../grid_model/additional.md#reactive-limits) of the
 generator or battery and its capacity to behave like a condenser (a battery can behave like a condenser but does not have the flag `hasCondenserCapability` so we consider it as `true`):
-- if the flag `hasCondenser` is `true`:
+- if the flag `hasCondenserCapability` is `true`:
   - if the minimum and the maximum active power limit are positive, then the generator or battery will be exported as `generatorOrCondenser`,
   - if the minimum and the maximum active power limit are negative, then the generator or battery will be exported as `motorOrCondenser`,
   - if the minimum and the maximum active power limit are both equal to zero, then the generator or battery will be exported as `condenser`,
   - otherwise, the generator or battery will be exported as `generatorOrCondenserOrMotor`.
-- if the flag `hasCondenser` is `false`:
+- if the flag `hasCondenserCapability` is `false`:
   - if the minimum active power limit is positive, then the generator or battery will be exported as `generator`,
   - if the maximum active power limit is negative, then the generator or battery will be exported as `motor`,
   - otherwise, the generator will be exported as `generatorOrMotor`.
