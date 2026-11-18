@@ -47,6 +47,8 @@ public final class SshExportedIdentifiables {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SshExportedIdentifiables.class);
+    private static final String SUPPORTED_CHANGES_DOC = "See the section \"Supported changes\" "
+        + "of the CGMES export documentation (docs/grid_exchange_formats/cgmes/export.md).";
 
     private static final String OPEN = "open";
     private static final String P0 = "p0";
@@ -191,7 +193,7 @@ public final class SshExportedIdentifiables {
     }
 
     private static void unsupported(NetworkEvent event, String reason, UnsupportedChangeBehavior behavior) {
-        String message = "Change can not be exported to a partial SSH: " + reason + ". Change: " + describe(event);
+        String message = "Change can not be exported to a partial SSH: " + reason + ". Change: " + describe(event) + ". " + SUPPORTED_CHANGES_DOC;
         if (behavior == UnsupportedChangeBehavior.FAIL) {
             throw new PowsyblException(message);
         }

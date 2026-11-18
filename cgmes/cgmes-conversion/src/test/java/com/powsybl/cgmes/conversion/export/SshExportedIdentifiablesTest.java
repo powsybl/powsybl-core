@@ -500,6 +500,7 @@ class SshExportedIdentifiablesTest {
         assertFalse(events.isEmpty(), "The change gives no event");
         PowsyblException e = assertThrows(PowsyblException.class, () -> SshExportedIdentifiables.fromEvents(n, events, FAIL));
         assertTrue(e.getMessage().startsWith("Change can not be exported to a partial SSH"), e.getMessage());
+        assertTrue(e.getMessage().contains("See the section \"Supported changes\""), e.getMessage());
         assertTrue(SshExportedIdentifiables.fromEvents(n, events, IGNORE).stream().noneMatch(i -> i.getId().equals(id)));
     }
 
