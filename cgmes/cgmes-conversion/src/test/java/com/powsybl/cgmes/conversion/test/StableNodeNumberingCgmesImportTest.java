@@ -165,9 +165,6 @@ class StableNodeNumberingCgmesImportTest extends AbstractSerDeTest {
         return bus != null ? bus.getId() : null;
     }
 
-    /**
-     * The network described in issue #3927: a bus with a connected load and a disconnected one.
-     */
     private static Network createDisconnectedLoadBBNetwork() {
         Network network = Network.create("disconnected_load_bb", "iidm");
         VoltageLevel voltageLevel = network.newSubstation()
