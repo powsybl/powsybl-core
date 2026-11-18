@@ -91,24 +91,32 @@ public final class SteadyStateHypothesisExport {
 
     private static void exportSwitches(Network network, CgmesObjectSink sink, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
-            if (context.isExportedEquipment(sw)) {
-                String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
-                if (!isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(switchType)) {
-                    exportSwitch(sw, sink, context);
-                }
+            exportSwitch(sw, sink, context);
+        }
+    }
+
+    private static void exportSwitch(Switch sw, CgmesObjectSink sink, CgmesExportContext context) {
+        if (context.isExportedEquipment(sw)) {
+            String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
+            if (!isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(switchType)) {
+                exportSwitchSsh(sw, sink, context);
             }
         }
     }
 
     private static void exportTerminalForSwitches(Network network, CgmesObjectSink sink, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
-            if (context.isExportedEquipment(sw)) {
-                String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
-                boolean connected = isConnected(sw, switchType);
+            exportTerminalForSwitch(sw, sink, context);
+        }
+    }
 
-                exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1), connected, sink, context);
-                exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL2), connected, sink, context);
-            }
+    private static void exportTerminalForSwitch(Switch sw, CgmesObjectSink sink, CgmesExportContext context) {
+        if (context.isExportedEquipment(sw)) {
+            String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
+            boolean connected = isConnected(sw, switchType);
+
+            exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1), connected, sink, context);
+            exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL2), connected, sink, context);
         }
     }
 
@@ -130,37 +138,35 @@ public final class SteadyStateHypothesisExport {
 
     private static void exportTerminalForBoundaryLines(Network network, CgmesObjectSink sink, CgmesExportContext context) {
         for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
-            // Terminal for equivalent injection at boundary is always connected
-            exportTerminal(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, sink, context);
-            // Terminal for boundary side of original line/switch is always connected
-            exportTerminal(CgmesExportUtil.getBoundaryLineBoundaryTerminalId(bl, context), true, sink, context);
+            exportTerminalForBoundaryLine(bl, sink, context);
         }
+    }
+
+    private static void exportTerminalForBoundaryLine(BoundaryLine bl, CgmesObjectSink sink, CgmesExportContext context) {
+        // Terminal for equivalent injection at boundary is always connected
+        exportTerminal(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, sink, context);
+        // Terminal for boundary side of original line/switch is always connected
+        exportTerminal(CgmesExportUtil.getBoundaryLineBoundaryTerminalId(bl, context), true, sink, context);
     }
 
     private static void exportTerminalForBuses(Network network, CgmesObjectSink sink, CgmesExportContext context) {
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
-            if (!bbsTerminals.isEmpty()) {
-                for (String bbsTerminal : bbsTerminals.split(",")) {
-                    exportTerminal(bbsTerminal, true, sink, context);
-                }
+            exportTerminalForBus(b, sink, context);
+        }
+    }
+
+    private static void exportTerminalForBus(Bus b, CgmesObjectSink sink, CgmesExportContext context) {
+        String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+        if (!bbsTerminals.isEmpty()) {
+            for (String bbsTerminal : bbsTerminals.split(",")) {
+                exportTerminal(bbsTerminal, true, sink, context);
             }
         }
     }
 
     private static void exportTerminals(Network network, CgmesObjectSink sink, CgmesExportContext context) {
         for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
-            if (context.isExportedEquipment(c)) {
-                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
-                    // Equivalent shunts do not have a section count in SSH, SV profiles,
-                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
-                    exportTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, sink, context);
-                } else {
-                    for (Terminal t : c.getTerminals()) {
-                        exportTerminal(t, sink, context);
-                    }
-                }
-            }
+            exportTerminals(c, sink, context);
         }
         exportTerminalForSwitches(network, sink, context);
         exportTerminalForBoundaryLines(network, sink, context);
@@ -170,13 +176,31 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
+    private static void exportTerminals(Connectable<?> c, CgmesObjectSink sink, CgmesExportContext context) {
+        if (context.isExportedEquipment(c)) {
+            if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
+                // Equivalent shunts do not have a section count in SSH, SV profiles,
+                // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
+                exportTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, sink, context);
+            } else {
+                for (Terminal t : c.getTerminals()) {
+                    exportTerminal(t, sink, context);
+                }
+            }
+        }
+    }
+
     private static void exportFictitiousInjections(Network network, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         for (VoltageLevel vl : network.getVoltageLevels()) {
-            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
-                exportNodeBreakerFictitiousInjections(vl, sink, context);
-            } else {
-                exportBusBranchFictitiousInjections(vl, sink, context);
-            }
+            exportFictitiousInjections(vl, sink, context);
+        }
+    }
+
+    private static void exportFictitiousInjections(VoltageLevel vl, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
+            exportNodeBreakerFictitiousInjections(vl, sink, context);
+        } else {
+            exportBusBranchFictitiousInjections(vl, sink, context);
         }
     }
 
@@ -228,12 +252,17 @@ public final class SteadyStateHypothesisExport {
         for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION);
             if (!exported.contains(equivalentInjectionId)) {
-                CgmesRecords.EquivalentInjectionSsh s = collectEquivalentInjection(bl, equivalentInjectionId);
-                CgmesObject c = s.normalize(cimNamespace(context));
-                sink.accept(c);
+                exportEquivalentInjection(bl, sink, context);
                 exported.add(equivalentInjectionId);
             }
         }
+    }
+
+    private static void exportEquivalentInjection(BoundaryLine bl, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION);
+        CgmesRecords.EquivalentInjectionSsh s = collectEquivalentInjection(bl, equivalentInjectionId);
+        CgmesObject c = s.normalize(cimNamespace(context));
+        sink.accept(c);
     }
 
     /**
@@ -345,16 +374,21 @@ public final class SteadyStateHypothesisExport {
     private static void exportShuntCompensators(Network network, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                 CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator shuntCompensator : network.getShuntCompensators()) {
-            if ("true".equals(shuntCompensator.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))) {
-                continue;
-            }
-
-            CgmesRecords.ShuntCompensatorSsh s = collectShuntCompensator(shuntCompensator, context);
-            CgmesObject c = s.normalize(cimNamespace(context));
-            sink.accept(c);
-
-            addRegulatingControlView(shuntCompensator, getRegulatingControlId(shuntCompensator, context), regulatingControlViews, context);
+            exportShuntCompensator(shuntCompensator, regulatingControlViews, sink, context);
         }
+    }
+
+    private static void exportShuntCompensator(ShuntCompensator shuntCompensator, Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                               CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        if ("true".equals(shuntCompensator.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))) {
+            return;
+        }
+
+        CgmesRecords.ShuntCompensatorSsh s = collectShuntCompensator(shuntCompensator, context);
+        CgmesObject c = s.normalize(cimNamespace(context));
+        sink.accept(c);
+
+        addRegulatingControlView(shuntCompensator, getRegulatingControlId(shuntCompensator, context), regulatingControlViews, context);
     }
 
     /**
@@ -372,38 +406,47 @@ public final class SteadyStateHypothesisExport {
     private static void exportGenerators(Network network, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                          CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            String cgmesOriginalClass = g.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
+            exportGenerator(g, regulatingControlViews, sink, context);
+        }
+    }
 
-            switch (cgmesOriginalClass) {
-                case CgmesNames.EQUIVALENT_INJECTION -> {
-                    CgmesRecords.EquivalentInjectionSsh s = collectEquivalentInjection(g, context);
-                    CgmesObject c = s.normalize(cimNamespace(context));
-                    sink.accept(c);
-                }
-                case CgmesNames.EXTERNAL_NETWORK_INJECTION -> {
-                    CgmesRecords.ExternalNetworkInjectionSsh s = collectExternalNetworkInjection(g, context);
-                    CgmesObject c = s.normalize(cimNamespace(context));
-                    sink.accept(c);
-                    addRegulatingControlView(g, getRegulatingControlId(g, context), regulatingControlViews, context);
-                }
-                case CgmesNames.SYNCHRONOUS_MACHINE -> {
-                    CgmesRecords.SynchronousMachineSsh s = collectSynchronousMachine(g, context);
-                    CgmesObject c = s.normalize(cimNamespace(context));
-                    sink.accept(c);
-                    addRegulatingControlView(g, getRegulatingControlId(g, context), regulatingControlViews, context);
-                }
-                default ->
-                    throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
+    private static void exportGenerator(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                        CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        String cgmesOriginalClass = g.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
+
+        switch (cgmesOriginalClass) {
+            case CgmesNames.EQUIVALENT_INJECTION -> {
+                CgmesRecords.EquivalentInjectionSsh s = collectEquivalentInjection(g, context);
+                CgmesObject c = s.normalize(cimNamespace(context));
+                sink.accept(c);
             }
+            case CgmesNames.EXTERNAL_NETWORK_INJECTION -> {
+                CgmesRecords.ExternalNetworkInjectionSsh s = collectExternalNetworkInjection(g, context);
+                CgmesObject c = s.normalize(cimNamespace(context));
+                sink.accept(c);
+                addRegulatingControlView(g, getRegulatingControlId(g, context), regulatingControlViews, context);
+            }
+            case CgmesNames.SYNCHRONOUS_MACHINE -> {
+                CgmesRecords.SynchronousMachineSsh s = collectSynchronousMachine(g, context);
+                CgmesObject c = s.normalize(cimNamespace(context));
+                sink.accept(c);
+                addRegulatingControlView(g, getRegulatingControlId(g, context), regulatingControlViews, context);
+            }
+            default ->
+                throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
         }
     }
 
     private static void exportBatteries(Network network, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         for (Battery b : network.getBatteries()) {
-            CgmesRecords.SynchronousMachineSsh s = collectSynchronousMachine(b, context);
-            CgmesObject c = s.normalize(cimNamespace(context));
-            sink.accept(c);
+            exportBattery(b, sink, context);
         }
+    }
+
+    private static void exportBattery(Battery b, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        CgmesRecords.SynchronousMachineSsh s = collectSynchronousMachine(b, context);
+        CgmesObject c = s.normalize(cimNamespace(context));
+        sink.accept(c);
     }
 
     /**
@@ -503,12 +546,17 @@ public final class SteadyStateHypothesisExport {
     private static void exportStaticVarCompensators(Network network, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                     CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            CgmesRecords.StaticVarCompensatorSsh s = collectStaticVarCompensator(svc, context);
-            CgmesObject c = s.normalize(cimNamespace(context));
-            sink.accept(c);
-
-            addRegulatingControlView(svc, getRegulatingControlId(svc, context), regulatingControlViews, context);
+            exportStaticVarCompensator(svc, regulatingControlViews, sink, context);
         }
+    }
+
+    private static void exportStaticVarCompensator(StaticVarCompensator svc, Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                                   CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        CgmesRecords.StaticVarCompensatorSsh s = collectStaticVarCompensator(svc, context);
+        CgmesObject c = s.normalize(cimNamespace(context));
+        sink.accept(c);
+
+        addRegulatingControlView(svc, getRegulatingControlId(svc, context), regulatingControlViews, context);
     }
 
     /**
@@ -663,7 +711,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void exportSwitch(Switch sw, CgmesObjectSink sink, CgmesExportContext context) {
+    private static void exportSwitchSsh(Switch sw, CgmesObjectSink sink, CgmesExportContext context) {
         try {
             CgmesRecords.SwitchSsh s = collectSwitch(sw, context);
             CgmesObject c = s.normalize(cimNamespace(context));
@@ -702,26 +750,30 @@ public final class SteadyStateHypothesisExport {
 
     private static void exportLoads(Network network, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
-            if (context.isExportedEquipment(load)) {
-                String className = obtainLoadClassName(load, context);
-                switch (className) {
-                    case CgmesNames.ASYNCHRONOUS_MACHINE -> {
-                        CgmesRecords.AsynchronousMachineSsh s = collectAsynchronousMachine(load, context);
-                        CgmesObject c = s.normalize(cimNamespace(context));
-                        sink.accept(c);
-                    }
-                    case CgmesNames.ENERGY_SOURCE -> {
-                        CgmesRecords.EnergySourceSsh s = collectEnergySource(load, context);
-                        CgmesObject c = s.normalize(cimNamespace(context));
-                        sink.accept(c);
-                    }
-                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
-                        CgmesRecords.EnergyConsumerSsh s = collectEnergyConsumer(load, className, context);
-                        CgmesObject c = s.normalize(cimNamespace(context));
-                        sink.accept(c);
-                    }
-                    default -> throw new PowsyblException("Unexpected class name: " + className);
+            exportLoad(load, sink, context);
+        }
+    }
+
+    private static void exportLoad(Load load, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        if (context.isExportedEquipment(load)) {
+            String className = obtainLoadClassName(load, context);
+            switch (className) {
+                case CgmesNames.ASYNCHRONOUS_MACHINE -> {
+                    CgmesRecords.AsynchronousMachineSsh s = collectAsynchronousMachine(load, context);
+                    CgmesObject c = s.normalize(cimNamespace(context));
+                    sink.accept(c);
                 }
+                case CgmesNames.ENERGY_SOURCE -> {
+                    CgmesRecords.EnergySourceSsh s = collectEnergySource(load, context);
+                    CgmesObject c = s.normalize(cimNamespace(context));
+                    sink.accept(c);
+                }
+                case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
+                    CgmesRecords.EnergyConsumerSsh s = collectEnergyConsumer(load, className, context);
+                    CgmesObject c = s.normalize(cimNamespace(context));
+                    sink.accept(c);
+                }
+                default -> throw new PowsyblException("Unexpected class name: " + className);
             }
         }
     }
@@ -845,20 +897,28 @@ public final class SteadyStateHypothesisExport {
             exportHvdcLineDCTerminals(line, sink, context);
         }
         for (DcConnectable<?> dcConnectable : network.getDcConnectables()) {
-            for (DcTerminal dcTerminal : dcConnectable.getDcTerminals()) {
-                String dcTerminalId = CgmesExportUtil.getDcTerminalId(dcTerminal, context);
-                String className = dcConnectable instanceof AcDcConverter<?> ? CgmesNames.ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
-                boolean connected = dcTerminal.isConnected();
-                exportDCTerminal(dcTerminalId, className, connected, sink, context);
-            }
+            exportDCTerminals(dcConnectable, sink, context);
         }
         for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            boolean connected = !dcSwitch.isOpen();
-            String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1);
-            exportDCTerminal(dcTerminal1Id, CgmesNames.DC_TERMINAL, connected, sink, context);
-            String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2);
-            exportDCTerminal(dcTerminal2Id, CgmesNames.DC_TERMINAL, connected, sink, context);
+            exportDCTerminals(dcSwitch, sink, context);
         }
+    }
+
+    private static void exportDCTerminals(DcConnectable<?> dcConnectable, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        for (DcTerminal dcTerminal : dcConnectable.getDcTerminals()) {
+            String dcTerminalId = CgmesExportUtil.getDcTerminalId(dcTerminal, context);
+            String className = dcConnectable instanceof AcDcConverter<?> ? CgmesNames.ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
+            boolean connected = dcTerminal.isConnected();
+            exportDCTerminal(dcTerminalId, className, connected, sink, context);
+        }
+    }
+
+    private static void exportDCTerminals(DcSwitch dcSwitch, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        boolean connected = !dcSwitch.isOpen();
+        String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1);
+        exportDCTerminal(dcTerminal1Id, CgmesNames.DC_TERMINAL, connected, sink, context);
+        String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2);
+        exportDCTerminal(dcTerminal2Id, CgmesNames.DC_TERMINAL, connected, sink, context);
     }
 
     private static void exportHvdcLineDCTerminals(HvdcLine line, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
@@ -965,13 +1025,14 @@ public final class SteadyStateHypothesisExport {
 
     private static void exportControlAreas(Network network, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
         for (Area area : network.getAreas()) {
-            if (CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE.equals(area.getAreaType())) {
-                exportControlArea(area, sink, context);
-            }
+            exportControlArea(area, sink, context);
         }
     }
 
     private static void exportControlArea(Area controlArea, CgmesObjectSink sink, CgmesExportContext context) throws XMLStreamException {
+        if (!CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE.equals(controlArea.getAreaType())) {
+            return;
+        }
         CgmesRecords.ControlAreaSsh s = collectControlArea(controlArea, context);
         CgmesObject c = s.normalize(cimNamespace(context));
         sink.accept(c);
