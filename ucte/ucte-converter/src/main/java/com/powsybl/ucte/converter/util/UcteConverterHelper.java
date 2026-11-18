@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
  */
 public final class UcteConverterHelper {
 
+    public static final double VOLTAGE_TARGET_EPSILON = 1e-6;
+
     private UcteConverterHelper() {
         throw new UnsupportedOperationException();
     }
@@ -201,7 +203,8 @@ public final class UcteConverterHelper {
                 bus.getGeneratorStream().anyMatch(gen -> gen.isRegulatingWithMode(RegulationMode.VOLTAGE))) {
             UcteExporterReports.voltageTargetNotFromRegulatingGenerator(reportNode, bus.getId(), kept.generator().getId(), kept.value());
         }
-        if (candidates.stream().anyMatch(candidate -> Double.compare(candidate.value(), kept.value()) != 0)) {
+        if (candidates.stream().anyMatch(candidate -> Math.abs(candidate.value() - kept.value()) >
+                VOLTAGE_TARGET_EPSILON)) {
             UcteExporterReports.voltageTargetConflict(reportNode, bus.getId(), kept.generator().getId(), kept.value());
         }
         if (kept.remoteBus() != null &&
