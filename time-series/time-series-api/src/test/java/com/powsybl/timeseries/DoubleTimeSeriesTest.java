@@ -18,6 +18,8 @@ import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
 import static java.lang.Double.NaN;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -174,4 +176,87 @@ class DoubleTimeSeriesTest {
         }
         assertFalse(it.hasNext());
     }
+
+    @Test
+    void shouldProduceEmptySeriesWhenSplittingOverGap() {
+        // Given: Time serie with two chunks with a gap at index 3..5
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        // When
+        List<DoubleTimeSeries> timeSeriesSplitList = timeSeries.split(2);
+        // Then
+        assertEquals(4, timeSeriesSplitList.size());
+        assertArrayEquals(new double[]{1d, 2d}, timeSeriesSplitList.get(0).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{3d, NaN}, timeSeriesSplitList.get(1).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{}, timeSeriesSplitList.get(2).toCompactArray(), 0d); // gap => empty serie
+        assertArrayEquals(new double[]{7d, 8d}, timeSeriesSplitList.get(3).toCompactArray(), 0d);
+    }
+
+    @Test
+    void shouldPreserveStoredNaNValuesWhenSplitting() {
+        // Given: Time serie with a single chunk where NaN are stored explicitly (not a gap)
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}));
+        // When
+        List<DoubleTimeSeries> timeSeriesSplitList = timeSeries.split(2);
+        // Then
+        assertEquals(4, timeSeriesSplitList.size());
+        assertArrayEquals(new double[]{1d, 2d}, timeSeriesSplitList.get(0).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{3d, NaN}, timeSeriesSplitList.get(1).toCompactArray(), 0d);
+        assertArrayEquals(new double[]{}, timeSeriesSplitList.get(2).toCompactArray(), 0d); // only NaN values => empty serie
+        assertArrayEquals(new double[]{7d, 8d}, timeSeriesSplitList.get(3).toCompactArray(), 0d);
+    }
+
+    @Test
+    void testSliceNonBlank() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        assertThat(timeSeries.toCompactArray()).isEqualTo(new double[]{1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d});
+        // when extracts the points from 1 to 4: [1, 4[
+        assertThat(timeSeries.sliceNonBlank(timeSeries.toCompactChunk(), 1, 4).toJson()).isEqualTo("""
+            {
+              "offset" : 1,
+              "values" : [ 2.0, 3.0, NaN ]
+            }""".replaceAll("\n", System.lineSeparator()));
+        // when extracts the points from 3 to 6: [3, 6[ (null chunk for a full gap)
+        assertThat(timeSeries.sliceNonBlank(timeSeries.toCompactChunk(), 3, 6)).isNull();
+        // when extracts the points from 2 to 7: [2, 7[
+        assertThat(timeSeries.sliceNonBlank(timeSeries.toCompactChunk(), 2, 7).toJson()).isEqualTo("""
+            {
+              "offset" : 2,
+              "values" : [ 3.0, NaN, NaN, NaN, 7.0 ]
+            }""".replaceAll("\n", System.lineSeparator()));
+    }
+
+    @Test
+    void testSplitWithOutOfRangesValues() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        assertThat(timeSeries.toCompactArray()).isEqualTo(new double[]{1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d});
+        assertThatCode(() -> timeSeries.split(0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Invalid chunk size: 0");
+        assertThatCode(() -> timeSeries.split(1)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(2)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(3)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(4)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(5)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(6)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(7)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(8)).doesNotThrowAnyException();
+        assertThatCode(() -> timeSeries.split(9))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Invalid chunk size: 9");
+    }
+
 }
