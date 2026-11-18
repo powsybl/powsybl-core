@@ -130,10 +130,6 @@ If the CGMES model is a node/breaker model then `ConnectivityNode` objects are p
 
 The `Node` numbers do not depend on the order of the elements in the CGMES input files: connectivity nodes are processed sorted by their identifiers, and the nodes needed for the terminals of a connectivity node are reserved just after it, sorted by terminal identifiers. As a consequence, the computed bus IDs, which are built from the voltage level ID and the smallest node of the bus, are stable for a given CGMES content. They can still change if the identifiers of the connectivity nodes or terminals change, for example after a CGMES export, which generates new identifiers.
 
-```{note}
-Since v7.5.0, the `Node` numbers and therefore the computed bus IDs of a node/breaker CGMES import may differ from those obtained with previous versions for the same files. Bus IDs or node numbers persisted from an import done with a previous version should be regenerated.
-```
-
 If the import option `iidm.import.cgmes.create-busbar-section-for-every-connectivity-node` is `true` an additional busbar section is also created in the same voltage level. This option is used to debug the conversion and facilitate the comparison of the topology present in the CGMES input files and the topology computed by PowSyBl. The attributes of the busbar section are created as such:
 - Identity attributes `Id` and `Name` are copied from the `ConnectivityNode`.
 - `Node` The same `Node` assigned to the mapped `ConnectivityNode`.
