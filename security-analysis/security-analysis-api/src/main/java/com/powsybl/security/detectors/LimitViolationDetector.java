@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.security.LimitViolationDetection;
 import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -434,11 +435,14 @@ public interface LimitViolationDetector {
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *
+     * <p>This default implementation checks the DC line currents against their permanent limits,
+     * as if every {@link LoadingLimitType} was considered.</p>
+     *
      * @param network       The network on which physical values must be checked.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     default void checkAllDetailedDc(Network network, Consumer<LimitViolation> consumer) {
-        // TODO: not implemented yet
+        LimitViolationDetection.checkAllDetailedDc(network, EnumSet.allOf(LoadingLimitType.class), consumer);
     }
 
     /**
@@ -451,7 +455,7 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     default void checkAllDetailedDc(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
-        // TODO: not implemented yet
+        checkAllDetailedDc(network, consumer);
     }
 
     /**
