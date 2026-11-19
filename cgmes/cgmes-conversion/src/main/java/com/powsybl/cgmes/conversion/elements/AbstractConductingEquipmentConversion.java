@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesBoundaryLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.*;
@@ -895,6 +896,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             voltageRegulation.setRegulating(false);
             setLocalTargetVOrTargetValue(holder, targetV);
             voltageRegulation.setTargetDeadband(targetDeadband);
+        }
+    }
+
+    protected void setRegulatingControlProperty(Identifiable<?> regulatingEquipment) {
+        String regulatingControlId = p.getId(CgmesNames.REGULATING_CONTROL);
+        if (regulatingControlId != null) {
+            regulatingEquipment.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
         }
     }
 

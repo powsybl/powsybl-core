@@ -61,7 +61,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         convertGenerator(g);
         convertQPercent(g);
 
-        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        setRegulatingControlProperty(g);
         addSpecificProperties(g, p);
     }
 

@@ -8,12 +8,19 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -22,23 +29,19 @@ public class RegulatingControlMapping {
 
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
 
-    private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
     private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
     private final RegulatingControlMappingForShuntCompensators regulatingControlMappingForShuntCompensators;
     private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
     private final RegulatingControlMappingForVscConverters regulatingControlMappingForVscConverters;
     private final Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
+    private final Context context;
 
     RegulatingControlMapping(Context context) {
-        regulatingControlMappingForGenerators = new RegulatingControlMappingForGenerators(this, context);
+        this.context = context;
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
         regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this, context);
         regulatingControlMappingForShuntCompensators = new RegulatingControlMappingForShuntCompensators(this, context);
         regulatingControlMappingForVscConverters = new RegulatingControlMappingForVscConverters(context);
-    }
-
-    public RegulatingControlMappingForGenerators forGenerators() {
-        return regulatingControlMappingForGenerators;
     }
 
     public RegulatingControlMappingForTransformers forTransformers() {
@@ -67,12 +70,75 @@ public class RegulatingControlMapping {
     }
 
     void setAllRegulatingControls(Network network) {
-        regulatingControlMappingForGenerators.applyRegulatingControls(network);
+        network.getGeneratorStream().forEach(this::setRegulatingControl);
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
         regulatingControlMappingForShuntCompensators.applyRegulatingControls(network);
         regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
         regulatingControlMappingForVscConverters.applyRegulatingControls(network);
         cachedRegulatingControls.clear();
+    }
+
+    private void setRegulatingControl(VoltageRegulationHolder<?> holder) {
+        // Retrieve the ConductingEquipment's RegulatingControl id
+        String regulatingControlId = ((Identifiable<?>) holder).getProperty(PROPERTY_REGULATING_CONTROL);
+        if (regulatingControlId == null) {
+            return;
+        }
+
+        // Retrieve the stored EQ RegulatingControl
+        RegulatingControl regulatingControl = fetchRegulatingControl(regulatingControlId);
+        if (regulatingControl == null) {
+            context.missing(String.format("Regulating control %s", regulatingControlId));
+            return;
+        }
+
+        // Set the regulation data
+        if (RegulatingControlMapping.isControlModeVoltage(regulatingControl.mode())) {
+            setRegulatingControlVoltage(holder, regulatingControl.terminalId());
+        } else if (RegulatingControlMapping.isControlModeReactivePower(regulatingControl.mode())) {
+            setRegulatingControlReactivePower(holder, regulatingControl.terminalId());
+        } else {
+            context.ignored(regulatingControl.mode(), "Unsupported regulation mode for " + ((Identifiable<?>) holder).getId());
+        }
+    }
+
+    private void setRegulatingControlVoltage(VoltageRegulationHolder<?> holder, String terminalId) {
+        // Retrieve the IIDM regulated terminal. Left it empty if it corresponds to the holder's terminal.
+        Terminal regulatingTerminal = RegulatingTerminalMapper
+                .mapForVoltageControl(terminalId, context)
+                .orElse(holder.getTerminal());
+        if (regulatingTerminal.getConnectable().getId().equals(((Identifiable<?>) holder).getId())) {
+            regulatingTerminal = null;
+        }
+
+        // Create the voltage regulation
+        holder.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(regulatingTerminal)
+            .withRegulating(false)
+            .build();
+    }
+
+    private void setRegulatingControlReactivePower(VoltageRegulationHolder<?> holder, String terminalId) {
+        // Retrieve the IIDM regulated terminal. Return if it hasn't been mapped.
+        RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
+                .mapForFlowControl(terminalId, context)
+                .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(null, 1));
+        if (mappedRegulatingTerminal.getTerminal() == null) {
+            context.ignored(((Identifiable<?>) holder).getId(), String.format("Regulation terminal %s is not mapped or mapped to a switch", terminalId));
+            return;
+        }
+
+        // Store the terminal sign returned by the terminal mapping for later use during update of the targetValue.
+        ((Identifiable<?>) holder).setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
+
+        // Create the voltage regulation
+        holder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            // always set the terminal in case of reactive power regulation
+            .withTerminal(mappedRegulatingTerminal.getTerminal())
+            .withRegulating(false)
+            .build();
     }
 
     public static boolean isControlModeVoltage(String controlMode) {
