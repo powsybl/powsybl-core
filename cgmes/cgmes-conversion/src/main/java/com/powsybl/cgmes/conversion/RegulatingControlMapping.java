@@ -27,6 +27,7 @@ public class RegulatingControlMapping {
     private final RegulatingControlMappingForShuntCompensators regulatingControlMappingForShuntCompensators;
     private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
     private final RegulatingControlMappingForVscConverters regulatingControlMappingForVscConverters;
+    private final Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
 
     RegulatingControlMapping(Context context) {
         regulatingControlMappingForGenerators = new RegulatingControlMappingForGenerators(this, context);
@@ -56,24 +57,13 @@ public class RegulatingControlMapping {
         return regulatingControlMappingForVscConverters;
     }
 
-    public static class RegulatingControl {
-        final String mode;
-        final String cgmesTerminal;
-
-        RegulatingControl(PropertyBag p) {
-            this.mode = p.get("mode").toLowerCase(Locale.ROOT);
-            this.cgmesTerminal = p.getId(CgmesNames.TERMINAL);
-        }
+    public RegulatingControl fetchRegulatingControl(String regulatingControlId) {
+        return cachedRegulatingControls.get(regulatingControlId);
     }
 
-    private final Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
-
-    public Map<String, RegulatingControl> cachedRegulatingControls() {
-        return cachedRegulatingControls;
-    }
-
-    void cacheRegulatingControls(PropertyBag p) {
-        cachedRegulatingControls.put(p.getId(CgmesNames.REGULATING_CONTROL), new RegulatingControl(p));
+    void storeRegulatingControl(PropertyBag p) {
+        String regulatingControlId = p.getId(CgmesNames.REGULATING_CONTROL);
+        cachedRegulatingControls.put(regulatingControlId, new RegulatingControl(p));
     }
 
     void setAllRegulatingControls(Network network) {
@@ -95,5 +85,12 @@ public class RegulatingControlMapping {
 
     protected static String getRegulatingControlId(PropertyBag p) {
         return p.getId(CgmesNames.REGULATING_CONTROL);
+    }
+
+    public record RegulatingControl(String mode, String terminalId) {
+
+        public RegulatingControl(PropertyBag p) {
+            this(p.get("mode").toLowerCase(Locale.ROOT), p.getId(CgmesNames.TERMINAL));
+        }
     }
 }

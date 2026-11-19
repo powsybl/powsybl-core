@@ -179,7 +179,7 @@ public class Conversion {
         cgmes.computedTerminals().stream()
                 .filter(t -> !CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType()))
                 .forEach(t -> context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t));
-        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
+        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().storeRegulatingControl(p));
         context.popReportNode();
 
         // Convert containers

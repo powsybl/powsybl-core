@@ -56,18 +56,18 @@ public class RegulatingControlMappingForGenerators {
             return;
         }
 
-        RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
+        RegulatingControl control = parent.fetchRegulatingControl(controlId);
         if (control == null) {
             context.missing(String.format("Regulating control %s", controlId));
             return;
         }
 
-        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode())) {
             setRegulatingControlVoltage(controlId, control, gen);
-        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
+        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode())) {
             setRegulatingControlReactivePower(controlId, control, gen);
         } else {
-            context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
+            context.ignored(control.mode(), "Unsupported regulation mode for generator " + gen.getId());
         }
     }
 
@@ -75,7 +75,7 @@ public class RegulatingControlMappingForGenerators {
 
         // Take default terminal if it has not been defined in CGMES file (it is never null)
         Terminal regulatingTerminal = RegulatingTerminalMapper
-                .mapForVoltageControl(control.cgmesTerminal, context)
+                .mapForVoltageControl(control.terminalId(), context)
                 .orElse(gen.getTerminal());
 
         if (regulatingTerminal.getConnectable().getId().equals(gen.getId())) {
@@ -88,17 +88,17 @@ public class RegulatingControlMappingForGenerators {
             .build();
 
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
-        gen.setProperty(PROPERTY_MODE, control.mode);
+        gen.setProperty(PROPERTY_MODE, control.mode());
     }
 
     private void setRegulatingControlReactivePower(String controlId, RegulatingControl control, Generator gen) {
         // Ignore control if the terminal is not mapped.
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
-                .mapForFlowControl(control.cgmesTerminal, context)
+                .mapForFlowControl(control.terminalId(), context)
                 .orElseGet(() -> new TerminalAndSign(null, 1));
 
         if (mappedRegulatingTerminal.getTerminal() == null) {
-            context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
+            context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.terminalId()));
             return;
         }
 
@@ -110,7 +110,7 @@ public class RegulatingControlMappingForGenerators {
         voltageRegulationBuilder.build();
 
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
-        gen.setProperty(PROPERTY_MODE, control.mode);
+        gen.setProperty(PROPERTY_MODE, control.mode());
         gen.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
     }
 

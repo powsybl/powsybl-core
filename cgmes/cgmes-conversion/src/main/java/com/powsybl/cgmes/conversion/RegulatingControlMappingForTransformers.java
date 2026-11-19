@@ -120,19 +120,19 @@ public class RegulatingControlMappingForTransformers {
             return;
         }
 
-        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode())) {
             setRtcRegulatingControlVoltage(control, rtc, context);
-        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
+        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode())) {
             setRtcRegulatingControlReactivePower(control, rtc, twt, end, context);
-        } else if (!isControlModeFixed(control.mode)) {
-            context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
+        } else if (!isControlModeFixed(control.mode())) {
+            context.fixed(control.mode(), "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
     }
 
     private void setRtcRegulatingControlVoltage(RegulatingControl control, RatioTapChanger rtc, Context context) {
-        Optional<Terminal> regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context);
+        Optional<Terminal> regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.terminalId(), context);
         if (regulatingTerminal.isEmpty()) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.terminalId()));
             return;
         }
         rtc.newVoltageRegulation()
@@ -144,11 +144,11 @@ public class RegulatingControlMappingForTransformers {
 
     private void setRtcRegulatingControlReactivePower(RegulatingControl control, RatioTapChanger rtc, Connectable<?> twt, String end, Context context) {
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
-            .mapForFlowControl(control.cgmesTerminal, context)
+            .mapForFlowControl(control.terminalId(), context)
             .orElseGet(() -> new TerminalAndSign(null, 1));
 
         if (mappedRegulatingTerminal.getTerminal() == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.terminalId()));
             return;
         }
 
@@ -166,20 +166,20 @@ public class RegulatingControlMappingForTransformers {
             return;
         }
 
-        if (control.mode.endsWith("currentflow")) {
+        if (control.mode().endsWith("currentflow")) {
             setPtcRegulatingControl(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, control, ptc, context, twt, end);
-        } else if (control.mode.endsWith("activepower")) {
+        } else if (control.mode().endsWith("activepower")) {
             setPtcRegulatingControl(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context, twt, end);
         }
     }
 
     private void setPtcRegulatingControl(PhaseTapChanger.RegulationMode regulationMode, RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
-                .mapForFlowControl(control.cgmesTerminal, context)
+                .mapForFlowControl(control.terminalId(), context)
                 .orElseGet(() -> new TerminalAndSign(null, 1));
 
         if (mappedRegulatingTerminal.getTerminal() == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.terminalId()));
             return;
         }
 
@@ -200,7 +200,7 @@ public class RegulatingControlMappingForTransformers {
             return null;
         }
 
-        RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
+        RegulatingControl control = parent.fetchRegulatingControl(controlId);
         if (control == null) {
             context.missing(String.format("Regulating control %s", controlId));
             return null;

@@ -53,7 +53,7 @@ public class RegulatingControlMappingForShuntCompensators {
         if (regulatingControlId == null) {
             return;
         }
-        RegulatingControl rc = parent.cachedRegulatingControls().get(regulatingControlId);
+        RegulatingControl rc = parent.fetchRegulatingControl(regulatingControlId);
         if (rc == null) {
             return;
         }
@@ -64,7 +64,7 @@ public class RegulatingControlMappingForShuntCompensators {
     private void setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc) {
         // Take default terminal if it has not been defined in CGMES files (it is never null)
         Terminal regulatingTerminal = RegulatingTerminalMapper
-            .mapForVoltageControl(rc.cgmesTerminal, context)
+            .mapForVoltageControl(rc.terminalId(), context)
             .orElse(shuntCompensator.getTerminal());
         if (regulatingTerminal.getConnectable().getId().equals(shuntCompensator.getId())) {
             regulatingTerminal = null;
