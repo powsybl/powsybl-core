@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.regulation.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +41,8 @@ public final class VoltageRegulationSerDe {
     // SubElements
     public static final String TERMINAL = "terminalRef";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(VoltageRegulationSerDe.class);
+
     private static final String EXTRA_PROPERTIES_PROCESS_KEY = "Voltage regulation";
 
     private VoltageRegulationSerDe() {
@@ -47,6 +51,12 @@ public final class VoltageRegulationSerDe {
     public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             if (voltageRegulation != null && voltageRegulation.getMode() != null) {
+                if (voltageRegulation.getMode() == RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER && context.getVersion().compareTo(IidmVersion.V_1_19) < 0) {
+                    LOGGER.warn("Voltage regulation mode {} is not supported in IIDM version {}: the voltage regulation is not exported, " +
+                            "the equipment will behave as in local reactive power regulation",
+                            voltageRegulation.getMode(), context.getVersion().toString("."));
+                    return;
+                }
                 String namespace = context.getVersion().getNamespaceURI(context.isValid());
                 writeVoltageRegulation(voltageRegulation, context, namespace);
             }

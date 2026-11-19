@@ -15,8 +15,8 @@ import java.util.Arrays;
 public enum RegulationMode {
     VOLTAGE(1),
     REACTIVE_POWER(2),
-    VOLTAGE_PER_REACTIVE_POWER(3);
-    // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+    VOLTAGE_PER_REACTIVE_POWER(3),
+    REACTIVE_POWER_PER_ACTIVE_POWER(4);
 
     private final int index;
 
