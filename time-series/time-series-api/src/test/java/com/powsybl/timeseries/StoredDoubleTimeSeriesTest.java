@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
+import java.nio.DoubleBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -463,4 +464,87 @@ class StoredDoubleTimeSeriesTest {
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
     }
 
+    private static RegularTimeSeriesIndex cacheTestIndex() {
+        return RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15));
+    }
+
+    @Test
+    void testArraysAreComputedOnlyOnce() {
+        UncompressedDoubleDataChunk chunk = Mockito.spy(new UncompressedDoubleDataChunk(0, new double[] {1d, 2d}));
+        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts", TimeSeriesDataType.DOUBLE, cacheTestIndex()), chunk);
+
+        double[] values1 = ts.toArray();
+        double[] values2 = ts.toArray();
+        assertArrayEquals(new double[] {1d, 2d}, values1);
+        assertArrayEquals(values1, values2);
+        assertNotSame(values1, values2);
+        Mockito.verify(chunk, Mockito.times(1)).fillBuffer(Mockito.any(DoubleBuffer.class), Mockito.eq(0));
+
+        ts.toCompactArray();
+        double[] compact = ts.toCompactArray();
+        assertArrayEquals(new double[] {1d, 2d}, compact);
+        Mockito.verify(chunk, Mockito.times(2)).fillBuffer(Mockito.any(DoubleBuffer.class), Mockito.eq(0));
+    }
+
+    @Test
+    void testMutatingReturnedArraysDoesNotAlterCache() {
+        StoredDoubleTimeSeries ts = TimeSeries.createDouble("ts", cacheTestIndex(), 1d, 2d);
+        ts.toArray()[0] = 42d;
+        ts.toCompactArray()[0] = 42d;
+        assertArrayEquals(new double[] {1d, 2d}, ts.toArray());
+        assertArrayEquals(new double[] {1d, 2d}, ts.toCompactArray());
+        assertEquals(new DoubleTimeSeriesValues(new double[] {1d, 2d}, 0), ts.getDoubleTimeSeriesValues());
+    }
+
+    @Test
+    void testArraysReflectAddedChunk() {
+        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts", TimeSeriesDataType.DOUBLE, cacheTestIndex()),
+            new UncompressedDoubleDataChunk(0, new double[] {1d}));
+        assertArrayEquals(new double[] {1d, NaN}, ts.toArray());
+        assertArrayEquals(new double[] {1d}, ts.toCompactArray());
+
+        ts.addChunk(new UncompressedDoubleDataChunk(1, new double[] {2d}));
+        assertArrayEquals(new double[] {1d, 2d}, ts.toArray());
+        assertArrayEquals(new double[] {1d, 2d}, ts.toCompactArray());
+    }
+
+    @Test
+    void testArraysOfTimeSeriesWithoutChunk() {
+        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts", TimeSeriesDataType.DOUBLE, cacheTestIndex()));
+        assertArrayEquals(new double[] {NaN, NaN}, ts.toArray());
+        assertArrayEquals(new double[0], ts.toCompactArray());
+
+        ts.addChunk(new UncompressedDoubleDataChunk(1, new double[] {2d}));
+        assertArrayEquals(new double[] {NaN, 2d}, ts.toArray());
+        assertArrayEquals(new double[] {2d}, ts.toCompactArray());
+    }
+
+    @Test
+    void testChunksAreNotModifiableFromOutside() {
+        StoredDoubleTimeSeries ts = TimeSeries.createDouble("ts", cacheTestIndex(), 1d, 2d);
+        List<DoubleDataChunk> chunks = ts.getChunks();
+        assertThrows(UnsupportedOperationException.class, chunks::clear);
+    }
+
+    @Test
+    void testSourceListModificationDoesNotAffectTimeSeries() {
+        List<DoubleDataChunk> chunks = new java.util.ArrayList<>();
+        chunks.add(new UncompressedDoubleDataChunk(0, new double[] {1d, 2d}));
+        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts", TimeSeriesDataType.DOUBLE, cacheTestIndex()), chunks);
+        chunks.clear();
+        assertArrayEquals(new double[] {1d, 2d}, ts.toArray());
+    }
+
+    @Test
+    void testListenersNotifiedOnAddChunk() {
+        StoredDoubleTimeSeries ts = TimeSeries.createDouble("ts", cacheTestIndex(), 1d, 2d);
+        int[] count = {0};
+        TimeSeriesStoreListener listener = () -> count[0]++;
+        ts.addListener(listener);
+        ts.addChunk(new UncompressedDoubleDataChunk(0, new double[] {3d, 4d}));
+        assertEquals(1, count[0]);
+        ts.removeListener(listener);
+        ts.addChunk(new UncompressedDoubleDataChunk(0, new double[] {5d, 6d}));
+        assertEquals(1, count[0]);
+    }
 }
