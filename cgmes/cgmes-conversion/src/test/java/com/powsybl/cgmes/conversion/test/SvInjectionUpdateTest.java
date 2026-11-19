@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,7 +35,7 @@ class SvInjectionUpdateTest {
         Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
         assertEquals(1, network.getLoadCount());
 
-        assertLoad(network.getLoad("ConnectivityNode-TN-SvInjection"));
+        assertLoad(network.getLoad("ConnectivityNode-TN-SvInjection"), 9.0, 1.2);
     }
 
     @Test
@@ -43,7 +44,20 @@ class SvInjectionUpdateTest {
         assertEquals(0, network.getLoadCount());
 
         readCgmesResources(network, DIR, "svInjection_TP.xml", "svInjection_SV.xml");
-        assertEquals(0, network.getLoadCount());
+        assertEquals(1, network.getLoadCount());
+        assertLoad(network.getLoad("ConnectivityNode-TN-SvInjection"), 9.0, 1.2);
+    }
+
+    @Test
+    void importTwoSvsTest() {
+        Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
+        assertEquals(1, network.getLoadCount());
+        assertLoad(network.getLoad("ConnectivityNode-TN-SvInjection"), 9.0, 1.2);
+
+        readCgmesResources(network, DIR, "svInjection_TP.xml", "svInjection_SV_1.xml");
+        assertEquals(2, network.getLoadCount());
+        assertLoad(network.getLoad("ConnectivityNode-TN-SvInjection"), 0.0, 0.0);
+        assertLoad(network.getLoad("ConnectivityNode-TN-SvInjection-1"), 9.0, 1.2);
     }
 
     @Test
@@ -51,23 +65,31 @@ class SvInjectionUpdateTest {
         Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
         assertEquals(1, network.getLoadCount());
         Load load = network.getLoad("ConnectivityNode-TN-SvInjection");
-        assertLoad(load);
+        assertLoad(load, 9.0, 1.2);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
-        assertLoad(load);
+        assertLoad(load, 0.0, 0.0);
     }
 
     @Test
     void removeAllPropertiesAndAliasesTest() {
         Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
-        assertPropertiesAndAliasesEmpty(network, false);
+        assertOnlyOriginalClassPropertyAndNoAliases(network, false);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         network = readCgmesResources(properties, DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
         assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertOnlyOriginalClassPropertyAndNoAliases(Network network, boolean expected) {
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertTrue(network.getLoadStream().allMatch(load -> load.getPropertyNames().size() == 1 && load.getPropertyNames().contains(PROPERTY_CGMES_ORIGINAL_CLASS)));
+        assertTrue(network.getLoadStream().allMatch(load -> load.getAliases().isEmpty()));
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
@@ -78,13 +100,13 @@ class SvInjectionUpdateTest {
         assertTrue(network.getLoadStream().allMatch(load -> load.getAliases().isEmpty()));
     }
 
-    private static void assertLoad(Load load) {
+    private static void assertLoad(Load load, double expectedP0, double expectedQ0) {
         assertNotNull(load);
         double tol = 0.0000001;
         assertSame(LoadType.FICTITIOUS, load.getLoadType());
         assertTrue(load.isFictitious());
-        assertEquals(9.0, load.getP0(), tol);
-        assertEquals(1.2, load.getQ0(), tol);
+        assertEquals(expectedP0, load.getP0(), tol);
+        assertEquals(expectedQ0, load.getQ0(), tol);
         assertEquals(9.0, load.getTerminal().getP(), tol);
         assertEquals(1.2, load.getTerminal().getQ(), tol);
     }

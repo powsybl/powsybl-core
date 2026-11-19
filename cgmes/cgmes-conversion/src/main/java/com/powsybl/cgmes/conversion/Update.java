@@ -231,6 +231,7 @@ public final class Update {
 
     static void createFictitiousLoadsForSvInjectionsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
         if (context.config().convertSvInjections()) {
+            SvInjectionConversion.resetSvInjectionLoadsForCurrentVariant(network);
             context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.SV_INJECTION));
             cgmes.svInjections().forEach(svInjection -> SvInjectionConversion.create(network, svInjection));
             context.popReportNode();
