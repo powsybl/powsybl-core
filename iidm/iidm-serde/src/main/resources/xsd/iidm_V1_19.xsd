@@ -222,6 +222,19 @@
         <xs:attribute name="minQ" use="required" type="xs:double"/>
         <xs:attribute name="maxQ" use="required" type="xs:double"/>
     </xs:complexType>
+    <xs:complexType name="Plane">
+        <xs:attribute name="coeffU" use="required" type="xs:double"/>
+        <xs:attribute name="coeffP" use="required" type="xs:double"/>
+        <xs:attribute name="coeffQ" use="required" type="xs:double"/>
+        <xs:attribute name="rhs" use="required" type="xs:double"/>
+        <xs:attribute name="isGreaterOrEqual" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="ReactiveCapabilityShape">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="plane" maxOccurs="unbounded" type="iidm:Plane"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="ReactiveCapabilityCurve">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
@@ -261,6 +274,7 @@
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -282,6 +296,7 @@
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -414,6 +429,7 @@
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
                     <xs:choice minOccurs="0">
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -629,6 +645,7 @@
             <xs:extension base="iidm:AcDcConverter">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
@@ -805,6 +822,7 @@
             <xs:extension base="iidm:HvdcConverterStation">
                 <xs:sequence>
                     <xs:choice>
+                        <xs:element name="reactiveCapabilityShape" type="iidm:ReactiveCapabilityShape"/>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
