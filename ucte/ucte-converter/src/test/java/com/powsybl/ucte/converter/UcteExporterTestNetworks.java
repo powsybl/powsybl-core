@@ -389,4 +389,71 @@ public final class UcteExporterTestNetworks {
              .withTerminal(terminal).withTargetValue(targetValue).add();
         adder.add();
     }
+
+    /**
+     * Two Dutch 380 kV node-breaker voltage levels {@code VL_A} and {@code VL_B}, joined by the line {@code LINE}. Each
+     * voltage level holds two busbar sections joined by a closed retained breaker ({@code COUPLER_A} and
+     * {@code COUPLER_B}), and the line is connected to the second busbar section through a breaker.
+     */
+    static Network createNodeBreakerWithCouplers() {
+        Network network = Network.create("nodeBreakerWithCouplers", "test");
+        network.setCaseDate(ZonedDateTime.parse("2026-01-01T00:00:00.000+01:00"));
+        addNodeBreakerVoltageLevelWithCoupler(network, "A");
+        addNodeBreakerVoltageLevelWithCoupler(network, "B");
+        network.newLine()
+               .setId("LINE")
+               .setVoltageLevel1("VL_A")
+               .setNode1(2)
+               .setVoltageLevel2("VL_B")
+               .setNode2(2)
+               .setR(1)
+               .setX(10)
+               .setG1(0)
+               .setB1(0)
+               .setG2(0)
+               .setB2(0)
+               .add();
+        return network;
+    }
+
+    /**
+     * Add a substation {@code S_<name>} and a 380 kV node-breaker voltage level {@code VL_<name>}, with busbar sections
+     * {@code BBS_<name>1} (node 0) and {@code BBS_<name>2} (node 1), the closed retained breaker {@code COUPLER_<name>}
+     * between them, and the breaker {@code BREAKER_<name>} between node 1 and node 2, left free for a branch.
+     *
+     * @param network the network to add the substation to
+     * @param name the suffix of the ids
+     */
+    private static void addNodeBreakerVoltageLevelWithCoupler(Network network, String name) {
+        VoltageLevel voltageLevel = network.newSubstation()
+                                           .setId("S_" + name)
+                                           .setCountry(Country.NL)
+                                           .add()
+                                           .newVoltageLevel()
+                                           .setId("VL_" + name)
+                                           .setNominalV(380)
+                                           .setTopologyKind(TopologyKind.NODE_BREAKER)
+                                           .add();
+        voltageLevel.getNodeBreakerView().newBusbarSection()
+                    .setId("BBS_" + name + "1")
+                    .setNode(0)
+                    .add();
+        voltageLevel.getNodeBreakerView().newBusbarSection()
+                    .setId("BBS_" + name + "2")
+                    .setNode(1)
+                    .add();
+        voltageLevel.getNodeBreakerView().newBreaker()
+                    .setId("COUPLER_" + name)
+                    .setNode1(0)
+                    .setNode2(1)
+                    .setRetained(true)
+                    .setOpen(false)
+                    .add();
+        voltageLevel.getNodeBreakerView().newBreaker()
+                    .setId("BREAKER_" + name)
+                    .setNode1(1)
+                    .setNode2(2)
+                    .setOpen(false)
+                    .add();
+    }
 }
