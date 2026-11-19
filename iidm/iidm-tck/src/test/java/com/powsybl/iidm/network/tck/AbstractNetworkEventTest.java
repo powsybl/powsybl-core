@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,6 +67,16 @@ public abstract class AbstractNetworkEventTest {
                 eventRecorder.getEvents());
 
         eventRecorder.reset();
+        apc.setParticipationFactor(2.5);
+        apc.setMinTargetP(1.0);
+        apc.setMaxTargetP(50.0);
+        apc.setMaxTargetP(50.0); // same stored value: no event
+        assertEquals(List.of(new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "participationFactor", "InitialState", Double.NaN, 2.5),
+                             new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "minTargetP", "InitialState", Double.NaN, 1.0),
+                             new ExtensionUpdateNetworkEvent("GEN", "activePowerControl", "maxTargetP", "InitialState", Double.NaN, 50.0)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
         gen.removeExtension(ActivePowerControl.class);
         assertEquals(List.of(new ExtensionRemovalNetworkEvent("GEN", "activePowerControl", false),
                              new ExtensionRemovalNetworkEvent("GEN", "activePowerControl", true)),
@@ -99,6 +110,17 @@ public abstract class AbstractNetworkEventTest {
         eventRecorder.reset();
         network.getVariantManager().removeVariant("new_variant");
         assertEquals(List.of(new VariantNetworkEvent("new_variant", null, VariantNetworkEvent.VariantEventType.REMOVED)),
+                eventRecorder.getEvents());
+
+        eventRecorder.reset();
+        ZonedDateTime oldCaseDate = network.getCaseDate();
+        ZonedDateTime newCaseDate = ZonedDateTime.parse("2030-01-01T00:00:00Z");
+        network.setCaseDate(newCaseDate);
+        network.setForecastDistance(60);
+        network.setCaseDate(newCaseDate); // unchanged values fire no event
+        network.setForecastDistance(60);
+        assertEquals(List.of(new UpdateNetworkEvent("sim1", "caseDate", null, oldCaseDate, newCaseDate),
+                             new UpdateNetworkEvent("sim1", "forecastDistance", null, 0, 60)),
                 eventRecorder.getEvents());
     }
 }
