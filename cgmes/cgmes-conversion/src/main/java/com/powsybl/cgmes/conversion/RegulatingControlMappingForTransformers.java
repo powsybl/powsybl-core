@@ -120,39 +120,36 @@ public class RegulatingControlMappingForTransformers {
             return;
         }
 
-        boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            okSet = setRtcRegulatingControlVoltage(control, rtc, context);
+            setRtcRegulatingControlVoltage(control, rtc, context);
         } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
-            okSet = setRtcRegulatingControlReactivePower(control, rtc, twt, end, context);
+            setRtcRegulatingControlReactivePower(control, rtc, twt, end, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
-        control.setCorrectlySet(okSet);
     }
 
-    private boolean setRtcRegulatingControlVoltage(RegulatingControl control, RatioTapChanger rtc, Context context) {
+    private void setRtcRegulatingControlVoltage(RegulatingControl control, RatioTapChanger rtc, Context context) {
         Optional<Terminal> regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context);
         if (regulatingTerminal.isEmpty()) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
-            return false;
+            return;
         }
         rtc.newVoltageRegulation()
             .withTerminal(regulatingTerminal.get())
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false)
             .build();
-        return true;
     }
 
-    private boolean setRtcRegulatingControlReactivePower(RegulatingControl control, RatioTapChanger rtc, Connectable<?> twt, String end, Context context) {
+    private void setRtcRegulatingControlReactivePower(RegulatingControl control, RatioTapChanger rtc, Connectable<?> twt, String end, Context context) {
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
             .mapForFlowControl(control.cgmesTerminal, context)
             .orElseGet(() -> new TerminalAndSign(null, 1));
 
         if (mappedRegulatingTerminal.getTerminal() == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
-            return false;
+            return;
         }
 
         rtc.newVoltageRegulation()
@@ -162,7 +159,6 @@ public class RegulatingControlMappingForTransformers {
             .build();
 
         twt.setProperty(getTerminalSignPropertyName(end), String.valueOf(mappedRegulatingTerminal.getSign()));
-        return true;
     }
 
     private void setPhaseTapChangerControl(RegulatingControl control, PhaseTapChanger ptc, Connectable<?> twt, String end) {
@@ -170,38 +166,27 @@ public class RegulatingControlMappingForTransformers {
             return;
         }
 
-        boolean okSet = false;
         if (control.mode.endsWith("currentflow")) {
-            okSet = setPtcRegulatingControlCurrentFlow(control, ptc, context, twt, end);
+            setPtcRegulatingControl(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, control, ptc, context, twt, end);
         } else if (control.mode.endsWith("activepower")) {
-            okSet = setPtcRegulatingControlActivePower(control, ptc, context, twt, end);
+            setPtcRegulatingControl(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context, twt, end);
         }
-        control.setCorrectlySet(okSet);
     }
 
-    private boolean setPtcRegulatingControlCurrentFlow(RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
-        return setPtcRegulatingControl(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, control, ptc, context, twt, end);
-    }
-
-    private boolean setPtcRegulatingControlActivePower(RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
-        return setPtcRegulatingControl(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, control, ptc, context, twt, end);
-    }
-
-    private boolean setPtcRegulatingControl(PhaseTapChanger.RegulationMode regulationMode, RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
+    private void setPtcRegulatingControl(PhaseTapChanger.RegulationMode regulationMode, RegulatingControl control, PhaseTapChanger ptc, Context context, Connectable<?> twt, String end) {
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(control.cgmesTerminal, context)
                 .orElseGet(() -> new TerminalAndSign(null, 1));
 
         if (mappedRegulatingTerminal.getTerminal() == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
-            return false;
+            return;
         }
 
         ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
                 .setRegulationMode(regulationMode);
 
         twt.setProperty(getTerminalSignPropertyName(end), String.valueOf(mappedRegulatingTerminal.getSign()));
-        return true;
     }
 
     private RegulatingControl getTapChangerControl(CgmesRegulatingControl rc) {
