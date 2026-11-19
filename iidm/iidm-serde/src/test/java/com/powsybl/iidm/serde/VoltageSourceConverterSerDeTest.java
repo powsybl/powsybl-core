@@ -54,8 +54,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
     void testMaxPNotSupportedBeforeIidm119() {
         Network network = createBaseNetwork(); // contains a VoltageSourceConverter with maxP = 400.
 
-        // minP and maxP are only supported from IIDM 1.19; versions 1.15 to 1.18 support VoltageSourceConverter
-        // but not its active power limits. An Exception should be thrown when they are set in this case.
+        // Versions 1.15 to 1.18 support VoltageSourceConverter but not minP and maxP
         testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> {
             ExportOptions options = new ExportOptions().setVersion(version.toString("."));
             Path path = tmpDir.resolve("fail");

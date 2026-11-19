@@ -35,8 +35,7 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         // Test for the current version
         Network readNetwork = allFormatsRoundTripTest(network, "/dcLineRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
-        // the round trip re-exports the original network, not the one read from XML,
-        // so the XML reader is only checked here
+        // Check default and non-default value for the current limit
         assertTrue(Double.isNaN(readNetwork.getDcLine("dcLineWithoutSolvedV").getPermanentCurrentLimit()));
         assertEquals(2106., readNetwork.getDcLine("dcLineWithSolvedV").getPermanentCurrentLimit());
 

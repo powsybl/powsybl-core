@@ -31,8 +31,6 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
         // Test for the current version
         Network readNetwork = allFormatsRoundTripTest(network, "/dcNodeRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
-        // the round trip re-exports the original network, not the one read from XML,
-        // so the XML reader is only checked here
         DcNode withoutLimits = readNetwork.getDcNode("dcNodeWithoutSolvedV");
         assertTrue(Double.isNaN(withoutLimits.getLowVoltageLimit()));
         assertTrue(Double.isNaN(withoutLimits.getHighVoltageLimit()));
@@ -69,8 +67,7 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
     void testVoltageLimitsNotSupported() {
         Network network = createBaseNetwork();
 
-        // versions 1.15 to 1.18 support the DC node but not its voltage limits, so exporting a DC node that
-        // declares limits must fail rather than silently drop them
+        // versions 1.15 to 1.18 support the DC node but not its voltage limits
         testForAllVersionsBetween(IidmVersion.V_1_15, IidmVersion.V_1_18, version -> {
             ExportOptions options = new ExportOptions().setVersion(version.toString("."));
             Path path = tmpDir.resolve("fail");
