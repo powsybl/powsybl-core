@@ -39,7 +39,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
-    private static ReportNode newTestRootReportNode() {
+    static ReportNode newTestRootReportNode() {
         return ReportNode.newRootReportNode()
                          .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME,
                                  PowsyblCoreReportResourceBundle.BASE_NAME)
@@ -47,7 +47,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          .build();
     }
 
-    private static boolean checkReportNode(String expected, ReportNode reportNode) {
+    static boolean checkReportNode(String expected, ReportNode reportNode) {
         StringWriter sw = new StringWriter();
         try {
             reportNode.print(sw);
@@ -78,6 +78,31 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                       Lines
                       Tie-Lines
                       Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks that a transformer with no nominal power (no {@code ratedS} and no legacy property) is reported
+     * when exporting the network.
+     */
+    @Test
+    void testNominalPowerMissingReported() {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        network.getTwoWindingsTransformer("F_SU1_11 F_SU1_21 1").setRatedS(Double.NaN);
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, new Properties(), new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      + Transformers
+                         Transformer F_SU1_11 F_SU1_21 1: No nominal power provided. Defaulting to 99999
                    Network exported to file .uct
                 """, rootReportNode));
     }

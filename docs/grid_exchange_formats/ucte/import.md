@@ -100,6 +100,17 @@ Notations:
 | Invalid ($n = 0$) or undefined ($n$, $n'$ or $\delta U$) data provided | Regulation ignored |
 |                             Undefined type                             | type set to `ASYM` |
 
+**ucte.import.post-processors**<br>
+The `ucte.import.post-processors` property is an optional property that defines the list of post-processors to apply,
+in the given order, after the import of the UCTE network and its conversion to a Network object.
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/ucte/converter/UcteImportPostProcessor.html)
+Post-processors are implementations of `UcteImportPostProcessor`.
+
+Post-processors can modify the converted network, with access to the UCTE file's comment and the order of the nodes inside each `##Z` block.
+
+Post-processors are applied one after the other in the given order, each one seeing the modifications made by the previous ones.
+Its default value is an empty list.
+
 ## From UCTE to IIDM
 The UCTE file name is parsed to extract metadata required to initialize the IIDM network, such as its ID, the case date and the forecast distance.
 
@@ -158,7 +169,8 @@ The element name of the UCTE line is stored in the `elementName` property and th
 ### Two-winding transformer conversion
 The two-winding transformers connected between two real nodes are converted into a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer).
 If the current limits are defined, a permanent limit is created only for the second side.
-The element name of the transformer is stored in the `elementName` property and the nominal power is stored in the `nominalPower` property.
+The nominal power is stored in the dedicated transformer field for rated apparent power: `ratedS`.
+The element name of the transformer is stored in the `elementName` property.
 
 If a two-winding transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created,
 with a single bus called a Y-node. This new voltage level is created in the same substation as the real node.
