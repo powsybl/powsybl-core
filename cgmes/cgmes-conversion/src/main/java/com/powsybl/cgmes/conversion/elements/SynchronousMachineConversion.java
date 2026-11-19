@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Arrays;
@@ -123,11 +122,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
-
-        int referencePriority = cgmesData.asInt("referencePriority", 0);
-        if (referencePriority > 0) {
-            ReferencePriority.set(generator, referencePriority);
-        }
+        updateReferencePriority(generator, cgmesData, context);
 
         double targetP = getDefaultValue(getInitialP(generator), generator.getTargetP(), 0.0, 0.0, context);
         double targetQ = getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);

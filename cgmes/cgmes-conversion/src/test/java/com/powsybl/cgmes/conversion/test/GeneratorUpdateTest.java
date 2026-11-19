@@ -89,6 +89,26 @@ class GeneratorUpdateTest {
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
+    @Test
+    void zeroReferencePriorityIsLostTest() {
+        Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
+        network.getGenerators().forEach(generator -> System.err.printf("generator: %s %n", generator.getId()));
+
+        assertEquals(0, ReferencePriority.get(network.getGenerator("SynchronousMachine")));
+        assertEquals(0, ReferencePriority.get(network.getGenerator("ExternalNetworkInjection")));
+
+        ReferencePriority.set(network.getGenerator("SynchronousMachine"), 1);
+        ReferencePriority.set(network.getGenerator("ExternalNetworkInjection"), 1);
+
+        assertEquals(1, ReferencePriority.get(network.getGenerator("SynchronousMachine")));
+        assertEquals(1, ReferencePriority.get(network.getGenerator("ExternalNetworkInjection")));
+
+        readCgmesResources(network, DIR, "generator_SSH.xml");
+
+        assertEquals(0, ReferencePriority.get(network.getGenerator("SynchronousMachine")));
+        assertEquals(0, ReferencePriority.get(network.getGenerator("ExternalNetworkInjection")));
+    }
+
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
