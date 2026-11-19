@@ -8,8 +8,8 @@
 package com.powsybl.timeseries;
 
 import com.google.common.collect.Lists;
-import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.EqualsTester;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
