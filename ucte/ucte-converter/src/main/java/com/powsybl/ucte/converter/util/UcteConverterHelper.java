@@ -11,12 +11,16 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.ucte.network.UcteAngleRegulation;
+import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UctePhaseRegulation;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import static java.lang.Double.isNaN;
 
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
@@ -29,7 +33,7 @@ public final class UcteConverterHelper {
 
     /**
      * calculate the δu(%) for the phase regulation of the two windings transformer
-     *
+     * <p>
      * du = 100 * (1 / ρmin – 1/ ρmax) / (number of taps - 1).
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the RatioTapChanger we want to convert
@@ -51,7 +55,7 @@ public final class UcteConverterHelper {
     /**
      * Calculate the δu(%) for the angle regulation of the two windings transformer
      * This computation only work for an angle regulation with the type symmetrical
-     *
+     * <p>
      * dU = 100 * (2*(tan(αmax/2) – tan(αmin/2))/(number of taps -1))
      *
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
@@ -74,7 +78,7 @@ public final class UcteConverterHelper {
     /**
      * Calculate the δu(%) for the angle regulation of the two windings transformer
      * This computation only work for an angle regulation with the type asymmetrical
-     *
+     * <p>
      * dU = 100 * (distance between the 2 most distant taps) / (number of taps - 1)
      *
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
@@ -120,6 +124,24 @@ public final class UcteConverterHelper {
         }
 
         return ComplexUtils.polar2Complex(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(),
-                                          theta);
+                theta);
+    }
+
+    /**
+     * Get a number's value or 0 if no value
+     * @param value a double that can be NaN
+     * @return 0 if NaN, else same value as input
+     */
+    public static double getOrZero(final double value) {
+        return isNaN(value) || value == 0.0 ? 0.0 : value;
+    }
+
+    /**
+     * Test whether a node is an X-Node or not
+     * @param ucteNodeCode the node code to test
+     * @return true if it is an X-Node
+     */
+    public static boolean isAnXNode(final UcteNodeCode ucteNodeCode) {
+        return ucteNodeCode.getUcteCountryCode() == UcteCountryCode.XX;
     }
 }
