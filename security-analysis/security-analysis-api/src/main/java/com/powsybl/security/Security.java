@@ -246,13 +246,8 @@ public final class Security {
                 .writeCell(getViolationName(violation))
                 .writeCell(violation.getValue())
                 .writeCell(getViolationLimit(violation))
-                .writeCell(getAbsValueLimit(violation, hasLimitOnMagnitude(violation, network)));
-        if (violation.getLimit() == 0) {
-            // Undefined loading rate, typically a converter violation on minP = 0
-            formatter.writeEmptyCell();
-        } else {
-            formatter.writeCell(getViolationRate(violation));
-        }
+                .writeCell(getAbsValueLimit(violation, hasLimitOnMagnitude(violation, network)))
+                .writeCell(getViolationRate(violation));
     }
 
     /**
@@ -362,8 +357,7 @@ public final class Security {
     }
 
     private static double getViolationRate(LimitViolation violation) {
-        // Computed on the magnitude of the limit, which can be negative for a converter minP
-        return Math.abs(violation.getValue()) / Math.abs(violation.getLimit()) * 100.0;
+        return Math.abs(violation.getValue()) / violation.getLimit() * 100.0;
     }
 
     private static NumberFormat getFormatter(Locale locale, int minimumFractionDigits, int maximumFractionDigits) {

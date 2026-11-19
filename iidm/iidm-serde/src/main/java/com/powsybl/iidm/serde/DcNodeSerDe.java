@@ -47,17 +47,17 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
     protected DcNode readRootElementAttributes(final DcNodeAdder adder, final Network parent, final NetworkDeserializerContext context) {
         double nominalV = context.getReader().readDoubleAttribute(NOMINAL_V);
         // undefined voltage limits as default value for IIDM version < 1.19 and for DC nodes declaring no limit
-        double[] lowVoltageLimit = {Double.NaN};
-        double[] highVoltageLimit = {Double.NaN};
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () -> {
-            lowVoltageLimit[0] = context.getReader().readDoubleAttribute(LOW_VOLTAGE_LIMIT);
-            highVoltageLimit[0] = context.getReader().readDoubleAttribute(HIGH_VOLTAGE_LIMIT);
-        });
+        double lowVoltageLimit = Double.NaN;
+        double highVoltageLimit = Double.NaN;
+        if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
+            lowVoltageLimit = context.getReader().readDoubleAttribute(LOW_VOLTAGE_LIMIT);
+            highVoltageLimit = context.getReader().readDoubleAttribute(HIGH_VOLTAGE_LIMIT);
+        }
         double v = context.getReader().readDoubleAttribute(V);
         DcNode dcNode = adder
                 .setNominalV(nominalV)
-                .setLowVoltageLimit(lowVoltageLimit[0])
-                .setHighVoltageLimit(highVoltageLimit[0])
+                .setLowVoltageLimit(lowVoltageLimit)
+                .setHighVoltageLimit(highVoltageLimit)
                 .add();
         dcNode.setV(v);
         return dcNode;

@@ -944,8 +944,10 @@ Although the nominal voltage of DC nodes must always be specified as a positive 
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
 
 The optional voltage limits bound the magnitude of the voltage, whatever the polarity of the DC node: a DC node is within its
-limits when $LowVoltageLimit \le |V| \le HighVoltageLimit$, an undefined limit imposing no bound. $LowVoltageLimit$ must be positive or zero, $HighVoltageLimit$ must be strictly positive, and $LowVoltageLimit$ must be strictly less than
+limits when $LowVoltageLimit < |V| < HighVoltageLimit$, an undefined limit imposing no bound. $LowVoltageLimit$ must be positive or zero, $HighVoltageLimit$ must be strictly positive, and $LowVoltageLimit$ must be strictly less than
 $HighVoltageLimit$.
+
+The voltage limits are serialized from IIDM version 1.19 onwards, and are omitted from the serialized file when undefined.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -969,7 +971,8 @@ A DC Line has two DC Terminals.
 
 The $R$ value can't be negative, because this is a detailed model, it is a direct physical representation, not an equivalent model.
 
-The optional $PermanentCurrentLimit$ value must be strictly positive. A DC Line is within its limit when $|I| \le PermanentCurrentLimit$.
+The optional $PermanentCurrentLimit$ value must be strictly positive. A DC Line is within its limit when $|I| < PermanentCurrentLimit$.
+It is serialized from IIDM version 1.19 onwards, and is omitted from the serialized file when undefined.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -1102,7 +1105,8 @@ same load sign convention as `TargetP`.
 `MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
 
 `MinP` and `MaxP` are serialized from IIDM version 1.19 onwards, and are omitted from the serialized file when left unset.
-Exporting a converter with a non-default `MinP` or `MaxP` to an earlier IIDM version raises an error.
+Exporting a converter with a non-default `MinP` or `MaxP` to an earlier IIDM version throws an exception or logs an error,
+depending on the `IidmVersionIncompatibilityBehavior` export option.
 
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)

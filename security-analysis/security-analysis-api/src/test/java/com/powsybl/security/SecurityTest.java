@@ -447,9 +447,9 @@ class SecurityTest {
             // Negative minP (inverter): P = -250 MW reaches minP = -200 MW
             new LimitViolation("VscFr", null, null, LimitViolationType.ACTIVE_POWER,
                 null, Integer.MAX_VALUE, -200., 1.0, -250., ThreeSides.ONE, null),
-            // minP = 0: the loading rate is undefined
+            // minP = 0 and P = 0 (idle converter): undefined loading rate
             new LimitViolation("VscFr", null, null, LimitViolationType.ACTIVE_POWER,
-                null, Integer.MAX_VALUE, 0., 1.0, -10., ThreeSides.ONE, null));
+                null, Integer.MAX_VALUE, 0., 1.0, 0., ThreeSides.ONE, null));
         SecurityAnalysisResult dcResult = new SecurityAnalysisResult(new LimitViolationsResult(violations),
             LoadFlowResult.ComponentResult.Status.CONVERGED, List.of());
 
@@ -459,10 +459,10 @@ class SecurityTest {
         assertEquals(String.join(System.lineSeparator(),
                 "Pre-contingency violations",
                 "Action,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
-                // |-250 - (-200)| = 50 and |-250| / |-200| = 125 %
-                ",VscFr," + DC_CONVERTER_VOLTAGE_LEVEL + ",FR,150,ACTIVE_POWER,,-250.0000,-200.0000,50.0000,125.00",
-                // |-10 - 0| = 10 and an empty loading rate (neither "inv" nor "Infinity")
-                ",VscFr," + DC_CONVERTER_VOLTAGE_LEVEL + ",FR,150,ACTIVE_POWER,,-10.0000,0.0000,10.0000,"),
+                // Loading rate computed as for AC violations, on the signed limit: |-250| / -200 = -125 %
+                ",VscFr," + DC_CONVERTER_VOLTAGE_LEVEL + ",FR,150,ACTIVE_POWER,,-250.0000,-200.0000,50.0000,-125.00",
+                // 0 / 0 is NaN, printed as the invalid string
+                ",VscFr," + DC_CONVERTER_VOLTAGE_LEVEL + ",FR,150,ACTIVE_POWER,,0.0000,0.0000,0.0000,inv"),
             writer.toString().trim());
     }
 

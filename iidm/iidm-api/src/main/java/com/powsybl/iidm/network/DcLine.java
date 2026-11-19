@@ -65,7 +65,7 @@ package com.powsybl.iidm.network;
  *
  * <p>
  * The permanent current limit bounds the magnitude of the current at either DC Terminal: the DC Line is within its
- * limit when {@code |I| <= PermanentCurrentLimit}. A DC Line has no shunt admittance, so the current magnitude is the
+ * limit when {@code |I| < PermanentCurrentLimit}. A DC Line has no shunt admittance, so the current magnitude is the
  * same at both DC Terminals and a single limit covers the whole line. A current outside the limit is not rejected.
  * </p>
  *

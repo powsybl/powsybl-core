@@ -57,9 +57,9 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");
         double r = context.getReader().readDoubleAttribute("r");
         // undefined permanent current limit as default value for IIDM version < 1.19 and for DC lines declaring no limit
-        double[] permanentCurrentLimit = {Double.NaN};
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_19, context, () ->
-                permanentCurrentLimit[0] = context.getReader().readDoubleAttribute(PERMANENT_CURRENT_LIMIT));
+        double permanentCurrentLimit = context.getVersion().compareTo(IidmVersion.V_1_19) >= 0
+                ? context.getReader().readDoubleAttribute(PERMANENT_CURRENT_LIMIT)
+                : Double.NaN;
         boolean connected1 = context.getReader().readBooleanAttribute("connected1");
         boolean connected2 = context.getReader().readBooleanAttribute("connected2");
         DcLine dcLine = adder
@@ -68,7 +68,7 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
                 .setDcNode2(dcNode2Id)
                 .setConnected2(connected2)
                 .setR(r)
-                .setPermanentCurrentLimit(permanentCurrentLimit[0])
+                .setPermanentCurrentLimit(permanentCurrentLimit)
                 .add();
         readPI(dcLine.getDcTerminal1(), context.getReader());
         readPI(dcLine.getDcTerminal2(), context.getReader());
