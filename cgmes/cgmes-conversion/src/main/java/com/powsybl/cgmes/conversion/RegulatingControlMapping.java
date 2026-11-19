@@ -30,7 +30,6 @@ public class RegulatingControlMapping {
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
 
     private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
-    private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
     private final RegulatingControlMappingForVscConverters regulatingControlMappingForVscConverters;
     private final Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
     private final Context context;
@@ -38,16 +37,11 @@ public class RegulatingControlMapping {
     RegulatingControlMapping(Context context) {
         this.context = context;
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
-        regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this, context);
         regulatingControlMappingForVscConverters = new RegulatingControlMappingForVscConverters(context);
     }
 
     public RegulatingControlMappingForTransformers forTransformers() {
         return regulatingControlMappingForTransformers;
-    }
-
-    public RegulatingControlMappingForStaticVarCompensators forStaticVarCompensators() {
-        return regulatingControlMappingForStaticVarCompensators;
     }
 
     public RegulatingControlMappingForVscConverters forVscConverters() {
@@ -66,7 +60,7 @@ public class RegulatingControlMapping {
     void setAllRegulatingControls(Network network) {
         network.getGeneratorStream().forEach(this::setRegulatingControl);
         network.getShuntCompensatorStream().forEach(this::setRegulatingControl);
-        regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
+        network.getStaticVarCompensatorStream().forEach(this::setRegulatingControl);
         regulatingControlMappingForVscConverters.applyRegulatingControls(network);
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
         cachedRegulatingControls.clear();
