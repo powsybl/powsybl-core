@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network.tck.extensions;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
@@ -90,5 +93,43 @@ public abstract class AbstractGeneratorStartupTest {
 
         message = assertThrows(ValidationException.class, () -> startup.setForcedOutageRate(2.0)).getMessage();
         assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : 2.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", message);
+    }
+
+    @Test
+    public void testPlannedActivePowerSetpointValues() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Generator generator = network.getGenerator("GEN");
+        generator.setMaxP(60);
+
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode1);
+
+        // test adder
+        GeneratorStartup startup = generator.newExtension(GeneratorStartupAdder.class)
+                .withPlannedActivePowerSetpoint(600.0)
+                .withStartupCost(5.0)
+                .withMarginalCost(10.0)
+                .withPlannedOutageRate(0.8)
+                .withForcedOutageRate(0.7)
+                .add();
+        assertEquals("core.iidm.network.plannedActivePowerTargetNotWithinRange", reportNode1.getChildren().getFirst().getMessageKey());
+        assertEquals("'GEN': planned active power setpoint value 600.0 is outside authorized range [-9999.99; 60.0]", reportNode1.getChildren().getFirst().getMessage());
+        assertEquals(600, startup.getPlannedActivePowerSetpoint());
+
+        // test setter
+
+        // warning message on planned active power setpoint value
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode2);
+        startup.setPlannedActivePowerSetpoint(61);
+        assertEquals("core.iidm.network.plannedActivePowerTargetNotWithinRange", reportNode2.getChildren().getFirst().getMessageKey());
+        assertEquals("'GEN': planned active power setpoint value 61.0 is outside authorized range [-9999.99; 60.0]", reportNode2.getChildren().getFirst().getMessage());
+        assertEquals(61, startup.getPlannedActivePowerSetpoint());
     }
 }
