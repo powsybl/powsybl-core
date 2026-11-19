@@ -125,6 +125,15 @@ public enum UcteCountryCode {
         }
     }
 
+    /**
+     * Return the country code for {@code country} according to UCTE-DEF specification.<br>
+     * <strong>Note:</strong> Kosovo country code has changed (XK -> KS). If provided with {@code Country.XK}, the
+     * returned value is {@code UcteCountryCode.KS}.
+     *
+     * @param country a country
+     * @return the code corresponding to {@code country}
+     * @throws UcteException if the provided country isn't in UCTE
+     */
     public static UcteCountryCode fromCountry(Country country) {
         // Kosovo: ISO 3166 code XK, ENTSO-E code KS
         if (country == Country.XK) {

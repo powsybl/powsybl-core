@@ -162,6 +162,17 @@ public final class ExportedVoltageLevels {
         return voltageLevel.getSubstation().isEmpty();
     }
 
+    /**
+     * Find the country of the provided voltage level. If the voltage level has a substation, return the substation's
+     * country (see {@link Substation#getCountry()}). Otherwise, return the country computed for the voltage level's
+     * connected component. If no country was computed for it (always the case with {@link #all()}), throw a
+     * {@link UcteException}.
+     *
+     * @param voltageLevel a voltage level
+     * @return the country of the voltage level
+     * @throws UcteException if the substation has no country or one not supported by UCTE-DEF, or if no country was
+     *                       computed for this voltage level
+     */
     public UcteCountryCode getCountry(VoltageLevel voltageLevel) {
         Optional<Substation> substation = voltageLevel.getSubstation();
         if (substation.isPresent()) {
@@ -174,6 +185,10 @@ public final class ExportedVoltageLevels {
         return country;
     }
 
+    /**
+     * @param voltageLevel a voltage level
+     * @return whether this voltage level should be exported in UCTE
+     */
     public boolean isExported(VoltageLevel voltageLevel) {
         return !excludedVoltageLevelIds.contains(voltageLevel.getId());
     }
@@ -181,6 +196,11 @@ public final class ExportedVoltageLevels {
     private static UcteCountryCode substationCountry(Substation substation) {
         Country country = substation.getCountry()
                 .orElseThrow(() -> new UcteException("Substation " + substation.getId() + " has no country"));
-        return UcteCountryCode.fromCountry(country);
+        try {
+            return UcteCountryCode.fromCountry(country);
+        } catch (com.powsybl.ucte.network.UcteException e) {
+            // To avoid confusion with exception classes carrying the same name, we just rethrow
+            throw new UcteException(e.getMessage(), e);
+        }
     }
 }

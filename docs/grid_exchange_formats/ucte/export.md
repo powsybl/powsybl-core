@@ -403,8 +403,8 @@ The `Counter` naming strategy needs their country, and computes it without modif
 ## Reporting
 
 When a [ReportNode](../../user/functional_logs/index.md) is provided to the export, one report node is created per
-conversion step (buses and switches, boundary lines, lines, tie lines, transformers) and per exported file. The
-following situations are reported:
+conversion step (voltage levels, buses and switches, boundary lines, lines, tie lines, transformers) and per exported
+file. The following situations are reported :
 
 | Situation                                                                                                    | Severity | See                                                                                         |
 |--------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
