@@ -30,22 +30,17 @@ public class RegulatingControlMapping {
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
 
     private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
-    private final RegulatingControlMappingForVscConverters regulatingControlMappingForVscConverters;
     private final Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
+    private final Map<String, String> vscToPccTerminal = new HashMap<>();
     private final Context context;
 
     RegulatingControlMapping(Context context) {
         this.context = context;
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
-        regulatingControlMappingForVscConverters = new RegulatingControlMappingForVscConverters(context);
     }
 
     public RegulatingControlMappingForTransformers forTransformers() {
         return regulatingControlMappingForTransformers;
-    }
-
-    public RegulatingControlMappingForVscConverters forVscConverters() {
-        return regulatingControlMappingForVscConverters;
     }
 
     public RegulatingControl fetchRegulatingControl(String regulatingControlId) {
@@ -57,11 +52,20 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.put(regulatingControlId, new RegulatingControl(p));
     }
 
+    public void storePccTerminal(String vscId, PropertyBag p) {
+        String pccTerminal = p.getId("PccTerminal");
+        if (pccTerminal != null) {
+            vscToPccTerminal.put(vscId, pccTerminal);
+        }
+    }
+
     void setAllRegulatingControls(Network network) {
         network.getGeneratorStream().forEach(this::setRegulatingControl);
         network.getShuntCompensatorStream().forEach(this::setRegulatingControl);
         network.getStaticVarCompensatorStream().forEach(this::setRegulatingControl);
-        regulatingControlMappingForVscConverters.applyRegulatingControls(network);
+        network.getVscConverterStationStream()
+            .filter(vsc -> vscToPccTerminal.containsKey(vsc.getId()))
+            .forEach(vsc -> setRegulatingControlReactivePower(vsc, vscToPccTerminal.get(vsc.getId())));
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
         cachedRegulatingControls.clear();
     }
@@ -135,10 +139,6 @@ public class RegulatingControlMapping {
 
     public static boolean isControlModeReactivePower(String controlMode) {
         return controlMode != null && controlMode.toLowerCase(Locale.ROOT).endsWith(CgmesNames.REACTIVE_POWER);
-    }
-
-    protected static String getRegulatingControlId(PropertyBag p) {
-        return p.getId(CgmesNames.REGULATING_CONTROL);
     }
 
     public record RegulatingControl(String mode, String terminalId) {
