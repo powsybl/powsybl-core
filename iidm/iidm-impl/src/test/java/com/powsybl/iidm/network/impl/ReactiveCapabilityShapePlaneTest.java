@@ -19,35 +19,35 @@ class ReactiveCapabilityShapePlaneTest {
     private static final double DELTA = 1e-9;
 
     @Test
-    void testBuildCreatesInstanceWithAlphaAndBeta() {
+    void testBuildCreatesInstanceWithCoeffUAndCoeffP() {
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(1.5, -2.5);
 
-        assertEquals(1.5, plane.getAlpha(), DELTA);
-        assertEquals(-2.5, plane.getBeta(), DELTA);
+        assertEquals(1.5, plane.getCoeffU(), DELTA);
+        assertEquals(-2.5, plane.getCoeffP(), DELTA);
     }
 
     @Test
-    void testLessOrEqualSetsGammaAndInequalityType() {
+    void testLessOrEqualSetsRhsAndInequalityType() {
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.5, 0.8)
                 .lessOrEqual(10.0);
 
-        assertEquals(10.0, plane.getGamma(), DELTA);
+        assertEquals(10.0, plane.getRhs(), DELTA);
         assertTrue(plane.isLessOrEqual());
         assertFalse(plane.isGreaterOrEqual());
     }
 
     @Test
-    void testGreaterOrEqualSetsGammaAndInequalityType() {
+    void testGreaterOrEqualSetsRhsAndInequalityType() {
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(1.0, 2.0)
                 .greaterOrEqual(5.0);
 
-        assertEquals(5.0, plane.getGamma(), DELTA);
+        assertEquals(5.0, plane.getRhs(), DELTA);
         assertTrue(plane.isGreaterOrEqual());
         assertFalse(plane.isLessOrEqual());
     }
 
     @Test
-    void testToStringWithPositiveAlphaAndBetaLessOrEqual() {
+    void testToStringWithPositiveCoeffUAndCoeffPLessOrEqual() {
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(1.23, 4.56)
                 .lessOrEqual(7.89);
 
@@ -56,7 +56,7 @@ class ReactiveCapabilityShapePlaneTest {
     }
 
     @Test
-    void testToStringWithNegativeAlphaAndBetaGreaterOrEqual() {
+    void testToStringWithNegativeCoeffUAndCoeffPGreaterOrEqual() {
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(-2.5, -3.75)
                 .greaterOrEqual(1.0);
 
@@ -65,7 +65,7 @@ class ReactiveCapabilityShapePlaneTest {
     }
 
     @Test
-    void testToStringWithZeroAlphaAndBeta() {
+    void testToStringWithZeroCoeffUAndCoeffP() {
         // EPSILON not defined in the class, assuming small threshold (no effect)
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0)
                 .lessOrEqual(2.0);
@@ -91,8 +91,8 @@ class ReactiveCapabilityShapePlaneTest {
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.9, -0.7)
                 .greaterOrEqual(4.2);
 
-        assertEquals(0.9, plane.getAlpha(), DELTA);
-        assertEquals(-0.7, plane.getBeta(), DELTA);
-        assertEquals(4.2, plane.getGamma(), DELTA);
+        assertEquals(0.9, plane.getCoeffU(), DELTA);
+        assertEquals(-0.7, plane.getCoeffP(), DELTA);
+        assertEquals(4.2, plane.getRhs(), DELTA);
     }
 }
