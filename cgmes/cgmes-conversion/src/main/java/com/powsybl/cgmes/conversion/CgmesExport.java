@@ -328,7 +328,11 @@ public class CgmesExport implements Exporter {
             Network network, CgmesSubset subset, CgmesExportContext context, boolean mainNetwork, boolean modelUpdate) {
         // Initialize a new model for the export
         CgmesMetadataModel modelForExport = new CgmesMetadataModelImpl(subset, CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-        modelForExport.setProfile(context.getCim().getProfileUri(subset.getIdentifier()));
+        // Profiles of subsets exported outside of this module (e.g. GL) are not known here: they are set by the caller
+        String profileUri = context.getCim().getProfileUri(subset.getIdentifier());
+        if (profileUri != null) {
+            modelForExport.setProfile(profileUri);
+        }
 
         // If a model extension exists, use it as basis for the export
         CgmesMetadataModels networkModels = network.getExtension(CgmesMetadataModels.class);

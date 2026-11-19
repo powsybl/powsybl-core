@@ -28,6 +28,10 @@ public interface CgmesModel {
     // Although generic cgmes models may not have an underlying triplestore
     TripleStore tripleStore();
 
+    String getCimNamespace();
+
+    int getCimVersion();
+
     Properties getProperties();
 
     default PropertyBags fullModels() {

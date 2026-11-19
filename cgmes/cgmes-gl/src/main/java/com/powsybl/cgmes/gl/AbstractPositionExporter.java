@@ -7,14 +7,19 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.Coordinate;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.TripleStore;
 
-import java.util.Arrays;
-import java.util.Collections;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.util.List;
 import java.util.Objects;
+
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  *
@@ -22,46 +27,54 @@ import java.util.Objects;
  */
 public abstract class AbstractPositionExporter {
 
-    protected TripleStore tripleStore;
-    protected ExportContext context;
-
-    private static final String IDENTIFIED_OBJECT_NAME = "IdentifiedObject.name";
-    private static final String COORDINATE_SYSTEM = "CoordinateSystem";
-    private static final String POWER_SYSTEM_RESOURCES = "PowerSystemResources";
     private static final String LOCATION = "Location";
-    private static final String X_POSITION = "xPosition";
-    private static final String Y_POSITION = "yPosition";
-    private static final String SEQUENCE_NUMBER = "sequenceNumber";
+    private static final String POSITION_POINT = "PositionPoint";
 
-    protected AbstractPositionExporter(TripleStore tripleStore, ExportContext context) {
-        this.tripleStore = Objects.requireNonNull(tripleStore);
+    protected final XMLStreamWriter writer;
+    protected final CgmesExportContext context;
+    private final String coordinateSystemId;
+
+    protected AbstractPositionExporter(XMLStreamWriter writer, CgmesExportContext context, String coordinateSystemId) {
+        this.writer = Objects.requireNonNull(writer);
         this.context = Objects.requireNonNull(context);
+        this.coordinateSystemId = Objects.requireNonNull(coordinateSystemId);
     }
 
-    protected String addLocation(String id, String name) {
-
-        PropertyBag locationProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, COORDINATE_SYSTEM, POWER_SYSTEM_RESOURCES), true);
-        locationProperties.setResourceNames(Arrays.asList(COORDINATE_SYSTEM, POWER_SYSTEM_RESOURCES));
-        locationProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
-        locationProperties.put(IDENTIFIED_OBJECT_NAME, name);
-        locationProperties.put(POWER_SYSTEM_RESOURCES, id);
-        locationProperties.put(COORDINATE_SYSTEM, context.getCoordinateSystemId());
-
-        return tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, LOCATION, locationProperties);
-    }
-
-    protected void addLocationPoint(String locationId, Coordinate coordinate, int seq) {
-        PropertyBag locationPointProperties = (seq == 0)
-                ? new PropertyBag(Arrays.asList(X_POSITION, Y_POSITION, LOCATION), true)
-                : new PropertyBag(Arrays.asList(SEQUENCE_NUMBER, X_POSITION, Y_POSITION, LOCATION), true);
-        locationPointProperties.setResourceNames(Collections.singletonList(LOCATION));
-        if (seq > 0) {
-            locationPointProperties.put(SEQUENCE_NUMBER, Integer.toString(seq));
+    /**
+     * @param sequenced whether the position points are ordered, writing their sequence number
+     */
+    protected void writeLocation(Identifiable<?> powerSystemResource, List<Coordinate> coordinates, boolean sequenced) {
+        try {
+            String cimNamespace = context.getCim().getNamespace();
+            String locationId = context.getNamingStrategy().getCgmesId(refTyped(powerSystemResource), ref(LOCATION));
+            CgmesExportUtil.writeStartIdName(LOCATION, locationId, powerSystemResource.getNameOrId(), cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("Location.CoordinateSystem", coordinateSystemId, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("Location.PowerSystemResources", context.getNamingStrategy().getCgmesId(powerSystemResource), cimNamespace, writer, context);
+            writer.writeEndElement();
+            for (int i = 0; i < coordinates.size(); i++) {
+                String positionPointId = context.getNamingStrategy().getCgmesId(refTyped(powerSystemResource), ref(POSITION_POINT), ref(i + 1));
+                writePositionPoint(positionPointId, locationId, coordinates.get(i), sequenced ? i + 1 : 0, cimNamespace);
+            }
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
-        locationPointProperties.put(X_POSITION, Double.toString(coordinate.getLongitude()));
-        locationPointProperties.put(Y_POSITION, Double.toString(coordinate.getLatitude()));
-        locationPointProperties.put(LOCATION, locationId);
-        tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "PositionPoint", locationPointProperties);
+    }
+
+    private void writePositionPoint(String id, String locationId, Coordinate coordinate, int seq, String cimNamespace) throws XMLStreamException {
+        CgmesExportUtil.writeStartId(POSITION_POINT, id, true, cimNamespace, writer, context);
+        if (seq > 0) {
+            writer.writeStartElement(cimNamespace, "PositionPoint.sequenceNumber");
+            writer.writeCharacters(Integer.toString(seq));
+            writer.writeEndElement();
+        }
+        writer.writeStartElement(cimNamespace, "PositionPoint.xPosition");
+        writer.writeCharacters(Double.toString(coordinate.getLongitude()));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "PositionPoint.yPosition");
+        writer.writeCharacters(Double.toString(coordinate.getLatitude()));
+        writer.writeEndElement();
+        CgmesExportUtil.writeReference("PositionPoint.Location", locationId, cimNamespace, writer, context);
+        writer.writeEndElement();
     }
 
 }
