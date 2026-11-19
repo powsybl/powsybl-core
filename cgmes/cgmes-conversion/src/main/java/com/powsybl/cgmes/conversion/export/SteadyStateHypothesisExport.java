@@ -71,7 +71,7 @@ public final class SteadyStateHypothesisExport {
             exportBatteries(network, sshWriter, context);
             exportShuntCompensators(network, regulatingControlViews, sshWriter, context);
             exportStaticVarCompensators(network, regulatingControlViews, sshWriter, context);
-            exportRegulatingControls(regulatingControlViews, sshWriter, context);
+            exportRegulatingControls(regulatingControlViews, sshWriter);
             exportGeneratingUnitsParticitationFactors(network, sshWriter, context);
             exportConverters(network, sshWriter, context);
             exportDCTerminals(network, sshWriter, context);
@@ -103,8 +103,8 @@ public final class SteadyStateHypothesisExport {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
                 boolean connected = isConnected(sw, switchType);
 
-                exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1), connected, writer, context);
-                exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL2), connected, writer, context);
+                exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL1), connected, writer);
+                exportTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TERMINAL2), connected, writer);
             }
         }
     }
@@ -128,18 +128,18 @@ public final class SteadyStateHypothesisExport {
     private static void exportTerminalForBoundaryLines(Network network, SteadyStateHypothesisWriter writer, CgmesExportContext context) {
         for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
-            exportTerminal(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, writer, context);
+            exportTerminal(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, writer);
             // Terminal for boundary side of original line/switch is always connected
-            exportTerminal(CgmesExportUtil.getBoundaryLineBoundaryTerminalId(bl, context), true, writer, context);
+            exportTerminal(CgmesExportUtil.getBoundaryLineBoundaryTerminalId(bl, context), true, writer);
         }
     }
 
-    private static void exportTerminalForBuses(Network network, SteadyStateHypothesisWriter writer, CgmesExportContext context) {
+    private static void exportTerminalForBuses(Network network, SteadyStateHypothesisWriter writer) {
         for (Bus b : network.getBusBreakerView().getBuses()) {
             String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
             if (!bbsTerminals.isEmpty()) {
                 for (String bbsTerminal : bbsTerminals.split(",")) {
-                    exportTerminal(bbsTerminal, true, writer, context);
+                    exportTerminal(bbsTerminal, true, writer);
                 }
             }
         }
@@ -151,7 +151,7 @@ public final class SteadyStateHypothesisExport {
                 if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
                     // Equivalent shunts do not have a section count in SSH, SV profiles,
                     // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
-                    exportTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, writer, context);
+                    exportTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, writer);
                 } else {
                     for (Terminal t : c.getTerminals()) {
                         exportTerminal(t, writer, context);
@@ -163,7 +163,7 @@ public final class SteadyStateHypothesisExport {
         exportTerminalForBoundaryLines(network, writer, context);
         // If we are performing an updated export, write recorded busbar section terminals as connected
         if (!context.isExportEquipment()) {
-            exportTerminalForBuses(network, writer, context);
+            exportTerminalForBuses(network, writer);
         }
     }
 
@@ -185,7 +185,7 @@ public final class SteadyStateHypothesisExport {
             if (p != 0.0 || q != 0.0) {
                 String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, ref("NCL"), ref(node));
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
-                exportFictitiousInjection(loadId, terminalId, p, q, writer, context);
+                exportFictitiousInjection(loadId, terminalId, p, q, writer);
             }
         }
     }
@@ -197,14 +197,13 @@ public final class SteadyStateHypothesisExport {
             if (p != 0.0 || q != 0.0) {
                 String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
-                exportFictitiousInjection(loadId, terminalId, p, q, writer, context);
+                exportFictitiousInjection(loadId, terminalId, p, q, writer);
             }
         }
     }
 
     private static void exportFictitiousInjection(String loadId, String terminalId, double p, double q,
-                                                  SteadyStateHypothesisWriter writer,
-                                                  CgmesExportContext context) throws XMLStreamException {
+                                                  SteadyStateHypothesisWriter writer) throws XMLStreamException {
         if (p <= 0) {
             CgmesRecords.EnergySourceSsh energySource = new CgmesRecords.EnergySourceSsh(loadId, p, q);
             writer.writeEnergySource(energySource);
@@ -213,7 +212,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEnergyConsumer(energyConsumer);
         }
         // Terminal connected state (always connected in SSH for fictitious terminals)
-        exportTerminal(terminalId, true, writer, context);
+        exportTerminal(terminalId, true, writer);
     }
 
     private static void exportEquivalentInjections(Network network, SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -247,39 +246,48 @@ public final class SteadyStateHypothesisExport {
     private static void exportTapChangers(Network network, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                           SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            if (twt.hasPhaseTapChanger()) {
-                String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
-                    ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
-                exportTapChanger(twt, aliasType, PHASE_TAP_CHANGER, 1, CgmesNames.PHASE_TAP_CHANGER_TABULAR, twt.getPhaseTapChanger(), regulatingControlViews, writer, context);
-            }
-            if (twt.hasRatioTapChanger()) {
-                String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
-                    ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
-                exportTapChanger(twt, aliasType, RATIO_TAP_CHANGER, 1, CgmesNames.RATIO_TAP_CHANGER, twt.getRatioTapChanger(), regulatingControlViews, writer, context);
-            }
+            exportTapChangers(twt, regulatingControlViews, writer, context);
         }
-
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
-                int endNumber = leg.getSide().getNum();
-                if (leg.hasPhaseTapChanger()) {
-                    String aliasType = getPhaseTapChangerAliasType(Integer.toString(endNumber));
-                    exportTapChanger(twt, aliasType, PHASE_TAP_CHANGER, endNumber, CgmesNames.PHASE_TAP_CHANGER_TABULAR,
-                        leg.getPhaseTapChanger(), regulatingControlViews, writer, context);
-                }
-                if (leg.hasRatioTapChanger()) {
-                    String aliasType = getRatioTapChangerAliasType(Integer.toString(endNumber));
-                    exportTapChanger(twt, aliasType, RATIO_TAP_CHANGER, endNumber, CgmesNames.RATIO_TAP_CHANGER, leg.getRatioTapChanger(), regulatingControlViews, writer, context);
-                }
+            exportTapChangers(twt, regulatingControlViews, writer, context);
+        }
+    }
+
+    private static void exportTapChangers(TwoWindingsTransformer twt, Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                          SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (twt.hasPhaseTapChanger()) {
+            String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
+                ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
+            exportTapChanger(twt, aliasType, PHASE_TAP_CHANGER, 1, regulatingControlViews, writer, context);
+        }
+        if (twt.hasRatioTapChanger()) {
+            String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
+                ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
+            exportTapChanger(twt, aliasType, RATIO_TAP_CHANGER, 1, regulatingControlViews, writer, context);
+        }
+    }
+
+    private static void exportTapChangers(ThreeWindingsTransformer twt, Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                          SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
+            int endNumber = leg.getSide().getNum();
+            if (leg.hasPhaseTapChanger()) {
+                String aliasType = getPhaseTapChangerAliasType(Integer.toString(endNumber));
+                exportTapChanger(twt, aliasType, PHASE_TAP_CHANGER, endNumber, regulatingControlViews, writer, context);
+            }
+            if (leg.hasRatioTapChanger()) {
+                String aliasType = getRatioTapChangerAliasType(Integer.toString(endNumber));
+                exportTapChanger(twt, aliasType, RATIO_TAP_CHANGER, endNumber, regulatingControlViews, writer, context);
             }
         }
     }
 
     private static <C extends Connectable<C>> void exportTapChanger(C twt, String aliasType, Part part, int endNumber,
-                                                                    String defaultType, TapChanger<?, ?, ?, ?> tc,
                                                                     Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                                     SteadyStateHypothesisWriter writer,
                                                                     CgmesExportContext context) throws XMLStreamException {
+        String defaultType = part == PHASE_TAP_CHANGER ? CgmesNames.PHASE_TAP_CHANGER_TABULAR : CgmesNames.RATIO_TAP_CHANGER;
+        TapChanger<?, ?, ?, ?> tc = getTapChanger(twt, part, endNumber);
         String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
         String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
         String tapChangerControlId = getTapChangerControlId(twt, part, endNumber, cgmesTapChangerId, context);
@@ -302,9 +310,21 @@ public final class SteadyStateHypothesisExport {
         if (!context.isExportEquipment()) {
             Optional<CgmesTapChanger> hiddenCombinedTapChanger = getHiddenCombinedTapChanger(twt, cgmesTapChangerId);
             if (hiddenCombinedTapChanger.isPresent()) {
-                exportHiddenTapChanger(hiddenCombinedTapChanger.get(), defaultType, writer, context);
+                exportHiddenTapChanger(hiddenCombinedTapChanger.get(), defaultType, writer);
             }
         }
+    }
+
+    /**
+     * The phase or ratio tap changer of a two windings transformer, or of the leg endNumber of a three windings transformer.
+     */
+    private static TapChanger<?, ?, ?, ?> getTapChanger(Connectable<?> twt, Part part, int endNumber) {
+        if (twt instanceof ThreeWindingsTransformer threeWindingsTransformer) {
+            ThreeWindingsTransformer.Leg leg = threeWindingsTransformer.getLeg(ThreeSides.valueOf(endNumber));
+            return part == PHASE_TAP_CHANGER ? leg.getPhaseTapChanger() : leg.getRatioTapChanger();
+        }
+        TwoWindingsTransformer twoWindingsTransformer = (TwoWindingsTransformer) twt;
+        return part == PHASE_TAP_CHANGER ? twoWindingsTransformer.getPhaseTapChanger() : twoWindingsTransformer.getRatioTapChanger();
     }
 
     private static void exportShuntCompensators(Network network, Map<String, List<RegulatingControlView>> regulatingControlViews,
@@ -459,7 +479,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void exportHiddenTapChanger(CgmesTapChanger cgmesTc, String defaultType, SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void exportHiddenTapChanger(CgmesTapChanger cgmesTc, String defaultType, SteadyStateHypothesisWriter writer) throws XMLStreamException {
         CgmesRecords.TapChangerSsh tapChanger = new CgmesRecords.TapChangerSsh(Optional.ofNullable(cgmesTc.getType()).orElse(defaultType), cgmesTc.getId(), false,
                 cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId())));
         writer.writeTapChanger(tapChanger);
@@ -520,9 +540,9 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void exportRegulatingControls(Map<String, List<RegulatingControlView>> regulatingControlViews,
-                                                 SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                                 SteadyStateHypothesisWriter writer) throws XMLStreamException {
         for (List<RegulatingControlView> views : regulatingControlViews.values()) {
-            exportRegulatingControl(combineRegulatingControlViews(views), writer, context);
+            exportRegulatingControl(combineRegulatingControlViews(views), writer);
         }
     }
 
@@ -551,7 +571,7 @@ public final class SteadyStateHypothesisExport {
                 || currentTargetDeadband > 0 && (combinedTargetDeadband == 0 || currentTargetDeadband < combinedTargetDeadband);
     }
 
-    private static void exportRegulatingControl(RegulatingControlView rc, SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void exportRegulatingControl(RegulatingControlView rc, SteadyStateHypothesisWriter writer) throws XMLStreamException {
         CgmesRecords.RegulatingControlSsh regulatingControl = new CgmesRecords.RegulatingControlSsh(
             regulatingControlClassname(rc.type),
             rc.id,
@@ -588,10 +608,10 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void exportTerminal(Terminal t, SteadyStateHypothesisWriter writer, CgmesExportContext context) {
-        exportTerminal(CgmesExportUtil.getTerminalId(t, context), t.isConnected(), writer, context);
+        exportTerminal(CgmesExportUtil.getTerminalId(t, context), t.isConnected(), writer);
     }
 
-    private static void exportTerminal(String terminalId, boolean connected, SteadyStateHypothesisWriter writer, CgmesExportContext context) {
+    private static void exportTerminal(String terminalId, boolean connected, SteadyStateHypothesisWriter writer) {
         try {
             CgmesRecords.TerminalSsh terminal = new CgmesRecords.TerminalSsh(terminalId, connected);
             writer.writeTerminal(terminal);
@@ -669,7 +689,6 @@ public final class SteadyStateHypothesisExport {
         double targetPpcc;
         double targetUdc;
         double p;
-        double q;
         if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
             targetPpcc = converterStation.getHvdcLine().getActivePowerSetpoint();
             targetUdc = 0.0;
@@ -687,21 +706,32 @@ public final class SteadyStateHypothesisExport {
         }
 
         if (converterStation instanceof LccConverterStation lccConverterStation) {
-            q = Math.abs(getQfromPowerFactor(p, lccConverterStation.getPowerFactor()));
-            String operatingMode = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "rectifier" : "inverter";
-            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "activePower" : "dcVoltage";
-            CgmesRecords.CsConverterSsh csConverter = new CgmesRecords.CsConverterSsh(converterId, targetPpcc, targetUdc, p, q, 0.0, 0.0, 0.0, operatingMode, pPccControl);
-            writer.writeCsConverter(csConverter);
+            exportLccConverterStation(lccConverterStation, converterId, targetPpcc, targetUdc, p, writer);
         } else if (converterStation instanceof VscConverterStation vscConverterStation) {
-            p = vscConverterStation.getRegulatingTerminal().getP();
-            q = -vscConverterStation.getLocalTargetQ();
-            double targetQpcc = vscConverterStation.isWithMode(RegulationMode.REACTIVE_POWER) ? -vscConverterStation.getRegulatingTargetQ() : 0; // To be consistent with the import
-            double targetUpcc = vscConverterStation.isWithMode(RegulationMode.VOLTAGE) ? vscConverterStation.getRegulatingTargetV() : 0;
-            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
-            String qPccControl = vscConverterStation.isRegulatingWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
-            CgmesRecords.VsConverterSsh vsConverter = new CgmesRecords.VsConverterSsh(converterId, targetPpcc, targetUdc, p, q, 0.0, 0.0, 0.0, targetQpcc, targetUpcc, pPccControl, qPccControl);
-            writer.writeVsConverter(vsConverter);
+            exportVscConverterStation(vscConverterStation, converterId, targetPpcc, targetUdc, writer);
         }
+    }
+
+    private static void exportLccConverterStation(LccConverterStation lccConverterStation, String converterId, double targetPpcc, double targetUdc, double p,
+                                                  SteadyStateHypothesisWriter writer) throws XMLStreamException {
+        double q = Math.abs(getQfromPowerFactor(p, lccConverterStation.getPowerFactor()));
+        String operatingMode = CgmesExportUtil.isConverterStationRectifier(lccConverterStation) ? "rectifier" : "inverter";
+        String pPccControl = CgmesExportUtil.isConverterStationRectifier(lccConverterStation) ? "activePower" : "dcVoltage";
+        CgmesRecords.CsConverterSsh csConverter = new CgmesRecords.CsConverterSsh(converterId, targetPpcc, targetUdc, p, q, 0.0, 0.0, 0.0, operatingMode, pPccControl);
+        writer.writeCsConverter(csConverter);
+    }
+
+    private static void exportVscConverterStation(VscConverterStation vscConverterStation, String converterId, double targetPpcc, double targetUdc,
+                                                  SteadyStateHypothesisWriter writer) throws XMLStreamException {
+        // The active power of a VSC converter is the one of its regulating terminal
+        double p = vscConverterStation.getRegulatingTerminal().getP();
+        double q = -vscConverterStation.getLocalTargetQ();
+        double targetQpcc = vscConverterStation.isWithMode(RegulationMode.REACTIVE_POWER) ? -vscConverterStation.getRegulatingTargetQ() : 0; // To be consistent with the import
+        double targetUpcc = vscConverterStation.isWithMode(RegulationMode.VOLTAGE) ? vscConverterStation.getRegulatingTargetV() : 0;
+        String pPccControl = CgmesExportUtil.isConverterStationRectifier(vscConverterStation) ? "pPcc" : "udc";
+        String qPccControl = vscConverterStation.isRegulatingWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
+        CgmesRecords.VsConverterSsh vsConverter = new CgmesRecords.VsConverterSsh(converterId, targetPpcc, targetUdc, p, q, 0.0, 0.0, 0.0, targetQpcc, targetUpcc, pPccControl, qPccControl);
+        writer.writeVsConverter(vsConverter);
     }
 
     private static void exportDCTerminals(Network network, SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -713,41 +743,41 @@ public final class SteadyStateHypothesisExport {
                 String dcTerminalId = CgmesExportUtil.getDcTerminalId(dcTerminal, context);
                 String className = dcConnectable instanceof AcDcConverter<?> ? CgmesNames.ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
                 boolean connected = dcTerminal.isConnected();
-                exportDCTerminal(dcTerminalId, className, connected, writer, context);
+                exportDCTerminal(dcTerminalId, className, connected, writer);
             }
         }
         for (DcSwitch dcSwitch : network.getDcSwitches()) {
             boolean connected = !dcSwitch.isOpen();
             String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1);
-            exportDCTerminal(dcTerminal1Id, CgmesNames.DC_TERMINAL, connected, writer, context);
+            exportDCTerminal(dcTerminal1Id, CgmesNames.DC_TERMINAL, connected, writer);
             String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2);
-            exportDCTerminal(dcTerminal2Id, CgmesNames.DC_TERMINAL, connected, writer, context);
+            exportDCTerminal(dcTerminal2Id, CgmesNames.DC_TERMINAL, connected, writer);
         }
     }
 
     private static void exportHvdcLineDCTerminals(HvdcLine line, SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
         String acdcConverterDcTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(line.getConverterStation1(), ALIAS_DC_TERMINAL1);
-        exportDCTerminal(acdcConverterDcTerminal1, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer, context);
+        exportDCTerminal(acdcConverterDcTerminal1, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer);
         String acdcConverterDcTerminal1G = context.getNamingStrategy().getCgmesIdFromAlias(line.getConverterStation1(), ALIAS_DC_TERMINAL2);
-        exportDCTerminal(acdcConverterDcTerminal1G, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer, context);
+        exportDCTerminal(acdcConverterDcTerminal1G, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer);
 
         String acdcConverterDcTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(line.getConverterStation2(), ALIAS_DC_TERMINAL1);
-        exportDCTerminal(acdcConverterDcTerminal2, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer, context);
+        exportDCTerminal(acdcConverterDcTerminal2, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer);
         String acdcConverterDcTerminal2G = context.getNamingStrategy().getCgmesIdFromAlias(line.getConverterStation1(), ALIAS_DC_TERMINAL2);
-        exportDCTerminal(acdcConverterDcTerminal2G, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer, context);
+        exportDCTerminal(acdcConverterDcTerminal2G, CgmesNames.ACDC_CONVERTER_DC_TERMINAL, true, writer);
 
         String dcTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(line, ALIAS_DC_TERMINAL1);
-        exportDCTerminal(dcTerminal1, CgmesNames.DC_TERMINAL, true, writer, context);
+        exportDCTerminal(dcTerminal1, CgmesNames.DC_TERMINAL, true, writer);
         String dcTerminal1G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("1G"));
-        exportDCTerminal(dcTerminal1G, CgmesNames.DC_TERMINAL, true, writer, context);
+        exportDCTerminal(dcTerminal1G, CgmesNames.DC_TERMINAL, true, writer);
 
         String dcTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(line, ALIAS_DC_TERMINAL2);
-        exportDCTerminal(dcTerminal2, CgmesNames.DC_TERMINAL, true, writer, context);
+        exportDCTerminal(dcTerminal2, CgmesNames.DC_TERMINAL, true, writer);
         String dcTerminal2G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("2G"));
-        exportDCTerminal(dcTerminal2G, CgmesNames.DC_TERMINAL, true, writer, context);
+        exportDCTerminal(dcTerminal2G, CgmesNames.DC_TERMINAL, true, writer);
     }
 
-    private static void exportDCTerminal(String terminalId, String className, boolean connected, SteadyStateHypothesisWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void exportDCTerminal(String terminalId, String className, boolean connected, SteadyStateHypothesisWriter writer) throws XMLStreamException {
         CgmesRecords.DCTerminalSsh dcTerminal = new CgmesRecords.DCTerminalSsh(className, terminalId, connected);
         writer.writeDCTerminal(dcTerminal);
     }
@@ -846,33 +876,43 @@ public final class SteadyStateHypothesisExport {
         double targetPpcc = converter.getControlMode() == AcDcConverter.ControlMode.P_PCC ? converter.getTargetP() : 0.0;
         double targetUdc = converter.getControlMode() == AcDcConverter.ControlMode.V_DC ? converter.getTargetVdc() : 0.0;
         double p = converter.getPccTerminal().getP();
-        double q = converter.getPccTerminal().getQ();
-        if (converter instanceof LineCommutatedConverter) {
-            String operatingMode = targetPpcc > 0.0 ? "rectifier" : "inverter";
-            String pPccControl = converter.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "activePower" : "dcVoltage";
-            CgmesRecords.CsConverterSsh csConverter = new CgmesRecords.CsConverterSsh(converterId, targetPpcc, targetUdc, p, q, 0.0, 0.0, 0.0, operatingMode, pPccControl);
-            writer.writeCsConverter(csConverter);
+        if (converter instanceof LineCommutatedConverter lcc) {
+            exportLineCommutatedConverter(lcc, converterId, targetPpcc, targetUdc, p, writer);
         } else if (converter instanceof VoltageSourceConverter vsc) {
-            double targetQpcc = vsc.isWithMode(RegulationMode.REACTIVE_POWER) ? vsc.getRegulatingTargetQ() : 0;
-            double targetUpcc = vsc.isWithMode(RegulationMode.VOLTAGE) ? vsc.getRegulatingTargetV() : 0;
-            String pPccControl = vsc.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "pPcc" : "udc";
-            String qPccControl = vsc.isWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
-            CgmesRecords.VsConverterSsh vsConverter = new CgmesRecords.VsConverterSsh(
-                converterId,
-                targetPpcc,
-                targetUdc,
-                p,
-                vsc.getLocalTargetQ(),
-                0.0,
-                0.0,
-                0.0,
-                targetQpcc,
-                targetUpcc,
-                pPccControl,
-                qPccControl
-            );
-            writer.writeVsConverter(vsConverter);
+            exportVoltageSourceConverter(vsc, converterId, targetPpcc, targetUdc, p, writer);
         }
+    }
+
+    private static void exportLineCommutatedConverter(LineCommutatedConverter lcc, String converterId, double targetPpcc, double targetUdc, double p,
+                                                      SteadyStateHypothesisWriter writer) throws XMLStreamException {
+        double q = lcc.getPccTerminal().getQ();
+        String operatingMode = targetPpcc > 0.0 ? "rectifier" : "inverter";
+        String pPccControl = lcc.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "activePower" : "dcVoltage";
+        CgmesRecords.CsConverterSsh csConverter = new CgmesRecords.CsConverterSsh(converterId, targetPpcc, targetUdc, p, q, 0.0, 0.0, 0.0, operatingMode, pPccControl);
+        writer.writeCsConverter(csConverter);
+    }
+
+    private static void exportVoltageSourceConverter(VoltageSourceConverter vsc, String converterId, double targetPpcc, double targetUdc, double p,
+                                                      SteadyStateHypothesisWriter writer) throws XMLStreamException {
+        double targetQpcc = vsc.isWithMode(RegulationMode.REACTIVE_POWER) ? vsc.getRegulatingTargetQ() : 0;
+        double targetUpcc = vsc.isWithMode(RegulationMode.VOLTAGE) ? vsc.getRegulatingTargetV() : 0;
+        String pPccControl = vsc.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "pPcc" : "udc";
+        String qPccControl = vsc.isWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
+        CgmesRecords.VsConverterSsh vsConverter = new CgmesRecords.VsConverterSsh(
+            converterId,
+            targetPpcc,
+            targetUdc,
+            p,
+            vsc.getLocalTargetQ(),
+            0.0,
+            0.0,
+            0.0,
+            targetQpcc,
+            targetUpcc,
+            pPccControl,
+            qPccControl
+        );
+        writer.writeVsConverter(vsConverter);
     }
 
     private enum RegulatingControlType {
