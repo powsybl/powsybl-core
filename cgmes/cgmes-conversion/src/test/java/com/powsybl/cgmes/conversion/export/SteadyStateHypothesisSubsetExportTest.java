@@ -98,7 +98,7 @@ class SteadyStateHypothesisSubsetExportTest {
         if (generator.getVoltageRegulation().getTerminal() != null) {
             generator.getVoltageRegulation().setTargetValue(target);
         } else {
-            generator.setTargetV(target);
+            generator.setLocalTargetV(target);
         }
         List<Identifiable<?>> shunt = List.of(network.getShuntCompensator(SHARED_CONTROL_SHUNT));
 
@@ -120,7 +120,8 @@ class SteadyStateHypothesisSubsetExportTest {
         // The user changes the deadband of only one of the shunts
         shunt2.getVoltageRegulation().setTargetDeadband(shunt2.getVoltageRegulation().getTargetDeadband() + 1.0);
 
-        PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, List.of(shunt2)));
+        List<Identifiable<?>> shunt = List.of(shunt2);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exportPartial(network, shunt));
         assertTrue(e.getMessage().contains(sharedControl));
         assertTrue(e.getMessage().contains("See the section \"Shared regulating controls\""));
     }

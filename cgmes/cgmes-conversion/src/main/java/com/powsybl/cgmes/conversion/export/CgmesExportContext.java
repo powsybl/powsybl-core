@@ -86,7 +86,7 @@ public class CgmesExportContext {
     private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean partialSshExport = false;
-    private Collection<? extends Identifiable<?>> sshExportedIdentifiables = List.of();
+    private Collection<Identifiable<?>> sshExportedIdentifiables = List.of();
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
     private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
     private final Map<String, GeographicalRegionEq> regionsById = new HashMap<>();
@@ -371,12 +371,16 @@ public class CgmesExportContext {
     /**
      * The identifiables whose SSH data is exported in a partial SSH export.
      */
-    public Collection<? extends Identifiable<?>> getSshExportedIdentifiables() {
+    public Collection<Identifiable<?>> getSshExportedIdentifiables() {
         return sshExportedIdentifiables;
     }
 
+    /**
+     * Set the identifiables whose SSH data is exported in a partial SSH export.
+     * The context keeps a copy of the collection, in the same order.
+     */
     public CgmesExportContext setSshExportedIdentifiables(Collection<? extends Identifiable<?>> sshExportedIdentifiables) {
-        this.sshExportedIdentifiables = Objects.requireNonNull(sshExportedIdentifiables);
+        this.sshExportedIdentifiables = List.copyOf(Objects.requireNonNull(sshExportedIdentifiables));
         return this;
     }
 
