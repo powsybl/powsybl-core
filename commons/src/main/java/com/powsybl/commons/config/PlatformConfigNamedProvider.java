@@ -105,6 +105,7 @@ public interface PlatformConfigNamedProvider {
         private static <T extends PlatformConfigNamedProvider> T find(String name,
                 String moduleName, List<String> propertyNames, Class<T> clazz,
                 PlatformConfig platformConfig) {
+            PlatformConfigNamedProvider.class.getModule().addUses(clazz); // generic service type, cannot be declared in module-info
             List<T> providers = alwaysSameComputeIfAbsent(PROVIDERS, clazz,
                 k -> Lists.newArrayList(ServiceLoader.load(clazz, PlatformConfigNamedProvider.class.getClassLoader())));
             return find(name, moduleName, propertyNames, providers, platformConfig, clazz);
