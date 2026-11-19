@@ -243,7 +243,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     protected static void updateReferencePriority(Generator generator, PropertyBag cgmesData, Context context) {
-        Integer referencePriority = cgmesData.containsKey(CgmesNames.REFERENCE_PRIORITY) ? cgmesData.asInt(CgmesNames.REFERENCE_PRIORITY, 0) : null;
+        Integer referencePriority = cgmesData.containsKey(CgmesNames.REFERENCE_PRIORITY) ? cgmesData.asInt(CgmesNames.REFERENCE_PRIORITY) : null;
         int defaultReferencePriority = getDefaultValue(null, ReferencePriority.get(generator), 0, 0, context);
         ReferencePriority.set(generator, referencePriority != null ? referencePriority : defaultReferencePriority);
     }
