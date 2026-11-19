@@ -36,6 +36,10 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
 
     private int hvdcLineReplacedCount = 0;
 
+    private int terminalPSubstitutedCount = 0;
+
+    private int terminalQSubstitutedCount = 0;
+
     int getSubstationRemovedCount() {
         return substationRemovedCount;
     }
@@ -78,6 +82,14 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
 
     int getHvdcLineReplacedCount() {
         return hvdcLineReplacedCount;
+    }
+
+    int getTerminalPSubstitutedCount() {
+        return terminalPSubstitutedCount;
+    }
+
+    int getTerminalQSubstitutedCount() {
+        return terminalQSubstitutedCount;
     }
 
     @Override
@@ -157,4 +169,17 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
         hvdcLineRemovedCount++;
     }
 
+    @Override
+    public void terminalPSubstituted(Terminal terminal) {
+        super.terminalPSubstituted(terminal);
+
+        terminalPSubstitutedCount++;
+    }
+
+    @Override
+    public void terminalQSubstituted(Terminal terminal) {
+        super.terminalQSubstituted(terminal);
+
+        terminalQSubstitutedCount++;
+    }
 }
