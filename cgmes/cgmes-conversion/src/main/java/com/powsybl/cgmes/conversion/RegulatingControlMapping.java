@@ -67,7 +67,9 @@ public class RegulatingControlMapping {
             .filter(vsc -> vscToPccTerminal.containsKey(vsc.getId()))
             .forEach(vsc -> setRegulatingControlReactivePower(vsc, vscToPccTerminal.get(vsc.getId())));
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
+
         cachedRegulatingControls.clear();
+        vscToPccTerminal.clear();
     }
 
     private void setRegulatingControl(VoltageRegulationHolder<?> holder) {
