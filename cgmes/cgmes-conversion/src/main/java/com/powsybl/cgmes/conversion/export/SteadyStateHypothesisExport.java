@@ -99,6 +99,9 @@ public final class SteadyStateHypothesisExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
+                // We keep this check to ensure that xiidm files generated with version V7.4.0,
+                // in which zero-impedance branches were imported as switches,
+                // continue to be exported to CGMES as before. This code can be removed in the future.
                 if (!isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(switchType)) {
                     writeSwitch(sw, cimNamespace, writer, context);
                 }
@@ -119,7 +122,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static boolean isSwitchImportedFromAcLineSegmentEquivalentBranchOrSeriesCompensator(String switchType) {
-        return "ACLineSegment".equals(switchType) || "EquivalentBranch".equals(switchType) || "SeriesCompensator".equals(switchType);
+        return CgmesNames.AC_LINE_SEGMENT.equals(switchType) || CgmesNames.EQUIVALENT_BRANCH.equals(switchType) || CgmesNames.SERIES_COMPENSATOR.equals(switchType);
     }
 
     private static boolean isConnected(Switch sw, String switchType) {

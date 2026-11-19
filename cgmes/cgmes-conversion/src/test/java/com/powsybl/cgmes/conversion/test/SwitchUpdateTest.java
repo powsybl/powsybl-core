@@ -8,19 +8,19 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -34,7 +34,7 @@ class SwitchUpdateTest extends AbstractSerDeTest {
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "switch_EQ.xml");
-        assertEquals(4, network.getSwitchCount());
+        assertEquals(1, network.getSwitchCount());
 
         assertEq(network);
     }
@@ -42,7 +42,7 @@ class SwitchUpdateTest extends AbstractSerDeTest {
     @Test
     void importEqAndSshTogetherAndSsh1LaterTest() {
         Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
-        assertEquals(9, network.getSwitchCount());
+        assertEquals(3, network.getSwitchCount());
 
         assertEqSsh(network);
 
@@ -53,7 +53,7 @@ class SwitchUpdateTest extends AbstractSerDeTest {
     @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "switch_EQ.xml");
-        assertEquals(4, network.getSwitchCount()); // No fictitious switch was created
+        assertEquals(1, network.getSwitchCount()); // No fictitious switch was created
 
         assertEq(network);
 
@@ -67,7 +67,7 @@ class SwitchUpdateTest extends AbstractSerDeTest {
     @Test
     void usePreviousValuesTest() {
         Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
-        assertEquals(9, network.getSwitchCount());
+        assertEquals(3, network.getSwitchCount());
         assertEqSsh(network);
 
         Properties properties = new Properties();
@@ -87,44 +87,64 @@ class SwitchUpdateTest extends AbstractSerDeTest {
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
+    // Test to verify the compatibility of networks imported from XIIDM files generated with version V7.4.0,
+    // in which zero-impedance branches were imported as switches.
+    // This test can be removed in the future
     @Test
-    void seriesCompensatorOpenStateRoundTripTest() {
-        Network network = readCgmesResources("/update/switch/", "switch_EQ.xml", "switch_SSH_1.xml");
-
-        Switch breaker = network.getSwitch("Breaker");
-        Switch seriesCompensator = network.getSwitch("SeriesCompensator");
-        Switch equivalentBranch = network.getSwitch("EquivalentBranch");
-        Switch acLineSegment = network.getSwitch("ACLineSegment");
-
-        assertTrue(breaker.isOpen());
-        assertFalse(seriesCompensator.isOpen());
-        assertTrue(equivalentBranch.isOpen());
-        assertFalse(acLineSegment.isOpen());
-
-        breaker.setOpen(false);
-        seriesCompensator.setOpen(true);
-        equivalentBranch.setOpen(false);
-        acLineSegment.setOpen(true);
+    void exportSwitchAsBranchTest() throws IOException {
+        Network network = createFictitiousSwitchNetwork();
+        Switch sw = network.getSwitch("fictitiousSwitch");
+        assertNotNull(sw);
+        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.AC_LINE_SEGMENT);
 
         Properties exportParameters = new Properties();
-        exportParameters.put(CgmesExport.PROFILES, List.of("SSH"));
+        exportParameters.put(CgmesExport.PROFILES, List.of("EQ", "SSH"));
 
-        String baseName = "openState-roundtrip";
+        String baseName = "fictitious-switch";
         network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+        assertEqSsh(baseName, sw.getId(), CgmesNames.AC_LINE_SEGMENT);
 
-        breaker.setOpen(true);
-        seriesCompensator.setOpen(false);
-        equivalentBranch.setOpen(true);
-        acLineSegment.setOpen(false);
+        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_BRANCH);
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+        assertEqSsh(baseName, sw.getId(), CgmesNames.EQUIVALENT_BRANCH);
 
-        Properties importParameters = new Properties();
-        importParameters.put(CgmesImport.USE_PREVIOUS_VALUES_DURING_UPDATE, "true");
-        network.update(new GenericReadOnlyDataSource(tmpDir.toAbsolutePath(), baseName), importParameters);
+        sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SERIES_COMPENSATOR);
+        network.write("CGMES", exportParameters, tmpDir.toAbsolutePath().resolve(baseName));
+        assertEqSsh(baseName, sw.getId(), CgmesNames.SERIES_COMPENSATOR);
+    }
 
-        assertFalse(network.getSwitch("Breaker").isOpen());
-        assertTrue(network.getSwitch("SeriesCompensator").isOpen());
-        assertFalse(network.getSwitch("EquivalentBranch").isOpen());
-        assertTrue(network.getSwitch("ACLineSegment").isOpen());
+    void assertEqSsh(String baseName, String switchId, String cgmesClassName) throws IOException {
+        String eqXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_EQ.xml"));
+        String acLineSegment = getElement(eqXml, cgmesClassName, switchId);
+        assertEquals("0", getAttribute(acLineSegment, cgmesClassName + ".r"));
+        assertEquals("0", getAttribute(acLineSegment, cgmesClassName + ".x"));
+
+        String sshXml = Files.readString(tmpDir.toAbsolutePath().resolve(baseName + "_SSH.xml"));
+        String swTerminal1 = getElement(sshXml, "Terminal", switchId + "_SW_T_1");
+        assertEquals("true", getAttribute(swTerminal1, "ACDCTerminal.connected"));
+        String swTerminal2 = getElement(sshXml, "Terminal", switchId + "_SW_T_2");
+        assertEquals("true", getAttribute(swTerminal2, "ACDCTerminal.connected"));
+    }
+
+    private static Network createFictitiousSwitchNetwork() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(115.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newSwitch()
+                .setId("fictitiousSwitch")
+                .setNode1(1)
+                .setNode2(2)
+                .setKind(SwitchKind.BREAKER)
+                .setFictitious(true)
+                .add();
+        return network;
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
@@ -136,48 +156,27 @@ class SwitchUpdateTest extends AbstractSerDeTest {
     }
 
     private static void assertEq(Network network) {
-        assertEq(network.getSwitch("SeriesCompensator"));
         assertEq(network.getSwitch("Breaker"));
-        assertEq(network.getSwitch("EquivalentBranch"));
-        assertEq(network.getSwitch("ACLineSegment"));
     }
 
     private static void assertEqSsh(Network network) {
-        assertSsh(network.getSwitch("SeriesCompensator"), true);
         assertSsh(network.getSwitch("Breaker"), false);
-        assertSsh(network.getSwitch("SeriesCompensator-T1_SW_fict"), true);
         assertSsh(network.getSwitch("Breaker-T2_SW_fict"), true);
         assertSsh(network.getSwitch("EnergyConsumer-T_SW_fict"), true);
-        assertSsh(network.getSwitch("EquivalentBranch"), false);
-        assertSsh(network.getSwitch("ACLineSegment"), true);
-        assertSsh(network.getSwitch("ACLineSegment-T1_SW_fict"), true);
-        assertSsh(network.getSwitch("ACLineSegment-T2_SW_fict"), true);
     }
 
     private static void assertEqSshSsh1(Network network) {
-        assertSsh(network.getSwitch("SeriesCompensator"), false);
         assertSsh(network.getSwitch("Breaker"), true);
-        assertSsh(network.getSwitch("SeriesCompensator-T1_SW_fict"), false);
         assertSsh(network.getSwitch("Breaker-T2_SW_fict"), false);
         assertSsh(network.getSwitch("EnergyConsumer-T_SW_fict"), false);
-        assertSsh(network.getSwitch("EquivalentBranch"), true);
-        assertSsh(network.getSwitch("ACLineSegment"), false);
-        assertSsh(network.getSwitch("ACLineSegment-T1_SW_fict"), false);
-        assertSsh(network.getSwitch("ACLineSegment-T2_SW_fict"), false);
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getSwitch("SeriesCompensator"), true);
         assertSsh(network.getSwitch("Breaker"), false);
-        assertSsh(network.getSwitch("EquivalentBranch"), false);
-        assertSsh(network.getSwitch("ACLineSegment"), true);
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getSwitch("SeriesCompensator"), false);
         assertSsh(network.getSwitch("Breaker"), true);
-        assertSsh(network.getSwitch("EquivalentBranch"), true);
-        assertSsh(network.getSwitch("ACLineSegment"), false);
     }
 
     private static void assertEq(Switch sw) {
