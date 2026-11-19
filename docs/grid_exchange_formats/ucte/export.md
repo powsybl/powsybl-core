@@ -354,8 +354,8 @@ The `Counter` naming strategy needs their country, and computes it without modif
 ## Reporting
 
 When a [ReportNode](../../user/functional_logs/index.md) is provided to the export, one report node is created per
-conversion step (buses and switches, boundary lines, lines, tie lines, transformers) and per exported file, and the
-following situations are reported with a `WARN` severity:
+conversion step (voltage levels, buses and switches, boundary lines, lines, tie lines, transformers) and per exported
+file, and the following situations are reported with a `WARN` severity:
 
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
 - a two-winding transformer has no nominal power, and the default value `99999` is exported instead

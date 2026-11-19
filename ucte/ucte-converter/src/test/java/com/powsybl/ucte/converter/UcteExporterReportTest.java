@@ -73,6 +73,36 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         assertTrue(checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
+                      Buses and Switches
+                      Boundary Lines
+                      Lines
+                      Tie-Lines
+                      Transformers
+                   Network exported to file .uct
+                """, rootReportNode));
+    }
+
+    /**
+     * Checks that isolated voltage levels without substation nor equipment are reported under the
+     * {@code voltageLevels} step when exporting with the {@code Counter} naming strategy. See
+     * {@link UcteExporterTestNetworks#createWithIsolatedOrphansWithoutEquipment()} for the network.
+     */
+    @Test
+    void testOrphanVoltageLevelNotExportedReported() {
+        Network network = UcteExporterTestNetworks.createWithIsolatedOrphansWithoutEquipment();
+        Properties parameters = new Properties();
+        parameters.put(UcteExporter.NAMING_STRATEGY, "Counter");
+
+        ReportNode rootReportNode = newTestRootReportNode();
+        new UcteExporter().export(network, parameters, new MemDataSource(), rootReportNode);
+
+        assertTrue(checkReportNode("""
+                + Test exporting UCTE network
+                   + Creating UCTE Network
+                      + Voltage Levels
+                         Voltage level VL_EMPTY is connected to no substation and holds no equipment: it is not exported
+                         Voltage level VL_NBBBS is connected to no substation and holds no equipment: it is not exported
                       Buses and Switches
                       Boundary Lines
                       Lines
@@ -97,6 +127,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         assertTrue(checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
                       Buses and Switches
                       Boundary Lines
                       Lines
@@ -141,6 +172,7 @@ class UcteExporterReportTest extends AbstractSerDeTest {
         assertTrue(checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
                       + Buses and Switches
                          Switch FFFFFF11 FFFFFF12 1: No current limit provided
                       Boundary Lines

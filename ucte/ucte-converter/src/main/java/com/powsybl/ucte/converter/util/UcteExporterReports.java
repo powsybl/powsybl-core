@@ -26,6 +26,12 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static ReportNode voltageLevels(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.voltageLevels")
+                .add();
+    }
+
     public static ReportNode busesAndSwitches(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.busesAndSwitches")

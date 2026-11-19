@@ -98,7 +98,8 @@ public class UcteExporter implements Exporter {
                 .map(ServiceLoader.Provider::get)
                 .toList();
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
-        namingStrategy.initializeNetwork(network, reportNode);
+        ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
+        namingStrategy.initializeNetwork(network, UcteExporterReports.voltageLevels(networkCreationReportNode));
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
         List<String> postProcessorNames = Parameter.readStringList(getFormat(), parameters, POST_PROCESSORS_PARAMETER, defaultValueConfig);
@@ -111,7 +112,7 @@ public class UcteExporter implements Exporter {
 
         // convert IIDM Network to UcteNetwork
         UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
-        UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(UcteExporterReports.networkCreation(reportNode)));
+        UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(networkCreationReportNode));
 
         // apply post-processors modifications
         Map<UcteExportPostProcessor, UcteExporterContext> postProcessorContexts = new LinkedHashMap<>();

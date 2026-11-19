@@ -42,7 +42,7 @@ class ExportedVoltageLevelsTest {
         assertEquals("Substation S_BBBBB has no country", e.getMessage());
 
         Network withUnsupportedCountry = createWithTLine(IDS, Country.US);
-        com.powsybl.ucte.network.UcteException e2 = assertThrows(com.powsybl.ucte.network.UcteException.class,
+        UcteException e2 = assertThrows(UcteException.class,
                 () -> ExportedVoltageLevels.compute(withUnsupportedCountry, ReportNode.NO_OP));
         assertEquals("No UCTE country found for US", e2.getMessage());
 

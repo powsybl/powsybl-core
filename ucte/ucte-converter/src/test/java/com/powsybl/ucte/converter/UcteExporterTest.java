@@ -399,6 +399,7 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
                       Buses and Switches
                       Boundary Lines
                       Lines
@@ -453,6 +454,7 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
                       Buses and Switches
                       Boundary Lines
                       Lines
@@ -512,6 +514,7 @@ class UcteExporterTest extends AbstractSerDeTest {
         assertTrue(UcteExporterReportTest.checkReportNode("""
                 + Test exporting UCTE network
                    + Creating UCTE Network
+                      Voltage Levels
                       Buses and Switches
                       Boundary Lines
                       Lines
