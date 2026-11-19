@@ -1,7 +1,7 @@
 # Export
 
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
-into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF 
+into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF
 [format specification](format_specification.md).
 
 ## Limitations
@@ -55,19 +55,18 @@ Post-processors can:
   `##L`, `##T` and `##R` blocks.
 - define the order of the nodes inside each `##Z` block.
 
-Post-processors are applied in the given input order, first for all modifications.
+**Post-processors configuration**: Post-processors are applied in the given input order, first for all modifications.
 Once all the post-processors have modified the UCTE network, the UCTE node comparators of the post-processors are
-requested.
-They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the
-given order, each one only breaking the ties of the previous ones.
-The default natural order is always used as a final tie-break.
+requested. They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the given
+order, each one only breaking the ties of the previous ones. The default natural order is always used as a final
+tie-break.
 
-Built-in post-processors:
+By default, the post-processors are an empty list.
+
+**Built-in post-processors**
 
 - `deenergized-branches-out-of-operation`: exports out of operation the elements left without voltage in the load flow
   results, see [Line status](#line-status).
-
-Its default value is an empty list.
 
 ## From IIDM to UCTE
 
@@ -294,8 +293,8 @@ If the original boundary line has no generation part, its X-node is exported as 
 
 #### Tie line properties
 
-A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by 
-custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although 
+A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by
+custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although
 we expect both sides of the line to carry the same value for the same property, there can be discrepancies.
 
 - If both boundary lines have the same value, it is used in the exported tie line.
