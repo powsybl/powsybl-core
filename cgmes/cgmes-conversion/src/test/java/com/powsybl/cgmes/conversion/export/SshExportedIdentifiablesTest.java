@@ -337,15 +337,15 @@ class SshExportedIdentifiablesTest {
             }),
             supported("ratio tap changer regulating", eurostag, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
-                return new Change(t, () -> t.getRatioTapChanger().setRegulating(!t.getRatioTapChanger().isRegulating()));
+                return new Change(t, () -> t.getRatioTapChanger().getVoltageRegulation().setRegulating(!t.getRatioTapChanger().getVoltageRegulation().isRegulating()));
             }),
             supported("ratio tap changer target value", eurostag, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
-                return new Change(t, () -> t.getRatioTapChanger().setTargetV(t.getRatioTapChanger().getTargetV() + 1.0));
+                return new Change(t, () -> t.getRatioTapChanger().getVoltageRegulation().setTargetValue(t.getRatioTapChanger().getVoltageRegulation().getTargetValue() + 1.0));
             }),
             supported("ratio tap changer target deadband", eurostag, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformer("NHV2_NLOAD");
-                return new Change(t, () -> t.getRatioTapChanger().setTargetDeadband(1.0));
+                return new Change(t, () -> t.getRatioTapChanger().getVoltageRegulation().setTargetDeadband(1.0));
             }),
             supported("phase tap position", fourSubstations, n -> {
                 TwoWindingsTransformer t = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasPhaseTapChanger).findFirst().orElseThrow();
@@ -418,7 +418,7 @@ class SshExportedIdentifiablesTest {
     void supportedChangeGivesItsIdentifiable(String description, Supplier<Network> networkSupplier, Function<Network, Change> changeBuilder) {
         Network n = networkSupplier.get();
         Change change = changeBuilder.apply(n);
-        List<NetworkEvent> events = record(n, change);
+        List<NetworkEvent> events = recordEvents(n, change);
 
         assertFalse(events.isEmpty(), "The change gives no event");
         // A change can also give events of other identifiables: a disconnection opens a breaker
@@ -494,7 +494,7 @@ class SshExportedIdentifiablesTest {
     void unsupportedChangeFailsOrIsIgnored(String description, Supplier<Network> networkSupplier, Function<Network, Change> changeBuilder) {
         Network n = networkSupplier.get();
         Change change = changeBuilder.apply(n);
-        List<NetworkEvent> events = record(n, change);
+        List<NetworkEvent> events = recordEvents(n, change);
         String id = change.identifiable().getId();
 
         assertFalse(events.isEmpty(), "The change gives no event");
@@ -525,7 +525,7 @@ class SshExportedIdentifiablesTest {
         assertEquals(List.of(load.getId(), CgmesExportUtil.getTerminalId(load.getTerminal(), context)), ids);
     }
 
-    private static List<NetworkEvent> record(Network network, Change change) {
+    private static List<NetworkEvent> recordEvents(Network network, Change change) {
         NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
         network.addListener(eventRecorder);
         change.action().run();

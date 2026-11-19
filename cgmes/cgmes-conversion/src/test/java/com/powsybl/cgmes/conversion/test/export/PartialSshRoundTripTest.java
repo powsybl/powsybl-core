@@ -75,7 +75,7 @@ class PartialSshRoundTripTest {
                 .findFirst().orElseThrow().getVoltageRegulation().setRegulating(false)),
             Arguments.of("generator target voltage", smallGrid, (Consumer<Network>) n -> {
                 Generator generator = n.getGeneratorStream().filter(g -> g.hasProperty(PROPERTY_REGULATING_CONTROL)).findFirst().orElseThrow();
-                generator.setTargetV(generator.getRegulatingTargetV() + 1.0);
+                generator.setLocalTargetV(generator.getLocalTargetV() + 1.0);
             }),
             Arguments.of("ratio tap position", smallGrid, (Consumer<Network>) n -> {
                 RatioTapChanger rtc = n.getTwoWindingsTransformerStream().filter(TwoWindingsTransformer::hasRatioTapChanger)
