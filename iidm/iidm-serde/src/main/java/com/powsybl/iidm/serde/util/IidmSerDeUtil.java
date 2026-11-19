@@ -490,6 +490,34 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Sort extensions by their name if given export option is activated,
+     * otherwise, by their creation order if the network defines one.
+     * In all other cases, do not change the extensions order.
+     */
+    public static Iterable<? extends Extension<? extends Identifiable<?>>> sortedExtensions(Network network,
+                                                                                            Iterable<? extends Extension<? extends Identifiable<?>>> extensionsStream,
+                                                                                            ExportOptions exportOptions) {
+        Objects.requireNonNull(extensionsStream);
+        Objects.requireNonNull(exportOptions);
+
+        Comparator<Extension<?>> comparator = getExtensionComparator(network, exportOptions);
+        return comparator == null ?
+            extensionsStream :
+            StreamSupport.stream(extensionsStream.spliterator(), false)
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    }
+
+    private static Comparator<Extension<?>> getExtensionComparator(Network network, ExportOptions exportOptions) {
+        if (exportOptions.isSorted()) {
+            return Comparator.comparing(Extension::getName);
+        } else if (exportOptions.isConnectableCreationOrder() && network.getExtensionsCreationOrderComparator().isPresent()) {
+            return network.getExtensionsCreationOrderComparator().get();
+        }
+        return null;
+    }
+
+    /**
      * Sort extensions by their names.
      */
     public static Iterable<? extends Extension<? extends Identifiable<?>>> sortedExtensions(Iterable<? extends Extension<? extends Identifiable<?>>> extensions, ExportOptions exportOptions) {

@@ -506,7 +506,7 @@ public final class NetworkSerDe {
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartNode(context.getNamespaceURI(), EXTENSION_ROOT_ELEMENT_NAME);
                 context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : IidmSerDeUtil.sortedExtensions(extensions, context.getOptions())) {
+                for (Extension<? extends Identifiable<?>> extension : IidmSerDeUtil.sortedExtensions(n, extensions, context.getOptions())) {
                     writeExtension(extension, context, extensionsSupplier);
                 }
                 context.getWriter().writeEndNode();

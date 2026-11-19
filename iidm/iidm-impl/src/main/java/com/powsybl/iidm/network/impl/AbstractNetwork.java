@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.FluentIterable;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefObj;
@@ -82,6 +83,11 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     @Override
     public Optional<Comparator<Identifiable<?>>> getIdentifiableCreationOrderComparator() {
         return Optional.of(Comparator.comparing(i -> ((AbstractIdentifiable) i).getCreationOrder()));
+    }
+
+    @Override
+    public Optional<Comparator<Extension<?>>> getExtensionsCreationOrderComparator() {
+        return Optional.of(Comparator.comparing(i -> ((AbstractExtension<?>) i).getCreationOrder()));
     }
 
     protected DcTopologyModel getDcTopologyModel() {
