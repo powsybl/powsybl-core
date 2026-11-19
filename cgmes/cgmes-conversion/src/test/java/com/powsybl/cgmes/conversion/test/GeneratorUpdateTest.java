@@ -92,7 +92,6 @@ class GeneratorUpdateTest {
     @Test
     void zeroReferencePriorityIsLostTest() {
         Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
-        network.getGenerators().forEach(generator -> System.err.printf("generator: %s %n", generator.getId()));
 
         assertEquals(0, ReferencePriority.get(network.getGenerator("SynchronousMachine")));
         assertEquals(0, ReferencePriority.get(network.getGenerator("ExternalNetworkInjection")));
