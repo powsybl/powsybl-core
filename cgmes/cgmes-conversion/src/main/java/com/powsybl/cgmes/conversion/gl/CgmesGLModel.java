@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.gl;
 
-import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
@@ -30,13 +30,9 @@ public class CgmesGLModel {
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
 
-    public CgmesGLModel(TripleStore tripleStore) {
-        this(tripleStore, new QueryCatalog("CGMES-GL.sparql"));
-    }
-
-    public CgmesGLModel(TripleStore tripleStore, QueryCatalog queryCatalog) {
+    public CgmesGLModel(TripleStore tripleStore, QueryCatalog queryCatalog, Cim cimModel) {
         this.tripleStore = Objects.requireNonNull(tripleStore);
-        tripleStore.defineQueryPrefix("cim", CgmesNamespace.CIM_16_NAMESPACE);
+        tripleStore.defineQueryPrefix("cim", cimModel.getNamespace());
         this.queryCatalog = Objects.requireNonNull(queryCatalog);
     }
 
