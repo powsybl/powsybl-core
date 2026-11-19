@@ -7,12 +7,10 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import tools.jackson.core.JsonGenerator;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -33,13 +31,9 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
         this.contingencies = Objects.requireNonNull(contingencies);
         this.operatorStrategies = Objects.requireNonNull(operatorStrategies);
-        try {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeFieldName("sensitivityValues");
-            jsonGenerator.writeStartArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeName("sensitivityValues");
+        jsonGenerator.writeStartArray();
     }
 
     @Override
@@ -56,34 +50,30 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     @Override
     public void close() {
-        try {
-            jsonGenerator.writeEndArray();
+        jsonGenerator.writeEndArray();
 
-            //Write buffered contingency status at the end
-            jsonGenerator.writeFieldName("stateStatus");
-            jsonGenerator.writeStartArray();
-            for (var e : stateStatusBuffer.entrySet()) {
-                SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, e.getKey(), e.getValue());
-            }
-            jsonGenerator.writeEndArray();
-
-            jsonGenerator.writeFieldName("contingencyIds");
-            jsonGenerator.writeStartArray();
-            for (Contingency contingency : contingencies) {
-                jsonGenerator.writeString(contingency.getId());
-            }
-            jsonGenerator.writeEndArray();
-
-            jsonGenerator.writeFieldName("operatorStrategyIds");
-            jsonGenerator.writeStartArray();
-            for (OperatorStrategy operatorStrategy : operatorStrategies) {
-                jsonGenerator.writeString(operatorStrategy.getId());
-            }
-            jsonGenerator.writeEndArray();
-
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        //Write buffered contingency status at the end
+        jsonGenerator.writeName("stateStatus");
+        jsonGenerator.writeStartArray();
+        for (var e : stateStatusBuffer.entrySet()) {
+            SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, e.getKey(), e.getValue());
         }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeName("contingencyIds");
+        jsonGenerator.writeStartArray();
+        for (Contingency contingency : contingencies) {
+            jsonGenerator.writeString(contingency.getId());
+        }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeName("operatorStrategyIds");
+        jsonGenerator.writeStartArray();
+        for (OperatorStrategy operatorStrategy : operatorStrategies) {
+            jsonGenerator.writeString(operatorStrategy.getId());
+        }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
     }
 }

@@ -7,9 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -21,8 +18,11 @@ import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.contingency.strategy.ConditionalActions;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.condition.Condition;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -57,7 +57,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     }
 
     @Override
-    public OperatorStrategy deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public OperatorStrategy deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         context.version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (context.version == null) {
@@ -81,14 +81,14 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     }
 
     private boolean parseChildNode(JsonParser parser, DeserializationContext deserializationContext, String fieldName,
-                                   ParsingContext context) throws IOException {
+                                   ParsingContext context) throws JacksonException {
         switch (fieldName) {
             case "id":
                 parser.nextToken();
                 context.id = parser.getValueAsString();
                 return true;
             case "contingencyContextType":
-                context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
+                context.contingencyContextType = ContingencyContextType.valueOf(parser.nextStringValue());
                 return true;
             case "contingencyId":
                 parser.nextToken();

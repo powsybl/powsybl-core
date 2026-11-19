@@ -7,12 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.AreaInterchangeTargetAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -24,13 +23,13 @@ public class AreaInterchangeTargetActionSerializer extends StdSerializer<AreaInt
     }
 
     @Override
-    public void serialize(AreaInterchangeTargetAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(AreaInterchangeTargetAction action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("areaId", action.getAreaId());
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty("areaId", action.getAreaId());
         if (!Double.isNaN(action.getInterchangeTarget())) {
-            jsonGenerator.writeNumberField("interchangeTarget", action.getInterchangeTarget());
+            jsonGenerator.writeNumberProperty("interchangeTarget", action.getInterchangeTarget());
         }
         jsonGenerator.writeEndObject();
     }

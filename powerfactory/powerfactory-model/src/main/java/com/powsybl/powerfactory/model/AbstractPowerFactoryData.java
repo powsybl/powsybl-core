@@ -7,8 +7,8 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

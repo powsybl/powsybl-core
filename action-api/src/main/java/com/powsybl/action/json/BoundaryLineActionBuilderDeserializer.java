@@ -7,13 +7,13 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.powsybl.action.*;
+import com.powsybl.action.BoundaryLineAction;
+import com.powsybl.action.BoundaryLineActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -25,7 +25,7 @@ public class BoundaryLineActionBuilderDeserializer extends AbstractLoadActionBui
     }
 
     @Override
-    public BoundaryLineActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public BoundaryLineActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         BoundaryLineActionBuilder builder = new BoundaryLineActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
@@ -34,13 +34,13 @@ public class BoundaryLineActionBuilderDeserializer extends AbstractLoadActionBui
                 return true;
             }
             if (name.equals("type")) {
-                String type = jsonParser.nextTextValue();
+                String type = jsonParser.nextStringValue();
                 if ("DANGLING_LINE".equals(type)) {
                     JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "element type", version, "1.2");
                 } else if (BoundaryLineAction.NAME.equals(type)) {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", "element type", version, "1.3");
                 } else {
-                    throw JsonMappingException.from(jsonParser, "Expected type :" + BoundaryLineAction.NAME + " got : " + type);
+                    throw DatabindException.from(jsonParser, "Expected type :" + BoundaryLineAction.NAME + " got : " + type);
                 }
                 return true;
             }

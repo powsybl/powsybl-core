@@ -7,15 +7,15 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.ChangedPhaseTapChanger;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PreContingencyResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
     }
 
     @Override
-    public PreContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public PreContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version when version is not specified
             version = SecurityAnalysisResultSerializer.VERSION;
@@ -69,7 +69,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
     private boolean parsePreContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
                                                ParsingContext parsingContext, String finalVersion,
                                                AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
-                                               String name) throws IOException {
+                                               String name) throws JacksonException {
         boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext,
                 finalVersion, CONTEXT_NAME);
         if (found) {

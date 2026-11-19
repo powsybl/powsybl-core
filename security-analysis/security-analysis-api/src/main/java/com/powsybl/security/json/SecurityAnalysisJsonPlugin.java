@@ -7,7 +7,7 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.databind.Module;
+import tools.jackson.databind.JacksonModule;
 
 import java.util.List;
 
@@ -22,5 +22,5 @@ public interface SecurityAnalysisJsonPlugin {
      *
      * @return A list of modules to be registered for use in security analysis related serialization.
      */
-    List<Module> getJsonModules();
+    List<JacksonModule> getJsonModules();
 }
