@@ -12,12 +12,14 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.network.util.PropertiesBufferHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
@@ -260,20 +262,33 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimits(String type, A adder, NetworkDeserializerContext context) {
-        TreeDataReader reader = context.getReader();
-        ImportOptions options = context.getOptions();
-        ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(context.getNetworkValidationLevel());
-        readLoadingLimitAttributes(type, adder, context, reader, minimalValidationLevel);
-        // Read and add the temporary limits
-        reader.readChildNodes(elementName -> readLimit(type, adder, context, reader, elementName));
-        if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS && adder.getDetectionKind() == DetectionKind.HIGH) {
-            adder.fixLimits(options.getMissingPermanentLimitPercentage());
-        }
+        ConnectableSerDeUtil.<L, A>readLoadingLimitsDeferred(type, context).accept(adder);
         adder.add();
     }
 
-    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
-        String type, A adder, NetworkDeserializerContext context,
+    /**
+     * Reads the loading limits from the XML and returns a consumer applying them to an adder.
+     * The XML is consumed immediately, so the adder can be created later.
+     */
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> Consumer<A> readLoadingLimitsDeferred(String type, NetworkDeserializerContext context) {
+        TreeDataReader reader = context.getReader();
+        ImportOptions options = context.getOptions();
+        ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(context.getNetworkValidationLevel());
+        Consumer<A> attributesSetter = readLoadingLimitAttributes(type, context, reader, minimalValidationLevel);
+        // Read the temporary limits
+        List<Consumer<A>> temporaryLimitsSetters = new ArrayList<>();
+        reader.readChildNodes(elementName -> readLimit(type, context, reader, elementName, temporaryLimitsSetters));
+        return adder -> {
+            attributesSetter.accept(adder);
+            temporaryLimitsSetters.forEach(setter -> setter.accept(adder));
+            if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS && adder.getDetectionKind() == DetectionKind.HIGH) {
+                adder.fixLimits(options.getMissingPermanentLimitPercentage());
+            }
+        };
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> Consumer<A> readLoadingLimitAttributes(
+        String type, NetworkDeserializerContext context,
         TreeDataReader reader, ValidationLevel minimalValidationLevel) {
         String detectionKindString = reader.readStringAttribute(DETECTION_KIND);
         String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
@@ -286,19 +301,23 @@ public final class ConnectableSerDeUtil {
             }
             kind[0] = DetectionKind.valueOf(detectionKindString);
         });
-        adder.setDetectionKind(kind[0]);
+        DetectionKind detectionKind = kind[0];
 
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            String permanentName = kind[0] == DetectionKind.HIGH ?
-                Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME) : permanentLimitName;
-            adder.setPermanentLimitName(permanentName);
-        });
+        boolean permanentNameSupported = context.getVersion().compareTo(IidmVersion.V_1_17) >= 0;
+        String permanentName = detectionKind == DetectionKind.HIGH ?
+            Objects.requireNonNullElse(permanentLimitName, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME) : permanentLimitName;
 
-        if (kind[0] == DetectionKind.HIGH) {
+        if (detectionKind == DetectionKind.HIGH) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
                 checkHighLimit(type, minimalValidationLevel, permanentLimit));
         }
-        adder.setPermanentLimit(permanentLimit);
+        return adder -> {
+            adder.setDetectionKind(detectionKind);
+            if (permanentNameSupported) {
+                adder.setPermanentLimitName(permanentName);
+            }
+            adder.setPermanentLimit(permanentLimit);
+        };
     }
 
     private static void checkHighLimit(String type, ValidationLevel minimalValidationLevel, double permanentLimit) {
@@ -307,29 +326,73 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLimit(String type, A adder,
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLimit(String type,
                                                                                                 NetworkDeserializerContext context,
                                                                                                 TreeDataReader reader,
-                                                                                                String elementName) {
+                                                                                                String elementName,
+                                                                                                List<Consumer<A>> temporaryLimitsSetters) {
         switch (elementName) {
             case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
                 String name = reader.readStringAttribute("name");
                 int acceptableDuration = reader.readIntAttribute(ACCEPTABLE_DURATION_KEY, Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
                 boolean fictitious = reader.readBooleanAttribute(FICTITIOUS_KEY, false);
-                LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
-                readProperties(context, tempLimitAdder);
-                tempLimitAdder
-                    .setName(name)
-                    .setAcceptableDuration(acceptableDuration)
-                    .setValue(value)
-                    .setFictitious(fictitious)
-                    .endTemporaryLimit();
+                PropertiesBufferHolder properties = new PropertiesBufferHolder();
+                readProperties(context, properties);
+                temporaryLimitsSetters.add(adder -> {
+                    LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
+                    properties.copyPropertiesTo(tempLimitAdder);
+                    tempLimitAdder
+                        .setName(name)
+                        .setAcceptableDuration(acceptableDuration)
+                        .setValue(value)
+                        .setFictitious(fictitious)
+                        .endTemporaryLimit();
+                });
             }
-            case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(adder, context);
+            case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(temporaryLimitsSetters, context);
             case null, default ->
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
         }
+    }
+
+    /**
+     * Reads the content of an operational limits group and returns a consumer applying it to the group.
+     */
+    private static Consumer<OperationalLimitsGroup> readAllLoadingLimitsDeferred(String groupElementName, NetworkDeserializerContext context) {
+        List<Consumer<OperationalLimitsGroup>> toApply = new ArrayList<>();
+        context.getReader().readChildNodes(limitElementName -> {
+            switch (limitElementName) {
+                case PROPERTY -> PropertiesSerDe.read(toApply, context);
+                case ACTIVE_POWER_LIMITS -> toApply.add(readActivePowerLimitsDeferred(context));
+                case APPARENT_POWER_LIMITS -> toApply.add(readApparentPowerLimitsDeferred(context));
+                case CURRENT_LIMITS -> toApply.add(readCurrentLimitsDeferred(context));
+                default -> throw new PowsyblException("Unknown element name '" + limitElementName + "' in '" + groupElementName + "'");
+            }
+        });
+        return group -> toApply.forEach(setter -> setter.accept(group));
+    }
+
+    static Consumer<OperationalLimitsGroup> readActivePowerLimitsDeferred(NetworkDeserializerContext context) {
+        return deferLoadingLimits(ACTIVE_POWER_LIMITS, OperationalLimitsGroup::newActivePowerLimits, context);
+    }
+
+    static Consumer<OperationalLimitsGroup> readApparentPowerLimitsDeferred(NetworkDeserializerContext context) {
+        return deferLoadingLimits(APPARENT_POWER_LIMITS, OperationalLimitsGroup::newApparentPowerLimits, context);
+    }
+
+    static Consumer<OperationalLimitsGroup> readCurrentLimitsDeferred(NetworkDeserializerContext context) {
+        return deferLoadingLimits(CURRENT_LIMITS, OperationalLimitsGroup::newCurrentLimits, context);
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> Consumer<OperationalLimitsGroup> deferLoadingLimits(
+        String type, Function<OperationalLimitsGroup, A> adderFactory, NetworkDeserializerContext context) {
+        Consumer<A> limitsSetter = readLoadingLimitsDeferred(type, context);
+        return group -> {
+            A adder = adderFactory.apply(group);
+            limitsSetter.accept(adder);
+            adder.add();
+        };
     }
 
     private static void readAllLoadingLimits(String groupElementName, OperationalLimitsGroup group, NetworkDeserializerContext context) {
@@ -633,21 +696,47 @@ public final class ConnectableSerDeUtil {
     }
 
     /**
-     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the boundary line
-     * @param boundaryLine the {@link BoundaryLine} on which to add the selected groups
+     * Read the loading limits groups of the boundary line, to be created when the boundary line is created.
+     * Groups not selected are read but not created when only selected groups are imported.
+     * @param toApply the consumers applied on the boundary line
+     * @param groupElementName the name of the group element
      * @param context to deserialize the data
      */
-    static void readAllSelectedGroupIds(BoundaryLine boundaryLine, NetworkDeserializerContext context) {
-        Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
-            null,
-            c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
-            context
-        );
-        context.addSelectedGroupIds(
-            boundaryLine.getId(),
-            ThreeSides.ONE,
-            selectedIds
-        );
+    static void readLoadingLimitsGroupsDeferred(List<Consumer<BoundaryLine>> toApply, String groupElementName, NetworkDeserializerContext context) {
+        String id = context.getReader().readStringAttribute("id");
+        Consumer<OperationalLimitsGroup> groupContentSetter = readAllLoadingLimitsDeferred(groupElementName, context);
+        toApply.add(boundaryLine -> {
+            if (!context.getOptions().isOnlySelectedOperationalLimitsGroups() || context.getSelectedGroupIds(boundaryLine.getId(), ThreeSides.ONE).contains(id)) {
+                groupContentSetter.accept(boundaryLine.newOperationalLimitsGroup(id));
+            }
+        });
+    }
+
+    /**
+     * Read the legacy selected operational limits group id of the boundary line, applied at the end of the deserialization
+     * @param toApply the consumers applied on the boundary line
+     * @param context to deserialize the data
+     */
+    static void readSelectedGroupIdDeferred(List<Consumer<BoundaryLine>> toApply, NetworkDeserializerContext context) {
+        String selectedGroupId = context.getReader().readStringAttribute(SELECTED_GROUP_ID);
+        if (selectedGroupId != null) {
+            toApply.add(boundaryLine -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                () -> boundaryLine.setSelectedOperationalLimitsGroup(selectedGroupId)));
+        }
+    }
+
+    /**
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the boundary line
+     * @param toApply the consumers applied on the boundary line
+     * @param context to deserialize the data
+     */
+    static void readAllSelectedGroupIds(List<Consumer<BoundaryLine>> toApply, NetworkDeserializerContext context) {
+        Collection<String> selectedIds = Objects.requireNonNullElse(context.getReader().readStringArrayAttribute(ALL_SELECTED_GROUP_IDS), List.of());
+        toApply.add(boundaryLine -> {
+            context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                () -> boundaryLine.addSelectedOperationalLimitsGroups(selectedIds.toArray(String[]::new)));
+            context.addSelectedGroupIds(boundaryLine.getId(), ThreeSides.ONE, selectedIds);
+        });
     }
 
     static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, OperationalLimitsGroup defaultGroup, Collection<OperationalLimitsGroup> groups) {

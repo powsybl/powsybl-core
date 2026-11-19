@@ -367,8 +367,8 @@ class CgmesConformity1ModifiedConversionTest {
 
         BoundaryLine boundaryLineRegulating = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
         assertNotNull(boundaryLineRegulating);
-        assertTrue(boundaryLineRegulating.getGeneration().isVoltageRegulationOn());
-        assertEquals(220.1234, boundaryLineRegulating.getGeneration().getTargetV(), 0.0);
+        assertTrue(boundaryLineRegulating.getGeneration().isRegulating());
+        assertEquals(220.1234, boundaryLineRegulating.getGeneration().getLocalTargetV(), 0.0);
 
         BoundaryLine boundaryLineNotRegulating = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
         assertNotNull(boundaryLineNotRegulating);

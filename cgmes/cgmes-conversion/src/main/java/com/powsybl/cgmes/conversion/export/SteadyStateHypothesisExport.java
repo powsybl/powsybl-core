@@ -235,8 +235,8 @@ public final class SteadyStateHypothesisExport {
                 boolean regulationStatus = false;
                 double regulationTarget = 0;
                 if (bl.getGeneration() != null) {
-                    regulationStatus = bl.getGeneration().isVoltageRegulationOn();
-                    regulationTarget = bl.getGeneration().getTargetV();
+                    regulationStatus = bl.getGeneration().isRegulating();
+                    regulationTarget = bl.getGeneration().getLocalTargetV();
                 }
                 writeEquivalentInjection(equivalentInjectionId, bl.getP0(), bl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
                 exported.add(equivalentInjectionId);
