@@ -10,8 +10,7 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControl;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -101,16 +100,9 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
             .endStep();
     }
 
-    protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
+    protected CgmesRegulatingControl setContextRegulatingData(TapChanger tc) {
         if (tc != null) {
-            return context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(tc.getId(), tc.getRegulatingControlId(), tc.getTculControlMode());
-        }
-        return null;
-    }
-
-    protected CgmesRegulatingControlPhase setContextRegulatingDataPhase(TapChanger tc) {
-        if (tc != null) {
-            return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc.getId(), tc.getRegulatingControlId());
+            return context.regulatingControlMapping().forTransformers().buildRegulatingControl(tc.getId(), tc.getRegulatingControlId());
         }
         return null;
     }

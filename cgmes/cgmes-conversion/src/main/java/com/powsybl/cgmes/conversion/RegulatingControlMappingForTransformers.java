@@ -37,16 +37,16 @@ public class RegulatingControlMappingForTransformers {
         t3xMapping = new HashMap<>();
     }
 
-    public void add(String transformerId, CgmesRegulatingControlRatio rcRtc, CgmesRegulatingControlPhase rcPtc) {
+    public void add(String transformerId, CgmesRegulatingControl rcRtc, CgmesRegulatingControl rcPtc) {
         CgmesRegulatingControlForTwoWindingsTransformer rc = new CgmesRegulatingControlForTwoWindingsTransformer();
         rc.ratioTapChanger = rcRtc;
         rc.phaseTapChanger = rcPtc;
         t2xMapping.put(transformerId, rc);
     }
 
-    public void add(String transformerId, CgmesRegulatingControlRatio rcRtc1, CgmesRegulatingControlPhase rcPtc1,
-                    CgmesRegulatingControlRatio rcRtc2, CgmesRegulatingControlPhase rcPtc2, CgmesRegulatingControlRatio rcRtc3,
-                    CgmesRegulatingControlPhase rcPtc3) {
+    public void add(String transformerId, CgmesRegulatingControl rcRtc1, CgmesRegulatingControl rcPtc1,
+                    CgmesRegulatingControl rcRtc2, CgmesRegulatingControl rcPtc2, CgmesRegulatingControl rcRtc3,
+                    CgmesRegulatingControl rcPtc3) {
         CgmesRegulatingControlForThreeWindingsTransformer rc = new CgmesRegulatingControlForThreeWindingsTransformer();
         rc.ratioTapChanger1 = rcRtc1;
         rc.phaseTapChanger1 = rcPtc1;
@@ -57,19 +57,11 @@ public class RegulatingControlMappingForTransformers {
         t3xMapping.put(transformerId, rc);
     }
 
-    public CgmesRegulatingControlRatio buildRegulatingControlRatio(String id, String regulatingControlId, String tculControlMode) {
-        CgmesRegulatingControlRatio rtc = new CgmesRegulatingControlRatio();
-        rtc.id = id;
-        rtc.regulatingControlId = regulatingControlId;
-        rtc.tculControlMode = tculControlMode;
-        return rtc;
-    }
-
-    public CgmesRegulatingControlPhase buildRegulatingControlPhase(String id, String regulatingControlId) {
-        CgmesRegulatingControlPhase rtc = new CgmesRegulatingControlPhase();
-        rtc.id = id;
-        rtc.regulatingControlId = regulatingControlId;
-        return rtc;
+    public CgmesRegulatingControl buildRegulatingControl(String id, String regulatingControlId) {
+        CgmesRegulatingControl rc = new CgmesRegulatingControl();
+        rc.id = id;
+        rc.regulatingControlId = regulatingControlId;
+        return rc;
     }
 
     void applyTapChangersRegulatingControl(Network network) {
@@ -222,27 +214,20 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private static final class CgmesRegulatingControlForThreeWindingsTransformer {
-        CgmesRegulatingControlRatio ratioTapChanger1;
-        CgmesRegulatingControlPhase phaseTapChanger1;
-        CgmesRegulatingControlRatio ratioTapChanger2;
-        CgmesRegulatingControlPhase phaseTapChanger2;
-        CgmesRegulatingControlRatio ratioTapChanger3;
-        CgmesRegulatingControlPhase phaseTapChanger3;
+        CgmesRegulatingControl ratioTapChanger1;
+        CgmesRegulatingControl phaseTapChanger1;
+        CgmesRegulatingControl ratioTapChanger2;
+        CgmesRegulatingControl phaseTapChanger2;
+        CgmesRegulatingControl ratioTapChanger3;
+        CgmesRegulatingControl phaseTapChanger3;
     }
 
     private static final class CgmesRegulatingControlForTwoWindingsTransformer {
-        CgmesRegulatingControlRatio ratioTapChanger;
-        CgmesRegulatingControlPhase phaseTapChanger;
+        CgmesRegulatingControl ratioTapChanger;
+        CgmesRegulatingControl phaseTapChanger;
     }
 
-    public static class CgmesRegulatingControlRatio extends CgmesRegulatingControl {
-        String tculControlMode;
-    }
-
-    public static class CgmesRegulatingControlPhase extends CgmesRegulatingControl {
-    }
-
-    private static class CgmesRegulatingControl {
+    public static final class CgmesRegulatingControl {
         String id;
         String regulatingControlId;
     }

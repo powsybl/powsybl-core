@@ -32,7 +32,6 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         tapChanger.setId(p.getId(CgmesNames.RATIO_TAP_CHANGER))
                 .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
                 .setRegulatingControlId(regulatingControlId)
-                .setTculControlMode(p.get(CgmesNames.TCUL_CONTROL_MODE))
                 .setTapChangerControlEnabled(p.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
     }
 

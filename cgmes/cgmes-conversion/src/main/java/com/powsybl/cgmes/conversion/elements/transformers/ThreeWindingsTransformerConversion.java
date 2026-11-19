@@ -10,8 +10,7 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControl;
 import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
@@ -205,12 +204,12 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
     }
 
     private void setRegulatingControlContext(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx) {
-        CgmesRegulatingControlRatio rcRtc1 = setContextRegulatingDataRatio(convertedT3xModel.winding1.end1.ratioTapChanger);
-        CgmesRegulatingControlPhase rcPtc1 = setContextRegulatingDataPhase(convertedT3xModel.winding1.end1.phaseTapChanger);
-        CgmesRegulatingControlRatio rcRtc2 = setContextRegulatingDataRatio(convertedT3xModel.winding2.end1.ratioTapChanger);
-        CgmesRegulatingControlPhase rcPtc2 = setContextRegulatingDataPhase(convertedT3xModel.winding2.end1.phaseTapChanger);
-        CgmesRegulatingControlRatio rcRtc3 = setContextRegulatingDataRatio(convertedT3xModel.winding3.end1.ratioTapChanger);
-        CgmesRegulatingControlPhase rcPtc3 = setContextRegulatingDataPhase(convertedT3xModel.winding3.end1.phaseTapChanger);
+        CgmesRegulatingControl rcRtc1 = setContextRegulatingData(convertedT3xModel.winding1.end1.ratioTapChanger);
+        CgmesRegulatingControl rcPtc1 = setContextRegulatingData(convertedT3xModel.winding1.end1.phaseTapChanger);
+        CgmesRegulatingControl rcRtc2 = setContextRegulatingData(convertedT3xModel.winding2.end1.ratioTapChanger);
+        CgmesRegulatingControl rcPtc2 = setContextRegulatingData(convertedT3xModel.winding2.end1.phaseTapChanger);
+        CgmesRegulatingControl rcRtc3 = setContextRegulatingData(convertedT3xModel.winding3.end1.ratioTapChanger);
+        CgmesRegulatingControl rcPtc3 = setContextRegulatingData(convertedT3xModel.winding3.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3, rcPtc3);
     }
