@@ -11,15 +11,20 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.statement.CgmesObject;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,13 +36,34 @@ class SteadyStateHypothesisSubsetExportTest {
 
     private static final Pattern SSH_OBJECT = Pattern.compile("<cim:(\\w+) rdf:about=\"#_?([^\"]+)\">(.*?)</cim:\\1>", Pattern.DOTALL);
 
-    @Test
-    void subsetWithAllIdentifiablesExportsTheSameObjects() throws XMLStreamException {
-        Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+    /**
+     * Networks with all the kinds of identifiables that have SSH data.
+     */
+    static Stream<Arguments> networks() {
+        return Stream.of(
+            Arguments.of("CGMES MicroGrid BE", (Supplier<Network>) () -> Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource())),
+            Arguments.of("CGMES SmallGrid node-breaker", (Supplier<Network>) () -> Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource())),
+            Arguments.of("CGMES SmallGrid HVDC", (Supplier<Network>) () -> Network.read(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource())),
+            Arguments.of("four substations, with SVC, VSC and LCC", (Supplier<Network>) FourSubstationsNodeBreakerFactory::create),
+            Arguments.of("battery", (Supplier<Network>) BatteryNetworkFactory::create),
+            Arguments.of("tie lines and areas", (Supplier<Network>) EurostagTutorialExample1Factory::createWithTieLinesAndAreas),
+            Arguments.of("detailed DC model, VSC", (Supplier<Network>) DcDetailedNetworkFactory::createVscSymmetricalMonopole),
+            Arguments.of("detailed DC model, LCC", (Supplier<Network>) DcDetailedNetworkFactory::createLccMonopoleGroundReturn),
+            Arguments.of("detailed DC model, DC switch", (Supplier<Network>) DcDetailedNetworkFactory::createSimple2NodesDcSwitch)
+        );
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("networks")
+    void subsetWithAllIdentifiablesExportsTheSameObjects(String description, Supplier<Network> networkSupplier) throws XMLStreamException {
+        Network network = networkSupplier.get();
         Set<Identifiable<?>> all = new LinkedHashSet<>();
         network.getConnectables().forEach(all::add);
         network.getSwitches().forEach(all::add);
         network.getHvdcLines().forEach(all::add);
+        network.getTieLines().forEach(all::add);
+        network.getDcConnectables().forEach(all::add);
+        network.getDcSwitches().forEach(all::add);
         network.getAreas().forEach(all::add);
         network.getBusBreakerView().getBuses().forEach(all::add);
 
