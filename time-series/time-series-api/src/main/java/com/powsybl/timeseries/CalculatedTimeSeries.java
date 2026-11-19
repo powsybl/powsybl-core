@@ -250,8 +250,19 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Calculated time series return one time series per window.
+     *
+     * @param newChunkSize the maximum number of points of each resulting time series
+     * @return
+     */
     @Override
     public List<DoubleTimeSeries> split(int newChunkSize) {
+        if (newChunkSize < 1) {
+            throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
+        }
         int chunkCount = TimeSeries.computeChunkCount(index, newChunkSize);
         return Collections.nCopies(chunkCount, this);
     }

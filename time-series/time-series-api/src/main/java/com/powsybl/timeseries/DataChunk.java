@@ -160,6 +160,16 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     Split<P, A> splitAt(int splitIndex);
 
     /**
+     * Extract the part of the chunk lying in the index range {@code [from, to[} to a new chunk of the same kind as the current one.
+     *
+     * @param from the first index of the slice (inclusive, absolute index in the time series)
+     * @param to the last index of the slice (exclusive, absolute index in the time series)
+     * @return the slice, or this chunk itself if the range covers the whole chunk
+     * @throws IllegalArgumentException if {@code from < getOffset()}, {@code to > getOffset() + getLength()} or {@code from >= to}
+     */
+    A slice(int from, int to);
+
+    /**
      * Append the chunk with the one given in argument, and return the result. "This" dataChunk and the one in argument remain unchanged.
      * The two chunks have to be successive, i.e : this.getOffset() + this.length() = otherChunk.getOffset()
      * @param otherChunk the chunk to append with this object. It has to be the same implementation as this object.

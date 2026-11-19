@@ -65,6 +65,12 @@ class CalculatedTimeSeriesTest {
     }
 
     @Test
+    void splitInvalidChunkSizeTest() {
+        timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(99), Duration.ofMillis(1)));
+        assertThrows(IllegalArgumentException.class, () -> timeSeries.split(0));
+    }
+
+    @Test
     void rangeSplitBigChunkTest() {
         // GIVEN
         List<Range<@NonNull Integer>> ranges = new ArrayList<>();

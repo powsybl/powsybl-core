@@ -8,7 +8,9 @@
 package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -33,6 +35,42 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
     @Override
     protected StringTimeSeries createTimeSeries(StringDataChunk chunk) {
         return new StringTimeSeries(metadata, chunk);
+    }
+
+    @Override
+    protected StringDataChunk mergeToUncompressed(int offset, int length, List<StringDataChunk> pieces) {
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, length);
+        pieces.forEach(piece -> piece.fillBuffer(buffer, -offset));
+        return new UncompressedStringDataChunk(offset, buffer.toArray());
+    }
+
+    @Override
+    protected StringDataChunk mergeCompressed(List<StringDataChunk> pieces) {
+        if (!pieces.stream().allMatch(CompressedStringDataChunk.class::isInstance)) {
+            return super.mergeCompressed(pieces);
+        }
+        int stepCount = pieces.stream().mapToInt(piece -> ((CompressedStringDataChunk) piece).getStepLengths().length).sum();
+        String[] stepValues = new String[stepCount];
+        int[] stepLengths = new int[stepCount];
+        int n = 0;
+        for (StringDataChunk piece : pieces) {
+            CompressedStringDataChunk chunk = (CompressedStringDataChunk) piece;
+            String[] values = chunk.getStepValues();
+            int[] lengths = chunk.getStepLengths();
+            // as in append, the first step is merged with the previous one when they have the same value
+            int firstStep = 0;
+            if (n > 0 && Objects.equals(stepValues[n - 1], values[0])) {
+                stepLengths[n - 1] += lengths[0];
+                firstStep = 1;
+            }
+            System.arraycopy(values, firstStep, stepValues, n, values.length - firstStep);
+            System.arraycopy(lengths, firstStep, stepLengths, n, lengths.length - firstStep);
+            n += values.length - firstStep;
+        }
+        int offset = pieces.getFirst().getOffset();
+        StringDataChunk last = pieces.getLast();
+        return new CompressedStringDataChunk(offset, last.getOffset() + last.getLength() - offset,
+                Arrays.copyOf(stepValues, n), Arrays.copyOf(stepLengths, n));
     }
 
     private void forEachChunk(Consumer<StringDataChunk> consumer) {
