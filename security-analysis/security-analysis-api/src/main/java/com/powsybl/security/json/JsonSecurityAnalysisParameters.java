@@ -13,9 +13,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.common.base.Suppliers;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.extensions.ExtensionProvider;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.security.SecurityAnalysisParameters;
@@ -30,7 +31,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Provides methods to read and write SecurityAnalysisParameters from and to JSON.
@@ -39,15 +41,17 @@ import java.util.stream.Collectors;
  */
 public final class JsonSecurityAnalysisParameters {
 
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, SecurityAnalysisParameters.EXTENSIONS_CATEGORY));
+
     private JsonSecurityAnalysisParameters() {
     }
 
     public static Map<String, ExtensionJsonSerializer> getExtensionSerializers() {
         List<SecurityAnalysisProvider> providers = new ServiceLoaderCache<>(SecurityAnalysisProvider.class).getServices();
-        return providers.stream()
-                .flatMap(securityAnalysisProvider -> securityAnalysisProvider.getSpecificParametersSerializer().stream())
-                .collect(Collectors.toMap(ExtensionProvider::getExtensionName,
-                    securityAnalysisProvider -> securityAnalysisProvider));
+        // a provider specific parameters serializer may also be registered in the category
+        return JsonUtil.getExtensionSerializersByName(Stream.concat(SUPPLIER.get().getProviders().stream(),
+                        providers.stream().flatMap(securityAnalysisProvider -> securityAnalysisProvider.getSpecificParametersSerializer().stream())));
     }
 
     /**

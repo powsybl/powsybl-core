@@ -8,15 +8,20 @@
 package com.powsybl.security.dynamic;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParameters;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Parameters for dynamic security analysis computation.
@@ -29,6 +34,16 @@ public class DynamicSecurityAnalysisParameters extends AbstractExtendable<Dynami
     // VERSION = 1.0 dynamicSimulationParameters, contingenciesParameters
     // VERSION = 1.1 debugDir
     public static final String VERSION = "1.1";
+
+    /**
+     * Category of the {@link com.powsybl.commons.extensions.ExtensionJsonSerializer} and {@link ExtensionConfigLoader}
+     * of extensions which are not provider specific parameters.
+     * Unlike provider specific parameters, those extensions cannot be read from or written to a {@code Map<String, String>}.
+     */
+    public static final String EXTENSIONS_CATEGORY = "dynamic-security-analysis-parameters";
+
+    private static final Supplier<ExtensionProviders<ExtensionConfigLoader>> CONFIG_LOADERS =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionConfigLoader.class, EXTENSIONS_CATEGORY));
 
     private DynamicSimulationParameters dynamicSimulationParameters = new DynamicSimulationParameters();
     private ContingenciesParameters contingenciesParameters = new ContingenciesParameters();
@@ -94,6 +109,16 @@ public class DynamicSecurityAnalysisParameters extends AbstractExtendable<Dynami
         for (DynamicSecurityAnalysisProvider provider : new ServiceLoaderCache<>(DynamicSecurityAnalysisProvider.class).getServices()) {
             provider.loadSpecificParameters(platformConfig).ifPresent(securityAnalysisParametersExtension ->
                     addExtension((Class) securityAnalysisParametersExtension.getClass(), securityAnalysisParametersExtension));
+        }
+        for (ExtensionConfigLoader loader : CONFIG_LOADERS.get().getProviders()) {
+            // ExtensionConfigLoader cannot update an extension: do not overwrite one set by a provider
+            if (getExtensionByName(loader.getExtensionName()) == null) {
+                Extension extension = loader.load(platformConfig);
+                // a null extension means it is not configured
+                if (extension != null) {
+                    addExtension(loader.getExtensionClass(), extension);
+                }
+            }
         }
     }
 

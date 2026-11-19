@@ -8,13 +8,21 @@
 package com.powsybl.commons.json;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,5 +108,69 @@ class JsonUtilTest {
         assertDoesNotThrow(() -> JsonUtil.assertSupportedVersion(contextName, supportedVersion, maxSupportedVersion));
         String expectedException = String.format("%s. Unsupported version %s. Version should be <= %s %n", contextName, unsupportedVersion, maxSupportedVersion);
         assertThrows(PowsyblException.class, () -> JsonUtil.assertSupportedVersion(contextName, unsupportedVersion, maxSupportedVersion), expectedException);
+    }
+
+    private abstract static class AbstractTestSerializer implements ExtensionJsonSerializer<Extendable<Object>, Extension<Extendable<Object>>> {
+
+        private final String name;
+
+        AbstractTestSerializer(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void serialize(Extension<Extendable<Object>> extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Extension<Extendable<Object>> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getExtensionName() {
+            return name;
+        }
+
+        @Override
+        public String getCategoryName() {
+            return "test";
+        }
+
+        @Override
+        public Class<? super Extension<Extendable<Object>>> getExtensionClass() {
+            return Extension.class;
+        }
+    }
+
+    private static final class FooSerializer extends AbstractTestSerializer {
+        FooSerializer() {
+            super("foo");
+        }
+    }
+
+    private static final class OtherFooSerializer extends AbstractTestSerializer {
+        OtherFooSerializer() {
+            super("foo");
+        }
+    }
+
+    private static final class BarSerializer extends AbstractTestSerializer {
+        BarSerializer() {
+            super("bar");
+        }
+    }
+
+    @Test
+    void testGetExtensionSerializersByName() {
+        Map<String, ExtensionJsonSerializer> serializers = JsonUtil.getExtensionSerializersByName(Stream.of(new FooSerializer(), new BarSerializer(), new FooSerializer()));
+        assertEquals(2, serializers.size());
+        assertInstanceOf(FooSerializer.class, serializers.get("foo"));
+        assertInstanceOf(BarSerializer.class, serializers.get("bar"));
+
+        Stream<ExtensionJsonSerializer> duplicates = Stream.of(new FooSerializer(), new OtherFooSerializer());
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonUtil.getExtensionSerializersByName(duplicates));
+        assertEquals("Several serializers were found for extension 'foo'", e.getMessage());
     }
 }

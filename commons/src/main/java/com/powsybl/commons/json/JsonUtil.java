@@ -33,6 +33,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -278,6 +280,21 @@ public final class JsonUtil {
 
     public interface SerializerSupplier {
         ExtensionJsonSerializer getSerializer(String name);
+    }
+
+    /**
+     * Indexes extension serializers by extension name.
+     * <p>The same serializer may be given several times (e.g. a provider specific parameters serializer which is also
+     * registered as an {@link ExtensionJsonSerializer} service), but two different serializers for the same extension
+     * name are not allowed.</p>
+     */
+    public static Map<String, ExtensionJsonSerializer> getExtensionSerializersByName(Stream<ExtensionJsonSerializer> serializers) {
+        return serializers.collect(Collectors.toMap(ExtensionJsonSerializer::getExtensionName, Function.identity(), (s1, s2) -> {
+            if (s1.getClass() != s2.getClass()) {
+                throw new IllegalStateException("Several serializers were found for extension '" + s1.getExtensionName() + "'");
+            }
+            return s1;
+        }));
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
