@@ -13,12 +13,9 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +30,6 @@ import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
 
 public class RegulatingControlMappingForGenerators {
 
-    private static final String QPERCENT = "qPercent";
-
     RegulatingControlMappingForGenerators(RegulatingControlMapping parent, Context context) {
         this.parent = parent;
         this.context = context;
@@ -42,17 +37,13 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public void add(String generatorId, PropertyBag sm) {
-        String cgmesRegulatingControlId = RegulatingControlMapping.getRegulatingControlId(sm);
-        double qPercent = sm.asDouble(QPERCENT);
+        String rcId = RegulatingControlMapping.getRegulatingControlId(sm);
 
         if (mapping.containsKey(generatorId)) {
             throw new CgmesModelException("Generator already added, IIDM Generator Id: " + generatorId);
         }
 
-        CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
-        rd.regulatingControlId = cgmesRegulatingControlId;
-        rd.qPercent = qPercent;
-        mapping.put(generatorId, rd);
+        mapping.put(generatorId, rcId);
     }
 
     void applyRegulatingControls(Network network) {
@@ -60,14 +51,8 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private void apply(Generator gen) {
-        CgmesRegulatingControlForGenerator rc = mapping.get(gen.getId());
-        if (rc == null) {
-            return;
-        }
-
-        String controlId = rc.regulatingControlId;
+        String controlId = mapping.get(gen.getId());
         if (controlId == null) {
-            LOG.trace("Regulating control Id not present for generator {}", gen.getId());
             return;
         }
 
@@ -79,16 +64,16 @@ public class RegulatingControlMappingForGenerators {
 
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
+            okSet = setRegulatingControlVoltage(controlId, control, gen);
         } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
-            okSet = setRegulatingControlReactivePower(controlId, control, rc.qPercent, gen);
+            okSet = setRegulatingControlReactivePower(controlId, control, gen);
         } else {
             context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setRegulatingControlVoltage(String controlId, RegulatingControl control, double qPercent, Generator gen) {
+    private boolean setRegulatingControlVoltage(String controlId, RegulatingControl control, Generator gen) {
 
         // Take default terminal if it has not been defined in CGMES file (it is never null)
         Terminal regulatingTerminal = RegulatingTerminalMapper
@@ -104,19 +89,13 @@ public class RegulatingControlMappingForGenerators {
             .withRegulating(false)
             .build();
 
-        // add qPercent as an extension
-        if (!Double.isNaN(qPercent)) {
-            gen.newExtension(CoordinatedReactiveControlAdder.class)
-                    .withQPercent(qPercent)
-                    .add();
-        }
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
         gen.setProperty(PROPERTY_MODE, control.mode);
 
         return true;
     }
 
-    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, double qPercent, Generator gen) {
+    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, Generator gen) {
         // Ignore control if the terminal is not mapped.
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(control.cgmesTerminal, context)
@@ -134,13 +113,6 @@ public class RegulatingControlMappingForGenerators {
             .withTerminal(mappedRegulatingTerminal.getTerminal());
         voltageRegulationBuilder.build();
 
-        // add qPercent as an extension
-        if (!Double.isNaN(qPercent)) {
-            gen.newExtension(CoordinatedReactiveControlAdder.class)
-                    .withQPercent(qPercent)
-                    .add();
-        }
-
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
         gen.setProperty(PROPERTY_MODE, control.mode);
         gen.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
@@ -148,14 +120,7 @@ public class RegulatingControlMappingForGenerators {
         return true;
     }
 
-    private static final class CgmesRegulatingControlForGenerator {
-        String regulatingControlId;
-        double qPercent;
-    }
-
     private final RegulatingControlMapping parent;
-    private final Map<String, CgmesRegulatingControlForGenerator> mapping;
+    private final Map<String, String> mapping;
     private final Context context;
-
-    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForGenerators.class);
 }
