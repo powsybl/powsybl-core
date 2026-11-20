@@ -325,7 +325,7 @@ In CGMES, a `SynchronousMachine` can be associated with a `RegulatingControl` vi
     - If mapped to the generator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
     - If mapped to another terminal, it is configured as a remote regulating terminal.
     - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch 
-    topology import if the regulating control is defined on a busbar section that is disconnected or not imported), no regulation object is created for the generator.
+    topology import if the regulating control is defined on a busbar section that is disconnected or not imported), a regulation object is created with no terminal (local voltage regulation). The regulation data such as the target value is imported, except for the enabled status which will remain false.
   - In the SSH profile:
     - The target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`.
     - The target deadband is copied from `RegulatingControl.targetDeadband` if defined.
@@ -387,7 +387,7 @@ In CGMES, a `LinearShuntCompensator` can be associated with a `RegulatingControl
   - The regulating terminal is mapped from `RegulatingControl.Terminal`:
     - If mapped to the shunt compensator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
     - If mapped to another terminal, it is configured as a remote regulating terminal.
-    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported), no regulation object is created for the shunt compensator.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported), a regulation object is created with no terminal (local voltage regulation). The regulation data such as the target value is imported, except for the enabled status which will remain false.
   - In the SSH profile:
     - The target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`.
     - The target deadband is copied from `RegulatingControl.targetDeadband` if defined.
@@ -513,10 +513,12 @@ In CGMES, a `StaticVarCompensator` can be associated with a `RegulatingControl` 
   - The regulating terminal is mapped from `RegulatingControl.Terminal`:
     - If mapped to the static var compensator's own terminal, the regulating terminal of the `VoltageRegulation` is set to `null` (local voltage regulation).
     - If mapped to another terminal, it is configured as a remote regulating terminal.
-    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported), the regulating control is ignored and the static var compensator falls back to default local voltage regulation.
+    - If the regulating terminal cannot be mapped to an imported terminal in the network (for example, in a bus/branch topology import if the regulating control is defined on a busbar section that is disconnected or not imported) a regulation object is created with no terminal (local voltage regulation). The regulation data such as the target value is imported, except for the enabled status which will remain false.
+    - 
   - In the SSH profile:
     - If the regulating control was correctly mapped, the target voltage (`targetV`) is set from `RegulatingControl.targetValue` or `RegulatingControl.targetU`, and whether regulation is active (`isRegulating`) is set from `RegulatingControl.enabled` and `StaticVarCompensator.controlEnabled`.
-- If no `RegulatingControl` is defined, the static var compensator is configured with a default local regulation using `StaticVarCompensator.voltageSetPoint` (if defined in EQ) and default mode `VOLTAGE`.
+- If no `RegulatingControl` is defined and if the option iidm.import.cgmes.use-svc-regulation-data-as-alternative is set to true,
+  the static var compensator is configured with a default local regulation using `StaticVarCompensator.voltageSetPoint` (if defined in EQ) and default mode `VOLTAGE`.
 
 (cgmes-switch-import)=
 ### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector, Jumper)
