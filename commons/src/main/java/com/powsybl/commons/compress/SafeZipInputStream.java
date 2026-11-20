@@ -36,8 +36,8 @@ public class SafeZipInputStream extends ForwardingInputStream<ZipInputStream> {
     @Override
     public int read() throws IOException {
         int byteRead = super.read();
-        if (byteRead != -1 && ++this.bytesRead > this.maxBytesToRead) {
-            throw new IOException("Max bytes to read exceeded");
+        if (byteRead != -1) {
+            addBytesRead(1);
         }
         return byteRead;
     }
