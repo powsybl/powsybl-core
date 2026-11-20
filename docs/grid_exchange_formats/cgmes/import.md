@@ -108,14 +108,14 @@ PowSyBl has no out-of-service state: an equipment with `inService=false` is take
   boundary side of the line is disconnected: `p0` and `q0`, or the active and reactive power targets of its generation,
   are set to zero, and the voltage regulation of its generation is switched off. The boundary line itself stays
   connected.
-- The `inService` value of DC equipment, AC/DC converters included, is ignored, in the reduced and the detailed DC models.
 
 The out-of-service state is also applied on an SSH update: an equipment put back in service is reconnected, and the
 fictitious switches created at a previous import are reused.
 
 Known limitations:
 - The `open` value of an out-of-service switch is lost: it is imported, and exported, as an open switch.
-- DC equipment, AC/DC converters included, is imported in service whatever its `inService` value.
+- DC equipment, AC/DC converters included, is out of scope: it is imported in service whatever its `inService` value,
+  in the reduced and the detailed DC models.
 - Equipment that has no terminal or that is not imported (power electronics units, auxiliary equipment, hydro pumps) is
   ignored.
 - In node/breaker models, `Terminal.connect()` does not operate fictitious switches. To reconnect an out-of-service
