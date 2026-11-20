@@ -1081,6 +1081,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getUseSvcRegulationDataAsAlternative() {
+            return useSvcRegulationDataAsAlternative;
+        }
+
+        public Config setUseSvcRegulationDataAsAlternative(boolean use) {
+            useSvcRegulationDataAsAlternative = use;
+            return this;
+        }
+
         public boolean getRemovePropertiesAndAliasesAfterImport() {
             return removePropertiesAndAliasesAfterImport;
         }
@@ -1137,6 +1146,7 @@ public class Conversion {
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private boolean usePreviousValuesDuringUpdate = false;
+        private boolean useSvcRegulationDataAsAlternative = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
         private boolean silenceFrequentIssuesWarnings = false;
@@ -1214,6 +1224,7 @@ public class Conversion {
     public static final String PROPERTY_TERMINAL_SIGN3 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN3;
     public static final String PROPERTY_TOPOLOGICAL_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TOPOLOGICAL_NODE_BOUNDARY;
     public static final String PROPERTY_TP_BD_ID = CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
+    public static final String PROPERTY_UNMAPPED_REGULATING_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "mappedRegulatingTerminal";
     public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
 
     public static String getOperationalLimitPropertyName(String limitSubclass, boolean isInfiniteDuration, int duration, String tagProperty) {
