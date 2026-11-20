@@ -24,6 +24,8 @@ import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransfo
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
 
 /**
+ * Handle mapping of RegulatingControl and TapChangerControl from the EQ profile.
+ *
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
@@ -33,10 +35,27 @@ public class RegulatingControlMapping {
     private final Map<String, String> vscToPccTerminal = new HashMap<>();
     private final Context context;
 
+    /**
+     * Create an instance of RegulatingControlMapping
+     */
     RegulatingControlMapping(Context context) {
         this.context = context;
     }
 
+    /**
+     *  <p>
+     *  Set the regulation of all regulation-capable equipments of the network.
+     *  </p>
+     *  <p>
+     *  Only the regulation data from the EQ profile is set here.
+     *  Data coming from other profiles (e.g. SSH) is applied later.
+     *  </p>
+     *  <p>
+     *  This method is expected to be called only once
+     *  after all other connectable and their terminal have been created,
+     *  so that regulation on a remote terminal can be processed.
+     *  </p>
+     */
     public void setAllRegulatingControls(Network network) {
         network.getGeneratorStream().forEach(this::setRegulatingControl);
         network.getShuntCompensatorStream().forEach(this::setRegulatingControl);
@@ -52,11 +71,13 @@ public class RegulatingControlMapping {
     }
 
     private void setTapChangerControl(TwoWindingsTransformer transformer) {
+        // Set ratio and phase tap changer control of the 2-winding transformer.
         transformer.getOptionalRatioTapChanger().ifPresent(rtc -> setTapChangerControl(transformer, rtc, ""));
         transformer.getOptionalPhaseTapChanger().ifPresent(ptc -> setTapChangerControl(transformer, ptc, ""));
     }
 
     private void setTapChangerControl(ThreeWindingsTransformer transformer) {
+        // Set ratio and phase tap changer control of each leg of the 3-winding transformer.
         transformer.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> setTapChangerControl(transformer, rtc, "1"));
         transformer.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> setTapChangerControl(transformer, rtc, "2"));
         transformer.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> setTapChangerControl(transformer, rtc, "3"));
@@ -66,6 +87,7 @@ public class RegulatingControlMapping {
     }
 
     private <C extends Connectable<C>> void setTapChangerControl(C transformer, TapChanger<?, ?, ?, ?> tapChanger, String end) {
+        // Retrieve TapChangerControl id and set the regulation for this TapChanger
         String tapChangerAlias = tapChanger instanceof RatioTapChanger ? getRatioTapChangerAliasType(end) : getPhaseTapChangerAliasType(end);
         String tapChangerId = findTapChangerId(transformer, tapChangerAlias);
         CgmesTapChangers<C> cgmesTcs = transformer.getExtension(CgmesTapChangers.class);
@@ -89,6 +111,7 @@ public class RegulatingControlMapping {
             return;
         }
 
+        // Set the voltage regulation for this connectable
         setRegulatingControl(connectable, holder, regulatingControlId, "");
     }
 
@@ -102,16 +125,17 @@ public class RegulatingControlMapping {
 
         // Set the regulation data
         if (checkControlMode(regulatingControl.mode(), CgmesNames.VOLTAGE)) {
-            setRegulatingControlVoltage(connectable, holder, regulatingControl.terminalId());
+            setRegulatingControlVoltage(connectable, holder, regulatingControl.terminal());
         } else if (checkControlMode(regulatingControl.mode(), CgmesNames.REACTIVE_POWER)) {
-            setRegulatingControlReactivePower(connectable, holder, regulatingControl.terminalId(), end);
+            setRegulatingControlReactivePower(connectable, holder, regulatingControl.terminal(), end);
         } else {
             context.ignored(regulatingControlId, "Unsupported RegulatingControl mode: " + regulatingControl.mode());
         }
     }
 
     private void setRegulatingControlVoltage(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String terminalId) {
-        // Retrieve the IIDM regulated terminal. Left it empty if it corresponds to the holder's terminal.
+        // Retrieve the IIDM regulated terminal.
+        // In case it corresponds to the connectable's only terminal, don't set it.
         Terminal regulatingTerminal = RegulatingTerminalMapper
                 .mapForVoltageControl(terminalId, context)
                 .orElse(holder.getTerminal());
@@ -130,7 +154,7 @@ public class RegulatingControlMapping {
     }
 
     private void setRegulatingControlReactivePower(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String terminalId, String end) {
-        // Retrieve the IIDM regulated terminal. Return if it hasn't been mapped.
+        // Retrieve the IIDM regulated terminal. It must be mapped.
         RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(terminalId, context)
                 .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(null, 1));
@@ -145,7 +169,6 @@ public class RegulatingControlMapping {
         // Create the voltage regulation
         holder.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
-            // always set the terminal in case of reactive power regulation
             .withTerminal(mappedRegulatingTerminal.getTerminal())
             .withRegulating(false)
             .build();
@@ -161,10 +184,10 @@ public class RegulatingControlMapping {
 
         // Retrieve the IIDM regulated terminal. Return if it hasn't been mapped.
         RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
-            .mapForFlowControl(regulatingControl.terminalId(), context)
+            .mapForFlowControl(regulatingControl.terminal(), context)
             .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(null, 1));
         if (mappedRegulatingTerminal.getTerminal() == null) {
-            context.missing(String.format("IIDM terminal for this CGMES terminal: %s", regulatingControl.terminalId()));
+            context.missing(String.format("IIDM terminal for this CGMES terminal: %s", regulatingControl.terminal()));
             return;
         }
 
@@ -182,11 +205,17 @@ public class RegulatingControlMapping {
         transformer.setProperty(getTerminalSignPropertyName(end), String.valueOf(mappedRegulatingTerminal.getSign()));
     }
 
+    /**
+     * Store the RegulatingControl data of the regulating conducting equipment defined in the Equipment profile.
+     */
     public void storeRegulatingControl(PropertyBag p) {
         String regulatingControlId = p.getId(CgmesNames.REGULATING_CONTROL);
         cachedRegulatingControls.put(regulatingControlId, new RegulatingControl(p));
     }
 
+    /**
+     * Store the PccTerminal data of the VsConverter defined in the Equipment profile.
+     */
     public void storePccTerminal(String vscId, PropertyBag p) {
         String pccTerminal = p.getId("PccTerminal");
         if (pccTerminal != null) {
@@ -194,11 +223,17 @@ public class RegulatingControlMapping {
         }
     }
 
+    /**
+     * Check that the RegulatingControl mode is of the specified RegulatingControlModeKind.
+     */
     public static boolean checkControlMode(String mode, String kind) {
         return mode != null && mode.toLowerCase(Locale.ROOT).endsWith(kind);
     }
 
-    public record RegulatingControl(String mode, String terminalId) {
+    /**
+     * A RegulatingControl as defined in the Equipment profile.
+     */
+    public record RegulatingControl(String mode, String terminal) {
 
         public RegulatingControl(PropertyBag p) {
             this(p.get("mode").toLowerCase(Locale.ROOT), p.getId(CgmesNames.TERMINAL));
