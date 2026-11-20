@@ -741,6 +741,7 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertNotNull(svc);
         assertNotNull(svc.getVoltageRegulation());
         assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertEquals(110.0, svc.getRegulatingTargetV());
         assertNull(svc.getVoltageRegulation().getTerminal());
         assertEquals("svc_rc", svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
     }

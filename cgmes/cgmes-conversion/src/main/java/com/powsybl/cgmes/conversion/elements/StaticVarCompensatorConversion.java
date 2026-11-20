@@ -19,8 +19,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -55,6 +54,12 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             // VoltageRegulation is mandatory for SVC in IIDM.
             setDefaultRegulatingControlData(svc);
         }
+
+        // Store default target voltage for later use during update of the targetValue.
+        double defaultTargetVoltage = p.asDouble("voltageSetPoint");
+        if (!Double.isNaN(defaultTargetVoltage)) {
+            svc.setProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(defaultTargetVoltage));
+        }
     }
 
     private double getB(double rating, String name) {
@@ -88,15 +93,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
                 context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
             }
             svc.newVoltageRegulation()
-                .withTerminal(svc.getTerminal())
                 .withMode(RegulationMode.VOLTAGE)
                 .build();
-        }
-
-        // Store default target voltage for later use during update of the targetValue.
-        double defaultTargetVoltage = p.asDouble("voltageSetPoint");
-        if (!Double.isNaN(defaultTargetVoltage)) {
-            svc.setProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(defaultTargetVoltage));
         }
     }
 
