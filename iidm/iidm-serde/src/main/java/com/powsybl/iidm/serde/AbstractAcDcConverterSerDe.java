@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,6 +24,9 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends AcDcConverterAdder<T, A>> extends AbstractComplexIdentifiableSerDe<T, A, VoltageLevel> {
+
+    private static final String MIN_P = "minP";
+    private static final String MAX_P = "maxP";
 
     private static final String ATTR_CONTROL_MODE = "controlMode";
     static final String PCC_TERMINAL = "pccTerminal";
@@ -94,16 +96,13 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             context.getWriter().writeEnumAttribute(ATTR_CONTROL_MODE, converter.getControlMode()));
         context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
         context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
-        if (converter.getMinP() != -Double.MAX_VALUE && !context.getOptions().isForceExportNetworkWithBetaFeatures()) {
-            throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': minP serialization is not yet supported. " +
-                "To force the export of the network and ignore this value, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
-                "or ExportOptions.setForceExportNetworkWithBetaFeatures");
-        }
-        if (converter.getMaxP() != Double.MAX_VALUE && !context.getOptions().isForceExportNetworkWithBetaFeatures()) {
-            throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': maxP serialization is not yet supported. " +
-                "To force the export of the network and ignore this value, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
-                "or ExportOptions.setForceExportNetworkWithBetaFeatures");
-        }
+
+        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(converter.getMinP() != -Double.MAX_VALUE, getRootElementName(), MIN_P,
+                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context,
+                () -> context.getWriter().writeDoubleAttribute(MIN_P, converter.getMinP()));
+        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(converter.getMaxP() != Double.MAX_VALUE, getRootElementName(), MAX_P,
+                IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_19, context,
+                () -> context.getWriter().writeDoubleAttribute(MAX_P, converter.getMaxP()));
 
         writeNodeOrBus(converter, context);
     }
@@ -138,6 +137,14 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             controlMode.set(context.getReader().readEnumAttribute(ATTR_CONTROL_MODE, AcDcConverter.ControlMode.class)));
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetVdc = context.getReader().readDoubleAttribute("targetVdc");
+
+        // unbounded active power as default value for IIDM version < 1.19 and for converters declaring no limit
+        double minP = -Double.MAX_VALUE;
+        double maxP = Double.MAX_VALUE;
+        if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
+            minP = context.getReader().readDoubleAttribute(MIN_P, -Double.MAX_VALUE);
+            maxP = context.getReader().readDoubleAttribute(MAX_P, Double.MAX_VALUE);
+        }
         adder
             .setDcNode1(dcNode1Id)
             .setDcConnected1(dcConnected1)
@@ -148,7 +155,9 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             .setTargetVdc(targetVdc)
             .setIdleLoss(idleLoss)
             .setSwitchingLoss(switchingLoss)
-            .setResistiveLoss(resistiveLoss);
+            .setResistiveLoss(resistiveLoss)
+            .setMinP(minP)
+            .setMaxP(maxP);
         readNodeOrBus(adder, voltageLevel.getTopologyKind(), context);
     }
 

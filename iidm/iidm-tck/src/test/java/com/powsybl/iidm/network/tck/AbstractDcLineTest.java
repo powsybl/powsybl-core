@@ -120,6 +120,91 @@ public abstract class AbstractDcLineTest {
     }
 
     @Test
+    public void testPermanentCurrentLimit() {
+        DcLine noLimit = createDcLine("noLimit");
+        assertTrue(Double.isNaN(noLimit.getPermanentCurrentLimit()));
+
+        DcLine dcLine = network.newDcLine()
+                .setId("dcLine")
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setR(1.1)
+                .setPermanentCurrentLimit(2106.)
+                .add();
+        assertEquals(2106., dcLine.getPermanentCurrentLimit());
+
+        assertSame(dcLine, dcLine.setPermanentCurrentLimit(2400.));
+        assertEquals(2400., dcLine.getPermanentCurrentLimit());
+
+        dcLine.setPermanentCurrentLimit(Double.NaN);
+        assertTrue(Double.isNaN(dcLine.getPermanentCurrentLimit()));
+    }
+
+    @Test
+    public void testPermanentCurrentLimitError() {
+        DcLineAdder adder = network.newDcLine()
+                .setId("negativeLimit")
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setR(1.1)
+                .setPermanentCurrentLimit(-1.);
+        ValidationException e1 = assertThrows(ValidationException.class, adder::add);
+        assertEquals("DC Line 'negativeLimit': permanent current limit is <= 0", e1.getMessage());
+        assertNull(network.getDcLine("negativeLimit"));
+
+        DcLineAdder zeroAdder = network.newDcLine()
+                .setId("zeroLimit")
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
+                .setR(1.1)
+                .setPermanentCurrentLimit(0.);
+        ValidationException e2 = assertThrows(ValidationException.class, zeroAdder::add);
+        assertEquals("DC Line 'zeroLimit': permanent current limit is <= 0", e2.getMessage());
+        assertNull(network.getDcLine("zeroLimit"));
+
+        DcLine dcLine = createDcLine("dcLine");
+        dcLine.setPermanentCurrentLimit(2106.);
+        ValidationException e3 = assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(-2106.));
+        assertEquals("DC Line 'dcLine': permanent current limit is <= 0", e3.getMessage());
+        ValidationException e4 = assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(0.));
+        assertEquals("DC Line 'dcLine': permanent current limit is <= 0", e4.getMessage());
+
+        // a rejected value leaves the DC line unchanged
+        assertEquals(2106., dcLine.getPermanentCurrentLimit());
+    }
+
+    @Test
+    public void testCurrentOutsideLimitIsAccepted() {
+        DcLine dcLine = createDcLine("dcLine");
+        dcLine.setPermanentCurrentLimit(2000.);
+
+        // currents violating the limit in magnitude, on either side and with either sign: none is rejected
+        dcLine.getDcTerminal1().setI(2500.);
+        dcLine.getDcTerminal2().setI(-2500.);
+        assertEquals(2500., dcLine.getDcTerminal1().getI());
+        assertEquals(-2500., dcLine.getDcTerminal2().getI());
+        assertEquals(2000., dcLine.getPermanentCurrentLimit());
+    }
+
+    @Test
+    public void testPermanentCurrentLimitNotifyUpdate() {
+        DcLine dcLine = createDcLine("dcLine");
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
+        network.addListener(mockedListener);
+
+        dcLine.setPermanentCurrentLimit(2106.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(dcLine, "permanentCurrentLimit", null, Double.NaN, 2106.);
+        dcLine.setPermanentCurrentLimit(2400.);
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(dcLine, "permanentCurrentLimit", null, 2106., 2400.);
+
+        // a rejected value is not notified
+        assertThrows(ValidationException.class, () -> dcLine.setPermanentCurrentLimit(-1.));
+        Mockito.verifyNoMoreInteractions(mockedListener);
+    }
+
+    @Test
     public void testCreateDuplicate() {
         network.newDcLine()
                 .setId("dcLine1")
@@ -183,6 +268,12 @@ public abstract class AbstractDcLineTest {
 
         PowsyblException e6 = assertThrows(PowsyblException.class, () -> t2.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class)));
         assertEquals("Associated equipment dcLine1 is removed", e6.getMessage());
+
+        PowsyblException e7 = assertThrows(PowsyblException.class, dcLine1::getPermanentCurrentLimit);
+        assertEquals("Cannot access permanentCurrentLimit of removed equipment dcLine1", e7.getMessage());
+
+        PowsyblException e8 = assertThrows(PowsyblException.class, () -> dcLine1.setPermanentCurrentLimit(2106.));
+        assertEquals("Cannot modify permanentCurrentLimit of removed equipment dcLine1", e8.getMessage());
     }
 
     @Test
@@ -314,5 +405,16 @@ public abstract class AbstractDcLineTest {
         adder.setDcNode2(dcNodeRootNetwork.getId());
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Line 'dcLineAcrossSubnets': DC Nodes 'dcNode1Subnetwork1' and 'dcNodeRootNetwork' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
+    }
+
+    private DcLine createDcLine(String id) {
+        return network.newDcLine()
+                .setId(id)
+                .setDcNode1(dcNode1.getId())
+                .setConnected1(true)
+                .setDcNode2(dcNode2.getId())
+                .setConnected2(true)
+                .setR(1.1)
+                .add();
     }
 }

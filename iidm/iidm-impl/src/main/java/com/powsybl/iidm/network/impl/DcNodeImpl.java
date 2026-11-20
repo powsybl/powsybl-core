@@ -25,11 +25,15 @@ import java.util.stream.Stream;
 public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements DcNode, MultiVariantObject {
 
     public static final String NOMINAL_V_ATTRIBUTE = "nominalV";
+    public static final String LOW_VOLTAGE_LIMIT_ATTRIBUTE = "lowVoltageLimit";
+    public static final String HIGH_VOLTAGE_LIMIT_ATTRIBUTE = "highVoltageLimit";
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
     protected boolean removed = false;
     private double nominalV;
+    private double lowVoltageLimit;
+    private double highVoltageLimit;
 
     private final List<DcTerminal> dcTerminals;
 
@@ -39,11 +43,14 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
 
     private final TIntArrayList dcComponentNumber;
 
-    DcNodeImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double nominalV) {
+    DcNodeImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, double nominalV,
+               double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
         this.nominalV = nominalV;
+        this.lowVoltageLimit = lowVoltageLimit;
+        this.highVoltageLimit = highVoltageLimit;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         dcTerminals = new ArrayList<>();
         v = new TDoubleArrayList(variantArraySize);
@@ -86,6 +93,38 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
         double oldValue = this.nominalV;
         this.nominalV = nominalV;
         getNetwork().getListeners().notifyUpdate(this, NOMINAL_V_ATTRIBUTE, oldValue, nominalV);
+        return this;
+    }
+
+    @Override
+    public double getLowVoltageLimit() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, LOW_VOLTAGE_LIMIT_ATTRIBUTE);
+        return this.lowVoltageLimit;
+    }
+
+    @Override
+    public DcNode setLowVoltageLimit(double lowVoltageLimit) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, LOW_VOLTAGE_LIMIT_ATTRIBUTE);
+        ValidationUtil.checkDcVoltageLimits(this, lowVoltageLimit, this.highVoltageLimit);
+        double oldValue = this.lowVoltageLimit;
+        this.lowVoltageLimit = lowVoltageLimit;
+        getNetwork().getListeners().notifyUpdate(this, LOW_VOLTAGE_LIMIT_ATTRIBUTE, oldValue, lowVoltageLimit);
+        return this;
+    }
+
+    @Override
+    public double getHighVoltageLimit() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, HIGH_VOLTAGE_LIMIT_ATTRIBUTE);
+        return this.highVoltageLimit;
+    }
+
+    @Override
+    public DcNode setHighVoltageLimit(double highVoltageLimit) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, HIGH_VOLTAGE_LIMIT_ATTRIBUTE);
+        ValidationUtil.checkDcVoltageLimits(this, this.lowVoltageLimit, highVoltageLimit);
+        double oldValue = this.highVoltageLimit;
+        this.highVoltageLimit = highVoltageLimit;
+        getNetwork().getListeners().notifyUpdate(this, HIGH_VOLTAGE_LIMIT_ATTRIBUTE, oldValue, highVoltageLimit);
         return this;
     }
 

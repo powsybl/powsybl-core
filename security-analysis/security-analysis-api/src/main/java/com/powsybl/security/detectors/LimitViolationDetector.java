@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.security.LimitViolationDetection;
 import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -428,6 +429,34 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer);
+
+    /**
+     * Checks whether the values on the detailed DC equipments (DC nodes, DC lines and AC/DC converters)
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * <p>This default implementation checks the DC line currents against their permanent limits,
+     * as if every {@link LoadingLimitType} was considered.</p>
+     *
+     * @param network       The network on which physical values must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkAllDetailedDc(Network network, Consumer<LimitViolation> consumer) {
+        LimitViolationDetection.checkAllDetailedDc(network, EnumSet.allOf(LoadingLimitType.class), consumer);
+    }
+
+    /**
+     * Checks whether the values on the detailed DC equipments (DC nodes, DC lines and AC/DC converters)
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency   The contingency for which values must be checked, {@code null} for N situation.
+     * @param network       The network on which physical values must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkAllDetailedDc(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
+        checkAllDetailedDc(network, consumer);
+    }
 
     /**
      * Helper function to convert a limit type to a limit violation type

@@ -13,9 +13,12 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.DcLine;
+import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 import com.powsybl.security.results.OperatorStrategyResult;
@@ -216,24 +219,52 @@ public final class Security {
     private static Consumer<? super LimitViolation> writeLineLimitsViolations(Network network, TableFormatter formatter, boolean writeName) {
         return violation -> {
             try {
-                formatter.writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId())
-                         .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network, writeName))
-                         .writeCell(LimitViolationHelper.getCountry(violation, network).map(Country::name).orElse(""))
-                         .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
-                         .writeCell(violation.getLimitType().name())
-                         .writeCell(getViolationName(violation))
-                         .writeCell(violation.getValue())
-                         .writeCell(getViolationLimit(violation))
-                         .writeCell(getAbsValueLimit(violation))
-                         .writeCell(getViolationRate(violation));
+                writeViolationCells(formatter, violation, network, writeName);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         };
     }
 
-    private static double getAbsValueLimit(LimitViolation violation) {
-        return Math.abs(violation.getValue() - violation.getLimit() * violation.getLimitScaling());
+    /**
+     * Writes the cells describing a violation, from the equipment column to the loading rate column.
+     * The location cells of a violation without voltage level are left empty.
+     */
+    private static void writeViolationCells(TableFormatter formatter, LimitViolation violation, Network network,
+                                            boolean writeName) throws IOException {
+        formatter.writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId());
+        Optional<VoltageLevel> voltageLevel = LimitViolationHelper.getVoltageLevel(violation, network);
+        if (voltageLevel.isPresent()) {
+            VoltageLevel vl = voltageLevel.get();
+            formatter.writeCell(writeName ? vl.getNameOrId() : vl.getId())
+                    .writeCell(LimitViolationHelper.getCountry(vl).map(Country::name).orElse(""))
+                    .writeCell((int) vl.getNominalV());
+        } else {
+            formatter.writeEmptyCells(3);
+        }
+        formatter.writeCell(violation.getLimitType().name())
+                .writeCell(getViolationName(violation))
+                .writeCell(violation.getValue())
+                .writeCell(getViolationLimit(violation))
+                .writeCell(getAbsValueLimit(violation, hasLimitOnMagnitude(violation, network)))
+                .writeCell(getViolationRate(violation));
+    }
+
+    /**
+     * @return {@code true} if the limit applies to the magnitude of the signed value of the violation,
+     * which is the case for DC nodes and DC lines.
+     */
+    private static boolean hasLimitOnMagnitude(LimitViolation violation, Network network) {
+        Identifiable<?> subject = network.getIdentifiable(violation.getSubjectId());
+        return subject instanceof DcNode || subject instanceof DcLine;
+    }
+
+    private static double getAbsValueLimit(LimitViolation violation, boolean limitOnMagnitude) {
+        double limit = getViolationLimit(violation);
+        if (limitOnMagnitude) {
+            return Math.abs(Math.abs(violation.getValue()) - limit);
+        }
+        return Math.abs(violation.getValue() - limit);
     }
 
     public static void printPreContingencyViolations(SecurityAnalysisResult result, Network network, Writer writer, TableFormatterFactory formatterFactory,
@@ -299,17 +330,8 @@ public final class Security {
     private static Consumer<? super LimitViolation> writeLinePreContingencyViolations(Network network, TableFormatter formatter, boolean writeName) {
         return violation -> {
             try {
-                formatter.writeEmptyCell()
-                        .writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId())
-                        .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network, writeName))
-                        .writeCell(LimitViolationHelper.getCountry(violation, network).map(Country::name).orElse(""))
-                        .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
-                        .writeCell(violation.getLimitType().name())
-                        .writeCell(getViolationName(violation))
-                        .writeCell(violation.getValue())
-                        .writeCell(getViolationLimit(violation))
-                        .writeCell(getAbsValueLimit(violation))
-                        .writeCell(getViolationRate(violation));
+                formatter.writeEmptyCell();
+                writeViolationCells(formatter, violation, network, writeName);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -603,19 +625,8 @@ public final class Security {
     private static Consumer<? super LimitViolation> writeLimitViolation(Network network, TableFormatter formatter, boolean writeName) {
         return violation -> {
             try {
-                formatter.writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeEmptyCell()
-                        .writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId())
-                        .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network, writeName))
-                        .writeCell(LimitViolationHelper.getCountry(violation, network).map(Country::name).orElse(""))
-                        .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
-                        .writeCell(violation.getLimitType().name())
-                        .writeCell(getViolationName(violation))
-                        .writeCell(violation.getValue())
-                        .writeCell(getViolationLimit(violation))
-                        .writeCell(getAbsValueLimit(violation))
-                        .writeCell(getViolationRate(violation));
+                formatter.writeEmptyCells(3);
+                writeViolationCells(formatter, violation, network, writeName);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -48,6 +48,7 @@ public final class LimitViolationDetection {
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        checkAllDetailedDc(network, currentLimitTypes, consumer);
     }
 
     /**
@@ -67,6 +68,99 @@ public final class LimitViolationDetection {
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitsComputer, consumer));
         network.getThreeWindingsTransformerStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitsComputer, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        // The DC power factor is not used for detailed DC equipment
+        checkAllDetailedDc(network, currentLimitTypes, consumer);
+    }
+
+    /**
+     * Checks whether the values on the detailed DC equipments (DC nodes, DC lines and AC/DC converters)
+     * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param network           The network on which physical values must be checked.
+     * @param currentLimitTypes The current limit type to consider.
+     * @param consumer          Will be fed with possibly created limit violations.
+     */
+    public static void checkAllDetailedDc(Network network, Set<LoadingLimitType> currentLimitTypes, Consumer<LimitViolation> consumer) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(currentLimitTypes);
+        Objects.requireNonNull(consumer);
+        network.getDcNodeStream().forEach(n -> checkVoltage(n, consumer));
+        if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+            network.getDcLineStream().forEach(l -> checkCurrent(l, consumer));
+        }
+        network.getVoltageSourceConverterStream().forEach(c -> checkActivePower(c, consumer));
+        network.getLineCommutatedConverterStream().forEach(c -> checkActivePower(c, consumer));
+    }
+
+    /**
+     * Checks the voltage magnitude of a DC node against its low and high voltage limits.
+     * Limits are never scaled, and the signed voltage is reported.
+     */
+    private static void checkVoltage(DcNode dcNode, Consumer<LimitViolation> consumer) {
+        double v = dcNode.getV();
+        if (Double.isNaN(v)) {
+            return;
+        }
+        double magnitude = Math.abs(v);
+        double lowLimit = dcNode.getLowVoltageLimit();
+        if (!Double.isNaN(lowLimit) && magnitude <= lowLimit) {
+            consumer.accept(createDetailedDcViolation(dcNode, LimitViolationType.LOW_VOLTAGE, lowLimit, v, null));
+        }
+        double highLimit = dcNode.getHighVoltageLimit();
+        if (!Double.isNaN(highLimit) && magnitude >= highLimit) {
+            consumer.accept(createDetailedDcViolation(dcNode, LimitViolationType.HIGH_VOLTAGE, highLimit, v, null));
+        }
+    }
+
+    /**
+     * Checks the current magnitude at terminal 1 of a DC line against its permanent current limit.
+     * A DC line has no shunt admittance, so checking terminal 1 is enough. The limit is never scaled,
+     * and the signed current is reported.
+     */
+    private static void checkCurrent(DcLine dcLine, Consumer<LimitViolation> consumer) {
+        double i = dcLine.getDcTerminal1().getI();
+        double limit = dcLine.getPermanentCurrentLimit();
+        if (!Double.isNaN(i) && !Double.isNaN(limit) && Math.abs(i) >= limit) {
+            consumer.accept(createDetailedDcViolation(dcLine, LimitViolationType.CURRENT, limit, i, ThreeSides.ONE));
+        }
+    }
+
+    /**
+     * Checks the active power of an AC/DC converter against its minP and maxP bounds.
+     * Bounds are never scaled, and bounds left at their default values never produce a violation.
+     */
+    private static void checkActivePower(AcDcConverter<?> converter, Consumer<LimitViolation> consumer) {
+        double p = getConverterActivePower(converter);
+        if (Double.isNaN(p)) {
+            return;
+        }
+        double maxP = converter.getMaxP();
+        if (maxP != Double.MAX_VALUE && p >= maxP) {
+            consumer.accept(createDetailedDcViolation(converter, LimitViolationType.ACTIVE_POWER, maxP, p, ThreeSides.ONE));
+        }
+        double minP = converter.getMinP();
+        if (minP != -Double.MAX_VALUE && p <= minP) {
+            consumer.accept(createDetailedDcViolation(converter, LimitViolationType.ACTIVE_POWER, minP, p, ThreeSides.ONE));
+        }
+    }
+
+    /**
+     * @return the active power at the PCC terminal of the converter if any, otherwise the sum of the active powers
+     * at its AC terminals.
+     */
+    private static double getConverterActivePower(AcDcConverter<?> converter) {
+        Terminal pccTerminal = converter.getPccTerminal();
+        if (pccTerminal != null) {
+            return pccTerminal.getP();
+        }
+        return converter.getTerminal1().getP() + converter.getTerminal2().map(Terminal::getP).orElse(0.);
+    }
+
+    private static LimitViolation createDetailedDcViolation(Identifiable<?> subject, LimitViolationType type, double limit,
+                                                            double value, ThreeSides side) {
+        return new LimitViolation(subject.getId(), subject.getOptionalName().orElse(null), null, type, null,
+                Integer.MAX_VALUE, limit, 1.0, value, side, null);
     }
 
     private static void checkCurrent(Branch<?> branch, Set<LoadingLimitType> currentLimitTypes,

@@ -21,7 +21,16 @@ public final class LimitViolationHelper {
     private LimitViolationHelper() {
     }
 
-    private static VoltageLevel getVoltageLevel(LimitViolation limitViolation, Network network) {
+    /**
+     * @return the voltage level where the violation is located, or an empty {@code Optional} if its subject is not
+     * located in any voltage level (DC node or DC line). Such a violation has no country and no nominal voltage.
+     * @throws IllegalStateException if the type of the subject of the violation is not supported.
+     */
+    public static Optional<VoltageLevel> getVoltageLevel(LimitViolation limitViolation, Network network) {
+        return Optional.ofNullable(findVoltageLevel(limitViolation, network));
+    }
+
+    private static VoltageLevel findVoltageLevel(LimitViolation limitViolation, Network network) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(limitViolation);
 
@@ -42,14 +51,23 @@ public final class LimitViolationHelper {
             return voltageLevel;
         } else if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
+        } else if (identifiable instanceof AcDcConverter<?> converter) {
+            return converter.getTerminal1().getVoltageLevel();
+        } else if (identifiable instanceof DcNode || identifiable instanceof DcLine) {
+            return null;
         } else {
             throw new IllegalStateException("Unexpected identifiable type: " + identifiable.getClass());
         }
     }
 
     public static Optional<Country> getCountry(LimitViolation limitViolation, Network network) {
-        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
+        return getVoltageLevel(limitViolation, network).flatMap(LimitViolationHelper::getCountry);
+    }
 
+    /**
+     * @return the country of the substation of the voltage level, if any.
+     */
+    public static Optional<Country> getCountry(VoltageLevel voltageLevel) {
         return voltageLevel.getSubstation().flatMap(Substation::getCountry);
     }
 
@@ -58,14 +76,14 @@ public final class LimitViolationHelper {
     }
 
     public static String getVoltageLevelId(LimitViolation limitViolation, Network network, boolean name) {
-        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
-
-        return name ? voltageLevel.getNameOrId() : voltageLevel.getId();
+        return getVoltageLevel(limitViolation, network)
+                .map(voltageLevel -> name ? voltageLevel.getNameOrId() : voltageLevel.getId())
+                .orElse(null);
     }
 
     public static double getNominalVoltage(LimitViolation limitViolation, Network network) {
-        VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
-
-        return voltageLevel.getNominalV();
+        return getVoltageLevel(limitViolation, network)
+                .map(VoltageLevel::getNominalV)
+                .orElse(Double.NaN);
     }
 }

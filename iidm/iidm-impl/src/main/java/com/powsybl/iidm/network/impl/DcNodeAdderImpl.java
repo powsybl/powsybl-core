@@ -22,6 +22,8 @@ public class DcNodeAdderImpl extends AbstractIdentifiableAdder<DcNodeAdderImpl> 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
     private double nominalV = Double.NaN;
+    private double lowVoltageLimit = Double.NaN;
+    private double highVoltageLimit = Double.NaN;
 
     DcNodeAdderImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef) {
         this.networkRef = ref;
@@ -35,11 +37,24 @@ public class DcNodeAdderImpl extends AbstractIdentifiableAdder<DcNodeAdderImpl> 
     }
 
     @Override
+    public DcNodeAdder setLowVoltageLimit(double lowVoltageLimit) {
+        this.lowVoltageLimit = lowVoltageLimit;
+        return this;
+    }
+
+    @Override
+    public DcNodeAdder setHighVoltageLimit(double highVoltageLimit) {
+        this.highVoltageLimit = highVoltageLimit;
+        return this;
+    }
+
+    @Override
     public DcNode add() {
         String id = checkAndGetUniqueId();
         ValidationUtil.checkNominalV(this, nominalV);
+        ValidationUtil.checkDcVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
 
-        DcNodeImpl dcNode = new DcNodeImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), nominalV);
+        DcNodeImpl dcNode = new DcNodeImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), nominalV, lowVoltageLimit, highVoltageLimit);
         NetworkImpl network = networkRef.get();
         network.getIndex().checkAndAdd(dcNode);
         network.getListeners().notifyCreation(dcNode);

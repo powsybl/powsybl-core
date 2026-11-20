@@ -9,12 +9,15 @@ package com.powsybl.security.comparator;
 
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolationsResult;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -202,4 +205,30 @@ class LimitViolationsResultEquivalenceTest {
         assertFalse(resultEquivalence.equivalent(result1, result2));
     }
 
+    @Test
+    void equivalentWithViolationsWithoutOperationalLimitsGroup() {
+        // Compatibility with limit violations in detailed DC networks: DC node, DC line and AC/DC converter violations
+        // have no operational limits group
+        LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.INSTANCE);
+        LimitViolationsResult result1 = new LimitViolationsResult(new ArrayList<>(List.of(
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530., null),
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200., ThreeSides.ONE),
+            dcViolation("converter", LimitViolationType.ACTIVE_POWER, 200., 250., ThreeSides.ONE))));
+
+        LimitViolationsResult similarResult = new LimitViolationsResult(new ArrayList<>(List.of(
+            dcViolation("converter", LimitViolationType.ACTIVE_POWER, 200., 250., ThreeSides.ONE),
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1200., ThreeSides.ONE),
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530.05, null))));
+        assertTrue(resultEquivalence.equivalent(result1, similarResult));
+
+        LimitViolationsResult differentResult = new LimitViolationsResult(new ArrayList<>(List.of(
+            dcViolation("converter", LimitViolationType.ACTIVE_POWER, 200., 250., ThreeSides.ONE),
+            dcViolation("dcLine", LimitViolationType.CURRENT, 1000., -1210., ThreeSides.ONE),
+            dcViolation("dcNode", LimitViolationType.HIGH_VOLTAGE, 525., -530., null))));
+        assertFalse(resultEquivalence.equivalent(result1, differentResult));
+    }
+
+    private static LimitViolation dcViolation(String subjectId, LimitViolationType type, double limit, double value, ThreeSides side) {
+        return new LimitViolation(subjectId, null, null, type, null, Integer.MAX_VALUE, limit, 1.0, value, side, null);
+    }
 }

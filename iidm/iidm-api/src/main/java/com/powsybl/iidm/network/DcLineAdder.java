@@ -27,6 +27,12 @@ public interface DcLineAdder extends IdentifiableAdder<DcLine, DcLineAdder> {
 
     DcLineAdder setConnected2(boolean connected2);
 
+    /**
+     * @param permanentCurrentLimit permanent current limit in A, must be strictly positive or NaN (undefined)
+     * @return this adder, for chaining
+     */
+    DcLineAdder setPermanentCurrentLimit(double permanentCurrentLimit);
+
     @Override
     DcLine add();
 }

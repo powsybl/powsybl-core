@@ -149,6 +149,16 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
             });
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>DC line currents are checked only if the permanent limit type is considered by this detector.
+     * The limit scaling of this detector is not applied to detailed DC limits.</p>
+     */
+    @Override
+    public void checkAllDetailedDc(Network network, Consumer<LimitViolation> consumer) {
+        LimitViolationDetection.checkAllDetailedDc(network, currentLimitTypes, consumer);
+    }
+
     public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
         LimitViolationDetection.checkLimitViolation(branch, side, value, type, currentLimitTypes, limitsComputer, consumer);
     }
