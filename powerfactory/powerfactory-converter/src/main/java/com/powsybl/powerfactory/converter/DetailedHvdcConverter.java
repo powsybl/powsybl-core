@@ -348,12 +348,45 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param network  where to add the node.
      */
     private static void addDcNode(DataObject terminal, Network network) {
-        network.newDcNode().setId(idInNetworkString(terminal)).setName(terminal.getLocName()).setNominalV(terminal.getFloatAttributeValue("uknom")).add();
-
         double uknom = terminal.getFloatAttributeValue("uknom");
+        DcNodeAdder dcNodeAdder = network.newDcNode().setId(idInNetworkString(terminal)).setName(terminal.getLocName()).setNominalV(uknom);
+        setVoltageLimits(dcNodeAdder, terminal, uknom);
+        dcNodeAdder.add();
+
         double unknom = terminal.getFloatAttributeValue("unknom");
         if (uknom != unknom) {
             throw new PowerFactoryException("ElmTerm " + terminal.getId() + " is part of a DC subgrid but its uknom and unknom are different.");
+        }
+    }
+
+    /**
+     * Set the voltage limits of the DC node from the steady-state voltage limits of the terminal.
+     * A limit is left undefined (NaN) if vmax is missing, or if vmin is missing or zero.
+     * @param dcNodeAdder adder of the DC node.
+     * @param terminal terminal in the DGS file.
+     * @param uknom nominal voltage (kV) of the terminal.
+     * @throws PowerFactoryException if vmin is negative, vmax is not strictly positive,
+     * or vmin is greater than or equal to vmax when both are set.
+     */
+    private static void setVoltageLimits(DcNodeAdder dcNodeAdder, DataObject terminal, double uknom) {
+        double vmin = terminal.findFloatAttributeValue("vmin").orElse(Float.NaN); // pu
+        double vmax = terminal.findFloatAttributeValue("vmax").orElse(Float.NaN); // pu
+        if (vmin < 0) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has negative vmin (" + vmin + ").");
+        }
+        if (vmax <= 0) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has non-positive vmax (" + vmax + ").");
+        }
+        boolean vminSet = vmin > 0; // false if NaN
+        boolean vmaxSet = !Double.isNaN(vmax);
+        if (vminSet && vmaxSet && vmin >= vmax) {
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has vmin (" + vmin + ") greater than or equal to vmax (" + vmax + ").");
+        }
+        if (vminSet) {
+            dcNodeAdder.setLowVoltageLimit(vmin * uknom);
+        }
+        if (vmaxSet) {
+            dcNodeAdder.setHighVoltageLimit(vmax * uknom);
         }
     }
 
