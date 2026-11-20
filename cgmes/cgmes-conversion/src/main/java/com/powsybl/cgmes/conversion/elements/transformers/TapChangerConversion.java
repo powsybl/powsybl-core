@@ -391,7 +391,6 @@ public class TapChangerConversion {
         boolean isLtcFlag = rtc.isLtcFlag();
         boolean isRegulating = rtc.isRegulating();
         String regulatingControlId = rtc.getRegulatingControlId();
-        String tculControlMode = rtc.getTculControlMode();
         boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
@@ -403,7 +402,6 @@ public class TapChangerConversion {
             .setId(id)
             .setRegulating(isRegulating)
             .setRegulatingControlId(regulatingControlId)
-            .setTculControlMode(tculControlMode)
             .setTapChangerControlEnabled(isTapChangerControlEnabled)
             .setType(type)
             .setHiddenCombinedTapChanger(hiddenCombinedTapChanger);

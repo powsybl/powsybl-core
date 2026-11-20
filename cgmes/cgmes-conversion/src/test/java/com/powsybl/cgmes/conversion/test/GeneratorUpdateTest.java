@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -104,8 +103,8 @@ class GeneratorUpdateTest {
         assertEq(network.getGenerator("SynchronousMachineWithoutRegulatingControl"), false);
         assertEq(network.getGenerator("EquivalentInjectionWithRegulationCapability"), true);
 
-        assertNotNull(network.getGenerator("SynchronousMachine").getProperty(PROPERTY_MODE));
-        assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getProperty(PROPERTY_MODE));
+        assertNotNull(network.getGenerator("SynchronousMachine").getVoltageRegulation());
+        assertNull(network.getGenerator("SynchronousMachineWithoutRegulatingControl").getVoltageRegulation());
     }
 
     private static void assertFirstSsh(Network network) {
@@ -155,7 +154,7 @@ class GeneratorUpdateTest {
         assertFalse(generator.isRegulating());
 
         assertEquals(regulationCapability, generator.getVoltageRegulation() != null);
-        if (generator.getProperty(PROPERTY_MODE) != null) {
+        if (generator.getVoltageRegulation() != null) {
             assertSame(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
         }
     }

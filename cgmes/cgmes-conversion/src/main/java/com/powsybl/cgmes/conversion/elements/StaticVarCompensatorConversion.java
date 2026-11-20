@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
@@ -18,6 +19,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
 
 /**
@@ -48,7 +50,11 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             svc.getVoltageRegulation().setSlope(slope);
         }
 
-        context.regulatingControlMapping().forStaticVarCompensators().add(svc.getId(), p);
+        setRegulatingControlProperty(svc);
+        if (!svc.hasProperty(PROPERTY_REGULATING_CONTROL)) {
+            // VoltageRegulation is mandatory for SVC in IIDM.
+            setDefaultRegulatingControlData(svc);
+        }
     }
 
     private double getB(double rating, String name) {
@@ -67,6 +73,31 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             ignored("Slope must be positive");
         }
         return slope;
+    }
+
+    private void setDefaultRegulatingControlData(StaticVarCompensator svc) {
+        // Create default regulation
+        String defaultRegulationMode = p.getId("controlMode");
+        if (RegulatingControlMapping.checkControlMode(defaultRegulationMode, CgmesNames.REACTIVE_POWER)) {
+            svc.newVoltageRegulation()
+                .withTerminal(svc.getTerminal())
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .build();
+        } else {
+            if (!RegulatingControlMapping.checkControlMode(defaultRegulationMode, CgmesNames.VOLTAGE)) {
+                context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
+            }
+            svc.newVoltageRegulation()
+                .withTerminal(svc.getTerminal())
+                .withMode(RegulationMode.VOLTAGE)
+                .build();
+        }
+
+        // Store default target voltage for later use during update of the targetValue.
+        double defaultTargetVoltage = p.asDouble("voltageSetPoint");
+        if (!Double.isNaN(defaultTargetVoltage)) {
+            svc.setProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(defaultTargetVoltage));
+        }
     }
 
     public static void update(StaticVarCompensator staticVarCompensator, PropertyBag cgmesData, Context context) {

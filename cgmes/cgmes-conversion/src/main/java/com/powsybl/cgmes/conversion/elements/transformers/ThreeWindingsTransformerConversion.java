@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
@@ -89,10 +87,10 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         double starBusTheta = Math.toDegrees(twtData.getStarTheta());
 
         if (!Double.isNaN(starBusV) && !Double.isNaN(starBusTheta)) {
-            twt.setProperty(CgmesNames.VOLTAGE, Double.toString(starBusV));
+            twt.setProperty(CgmesNames.V, Double.toString(starBusV));
             twt.setProperty(CgmesNames.ANGLE, Double.toString(starBusTheta));
         } else {
-            twt.removeProperty(CgmesNames.VOLTAGE);
+            twt.removeProperty(CgmesNames.V);
             twt.removeProperty(CgmesNames.ANGLE);
         }
     }
@@ -130,7 +128,6 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding2, tx, context);
         setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding3, tx, context);
 
-        setRegulatingControlContext(convertedT3xModel, tx);
         addCgmesReferences(tx, convertedT3xModel.winding1.end1.ratioTapChanger);
         addCgmesReferences(tx, convertedT3xModel.winding1.end1.phaseTapChanger);
         addCgmesReferences(tx, convertedT3xModel.winding2.end1.ratioTapChanger);
@@ -202,17 +199,6 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
             return tx.getLeg3().newPhaseTapChanger();
         }
         return null;
-    }
-
-    private void setRegulatingControlContext(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx) {
-        CgmesRegulatingControlRatio rcRtc1 = setContextRegulatingDataRatio(convertedT3xModel.winding1.end1.ratioTapChanger);
-        CgmesRegulatingControlPhase rcPtc1 = setContextRegulatingDataPhase(convertedT3xModel.winding1.end1.phaseTapChanger);
-        CgmesRegulatingControlRatio rcRtc2 = setContextRegulatingDataRatio(convertedT3xModel.winding2.end1.ratioTapChanger);
-        CgmesRegulatingControlPhase rcPtc2 = setContextRegulatingDataPhase(convertedT3xModel.winding2.end1.phaseTapChanger);
-        CgmesRegulatingControlRatio rcRtc3 = setContextRegulatingDataRatio(convertedT3xModel.winding3.end1.ratioTapChanger);
-        CgmesRegulatingControlPhase rcPtc3 = setContextRegulatingDataPhase(convertedT3xModel.winding3.end1.phaseTapChanger);
-
-        context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3, rcPtc3);
     }
 
     public static void update(ThreeWindingsTransformer t3w, Context context) {

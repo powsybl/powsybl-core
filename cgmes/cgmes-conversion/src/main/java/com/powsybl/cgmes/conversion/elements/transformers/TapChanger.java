@@ -54,7 +54,6 @@ public class TapChanger {
     private String type = null;
     private boolean regulating = false;
     private String regulatingControlId = null;
-    private String tculControlMode = null;
     private boolean tapChangerControlEnabled = false;
     private TapChanger hiddenCombinedTapChanger = null;
 
@@ -181,11 +180,6 @@ public class TapChanger {
         return this;
     }
 
-    public TapChanger setTculControlMode(String tculControlMode) {
-        this.tculControlMode = tculControlMode;
-        return this;
-    }
-
     public TapChanger setTapChangerControlEnabled(boolean tapChangerControlEnabled) {
         this.tapChangerControlEnabled = tapChangerControlEnabled;
         return this;
@@ -234,10 +228,6 @@ public class TapChanger {
 
     public String getRegulatingControlId() {
         return regulatingControlId;
-    }
-
-    public String getTculControlMode() {
-        return tculControlMode;
     }
 
     public boolean isTapChangerControlEnabled() {
