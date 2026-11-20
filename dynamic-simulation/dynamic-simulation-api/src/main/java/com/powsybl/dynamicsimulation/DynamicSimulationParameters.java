@@ -7,18 +7,16 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.util.ServiceLoaderCache;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -42,9 +40,6 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     public static final double DEFAULT_START_TIME = 0d;
     public static final double DEFAULT_STOP_TIME = 10d;
     public static final String DEFAULT_DEBUG_DIR = null;
-
-    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
-        .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "dynamic-simulation-parameters"));
 
     public static DynamicSimulationParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -184,9 +179,9 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     }
 
     private void loadExtensions(PlatformConfig platformConfig) {
-        for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
-            addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+        for (DynamicSimulationProvider provider : new ServiceLoaderCache<>(DynamicSimulationProvider.class).getServices()) {
+            provider.loadSpecificParameters(platformConfig).ifPresent(parametersExtension ->
+                    addExtension((Class) parametersExtension.getClass(), parametersExtension));
         }
     }
-
 }
