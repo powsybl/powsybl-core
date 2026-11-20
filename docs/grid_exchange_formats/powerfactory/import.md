@@ -71,7 +71,33 @@ For _detailed_ network import, the following additional attributes are also requ
 
 Ground elements (`ElmGndswt`) are not exported by default by PowerFactory. Their export to the DGS file must be declared specifically if grounds are to be re-imported by PowSyBl. No additional attribute is mandatory for ground elements (`ElmGndswt`). If `on_off` is present and has value zero, the ground element is considered disconnected and it is not added to the network. `ciEarthed` is disregarded by the importer. The switch itself is not imported to PowSyBl. The ground resistance is assumed to be zero.
 
-`ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes.
+`ElmTerm`, `ElmLne` and `TypLne` are used by the importer. Apart from the optional operational limits described below, they require no additional data than the default attributes.
+
+### Operational limits (_detailed_)
+The following attributes are optional. When present, they are imported as operational limits of the DC equipment:
+
+| Object    | Attribute | Unit | IIDM limit                                         | Conversion                       |
+|-----------|-----------|------|----------------------------------------------------|----------------------------------|
+| `ElmVsc`  | `Pmax_uc` | MW   | `minP` of the `VoltageSourceConverter`             | `minP = -Pmax_uc`                |
+| `ElmVsc`  | `Pmin_uc` | MW   | `maxP` of the `VoltageSourceConverter`             | `maxP = -Pmin_uc`                |
+| `ElmLne`  | `Imaxlim` | kA   | `permanentCurrentLimit` (A) of the `DcLine`        | `1000 * Imaxlim * nlnum`         |
+| `ElmTerm` | `vmin`    | p.u. | `lowVoltageLimit` (kV) of the `DcNode`             | `vmin * uknom`                   |
+| `ElmTerm` | `vmax`    | p.u. | `highVoltageLimit` (kV) of the `DcNode`            | `vmax * uknom`                   |
+
+As for the active power setpoint, the sign of the converter active power limits is changed, because PowerFactory and
+IIDM use opposite sign conventions. `nlnum` is the number of parallel circuits of the line (1 if absent).
+
+PowerFactory expresses the absence of a limit with values of magnitude at least 9999. The corresponding IIDM limit
+then keeps its default value, as when the attribute is absent:
+- `minP` keeps its default value if `Pmax_uc` >= 9999, and `maxP` keeps its default value
+  if `Pmin_uc` <= -9999;
+- `permanentCurrentLimit` is undefined if `Imaxlim` >= 9999.
+
+A `vmin` equal to zero also means that there is no low voltage limit: `lowVoltageLimit` is then undefined.
+
+The import fails with a `PowerFactoryException` in case of inconsistent limits: `Pmin_uc` > `Pmax_uc` when both
+are defined, `Imaxlim` <= 0, `vmin` < 0, `vmax` <= 0, or `vmin` >= `vmax` when both are defined. It also fails if
+the `nlnum` of a DC line is present and not strictly positive.
 
 ### Control mode (_detailed_)
 
@@ -99,6 +125,13 @@ properties of the switch are disregarded for the DC network.
 - The only supported AC-DC converters are VSCs in `ElmVsc`.
 - For now PCC control is not taken into account and the VSC is connected to a single terminal.
 - Attribute `ciEarthed` of `ElmTerm` is ignored by the importer.
+- The permanent current limit of DC lines only comes from `Imaxlim`. The other attributes PowerFactory uses for
+  line loading (`sline`, `InomAir`, `fline`, thermal ratings `IntThrating`) are ignored, so the IIDM limit can be
+  higher than the loading reference shown in PowerFactory.
+- The number of parallel converters (`nparnum`) is ignored: `Pmin_uc` and `Pmax_uc` are not scaled.
+- Voltage limits of AC terminals are not imported.
+- PowerFactory calculation options, such as _Consider Active Power Limits_, are not taken into account: active
+  power limits are imported whatever the study settings.
 
 ## Importing GPS coordinates
 
