@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
@@ -153,13 +152,34 @@ public final class SteadyStateHypothesisExport {
         for (HvdcLine line : network.getHvdcLines()) {
             ids.add(context.getNamingStrategy().getCgmesId(line));
         }
-        Stream.concat(network.getGeneratorStream(), network.getBatteryStream())
-                .filter(i -> i.hasProperty(PROPERTY_GENERATING_UNIT))
-                .forEach(i -> ids.add(context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT)));
+        for (Generator generator : network.getGenerators()) {
+            if (CgmesNames.SYNCHRONOUS_MACHINE.equals(generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE))) {
+                addGeneratingUnitId(generator, ids, context);
+            }
+        }
+        for (Battery battery : network.getBatteries()) {
+            addGeneratingUnitId(battery, ids, context);
+        }
         ids.removeAll(writtenGeneratingUnits);
         for (String id : ids) {
             writeStartEquipmentAbout("Equipment", id, cimNamespace, writer, context);
             writer.writeEndElement();
+        }
+    }
+
+    /**
+     * Add the CGMES id of the generating unit of a machine exported as a {@code SynchronousMachine}, unless the machine
+     * is a condenser. The EQ export writes a generating unit in the same cases, with the same id, generated if the
+     * machine was not imported from CGMES.
+     *
+     * @param i the generator or battery exported as a {@code SynchronousMachine}
+     * @param ids the CGMES ids to add the generating unit id to
+     * @param context the export context
+     * @param <I> the type of the machine
+     */
+    private static <I extends ReactiveLimitsHolder & Injection<I>> void addGeneratingUnitId(I i, Set<String> ids, CgmesExportContext context) {
+        if (!OPERATING_MODE_CONDENSER.equals(obtainSynchronousMachineKind(i))) {
+            ids.add(context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT));
         }
     }
 

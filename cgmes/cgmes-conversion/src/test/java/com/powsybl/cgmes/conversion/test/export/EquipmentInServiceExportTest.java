@@ -16,6 +16,7 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -46,6 +47,22 @@ class EquipmentInServiceExportTest extends AbstractSerDeTest {
         assertInServiceWrittenOnceForEveryEquipment(Cgmes3Catalog.microGrid(), "microGrid");
         assertInServiceWrittenOnceForEveryEquipment(Cgmes3Catalog.miniGrid(), "miniGrid");
         assertInServiceWrittenOnceForEveryEquipment(Cgmes3Catalog.smallGrid(), "smallGrid");
+    }
+
+    @Test
+    @DisplayName("CGMES 3 SSH export writes Equipment.inService=true for the generating units of a network not imported from CGMES")
+    void cim100ExportGeneratingUnitNotFromCgmesTest() throws IOException {
+        // The generator "GEN" has no CGMES generating unit property and no participation factor
+        Network network = EurostagTutorialExample1Factory.create();
+        Properties properties = new Properties();
+        properties.put(CgmesExport.CIM_VERSION, "100");
+        network.write("CGMES", properties, tmpDir.resolve("eurostag"));
+
+        Set<String> generatingUnits = getUniqueMatches(Files.readString(tmpDir.resolve("eurostag_EQ.xml")),
+                Pattern.compile("<cim:\\w*GeneratingUnit rdf:ID=\"_?([^\"]+)\""));
+        Map<String, List<String>> exported = inServiceValuesBySubject(Files.readString(tmpDir.resolve("eurostag_SSH.xml")));
+        assertEquals(1, generatingUnits.size());
+        generatingUnits.forEach(id -> assertEquals(List.of("true"), exported.get(id)));
     }
 
     @Test
