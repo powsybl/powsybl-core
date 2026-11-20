@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
@@ -714,6 +715,34 @@ class VoltageRegulationTest extends AbstractSerDeTest {
 
         assertVsConverterEq(eqFile, "VSC_4", "T_ACL_1");
         assertVsConverterSsh(sshFile, "VSC_4", MODE_KIND_REACTIVE_PCC, "30", "-30.5", "0");
+    }
+
+    @Test
+    void busBranchRegulatingControlOnDisconnectedBusbarSectionTest() {
+        Network network = readCgmesResources(DIR,
+            "regulating_terminal_on_isolated_bbs_EQ.xml",
+            "regulating_terminal_on_isolated_bbs_TP.xml",
+            "regulating_terminal_on_isolated_bbs_SSH.xml"
+        );
+
+        // Generator with unmapped terminal on disconnected BBS: regulation is dropped
+        Generator generator = network.getGenerator("sm");
+        assertNotNull(generator);
+        assertNull(generator.getVoltageRegulation());
+        assertFalse(generator.hasRegulatingTerminal());
+
+        // Shunt with unmapped terminal on disconnected BBS: regulation is dropped
+        ShuntCompensator shunt = network.getShuntCompensator("shunt");
+        assertNotNull(shunt);
+        assertNull(shunt.getVoltageRegulation());
+
+        // SVC with unmapped terminal on disconnected BBS: default regulation fallback
+        StaticVarCompensator svc = network.getStaticVarCompensator("svc");
+        assertNotNull(svc);
+        assertNotNull(svc.getVoltageRegulation());
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertNull(svc.getVoltageRegulation().getTerminal());
+        assertEquals("svc_rc", svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
     }
 
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {
