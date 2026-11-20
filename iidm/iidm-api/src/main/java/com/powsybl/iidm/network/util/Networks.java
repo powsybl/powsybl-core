@@ -397,20 +397,20 @@ public final class Networks {
      * @param node The starting node
      * @return A terminal for the specified node or null.
      */
-    public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node, List<Switch> switchesToTerminalRef, List<Switch> openSwitches) {
+    public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node, List<Switch> closedSwitchesToTerminalRef, List<Switch> openSwitchesAtEndOfPaths) {
         checkNodeBreakerVoltageLevel(voltageLevel);
-        switchesToTerminalRef.clear();
-        openSwitches.clear();
+        closedSwitchesToTerminalRef.clear();
+        openSwitchesAtEndOfPaths.clear();
 
         Terminal[] equivalentTerminal = new Terminal[1];
 
         VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
             if (sw != null && sw.isOpen()) {
-                openSwitches.add(sw);
+                openSwitchesAtEndOfPaths.add(sw);
                 return TraverseResult.TERMINATE_PATH;
             }
             if (sw != null && sw.isRetained()) {
-                switchesToTerminalRef.add(sw);
+                closedSwitchesToTerminalRef.add(sw);
             }
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
             if (t != null) {

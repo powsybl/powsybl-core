@@ -28,8 +28,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private final List<NodeTerminal> terminals;
     private List<TerminalExt> connectableTerminals = null;
     private final int[] nodes;
-    private final List<Switch> switchesToTerminalRef;
-    private final List<Switch> openSwitches;
+    private final List<Switch> closedSwitchesToTerminalRef;
+    private final List<Switch> openSwitchesAtEndOfPaths;
 
     private NodeTerminal terminalRef;
 
@@ -37,8 +37,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
         this.nodes = Objects.requireNonNull(nodes).toArray();
-        this.switchesToTerminalRef = new ArrayList<>();
-        this.openSwitches = new ArrayList<>();
+        this.closedSwitchesToTerminalRef = new ArrayList<>();
+        this.openSwitchesAtEndOfPaths = new ArrayList<>();
         this.terminalRef = findTerminal(nodes);
     }
 
@@ -61,7 +61,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
             }
             return terminals.getFirst();
         }
-        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0), switchesToTerminalRef, openSwitches);
+        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0), closedSwitchesToTerminalRef, openSwitchesAtEndOfPaths);
     }
 
     private static boolean hasDefinedVoltageOrAngle(NodeTerminal t) {
@@ -78,7 +78,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         if (terminalRef != null) {
             // Check if a switch has been opened
-            for (Switch sw : switchesToTerminalRef) {
+            for (Switch sw : closedSwitchesToTerminalRef) {
                 if (sw.isOpen()) {
                     this.terminalRef = findTerminal(new TIntArrayList(nodes));
                     return;
@@ -86,7 +86,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
             }
         } else {
             // Check if a switch has been closed
-            for (Switch sw : openSwitches) {
+            for (Switch sw : openSwitchesAtEndOfPaths) {
                 if (!sw.isOpen()) {
                     this.terminalRef = findTerminal(new TIntArrayList(nodes));
                     return;
