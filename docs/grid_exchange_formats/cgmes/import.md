@@ -84,37 +84,37 @@ The CGMES model does not guarantee these hierarchical constraints, so the first 
 (cgmes-equipment-in-service-import)=
 ## Equipment out of service
 
-The SSH profile describes whether each equipment is in service with the attribute `Equipment.inService`, which only 
+The SSH profile describes whether each equipment is in service with the attribute `Equipment.inService`, which only
 exists from CGMES 3 (CIM 100):
 - CGMES 2.4.15 (CIM 16) models have no `Equipment.inService`: nothing described in this section applies to them.
 - In CGMES 3 (CIM 100) models, `Equipment.inService` is read as described below.
 
 PowSyBl has no out-of-service state: an equipment with `inService=false` is taken out of service by disconnecting it.
 
-- The terminals of an out-of-service equipment are considered disconnected, whatever their `connected` value. In 
+- The terminals of an out-of-service equipment are considered disconnected, whatever their `connected` value. In
   bus/branch models the terminals are disconnected. In node/breaker models, a fictitious open switch is created at each
-  terminal, as for any disconnected terminal. The creation of these switches follows the option 
+  terminal, as for any disconnected terminal. The creation of these switches follows the option
   `iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode`.
-- An out-of-service switch is opened, in node/breaker and bus/branch models. No fictitious switch is created for it. 
+- An out-of-service switch is opened, in node/breaker and bus/branch models. No fictitious switch is created for it.
   Lines, equivalent branches and series compensators imported as switches are handled the same way.
-- An out-of-service `GeneratingUnit` disconnects all the machines that it drives, even when the machines themselves are 
+- An out-of-service `GeneratingUnit` disconnects all the machines that it drives, even when the machines themselves are
   in service.
-- In node/breaker models, an out-of-service `BusbarSection` is detached from its connectivity node by a fictitious open 
-  switch on its own terminal. The connectivity node and the equipment connected to it are not changed. A busbar section 
+- In node/breaker models, an out-of-service `BusbarSection` is detached from its connectivity node by a fictitious open
+  switch on its own terminal. The connectivity node and the equipment connected to it are not changed. A busbar section
   terminal with `connected=false` is still ignored.
-- Boundary lines and tie line halves follow their `ACLineSegment` or `EquivalentBranch`: a tie line half can be out of 
+- Boundary lines and tie line halves follow their `ACLineSegment` or `EquivalentBranch`: a tie line half can be out of
   service while the other half is in service.
 - The `inService` value of DC equipment, AC/DC converters included, is ignored, in the reduced and the detailed DC models.
 
-The out-of-service state is also applied on an SSH update: an equipment put back in service is reconnected, and the 
+The out-of-service state is also applied on an SSH update: an equipment put back in service is reconnected, and the
 fictitious switches created at a previous import are reused.
 
 Known limitations:
 - The `open` value of an out-of-service switch is lost: it is imported, and exported, as an open switch.
 - DC equipment, AC/DC converters included, is imported in service whatever its `inService` value.
-- Equipment that has no terminal or that is not imported (power electronics units, auxiliary equipment, hydro pumps) is 
+- Equipment that has no terminal or that is not imported (power electronics units, auxiliary equipment, hydro pumps) is
   ignored.
-- In node/breaker models, `Terminal.connect()` does not operate fictitious switches. To reconnect an out-of-service 
+- In node/breaker models, `Terminal.connect()` does not operate fictitious switches. To reconnect an out-of-service
   equipment by hand, use `terminal.connect(SwitchPredicates.IS_BREAKER)` or close the fictitious switch.
 
 ## Conversion from CGMES to PowSyBl grid model

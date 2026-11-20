@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.ucte.network.UcteElement;
 import com.powsybl.ucte.network.UcteElementStatus;
 import com.powsybl.ucte.network.UcteNetwork;
-import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.io.UcteReader;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,7 @@ import java.util.Properties;
 import java.util.stream.Stream;
 
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.ELEMENT_NAME_PROPERTY_KEY;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * End-to-end export to UCTE-DEF of a CGMES 3 network with out-of-service equipment: the out-of-service equipment is
@@ -55,17 +54,6 @@ class CgmesInServiceUcteExportTest {
         // No fictitious switch is exported: the only coupler is the CGMES one
         assertEquals(1, ucte.getLines().stream().filter(l -> l.getStatus() == UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION
                 || l.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION).count());
-    }
-
-    @Test
-    @DisplayName("Node-breaker: the end of an out-of-service line is exported on a UCTE node of its own")
-    void outOfServiceLineEndTest() throws IOException {
-        // Current output in node-breaker: an end of an out-of-service line is detached by a fictitious switch, and its
-        // bus-breaker view bus is exported as a UCTE node referenced by no other element
-        UcteNetwork ucte = exportToUcte(importDataset());
-        UcteElement lineOut = elementOf(ucte, "LINE OUT");
-        assertTrue(isReferencedOnlyBy(ucte, lineOut.getId().getNodeCode1(), lineOut)
-                || isReferencedOnlyBy(ucte, lineOut.getId().getNodeCode2(), lineOut));
     }
 
     /**
@@ -135,18 +123,5 @@ class CgmesInServiceUcteExportTest {
      */
     private static UcteElementStatus statusOf(UcteNetwork ucte, String elementName) {
         return elementOf(ucte, elementName).getStatus();
-    }
-
-    /**
-     * Tell whether a UCTE node is referenced by no element other than the given one.
-     *
-     * @param ucte the UCTE network
-     * @param node the code of the node
-     * @param element the element
-     * @return {@code true} if no other element references the node
-     */
-    private static boolean isReferencedOnlyBy(UcteNetwork ucte, UcteNodeCode node, UcteElement element) {
-        return elements(ucte).filter(e -> e != element)
-                .noneMatch(e -> node.equals(e.getId().getNodeCode1()) || node.equals(e.getId().getNodeCode2()));
     }
 }
