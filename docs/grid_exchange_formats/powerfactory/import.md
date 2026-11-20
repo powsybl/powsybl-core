@@ -88,13 +88,16 @@ As for the active power setpoint, the sign of the converter active power limits 
 IIDM use opposite sign conventions. `nlnum` is the number of parallel circuits of the line (1 if absent).
 
 PowerFactory expresses the absence of a limit with values of magnitude at least 9999. The corresponding IIDM limit
-is then left undefined, as when the attribute is absent:
-- `minP` is undefined if `Pmax_uc` >= 9999, and `maxP` is undefined if `Pmin_uc` <= -9999;
-- `permanentCurrentLimit` is undefined if `Imaxlim` >= 9999;
-- `lowVoltageLimit` is undefined if `vmin` = 0.
+then keeps its default value, as when the attribute is absent:
+- `minP` keeps its default value if `Pmax_uc` >= 9999, and `maxP` keeps its default value
+  if `Pmin_uc` <= -9999;
+- `permanentCurrentLimit` is undefined if `Imaxlim` >= 9999.
+
+A `vmin` equal to zero also means that there is no low voltage limit: `lowVoltageLimit` is then undefined.
 
 The import fails with a `PowerFactoryException` in case of inconsistent limits: `Pmin_uc` > `Pmax_uc` when both
-are defined, `Imaxlim` <= 0, `vmin` < 0, `vmax` <= 0, or `vmin` >= `vmax` when both are defined.
+are defined, `Imaxlim` <= 0, `vmin` < 0, `vmax` <= 0, or `vmin` >= `vmax` when both are defined. It also fails if
+the `nlnum` of a DC line is present and not strictly positive.
 
 ### Control mode (_detailed_)
 

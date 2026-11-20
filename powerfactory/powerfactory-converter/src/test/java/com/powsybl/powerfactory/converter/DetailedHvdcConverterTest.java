@@ -413,7 +413,8 @@ class DetailedHvdcConverterTest {
 
     @Test
     void testDcLineCurrentLimits() {
-        // DC-Line_pos has a limit and 2 parallel circuits, DC-Line_neg has a "no limit" value.
+        // DC-Line_pos has a limit and 2 parallel circuits, DC-Line_neg has a "no limit" value,
+        // DC-Line_dummy has an empty Imaxlim cell.
         Network network = importDgs("MTDC-limits_DC-lines");
 
         final double currentLimit = 1000.0 * 1.5 * 2;
@@ -426,6 +427,9 @@ class DetailedHvdcConverterTest {
     void testDcLineCurrentLimitBad() {
         PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-limits_bad-Imaxlim"));
         assertEquals("ElmLne 4 has non-positive Imaxlim (0.0).", e.getMessage());
+
+        PowerFactoryException e2 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-limits_bad-nlnum"));
+        assertEquals("ElmLne 4 has non-positive nlnum (0).", e2.getMessage());
     }
 
     @Test

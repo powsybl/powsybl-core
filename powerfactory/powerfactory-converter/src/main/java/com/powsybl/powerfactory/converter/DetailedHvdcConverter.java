@@ -372,15 +372,15 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         double vmin = terminal.findFloatAttributeValue("vmin").orElse(Float.NaN); // pu
         double vmax = terminal.findFloatAttributeValue("vmax").orElse(Float.NaN); // pu
         if (vmin < 0) {
-            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has negative vmin (" + vmin + ").");
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has negative vmin (" + (float) vmin + ").");
         }
         if (vmax <= 0) {
-            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has non-positive vmax (" + vmax + ").");
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has non-positive vmax (" + (float) vmax + ").");
         }
         boolean vminSet = vmin > 0; // false if NaN
         boolean vmaxSet = !Double.isNaN(vmax);
         if (vminSet && vmaxSet && vmin >= vmax) {
-            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has vmin (" + vmin + ") greater than or equal to vmax (" + vmax + ").");
+            throw new PowerFactoryException("ElmTerm " + terminal.getId() + " has vmin (" + (float) vmin + ") greater than or equal to vmax (" + (float) vmax + ").");
         }
         if (vminSet) {
             dcNodeAdder.setLowVoltageLimit(vmin * uknom);
@@ -473,7 +473,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             return Double.NaN;
         }
         if (maxCurrentPerCircuit <= 0) {
-            throw new PowerFactoryException("ElmLne " + line.getId() + " has non-positive Imaxlim (" + maxCurrentPerCircuit + ").");
+            throw new PowerFactoryException("ElmLne " + line.getId() + " has non-positive Imaxlim (" + (float) maxCurrentPerCircuit + ").");
         }
         return 1000 * maxCurrentPerCircuit * getNumberOfParallelLines(line); // A
     }
@@ -481,9 +481,14 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     /**
      * @param line line in the DGS file.
      * @return number of parallel circuits of the line, 1 if nlnum is missing.
+     * @throws PowerFactoryException if nlnum is present and not strictly positive.
      */
     private static int getNumberOfParallelLines(DataObject line) {
-        return line.findIntAttributeValue("nlnum").orElse(1);
+        int numberOfParallelLines = line.findIntAttributeValue("nlnum").orElse(1);
+        if (numberOfParallelLines <= 0) {
+            throw new PowerFactoryException("ElmLne " + line.getId() + " has non-positive nlnum (" + numberOfParallelLines + ").");
+        }
+        return numberOfParallelLines;
     }
 
     private record PowerFactoryAcDcConverterParameters(int iAcdc,
@@ -637,7 +642,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         boolean pMinSet = pMinUc > -NO_LIMIT; // false if NaN
         boolean pMaxSet = pMaxUc < NO_LIMIT; // false if NaN
         if (pMinSet && pMaxSet && pMinUc > pMaxUc) {
-            throw new PowerFactoryException("ElmVsc " + elmVsc.getId() + " has Pmin_uc (" + pMinUc + ") greater than Pmax_uc (" + pMaxUc + ").");
+            throw new PowerFactoryException("ElmVsc " + elmVsc.getId() + " has Pmin_uc (" + (float) pMinUc + ") greater than Pmax_uc (" + (float) pMaxUc + ").");
         }
         if (pMaxSet) {
             converterAdder.setMinP(-pMaxUc);
