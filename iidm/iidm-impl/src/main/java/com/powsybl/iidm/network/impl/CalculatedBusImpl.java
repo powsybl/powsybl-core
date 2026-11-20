@@ -74,6 +74,13 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         }
     }
 
+    /**
+     * Check if the bus is still valid and update the reference terminal if:
+     * <ul>
+     *     <li>a reference terminal was defined and a switch leading to it has been opened</li>
+     *     <li>no reference terminal was defined and a switch at the edge of the previous path traversal has been closed</li>
+     * </ul>
+     */
     private void checkValidityAndUpdateTerminalRefOnSwitchModification() {
         checkValidity();
         if (terminalRef != null) {
