@@ -243,6 +243,9 @@ public class RegulatingControlMapping {
         return mode != null && mode.toLowerCase(Locale.ROOT).endsWith(kind);
     }
 
+    /**
+     * Check if the regulating terminal has been mapped for that regulation holder.
+     */
     public static boolean regulatingTerminalMapped(PropertiesHolder holder) {
         return !holder.hasProperty(Conversion.PROPERTY_UNMAPPED_REGULATING_TERMINAL);
     }
