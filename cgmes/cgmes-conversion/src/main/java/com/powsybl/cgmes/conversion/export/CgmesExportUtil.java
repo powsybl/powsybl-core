@@ -145,7 +145,8 @@ public final class CgmesExportUtil {
                 network.getId()
         );
         writeAttribute(MD_NAMESPACE, CgmesNames.SCENARIO_TIME, DATE_TIME_FORMATTER.format(context.getScenarioTime()), writer);
-        writeAttribute(MD_NAMESPACE, CgmesNames.CREATED, DATE_TIME_FORMATTER.format(ZonedDateTime.now()), writer);
+        ZonedDateTime created = context.getModelCreated() != null ? context.getModelCreated() : ZonedDateTime.now();
+        writeAttribute(MD_NAMESPACE, CgmesNames.CREATED, DATE_TIME_FORMATTER.format(created), writer);
         if (modelDescription.getDescription() != null) {
             writeAttribute(MD_NAMESPACE, CgmesNames.DESCRIPTION, modelDescription.getDescription(), writer);
         }
