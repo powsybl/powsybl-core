@@ -18,6 +18,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.findTapChangerId;
@@ -134,21 +135,28 @@ public class RegulatingControlMapping {
     }
 
     private void setRegulatingControlVoltage(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String terminalId) {
-        // Retrieve the IIDM regulated terminal.
+        // Retrieve the IIDM regulated terminal. It must be mapped.
+        Optional<Terminal> regulatingTerminalOpt = RegulatingTerminalMapper
+            .mapForVoltageControl(terminalId, context);
+
+        if (regulatingTerminalOpt.isEmpty()) {
+            context.ignored(connectable.getId(), String.format("Regulation terminal %s is not mapped or mapped to a switch", terminalId));
+            return;
+        }
+
+        Terminal mappedRegulatingTerminal = regulatingTerminalOpt.get();
+
         // In case it corresponds to the connectable's only terminal, don't set it.
-        Terminal regulatingTerminal = RegulatingTerminalMapper
-                .mapForVoltageControl(terminalId, context)
-                .orElse(holder.getTerminal());
         if (!(connectable instanceof TwoWindingsTransformer)
             && !(connectable instanceof ThreeWindingsTransformer)
-            && regulatingTerminal.getConnectable().getId().equals(connectable.getId())) {
-            regulatingTerminal = null;
+            && mappedRegulatingTerminal.getConnectable().getId().equals(connectable.getId())) {
+            mappedRegulatingTerminal = null;
         }
 
         // Create the voltage regulation
         holder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTerminal(regulatingTerminal)
+            .withTerminal(mappedRegulatingTerminal)
             .withRegulating(false)
             .build();
     }
