@@ -963,6 +963,13 @@ If set to `false`, missing SSH attributes will be filled using default values.
 This property does not apply to SV data. SV data is handled as a complete dataset, with no support for partial updates of the SV file.
 `false` by default.
 
+**iidm.import.cgmes.use-svc-regulation-data-as-alternative**
+When this property is set to `true`, the importer will use the regulation data from the CGMES StaticVarCompensator
+in the equipment profile in case the regulation data from the CGMES RegulatingControl is not available.
+That happens for example when the RegulatingControl is missing or the Terminal in the RegulatingControl couldn't be mapped.
+If set to `false`, the regulation data from the CGMES StaticVarCompensator is always ignored.
+`false` by default.
+
 **iidm.import.cgmes.remove-properties-and-aliases-after-import**<br>
 Properties and aliases are generated during the EQ import process and are used both in the initial import and in subsequent network updates.
 When this option is set to `true`, all generated properties and aliases are removed after the import/update process.

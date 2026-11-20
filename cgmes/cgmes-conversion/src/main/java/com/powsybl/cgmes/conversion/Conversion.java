@@ -1081,6 +1081,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getUseSvcRegulationDataAsAlternative() {
+            return useSvcRegulationDataAsAlternative;
+        }
+
+        public Config setUseSvcRegulationDataAsAlternative(boolean use) {
+            useSvcRegulationDataAsAlternative = use;
+            return this;
+        }
+
         public boolean getRemovePropertiesAndAliasesAfterImport() {
             return removePropertiesAndAliasesAfterImport;
         }
@@ -1137,6 +1146,7 @@ public class Conversion {
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private boolean usePreviousValuesDuringUpdate = false;
+        private boolean useSvcRegulationDataAsAlternative = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
         private boolean silenceFrequentIssuesWarnings = false;

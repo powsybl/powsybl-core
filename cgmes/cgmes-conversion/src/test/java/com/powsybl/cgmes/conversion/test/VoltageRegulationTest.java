@@ -718,8 +718,10 @@ class VoltageRegulationTest extends AbstractSerDeTest {
     }
 
     @Test
-    void busBranchRegulatingControlOnDisconnectedBusbarSectionTest() {
-        Network network = readCgmesResources(DIR,
+    void busBranchRegulatingControlOnDisconnectedBusbarSectionTest() throws IOException {
+        Properties importParameters = new Properties();
+        importParameters.put(CgmesImport.USE_SVC_REGULATION_DATA_AS_ALTERNATIVE, "true");
+        Network network = readCgmesResources(importParameters, DIR,
             "regulating_terminal_on_isolated_bbs_EQ.xml",
             "regulating_terminal_on_isolated_bbs_TP.xml",
             "regulating_terminal_on_isolated_bbs_SSH.xml"
@@ -735,7 +737,36 @@ class VoltageRegulationTest extends AbstractSerDeTest {
 
         // SVC with unmapped terminal on disconnected BBS: default regulation fallback
         StaticVarCompensator svc = network.getStaticVarCompensator("svc");
-        //assertLocalVoltageRegulation(svc, 110.0, "svc_rc", true);
+        assertLocalVoltageRegulation(svc, 110.0, "svc_rc", true);
+
+        // We export back the correct RegulatingControl IDs and local terminal in the EQ profile
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertLocalVoltageRegulationEq(eqFile, "SynchronousMachine", "sm");
+        assertLocalVoltageRegulationEq(eqFile, "LinearShuntCompensator", "shunt");
+        assertLocalVoltageRegulationEq(eqFile, "StaticVarCompensator", "svc");
+
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+        assertLocalVoltageRegulationSsh(sshFile, "sm_rc", "false", "115");
+        assertLocalVoltageRegulationSsh(sshFile, "shunt_rc", "false", "115");
+        assertLocalVoltageRegulationSsh(sshFile, "svc_rc", "true", "110");
+    }
+
+    @Test
+    void busBranchRegulatingControlOnDisconnectedBusbarSectionNoFallbackForSvcTest() throws IOException {
+        Network network = readCgmesResources(DIR,
+            "regulating_terminal_on_isolated_bbs_EQ.xml",
+            "regulating_terminal_on_isolated_bbs_TP.xml",
+            "regulating_terminal_on_isolated_bbs_SSH.xml"
+        );
+
+        // SVC with unmapped terminal on disconnected BBS: default regulation fallback
+        StaticVarCompensator svc = network.getStaticVarCompensator("svc");
+        assertLocalVoltageRegulation(svc, 115.0, "svc_rc", false);
+
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+        assertLocalVoltageRegulationSsh(sshFile, "sm_rc", "false", "115");
+        assertLocalVoltageRegulationSsh(sshFile, "shunt_rc", "false", "115");
+        assertLocalVoltageRegulationSsh(sshFile, "svc_rc", "false", "115");
     }
 
     private void assertLocalVoltageRegulation(VoltageRegulationHolder<?> holder, double targetV, String regulatingControlId, boolean isRegulating) {
@@ -747,6 +778,24 @@ class VoltageRegulationTest extends AbstractSerDeTest {
         assertEquals(regulatingControlId, ((PropertiesHolder) holder).getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
         assertEquals("bbs1_t", ((PropertiesHolder) holder).getProperty(Conversion.PROPERTY_UNMAPPED_REGULATING_TERMINAL));
         assertEquals(isRegulating, voltageRegulation.isRegulating());
+    }
+
+    private void assertLocalVoltageRegulationEq(String eqFile, String holderClass, String holderId) {
+        String holder = getElement(eqFile, holderClass, holderId);
+        assertNotNull(holder);
+        String regulatingControlId = holderId + "_rc";
+        assertEquals(regulatingControlId, getResource(holder, "RegulatingCondEq.RegulatingControl"));
+        String regulatingControl = getElement(eqFile, "RegulatingControl", regulatingControlId);
+        assertNotNull(regulatingControl);
+        String localTerminalId = holderId + "_t";
+        assertEquals(localTerminalId, getResource(regulatingControl, "RegulatingControl.Terminal"));
+    }
+
+    private void assertLocalVoltageRegulationSsh(String sshFile, String regulatingControlId, String enabled, String targetValue) {
+        String regulatingControl = getElement(sshFile, "RegulatingControl", regulatingControlId);
+        assertNotNull(regulatingControl);
+        assertEquals(enabled, getAttribute(regulatingControl, "RegulatingControl.enabled"));
+        assertEquals(targetValue, getAttribute(regulatingControl, "RegulatingControl.targetValue"));
     }
 
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {

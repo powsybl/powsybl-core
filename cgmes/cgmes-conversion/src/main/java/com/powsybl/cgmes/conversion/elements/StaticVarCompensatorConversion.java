@@ -111,7 +111,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, Boolean controlEnabled, Context context) {
-        if (staticVarCompensator.getVoltageRegulation() == null) {
+        if (staticVarCompensator.getVoltageRegulation() == null
+            || context.config().getUseSvcRegulationDataAsAlternative() && !regulatingTerminalMapped(staticVarCompensator)) {
             return;
         }
 

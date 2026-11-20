@@ -155,6 +155,14 @@ public class RegulatingControlMapping {
             .withTerminal(mappedRegulatingTerminal)
             .withRegulating(false)
             .build();
+
+        if (connectable instanceof StaticVarCompensator svc && context.config().getUseSvcRegulationDataAsAlternative()) {
+            double targetV = Double.parseDouble(svc.getProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT));
+            if (targetV > 0.0) {
+                holder.setLocalTargetV(targetV);
+                holder.getVoltageRegulation().setRegulating(true);
+            }
+        }
     }
 
     private void setRegulatingControlReactivePower(Connectable<?> connectable, VoltageRegulationHolder<?> holder, String terminalId, String end) {
