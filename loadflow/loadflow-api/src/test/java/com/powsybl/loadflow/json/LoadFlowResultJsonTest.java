@@ -184,10 +184,10 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     @Test
     void readJsonVersion11() throws IOException {
         LoadFlowResult result11 = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11.json"));
-        assertTrue(result11.isOk());
+        assertFalse(result11.isFailed());
 
         LoadFlowResult result12 = createVersion12();
-        assertTrue(result12.isOk());
+        assertFalse(result12.isFailed());
 
         LoadFlowResult.ComponentResult component11 = result11.getComponentResults().get(0);
         LoadFlowResult.ComponentResult component12 = result12.getComponentResults().get(0);
@@ -199,7 +199,7 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     @Test
     void readJsonVersion10() throws IOException {
         LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10.json"));
-        assertTrue(result.isOk());
+        assertNotEquals(LoadFlowResult.Status.FAILED, result.getStatus());
         assertEquals(createMetrics(), result.getMetrics());
         assertNull(result.getLogs());
         assertTrue(result.getComponentResults().isEmpty());
@@ -227,7 +227,7 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     void version10apiBackwardCompatibility() {
         LoadFlowResult result = createVersion10();
         assertTrue(result.getComponentResults().isEmpty());
-        assertTrue(result.isOk());
+        assertTrue(result.isPartiallyConverged());
         assertEquals("", result.getLogs());
     }
 
