@@ -8,8 +8,11 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.strategy.condition.*;
@@ -25,7 +28,10 @@ import java.util.Set;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class ConditionDeserializer extends StdDeserializer<Condition> {
+public class ConditionDeserializer extends StdDeserializer<Condition> implements ContextualDeserializer {
+
+    private final transient JsonDeserializer<Object> violationIdsDeserializer;
+    private final transient JsonDeserializer<Object> conditionFiltersDeserializer;
 
     private static final class ParsingContext {
         String type;
@@ -41,7 +47,21 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     }
 
     public ConditionDeserializer() {
+        this(null, null);
+    }
+
+    public ConditionDeserializer(JsonDeserializer<Object> violationIdsDeserializer, JsonDeserializer<Object> conditionFiltersDeserializer) {
         super(Condition.class);
+        this.violationIdsDeserializer = violationIdsDeserializer;
+        this.conditionFiltersDeserializer = conditionFiltersDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new ConditionDeserializer(
+            JsonUtil.buildListDeserializer(ctxt, property, String.class),
+            JsonUtil.buildSetDeserializer(ctxt, property, LimitViolationType.class)
+        );
     }
 
     @Override
@@ -78,11 +98,11 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 return true;
             case "violationIds":
                 parser.nextToken();
-                context.violationIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                context.violationIds = JsonUtil.readList(violationIdsDeserializer, deserializationContext, parser, String.class);
                 return true;
             case "filters":
                 parser.nextToken();
-                context.conditionFilters = JsonUtil.readSet(deserializationContext, parser, LimitViolationType.class);
+                context.conditionFilters = JsonUtil.readSet(conditionFiltersDeserializer, deserializationContext, parser, LimitViolationType.class);
                 return true;
             case "threshold":
                 parser.nextToken();
@@ -92,8 +112,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 context.equipmentId = parser.nextTextValue();
                 return true;
             case "side":
-                parser.nextToken();
-                context.side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
+                context.side = ThreeSides.valueOf(parser.nextTextValue());
                 return true;
             case "acSide":
                 parser.nextToken();
@@ -104,12 +123,10 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
                 return true;
             case "comparisonType":
-                parser.nextToken();
-                context.comparisonType = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.ComparisonType.class);
+                context.comparisonType = AbstractThresholdCondition.ComparisonType.valueOf(parser.nextTextValue());
                 return true;
             case "variable":
-                parser.nextToken();
-                context.variable = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.Variable.class);
+                context.variable = AbstractThresholdCondition.Variable.valueOf(parser.nextTextValue());
                 return true;
             default:
                 return false;
