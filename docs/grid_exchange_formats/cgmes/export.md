@@ -307,6 +307,34 @@ The other changes are unsupported, for example:
 
 A change that IIDM does not notify is not in the recorded events, so the partial SSH does not contain it.
 
+### Header and CGMES objects
+
+The header of a partial SSH file is the header of a full SSH file. The export context sets these values of the header:
+- `setModelDescription`, `setModelVersion` and `setModelingAuthoritySet`: the description, the version and the modeling authority set.
+- `setScenarioTime`: the scenario time.
+- `setModelCreated`: the creation time. If you do not set it, the header contains the time of the export. This value applies to all the exported models.
+
+To set the other values of the header, for example the model id, the dependencies or the superseded models, give the model to the export:
+
+```java
+CgmesMetadataModel model = CgmesExport.initializeModelForExport(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, false);
+model.clearSupersedes();
+model.addSupersedes(previousSshModelId);
+SteadyStateHypothesisExport.write(network, writer, context, model);
+```
+
+`SteadyStateHypothesisExport.export` sends the CGMES objects of the export to a `CgmesObjectSink`, without XML.
+The sink receives the objects that `write` writes, in the same order. In a partial SSH export, it receives each object only once.
+Each object is a subject, its type and its properties.
+`CgmesObject.statements` gives the same data as RDF statements (subject, predicate, object), with one `rdf:type` statement for each object.
+Use the objects or the statements to give the changes to a tool that does not read XML:
+
+```java
+List<CgmesObject> objects = new ArrayList<>();
+SteadyStateHypothesisExport.export(network, objects::add, context);
+List<CgmesStatement> statements = objects.stream().flatMap(o -> o.statements().stream()).toList();
+```
+
 ### Apply a partial SSH file
 
 The receiver applies a partial SSH file with the network update.
