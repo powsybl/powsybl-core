@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -145,6 +146,26 @@ class EquipmentInServiceImportTest {
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
         assertDisconnectedByFictitiousSwitch(network, tieLine.getBoundaryLine1().getTerminal(), "ACLineSegment-1-T1");
         assertTrue(tieLine.getBoundaryLine2().getTerminal().isConnected());
+    }
+
+    @Test
+    @DisplayName("An out-of-service boundary equivalent injection has a zero injection, its boundary line stays connected")
+    void outOfServiceBoundaryEquivalentInjectionTest() {
+        Network network = readCgmesResources("/update/boundary-line/", "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml",
+                "boundaryLine_SSH_inService_equivalentInjection.xml");
+
+        // Equivalent injection without regulation capability: the boundary line has no generation
+        BoundaryLine withoutGeneration = network.getBoundaryLine("ACLineSegment");
+        assertTrue(withoutGeneration.getTerminal().isConnected());
+        assertEquals(0.0, withoutGeneration.getP0());
+        assertEquals(0.0, withoutGeneration.getQ0());
+
+        // Equivalent injection with regulation capability: the boundary line has a generation
+        BoundaryLine withGeneration = network.getBoundaryLine("EquivalentBranch");
+        assertTrue(withGeneration.getTerminal().isConnected());
+        assertEquals(0.0, withGeneration.getGeneration().getTargetP());
+        assertEquals(0.0, withGeneration.getGeneration().getTargetQ());
+        assertFalse(withGeneration.getGeneration().isVoltageRegulationOn());
     }
 
     @Test

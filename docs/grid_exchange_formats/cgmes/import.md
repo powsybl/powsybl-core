@@ -104,6 +104,10 @@ PowSyBl has no out-of-service state: an equipment with `inService=false` is take
   terminal with `connected=false` is still ignored.
 - Boundary lines and tie line halves follow their `ACLineSegment` or `EquivalentBranch`: a tie line half can be out of
   service while the other half is in service.
+- The boundary injection of a boundary line is zero when its `EquivalentInjection` is out of service, as when the
+  boundary side of the line is disconnected: `p0` and `q0`, or the active and reactive power targets of its generation,
+  are set to zero, and the voltage regulation of its generation is switched off. The boundary line itself stays
+  connected.
 - The `inService` value of DC equipment, AC/DC converters included, is ignored, in the reduced and the detailed DC models.
 
 The out-of-service state is also applied on an SSH update: an equipment put back in service is reconnected, and the

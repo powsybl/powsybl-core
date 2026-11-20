@@ -15,6 +15,7 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.DcConnectable;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.HvdcConverterStation;
@@ -239,8 +240,10 @@ public class Context {
 
     /**
      * Read the {@code Equipment.inService} values of the CGMES model (CGMES 3 only), and record the CGMES terminals of the
-     * out-of-service equipment and of the machines of the out-of-service generating units. These terminals are then seen
-     * as disconnected by the update (see {@link #isCgmesTerminalConnected(String)}).
+     * out-of-service equipment and of the machines of the out-of-service generating units. For an out-of-service
+     * equivalent injection merged into an unpaired boundary line, the boundary side terminal of the boundary line is
+     * recorded: the boundary injection is then zero, as when this terminal is disconnected. These terminals are then
+     * seen as disconnected by the update (see {@link #isCgmesTerminalConnected(String)}).
      */
     private void buildOutOfServiceCache() {
         cgmes.equipmentInService().forEach(p -> equipmentInService.put(p.getId(CgmesNames.EQUIPMENT), p.asBoolean(CgmesNames.IN_SERVICE, true)));
@@ -255,6 +258,10 @@ public class Context {
         network.getGeneratorStream()
                 .filter(generator -> isOutOfService(generator.getProperty(Conversion.PROPERTY_GENERATING_UNIT)))
                 .forEach(this::addTerminalsOfOutOfServiceEquipment);
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
+                .filter(boundaryLine -> isOutOfService(boundaryLine.getProperty(Conversion.PROPERTY_EQUIVALENT_INJECTION)))
+                .forEach(boundaryLine -> boundaryLine.getAliasFromType(Conversion.ALIAS_TERMINAL_BOUNDARY)
+                        .ifPresent(terminalsOfOutOfServiceEquipment::add));
     }
 
     /**

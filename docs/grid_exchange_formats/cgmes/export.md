@@ -222,7 +222,8 @@ The attribute `Equipment.inService` only exists from CGMES 3 (CIM 100):
   factor...).
 
 PowSyBl has no out-of-service state: an equipment imported out of service is exported in service, with disconnected
-terminals or, for a switch, open.
+terminals or, for a switch, open. The `EquivalentInjection` of a boundary line is exported in service with a zero
+injection.
 
 ## Conversion from PowSyBl grid model to CGMES
 
