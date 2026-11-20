@@ -82,6 +82,69 @@ public abstract class AbstractSwitchSetRetainedTest {
         return network;
     }
 
+    /**
+     *                                         BBS2
+     *                               --------- (3) ---------
+     *             BBS1                         |
+     *   --------- (0) ---------               [ ] B3, retained, closed
+     *              |                           |
+     *              |                           | (2)
+     *              |                           |
+     *             [ ] B1, retained, open      [ ] B2, retained, closed
+     *              |                           |
+     *              ------------ (1) ------------
+     */
+    private Network createNetworkWithForkAndRetainedSwitches() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+            .setId("S")
+            .setCountry(Country.FR)
+            .add();
+        VoltageLevel vl = s.newVoltageLevel()
+            .setId("VL")
+            .setNominalV(400.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+        vl.getNodeBreakerView().newBusbarSection()
+            .setId("BBS1")
+            .setNode(0)
+            .add();
+        vl.getNodeBreakerView().newBreaker()
+            .setId("B1")
+            .setNode1(0)
+            .setNode2(1)
+            .setOpen(true)
+            .setRetained(true)
+            .add();
+        vl.getNodeBreakerView().newBreaker()
+            .setId("B2")
+            .setNode1(1)
+            .setNode2(2)
+            .setOpen(false)
+            .setRetained(true)
+            .add();
+        vl.getNodeBreakerView().newBreaker()
+            .setId("B3")
+            .setNode1(2)
+            .setNode2(3)
+            .setOpen(false)
+            .setRetained(true)
+            .add();
+        vl.getNodeBreakerView().newBusbarSection()
+            .setId("BBS2")
+            .setNode(3)
+            .add();
+        return network;
+    }
+
+    /**
+     *             BBS1
+     *   --------- (0) ------------------------------
+     *              |                               |
+     *             [ ] B1, retained, closed         [ ] B2, retained, open
+     *              |                               |
+     *             (1)                              (2)
+     */
     private Network createNetworkWithRetainedSwitches() {
         Network network = createMinimalNetworkWithRetainedSwitch();
         VoltageLevel vl = network.getVoltageLevel("VL");
@@ -186,5 +249,25 @@ public abstract class AbstractSwitchSetRetainedTest {
         assertEquals(789.0, bus0.getV(), 0.0);
         assertEquals(Double.NaN, bus1.getV(), 0.0);
         assertEquals(789.0, bus2.getV(), 0.0);
+    }
+
+    @Test
+    void testRetainedSwitchModifiedOnForkedNetwork() {
+        Network network = createNetworkWithForkAndRetainedSwitches();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        Bus bus0 = vl.getBusBreakerView().getBus("VL_0");
+        Bus bus1 = vl.getBusBreakerView().getBus("VL_1");
+        Bus bus3 = vl.getBusBreakerView().getBus("VL_3");
+
+        bus3.setV(123.0);
+        assertEquals(123.0, bus3.getV(), 0.0);
+        assertEquals(123.0, bus1.getV(), 0.0);
+        assertEquals(Double.NaN, bus0.getV(), 0.0);
+
+        vl.getNodeBreakerView().getSwitch("B1").setOpen(false);
+
+        assertEquals(123.0, bus3.getV(), 0.0);
+        assertEquals(123.0, bus1.getV(), 0.0);
+        assertEquals(Double.NaN, bus0.getV(), 0.0); // TODO: should change to 123.0 when B1 is closed?
     }
 }
