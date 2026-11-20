@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.model.statement.CgmesObject;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -26,6 +27,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -230,6 +232,38 @@ class SteadyStateHypothesisSubsetExportTest {
 
         // The fictitious load and its terminal
         assertEquals(List.of("NonConformLoad", "Terminal"), partial.stream().map(SshObject::className).sorted().toList());
+    }
+
+    @Test
+    void exportSendsTheWrittenObjectsToTheSink() throws XMLStreamException {
+        Network network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        List<Identifiable<?>> identifiables = List.of(network.getGenerators().iterator().next(), network.getLoads().iterator().next());
+
+        assertExportSendsTheWrittenObjects(network, new CgmesExportContext(network)
+            .setPartialSshExport(true)
+            .setSshExportedIdentifiables(identifiables));
+        assertExportSendsTheWrittenObjects(network, new CgmesExportContext(network));
+    }
+
+    private static void assertExportSendsTheWrittenObjects(Network network, CgmesExportContext context) throws XMLStreamException {
+        List<CgmesObject> sent = new ArrayList<>();
+        SteadyStateHypothesisExport.export(network, sent::add, context);
+        List<SshObject> written = sshObjects(export(network, context));
+
+        assertFalse(sent.isEmpty());
+        assertEquals(written.stream().map(o -> o.className() + " " + o.id()).toList(),
+            sent.stream().map(o -> o.type() + " " + o.subject().replaceFirst("^_", "")).toList());
+    }
+
+    @Test
+    void modelCreatedIsWrittenInTheHeader() throws XMLStreamException {
+        Network network = EurostagTutorialExample1Factory.create();
+        CgmesExportContext context = new CgmesExportContext(network);
+        assertNull(context.getModelCreated());
+
+        context.setModelCreated(ZonedDateTime.parse("2026-11-19T10:00:00Z"));
+
+        assertTrue(export(network, context).contains("<md:Model.created>2026-11-19T10:00:00Z</md:Model.created>"));
     }
 
     @Test
