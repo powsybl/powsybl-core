@@ -99,10 +99,11 @@ IIDM source is left undefined in the exported node.
 
 #### Node type
 
-The node type is `0` (PQ node) by default. It is set to `2` (PU node) if the bus has at least one connected, 
-voltage-regulating  generator. It is set to `3` (global slack node) if the bus is the network's
-[slack bus](../../grid_model/extensions.md#slack-terminal), which takes precedence over the PU case. `1` (Q and θ
-constant) is never produced by the export. See the
+The node type is `0` (PQ node) by default. It is set to `2` (PU node) if the bus has at least one connected,
+voltage-regulating generator and a voltage reference is found (see
+[Voltage reference selection](#voltage-reference-selection)). It is set to `3` (global slack node) if the bus is the
+network's [slack bus](../../grid_model/extensions.md#slack-terminal), which takes precedence over the PU case. `1` (Q and
+θ constant) is never produced by the export. See the
 [UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)
 for the full node type convention.
 
@@ -188,7 +189,8 @@ undefined and the node is exported as a PQ node; if a generator of the bus regul
 
 ### Line conversion
 
-Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) (as a busbar coupler), [line](../../grid_model/network_subnetwork.md#line), unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line), and [tie line](../../grid_model/network_subnetwork.md#tie-line)
+Every [switch](../../grid_model/network_subnetwork.md#breakerswitch) (as a busbar coupler), [line](../../grid_model/network_subnetwork.md#line),
+unpaired [boundary line](../../grid_model/network_subnetwork.md#boundary-line), and [tie line](../../grid_model/network_subnetwork.md#tie-line)
 of the network is converted into one or more UCTE lines, using the naming strategy to compute each line's node codes and
 order code. A boundary line or a tie line additionally creates an [X-node](#x-nodes).
 
@@ -208,8 +210,8 @@ IIDM source is left undefined in the exported line.
 #### Line status
 
 The status follows the
-[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s convention for element status:
-
+[UCTE-DEF specification](https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf)'s
+convention for element status:
 - `0`: real element in operation
 - `8`: real element out of operation
 - `1`: equivalent element in operation
@@ -218,7 +220,6 @@ The status follows the
 - `7`: busbar coupler out of operation
 
 It is derived as follows:
-
 - **Switch**: `2` if closed, `7` if open.
 - **Line**, **two-winding transformer**, and each side of a **tie line**: `0`/`8` (real) if not fictitious, `1`/`9`
   (equivalent) if fictitious; the `_IN_OPERATION` variant if the branch's two terminals (or the tie line side's single
@@ -242,7 +243,7 @@ An unpaired boundary line is converted into an X-node and a UCTE line connecting
 tie line is converted into an X-node and two UCTE lines, one for each side, using the same rules as for a standalone
 boundary line.
 
-The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following 
+The X-node is a UCTE node; the table below maps every UCTE-DEF node attribute to its source for an X-node, following
 the same conventions as [node conversion](#node-conversion) above.
 
 | UCTE-DEF attribute                                     | Source in IIDM                                                            | Computation                                                                                                                                                                                                                    |
@@ -336,7 +337,6 @@ The table below maps every UCTE-DEF phase regulation attribute to its source in 
 | Voltage set point U (kV) | Ratio tap changer's target voltage (`targetV`) | Used as-is; left undefined if the ratio tap changer has no target voltage.                                                        |
 
 ##### δu formula
-
 $$
 \delta u = 100 \times \left (\dfrac{1}{\rho_{max}} - \dfrac{1}{\rho_{min}}\right) / (n - 1)
 $$
@@ -351,17 +351,16 @@ angle regulation.
 
 The table below maps every UCTE-DEF angle regulation attribute to its source in IIDM.
 
-| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                                  |
-|-------------------------|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| Regulation type         | Phase tap changer's tap steps' ρ          | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                                       |
-| δu (%)                  | Phase tap changer's tap steps' α and/or ρ | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
-| Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.                         |
-| n (number of taps)      | Phase tap changer's high tap position     | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.            |
-| n' (tap position)       | Phase tap changer's current tap position  | Used as-is. Same assumption as above.                                                                                                        |
-| Regulation power P (MW) | Phase tap changer's `regulationValue`     | Opposite of `regulationValue`.                                                                                                               |
+| UCTE-DEF attribute      | Source in IIDM                            | Computation                                                                                                                        |
+|-------------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| Regulation type         | Phase tap changer's tap steps' ρ           | `SYMM` if the ρ of every tap is `1`, `ASYM` otherwise.                                                                              |
+| δu (%)                  | Phase tap changer's tap steps' α and/or ρ  | See the formulas in [SYMM regulation δu formula](#symm-regulation-δu-formula) and [ASYM regulation δu formula](#asym-regulation-δu-formula). |
+| Angle θ (°)             | Phase tap changer's tap steps' α and/or ρ  | Fixed at `90°` for a `SYMM` regulation; see the [ASYM regulation δu formula](#asym-regulation-δu-formula) otherwise.               |
+| n (number of taps)      | Phase tap changer's high tap position      | Used as-is. This assumes the tap changer's neutral position is `0`, per the [Transformers Tap Changers](#limitations) limitation.  |
+| n' (tap position)       | Phase tap changer's current tap position   | Used as-is. Same assumption as above.                                                                                              |
+| Regulation power P (MW) | Phase tap changer's `regulationValue`      | Opposite of `regulationValue`.                                                                                                      |
 
 ##### SYMM regulation δu formula
-
 For a `SYMM` regulation, the angle is fixed at `90°` and the δu (%) is computed from the α of the two extreme taps:
 
 $$
@@ -390,7 +389,7 @@ following situations are reported:
 |--------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
 | A switch has no usable `currentLimit` property                                                               | `WARN`   | [Current limit](#current-limit)                                                             |
 | A two-winding transformer has no usable nominal power                                                        | `WARN`   | [Nominal power](#nominal-power)                                                             |
-| A node regulates voltage but none of its generators provides a voltage target                                | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
+| A node regulates voltage but none of its generators provides a voltage target: it is exported as PQ          | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | A node regulates voltage but its voltage target comes from a non-regulating generator                        | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The generators of a bus have different candidate voltage targets; the kept value and its generator are given | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |
 | The kept voltage target is rescaled from a remote bus with a different nominal voltage                       | `WARN`   | [Voltage reference selection](#voltage-reference-selection)                                 |

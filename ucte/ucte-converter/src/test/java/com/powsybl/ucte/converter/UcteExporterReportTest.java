@@ -219,9 +219,9 @@ class UcteExporterReportTest extends AbstractSerDeTest {
                          Bus FCASE471: generator CASE4_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
                          Bus FCASE671: generators have different voltage targets, 23.0 kV from generator CASE6_GB is used
                          Bus FCASE871: generator CASE8_GA, connected to this bus, regulates the voltage of remote bus FREMOT11; its target 405.0 kV is rescaled to 22.38157894736842 kV
-                         Bus FCASE971: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
+                         Bus FCASE971: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined and the node is exported as PQ
                          Bus FCASEB71: generator CASEB_GA, connected to this bus, regulates the voltage of the disconnected terminal of CASEB_L; its target 22.5 kV is ignored
-                         Bus FCASEB71: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined
+                         Bus FCASEB71: node regulates voltage but no generator provides a voltage target, the voltage reference is left undefined and the node is exported as PQ
                          Bus FCASEC71: generator CASEC_GA, connected to this bus, regulates the voltage of the disconnected terminal of CASEC_L; its target 22.5 kV is ignored
                          Bus FCASEC71: voltage target 23.0 kV comes from non-regulating generator CASEC_GB
                       Boundary Lines
