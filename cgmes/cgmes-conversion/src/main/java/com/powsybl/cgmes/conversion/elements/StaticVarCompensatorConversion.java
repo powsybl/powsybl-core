@@ -20,6 +20,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.regulatingTerminalMapped;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -124,13 +125,13 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         if (staticVarCompensator.isWithMode(RegulationMode.VOLTAGE)) {
             double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
-            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetV(targetV);
+            boolean regulating = regulatingTerminalMapped(staticVarCompensator) && updatedControlEnabled && regulatingOn && isValidTargetV(targetV);
             setVoltageRegulation(staticVarCompensator, targetV, regulating);
         } else if (staticVarCompensator.isWithMode(RegulationMode.REACTIVE_POWER)) {
             double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, context);
             int terminalSign = findTerminalSign(staticVarCompensator);
             double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
-            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetQ(targetQ);
+            boolean regulating = regulatingTerminalMapped(staticVarCompensator) && updatedControlEnabled && regulatingOn && isValidTargetQ(targetQ);
 
             voltageRegulation.setTargetValue(targetQ);
             voltageRegulation.setRegulating(regulating);

@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.RegulatingControlMapping.regulatingTerminalMapped;
+
 /**
  * TwoWindingsTransformer Cgmes Conversion
  * <p>
@@ -240,10 +242,10 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         updateTerminals(t2w, context, t2w.getTerminal1(), t2w.getTerminal2());
 
         boolean isAllowedToRegulatePtc = true;
-        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t2w, ptc, context, isAllowedToRegulatePtc));
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t2w, ptc, context, regulatingTerminalMapped(ptc)));
 
         boolean isAllowedToRegulateRtc = checkOnlyOneEnabled(isAllowedToRegulatePtc, t2w.getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
-        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t2w, rtc, context, isAllowedToRegulateRtc));
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t2w, rtc, context, isAllowedToRegulateRtc && regulatingTerminalMapped(rtc)));
 
         Stream.of(t2w.getOperationalLimitsGroups1(), t2w.getOperationalLimitsGroups2())
                 .flatMap(Collection::stream)

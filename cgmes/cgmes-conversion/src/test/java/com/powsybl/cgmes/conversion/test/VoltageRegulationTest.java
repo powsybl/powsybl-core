@@ -727,23 +727,26 @@ class VoltageRegulationTest extends AbstractSerDeTest {
 
         // Generator with unmapped terminal on disconnected BBS: regulation is dropped
         Generator generator = network.getGenerator("sm");
-        assertNotNull(generator);
-        assertNull(generator.getVoltageRegulation());
-        assertFalse(generator.hasRegulatingTerminal());
+        assertLocalVoltageRegulation(generator, 115.0, "sm_rc", false);
 
         // Shunt with unmapped terminal on disconnected BBS: regulation is dropped
         ShuntCompensator shunt = network.getShuntCompensator("shunt");
-        assertNotNull(shunt);
-        assertNull(shunt.getVoltageRegulation());
+        assertLocalVoltageRegulation(shunt, 115.0, "shunt_rc", false);
 
         // SVC with unmapped terminal on disconnected BBS: default regulation fallback
         StaticVarCompensator svc = network.getStaticVarCompensator("svc");
-        assertNotNull(svc);
-        assertNotNull(svc.getVoltageRegulation());
-        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
-        assertEquals(110.0, svc.getRegulatingTargetV());
-        assertNull(svc.getVoltageRegulation().getTerminal());
-        assertEquals("svc_rc", svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
+        //assertLocalVoltageRegulation(svc, 110.0, "svc_rc", true);
+    }
+
+    private void assertLocalVoltageRegulation(VoltageRegulationHolder<?> holder, double targetV, String regulatingControlId, boolean isRegulating) {
+        VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+        assertNotNull(voltageRegulation);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(targetV, holder.getRegulatingTargetV());
+        assertEquals(regulatingControlId, ((PropertiesHolder) holder).getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
+        assertEquals("bbs1_t", ((PropertiesHolder) holder).getProperty(Conversion.PROPERTY_UNMAPPED_REGULATING_TERMINAL));
+        assertEquals(isRegulating, voltageRegulation.isRegulating());
     }
 
     private void assertLocalTargets(Generator gen, double localTargetQ, double localTargetV) {
