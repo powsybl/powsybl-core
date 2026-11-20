@@ -11,7 +11,6 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControl;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -153,7 +152,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         setToIidmRatioTapChanger(convertedT2xModel, tx);
         setToIidmPhaseTapChanger(convertedT2xModel, tx, context);
 
-        setRegulatingControlContext(convertedT2xModel, tx);
         addCgmesReferences(tx, convertedT2xModel.end1.ratioTapChanger);
         addCgmesReferences(tx, convertedT2xModel.end1.phaseTapChanger);
     }
@@ -184,13 +182,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     private static PhaseTapChangerAdder newPhaseTapChanger(TwoWindingsTransformer tx) {
         return tx.newPhaseTapChanger();
-    }
-
-    private void setRegulatingControlContext(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
-        CgmesRegulatingControl rcRtc = setContextRegulatingData(convertedT2xModel.end1.ratioTapChanger);
-        CgmesRegulatingControl rcPtc = setContextRegulatingData(convertedT2xModel.end1.phaseTapChanger);
-
-        context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
     }
 
     private static int getStepIndex(TapChanger tapChanger) {

@@ -384,7 +384,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
-        double v = svVoltage.get().asDouble(CgmesNames.VOLTAGE, Double.NaN);
+        double v = svVoltage.get().asDouble(CgmesNames.V, Double.NaN);
         double angle = svVoltage.get().asDouble(CgmesNames.ANGLE, Double.NaN);
         if (!isVoltageDefined(v, angle)) {
             dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);

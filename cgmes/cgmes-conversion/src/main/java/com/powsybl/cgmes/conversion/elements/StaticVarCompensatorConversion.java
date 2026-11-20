@@ -78,13 +78,13 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     private void setDefaultRegulatingControlData(StaticVarCompensator svc) {
         // Create default regulation
         String defaultRegulationMode = p.getId("controlMode");
-        if (RegulatingControlMapping.isControlModeReactivePower(defaultRegulationMode)) {
+        if (RegulatingControlMapping.checkControlMode(defaultRegulationMode, CgmesNames.REACTIVE_POWER)) {
             svc.newVoltageRegulation()
                 .withTerminal(svc.getTerminal())
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .build();
         } else {
-            if (!RegulatingControlMapping.isControlModeVoltage(defaultRegulationMode)) {
+            if (!RegulatingControlMapping.checkControlMode(defaultRegulationMode, CgmesNames.VOLTAGE)) {
                 context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
             }
             svc.newVoltageRegulation()

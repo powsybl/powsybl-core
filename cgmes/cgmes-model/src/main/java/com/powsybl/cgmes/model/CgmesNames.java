@@ -68,7 +68,7 @@ public final class CgmesNames {
 
     public static final String B_PER_SECTION = "bPerSection";
 
-    public static final String VOLTAGE = "v";
+    public static final String V = "v";
     public static final String ANGLE = "angle";
 
     public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
@@ -118,6 +118,7 @@ public final class CgmesNames {
     public static final String SYMMETRICAL = "symmetrical";
     public static final String ASYMMETRICAL = "asymmetrical";
     public static final String TABULAR = "tabular";
+    public static final String TAP_CHANGER_CONTROL = "TapChangerControl";
     public static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
     public static final String PHASE_TAP_CHANGER_TABULAR = "PhaseTapChangerTabular";
 
@@ -186,8 +187,10 @@ public final class CgmesNames {
     public static final String TARGET_DEADBAND = "targetDeadband";
     public static final String ENABLED = "enabled";
     public static final String CONTROL_ENABLED = "controlEnabled";
+    public static final String ACTIVE_POWER = "activepower";
+    public static final String CURRENT_FLOW = "currentflow";
     public static final String REACTIVE_POWER = "reactivepower";
-    public static final String VOLTAGE_TAG = "voltage";
+    public static final String VOLTAGE = "voltage";
     public static final String NORMAL_OPEN = "normalOpen";
     public static final String CONNECTED = "connected";
     public static final String OPEN = "open";
