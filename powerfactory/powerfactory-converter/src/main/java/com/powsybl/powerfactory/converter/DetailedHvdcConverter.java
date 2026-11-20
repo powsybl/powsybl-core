@@ -398,7 +398,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 .setId(idInNetworkString(line))
                 .setDcNode1(dcNodesIds.getFirst())
                 .setDcNode2(dcNodesIds.getLast())
-                .setR(lineResistance).add();
+                .setR(lineResistance)
+                .setPermanentCurrentLimit(getPermanentCurrentLimit(line))
+                .add();
     }
 
     /**
@@ -411,7 +413,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      */
     private static double getLineResistance(DataObject line) {
         double lineLength = line.getFloatAttributeValue("dline"); // km
-        int numberOfParallelLines = line.findIntAttributeValue("nlnum").orElse(1);
+        int numberOfParallelLines = getNumberOfParallelLines(line);
 
         DataObject lineType = line.getObjectAttributeValue(TYP_ID).resolve().orElseThrow(() -> new PowerFactoryException("Missing line type referenced by DC line " + line.getId() + "."));
 
@@ -423,6 +425,32 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         double rline = lineType.getFloatAttributeValue("rline"); // Ohm / km
 
         return rline * lineLength / numberOfParallelLines; // Ohm
+    }
+
+    /**
+     * Compute the permanent current limit of the line from its maximum permissible current per circuit.
+     *
+     * @param line DC line in the DGS file.
+     * @return permanent current limit (A) of the line, or NaN if Imaxlim is missing or denotes the absence of a limit.
+     * @throws PowerFactoryException if Imaxlim is not strictly positive.
+     */
+    private static double getPermanentCurrentLimit(DataObject line) {
+        double maxCurrentPerCircuit = line.findFloatAttributeValue("Imaxlim").orElse(Float.NaN); // kA
+        if (Double.isNaN(maxCurrentPerCircuit) || maxCurrentPerCircuit >= NO_LIMIT) {
+            return Double.NaN;
+        }
+        if (maxCurrentPerCircuit <= 0) {
+            throw new PowerFactoryException("ElmLne " + line.getId() + " has non-positive Imaxlim (" + maxCurrentPerCircuit + ").");
+        }
+        return 1000 * maxCurrentPerCircuit * getNumberOfParallelLines(line); // A
+    }
+
+    /**
+     * @param line line in the DGS file.
+     * @return number of parallel circuits of the line, 1 if nlnum is missing.
+     */
+    private static int getNumberOfParallelLines(DataObject line) {
+        return line.findIntAttributeValue("nlnum").orElse(1);
     }
 
     private record PowerFactoryAcDcConverterParameters(int iAcdc,
