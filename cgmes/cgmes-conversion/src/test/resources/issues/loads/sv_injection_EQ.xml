@@ -1,0 +1,52 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:SvInjection_EQ">
+        <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+        <md:Model.description>Minimal equipment and topology for SvInjection conversion</md:Model.description>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/Topology/3/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:GeographicalRegion rdf:ID="GR1">
+        <cim:IdentifiedObject.name>GeographicalRegion1</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="SGR1">
+        <cim:IdentifiedObject.name>SubGeographicalRegion1</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#GR1"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="S1">
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#SGR1"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="BV1">
+        <cim:IdentifiedObject.name>BaseVoltage1</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>100.0</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="VL1">
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#BV1"/>
+        <cim:VoltageLevel.Substation rdf:resource="#S1"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="CN1">
+        <cim:IdentifiedObject.name>ConnectivityNode1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#VL1"/>
+    </cim:ConnectivityNode>
+    <cim:TopologicalNode rdf:ID="TN1">
+        <cim:IdentifiedObject.name>TopologicalNode1</cim:IdentifiedObject.name>
+        <cim:TopologicalNode.BaseVoltage rdf:resource="#BV1"/>
+        <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#VL1"/>
+    </cim:TopologicalNode>
+    <cim:BusbarSection rdf:ID="BBS1">
+        <cim:IdentifiedObject.name>BusbarSection1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#VL1"/>
+    </cim:BusbarSection>
+    <cim:Terminal rdf:ID="T_BBS1">
+        <cim:IdentifiedObject.name>T_BBS1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#BBS1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#CN1"/>
+        <cim:Terminal.TopologicalNode rdf:resource="#TN1"/>
+    </cim:Terminal>
+</rdf:RDF>
