@@ -361,6 +361,21 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertNull(phaseTapChanger.getSolvedCurrentStep());
     }
 
+    @Test
+    public void applySolvedValuesTest() {
+        createTwoWindingTransformer("twt", TWT_NAME, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("twt");
+        createRatioTapChanger(twt, twt.getTerminal(TwoSides.ONE)).setSolvedTapPosition(1);
+        createPhaseTapChanger(twt, twt.getTerminal(TwoSides.TWO)).setSolvedTapPosition(2);
+        assertNotEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
+        assertNotEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
+
+        twt.applySolvedValues();
+
+        assertEquals(twt.getPhaseTapChanger().getSolvedTapPosition(), twt.getPhaseTapChanger().getTapPosition());
+        assertEquals(twt.getRatioTapChanger().getSolvedTapPosition(), twt.getRatioTapChanger().getTapPosition());
+    }
+
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
                                              double ratedU1, double ratedU2, double ratedS) {
         substation.newTwoWindingsTransformer()

@@ -402,4 +402,16 @@ public abstract class AbstractBatteryTest {
         assertEquals(-remoteTargetQGeneratorSignConvention, battery.getVoltageRegulation().getTargetValue());
         assertEquals(remoteTargetQGeneratorSignConvention, battery.getRegulatingTargetQ());
     }
+
+    @Test
+    public void applySolvedValuesTest() {
+        Battery battery = BatteryNetworkFactory.create().getBattery("BAT");
+        assertNotEquals(battery.getTerminal().getP(), battery.getTargetP());
+        assertNotEquals(battery.getTerminal().getQ(), battery.getLocalTargetQ());
+
+        battery.applySolvedValues();
+
+        assertEquals(-battery.getTerminal().getP(), battery.getTargetP());
+        assertEquals(-battery.getTerminal().getQ(), battery.getLocalTargetQ());
+    }
 }
