@@ -1,7 +1,7 @@
 # Export
 
 The export of an IIDM grid model to a UCTE-DEF file is a direct conversion: every supported network element is converted
-into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF 
+into its UCTE-DEF equivalent. Further information about the format can be found in the UCTE-DEF
 [format specification](format_specification.md).
 
 ## Limitations
@@ -60,14 +60,18 @@ Post-processors can:
   `##L`, `##T` and `##R` blocks.
 - define the order of the nodes inside each `##Z` block.
 
-Post-processors are applied in the given input order, first for all modifications.
+**Post-processors configuration**: Post-processors are applied in the given input order, first for all modifications.
 Once all the post-processors have modified the UCTE network, the UCTE node comparators of the post-processors are
-requested.
-They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the
-given order, each one only breaking the ties of the previous ones.
-The default natural order is always used as a final tie-break.
+requested. They are only used to compare nodes of the same country (the same `##Z` block), and are chained in the given
+order, each one only breaking the ties of the previous ones. The default natural order is always used as a final
+tie-break.
 
-Its default value is an empty list.
+By default, the post-processors are an empty list.
+
+**Built-in post-processors**
+
+- `deenergized-branches-out-of-operation`: exports out of operation the elements left without voltage in the load flow
+  results, see [Line status](#line-status).
 
 ## From IIDM to UCTE
 
@@ -179,6 +183,21 @@ It is derived as follows:
   connected, `7` otherwise; if not, it follows the same real/equivalent convention as a line, based on its
   fictitiousness and terminal connection state.
 
+When the `deenergized-branches-out-of-operation` [post-processor](#options) is enabled, the statuses derived above are
+corrected using the load flow results of the network, that is the voltages of its buses (bus view). The network may or
+may not contain such results.
+
+When the network has load flow results:
+- an element in operation is exported out of operation (`0` to `8`, `1` to `9`, `2` to `7`) if one of its connected
+  terminals is on a bus without voltage;
+- a closed switch is exported out of operation (`2` to `7`) if its buses have no voltage;
+- all the other elements keep the status derived above.
+
+The network is considered to have no load flow results if no bus of its main connected component has a voltage. In
+that case, no status is changed and a warning is reported. Only the main connected component is checked because it is
+the one a load flow always computes. As a consequence, islands left out of the load flow (for example when only the
+main connected component is computed) have no voltage, and their elements are exported out of operation.
+
 #### Current limit
 
 - **Switch**: taken from the `currentLimit` property if it can be parsed as an integer; otherwise left undefined, and a
@@ -225,8 +244,8 @@ If the original boundary line has no generation part, its X-node is exported as 
 
 #### Tie line properties
 
-A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by 
-custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although 
+A tie line originates from 2 boundary lines. _Geographical name_ and _element name_ are values carried in IIDM by
+custom properties (further information on how they are sourced in [UCTE import](./import.md#line-conversion)). Although
 we expect both sides of the line to carry the same value for the same property, there can be discrepancies.
 
 - If both boundary lines have the same value, it is used in the exported tie line.
@@ -339,3 +358,11 @@ following situations are reported with a `WARN` severity:
 - a switch has no usable `currentLimit` property (see [Current limit](#current-limit)),
 - a two-winding transformer has no nominal power, and the default value `99999` is exported instead
   (see [Nominal power](#nominal-power)).
+
+**Post-processors**<br>
+One report node is also created per applied post-processor. The `deenergized-branches-out-of-operation` post-processor
+reports, under its node:
+
+- with a `WARN` severity, that the main connected component has no load flow results,
+- with an `INFO` severity, the number of de-energized elements exported out of operation, detailed per element (type
+  and UCTE id).
