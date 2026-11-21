@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.export;
 import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
-import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -44,6 +43,7 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_C
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -85,19 +85,11 @@ public final class CgmesExportUtil {
         return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
 
-    public static String scientificFormat(double value) {
-        return scientificFormat(value, 0.0); // disconnected equipment in general, a bit dangerous.
-    }
-
-    private static String scientificFormat(double value, double defaultValue) {
+    public static String scientificFormat(double value, double defaultValue) {
         return SCIENTIFIC_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String format(int value) {
-        return String.valueOf(value);
-    }
-
-    public static String format(boolean value) {
         return String.valueOf(value);
     }
 
@@ -112,15 +104,15 @@ public final class CgmesExportUtil {
         return UUID.randomUUID().toString();
     }
 
-    public static void writeRdfRoot(String cimNamespace, String euPrefix, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.setPrefix(euPrefix, euNamespace);
+    public static void writeRdfRoot(CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
+        writer.setPrefix(context.getCim().getEuPrefix(), context.getCim().getEuNamespace());
         writer.setPrefix("rdf", RDF_NAMESPACE);
-        writer.setPrefix("cim", cimNamespace);
+        writer.setPrefix("cim", context.getCim().getNamespace());
         writer.setPrefix("md", MD_NAMESPACE);
         writer.writeStartElement(RDF_NAMESPACE, "RDF");
-        writer.writeNamespace(euPrefix, euNamespace);
+        writer.writeNamespace(context.getCim().getEuPrefix(), context.getCim().getEuNamespace());
         writer.writeNamespace("rdf", RDF_NAMESPACE);
-        writer.writeNamespace("cim", cimNamespace);
+        writer.writeNamespace("cim", context.getCim().getNamespace());
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
@@ -152,40 +144,26 @@ public final class CgmesExportUtil {
                 subset.getIdentifier(),
                 network.getId()
         );
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
-        writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
-        writer.writeCharacters(DATE_TIME_FORMATTER.format(ZonedDateTime.now()));
-        writer.writeEndElement();
+        writeAttribute(MD_NAMESPACE, CgmesNames.SCENARIO_TIME, DATE_TIME_FORMATTER.format(context.getScenarioTime()), writer);
+        writeAttribute(MD_NAMESPACE, CgmesNames.CREATED, DATE_TIME_FORMATTER.format(ZonedDateTime.now()), writer);
         if (modelDescription.getDescription() != null) {
-            writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
-            writer.writeCharacters(modelDescription.getDescription());
-            writer.writeEndElement();
+            writeAttribute(MD_NAMESPACE, CgmesNames.DESCRIPTION, modelDescription.getDescription(), writer);
         }
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(format(modelDescription.getVersion()));
-        writer.writeEndElement();
+        writeAttribute(MD_NAMESPACE, CgmesNames.VERSION, format(modelDescription.getVersion()), writer);
         for (String dependentOn : modelDescription.getDependentOn()) {
-            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependentOn);
+            writeResource(MD_NAMESPACE, CgmesNames.DEPENDENT_ON, dependentOn, writer);
         }
         for (String supersedes : modelDescription.getSupersedes()) {
-            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, supersedes);
+            writeResource(MD_NAMESPACE, CgmesNames.SUPERSEDES, supersedes, writer);
         }
-        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER && context.getCimVersion() < 100) {
+        if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER && context.getCimVersion() == 16) {
             // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
             modelDescription.addProfiles(List.of(context.getCim().getProfileUri("EQ_OP")));
         }
         for (String profile : modelDescription.getProfiles()) {
-            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-            writer.writeCharacters(profile);
-            writer.writeEndElement();
+            writeAttribute(MD_NAMESPACE, CgmesNames.PROFILE, profile, writer);
         }
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
-        writer.writeCharacters(modelDescription.getModelingAuthoritySet());
-        writer.writeEndElement();
+        writeAttribute(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET, modelDescription.getModelingAuthoritySet(), writer);
         writer.writeEndElement();
     }
 
@@ -196,39 +174,53 @@ public final class CgmesExportUtil {
         return context.encode(id.startsWith("_") ? id : "_" + id);
     }
 
+    public static String toRdfAbout(String id, CgmesExportContext context) {
+        return "#" + toRdfId(id, context);
+    }
+
     private static String toMasterResourceId(String id, CgmesExportContext context) {
         // Handling ids: if received id is prefixed by "_", remove it. Assuming it was added to comply with URN rules
         return context.encode(id.startsWith("_") ? id.substring(1) : id);
     }
 
-    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, className);
+    public static String getValidName(String name) {
+        // In CGMES, name shouldn't be longer than 32 characters.
+        if (name.length() > 32) {
+            return name.substring(0, 32);
+        }
+        return name;
+    }
+
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String namespace = context.getCim().getNamespace();
+        writer.writeStartElement(namespace, className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
         // points of tables and curve data objects do not have mRID, although they have an RDF:ID
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id, context));
         if (writeMasterResourceId && context.getCim().getVersion() >= 100) {
-            writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
-            writer.writeCharacters(toMasterResourceId(id, context));
-            writer.writeEndElement();
+            writeAttribute(namespace, CgmesNames.MRID, toMasterResourceId(id, context), writer);
         }
     }
 
-    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writeStartId(className, id, true, cimNamespace, writer, context);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name.length() > 32 ? name.substring(0, 32) : name); // name should not be longer than 32 characters
+    public static void writeStartAbout(String className, String id, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        writer.writeStartElement(context.getCim().getNamespace(), className);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, toRdfAbout(id, context));
+    }
+
+    public static void writeAttribute(String namespace, String attributeName, String attributeValue, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(namespace, attributeName);
+        writer.writeCharacters(attributeValue);
         writer.writeEndElement();
     }
 
-    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeEmptyElement(cimNamespace, refName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId, context));
+    public static void writeResource(String namespace, String resourceName, String resourceValue, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(namespace, resourceName);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, resourceValue);
     }
 
-    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, className);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
+    public static void writeEnd(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEndElement();
     }
 
     public static String loadClassName(Load load) {
@@ -282,6 +274,13 @@ public final class CgmesExportUtil {
                 && loadDetail.getVariableActivePower() == 0
                 && loadDetail.getVariableReactivePower() == 0
                 && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0);
+    }
+
+    public static boolean hasDifferentTNsAtBothEnds(Switch sw) {
+        // The exported Topological Nodes come from IIDM bus/breaker view buses
+        Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
+        Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
+        return bus1 != bus2;
     }
 
     public static String switchClassname(SwitchKind kind) {
@@ -527,17 +526,59 @@ public final class CgmesExportUtil {
         return "generatorOrMotor";
     }
 
+    public static String generatingUnitClassName(EnergySource energySource) {
+        if (EnergySource.HYDRO.equals(energySource)) {
+            return "HydroGeneratingUnit";
+        } else if (EnergySource.NUCLEAR.equals(energySource)) {
+            return "NuclearGeneratingUnit";
+        } else if (EnergySource.THERMAL.equals(energySource)) {
+            return "ThermalGeneratingUnit";
+        } else if (EnergySource.WIND.equals(energySource)) {
+            return "WindGeneratingUnit";
+        } else if (EnergySource.SOLAR.equals(energySource)) {
+            return "SolarGeneratingUnit";
+        } else if (EnergySource.OTHER.equals(energySource)) {
+            return GENERATING_UNIT;
+        }
+        return GENERATING_UNIT;
+    }
+
+    public static String shuntCompensatorClassName(ShuntCompensatorModelType modelType) {
+        if (ShuntCompensatorModelType.LINEAR.equals(modelType)) {
+            return LINEAR_SHUNT_COMPENSATOR;
+        } else if (ShuntCompensatorModelType.NON_LINEAR.equals(modelType)) {
+            return NONLINEAR_SHUNT_COMPENSATOR;
+        }
+        return LINEAR_SHUNT_COMPENSATOR;
+    }
+
+    public static String loadingLimitClassName(LoadingLimits loadingLimits) {
+        if (loadingLimits instanceof CurrentLimits) {
+            return CURRENT_LIMIT;
+        } else if (loadingLimits instanceof ActivePowerLimits) {
+            return ACTIVE_POWER_LIMIT;
+        } else if (loadingLimits instanceof ApparentPowerLimits) {
+            return APPARENT_POWER_LIMIT;
+        }
+        throw new PowsyblException("Unsupported loading limits " + loadingLimits.getClass().getSimpleName());
+    }
+
+    public static String reactiveLimitsHolderClassName(ReactiveLimitsHolder holder) {
+        if (holder instanceof Generator || holder instanceof Battery) {
+            return REACTIVE_CAPABILITY_CURVE;
+        } else if (holder instanceof VscConverterStation || holder instanceof VoltageSourceConverter) {
+            return VS_CAPABILITY_CURVE;
+        }
+        throw new PowsyblException("Unexpected holder type " + holder.getClass().getName());
+    }
+
     public static String getRegulatingControlMode(VoltageRegulation voltageRegulation) {
         RegulationMode regulationMode = voltageRegulation.getMode();
         return switch (regulationMode) {
-            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-            case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER -> REGULATING_CONTROL_VOLTAGE;
+            case REACTIVE_POWER -> REGULATING_CONTROL_REACTIVE_POWER;
             case null, default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
         };
-    }
-
-    public static boolean isMinusOrMaxValue(double value) {
-        return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
 
     static String getEffectivePairingKey(BoundaryLine bl) {
