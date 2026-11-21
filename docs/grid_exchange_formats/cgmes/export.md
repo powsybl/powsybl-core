@@ -238,6 +238,75 @@ A generator at its reactive limit does not reach its target voltage, so its new 
 
 The full SSH export does not make this check: for a shared regulating control, it writes the target value of the first holder.
 
+### Export of the recorded changes
+
+A `NetworkEventRecorder` records the changes of a network.
+`SshExportedIdentifiables.fromEvents` gives the identifiables that these changes modify.
+Use them as the exported identifiables of a partial SSH export:
+
+```java
+NetworkEventRecorder recorder = new NetworkEventRecorder();
+network.addListener(recorder);
+network.getLoad("LOAD").setP0(600.0);
+network.getGenerator("GEN").setTargetP(610.0);
+network.removeListener(recorder);
+
+Set<Identifiable<?>> changed = SshExportedIdentifiables.fromEvents(network, recorder.getEvents(), UnsupportedChangeBehavior.FAIL);
+CgmesExportContext context = new CgmesExportContext(network)
+    .setPartialSshExport(true)
+    .setSshExportedIdentifiables(changed);
+try (OutputStream os = Files.newOutputStream(Path.of("partial_SSH.xml"))) {
+    XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+    SteadyStateHypothesisExport.write(network, writer, context);
+}
+```
+
+The identifiables obey these rules:
+- Each changed identifiable is given only once, in the order of its first change.
+- The export reads the values from the network, not from the events. If you change the same value more than once, the partial SSH contains only the last value.
+- The exported variant is the working variant of the network. A change recorded on another variant is an unsupported change.
+- The events that do not change the network state are skipped, for example the creation of a variant.
+
+The `UnsupportedChangeBehavior` tells what to do with a change that a partial SSH can not contain:
+- `FAIL`: throw an exception at the first unsupported change. Use it when a change must never be lost.
+- `IGNORE`: log a warning for each unsupported change, and leave it out of the export.
+
+### Supported changes
+
+A change is supported only if the SSH data of its identifiable contains the changed value.
+The following table gives the supported changes of each kind of identifiable:
+
+| Identifiable                          | Supported changes                                                                                       |
+|---------------------------------------|---------------------------------------------------------------------------------------------------------|
+| Switch, DC switch                     | Open or closed                                                                                          |
+| Load                                  | `p0`, `q0`                                                                                              |
+| Generator                             | Target active power, local target reactive power and voltage, regulation status, regulation target value |
+| Battery                               | Target active power, local target reactive power, regulation status                                     |
+| Shunt compensator                     | Section count, local target voltage, regulation status, regulation target value and target deadband     |
+| Static var compensator                | Local target reactive power and voltage, regulation status, regulation target value                     |
+| VSC converter station                 | Local target reactive power and voltage, regulation status, regulation target value and mode            |
+| LCC converter station                 | Power factor                                                                                            |
+| HVDC line                             | Active power setpoint, converters mode                                                                  |
+| VSC converter (detailed DC model)     | Target active power and DC voltage, control mode, local targets, regulation target value and mode       |
+| LCC converter (detailed DC model)     | Target active power and DC voltage, control mode                                                        |
+| Two or three windings transformer     | Tap position, regulation status, regulation value or target value, and target deadband of its tap changers |
+| Boundary line                         | `p0`, `q0`, target voltage and voltage regulation status of its generation                              |
+| Area                                  | Interchange target                                                                                      |
+| Bus of a bus-breaker voltage level    | Fictitious `p0` and `q0`                                                                                |
+| Connectable                           | Connection and disconnection of its terminals and DC terminals                                          |
+| Generator, battery                    | Creation of the `ActivePowerControl` and `ReferencePriorities` extensions, participation factor, reference priority |
+
+The other changes are unsupported, for example:
+- The creation or the removal of an identifiable.
+- A change of equipment data, for example the resistance of a line or the maximum active power of a generator.
+- A change of a property.
+- The removal of an extension, or a change of the droop of an `ActivePowerControl`.
+- A change of the target deadband or of the slope of a generator regulation: the SSH writes a deadband only for the discrete regulations.
+- A change of the regulation mode, except for a VSC converter: for the other equipment, the regulation mode is equipment data.
+- A change of the target active or reactive power of the generation of a boundary line.
+
+A change that IIDM does not notify is not in the recorded events, so the partial SSH does not contain it.
+
 ### Apply a partial SSH file
 
 The receiver applies a partial SSH file with the network update.
