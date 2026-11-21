@@ -98,7 +98,8 @@ public class UcteExporter implements Exporter {
                 .map(ServiceLoader.Provider::get)
                 .toList();
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, namingStrategies);
-        namingStrategy.initializeNetwork(network);
+        ReportNode networkCreationReportNode = UcteExporterReports.networkCreation(reportNode);
+        namingStrategy.initializeNetwork(network, UcteExporterReports.voltageLevels(networkCreationReportNode));
         boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
         List<String> postProcessorNames = Parameter.readStringList(getFormat(), parameters, POST_PROCESSORS_PARAMETER, defaultValueConfig);
@@ -111,7 +112,7 @@ public class UcteExporter implements Exporter {
 
         // convert IIDM Network to UcteNetwork
         UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation, reportNode);
-        UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(UcteExporterReports.networkCreation(reportNode)));
+        UcteNetwork ucteNetwork = createUcteNetwork(network, context.withReportNode(networkCreationReportNode));
 
         // apply post-processors modifications
         Map<UcteExportPostProcessor, UcteExporterContext> postProcessorContexts = new LinkedHashMap<>();
@@ -188,16 +189,18 @@ public class UcteExporter implements Exporter {
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
 
         UcteExporterContext busesAndSwitchesContext = context.withReportNode(UcteExporterReports.busesAndSwitches(reportNode));
-        network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
-            voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
-                if (isYNode(bus)) {
-                    LOGGER.warn("Ignoring YNode {}", bus.getId());
-                } else {
-                    convertBus(ucteNetwork, bus, busesAndSwitchesContext);
-                }
-            });
-            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
-        }));
+        network.getVoltageLevelStream()
+                .filter(context.getNamingStrategy().getExportedVoltageLevels()::isExported)
+                .forEach(voltageLevel -> {
+                    voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
+                        if (isYNode(bus)) {
+                            LOGGER.warn("Ignoring YNode {}", bus.getId());
+                        } else {
+                            convertBus(ucteNetwork, bus, busesAndSwitchesContext);
+                        }
+                    });
+                    voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, busesAndSwitchesContext));
+                });
 
         UcteExporterContext boundaryLinesContext = context.withReportNode(UcteExporterReports.boundaryLines(reportNode));
         network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, boundaryLinesContext));

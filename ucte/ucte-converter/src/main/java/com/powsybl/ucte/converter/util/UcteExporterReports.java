@@ -26,6 +26,12 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static ReportNode voltageLevels(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.voltageLevels")
+                .add();
+    }
+
     public static ReportNode busesAndSwitches(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.busesAndSwitches")
@@ -83,6 +89,14 @@ public final class UcteExporterReports {
                 .withMessageTemplate("core.ucte.export.nominalPowerMissing")
                 .withUntypedValue("transformerId", transformerId)
                 .withUntypedValue("nominalPowerNovalue", (int) nominalPowerNovalue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void orphanVoltageLevelNotExported(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.export.orphanVoltageLevelNotExported")
+                .withUntypedValue("voltageLevelId", voltageLevelId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

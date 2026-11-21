@@ -10,7 +10,11 @@ package com.powsybl.ucte.converter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
+import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 import org.junit.jupiter.api.BeforeEach;
@@ -246,5 +250,28 @@ class CounterNamingStrategyTest {
         Bus genBus = network.getBusBreakerView().getBus("NGEN");
         UcteNodeCode code = strategy.getUcteNodeCode(genBus);
         assertEquals('F', code.toString().charAt(0));
+    }
+
+    @Test
+    void orphanVoltageLevels() {
+        // Two countries: the isolated orphan can't be given the single country of the network
+        UcteExporterTestNetworks.addLinkedAndIsolatedOrphans(network);
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testExportReportNode")
+                .build();
+
+        strategy.initializeNetwork(network, reportNode);
+
+        // The orphan linked to NHV1 gets the country of VLHV1
+        UcteNodeCode code = strategy.getUcteNodeCode(network.getBusBreakerView().getBus("BUS_LINKED_1"));
+        assertEquals(UcteCountryCode.FR, code.getUcteCountryCode());
+        assertDoesNotThrow(() -> strategy.getUcteElementId("BR_NHV1_BUS_LINKED_1"));
+        // The isolated orphan without equipment is excluded
+        assertFalse(strategy.getExportedVoltageLevels().isExported(network.getVoltageLevel("VL_ISOLATED")));
+        assertTrue(strategy.getExportedVoltageLevels().isExported(network.getVoltageLevel("VLHV1")));
+        assertThrows(UcteException.class, () -> strategy.getUcteNodeCode("BUS_ISOLATED_1"));
+        assertEquals("Voltage level VL_ISOLATED is connected to no substation and holds no equipment: it is not exported",
+                reportNode.getChildren().get(0).getMessage());
     }
 }
