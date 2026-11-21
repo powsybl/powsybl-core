@@ -723,6 +723,24 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(converterUnitA, dcNodesMap.get(dnB));
     }
 
+    /**
+     * A minimal network with one an AC bus, two DC nodes and one converter. The SSH profile sets the droop control
+     * mode with a single droop coefficient which is mapped to a droop curve of one segment.
+     */
+    @Test
+    void testDcDroopImport() {
+        Network network = readCgmesResources(IMPORT_PARAMS, DIR, "droop_converter_EQ.xml", "droop_converter_SSH.xml");
+        VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("VSC_1");
+        assertEquals(AcDcConverter.ControlMode.DC_DROOP, vsc1.getControlMode());
+
+        DroopCurve droopCurve = vsc1.getDroopCurve();
+        assertEquals(1, droopCurve.getSegments().size());
+        DroopCurve.Segment segment = droopCurve.getSegments().stream().toList().getFirst();
+        assertEquals(-350, segment.getMinV());  // Nominal DC voltage
+        assertEquals(350, segment.getMaxV());
+        assertEquals(0.175, segment.getK());  // Value stored in the CGMES SSH profile converter from pu to real unit
+    }
+
     static Stream<Arguments> exportParameters() {
         return Stream.of(
                 Arguments.of("NODE_BREAKER", "16"),
