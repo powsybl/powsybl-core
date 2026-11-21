@@ -224,7 +224,7 @@ public abstract class AbstractHvdcLineTest {
     }
 
     @Test
-    void testConnectDisconnect() {
+    public void testConnectDisconnect() {
         HvdcLine hvdcLine = network.getHvdcLine("L");
 
         // Check that the HVDC line is connected
@@ -259,7 +259,7 @@ public abstract class AbstractHvdcLineTest {
     }
 
     @Test
-    void testConnectDisconnectWithFictitiousBreaker() {
+    public void testConnectDisconnectWithFictitiousBreaker() {
         Network hvdcNetworkWithFictitiousBreaker = HvdcTestNetwork.createLcc(NetworkFactory.findDefault(), true);
         HvdcLine hvdcLine = hvdcNetworkWithFictitiousBreaker.getHvdcLine("L");
         assertHvdcLineConnection(hvdcLine, true, true);
