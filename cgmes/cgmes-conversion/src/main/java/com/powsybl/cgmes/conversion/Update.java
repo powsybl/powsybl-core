@@ -192,16 +192,20 @@ public final class Update {
         }
     }
 
-    // There are some node-breaker models that,
-    // in addition to the information of opened switches also set
-    // the terminal.connected property to false,
-    // we have decided to create fictitious switches to precisely
-    // map this situation to IIDM.
-    // This behavior can be disabled through configuration.
-    static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, CgmesModel cgmes, Context context) {
+    /**
+     * Create a fictitious open switch at each disconnected terminal of the node-breaker voltage levels.
+     * There are some node-breaker models that, in addition to the information of opened switches, also set the
+     * terminal.connected property to false: we have decided to create fictitious switches to precisely map this
+     * situation to IIDM. The terminals of out-of-service equipment are disconnected terminals too.
+     * This behavior can be disabled through configuration.
+     *
+     * @param network the network to update
+     * @param context the update context
+     */
+    static void createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(Network network, Context context) {
         if (createFictitiousSwitches(context)) {
             context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), CgmesNames.TERMINAL));
-            cgmes.terminals().forEach(cgmesTerminal -> TerminalConversion.create(network, cgmesTerminal, context));
+            context.cgmesTerminalIds().forEach(cgmesTerminalId -> TerminalConversion.create(network, cgmesTerminalId, context));
             context.popReportNode();
         }
     }

@@ -211,6 +211,22 @@ As well as the following attributes:
 
 In CIM 100 these elements have been integrated in the core equipment profile and can be written even if the export is `BUS_BRANCH`.
 
+(cgmes-equipment-in-service-export)=
+## Equipment in service
+
+The attribute `Equipment.inService` only exists from CGMES 3 (CIM 100):
+- When exporting to CGMES 2.4.15 (CIM 16), it is not written.
+- When exporting to CGMES 3 (CIM 100), the SSH profile contains `Equipment.inService=true` for every exported AC
+  equipment. It is written on the SSH object of the equipment when it has one, and on a generic `Equipment` object
+  otherwise (lines, transformers, busbar sections, boundary lines, generating units without participation factor...).
+
+DC equipment is out of scope. `Equipment.inService=true` is written for AC/DC converters and HVDC lines, but not for the
+DC line segments, DC switches and DC grounds of the detailed DC model, nor for the DC grounds written for HVDC lines.
+
+PowSyBl has no out-of-service state: an equipment imported out of service is exported in service, with disconnected
+terminals or, for a switch, open. The `EquivalentInjection` of a boundary line is exported in service with a zero
+injection.
+
 ## Conversion from PowSyBl grid model to CGMES
 
 The following sections describe in detail how each supported PowSyBl network model object is converted to CGMES network components.
