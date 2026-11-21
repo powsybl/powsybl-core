@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -25,18 +26,35 @@ import java.util.function.UnaryOperator;
  */
 class PilotPointImpl implements PilotPoint {
 
-    private final List<String> busbarSectionsOrBusesIds;
+    private final List<String> busIds;
+
+    private final List<String> busbarSectionIds;
+
+    private final List<String> activeBusOrBusbarSectionId;
 
     private final TDoubleArrayList targetV;
 
     private ControlZoneImpl controlZone;
 
-    PilotPointImpl(List<String> busbarSectionsOrBusesIds, double targetV, VariantManagerHolder variantManagerHolder) {
-        this.busbarSectionsOrBusesIds = new ArrayList<>(Objects.requireNonNull(busbarSectionsOrBusesIds));
+    PilotPointImpl(List<String> busIds, List<String> busbarSectionIds, String activeBusOrBusbarSectionId, double targetV,
+                   VariantManagerHolder variantManagerHolder) {
+        this.busIds = new ArrayList<>(Objects.requireNonNull(busIds));
+        this.busbarSectionIds = new ArrayList<>(Objects.requireNonNull(busbarSectionIds));
         int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
+        this.activeBusOrBusbarSectionId = new ArrayList<>(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
+            this.activeBusOrBusbarSectionId.add(activeBusOrBusbarSectionId);
             this.targetV.add(targetV);
+        }
+    }
+
+    static void checkActiveBusOrBusbarSectionId(String activeBusOrBusbarSectionId, List<String> busIds, List<String> busbarSectionIds) {
+        if (activeBusOrBusbarSectionId != null
+                && !busIds.contains(activeBusOrBusbarSectionId)
+                && !busbarSectionIds.contains(activeBusOrBusbarSectionId)) {
+            throw new PowsyblException("Active bus or busbar section '" + activeBusOrBusbarSectionId
+                    + "' is not one of the pilot point buses or busbar sections");
         }
     }
 
@@ -48,20 +66,47 @@ class PilotPointImpl implements PilotPoint {
         return controlZone.getSecondaryVoltageControl().getVariantManagerHolder().getVariantIndex();
     }
 
-    /**
-     * Get pilot point busbar section ID or bus ID of the bus/breaker view.
-     */
     @Override
-    public List<String> getBusbarSectionsOrBusesIds() {
-        return Collections.unmodifiableList(busbarSectionsOrBusesIds);
+    public List<String> getBusIds() {
+        return Collections.unmodifiableList(busIds);
     }
 
-    protected void updateBusbarSectionsOrBusesIds(UnaryOperator<String> updater) {
-        busbarSectionsOrBusesIds.replaceAll(updater);
+    @Override
+    public List<String> getBusbarSectionIds() {
+        return Collections.unmodifiableList(busbarSectionIds);
     }
 
-    protected void removeBusbarSectionsOrBusesIdIf(Predicate<String> predicate) {
-        busbarSectionsOrBusesIds.removeIf(predicate);
+    @Override
+    public Optional<String> getActiveBusOrBusbarSectionId() {
+        return Optional.ofNullable(activeBusOrBusbarSectionId.get(getVariantIndex()));
+    }
+
+    @Override
+    public void setActiveBusOrBusbarSectionId(String activeBusOrBusbarSectionId) {
+        checkActiveBusOrBusbarSectionId(activeBusOrBusbarSectionId, busIds, busbarSectionIds);
+        int variantIndex = getVariantIndex();
+        String oldActiveBusOrBusbarSectionId = this.activeBusOrBusbarSectionId.get(variantIndex);
+        if (!Objects.equals(activeBusOrBusbarSectionId, oldActiveBusOrBusbarSectionId)) {
+            this.activeBusOrBusbarSectionId.set(variantIndex, activeBusOrBusbarSectionId);
+            SecondaryVoltageControlImpl secondaryVoltageControl = controlZone.getSecondaryVoltageControl();
+            NetworkImpl network = (NetworkImpl) secondaryVoltageControl.getExtendable();
+            String variantId = network.getVariantManager().getVariantId(variantIndex);
+            network.getListeners().notifyExtensionUpdate(secondaryVoltageControl, "pilotPointActiveBusOrBusbarSectionId", variantId,
+                    new ActiveBusOrBusbarSectionEvent(controlZone.getName(), oldActiveBusOrBusbarSectionId),
+                    new ActiveBusOrBusbarSectionEvent(controlZone.getName(), activeBusOrBusbarSectionId));
+        }
+    }
+
+    protected void updateIds(UnaryOperator<String> updater) {
+        busIds.replaceAll(updater);
+        busbarSectionIds.replaceAll(updater);
+        activeBusOrBusbarSectionId.replaceAll(id -> id != null ? updater.apply(id) : null);
+    }
+
+    protected void removeIdIf(Predicate<String> predicate) {
+        busIds.removeIf(predicate);
+        busbarSectionIds.removeIf(predicate);
+        activeBusOrBusbarSectionId.replaceAll(id -> id != null && predicate.test(id) ? null : id);
     }
 
     @Override
@@ -89,16 +134,19 @@ class PilotPointImpl implements PilotPoint {
     void extendVariantArraySize(int number, int sourceIndex) {
         targetV.ensureCapacity(targetV.size() + number);
         for (int i = 0; i < number; ++i) {
+            activeBusOrBusbarSectionId.add(activeBusOrBusbarSectionId.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
         }
     }
 
     void reduceVariantArraySize(int number) {
+        activeBusOrBusbarSectionId.subList(activeBusOrBusbarSectionId.size() - number, activeBusOrBusbarSectionId.size()).clear();
         targetV.remove(targetV.size() - number, number);
     }
 
     void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
+            activeBusOrBusbarSectionId.set(index, activeBusOrBusbarSectionId.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
         }
     }
