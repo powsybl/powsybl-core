@@ -78,6 +78,30 @@ public final class UcteExporterReports {
                 .add();
     }
 
+    public static void tapChangerModelDeviation(ReportNode reportNode, String tapChangerType, String equipmentId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.tapChangerModelDeviation")
+                .withUntypedValue("equipmentId", equipmentId)
+                .withUntypedValue("tapChangerType", tapChangerType)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void tapPositionRangeExtended(ReportNode reportNode,
+                                                String equipmentId,
+                                                String tapChangerType,
+                                                int lowSpan,
+                                                int highSpan) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.ucte.tapPositionRangeExtended")
+                .withUntypedValue("equipmentId", equipmentId)
+                .withUntypedValue("tapChangerType", tapChangerType)
+                .withUntypedValue("lowSpan", lowSpan)
+                .withUntypedValue("highSpan", highSpan)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void nominalPowerMissing(ReportNode reportNode, String transformerId, double nominalPowerNovalue) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.ucte.export.nominalPowerMissing")
