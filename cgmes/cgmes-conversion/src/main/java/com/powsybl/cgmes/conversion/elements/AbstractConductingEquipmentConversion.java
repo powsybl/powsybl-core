@@ -526,12 +526,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
         PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
         for (int k = 0; k < ts.length; k++) {
-            updateTerminal(cgmesTerminals.get(k), ts[k]);
+            updateTerminal(cgmesTerminals.get(k), ts[k], context);
         }
     }
 
-    private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal) {
-        boolean connectedInUpdate = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
+    private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal, Context context) {
+        Boolean connected = cgmesTerminal.asBoolean(CgmesNames.CONNECTED).orElse(null);
+        boolean defaultConnected = getDefaultValue(null, terminal.isConnected(), true, true, context);
+        boolean connectedInUpdate = connected != null ? connected : defaultConnected;
+
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
             if (!terminal.isConnected() && connectedInUpdate) {
                 terminal.connect();
