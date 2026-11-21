@@ -463,4 +463,42 @@ class StoredDoubleTimeSeriesTest {
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
     }
 
+    @Test
+    void testReturnsSameArrayInstance() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(
+            Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15));
+        StoredDoubleTimeSeries ts = TimeSeries.createDouble("ts", index, 1d, 2d);
+
+        double[] values1 = ts.toArray();
+        double[] values2 = ts.toArray();
+        assertSame(values1, values2);
+
+        double[] compactValues1 = ts.toCompactArray();
+        double[] compactValues2 = ts.toCompactArray();
+        assertSame(compactValues1, compactValues2);
+    }
+
+    @Test
+    void testArraysInvalidatedOnChunkModification() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(
+            Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15));
+        StoredDoubleTimeSeries ts = TimeSeries.createDouble("ts", index, 1d, 2d);
+        // Original values
+        double[] values1 = ts.toArray();
+        double[] compactValues1 = ts.toCompactArray();
+
+        // Add a chunk
+        ts.addChunk(new UncompressedDoubleDataChunk(0, new double[]{1d, 2d}));
+        double[] values2 = ts.toArray();
+        double[] compactValues2 = ts.toCompactArray();
+        assertNotSame(values1, values2);
+        assertNotSame(compactValues1, compactValues2);
+
+        // Remove a chunk
+        ts.getChunks().removeFirst();
+        double[] values3 = ts.toArray();
+        double[] compactValues3 = ts.toCompactArray();
+        assertNotSame(values2, values3);
+        assertNotSame(compactValues2, compactValues3);
+    }
 }
