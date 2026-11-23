@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Networks;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.*;
@@ -28,42 +27,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private final List<NodeTerminal> terminals;
     private List<TerminalExt> connectableTerminals = null;
     private final int[] nodes;
+    private final NodeBreakerTopologyModel topologyModel;
 
-    private NodeTerminal terminalRef;
-
-    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals,
+                      NodeBreakerTopologyModel topologyModel) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
         this.nodes = Objects.requireNonNull(nodes).toArray();
-        this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
-    }
-
-    /**
-     * Find a terminal to retrieve voltage, angle or connected and synchronous component numbers.
-     * If the terminals list contains at least one element, we use the first terminal with a defined voltage or angle value as reference.
-     * Otherwise, this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
-     * and therefore can be used as reference.
-     *
-     * @param voltageLevel The {@literal VoltageLevel} instance to traverse
-     * @param nodes The nodes which belong to this bus
-     * @param terminals The terminals belong to this bus
-     * @return The first terminal with defined voltage or angle if exists, otherwise the first
-     * terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
-     */
-    private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
-        if (!terminals.isEmpty()) {
-            for (NodeTerminal terminal : terminals) {
-                if (hasDefinedVoltageOrAngle(terminal)) {
-                    return terminal;
-                }
-            }
-            return terminals.getFirst();
-        }
-        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
-    }
-
-    private static boolean hasDefinedVoltageOrAngle(NodeTerminal t) {
-        return !Double.isNaN(t.getV()) || !Double.isNaN(t.getAngle());
+        this.topologyModel = Objects.requireNonNull(topologyModel);
     }
 
     private void checkValidity() {
@@ -81,7 +52,6 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         valid = false;
         voltageLevel = null;
         terminals.clear();
-        terminalRef = null;
         connectableTerminals = null;
     }
 
@@ -121,8 +91,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public BusExt setV(double v) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
-            terminal.setV(v);
+        for (int node : nodes) {
+            topologyModel.setV(node, v);
         }
         return this;
     }
@@ -130,14 +100,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getV() {
         checkValidity();
-        return terminalRef == null ? Double.NaN : terminalRef.getV();
+        return topologyModel.getV(nodes[0]);
     }
 
     @Override
     public BusExt setAngle(double angle) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
-            terminal.setAngle(angle);
+        for (int node : nodes) {
+            topologyModel.setAngle(node, angle);
         }
         return this;
     }
@@ -145,7 +115,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getAngle() {
         checkValidity();
-        return terminalRef == null ? Double.NaN : terminalRef.getAngle();
+        return topologyModel.getAngle(nodes[0]);
     }
 
     @Override
@@ -210,8 +180,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
-            terminal.setConnectedComponentNumber(connectedComponentNumber);
+        for (int node : nodes) {
+            topologyModel.setConnectedComponentNumber(node, connectedComponentNumber);
         }
     }
 
@@ -220,14 +190,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
-        return terminalRef == null ? null : ccm.getComponent(terminalRef.getConnectedComponentNumber());
+        return ccm.getComponent(topologyModel.getConnectedComponentNumber(nodes[0]));
     }
 
     @Override
     public void setSynchronousComponentNumber(int componentNumber) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
-            terminal.setSynchronousComponentNumber(componentNumber);
+        for (int node : nodes) {
+            topologyModel.setSynchronousComponentNumber(node, componentNumber);
         }
     }
 
@@ -236,7 +206,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
-        return terminalRef == null ? null : scm.getComponent(terminalRef.getSynchronousComponentNumber());
+        return scm.getComponent(topologyModel.getSynchronousComponentNumber(nodes[0]));
     }
 
     @Override
@@ -394,5 +364,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     public CalculatedBus setId(String id) {
         // Calculated bus id should not be updated
         throw new PowsyblException("Updating the id of a calculated bus is not supported.");
+    }
+
+    public int[] getNodes() {
+        return nodes;
     }
 }

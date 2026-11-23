@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.*;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
@@ -80,9 +81,59 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         final CalculatedBusBreakerTopology calculatedBusBreakerTopology
                 = new CalculatedBusBreakerTopology();
 
+        // electrical values indexed by node
+        final TDoubleArrayList v;
+
+        final TDoubleArrayList angle;
+
+        final TIntArrayList connectedComponentNumber;
+
+        final TIntArrayList synchronousComponentNumber;
+
+        VariantImpl() {
+            v = new TDoubleArrayList();
+            angle = new TDoubleArrayList();
+            connectedComponentNumber = new TIntArrayList();
+            synchronousComponentNumber = new TIntArrayList();
+        }
+
+        private VariantImpl(VariantImpl source) {
+            v = new TDoubleArrayList(source.v);
+            angle = new TDoubleArrayList(source.angle);
+            connectedComponentNumber = new TIntArrayList(source.connectedComponentNumber);
+            synchronousComponentNumber = new TIntArrayList(source.synchronousComponentNumber);
+        }
+
+        private void ensureNodeCapacity(int node) {
+            int size = node + 1;
+            if (v.size() < size) {
+                // fill() grows the list when toIndex is beyond its size
+                v.fill(v.size(), size, Double.NaN);
+                angle.fill(angle.size(), size, Double.NaN);
+                connectedComponentNumber.fill(connectedComponentNumber.size(), size, 0);
+                synchronousComponentNumber.fill(synchronousComponentNumber.size(), size, 0);
+            }
+        }
+
+        private void resetNode(int node) {
+            if (node < v.size()) {
+                v.setQuick(node, Double.NaN);
+                angle.setQuick(node, Double.NaN);
+                connectedComponentNumber.setQuick(node, 0);
+                synchronousComponentNumber.setQuick(node, 0);
+            }
+        }
+
+        private void resetAllNodes() {
+            v.clear();
+            angle.clear();
+            connectedComponentNumber.clear();
+            synchronousComponentNumber.clear();
+        }
+
         @Override
         public VariantImpl copy() {
-            return new VariantImpl();
+            return new VariantImpl(this);
         }
 
     }
@@ -273,7 +324,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                     terminals.add(terminal);
                 }
             }
-            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals);
+            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes,
+                terminals, NodeBreakerTopologyModel.this);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
                 node2bus[nodes.getQuick(i)] = bus;
@@ -517,6 +569,17 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             private static final String INTERNAL_CONNECTION = "internalConnection";
 
             @Override
+            public void vertexRemoved(int v, NodeTerminal obj) {
+                // a removed node number may be reused later: it must not inherit old values
+                getNetwork().getVariantManager().forEachVariant(() -> variants.get().resetNode(v));
+            }
+
+            @Override
+            public void allVerticesRemoved() {
+                getNetwork().getVariantManager().forEachVariant(() -> variants.get().resetAllNodes());
+            }
+
+            @Override
             public void edgeAdded(int e, SwitchImpl aSwitch) {
                 NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
@@ -618,6 +681,58 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     CalculatedBusTopology getCalculatedBusTopology() {
         return variants.get().calculatedBusTopology;
+    }
+
+    double getV(int node) {
+        TDoubleArrayList v = variants.get().v;
+        return node < v.size() ? v.getQuick(node) : Double.NaN;
+    }
+
+    double getAngle(int node) {
+        TDoubleArrayList angle = variants.get().angle;
+        return node < angle.size() ? angle.getQuick(node) : Double.NaN;
+    }
+
+    int getConnectedComponentNumber(int node) {
+        TIntArrayList ccn = variants.get().connectedComponentNumber;
+        return node < ccn.size() ? ccn.getQuick(node) : 0;
+    }
+
+    int getSynchronousComponentNumber(int node) {
+        TIntArrayList scn = variants.get().synchronousComponentNumber;
+        return node < scn.size() ? scn.getQuick(node) : 0;
+    }
+
+    double setV(int node, double v) {
+        VariantImpl variant = variants.get();
+        // TODO: somehow set the values on all connected nodes?
+        variant.ensureNodeCapacity(node);
+        TDoubleArrayList values = variant.v;
+        return values.set(node, v);
+    }
+
+    double setAngle(int node, double angle) {
+        VariantImpl variant = variants.get();
+        // TODO: somehow set the values on all connected nodes?
+        variant.ensureNodeCapacity(node);
+        TDoubleArrayList values = variant.angle;
+        return values.set(node, angle);
+    }
+
+    int setConnectedComponentNumber(int node, int connectedComponentNumber) {
+        VariantImpl variant = variants.get();
+        // TODO: somehow set the values on all connected nodes?
+        variant.ensureNodeCapacity(node);
+        TIntArrayList values = variant.connectedComponentNumber;
+        return values.set(node, connectedComponentNumber);
+    }
+
+    int setSynchronousComponentNumber(int node, int synchronousComponentNumber) {
+        VariantImpl variant = variants.get();
+        // TODO: somehow set the values on all connected nodes?
+        variant.ensureNodeCapacity(node);
+        TIntArrayList values = variant.synchronousComponentNumber;
+        return values.set(node, synchronousComponentNumber);
     }
 
     void removeSwitchFromTopology(String switchId, boolean notify) {
@@ -1428,7 +1543,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        variants.push(number, VariantImpl::new);
+        variants.push(number, () -> variants.copy(sourceIndex));
         nodeBreakerView.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
@@ -1446,7 +1561,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
-        variants.allocate(indexes, VariantImpl::new);
+        variants.allocate(indexes, () -> variants.copy(sourceIndex));
         nodeBreakerView.allocateVariantArrayElement(indexes, sourceIndex);
     }
 

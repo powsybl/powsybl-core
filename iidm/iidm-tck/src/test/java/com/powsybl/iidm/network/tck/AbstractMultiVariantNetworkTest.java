@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest.createMinimalNetworkWithRetainedSwitch;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -141,6 +142,30 @@ public abstract class AbstractMultiVariantNetworkTest {
         });
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
+    }
+
+    @Test
+    void testVariantCloneKeepsBusBreakerViewValues() {
+        Network network = createMinimalNetworkWithRetainedSwitch();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        Bus bus1 = vl.getBusBreakerView().getBus("VL_1");
+        bus1.setV(400.0).setAngle(1.0);
+
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        network.getVariantManager().cloneVariant(initialVariantId, "other");
+        network.getVariantManager().setWorkingVariant("other");
+        Bus otherBus0 = vl.getBusBreakerView().getBus("VL_0");
+        Bus otherBus1 = vl.getBusBreakerView().getBus("VL_1");
+        assertEquals(400.0, otherBus0.getV(), 0.0);
+        assertEquals(400.0, otherBus1.getV(), 0.0);
+        assertEquals(1.0, otherBus1.getAngle(), 0.0);
+
+        otherBus1.setV(380.0);
+        assertEquals(380.0, otherBus0.getV(), 0.0);
+
+        network.getVariantManager().setWorkingVariant(initialVariantId);
+        assertEquals(400.0, vl.getBusBreakerView().getBus("VL_0").getV(), 0.0);
+        assertEquals(400.0, vl.getBusBreakerView().getBus("VL_1").getV(), 0.0);
     }
 
 }
